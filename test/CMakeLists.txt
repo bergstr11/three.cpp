@@ -21,4 +21,4 @@ set(SOURCE_FILES
         3dmodel.cpp)
 
 add_executable(three_test ${SOURCE_FILES} ${UI_RESOURCES})
-target_link_libraries(three_test PUBLIC Qt5::Core Qt5::Gui Qt5::Quick assimp)
+target_link_libraries(three_test PUBLIC three_cpp Qt5::Core Qt5::Gui Qt5::Quick assimp)

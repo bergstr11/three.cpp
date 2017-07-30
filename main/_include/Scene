@@ -1,0 +1,18 @@
+//
+// Created by byter on 29.07.17.
+//
+
+#ifndef THREECPP_SCENE
+#define THREECPP_SCENE
+
+
+namespace three {
+
+class Scene
+{
+
+};
+
+}
+
+#endif //THREECPP_SCENE

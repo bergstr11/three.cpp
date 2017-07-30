@@ -1,0 +1,24 @@
+//
+// Created by byter on 29.07.17.
+//
+
+#ifndef THREECPP_CAMERA_H
+#define THREECPP_CAMERA_H
+
+#include "ThreeObject"
+
+#include <QMatrix4x4>
+
+namespace three {
+
+class Camera : public ThreeObject
+{
+  QMatrix4x4 matrixWorldInverse;
+  QMatrix4x4 projectionMatrix;
+
+};
+
+}
+
+
+#endif //THREECPP_CAMERA_H

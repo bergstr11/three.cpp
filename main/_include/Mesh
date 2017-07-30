@@ -1,0 +1,18 @@
+//
+// Created by byter on 29.07.17.
+//
+
+#ifndef THREECPP_MESH_H
+#define THREECPP_MESH_H
+
+namespace three {
+
+class Mesh
+{
+
+};
+
+}
+
+
+#endif //THREECPP_MESH_H
