@@ -12,7 +12,7 @@
 #include "ThreeDItem.h"
 #include "ThreeDInteractor.h"
 
-#include <WebGLRenderer>
+#include <OpenGLRenderer>
 #include <camera/PerspectiveCamera>
 #include <Scene>
 #include <Mesh>
@@ -37,7 +37,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 
   three::Scene m_scene;
   three::PerspectiveCamera m_camera;
-  three::WebGLRenderer m_renderer;
+  three::OpenGLRenderer m_renderer;
 
   const ThreeDItem *const m_item;
   QOpenGLFramebufferObject *m_framebufferObject = nullptr;
@@ -71,7 +71,7 @@ public:
     ThreeDItem *item = static_cast<ThreeDItem *>(_item);
     const Model::Ptr model = item->pendingModel();
     if (model) {
-      three::geometry::Box geometry( 1, 1, 1 );
+      three::geometry::Box geometry {1, 1, 1};
       three::MeshBasicMaterial material(0x00ff00);
       three::Mesh cube( geometry, material );
       m_scene.add( cube );
