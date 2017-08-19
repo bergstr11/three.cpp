@@ -325,7 +325,7 @@ public:
   }
 };
 
-Vector4 operator - (const Vector4 &a, const Vector4 &b)
+inline Vector4 operator - (const Vector4 &a, const Vector4 &b)
 {
   float x = a.x() - b.x();
   float y = a.y() - b.y();

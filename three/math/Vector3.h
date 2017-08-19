@@ -383,43 +383,43 @@ public:
   }
 };
 
-Vector3 operator + (const Vector3 &left, const Vector3 &right)
+inline Vector3 operator + (const Vector3 &left, const Vector3 &right)
 {
   Vector3 result {left};
   result += right;
   return result;
 }
 
-Vector3 operator -(const Vector3 &left, const Vector3 &right)
+inline Vector3 operator -(const Vector3 &left, const Vector3 &right)
 {
   Vector3 result {left};
   result -= right;
   return result;
 }
 
-Vector3 operator *(const Vector3 &left, const Vector3 &right)
+inline Vector3 operator *(const Vector3 &left, const Vector3 &right)
 {
   Vector3 result {left};
   result *= right;
   return result;
 }
 
-Vector3 operator *(const Vector3 &vector, float scalar)
+inline Vector3 operator *(const Vector3 &vector, float scalar)
 {
   return Vector3(vector.x()) *= scalar, vector.y() * scalar, vector.z() * scalar;
 }
 
-Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix)
+inline Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix)
 {
   return Vector3(vector).apply(matrix);
 }
 
-Vector3 operator / (const Vector3 &vector, float scalar)
+inline Vector3 operator / (const Vector3 &vector, float scalar)
 {
   return vector * ( 1 / scalar );
 }
 
-Vector3 cross(const Vector3 &a, const Vector3 &b)
+inline Vector3 cross(const Vector3 &a, const Vector3 &b)
 {
   float ax = a.x(), ay = a.y(), az = a.z();
   float bx = b.x(), by = b.y(), bz = b.z();

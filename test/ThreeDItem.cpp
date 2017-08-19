@@ -12,12 +12,12 @@
 #include "ThreeDItem.h"
 #include "ThreeDInteractor.h"
 
-#include <OpenGLRenderer>
-#include <camera/PerspectiveCamera>
-#include <Scene>
-#include <Mesh>
-#include <material/MeshBasicMaterial>
-#include <geometry/Box>
+#include <OpenGLRenderer.h>
+#include <camera/PerspectiveCamera.h>
+#include <Scene.h>
+#include <Mesh.h>
+#include <material/MeshBasicMaterial.h>
+#include <geometry/Box.h>
 
 #include "modelloader.h"
 

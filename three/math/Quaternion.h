@@ -266,7 +266,7 @@ public:
 
 };
 
-Quaternion operator *(const Quaternion &q1, const Quaternion &q2) {
+inline Quaternion operator *(const Quaternion &q1, const Quaternion &q2) {
   Quaternion result(q1);
   result *= q2;
   return result;

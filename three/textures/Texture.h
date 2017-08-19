@@ -8,7 +8,7 @@
 #include <QImage>
 #include <math/Vector2.h>
 #include <vector>
-#include <Constants>
+#include <Constants.h>
 
 namespace three {
 

@@ -59,7 +59,7 @@ enum class NamedColor : std::uint32_t
   yellowgreen = 0x9ACD32
 };
 
-float hue2rgb(float p, float q, float t)
+inline float hue2rgb(float p, float q, float t)
 {
   if ( t < 0 ) t += 1;
   if ( t > 1 ) t -= 1;

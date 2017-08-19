@@ -6,7 +6,7 @@
 #define THREEQT_WEBGLRENDERER
 
 #include <QOpenGLContext>
-#include <Constants>
+#include <Constants.h>
 
 namespace three {
 

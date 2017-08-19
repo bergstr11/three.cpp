@@ -11,6 +11,5 @@ file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h _include/*)
 
 add_library(three_qt SHARED ${SOURCE_FILES} ${HEADER_FILES})
-target_include_directories(three_qt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/_include)
-target_include_directories(three_qt PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(three_qt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(three_qt PUBLIC Qt5::Core Qt5::Gui glm)
