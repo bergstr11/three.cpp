@@ -13,40 +13,53 @@
 #include "ThreeDInteractor.h"
 
 #include <OpenGLRenderer.h>
+#include <objects/Mesh.h>
+#include <scene/Scene.h>
 #include <camera/PerspectiveCamera.h>
-#include <Scene.h>
-#include <Mesh.h>
 #include <material/MeshBasicMaterial.h>
 #include <geometry/Box.h>
-
-#include "modelloader.h"
+#include <geometry/Plane.h>
+#include <helper/AxisHelper.h>
+#include "bak/modelloader.h"
 
 namespace lo {
 namespace ui {
 namespace quick {
 
 using namespace std;
-using namespace lo::threed;
+using namespace three;
+using namespace three::geometry;
+using namespace three::helper;
 
 class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLFunctions_3_0
 {
-  Light m_Light;
-  Material m_defaultMaterial;
-
   QColor m_background;
 
   three::Scene m_scene;
-  three::PerspectiveCamera m_camera;
-  three::OpenGLRenderer m_renderer;
+  three::PerspectiveCamera _camera;
+  three::OpenGLRenderer _renderer;
 
-  const ThreeDItem *const m_item;
-  QOpenGLFramebufferObject *m_framebufferObject = nullptr;
+  const ThreeDItem *const _item;
+  QOpenGLFramebufferObject *_framebufferObject = nullptr;
 
 public:
   FramebufferObjectRenderer(const ThreeDItem *item)
-     : m_item(item), m_camera(75, item->width() / item->height(), 0.1, 1000 ),
-       m_renderer(item->width(), item->height())
+     : _item(item), _camera(75, item->width() / item->height(), 0.1, 1000 ),
+       _renderer(item->width(), item->height())
   {
+    _renderer.setClearColorHex(0xEEEEEE);
+    _renderer.setSize(item->width(), item->height());
+    AxisHelper axes(20);
+    scene.add(axes);
+    Plane plane(60, 20, 1, 1);
+    MeshBasicMaterial planeMaterial(three::Color(0xcccccc));
+    Mesh plane(planeGeometry, planeMaterial);
+    plane.rotation().x = -0.5 * M_PI;
+    plane.position.x = 15;
+    plane.position.y = 0;
+    plane.position.z = 0;
+
+    scene.add(plane);
   }
 
   ~FramebufferObjectRenderer() {
@@ -69,23 +82,33 @@ public:
   void synchronize(QQuickFramebufferObject *_item) override
   {
     ThreeDItem *item = static_cast<ThreeDItem *>(_item);
-    const Model::Ptr model = item->pendingModel();
-    if (model) {
-      three::geometry::Box geometry {1, 1, 1};
-      three::MeshBasicMaterial material(0x00ff00);
-      three::Mesh cube( geometry, material );
-      m_scene.add( cube );
 
-      m_camera.position.z = 5;
-    }
+    Box cubeGeometry(4, 4, 4);
+    MeshBasicMaterial cubeMaterial(Color(0xff0000), true);
+    Mesh cube(cubeGeometry, cubeMaterial);
+    cube.position.x = -4;
+    cube.position.y = 3;
+    cube.position.z = 0;
+    scene.add(cube);
 
-    m_background = item->m_background;
+    Sphere sphereGeometry(4, 20, 20);
+    MeshBasicMaterial sphereMaterial(Color(0x7777ff), true);
+    Mesh sphere(sphereGeometry, sphereMaterial);
+    sphere.position.x = 20;
+    sphere.position.y = 4;
+    sphere.position.z = 2;
+    scene.add(sphere);
+
+    camera.position.x = -30;
+    camera.position.y = 40;
+    camera.position.z = 30;
+    camera.lookAt(scene.position);
   }
 
   void render() override
   {
-    m_renderer.render(m_scene, m_camera);
-    m_item->window()->resetOpenGLState();
+    _renderer.render(_scene, _camera);
+    _item->window()->resetOpenGLState();
   }
 
   QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override
@@ -93,9 +116,9 @@ public:
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setSamples(12);
-    m_framebufferObject = new QOpenGLFramebufferObject(size, format);
+    _framebufferObject = new QOpenGLFramebufferObject(size, format);
 
-    return m_framebufferObject;
+    return _framebufferObject;
   }
 };
 
@@ -106,14 +129,14 @@ ThreeDItem::ThreeDItem(QQuickItem *parent)
   setFlag(QQuickItem::ItemIsFocusScope);
   setFlag(QQuickItem::ItemAcceptsInputMethod);
 
-  m_loader = new ModelLoader();
-  connect(m_loader, &ModelLoader::modelLoaded, this, &ThreeDItem::modelLoaded, Qt::QueuedConnection);
+  //m_loader = new ModelLoader();
+  //connect(m_loader, &ModelLoader::modelLoaded, this, &ThreeDItem::modelLoaded, Qt::QueuedConnection);
 }
 
 ThreeDItem::~ThreeDItem()
 {
   delete m_interactor;
-  delete m_loader;
+  //delete m_loader;
 }
 
 QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
@@ -125,14 +148,14 @@ void ThreeDItem::setData(QString data) {
   if (data != m_data) {
     m_data = data;
 
-    m_loader->asynchLoad(QFileInfo(m_data));
+    //m_loader->asynchLoad(QFileInfo(m_data));
   }
 }
 
 void ThreeDItem::modelLoaded()
 {
-  m_model = m_loader->getLoaded();
-  m_pendingModel = true;
+  //m_model = m_loader->getLoaded();
+  //m_pendingModel = true;
   update();
   emit dataChanged();
 }
@@ -145,12 +168,12 @@ void ThreeDItem::setBackground(QColor background) {
   }
 }
 
-const shared_ptr<Model> ThreeDItem::pendingModel()
+const shared_ptr<Scene> ThreeDItem::pendingModel()
 {
-  if (m_pendingModel) {
-    m_pendingModel = false;
-    return m_model;
-  }
+  //if (m_pendingModel) {
+  //  m_pendingModel = false;
+  //  return m_model;
+  //}
   return nullptr;
 }
 

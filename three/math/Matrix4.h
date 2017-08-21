@@ -364,7 +364,7 @@ public:
 
   static Matrix4 axisRotation(const Vector3 &axis, float angle);
 
-  static Matrix4 scale(float x, float y, float z)
+  static Matrix4 scaling(float x, float y, float z)
   {
     return Matrix4(
        x, 0, 0, 0,

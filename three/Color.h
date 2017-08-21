@@ -8,10 +8,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include "Math.h"
 
 namespace three {
-namespace math {
 
 struct ColorKey
 {
@@ -89,6 +87,11 @@ public:
 
   Color(float scalar) : _r(scalar), _g(scalar), _b(scalar) {}
 
+  Color() :
+     _r(std::numeric_limits<float>::infinity()),
+     _g(std::numeric_limits<float>::infinity()),
+     _b(std::numeric_limits<float>::infinity()) {}
+
   static Color fromName(NamedColor name)
   {
     auto hex = (std::uint32_t)name;
@@ -98,6 +101,10 @@ public:
     float b = ( hex & 255 ) / 255;
 
     return Color(r, g, b);
+  }
+
+  bool isNull() const {
+    return _r == _g && _g == _b && _b == std::numeric_limits<float>::infinity();
   }
 
 #if 0
@@ -349,7 +356,6 @@ public:
 #endif
 };
 
-}
 }
 
 

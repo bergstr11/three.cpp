@@ -17,8 +17,9 @@ set(SOURCE_FILES
         main.cpp
         ThreeDItem.cpp
         ThreeDInteractor.cpp
-        modelloader.cpp
-        3dmodel.cpp)
+        bak/modelloader.cpp)
 
-add_executable(three_test ${SOURCE_FILES} ${UI_RESOURCES})
+set(HEADER_FILES ThreeDItem.h)
+
+add_executable(three_test ${SOURCE_FILES} ${HEADER_FILES} ${UI_RESOURCES})
 target_link_libraries(three_test PUBLIC three_qt Qt5::Core Qt5::Gui Qt5::Quick assimp)

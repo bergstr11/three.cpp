@@ -2,32 +2,15 @@
 // Created by byter on 08.08.17.
 //
 
-#include "Geometry.h"
+#include "objects/Mesh.h"
 
 namespace three {
 
-Geometry &Geometry::applyMatrix(const math::Matrix4 &matrix)
+Geometry &Geometry::mergeMesh(const MeshPtr & mesh )
 {
-  for(math::Vector3 &vertex : _vertices) {
-    vertex.apply(matrix);
-  }
+  if(mesh->matrixAutoUpdate()) mesh->updateMatrix();
 
-  math::Matrix3 normalMatrix = matrix.normalMatrix();
-  for (Face3 &face : _faces) {
-    face.normal.apply(normalMatrix).normalize();
-
-    for (math::Vector3 &normal : face.vertexNormals) {
-      normal.apply(normalMatrix).normalize();
-    }
-  }
-
-  computeBoundingBox();
-  computeBoundingSphere();
-
-  _verticesNeedUpdate = true;
-  _normalsNeedUpdate = true;
-
-  return *this;
+  return merge( mesh->geometry(), mesh->matrix() );
 }
 
 }

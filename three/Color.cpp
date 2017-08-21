@@ -5,8 +5,5 @@
 #include "Color.h"
 
 namespace three {
-namespace math {
 
-
-}
 }

@@ -40,6 +40,7 @@ class Vector3
   };
 
 public:
+  Vector3() : _x(0.0f), _y(0.0f), _z(0.0f) {}
   Vector3(float x, float y, float z) : _x(x), _y(y), _z(z) {}
   Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
   Vector3(const Vector3 &v) : _x(v._x), _y(v._y), _z(v._z) {}

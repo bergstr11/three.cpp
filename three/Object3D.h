@@ -10,10 +10,10 @@
 #include <functional>
 
 #include "geometry/Geometry.h"
-#include "Layers.h"
 #include "math/Euler.h"
 #include "math/Quaternion.h"
 #include "math/Matrix4.h"
+#include "Layers.h"
 
 namespace three {
 
@@ -36,8 +36,8 @@ protected:
   math::Quaternion _quaternion;
   math::Vector3 _scale {1, 1, 1};
 
-  math::Matrix4 _matrix;
-  math::Matrix4 _matrixWorld;
+  math::Matrix4 _matrix = math::Matrix4::identity();
+  math::Matrix4 _matrixWorld = math::Matrix4::identity();
 
   bool _matrixAutoUpdate = true;
   bool _matrixWorldNeedsUpdate = false;
@@ -51,12 +51,16 @@ protected:
   bool _frustumCulled = true;
   bool _renderOrder = 0;
 
-  Geometry geometry;
+  Geometry _geometry;
 
 protected:
   Object3D();
 
 public:
+  const Geometry &geometry() const {return _geometry;}
+  const math::Matrix4 &matrix() const {return _matrix;}
+  const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
+
   void applyMatrix(const math::Matrix4 &matrix);
 
   void applyQuaternion(math::Quaternion q)

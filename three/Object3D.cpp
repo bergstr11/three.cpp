@@ -10,9 +10,9 @@ namespace three {
 
 using namespace three::math;
 
-/*Object3D::Object3D() : _uuid()
+Object3D::Object3D()
 {
-}*/
+}
 
 void Object3D::applyMatrix(const Matrix4 &matrix)
 {

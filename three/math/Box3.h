@@ -54,11 +54,21 @@ public:
     return Box3(Vector3( minX, minY, minZ ), Vector3( maxX, maxY, maxZ ));
   }
 
-  static Box3 fromPoints(const Vector3* points, unsigned length)
+  Box3 &set(const std::vector<Vector3> points)
+  {
+    for(const Vector3 &point : points)
+    {
+      expandByPoint(point);
+    }
+    return *this;
+  }
+
+  static Box3 fromPoints(const Vector3 *points, size_t length)
   {
     Box3 box;
 
-    for(unsigned i=0; i<length; i++) {
+    for(size_t i=0; i<length; i++)
+    {
       box.expandByPoint(points[i]);
     }
 

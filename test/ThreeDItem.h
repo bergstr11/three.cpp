@@ -8,6 +8,7 @@
 #include <QQuickFramebufferObject>
 #include <QColor>
 #include <memory>
+#include <scene/Scene.h>
 
 class QOpenGLShaderProgram;
 
@@ -34,8 +35,8 @@ Q_OBJECT
   ThreeDInteractor * const m_interactor;
   QString m_data;
   QColor m_background;
-  bool m_pendingModel = false;
-  lo::threed::ModelLoader *m_loader;
+  //bool m_pendingModel = false;
+  //lo::threed::ModelLoader *m_loader;
 
 public:
   ThreeDItem(QQuickItem *parent = 0);
@@ -52,7 +53,7 @@ public:
 
   void setBackground(QColor background);
 
-  const std::shared_ptr<lo::threed::Model> pendingModel();
+  const std::shared_ptr<three::Scene> pendingModel();
 
 private slots:
 

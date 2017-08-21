@@ -14,6 +14,17 @@ namespace math {
 class Box3;
 class Plane;
 
+static float computeRadius(const std::vector<Vector3> &points, const Vector3 &center)
+{
+  float maxRadiusSq = 0;
+
+  for (const Vector3 &point : points) {
+    maxRadiusSq = std::max(maxRadiusSq, center.distanceToSquared(point));
+  }
+
+  return std::sqrt(maxRadiusSq);
+}
+
 class Sphere
 {
   Vector3 _center;
@@ -24,23 +35,22 @@ public:
 
   Sphere(const Sphere &sphere) : _center(sphere._center), _radius(sphere._radius) {}
 
-  static Sphere fromPoints(const std::vector<Vector3> &points, const Vector3 &center)
+  Sphere(const std::vector<Vector3> &points, const Vector3 &center)
+     : _center(center), _radius(computeRadius(points, center))
+  {}
+
+  Sphere() {}
+
+  Sphere &set(const std::vector<Vector3> &points)
   {
-    float maxRadiusSq = 0;
-
-    for (const Vector3 &point : points) {
-      maxRadiusSq = std::max(maxRadiusSq, center.distanceToSquared(point));
-    }
-
-    float radius = std::sqrt(maxRadiusSq);
-
-    return Sphere(center, radius);
+    _radius = computeRadius(points, _center);
   }
 
   const Vector3 &center() const {return _center;}
+
   float radius() const {return _radius;}
 
-  bool isEmpty()
+  bool isEmpty() const
   {
     return _radius <= 0;
   }
