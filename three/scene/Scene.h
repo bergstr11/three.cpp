@@ -5,7 +5,7 @@
 #ifndef THREEQT_SCENE
 #define THREEQT_SCENE
 
-#include <Object3D.h>
+#include <core/Object3D.h>
 #include <Color.h>
 #include "Fog.h"
 

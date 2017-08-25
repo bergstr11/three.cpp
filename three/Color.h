@@ -67,30 +67,29 @@ inline float hue2rgb(float p, float q, float t)
   return p;
 }
 
-class Color
+struct Color
 {
   union
   {
     struct
     {
-      float _r, _g, _b;
+      float r, g, b;
     };
-    float _rgb[3];
+    float elements[3];
   };
 
-public:
-  Color(float r, float g, float b) : _r(r), _g(g), _b(b)
+  Color(float r, float g, float b) : r(r), g(g), b(b)
   {}
 
-  Color(const Color &color) : _r(color._r), _g(color._g), _b(color._b)
+  Color(const Color &color) : r(color.r), g(color.g), b(color.b)
   {}
 
-  Color(float scalar) : _r(scalar), _g(scalar), _b(scalar) {}
+  Color(float scalar) : r(scalar), g(scalar), b(scalar) {}
 
   Color() :
-     _r(std::numeric_limits<float>::infinity()),
-     _g(std::numeric_limits<float>::infinity()),
-     _b(std::numeric_limits<float>::infinity()) {}
+     r(std::numeric_limits<float>::infinity()),
+     g(std::numeric_limits<float>::infinity()),
+     b(std::numeric_limits<float>::infinity()) {}
 
   static Color fromName(NamedColor name)
   {
@@ -104,7 +103,7 @@ public:
   }
 
   bool isNull() const {
-    return _r == _g && _g == _b && _b == std::numeric_limits<float>::infinity();
+    return r == g && g == b && b == std::numeric_limits<float>::infinity();
   }
 
 #if 0

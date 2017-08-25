@@ -6,7 +6,7 @@
 
 namespace three {
 
-Geometry &Geometry::mergeMesh(const MeshPtr & mesh )
+StaticGeometry &StaticGeometry::mergeMesh(const MeshPtr & mesh )
 {
   if(mesh->matrixAutoUpdate()) mesh->updateMatrix();
 

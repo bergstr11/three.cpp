@@ -265,39 +265,39 @@ public:
   }
 };
 
-Vector2 operator + (const Vector2 &left, const Vector2 &right)
+inline Vector2 operator + (const Vector2 &left, const Vector2 &right)
 {
   Vector2 result {left};
   result += right;
   return result;
 }
 
-Vector2 operator -(const Vector2 &left, const Vector2 &right)
+inline Vector2 operator -(const Vector2 &left, const Vector2 &right)
 {
   Vector2 result {left};
   result -= right;
   return result;
 }
 
-Vector2 operator *(const Vector2 &left, const Vector2 &right)
+inline Vector2 operator *(const Vector2 &left, const Vector2 &right)
 {
   Vector2 result {left};
   result *= right;
   return result;
 }
 
-Vector2 operator *(const Vector2 &left, float right)
+inline Vector2 operator *(const Vector2 &left, float right)
 {
   Vector2 result {left};
   result *= right;
   return result;
 }
 
-Vector2 min(const Vector2 &v1, const Vector2 &v2) {
+inline Vector2 min(const Vector2 &v1, const Vector2 &v2) {
   return Vector2(std::min(v1.x(), v2.x()), std::min(v1.y(), v2.y()));
 }
 
-Vector2 max(const Vector2 &v1, const Vector2 &v2) {
+inline Vector2 max(const Vector2 &v1, const Vector2 &v2) {
   return Vector2(std::max(v1.x(), v2.x()), std::max(v1.y(), v2.y()));
 }
 

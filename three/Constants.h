@@ -74,6 +74,62 @@ enum class Encoding {
   RGBD=3006
 };
 
+enum class Blending {
+  None= 0,
+  Normal = 1,
+  Additive = 2,
+  Subtractive = 3,
+  Multiply = 4,
+  Custom = 5
+};
+
+enum class Side {
+  Front = 0,
+  Back = 1,
+  Double = 2
+};
+
+enum class Colors {
+  None = 0,
+  Face = 1,
+  Vertex = 2
+};
+
+enum class BlendFactor {
+  None = 0,
+  Zero = 200,
+  One = 201,
+  SrcColor = 202,
+  OneMinusSrcColor = 203,
+  SrcAlpha = 204,
+  OneMinusSrcAlpha = 205,
+  DstAlpha = 206,
+  OneMinusDstAlpha = 207,
+  DstColor = 208,
+  OneMinusDstColor = 209,
+  SrcAlphaSaturate = 210
+};
+
+enum class BlendEquation {
+  None = 0,
+  Add = 100,
+  Subtract = 101,
+  ReverseSubtract = 102,
+  Min = 103,
+  Max = 104
+};
+
+enum class DepthFunc {
+  Never = 0,
+  Always = 1,
+  Less = 2,
+  LessEqual = 3,
+  Equal = 4,
+  GreaterEqual = 5,
+  Greater = 6,
+  NotEqual = 7
+};
+
 }
 
 #endif //THREE_QT_CONSTANTS

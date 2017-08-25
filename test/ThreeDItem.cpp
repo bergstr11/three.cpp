@@ -35,7 +35,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 {
   QColor m_background;
 
-  three::Scene m_scene;
+  three::Scene _scene;
   three::PerspectiveCamera _camera;
   three::OpenGLRenderer _renderer;
 
@@ -49,17 +49,17 @@ public:
   {
     _renderer.setClearColorHex(0xEEEEEE);
     _renderer.setSize(item->width(), item->height());
-    AxisHelper axes(20);
-    scene.add(axes);
-    Plane plane(60, 20, 1, 1);
+    AxisHelper::Ptr axes = AxisHelper::make(20);
+    _scene.add(axes);
+    Plane planeGeometry(60, 20, 1, 1);
     MeshBasicMaterial planeMaterial(three::Color(0xcccccc));
-    Mesh plane(planeGeometry, planeMaterial);
-    plane.rotation().x = -0.5 * M_PI;
-    plane.position.x = 15;
-    plane.position.y = 0;
-    plane.position.z = 0;
+    Mesh::Ptr plane = std::make_shared(planeGeometry, planeMaterial);
+    plane->rotation().x = -0.5 * M_PI;
+    plane->position.x = 15;
+    plane->position.y = 0;
+    plane->position.z = 0;
 
-    scene.add(plane);
+    _scene.add(plane);
   }
 
   ~FramebufferObjectRenderer() {

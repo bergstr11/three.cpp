@@ -5,12 +5,12 @@
 #ifndef THREEQT_BOX
 #define THREEQT_BOX
 
-#include "Geometry.h"
+#include "core/StaticGeometry.h"
 
 namespace three {
 namespace geometry {
 
-class Box : public Geometry
+class Box : public StaticGeometry
 {
 public:
   Box(unsigned width, unsigned height, unsigned depth);

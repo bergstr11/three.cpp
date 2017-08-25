@@ -2,8 +2,8 @@
 // Created by byter on 08.08.17.
 //
 
-#ifndef THREE_QT_GEOMETRY_H
-#define THREE_QT_GEOMETRY_H
+#ifndef THREE_QT_STATICGEOMETRY_H
+#define THREE_QT_STATICGEOMETRY_H
 
 #include <memory>
 #include <vector>
@@ -13,14 +13,11 @@
 #include <unordered_map>
 #include <algorithm>
 
-#include <math/Vector3.h>
-#include <math/Sphere.h>
 #include <math/Vector4.h>
-#include <math/Matrix4.h>
 #include <math/Matrix3.h>
-#include <math/Box3.h>
 #include <helper/UV.h>
 
+#include "Geometry.h"
 #include "Face3.h"
 #include "Color.h"
 
@@ -41,7 +38,7 @@ struct MorphNormal {
   bool isEmpty() {return faceNormals.empty();}
 };
 
-class Geometry
+class StaticGeometry : public Geometry
 {
   std::vector<Vertex> _vertices;
   std::vector<Color> _colors; // one-to-one vertex colors, used in ParticleSystem, Line and Ribbon
@@ -60,9 +57,6 @@ class Geometry
 
   std::vector<float> _lineDistances;
 
-  math::Box3 _boundingBox;
-  math::Sphere _boundingSphere;
-
   // update flags
 
   bool _elementsNeedUpdate = false;
@@ -73,7 +67,7 @@ class Geometry
   bool _lineDistancesNeedUpdate = false;
   bool _groupsNeedUpdate = false;
 
-  static Geometry &computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
+  static StaticGeometry &computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
   {
     for (Face3 & face : faces) {
       Vertex &vA = vertices[ face.a ];
@@ -87,7 +81,7 @@ class Geometry
     }
   }
 
-  static Geometry &computeVertexNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices,
+  static StaticGeometry &computeVertexNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices,
                                         bool areaWeighted=true)
   {
     std::vector<Vertex> verts(vertices.size());
@@ -134,11 +128,13 @@ class Geometry
   }
 
 public:
-  Geometry() {
+  using Ptr = std::shared_ptr<StaticGeometry>;
+
+  StaticGeometry() {
 
   }
 
-  Geometry &apply(const math::Matrix4 &matrix)
+  StaticGeometry &apply(const math::Matrix4 &matrix) override
   {
 		math::Matrix3 normalMatrix = matrix.normalMatrix();
 
@@ -161,51 +157,6 @@ public:
 		_normalsNeedUpdate = true;
 
 		return *this;
-	}
-
-
-  // rotate geometry around world x-axis
-	Geometry &rotateX(float angle)
-  {
-    apply(math::Matrix4::rotationX( angle ));
-
-    return *this;
-	}
-
-  // rotate geometry around world y-axis
-	Geometry &rotateY(float angle)
-  {
-    apply(math::Matrix4::rotationY( angle ));
-
-		return *this;
-	}
-
-  // rotate geometry around world z-axis
-	Geometry &rotateZ(float angle)
-  {
-    apply(math::Matrix4::rotationZ( angle ));
-
-    return *this;
-  }
-
-  // translate geometry
-	Geometry &translate(float x, float y, float z)
-  {
-    apply(math::Matrix4::translation(x, y, z));
-	}
-
-	Geometry &scale(float x, float y, float z)
-  {
-    apply(math::Matrix4::scaling(x, y, z));
-  }
-
-	Geometry &lookAt(const Vertex &vector)
-  {
-    math::Matrix4 m1( vector, {0, 0, 0}, {0, 1, 0});
-
-    math::Quaternion q(m1);
-
-    apply(math::Matrix4::rotation(q));
 	}
 
 #if 0
@@ -353,7 +304,7 @@ public:
     return _boundingBox.getCenter().negate();
   }
 
-	Geometry &setCenter()
+	StaticGeometry &setCenter()
   {
     computeBoundingBox();
 
@@ -364,7 +315,7 @@ public:
 		return *this;
 	}
 
-	Geometry &normalize()
+	StaticGeometry &normalize()
   {
 		computeBoundingSphere();
 
@@ -382,7 +333,7 @@ public:
 		return *this;
 	}
 
-	Geometry &computeFlatVertexNormals()
+	StaticGeometry &computeFlatVertexNormals()
   {
 		computeFaceNormals(_faces, _vertices);
 
@@ -395,7 +346,7 @@ public:
 		_normalsNeedUpdate = !_faces.empty();
 	}
 
-	Geometry &computeMorphNormals()
+	StaticGeometry &computeMorphNormals()
   {
     //copy faces
     std::vector<Face3> copiedFaces = _faces;
@@ -433,7 +384,7 @@ public:
     return *this;
 	}
 
-	Geometry &computeLineDistances() 
+	StaticGeometry &computeLineDistances()
   {
 		float d = 0;
 		for (size_t i = 0, il = _vertices.size(); i < il; i ++ ) {
@@ -445,19 +396,19 @@ public:
     return *this;
 	}
 
-	Geometry &computeBoundingBox()
+	StaticGeometry &computeBoundingBox()
   {
 		_boundingBox.set(_vertices);
     return *this;
 	}
 
-	Geometry &computeBoundingSphere()
+	StaticGeometry &computeBoundingSphere()
   {
 		_boundingSphere.set(_vertices);
     return *this;
 	}
 
-	Geometry &merge(const Geometry &geometry, const math::Matrix4 &matrix, unsigned materialIndexOffset=0) 
+	StaticGeometry &merge(const StaticGeometry &geometry, const math::Matrix4 &matrix, unsigned materialIndexOffset=0)
   { 
     unsigned vertexOffset = _vertices.size();
     std::vector<Vertex> &vertices1 = _vertices;
@@ -502,7 +453,7 @@ public:
     return *this;
 	}
 
-	Geometry &mergeMesh(const MeshPtr & mesh );
+	StaticGeometry &mergeMesh(const MeshPtr & mesh );
 
 	/*
 	 * Checks for duplicate vertices with hashmap.
@@ -625,4 +576,4 @@ public:
 
 } //three
 
-#endif //THREE_QT_GEOMETRY_H
+#endif //THREE_QT_STATICGEOMETRY_H

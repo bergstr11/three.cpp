@@ -5,7 +5,7 @@
 #ifndef THREEQT_CAMERA
 #define THREEQT_CAMERA
 
-#include "Object3D.h"
+#include "core/Object3D.h"
 #include "math/Matrix4.h"
 #include "math/Vector3.h"
 #include "math/Quaternion.h"

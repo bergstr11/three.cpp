@@ -9,7 +9,7 @@
 #include <memory>
 #include <functional>
 
-#include "geometry/Geometry.h"
+#include "core/StaticGeometry.h"
 #include "math/Euler.h"
 #include "math/Quaternion.h"
 #include "math/Matrix4.h"
@@ -23,7 +23,6 @@ public:
   using Ptr = std::shared_ptr<Object3D>;
 
 private:
-  std::string _uuid;
   std::string _name;
 
   Object3D *_parent;
@@ -51,13 +50,13 @@ protected:
   bool _frustumCulled = true;
   bool _renderOrder = 0;
 
-  Geometry _geometry;
+  StaticGeometry _geometry;
 
 protected:
   Object3D();
 
 public:
-  const Geometry &geometry() const {return _geometry;}
+  const StaticGeometry &geometry() const {return _geometry;}
   const math::Matrix4 &matrix() const {return _matrix;}
   const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
