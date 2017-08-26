@@ -17,6 +17,7 @@
 #include <math/Matrix3.h>
 #include <helper/UV.h>
 
+#include "BufferGeometry.h"
 #include "Geometry.h"
 #include "Face3.h"
 #include "Color.h"
@@ -159,146 +160,6 @@ public:
 		return *this;
 	}
 
-#if 0
-	fromBufferGeometry: function ( geometry ) {
-
-		var scope = this;
-
-		var indices = geometry.index !== null ? geometry.index.array : undefined;
-		var attributes = geometry.attributes;
-
-		var positions = attributes.position.array;
-		var normals = attributes.normal !== undefined ? attributes.normal.array : undefined;
-		var colors = attributes.color !== undefined ? attributes.color.array : undefined;
-		var uvs = attributes.uv !== undefined ? attributes.uv.array : undefined;
-		var uvs2 = attributes.uv2 !== undefined ? attributes.uv2.array : undefined;
-
-		if ( uvs2 !== undefined ) this.faceVertexUvs[ 1 ] = [];
-
-		var tempNormals = [];
-		var tempUVs = [];
-		var tempUVs2 = [];
-
-		for ( var i = 0, j = 0; i < positions.length; i += 3, j += 2 ) {
-
-			scope.vertices.push( new Vector3( positions[ i ], positions[ i + 1 ], positions[ i + 2 ] ) );
-
-			if ( normals !== undefined ) {
-
-				tempNormals.push( new Vector3( normals[ i ], normals[ i + 1 ], normals[ i + 2 ] ) );
-
-			}
-
-			if ( colors !== undefined ) {
-
-				scope.colors.push( new Color( colors[ i ], colors[ i + 1 ], colors[ i + 2 ] ) );
-
-			}
-
-			if ( uvs !== undefined ) {
-
-				tempUVs.push( new Vector2( uvs[ j ], uvs[ j + 1 ] ) );
-
-			}
-
-			if ( uvs2 !== undefined ) {
-
-				tempUVs2.push( new Vector2( uvs2[ j ], uvs2[ j + 1 ] ) );
-
-			}
-
-		}
-
-		function addFace( a, b, c, materialIndex ) {
-
-			var vertexNormals = normals !== undefined ? [ tempNormals[ a ].clone(), tempNormals[ b ].clone(), tempNormals[ c ].clone() ] : [];
-			var vertexColors = colors !== undefined ? [ scope.colors[ a ].clone(), scope.colors[ b ].clone(), scope.colors[ c ].clone() ] : [];
-
-			var face = new Face3( a, b, c, vertexNormals, vertexColors, materialIndex );
-
-			scope.faces.push( face );
-
-			if ( uvs !== undefined ) {
-
-				scope.faceVertexUvs[ 0 ].push( [ tempUVs[ a ].clone(), tempUVs[ b ].clone(), tempUVs[ c ].clone() ] );
-
-			}
-
-			if ( uvs2 !== undefined ) {
-
-				scope.faceVertexUvs[ 1 ].push( [ tempUVs2[ a ].clone(), tempUVs2[ b ].clone(), tempUVs2[ c ].clone() ] );
-
-			}
-
-		}
-
-		var groups = geometry.groups;
-
-		if ( groups.length > 0 ) {
-
-			for ( var i = 0; i < groups.length; i ++ ) {
-
-				var group = groups[ i ];
-
-				var start = group.start;
-				var count = group.count;
-
-				for ( var j = start, jl = start + count; j < jl; j += 3 ) {
-
-					if ( indices !== undefined ) {
-
-						addFace( indices[ j ], indices[ j + 1 ], indices[ j + 2 ], group.materialIndex );
-
-					} else {
-
-						addFace( j, j + 1, j + 2, group.materialIndex );
-
-					}
-
-				}
-
-			}
-
-		} else {
-
-			if ( indices !== undefined ) {
-
-				for ( var i = 0; i < indices.length; i += 3 ) {
-
-					addFace( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
-
-				}
-
-			} else {
-
-				for ( var i = 0; i < positions.length / 3; i += 3 ) {
-
-					addFace( i, i + 1, i + 2 );
-
-				}
-
-			}
-
-		}
-
-		this.computeFaceNormals();
-
-		if ( geometry.boundingBox !== null ) {
-
-			this.boundingBox = geometry.boundingBox.clone();
-
-		}
-
-		if ( geometry.boundingSphere !== null ) {
-
-			this.boundingSphere = geometry.boundingSphere.clone();
-
-		}
-
-		return this;
-
-	},
-#endif
   Vertex center() const
   {
     return _boundingBox.getCenter().negate();
@@ -572,6 +433,120 @@ public:
 		_faceVertexUvs[ 1 ] = newUvs2;
 
 	}
+
+  void addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex=0);
+
+  StaticGeometry &set(const BufferGeometry &geometry )
+  {
+    //var indices = geometry.index().array();
+    //var attributes = geometry.attributes();
+
+    //var positions = attributes.position.array;
+    //var normals = attributes.normal !== undefined ? attributes.normal.array : undefined;
+
+    //var colors = attributes.color !== undefined ? attributes.color.array : undefined;
+    //var uvs = attributes.uv !== undefined ? attributes.uv.array : undefined;
+    //var uvs2 = attributes.uv2 !== undefined ? attributes.uv2.array : undefined;
+
+    //if(geometry.uv2()) _faceVertexUvs[ 1 ] = [];
+
+    std::vector<Vertex> tempNormals;
+    std::vector<math::Vector2> tempUVs;
+    std::vector<math::Vector2> tempUVs2;
+
+    const BufferAttribute<float>::Ptr &positions = geometry.position();
+    const BufferAttribute<float>::Ptr &normals = geometry.normal();
+    const BufferAttribute<float>::Ptr &colors = geometry.color();
+    const BufferAttribute<float>::Ptr &uvs = geometry.uv();
+    const BufferAttribute<float>::Ptr &uv2s = geometry.uv2();
+
+    for(size_t i = 0, j = 0; i < positions->size(); i += 3, j += 2 ) {
+
+      _vertices.push_back(Vertex((*positions)[i], (*positions)[i + 1], (*positions)[i + 2]));
+
+      if(normals) {
+        tempNormals.push_back(Vertex((*normals)[i], (*normals)[i + 1], (*normals)[i + 2]));
+      }
+
+      if(colors) {
+        _colors.push_back(Color((*colors)[i], (*colors)[i + 1], (*colors)[i + 2]));
+      }
+
+      if(uvs) {
+        tempUVs.push_back(math::Vector2((*uvs)[j], (*uvs)[j + 1]));
+      }
+
+      if(uv2s) {
+        tempUVs2.push_back(math::Vector2((*uv2s)[j], (*uv2s)[j + 1]));
+      }
+    }
+
+    //normals ?
+    auto vertexNormals = std::array<Vertex, 3> {tempNormals[ 1 ], tempNormals[ 2 ], tempNormals[ 3 ]};
+    //colors ?
+    auto vertexColors = std::array<Color, 3> {(*colors)[1], (*colors)[2], (*colors)[3]};
+
+#if 0
+    function addFace( a, b, c, materialIndex ) {
+
+      var vertexNormals = normals !== undefined ? [ tempNormals[ a ].clone(), tempNormals[ b ].clone(), tempNormals[ c ].clone() ] : [];
+      var vertexColors = colors !== undefined ? [ scope.colors[ a ].clone(), scope.colors[ b ].clone(), scope.colors[ c ].clone() ] : [];
+
+      var face = new Face3( a, b, c, vertexNormals, vertexColors, materialIndex );
+
+      scope.faces.push( face );
+
+      if ( uvs !== undefined ) {
+
+        scope.faceVertexUvs[ 0 ].push( [ tempUVs[ a ].clone(), tempUVs[ b ].clone(), tempUVs[ c ].clone() ] );
+
+      }
+
+      if ( uvs2 !== undefined ) {
+
+        scope.faceVertexUvs[ 1 ].push( [ tempUVs2[ a ].clone(), tempUVs2[ b ].clone(), tempUVs2[ c ].clone() ] );
+
+      }
+
+    }
+#endif
+    const BufferAttribute<uint32_t>::Ptr &indices = geometry.index();
+
+    if (geometry.groups().size() > 0 ) {
+
+      for(const Group &group : geometry.groups()) {
+
+        //var start = group.start;
+        //var count = group.count;
+
+        for (auto j = group.start, jl = group.start + group.count; j < jl; j += 3 ) {
+          if (indices)
+            addFace((*indices)[j], (*indices)[j + 1], (*indices)[j + 2], group.materialIndex);
+          else
+            addFace(j, j + 1, j + 2, group.materialIndex);
+        }
+      }
+    }
+    else {
+      if (indices) {
+        for (size_t i = 0; i < indices->size(); i += 3 ) {
+          addFace( (*indices)[ i ], (*indices)[ i + 1 ], (*indices)[ i + 2 ] );
+        }
+      } else {
+        for (size_t i = 0; i < positions->size() / 3; i += 3 ) {
+          addFace( i, i + 1, i + 2 );
+        }
+      }
+    }
+
+    computeFaceNormals(_faces, _vertices);
+
+    _boundingBox = geometry.boundingBox();
+
+    _boundingSphere = geometry.boundingSphere();
+
+    return *this;
+  }
 };
 
 } //three

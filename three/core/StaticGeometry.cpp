@@ -13,4 +13,9 @@ StaticGeometry &StaticGeometry::mergeMesh(const MeshPtr & mesh )
   return merge( mesh->geometry(), mesh->matrix() );
 }
 
+void StaticGeometry::addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex)
+{
+
+}
+
 }

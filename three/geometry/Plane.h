@@ -83,9 +83,9 @@ public:
 
     // build geometry
     setIndex( indices );
-    addAttribute("position", BufferAttribute<float>::make(vertices, 3));
-    addAttribute("normal", BufferAttribute<float>::make(normals, 3));
-    addAttribute("uv", BufferAttribute<float>::make(uvs, 2));
+    setPosition(BufferAttribute<float>::make(vertices, 3));
+    setNormal(BufferAttribute<float>::make(normals, 3));
+    setUV(BufferAttribute<float>::make(uvs, 2));
   }
 };
 
@@ -97,7 +97,7 @@ public:
   Plane(float width, float height, float widthSegments, float heightSegments)
      : PlaneParameters(width, height, widthSegments, heightSegments)
   {
-    //setBufferGeometry(new buffer::Plane(width, height, widthSegments, heightSegments));
+    set(buffer::Plane(width, height, widthSegments, heightSegments));
   }
 };
 

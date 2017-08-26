@@ -18,8 +18,11 @@ namespace three {
 class BufferAttributeBase
 {
 public:
-  using Ptr = std::shared_ptr<BufferAttributeBase>;
+  bool needsUpdate = false;
 
+  virtual void apply(const math::Matrix4 &matrix) = 0;
+
+  virtual void apply(const math::Matrix3 &matrix) = 0;
 };
 
 template <typename Type>
@@ -35,6 +38,8 @@ class BufferAttribute : public BufferAttributeBase
   unsigned _updateCount = -1;
 
 public:
+  using Ptr = std::shared_ptr<BufferAttribute<Type>>;
+
   static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
   {
     return std::make_shared<BufferAttribute<Type>>(array, itemSize, normalized);
@@ -43,13 +48,23 @@ public:
   BufferAttribute(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
     : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
   {}
-  BufferAttribute(unsigned itemSize, bool normalized=false)
+
+  explicit BufferAttribute(unsigned itemSize, bool normalized=false)
      : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
   {}
+
   BufferAttribute(const BufferAttribute&source) :
      _array(source._array), _itemSize(source._itemSize), _count(source._count),
      _normalized(source._normalized), _dynamic(source._dynamic)
   {}
+
+  const size_t size() const {return _array.size();}
+
+  const size_t count() const {return _count;}
+
+  const std::vector<Type> &array() const {return _array;}
+
+  const Type operator [] (size_t index) {return _array[index];}
 
   void set(const std::vector<Type> &array)
   {
@@ -237,6 +252,55 @@ public:
     _array[ index + 3 ] = w;
 
     return *this;
+  }
+
+  math::Box3 box3()
+  {
+    Type minX = std::numeric_limits<Type>::infinity();
+    Type minY = std::numeric_limits<Type>::infinity();
+    Type minZ = std::numeric_limits<Type>::infinity();
+
+    Type maxX = - std::numeric_limits<Type>::infinity();
+    Type maxY = - std::numeric_limits<Type>::infinity();
+    Type maxZ = - std::numeric_limits<Type>::infinity();
+
+    for(size_t i = 0; i < _count; i++) {
+      Type x = get_x(i);
+      Type y = get_y(i);
+      Type z = get_z(i);
+
+      if ( x < minX ) minX = x;
+      if ( y < minY ) minY = y;
+      if ( z < minZ ) minZ = z;
+
+      if ( x > maxX ) maxX = x;
+      if ( y > maxY ) maxY = y;
+      if ( z > maxZ ) maxZ = z;
+    }
+
+    return math::Box3(math::Vector3(minX, minY, minZ), math::Vector3(maxX, maxY, maxZ));
+  }
+
+  void apply(const math::Matrix4 &matrix) override
+  {
+    for(size_t i = 0; i < _count; i ++ ) {
+      math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
+
+      v1.apply(matrix);
+
+      setXYZ( i, v1.x(), v1.y(), v1.z() );
+    }
+  }
+
+  void apply(const math::Matrix3 &matrix) override
+  {
+    for(size_t i = 0; i < _count; i ++ ) {
+      math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
+
+      v1.apply(matrix);
+
+      setXYZ( i, v1.x(), v1.y(), v1.z() );
+    }
   }
 };
 

@@ -25,6 +25,9 @@ protected:
 public:
   using Ptr = std::shared_ptr<Geometry>;
 
+  const math::Box3 &boundingBox() const {return _boundingBox;}
+  const math::Sphere &boundingSphere() const {return _boundingSphere;}
+
   // rotate geometry around world x-axis
   Geometry &rotateX(float angle)
   {
