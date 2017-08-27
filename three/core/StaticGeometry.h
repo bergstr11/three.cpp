@@ -46,7 +46,7 @@ class StaticGeometry : public Geometry
 
   std::vector<Face3> _faces;
 
-  std::vector<std::vector<std::array<UV, 4>>> _faceVertexUvs;
+  std::vector<std::vector<std::array<UV, 3>>> _faceVertexUvs;
 
   std::vector<MorphTarget> _morphTargets;
 
@@ -396,9 +396,6 @@ public:
 
 	void sortFacesByMaterialIndex()
   {
-		//var faces = this.faces;
-		//var length = faces.length;
-
     // tag faces
     std::unordered_map<unsigned, unsigned> idMap;
     for(unsigned i=0; i<_faces.size(); i++) {
@@ -414,7 +411,7 @@ public:
 		auto &uvs1 = _faceVertexUvs[ 0 ];
 		auto &uvs2 = _faceVertexUvs[ 1 ];
 
-    std::vector<std::array<UV, 4>> newUvs1, newUvs2;
+    std::vector<std::array<UV, 3>> newUvs1, newUvs2;
 
 		if (uvs1.size() == _faces.size()) {
       for(const Face3 &face : _faces) {
@@ -434,25 +431,19 @@ public:
 
 	}
 
-  void addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex=0);
+  void addFacre(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
+               const BufferAttribute<float>::Ptr &normals, const BufferAttribute<float>::Ptr &uvs,
+               const BufferAttribute<float>::Ptr &uv2s,
+               const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,
+               const std::vector<UV> &tempUVs2)
+  {
+  }
 
   StaticGeometry &set(const BufferGeometry &geometry )
   {
-    //var indices = geometry.index().array();
-    //var attributes = geometry.attributes();
-
-    //var positions = attributes.position.array;
-    //var normals = attributes.normal !== undefined ? attributes.normal.array : undefined;
-
-    //var colors = attributes.color !== undefined ? attributes.color.array : undefined;
-    //var uvs = attributes.uv !== undefined ? attributes.uv.array : undefined;
-    //var uvs2 = attributes.uv2 !== undefined ? attributes.uv2.array : undefined;
-
-    //if(geometry.uv2()) _faceVertexUvs[ 1 ] = [];
-
     std::vector<Vertex> tempNormals;
-    std::vector<math::Vector2> tempUVs;
-    std::vector<math::Vector2> tempUVs2;
+    std::vector<UV> tempUVs;
+    std::vector<UV> tempUVs2;
 
     const BufferAttribute<float>::Ptr &positions = geometry.position();
     const BufferAttribute<float>::Ptr &normals = geometry.normal();
@@ -473,51 +464,40 @@ public:
       }
 
       if(uvs) {
-        tempUVs.push_back(math::Vector2((*uvs)[j], (*uvs)[j + 1]));
+        tempUVs.push_back(UV((*uvs)[j], (*uvs)[j + 1]));
       }
 
       if(uv2s) {
-        tempUVs2.push_back(math::Vector2((*uv2s)[j], (*uv2s)[j + 1]));
+        tempUVs2.push_back(UV((*uv2s)[j], (*uv2s)[j + 1]));
       }
     }
 
-    //normals ?
-    auto vertexNormals = std::array<Vertex, 3> {tempNormals[ 1 ], tempNormals[ 2 ], tempNormals[ 3 ]};
-    //colors ?
-    auto vertexColors = std::array<Color, 3> {(*colors)[1], (*colors)[2], (*colors)[3]};
+    auto addFace = [&](const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex)
+    {
+      std::array<Vertex, 3> vertexNormals;
+      if(normals) vertexNormals = {tempNormals[a], tempNormals[b], tempNormals[c]};
 
-#if 0
-    function addFace( a, b, c, materialIndex ) {
+      std::array<Color, 3> vertexColors;
+      if(colors) vertexColors = {_colors[a], _colors[b], _colors[c]};
 
-      var vertexNormals = normals !== undefined ? [ tempNormals[ a ].clone(), tempNormals[ b ].clone(), tempNormals[ c ].clone() ] : [];
-      var vertexColors = colors !== undefined ? [ scope.colors[ a ].clone(), scope.colors[ b ].clone(), scope.colors[ c ].clone() ] : [];
+      Face3 face(a, b, c, vertexNormals, vertexColors, materialIndex);
 
-      var face = new Face3( a, b, c, vertexNormals, vertexColors, materialIndex );
+      _faces.push_back(face);
 
-      scope.faces.push( face );
-
-      if ( uvs !== undefined ) {
-
-        scope.faceVertexUvs[ 0 ].push( [ tempUVs[ a ].clone(), tempUVs[ b ].clone(), tempUVs[ c ].clone() ] );
-
+      if (uvs) {
+        _faceVertexUvs[0].push_back({tempUVs[a], tempUVs[b], tempUVs[c]});
       }
 
-      if ( uvs2 !== undefined ) {
-
-        scope.faceVertexUvs[ 1 ].push( [ tempUVs2[ a ].clone(), tempUVs2[ b ].clone(), tempUVs2[ c ].clone() ] );
-
+      if (uv2s) {
+        _faceVertexUvs[1].push_back({tempUVs2[a], tempUVs2[b], tempUVs2[c]});
       }
+    };
 
-    }
-#endif
     const BufferAttribute<uint32_t>::Ptr &indices = geometry.index();
 
     if (geometry.groups().size() > 0 ) {
 
       for(const Group &group : geometry.groups()) {
-
-        //var start = group.start;
-        //var count = group.count;
 
         for (auto j = group.start, jl = group.start + group.count; j < jl; j += 3 ) {
           if (indices)
@@ -530,11 +510,11 @@ public:
     else {
       if (indices) {
         for (size_t i = 0; i < indices->size(); i += 3 ) {
-          addFace( (*indices)[ i ], (*indices)[ i + 1 ], (*indices)[ i + 2 ] );
+          addFace( (*indices)[ i ], (*indices)[ i + 1 ], (*indices)[ i + 2 ], 0);
         }
       } else {
         for (size_t i = 0; i < positions->size() / 3; i += 3 ) {
-          addFace( i, i + 1, i + 2 );
+          addFace( i, i + 1, i + 2, 0);
         }
       }
     }

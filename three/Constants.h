@@ -130,6 +130,12 @@ enum class DepthFunc {
   NotEqual = 7
 };
 
+enum class DrawMode {
+  Triangles = 0,
+  TriangleStrip = 1,
+  TriangleFan = 2
+};
+
 }
 
 #endif //THREE_QT_CONSTANTS
