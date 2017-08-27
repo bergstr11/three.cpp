@@ -136,6 +136,19 @@ enum class DrawMode {
   TriangleFan = 2
 };
 
+enum class CombineOperation {
+  Multiply = 0,
+  Mix = 1,
+  Add = 2
+};
+
+enum class LineCap {
+  round
+};
+
+enum class LineJoin {
+  round
+};
 }
 
 #endif //THREE_QT_CONSTANTS

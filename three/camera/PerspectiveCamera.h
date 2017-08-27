@@ -30,9 +30,14 @@ class PerspectiveCamera : public Camera
     unsigned height;
   } _view;
 
-public:
+protected:
   PerspectiveCamera( float fov, float aspect, float near, float far );
 
+public:
+  using Ptr = std::shared_ptr<PerspectiveCamera>;
+  static Ptr make(float fov, float aspect, float near, float far) {
+    return std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(fov, aspect, near, far));
+  }
   /**
    * Sets the FOV by focal length in respect to the current .filmGauge.
    *

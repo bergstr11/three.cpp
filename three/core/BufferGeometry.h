@@ -69,6 +69,9 @@ protected:
   }
 
 public:
+  using Ptr = std::shared_ptr<BufferGeometry>;
+  static Ptr make() {return std::make_shared<BufferGeometry>();}
+
   void setIndex(const std::vector<uint32_t> &indices) {
     if(_index)
       _index->set(indices);

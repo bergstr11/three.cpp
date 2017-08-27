@@ -93,11 +93,18 @@ public:
 
 class Plane : public StaticGeometry, public PlaneParameters
 {
-public:
+protected:
   Plane(float width, float height, float widthSegments, float heightSegments)
      : PlaneParameters(width, height, widthSegments, heightSegments)
   {
     set(buffer::Plane(width, height, widthSegments, heightSegments));
+  }
+
+public:
+  using Ptr = std::shared_ptr<Plane>;
+  static Ptr make(float width, float height, float widthSegments, float heightSegments)
+  {
+    return Ptr(new Plane(width, height, widthSegments, heightSegments));
   }
 };
 

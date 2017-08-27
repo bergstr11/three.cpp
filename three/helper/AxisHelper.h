@@ -30,7 +30,7 @@ class AxisHelper : public Line {
 
 public:
   using Ptr = std::shared_ptr<AxisHelper>;
-  static Ptr make(float size) {return std::make_shared<AxisHelper>(size);}
+  static Ptr make(float size) {return std::shared_ptr<AxisHelper>(new AxisHelper(size));}
 };
 
 }

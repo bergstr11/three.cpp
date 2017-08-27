@@ -110,6 +110,14 @@ void Euler::set(const Matrix4 &m, RotationOrder order)
   _order = order;
 }
 
+void Euler::set(float x, float y, float z, RotationOrder order)
+{
+  _x = x;
+  _y = y;
+  _z = z;
+  _order = order;
+}
+
 void Euler::set(const Quaternion &q, RotationOrder order)
 {
   Matrix4 matrix = Matrix4::rotation( q );

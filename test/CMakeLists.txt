@@ -16,8 +16,7 @@ qt5_add_resources(UI_RESOURCES resources.qrc)
 set(SOURCE_FILES
         main.cpp
         ThreeDItem.cpp
-        ThreeDInteractor.cpp
-        bak/modelloader.cpp)
+        ThreeDInteractor.cpp)
 
 set(HEADER_FILES ThreeDItem.h)
 

@@ -36,7 +36,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
   QColor m_background;
 
   three::Scene _scene;
-  three::PerspectiveCamera _camera;
+  three::PerspectiveCamera::Ptr _camera;
   three::OpenGLRenderer _renderer;
 
   const ThreeDItem *const _item;
@@ -44,20 +44,22 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 
 public:
   FramebufferObjectRenderer(const ThreeDItem *item)
-     : _item(item), _camera(75, item->width() / item->height(), 0.1, 1000 ),
+     : _item(item),
+       _camera(three::PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
        _renderer(item->width(), item->height())
   {
-    _renderer.setClearColorHex(0xEEEEEE);
+    _renderer.setClearColor(Color(0xEEEEEE));
     _renderer.setSize(item->width(), item->height());
     AxisHelper::Ptr axes = AxisHelper::make(20);
     _scene.add(axes);
-    Plane planeGeometry(60, 20, 1, 1);
-    MeshBasicMaterial planeMaterial(three::Color(0xcccccc));
-    Mesh::Ptr plane = std::make_shared(planeGeometry, planeMaterial);
-    plane->rotation().x = -0.5 * M_PI;
-    plane->position.x = 15;
-    plane->position.y = 0;
-    plane->position.z = 0;
+
+    Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
+    MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
+    planeMaterial->color = three::Color(0xcccccc);
+
+    Mesh::Ptr plane = Mesh::make(planeGeometry, planeMaterial);
+    plane->rotation().x() = -0.5f * M_PI;
+    plane->position().set(15, 0, 0);
 
     _scene.add(plane);
   }
@@ -82,27 +84,6 @@ public:
   void synchronize(QQuickFramebufferObject *_item) override
   {
     ThreeDItem *item = static_cast<ThreeDItem *>(_item);
-
-    Box cubeGeometry(4, 4, 4);
-    MeshBasicMaterial cubeMaterial(Color(0xff0000), true);
-    Mesh cube(cubeGeometry, cubeMaterial);
-    cube.position.x = -4;
-    cube.position.y = 3;
-    cube.position.z = 0;
-    scene.add(cube);
-
-    Sphere sphereGeometry(4, 20, 20);
-    MeshBasicMaterial sphereMaterial(Color(0x7777ff), true);
-    Mesh sphere(sphereGeometry, sphereMaterial);
-    sphere.position.x = 20;
-    sphere.position.y = 4;
-    sphere.position.z = 2;
-    scene.add(sphere);
-
-    camera.position.x = -30;
-    camera.position.y = 40;
-    camera.position.z = 30;
-    camera.lookAt(scene.position);
   }
 
   void render() override

@@ -62,6 +62,12 @@ public:
 
   void applyMatrix(const math::Matrix4 &matrix);
 
+  math::Vector3 &position() {return _position;}
+  math::Euler &rotation() {return _rotation;}
+
+  const math::Vector3 &position() const {return _position;}
+  const math::Euler &rotation() const {return _rotation;}
+
   void applyQuaternion(math::Quaternion q)
   {
     _quaternion *= q;

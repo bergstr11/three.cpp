@@ -7,6 +7,8 @@
 
 #include <QOpenGLContext>
 #include <Constants.h>
+#include <scene/Scene.h>
+#include <camera/Camera.h>
 
 namespace three {
 
@@ -56,8 +58,26 @@ protected:
   unsigned _maxMorphNormals = 4;
 
 public:
-  OpenGLRenderer(QOpenGLContext *context, OpenGLRendererData data=OpenGLRendererData());
-  OpenGLRenderer(float width, float height);
+  OpenGLRenderer(QOpenGLContext *context, OpenGLRendererData data=OpenGLRendererData())
+  {
+
+  }
+  OpenGLRenderer(float width, float height)
+  {
+
+  }
+
+  OpenGLRenderer &setClearColor(const Color &color) {
+    //_backg
+  }
+
+  OpenGLRenderer &setSize(unsigned width, unsigned height) {
+
+  }
+
+  void render(const Scene &scene, const Camera::Ptr &camera) {
+
+  }
 };
 
 }
