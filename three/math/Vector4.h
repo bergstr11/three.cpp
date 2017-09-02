@@ -319,6 +319,11 @@ public:
     return ( ( v._x == _x ) && ( v._y == _y ) && ( v._z == _z ) && ( v._w == _w ) );
   }
 
+  bool operator !=(const Vector4 & v)
+  {
+    return !((*this) == v);
+  }
+
   void writeTo(float *array, unsigned offset=0)
   {
     memcpy(array+offset, _elements, sizeof(_elements));

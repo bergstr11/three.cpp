@@ -12,7 +12,7 @@
 #include "ThreeDItem.h"
 #include "ThreeDInteractor.h"
 
-#include <OpenGLRenderer.h>
+#include <renderers/OpenGLRenderer.h>
 #include <objects/Mesh.h>
 #include <scene/Scene.h>
 #include <camera/PerspectiveCamera.h>
@@ -37,7 +37,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 
   three::Scene _scene;
   three::PerspectiveCamera::Ptr _camera;
-  three::OpenGLRenderer _renderer;
+  three::OpenGLRenderer::Ptr _renderer;
 
   const ThreeDItem *const _item;
   QOpenGLFramebufferObject *_framebufferObject = nullptr;
@@ -46,10 +46,10 @@ public:
   FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
        _camera(three::PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
-       _renderer(item->width(), item->height())
+       _renderer(three::OpenGLRenderer::make(nullptr, item->width(), item->height()))
   {
-    _renderer.setClearColor(Color(0xEEEEEE));
-    _renderer.setSize(item->width(), item->height());
+    _renderer->setClearColor(Color(0xEEEEEE));
+    _renderer->setSize(item->width(), item->height());
     AxisHelper::Ptr axes = AxisHelper::make(20);
     _scene.add(axes);
 
@@ -88,7 +88,7 @@ public:
 
   void render() override
   {
-    _renderer.render(_scene, _camera);
+    _renderer->render(_scene, _camera);
     _item->window()->resetOpenGLState();
   }
 

@@ -23,15 +23,15 @@ struct Material
   float opacity = 1;
   bool transparent = false;
 
-  BlendFactor blendSrc = BlendFactor::SrcAlpha;
-  BlendFactor blendDst = BlendFactor::OneMinusSrcAlpha;
-  BlendEquation blendEquation = BlendEquation::Add;
+  BlendFunc blendSrc = BlendFunc::SrcAlpha;
+  BlendFunc blendDst = BlendFunc::OneMinusSrcAlpha;
+  BlendEq blendEquation = BlendEq::Add;
 
-  BlendFactor blendSrcAlpha = BlendFactor::None;
-  BlendFactor blendDstAlpha = BlendFactor::None;
-  BlendEquation blendEquationAlpha = BlendEquation::None;
+  BlendFunc blendSrcAlpha = BlendFunc::None;
+  BlendFunc blendDstAlpha = BlendFunc::None;
+  BlendEq blendEquationAlpha = BlendEq::None;
 
-  DepthFunc depthFunc = DepthFunc::LessEqual;
+  Func depthFunc = Func::LessEqual;
   bool depthTest = true;
   bool depthWrite = true;
 

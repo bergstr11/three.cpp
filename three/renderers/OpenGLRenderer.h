@@ -1,68 +1,88 @@
 //
-// Created by byter on 05.08.17.
+// Created by byter on 29.07.17.
 //
 
-#ifndef THREE_QT_OPENGLRENDERER_H
-#define THREE_QT_OPENGLRENDERER_H
+#ifndef THREEQT_WEBGLRENDERER
+#define THREEQT_WEBGLRENDERER
 
-#include <OpenGLRenderer.h>
-#include <QOpenGLShaderProgram>
-#include "OpenGLRenderTarget.h"
+#include <QOpenGLContext>
+#include <Constants.h>
+#include <scene/Scene.h>
+#include <camera/Camera.h>
 
 namespace three {
 
-class OpenGLRenderer_impl : public OpenGLRenderer
+struct OpenGLRendererData
 {
-  bool _isContextLost = false;
+  bool alpha = false;
+  bool depth = true;
+  bool stencil = true;
+  bool antialias = false;
+  bool premultipliedAlpha = true;
+  bool preserveDrawingBuffer = false;
+};
 
-  // internal state cache
-  OpenGLRenderTarget::Ptr _currentRenderTarget = nullptr;
-  //_currentFramebuffer = null,
-  int _currentMaterialId = -1;
-  QOpenGLShaderProgram *_currentGeometryProgram = nullptr;
+class OpenGLRenderer : private OpenGLRendererData
+{
+protected:
+  QOpenGLContext *_context;
 
-  //_currentCamera = null,
-  //_currentArrayCamera = null,
+  // clearing
+  bool _autoClear = true;
+  bool _autoClearColor = true;
+  bool _autoClearDepth = true;
+  bool _autoClearStencil = true;
 
-  QVector4D _currentViewport;
-  QVector4D _currentScissor;
-  //_currentScissorTest = null,
+  // scene graph
+  bool _sortObjects = true;
 
-  //
-
-  unsigned _usedTextureUnits = 0;
-
-  unsigned _width;
-  unsigned _height;
-
-  float _pixelRatio = 1;
-
-  QVector4D _viewport;// = new Vector4( 0, 0, _width, _height ),
-  QVector4D _scissor; // = new Vector4( 0, 0, _width, _height ),
-  bool _scissorTest = false;
-
-  // frustum
-  //Frustum _frustum = new Frustum(),
-
-  // clipping
-  //_clipping = new WebGLClipping(),
-  bool _clippingEnabled = false;
+  // user-defined clipping
+  //this.clippingPlanes = [];
   bool _localClippingEnabled = false;
 
-  // camera matrices cache
-  QMatrix4x4 _projScreenMatrix;
+  // physically based shading
+  float _gammaFactor = 2.0;	// for backwards compatibility
+  bool _gammaInput = false;
+  bool _gammaOutput = false;
 
-  QVector3D _vector3;
+  // physical lights
+  bool _physicallyCorrectLights = false;
 
-  float getTargetPixelRatio()
+  // tone mapping
+  ToneMapping _toneMapping = ToneMapping::Linear;
+  float _toneMappingExposure = 1.0;
+  float _toneMappingWhitePoint = 1.0;
+
+  // morphs
+  unsigned _maxMorphTargets = 8;
+  unsigned _maxMorphNormals = 4;
+
+  OpenGLRenderer(QOpenGLContext *context, OpenGLRendererData data=OpenGLRendererData())
   {
-    return _currentRenderTarget ? _pixelRatio : 1;
+
+  }
+  OpenGLRenderer(float width, float height)
+  {
+
+  }
+public:
+  using Ptr = std::shared_ptr<OpenGLRenderer>;
+  static Ptr make(QOpenGLContext *context, float width, float height);
+
+  OpenGLRenderer &setClearColor(const Color &color) {
+    //_backg
   }
 
-public:
+  OpenGLRenderer &setSize(unsigned width, unsigned height) {
 
-  //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
+  }
+
+  void render(const Scene &scene, const Camera::Ptr &camera) {
+
+  }
 };
 
 }
-#endif //THREE_QT_OPENGLRENDERER_H
+
+
+#endif //THREEQT_WEBGLRENDERER
