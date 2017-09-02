@@ -46,7 +46,7 @@ class StaticGeometry : public Geometry
 
   std::vector<Face3> _faces;
 
-  std::vector<std::vector<std::array<UV, 3>>> _faceVertexUvs;
+  std::array<std::vector<std::array<UV, 3>>, 2> _faceVertexUvs;
 
   std::vector<MorphTarget> _morphTargets;
 

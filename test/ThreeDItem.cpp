@@ -4,7 +4,7 @@
 
 #include <functional>
 
-#include <QOpenGLFunctions_3_0>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
 #include <QQuickWindow>
 #include <QThread>
@@ -31,7 +31,7 @@ using namespace three;
 using namespace three::geometry;
 using namespace three::helper;
 
-class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLFunctions_3_0
+class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
   QColor m_background;
 
@@ -46,7 +46,7 @@ public:
   FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
        _camera(three::PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
-       _renderer(three::OpenGLRenderer::make(nullptr, item->width(), item->height()))
+       _renderer(three::OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
     _renderer->setClearColor(Color(0xEEEEEE));
     _renderer->setSize(item->width(), item->height());

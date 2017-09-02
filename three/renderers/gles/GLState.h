@@ -263,10 +263,15 @@ public:
 
   bool currentScissorTest = false;
 
-  GLint maxTextures;
+  GLuint maxTextures;
 
-  unsigned currentTextureSlot = GL_TEXTURE0;
-  std::vector<GLuint> currentBoundTextures;
+  int currentTextureSlot = -1;
+
+  struct BoundTexture {
+    GLenum type;
+    GLuint texture;
+  };
+  std::unordered_map<GLuint, BoundTexture> currentBoundTextures;
 
   math::Vector4 currentScissor = {0, 0, 0, 0};
   math::Vector4 currentViewport = {0, 0, 0, 0};
@@ -301,7 +306,7 @@ public:
     depthBuffer.setClear(1);
     stencilBuffer.setClear(0);
 
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)&maxTextures);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     newAttributes.resize(maxVertexAttributes);
@@ -597,171 +602,100 @@ public:
   }
 
   // texture
-#if 0
-  GLState &activeTexture(GLenum webglSlot=GL_TEXTURE0 + maxTextures - 1)
+  GLState &activeTexture(GLenum glSlot=0)
   {
-    if ( currentTextureSlot != webglSlot ) {
-      glActiveTexture( webglSlot );
-      currentTextureSlot = webglSlot;
+    if(glSlot == 0) glSlot = GL_TEXTURE0 + maxTextures - 1;
+
+    if ( currentTextureSlot != glSlot ) {
+      glActiveTexture( glSlot );
+      currentTextureSlot = glSlot;
     }
   }
 
-  function bindTexture( webglType, webglTexture ) {
-
-    if ( currentTextureSlot === null ) {
-
+  void bindTexture(GLenum webglType, GLint webglTexture=-1)
+  {
+    if(currentTextureSlot < 0)
       activeTexture();
 
+    BoundTexture *boundTexture;
+    auto find = currentBoundTextures.find(currentTextureSlot);
+    if (find == currentBoundTextures.end()) {
+      boundTexture = &currentBoundTextures[currentTextureSlot];
     }
+    else
+      boundTexture = &find->second;
 
-    var boundTexture = currentBoundTextures[ currentTextureSlot ];
+    if(boundTexture->type != webglType || boundTexture->texture != webglTexture ) {
 
-    if ( boundTexture === undefined ) {
+      glBindTexture( webglType, webglTexture >= 0 ? webglTexture : emptyTextures[webglType]);
 
-      boundTexture = { type: undefined, texture: undefined };
-      currentBoundTextures[ currentTextureSlot ] = boundTexture;
-
+      boundTexture->type = webglType;
+      boundTexture->texture = webglTexture;
     }
-
-    if ( boundTexture.type !== webglType || boundTexture.texture !== webglTexture ) {
-
-      gl.bindTexture( webglType, webglTexture || emptyTextures[ webglType ] );
-
-      boundTexture.type = webglType;
-      boundTexture.texture = webglTexture;
-
-    }
-
   }
 
-  function compressedTexImage2D() {
-
+#if 0
+  void compressedTexImage2D()
+  {
     try {
-
-      gl.compressedTexImage2D.apply( gl, arguments );
-
+      glCompressedTexImage2D.apply( gl, arguments );
     } catch ( error ) {
-
       console.error( 'THREE.WebGLState:', error );
-
     }
-
   }
 
   function texImage2D() {
-
     try {
-
       gl.texImage2D.apply( gl, arguments );
-
     } catch ( error ) {
-
       console.error( 'THREE.WebGLState:', error );
-
     }
+  }
+#endif
 
+  void scissor(const math::Vector4 &scissor)
+  {
+    if(currentScissor != scissor) {
+      glScissor( scissor.x(), scissor.y(), scissor.z(), scissor.w() );
+      currentScissor = scissor;
+    }
   }
 
-  //
-
-  function scissor( scissor ) {
-
-    if ( currentScissor.equals( scissor ) === false ) {
-
-      gl.scissor( scissor.x, scissor.y, scissor.z, scissor.w );
-      currentScissor.copy( scissor );
-
+  void viewport(const math::Vector4 &viewport)
+  {
+    if(currentViewport != viewport) {
+      glViewport( viewport.x(), viewport.y(), viewport.z(), viewport.w());
+      currentViewport = viewport;
     }
-
   }
 
-  function viewport( viewport ) {
-
-    if ( currentViewport.equals( viewport ) === false ) {
-
-      gl.viewport( viewport.x, viewport.y, viewport.z, viewport.w );
-      currentViewport.copy( viewport );
-
-    }
-
-  }
-
-  //
-
-  function reset() {
-
-    for ( var i = 0; i < enabledAttributes.length; i ++ ) {
-
-      if ( enabledAttributes[ i ] === 1 ) {
-
-        gl.disableVertexAttribArray( i );
+  void reset()
+  {
+    for(size_t i=0; i < enabledAttributes.size(); i ++ ) {
+      if (enabledAttributes[ i ] == 1) {
+        glDisableVertexAttribArray( i );
         enabledAttributes[ i ] = 0;
-
       }
-
     }
 
-    capabilities = {};
+    capabilities.clear();
 
-    compressedTextureFormats = null;
+    compressedTextureFormats.clear();
 
-    currentTextureSlot = null;
-    currentBoundTextures = {};
+    currentTextureSlot = -1;
+    currentBoundTextures.clear();
 
-    currentProgram = null;
+    currentProgram = 0;
 
-    currentBlending = null;
+    currentBlending = Blending::None;
 
-    currentFlipSided = null;
-    currentCullFace = null;
+    currentFlipSided = FrontFaceDirection::CW;
+    currentCullFace = CullFace::None;
 
     colorBuffer.reset();
     depthBuffer.reset();
     stencilBuffer.reset();
-
   }
-#endif
-  /*return {
-
-    buffers: {
-    color: colorBuffer,
-     depth: depthBuffer,
-       stencil: stencilBuffer
-  },
-
-    initAttributes: initAttributes,
-     enableAttribute: enableAttribute,
-       enableAttributeAndDivisor: enableAttributeAndDivisor,
-       disableUnusedAttributes: disableUnusedAttributes,
-       enable: enable,
-       disable: disable,
-       getCompressedTextureFormats: getCompressedTextureFormats,
-
-       useProgram: useProgram,
-
-       setBlending: setBlending,
-       setMaterial: setMaterial,
-
-       setFlipSided: setFlipSided,
-       setCullFace: setCullFace,
-
-       setLineWidth: setLineWidth,
-       setPolygonOffset: setPolygonOffset,
-
-       getScissorTest: getScissorTest,
-       setScissorTest: setScissorTest,
-
-       activeTexture: activeTexture,
-       bindTexture: bindTexture,
-       compressedTexImage2D: compressedTexImage2D,
-       texImage2D: texImage2D,
-
-       scissor: scissor,
-       viewport: viewport,
-
-       reset: reset
-
-  };*/
 };
 
 }
