@@ -134,45 +134,44 @@ void StaticGeometry::raycast(const Line &line,
                              const math::Ray &ray,
              std::vector<Intersection> &intersects)
 {
-  //var vertices = geometry.vertices;
-  //var nbVertices = vertices.length;
+  Vector3 interSegment;
+  Vector3 interRay;
+  unsigned step = line.steps();
 
-  for (size_t i = 0; i < nbVertices - 1; i += step ) {
+  float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
 
-    var distSq = ray.distanceSqToSegment( vertices[ i ], vertices[ i + 1 ], interRay, interSegment );
+  for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
 
-    if ( distSq > precisionSq ) continue;
+    float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
 
-    interRay.applyMatrix4( this.matrixWorld ); //Move back to world space for distance calculation
+    if (distSq > precisionSq) continue;
 
-    var distance = raycaster.ray.origin.distanceTo( interRay );
+    interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
 
-    if ( distance < raycaster.near || distance > raycaster.far ) continue;
+    float distance = raycaster.ray().origin().distanceTo(interRay);
 
-    intersects.push( {
+    if (distance < raycaster.near() || distance > raycaster.far()) continue;
 
-                        distance: distance,
-                        // What do we want? intersection point on the ray or on the segment??
-                        // point: raycaster.ray.at( distance ),
-                        point: interSegment.clone().applyMatrix4( this.matrixWorld ),
-                        index: i,
-                        face: null,
-                        faceIndex: null,
-                        object: this
-
-                     } );
+    intersects.emplace_back();
+    Intersection &intersect = intersects.back();
+    intersect.distance = distance;
+    // What do we want? intersection point on the ray or on the segment??
+    // point: raycaster.ray.at( distance ),
+    intersect.point = interSegment.apply(line.matrixWorld());
+    intersect.index = i;
+    intersect.object = &line;
+  }
 }
 
 void BufferGeometry::raycast(const Line &line,
                              const Raycaster &raycaster, const math::Ray &ray,
                              std::vector<Intersection> &intersects)
 {
-  //var index = geometry.index;
-  //var attributes = geometry.attributes;
-  //var positions = attributes.position.array;
-
   float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
-  unsigned step = line.isLineSegments() ? 2 : 1;
+  unsigned step = line.steps();
+
+  Vector3 interSegment;
+  Vector3 interRay;
 
   if (_index != nullptr) {
 
@@ -184,8 +183,6 @@ void BufferGeometry::raycast(const Line &line,
       Vector3 vStart = Vector3::fromArray(_position->array(), a * 3 );
       Vector3 vEnd = Vector3::fromArray(_position->array(), b * 3 );
 
-      Vector3 interSegment;
-      Vector3 interRay;
       float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
       if ( distSq > precisionSq ) continue;

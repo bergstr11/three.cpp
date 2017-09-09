@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <vector>
 #include "Euler.h"
 #include "Math.h"
 
@@ -56,7 +57,8 @@ public:
 
   static Vector3 fromBufferAttribute(const BufferAttribute<float> &att, unsigned index);
 
-  static Vector3 fromArray(const std::vector<float> &array, unsigned offset)
+  template <typename T>
+  static Vector3 fromArray(const T array, unsigned offset)
   {
     float x = array[ offset ];
     float y = array[ offset + 1 ];

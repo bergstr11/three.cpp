@@ -5,10 +5,8 @@
 
 namespace three {
 
-void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override
+void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects)
 {
-  //float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
-
   // Checking boundingSphere distance to ray
   if ( _geometry->boundingSphere().isEmpty()) _geometry->computeBoundingSphere();
 
@@ -20,8 +18,6 @@ void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Matrix4 inverseMatrix = _matrixWorld.inverse();
   math::Ray ray = raycaster.ray();
   ray.applyMatrix4( inverseMatrix );
-
-  //unsigned step = _isLineSegments ? 2 : 1;
 
   _geometry->raycast(*this, raycaster, ray, intersects);
 }

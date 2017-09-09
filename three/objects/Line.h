@@ -16,10 +16,23 @@ class Line : public Object3D
   Geometry::Ptr _geometry;
   Material::Ptr _material;
 
+  const unsigned _steps;
+
+protected:
+  Line(Geometry::Ptr geometry, Material::Ptr material, unsigned steps) : _steps(steps), _geometry(geometry), _material(material) {}
+
 public:
-  Line(Geometry::Ptr geometry, Material::Ptr material) : _geometry(geometry), _material(material) {}
+  Line(Geometry::Ptr geometry, Material::Ptr material) : Line(geometry, material, 1) {}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
+
+  unsigned steps() const {return _steps;}
+};
+
+class LineSegments : public Line
+{
+public:
+  LineSegments(Geometry::Ptr geometry, Material::Ptr material) : Line(geometry, material, 2) {}
 };
 
 }
