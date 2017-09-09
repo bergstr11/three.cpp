@@ -8,10 +8,12 @@
 #include <vector>
 #include <cstring>
 #include <Color.h>
+#include <memory>
 
 #include "math/Vector2.h"
 #include "math/Vector3.h"
 #include "math/Vector4.h"
+#include "math/Box3.h"
 
 namespace three {
 
@@ -173,7 +175,7 @@ public:
     return *this;
   }
 
-  Type get_x(size_t index) 
+  Type get_x(size_t index) const
   {
     return _array[ index * _itemSize ];
   }
@@ -185,7 +187,7 @@ public:
     return *this;
   }
 
-  Type get_y(size_t index)
+  Type get_y(size_t index) const
   {
     return _array[ index * _itemSize + 1 ];
   }
@@ -197,7 +199,7 @@ public:
     return *this;
   }
 
-  Type get_z(size_t index)
+  Type get_z(size_t index) const
   {
     return _array[ index * _itemSize + 2 ];
   }

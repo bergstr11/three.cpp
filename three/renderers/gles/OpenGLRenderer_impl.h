@@ -6,6 +6,7 @@
 #define THREE_QT_OPENGLRENDERER_H
 
 #include <renderers/OpenGLRenderer.h>
+#include <light/Light.h>
 #include <QOpenGLShaderProgram>
 #include "OpenGLRenderTarget.h"
 #include "GLState.h"
@@ -14,6 +15,44 @@ namespace three {
 
 class OpenGLRenderer_impl : public OpenGLRenderer
 {
+  std::vector<Light::Ptr> lightsArray;
+  std::vector<Light::Ptr> shadowsArray;
+
+  //var currentRenderList = null;
+
+  //var spritesArray = [];
+  //var flaresArray = [];
+
+  // clearing
+  bool _autoClear = true;
+  bool _autoClearColor = true;
+  bool _autoClearDepth = true;
+  bool _autoClearStencil = true;
+
+  // scene graph
+  bool _sortObjects = true;
+
+  // user-defined clipping
+  //this.clippingPlanes = [];
+  //bool _localClippingEnabled = false;
+
+  // physically based shading
+  float _gammaFactor = 2.0;	// for backwards compatibility
+  bool _gammaInput = false;
+  bool _gammaOutput = false;
+
+  // physical lights
+  bool _physicallyCorrectLights = false;
+
+  // tone mapping
+  ToneMapping _toneMapping = ToneMapping::Linear;
+  float _toneMappingExposure = 1.0;
+  float _toneMappingWhitePoint = 1.0;
+
+  // morphs
+  unsigned _maxMorphTargets = 8;
+  unsigned _maxMorphNormals = 4;
+
   bool _isContextLost = false;
 
   // internal state cache

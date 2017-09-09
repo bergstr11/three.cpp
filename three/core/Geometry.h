@@ -9,8 +9,13 @@
 #include <math/Matrix4.h>
 #include <math/Sphere.h>
 #include <math/Box3.h>
+#include "Raycaster.h"
 
 namespace three {
+
+class Mesh;
+class Line;
+class Intersection;
 
 using Vertex = math::Vector3;
 
@@ -27,6 +32,21 @@ public:
 
   const math::Box3 &boundingBox() const {return _boundingBox;}
   const math::Sphere &boundingSphere() const {return _boundingSphere;}
+
+  virtual Geometry &computeBoundingBox() = 0;
+
+  virtual Geometry &computeBoundingSphere() = 0;
+
+  virtual void raycast(const Line &line,
+                       const Raycaster &raycaster, const math::Ray &ray,
+                       std::vector<Intersection> &intersects) = 0;
+
+  virtual void raycast(const Mesh &mesh,
+                       const Raycaster &raycaster,
+                       const math::Ray &ray,
+                       math::Vector3 &intersectionPoint,
+                       math::Vector3 &intersectionPointWorld,
+                       std::vector<Intersection> &intersects) = 0;
 
   // rotate geometry around world x-axis
   Geometry &rotateX(float angle)

@@ -52,6 +52,8 @@ struct Material
   unsigned alphaTest = 0;
   bool premultipliedAlpha = false;
 
+  bool morphTargets = false;
+
   unsigned overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 
   bool visible = true;

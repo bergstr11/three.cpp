@@ -95,8 +95,7 @@ public:
 
   Box3 getBoundingBox();
 
-  //applyMatrix4
-  Sphere &operator *=(const Matrix4 &matrix)
+  Sphere &applyMatrix4(const Matrix4 &matrix)
   {
     _center.apply(matrix);
     _radius = _radius * matrix.getMaxScaleOnAxis();

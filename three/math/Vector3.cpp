@@ -7,11 +7,12 @@
 #include "Quaternion.h"
 #include "Spherical.h"
 #include "Cylindrical.h"
+#include "camera/Camera.h"
+#include "core/BufferAttribute.h"
 
 namespace three {
 namespace math {
 
-//apply matrix4
 Vector3 &Vector3::apply(const Matrix4 &m)
 {
   float x = _x, y = _y, z = _z;
@@ -44,19 +45,17 @@ Vector3 &Vector3::apply(const Quaternion &q)
   _z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
 }
 
-#if 0
 Vector3 &Vector3::project(const Camera &camera)
 {
-  *this *= camera.projectionMatrix * camera.matrixWorld.inverted();
+  apply(camera.projectionMatrix() * camera.matrixWorld().inverse());
   return *this;
 }
 
 Vector3 &Vector3::unproject(const Camera &camera)
 {
-  *this *= camera.matrixWorld * camera.projectionMatrix.inverted();
+  apply(camera.matrixWorld() * camera.projectionMatrix().inverse());
   return *this;
 }
-#endif
 
 // input: THREE.Matrix4 affine matrix
 // vector interpreted as a direction
@@ -125,6 +124,11 @@ Vector3 &Vector3::apply(const Matrix3 &m)
   _x = e[ 0 ] * _x + e[ 3 ] * _y + e[ 6 ] * _z;
   _y = e[ 1 ] * _x + e[ 4 ] * _y + e[ 7 ] * _z;
   _z = e[ 2 ] * _x + e[ 5 ] * _y + e[ 8 ] * _z;
+}
+
+Vector3 Vector3::fromBufferAttribute(const BufferAttribute<float> &attribute, unsigned index)
+{
+  return Vector3(attribute.get_x( index ), attribute.get_y( index ), attribute.get_z( index ));
 }
 
 }

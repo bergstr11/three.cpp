@@ -5,10 +5,10 @@
 #ifndef THREEQT_CAMERA
 #define THREEQT_CAMERA
 
-#include "core/Object3D.h"
-#include "math/Matrix4.h"
-#include "math/Vector3.h"
-#include "math/Quaternion.h"
+#include <math/Matrix4.h>
+#include <math/Vector3.h>
+#include <math/Quaternion.h>
+#include <core/Object3D.h>
 
 namespace three {
 
@@ -21,6 +21,10 @@ protected:
   Camera() : _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
 
 public:
+
+  const math::Matrix4 &projectionMatrix() const {return _projectionMatrix;}
+  math::Matrix4 &projectionMatrix() {return _projectionMatrix;}
+
   math::Vector3 getWorldDirection() const
   {
     math::Quaternion quaternion = getWorldQuaternion();

@@ -2,8 +2,8 @@
 // Created by byter on 18.08.17.
 //
 
-#ifndef THREE_QT_PLANE_H
-#define THREE_QT_PLANE_H
+#ifndef THREE_MATH_PLANE_H
+#define THREE_MATH_PLANE_H
 
 #include "Vector3.h"
 #include "Sphere.h"
@@ -182,4 +182,4 @@ public:
 
 }
 }
-#endif //THREE_QT_PLANE_H
+#endif //THREE_MATH_PLANE_H

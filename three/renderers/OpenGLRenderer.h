@@ -12,7 +12,7 @@
 
 namespace three {
 
-struct OpenGLRendererData
+struct OpenGLRendererOptions
 {
   bool alpha = false;
   bool depth = true;
@@ -22,52 +22,17 @@ struct OpenGLRendererData
   bool preserveDrawingBuffer = false;
 };
 
-class OpenGLRenderer : private OpenGLRendererData
+class OpenGLRenderer : private OpenGLRendererOptions
 {
 protected:
   QOpenGLContext *_context;
 
-  // clearing
-  bool _autoClear = true;
-  bool _autoClearColor = true;
-  bool _autoClearDepth = true;
-  bool _autoClearStencil = true;
+  OpenGLRenderer(QOpenGLContext *context, const OpenGLRendererOptions &options=OpenGLRendererOptions())
+    : _context(context), OpenGLRendererOptions(options) { }
 
-  // scene graph
-  bool _sortObjects = true;
-
-  // user-defined clipping
-  //this.clippingPlanes = [];
-  bool _localClippingEnabled = false;
-
-  // physically based shading
-  float _gammaFactor = 2.0;	// for backwards compatibility
-  bool _gammaInput = false;
-  bool _gammaOutput = false;
-
-  // physical lights
-  bool _physicallyCorrectLights = false;
-
-  // tone mapping
-  ToneMapping _toneMapping = ToneMapping::Linear;
-  float _toneMappingExposure = 1.0;
-  float _toneMappingWhitePoint = 1.0;
-
-  // morphs
-  unsigned _maxMorphTargets = 8;
-  unsigned _maxMorphNormals = 4;
-
-  OpenGLRenderer(QOpenGLContext *context, OpenGLRendererData data=OpenGLRendererData())
-  {
-
-  }
-  OpenGLRenderer(float width, float height)
-  {
-
-  }
 public:
   using Ptr = std::shared_ptr<OpenGLRenderer>;
-  static Ptr make(QOpenGLContext *context, float width, float height);
+  static Ptr make(QOpenGLContext *context, float width, float height, const OpenGLRendererOptions &options=OpenGLRendererOptions());
 
   OpenGLRenderer &setClearColor(const Color &color) {
     //_backg

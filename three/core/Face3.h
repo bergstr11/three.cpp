@@ -28,8 +28,10 @@ struct Face3
 
   unsigned materialIndex = 0;
 
-  Face3(unsigned a, unsigned b, unsigned c, unsigned materialIndex=0) :
-     a(a), b(b), c(c), normal(normal), color(color), materialIndex(materialIndex)
+  Face3() : a(0), b(0), c(0), materialIndex(0) {}
+
+  Face3(unsigned a, unsigned b, unsigned c, const Vertex &normal, unsigned materialIndex=0) :
+     a(a), b(b), c(c), normal(normal), materialIndex(materialIndex)
   {
   }
 

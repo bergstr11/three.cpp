@@ -36,7 +36,7 @@ class BufferGeometry : public Geometry
   this.drawRange = { start: 0, count: Infinity };
 */
 protected:
-  BufferGeometry &computeBoundingBox()
+  BufferGeometry &computeBoundingBox() override
   {
     if (_position) {
       _boundingBox = _position->box3();
@@ -46,7 +46,7 @@ protected:
     }
   }
 
-  BufferGeometry &computeBoundingSphere()
+  BufferGeometry &computeBoundingSphere() override
   {
     //var box = new Box3();
     //var vector = new Vector3();
@@ -163,6 +163,17 @@ public:
 
     return *this;
   }
+
+  void raycast(const Line &line,
+               const Raycaster &raycaster, const math::Ray &ray,
+               std::vector<Intersection> &intersects) override;
+
+  void raycast(const Mesh &mesh,
+               const Raycaster &raycaster,
+               const math::Ray &ray,
+               math::Vector3 &intersectionPoint,
+               math::Vector3 &intersectionPointWorld,
+               std::vector<Intersection> &intersects) override;
 };
 
 }

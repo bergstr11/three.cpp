@@ -13,9 +13,13 @@
 #include "math/Euler.h"
 #include "math/Quaternion.h"
 #include "math/Matrix4.h"
+#include "material/Material.h"
 #include "Layers.h"
 
 namespace three {
+
+class Raycaster;
+class Intersection;
 
 class Object3D
 {
@@ -38,6 +42,8 @@ protected:
   math::Matrix4 _matrix = math::Matrix4::identity();
   math::Matrix4 _matrixWorld = math::Matrix4::identity();
 
+  std::vector<Material::Ptr> _materials;
+
   bool _matrixAutoUpdate = true;
   bool _matrixWorldNeedsUpdate = false;
 
@@ -50,13 +56,14 @@ protected:
   bool _frustumCulled = true;
   bool _renderOrder = 0;
 
-  StaticGeometry _geometry;
+  Geometry::Ptr _geometry;
 
 protected:
   Object3D();
+  Object3D(Geometry::Ptr geometry);
 
 public:
-  const StaticGeometry &geometry() const {return _geometry;}
+  const Geometry::Ptr geometry() const {return _geometry;}
   const math::Matrix4 &matrix() const {return _matrix;}
   const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
@@ -64,9 +71,18 @@ public:
 
   math::Vector3 &position() {return _position;}
   math::Euler &rotation() {return _rotation;}
+  math::Matrix4 &matrixWorld() {return _matrixWorld;}
+  Material::Ptr material() {return _materials.empty() ? nullptr : _materials.at(0);}
 
   const math::Vector3 &position() const {return _position;}
   const math::Euler &rotation() const {return _rotation;}
+  const math::Matrix4 &matrixWorld() const {return _matrixWorld;}
+  const Material::Ptr material() const {return _materials.empty() ? nullptr : _materials.at(0);}
+
+  const std::vector<Material::Ptr> materials() const {return _materials;}
+  const Material::Ptr material(unsigned index) const {
+    return _materials.size() > index ? _materials.at(index) : nullptr;
+  }
 
   void applyQuaternion(math::Quaternion q)
   {
@@ -233,6 +249,8 @@ public:
   void updateMatrix();
 
   void updateMatrixWorld(bool force);
+
+  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) {};
 };
 
 }

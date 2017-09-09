@@ -26,6 +26,9 @@ public:
   Box3(const Box3 &box) : _min(box._min), _max(box._max) {}
   Box3() : _min({flt::infinity()}), _max({-flt::infinity()}) {}
 
+  const Vector3 &min() const {return _min;}
+  const Vector3 &max() const {return _max;}
+
   static Box3 fromArray(float *array, unsigned length) 
   {
     float minX = + flt::infinity();

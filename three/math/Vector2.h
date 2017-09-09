@@ -9,7 +9,13 @@
 #include <algorithm>
 #include <cmath>
 
+#include <helper/UV.h>
+
 namespace three {
+
+template<typename T>
+class BufferAttribute;
+
 namespace math {
 
 class Vector2
@@ -22,19 +28,17 @@ class Vector2
   };
 
 public:
-  Vector2(float x, float y) : _x(x), _y(y)
-  {}
+  Vector2() : _x(0.0f), _y(0.0f) {}
 
-  Vector2(const Vector2 &vector)
-  {
-    _x = vector._x;
-    _y = vector._y;
-  }
+  Vector2(float x, float y) : _x(x), _y(y) {}
 
-  Vector2(float scalar)
-  {
-    _x = _y = scalar;
-  }
+  Vector2(const UV &uv) : _x(uv.u()), _y(uv.v()) {}
+
+  Vector2(const Vector2 &vector) : _x(vector._x), _y(vector._y) {}
+
+  Vector2(float scalar) : _x(scalar), _y(scalar) {}
+
+  static Vector2 fromBufferAttribute(const BufferAttribute<float> &attribute, unsigned index);
 
   const float x() const { return _x; }
   const float y() const { return _y; }

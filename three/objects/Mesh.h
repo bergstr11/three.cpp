@@ -13,19 +13,23 @@ namespace three {
 
 class Mesh : public Object3D
 {
-  Geometry::Ptr _geometry;
-  Material::Ptr _material;
-
   DrawMode _drawMode;
+
+  std::vector<float> _morphTargetInfluences;
+  std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
   Mesh(const Geometry::Ptr &geometry, const Material::Ptr &material)
-     : _geometry(geometry), _material(material), _drawMode(DrawMode::Triangles) {}
+     : Object3D(geometry), _drawMode(DrawMode::Triangles)
+  {
+    _materials.push_back(material);
+  }
 
   Mesh()
-     : _geometry(BufferGeometry::make()),
-       _material(MeshBasicMaterial::make()),
-       _drawMode(DrawMode::Triangles) {}
+     : Object3D(BufferGeometry::make()), _drawMode(DrawMode::Triangles)
+  {
+    _materials.push_back(MeshBasicMaterial::make());
+  }
 
 public:
   using Ptr = std::shared_ptr<Mesh>;
@@ -34,6 +38,10 @@ public:
   {
     return std::shared_ptr<Mesh>(new Mesh(geometry, material));
   }
+
+  float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
+
+  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
 };
 
 }

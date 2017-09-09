@@ -13,7 +13,10 @@
 
 namespace three {
 
-//class Camera;
+class Camera;
+
+template<typename T>
+class BufferAttribute;
 
 namespace math {
 
@@ -45,6 +48,26 @@ public:
   Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
   Vector3(const Vector3 &v) : _x(v._x), _y(v._y), _z(v._z) {}
 
+  static Vector3 fromSpherical(const Spherical &s);
+
+  static Vector3 fromCylindrical(const Cylindrical &c);
+
+  static Vector3 fromMatrixPosition(const Matrix4 &m);
+
+  static Vector3 fromBufferAttribute(const BufferAttribute<float> &att, unsigned index);
+
+  static Vector3 fromArray(const std::vector<float> &array, unsigned offset)
+  {
+    float x = array[ offset ];
+    float y = array[ offset + 1 ];
+    float z = array[ offset + 2 ];
+
+    return Vector3(x, y, z);
+  }
+
+  static Vector3 fromMatrixColumn(const Matrix4 &m, unsigned index);
+
+  static Vector3 fromMatrixScale(const Matrix4 &m);
   const float x() const {return _x;}
   const float y() const {return _y;}
   const float z() const {return _z;}
@@ -135,9 +158,9 @@ public:
   //apply quaternion
   Vector3 &apply(const Quaternion &q);
 
-  //Vector3 &project(const Camera &camera);
+  Vector3 &project(const Camera &camera);
 
-  //Vector3 &unproject(const Camera &camera);
+  Vector3 &unproject(const Camera &camera);
 
   // input: THREE.Matrix4 affine matrix
   // vector interpreted as a direction
@@ -350,21 +373,6 @@ public:
     return std::abs( _x - v._x ) + std::abs( _y - v._y ) + std::abs( _z - v._z );
   }
 
-  static Vector3 fromSpherical(const Spherical &s);
-
-  static Vector3 fromCylindrical(const Cylindrical &c);
-
-  static Vector3 fromMatrixPosition(const Matrix4 &m);
-
-  static Vector3 fromArray(const float *array, unsigned offset)
-  {
-    float x = array[ offset ];
-    float y = array[ offset + 1 ];
-    float z = array[ offset + 2 ];
-
-    return Vector3(x, y, z);
-  }
-
   Vector3 &writeTo(float *array, unsigned offset=0)
   {
     array[ offset ] = _x;
@@ -373,10 +381,6 @@ public:
 
     return *this;
   }
-
-  static Vector3 fromMatrixColumn(const Matrix4 &m, unsigned index);
-
-  static Vector3 fromMatrixScale(const Matrix4 &m);
 
   bool operator ==(const Vector3 &v) const
   {

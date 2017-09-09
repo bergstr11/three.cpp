@@ -24,10 +24,6 @@
 
 namespace three {
 
-class Mesh;
-using MeshPtr = std::shared_ptr<Mesh>;
-using Vertex = math::Vector3;
-
 struct MorphTarget {
   std::string name;
   std::vector<Vertex> vertices;
@@ -46,7 +42,8 @@ class StaticGeometry : public Geometry
 
   std::vector<Face3> _faces;
 
-  std::array<std::vector<std::array<UV, 3>>, 2> _faceVertexUvs;
+  using UV_Array = std::array<UV, 3>;
+  std::array<std::vector<UV_Array>, 2> _faceVertexUvs;
 
   std::vector<MorphTarget> _morphTargets;
 
@@ -257,13 +254,13 @@ public:
     return *this;
 	}
 
-	StaticGeometry &computeBoundingBox()
+	StaticGeometry &computeBoundingBox() override
   {
 		_boundingBox.set(_vertices);
     return *this;
 	}
 
-	StaticGeometry &computeBoundingSphere()
+	StaticGeometry &computeBoundingSphere() override
   {
 		_boundingSphere.set(_vertices);
     return *this;
@@ -292,8 +289,7 @@ public:
 
 		// faces
 		for (const Face3 &face2 : geometry._faces) {
-			Face3 face(face2.a + vertexOffset, face2.b + vertexOffset, face2.c + vertexOffset);
-			face.normal = face2.normal;
+			Face3 face(face2.a + vertexOffset, face2.b + vertexOffset, face2.c + vertexOffset, face2.normal);
 
       face.normal.apply( normalMatrix ).normalize();
 
@@ -313,8 +309,6 @@ public:
 		}
     return *this;
 	}
-
-	StaticGeometry &mergeMesh(const MeshPtr & mesh );
 
 	/*
 	 * Checks for duplicate vertices with hashmap.
@@ -527,6 +521,17 @@ public:
 
     return *this;
   }
+
+  void raycast(const Line &line,
+               const Raycaster &raycaster, const math::Ray &ray,
+               std::vector<Intersection> &intersects) override;
+
+  void raycast(const Mesh &mesh,
+               const Raycaster &raycaster,
+               const math::Ray &ray,
+               math::Vector3 &intersectionPoint,
+               math::Vector3 &intersectionPointWorld,
+               std::vector<Intersection> &intersects) override;
 };
 
 } //three

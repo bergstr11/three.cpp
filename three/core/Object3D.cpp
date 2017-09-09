@@ -10,6 +10,10 @@ namespace three {
 
 using namespace three::math;
 
+Object3D::Object3D(Geometry::Ptr geometry) : _geometry(geometry)
+{
+}
+
 Object3D::Object3D()
 {
 }
