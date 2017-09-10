@@ -24,7 +24,7 @@ protected:
 public:
   Line(Geometry::Ptr geometry, Material::Ptr material) : Line(geometry, material, 1) {}
 
-  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
+  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 
   unsigned steps() const {return _steps;}
 };

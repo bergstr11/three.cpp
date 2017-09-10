@@ -17,6 +17,13 @@
 
 namespace three {
 
+struct Index
+{
+  const uint32_t a, b, c;
+
+  Index(uint32_t a, uint32_t b, uint32_t c) : a(a), b(b), c(c) {}
+};
+
 class BufferAttributeBase
 {
 public:
@@ -109,25 +116,21 @@ public:
     return *this;
   }
 
-#if 0
-  BufferAttribute &copyIndices( indices ) {
+  BufferAttribute &copyIndices(const std::vector<Index> &indices)
+  {
+    unsigned offset = 0;
 
-    var array = _array, offset = 0;
+    for (size_t i = 0, l = _array.size(); i < l; i ++ ) {
 
-    for ( var i = 0, l = indices.length; i < l; i ++ ) {
+      const Index &index = indices[ i ];
 
-      var index = indices[ i ];
-
-      array[ offset ++ ] = index.a;
-      array[ offset ++ ] = index.b;
-      array[ offset ++ ] = index.c;
+      _array[ offset ++ ] = index.a;
+      _array[ offset ++ ] = index.b;
+      _array[ offset ++ ] = index.c;
 
     }
-
     return *this;
-
   }
-#endif
 
   BufferAttribute &copyVector2s(std::vector<math::Vector2> vectors )
   {

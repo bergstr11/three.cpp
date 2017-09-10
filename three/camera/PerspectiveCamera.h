@@ -38,6 +38,7 @@ public:
   static Ptr make(float fov, float aspect, float near, float far) {
     return std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(fov, aspect, near, far));
   }
+
   /**
    * Sets the FOV by focal length in respect to the current .filmGauge.
    *
@@ -99,6 +100,8 @@ public:
   void clearViewOffset();
 
   void updateProjectionMatrix();
+
+  void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
 };
 
 }

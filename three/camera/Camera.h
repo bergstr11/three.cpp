@@ -8,6 +8,7 @@
 #include <math/Matrix4.h>
 #include <math/Vector3.h>
 #include <math/Quaternion.h>
+#include <math/Ray.h>
 #include <core/Object3D.h>
 
 namespace three {
@@ -38,6 +39,8 @@ public:
 
     _matrixWorldInverse = _matrixWorld.inverse();
   }
+
+  virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;
 };
 
 }

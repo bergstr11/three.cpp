@@ -421,6 +421,14 @@ inline Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix)
   return Vector3(vector).apply(matrix);
 }
 
+inline Vector3 operator / (const Vector3&v1, const Vector3 &v2)
+{
+  Vector3 vector(v1);
+  vector /= v2;
+
+  return vector;
+}
+
 inline Vector3 operator / (const Vector3 &vector, float scalar)
 {
   return vector * ( 1 / scalar );

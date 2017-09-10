@@ -69,6 +69,10 @@ public:
 
   void applyMatrix(const math::Matrix4 &matrix);
 
+  bool visible() const {return _visible;}
+
+  const std::vector<Ptr> &children() const {return _children;}
+
   math::Vector3 &position() {return _position;}
   math::Euler &rotation() {return _rotation;}
   math::Matrix4 &matrixWorld() {return _matrixWorld;}
@@ -250,7 +254,7 @@ public:
 
   void updateMatrixWorld(bool force);
 
-  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) {};
+  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const {};
 };
 
 }

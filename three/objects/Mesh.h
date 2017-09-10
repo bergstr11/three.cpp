@@ -41,7 +41,7 @@ public:
 
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
 
-  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
+  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 };
 
 }

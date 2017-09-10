@@ -7,6 +7,8 @@
 
 #include "Vector3.h"
 #include "Sphere.h"
+#include "Box3.h"
+#include "Line3.h"
 
 namespace three {
 namespace math {
@@ -93,50 +95,41 @@ public:
     return result + point;
   }
 
-#if 0
-  Plane &intersectLine(const Line3 &line)
+  bool intersectLine(const Line3 &line, Vector3 &intersect)
   {
-  var result = optionalTarget || new Vector3();
+    Vector3 direction = line.delta();
 
-    var direction = line.delta( v1 );
+    float denominator = _normal.dot( direction );
 
-    var denominator = _normal.dot( direction );
-
-    if ( denominator === 0 ) {
+    if ( denominator == 0 ) {
 
       // line is coplanar, return origin
-      if ( _distanceToPoint( line.start ) === 0 ) {
+      if (distanceToPoint(line.start()) == 0 ) {
 
-        return result.copy( line.start );
-
+        intersect = line.start();
+        return true;
       }
 
-      // Unsure if this is the correct method to handle this case.
-      return undefined;
+      return false;
 
     }
 
-    var t = - ( line.start.dot( _normal ) + _constant ) / denominator;
+    float t = - ( line.start().dot( _normal ) + _constant ) / denominator;
 
-    if ( t < 0 || t > 1 ) {
+    if ( t < 0 || t > 1 ) return false;
 
-      return undefined;
-
-    }
-
-    return result.copy( direction ).multiplyScalar( t ).add( line.start );
+    intersect = direction * t + line.start();
+    return true;
   }
-  intersectsLine( line ) {
 
-     // Note: this tests if a line intersects the plane, not whether it (or its end-points) are coplanar with it.
-
-     var startSign = _distanceToPoint( line.start );
-     var endSign = _distanceToPoint( line.end );
+  // Note: this tests if a line intersects the plane, not whether it (or its end-points) are coplanar with it.
+  bool intersectsLine(const Line3 &line)
+  {
+     float startSign = distanceToPoint(line.start());
+     float endSign = distanceToPoint(line.end());
 
      return ( startSign < 0 && endSign > 0 ) || ( endSign < 0 && startSign > 0 );
-
   }
-#endif
 
   bool intersectsBox(const Box3 &box)
   {
