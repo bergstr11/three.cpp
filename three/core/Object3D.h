@@ -83,6 +83,8 @@ public:
   const math::Matrix4 &matrixWorld() const {return _matrixWorld;}
   const Material::Ptr material() const {return _materials.empty() ? nullptr : _materials.at(0);}
 
+  const Object3D *parent() const {return _parent;}
+
   const std::vector<Material::Ptr> materials() const {return _materials;}
   const Material::Ptr material(unsigned index) const {
     return _materials.size() > index ? _materials.at(index) : nullptr;
@@ -252,7 +254,7 @@ public:
 
   void updateMatrix();
 
-  void updateMatrixWorld(bool force);
+  void updateMatrixWorld(bool force=false);
 
   virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const {};
 };

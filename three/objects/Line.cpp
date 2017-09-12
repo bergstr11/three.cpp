@@ -11,7 +11,7 @@ void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   if ( _geometry->boundingSphere().isEmpty()) _geometry->computeBoundingSphere();
 
   math::Sphere sphere = _geometry->boundingSphere();
-  sphere.applyMatrix4(_matrixWorld);
+  sphere.apply(_matrixWorld);
 
   if (!raycaster.ray().intersectsSphere(sphere)) return;
 

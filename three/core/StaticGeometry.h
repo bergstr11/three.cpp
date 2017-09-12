@@ -219,8 +219,8 @@ public:
 
 			if (mn.isEmpty() ) {
 				for (const Face3 &face : _faces) {
-          mn.faceNormals.push_back(Vertex());
-					mn.vertexNormals.push_back( std::array<Vertex, 3>());
+          mn.faceNormals.emplace_back();
+					mn.vertexNormals.emplace_back();
 				}
 			}
 
@@ -268,7 +268,7 @@ public:
 
 	StaticGeometry &merge(const StaticGeometry &geometry, const math::Matrix4 &matrix, unsigned materialIndexOffset=0)
   { 
-    unsigned vertexOffset = _vertices.size();
+    unsigned vertexOffset = (unsigned)_vertices.size();
     std::vector<Vertex> &vertices1 = _vertices;
     const std::vector<Vertex> &vertices2 = geometry._vertices;
 		auto &colors1 = _colors;
@@ -447,22 +447,22 @@ public:
 
     for(size_t i = 0, j = 0; i < positions->size(); i += 3, j += 2 ) {
 
-      _vertices.push_back(Vertex((*positions)[i], (*positions)[i + 1], (*positions)[i + 2]));
+      _vertices.emplace_back((*positions)[i], (*positions)[i + 1], (*positions)[i + 2]);
 
       if(normals) {
-        tempNormals.push_back(Vertex((*normals)[i], (*normals)[i + 1], (*normals)[i + 2]));
+        tempNormals.emplace_back((*normals)[i], (*normals)[i + 1], (*normals)[i + 2]);
       }
 
       if(colors) {
-        _colors.push_back(Color((*colors)[i], (*colors)[i + 1], (*colors)[i + 2]));
+        _colors.emplace_back((*colors)[i], (*colors)[i + 1], (*colors)[i + 2]);
       }
 
       if(uvs) {
-        tempUVs.push_back(UV((*uvs)[j], (*uvs)[j + 1]));
+        tempUVs.emplace_back((*uvs)[j], (*uvs)[j + 1]);
       }
 
       if(uv2s) {
-        tempUVs2.push_back(UV((*uv2s)[j], (*uv2s)[j + 1]));
+        tempUVs2.emplace_back((*uv2s)[j], (*uv2s)[j + 1]);
       }
     }
 

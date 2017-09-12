@@ -42,9 +42,7 @@ public:
 
   }
 
-  void render(const Scene &scene, const Camera::Ptr &camera) {
-
-  }
+  virtual void render(Scene &scene, Camera::Ptr camera) = 0;
 };
 
 }

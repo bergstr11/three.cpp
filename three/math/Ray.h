@@ -62,7 +62,7 @@ public:
     return *this;
   }
 
-  Vector3 closestPointToPoint(const Vector3 &point)
+  Vector3 closestPointToPoint(const Vector3 &point) const
   {
     Vector3 result = point - _origin;
     float directionDistance = result.dot(_direction);

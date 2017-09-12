@@ -6,7 +6,7 @@
 #define THREEQT_SCENE
 
 #include <core/Object3D.h>
-#include <Color.h>
+#include <core/Color.h>
 #include "Fog.h"
 
 namespace three {
@@ -15,6 +15,8 @@ class Scene : public Object3D
 {
   Color _background;
   Fog _fog;
+
+  bool _autoUpdate;
 
 public:
   Scene(const Color &background, const Fog &fog) : _background(background), _fog(fog) {}
@@ -25,6 +27,8 @@ public:
 
   Color &background() {return _background;}
   Fog &fog() {return _fog;}
+
+  bool autoUpdate() const {return _autoUpdate;}
 };
 
 }

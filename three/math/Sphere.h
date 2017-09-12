@@ -31,7 +31,7 @@ class Sphere
   float _radius;
 
 public:
-  Sphere(const Vector3 center, const float radius) : _center(center), _radius(radius) {}
+  Sphere(const Vector3 &center, const float radius) : _center(center), _radius(radius) {}
 
   Sphere(const Sphere &sphere) : _center(sphere._center), _radius(sphere._radius) {}
 
@@ -95,7 +95,7 @@ public:
 
   Box3 getBoundingBox();
 
-  Sphere &applyMatrix4(const Matrix4 &matrix)
+  Sphere &apply(const Matrix4 &matrix)
   {
     _center.apply(matrix);
     _radius = _radius * matrix.getMaxScaleOnAxis();

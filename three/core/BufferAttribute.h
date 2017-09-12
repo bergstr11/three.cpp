@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <cstring>
-#include <Color.h>
+#include <core/Color.h>
 #include <memory>
 
 #include "math/Vector2.h"

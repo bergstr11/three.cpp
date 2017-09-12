@@ -15,10 +15,10 @@ struct Intersect
   const float distance;
   const math::Vector3 intersectPoint;
   const Face3 face;
-  const Object3D::Ptr object;
+  const Object3D &object;
 
-  Intersect(const float distance, const math::Vector3 &intersectPoint, const Face3 &face, const Object3D::Ptr object)
-     : distance(distance), intersectPoint(intersectPoint), face(face), object(object)
+  Intersect(const float distance, const math::Vector3 &intersectPoint, const Face3 *face, const Object3D &object)
+     : distance(distance), intersectPoint(intersectPoint), face(*face), object(object)
   {}
 };
 
@@ -38,18 +38,18 @@ public:
     math::Vector3 intersectPoint;
 
     math::Vector3 worldPosition = math::Vector3::fromMatrixPosition(_matrixWorld);
-    raycaster.ray.closestPointToPoint(worldPosition, intersectPoint);
+    intersectPoint = raycaster.ray().closestPointToPoint(worldPosition);
 
     math::Vector3 worldScale = math::Vector3::fromMatrixScale(_matrixWorld);
     float guessSizeSq = worldScale.x() * worldScale.y() / 4;
 
     if (worldPosition.distanceToSquared(intersectPoint) > guessSizeSq) return;
 
-    float distance = raycaster.ray.origin.distanceTo(intersectPoint);
+    float distance = raycaster.ray().origin().distanceTo(intersectPoint);
 
-    if (distance < raycaster.near || distance > raycaster.far) return;
+    if (distance < raycaster.near() || distance > raycaster.far()) return;
 
-    intersects.push_back(Intersect(distance, intersectPoint, nullptr, this));
+    intersects.emplace_back(distance, intersectPoint, nullptr, *this);
   }
 };
 

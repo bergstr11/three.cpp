@@ -7,21 +7,24 @@
 
 #include <renderers/OpenGLRenderer.h>
 #include <light/Light.h>
-#include <QOpenGLShaderProgram>
+#include <math/Frustum.h>
+#include <objects/Sprite.h>
+#include <objects/LensFlare.h>
 #include "OpenGLRenderTarget.h"
 #include "GLState.h"
+#include "GLClipping.h"
 
 namespace three {
 
 class OpenGLRenderer_impl : public OpenGLRenderer
 {
-  std::vector<Light::Ptr> lightsArray;
-  std::vector<Light::Ptr> shadowsArray;
+  std::vector<Light::Ptr> _lightsArray;
+  std::vector<Light::Ptr> _shadowsArray;
 
   //var currentRenderList = null;
 
-  //var spritesArray = [];
-  //var flaresArray = [];
+  std::vector<Sprite::Ptr> _spritesArray;
+  std::vector<LensFlare::Ptr> _flaresArray;
 
   // clearing
   bool _autoClear = true;
@@ -59,10 +62,10 @@ class OpenGLRenderer_impl : public OpenGLRenderer
   OpenGLRenderTarget::Ptr _currentRenderTarget = nullptr;
   //_currentFramebuffer = null,
   int _currentMaterialId = -1;
-  QOpenGLShaderProgram *_currentGeometryProgram = nullptr;
+  unsigned _currentGeometryProgram = 0;
 
-  //_currentCamera = null,
-  //_currentArrayCamera = null,
+  Camera::Ptr _currentCamera;
+  Camera::Ptr _currentArrayCamera;
 
   QVector4D _currentViewport;
   QVector4D _currentScissor;
@@ -85,14 +88,14 @@ class OpenGLRenderer_impl : public OpenGLRenderer
   //Frustum _frustum = new Frustum(),
 
   // clipping
-  //_clipping = new WebGLClipping(),
+  GLClipping _clipping;
   bool _clippingEnabled = false;
   bool _localClippingEnabled = false;
 
   // camera matrices cache
-  QMatrix4x4 _projScreenMatrix;
-
-  QVector3D _vector3;
+  math::Matrix4 _projScreenMatrix;
+  math::Frustum _frustum;
+  math::Vector3 _vector3;
 
   float getTargetPixelRatio()
   {
@@ -105,6 +108,8 @@ public:
 
   //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
   OpenGLRenderer_impl(QOpenGLContext *context, unsigned width, unsigned height);
+
+  void render(Scene &scene, Camera::Ptr camera) override;
 };
 
 }

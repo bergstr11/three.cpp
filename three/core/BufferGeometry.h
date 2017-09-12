@@ -133,7 +133,7 @@ public:
 
   BufferGeometry &addGroup(uint32_t start, uint32_t count, uint32_t materialIndex=0)
   {
-    _groups.push_back({start, count, materialIndex});
+    _groups.emplace_back(start, count, materialIndex);
   }
 
   BufferGeometry &clearGroups()

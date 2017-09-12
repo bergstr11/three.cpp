@@ -375,13 +375,12 @@ public:
     return std::abs( _x - v._x ) + std::abs( _y - v._y ) + std::abs( _z - v._z );
   }
 
-  Vector3 &writeTo(float *array, unsigned offset=0)
+  template <typename Array>
+  void toArray(Array array, unsigned offset=0) const
   {
     array[ offset ] = _x;
     array[ offset + 1 ] = _y;
     array[ offset + 2 ] = _z;
-
-    return *this;
   }
 
   bool operator ==(const Vector3 &v) const

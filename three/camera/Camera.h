@@ -22,9 +22,12 @@ protected:
   Camera() : _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
 
 public:
+  using Ptr = std::shared_ptr<Camera>;
 
   const math::Matrix4 &projectionMatrix() const {return _projectionMatrix;}
-  math::Matrix4 &projectionMatrix() {return _projectionMatrix;}
+  //math::Matrix4 &projectionMatrix() {return _projectionMatrix;}
+  const math::Matrix4 &matrixWorldInverse() const {return _matrixWorldInverse;}
+  //math::Matrix4 &matrixWorldInverse() {return _matrixWorldInverse;}
 
   math::Vector3 getWorldDirection() const
   {
@@ -33,7 +36,7 @@ public:
     return math::Vector3(0, 0, - 1).apply(quaternion);
   }
 
-  void updateMatrixWorld(bool force) {
+  void updateMatrixWorld(bool force=false) {
 
     Object3D::updateMatrixWorld(force);
 

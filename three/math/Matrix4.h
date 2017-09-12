@@ -23,10 +23,13 @@ class Matrix4
 
   float _elements[16];
 
-  Matrix4() {}
-
 public:
   Matrix3 normalMatrix() const;
+
+  Matrix4()
+  {
+    std::memcpy(_elements, IDENTITY, sizeof(_elements));
+  }
 
   Matrix4(float n11, float n12, float n13, float n14, float n21, float n22, float n23, float n24, float n31, float n32, float n33, float n34, float n41, float n42, float n43, float n44)
   {

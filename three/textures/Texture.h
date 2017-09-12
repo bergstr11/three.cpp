@@ -8,6 +8,7 @@
 #include <QImage>
 #include <math/Vector2.h>
 #include <vector>
+#include <memory>
 #include <Constants.h>
 
 namespace three {
@@ -69,8 +70,11 @@ class Texture : private TextureData
 
   unsigned version = 0;
 
-public:
+protected:
   Texture(const TextureData &data);
+
+public:
+  using Ptr = std::shared_ptr<Texture>;
 };
 
 }

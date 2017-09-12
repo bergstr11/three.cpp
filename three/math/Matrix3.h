@@ -17,10 +17,12 @@ class Matrix3
 
   float _elements[9];
 
-  Matrix3()
-  {}
-
 public:
+  Matrix3()
+  {
+    identity();
+  }
+
   Matrix3(float n11, float n12, float n13, float n21, float n22, float n23, float n31, float n32, float n33)
   {
     set(n11, n12, n13, n21, n22, n23, n31, n32, n33);

@@ -6,7 +6,7 @@
 #define THREEQT_MESHBASICMATERIAL
 
 #include "Material.h"
-#include "Color.h"
+#include "core/Color.h"
 
 namespace three {
 

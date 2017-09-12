@@ -84,7 +84,8 @@ struct Color
   Color(const Color &color) : r(color.r), g(color.g), b(color.b)
   {}
 
-  Color(float scalar) : r(scalar), g(scalar), b(scalar) {}
+  Color(unsigned hex) : r((hex >> 16 & 255 ) / 255), g((hex >> 8 & 255 ) / 255), b((hex & 255 ) / 255)
+  {}
 
   Color() :
      r(std::numeric_limits<float>::infinity()),

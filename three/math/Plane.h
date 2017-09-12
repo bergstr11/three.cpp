@@ -19,6 +19,7 @@ class Plane
   float _constant;
 
 public:
+  Plane() : _normal(1.0f, 0.0f, 0.0f), _constant(0) {}
   Plane(const Vector3 &normal, const float constant) : _normal(normal), _constant(constant) {}
   Plane(const Plane &plane) : _normal(plane._normal), _constant(plane._constant) {}
 
@@ -146,7 +147,7 @@ public:
      return Vector3( _normal ) * -_constant;
   }
 
-  Plane &operator *=(const Matrix4 &matrix)
+  Plane &apply(const Matrix4 &matrix)
   {
     Matrix3 normalMatrix = matrix.normalMatrix();
 
