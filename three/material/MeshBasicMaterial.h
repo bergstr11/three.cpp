@@ -42,13 +42,17 @@ struct MeshBasicMaterial : public Material
   bool lights = false;
 
 private:
-  MeshBasicMaterial() {
+  MeshBasicMaterial(bool morphTargets, bool skinning)
+  : Material(morphTargets, skinning)
+  {
 
   }
 
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
-  static Ptr make() {return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial);}
+  static Ptr make() {
+    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(false, false));
+  }
 
 
 };

@@ -9,12 +9,14 @@
 #include <math/Plane.h>
 
 namespace three {
+namespace gl {
 
-struct Cache {
+struct Cache
+{
   std::vector<float> clippingState;
 };
 
-class GLClipping
+class Clipping
 {
   size_t _numGlobalPlanes, _numIntersection, _numPlanes;
   bool _localClippingEnabled;
@@ -43,7 +45,8 @@ public:
     return enabled;
   }
 
-  size_t numIntersection() const {return _numIntersection;}
+  size_t numIntersection() const
+  { return _numIntersection; }
 
   void beginShadows()
   {
@@ -150,6 +153,7 @@ public:
   }
 };
 
+}
 }
 
 #endif //THREE_QT_GLCLIPPING_H

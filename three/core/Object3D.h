@@ -28,6 +28,7 @@ public:
 
 private:
   std::string _name;
+  uint16_t _id;
 
   Object3D *_parent;
   std::vector<Ptr> _children;
@@ -54,7 +55,7 @@ protected:
   bool _receiveShadow = false;
 
   bool _frustumCulled = true;
-  bool _renderOrder = 0;
+  int _renderOrder = -1;
 
   Geometry::Ptr _geometry;
 
@@ -63,6 +64,8 @@ protected:
   Object3D(Geometry::Ptr geometry);
 
 public:
+  uint16_t id() const {return _id;}
+  const Layers &layers() const {return _layers;}
   const Geometry::Ptr geometry() const {return _geometry;}
   const math::Matrix4 &matrix() const {return _matrix;}
   const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
@@ -84,6 +87,8 @@ public:
   const Material::Ptr material() const {return _materials.empty() ? nullptr : _materials.at(0);}
 
   const Object3D *parent() const {return _parent;}
+
+  int renderOrder() const {return _renderOrder;}
 
   const std::vector<Material::Ptr> materials() const {return _materials;}
   const Material::Ptr material(unsigned index) const {

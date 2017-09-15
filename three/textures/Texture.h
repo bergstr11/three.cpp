@@ -18,63 +18,69 @@ struct Mipmap {
   int width, height;
 };
 
-struct TextureData {
-  QImage image;
-
-  TextureMapping mapping = TextureMapping::UV;
-
-  TextureWrapping wrapS = TextureWrapping::ClampToEdge;
-  TextureWrapping wrapT = TextureWrapping::ClampToEdge;
-
-  TextureFilter magFilter = TextureFilter::Linear;
-  TextureFilter minFilter = TextureFilter::LinearMipMapLinear;
-
-  float anisotropy = 1;
-
-  TextureFormat format = TextureFormat::RGBA;
-  TextureType type = TextureType::UnsignedByte;
-  Encoding encoding = Encoding::Linear;
-};
-
-class Texture : private TextureData
+class Texture
 {
-  QImage image;
-  std::vector<Mipmap> mipmaps;
+public:
+  struct Options
+  {
+    QImage image;
+    TextureMapping mapping = TextureMapping::UV;
 
-  TextureMapping mapping = TextureMapping::UV;
+    TextureWrapping wrapS = TextureWrapping::ClampToEdge;
+    TextureWrapping wrapT = TextureWrapping::ClampToEdge;
 
-  TextureWrapping wrapS = TextureWrapping::ClampToEdge;
-  TextureWrapping wrapT = TextureWrapping::ClampToEdge;
+    TextureFilter magFilter = TextureFilter::Linear;
+    TextureFilter minFilter = TextureFilter::LinearMipMapLinear;
 
-  TextureFilter magFilter = TextureFilter::Linear;
-  TextureFilter minFilter = TextureFilter::LinearMipMapLinear;
+    float anisotropy = 1;
 
-  float anisotropy = 1;
+    TextureFormat format = TextureFormat::RGBA;
+    TextureType type = TextureType::UnsignedByte;
+    Encoding encoding = Encoding::Linear;
+  };
 
-  TextureFormat format = TextureFormat::RGBA;
-  TextureType type = TextureType::UnsignedByte;
+private:
+  QImage _image;
+  std::vector<Mipmap> _mipmaps;
 
-  math::Vector2 offset {0.0f, 0.0f};
-  math::Vector2 repeat {1.0f, 1.0f};
+  TextureMapping _mapping;
 
-  bool generateMipmaps = true;
-  bool premultiplyAlpha = false;
-  bool flipY = true;
-  unsigned unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+  TextureWrapping _wrapS;
+  TextureWrapping _wrapT;
+
+  TextureFilter _magFilter;
+  TextureFilter _minFilter;
+
+  float _anisotropy;
+
+  TextureFormat _format;
+  TextureType _type;
+
+  math::Vector2 _offset {0.0f, 0.0f};
+  math::Vector2 _repeat {1.0f, 1.0f};
+
+  bool _generateMipmaps = true;
+  bool _premultiplyAlpha = false;
+  bool _flipY = true;
+  unsigned _unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
   // Values of encoding !== THREE.LinearEncoding only supported on map, envMap and emissiveMap.
   //
   // Also changing the encoding after already used by a Material will not automatically make the Material
   // update.  You need to explicitly call Material.needsUpdate to trigger it to recompile.
-  Encoding encoding = Encoding::Linear;
+  Encoding _encoding = Encoding::Linear;
 
-  unsigned version = 0;
+  unsigned _version = 0;
 
 protected:
-  Texture(const TextureData &data);
+  Texture(const Options &data);
 
 public:
+
   using Ptr = std::shared_ptr<Texture>;
+  static Ptr make(const Options &options) {
+    return Ptr(new Texture(options));
+  }
 };
 
 }

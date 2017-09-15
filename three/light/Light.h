@@ -6,6 +6,7 @@
 #define THREE_QT_LIGHT_H
 
 #include <core/Object3D.h>
+#include "LightShadow.h"
 
 namespace three {
 
@@ -13,7 +14,8 @@ class Light : public Object3D
 {
   Color _color;
   float _intensity;
-  bool receiveShadow = false;
+
+  LightShadow::Ptr _shadow;
 
 protected:
   Light(const Color &color, float intensity) : _color(color), _intensity(intensity) {}
@@ -26,6 +28,7 @@ public:
 
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}
+  const LightShadow::Ptr shadow() const {return _shadow;};
 
   virtual bool castShadow() = 0;
 };

@@ -11,6 +11,7 @@ namespace three {
 
 class SpriteMaterial : public Material
 {
+  SpriteMaterial() : Material(false, false) {}
 public:
   static Ptr make() {return Ptr(new SpriteMaterial());}
 };

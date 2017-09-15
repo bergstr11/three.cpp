@@ -7,11 +7,14 @@
 
 #include <memory>
 #include <Constants.h>
+#include <textures/Texture.h>
 
 namespace three {
 
 struct Material
 {
+  uint16_t _id;
+
   bool fog = true;
   bool lights = true;
 
@@ -52,7 +55,8 @@ struct Material
   unsigned alphaTest = 0;
   bool premultipliedAlpha = false;
 
-  bool morphTargets = false;
+  bool _skinning = false;
+  bool _morphTargets = false;
 
   unsigned overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 
@@ -60,11 +64,28 @@ struct Material
 
   bool needsUpdate = true;
 
+  Texture::Ptr _map;
+
+  Texture::Ptr _alphaMap;
+
+  Texture::Ptr _displacementMap;
+
+  float _displacementScale = 1;
+  float _displacementBias = 0;
+
+  bool _fog = false;
+  bool _lights = false;
+
 protected:
-  Material() {}
+  Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets)
+  {}
 
 public:
   using Ptr = std::shared_ptr<Material>;
+
+  uint16_t id() const {return _id;}
+
+  bool morphTargets() const {return _morphTargets;}
 };
 
 }

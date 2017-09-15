@@ -14,11 +14,11 @@
 #include <unordered_set>
 
 namespace three {
-namespace gles {
+namespace gl {
 
 using glfunctions = QOpenGLExtraFunctions;
 
-class GLState : private glfunctions
+class State : private glfunctions
 {
 public:
   struct ColorBuffer : private glfunctions
@@ -69,7 +69,7 @@ public:
 
   struct DepthBuffer : public glfunctions
   {
-    GLState *const glState;
+    State *const glState;
 
     bool locked = false;
 
@@ -88,7 +88,7 @@ public:
       return *this;
     }
 
-    DepthBuffer(GLState *state) : glState(state)
+    DepthBuffer(State *state) : glState(state)
     {}
 
     DepthBuffer &setMask(bool depthMask)
@@ -138,7 +138,7 @@ public:
 
   struct StencilBuffer : private glfunctions
   {
-    GLState *const glState;
+    State *const glState;
 
     bool locked = false;
 
@@ -151,7 +151,7 @@ public:
     Op currentStencilZPass = Op::Zero;
     GLint currentStencilClear = 0;
 
-    StencilBuffer(QOpenGLContext *context, GLState *state) : glfunctions(context), glState(state)
+    StencilBuffer(QOpenGLContext *context, State *state) : glfunctions(context), glState(state)
     {}
 
     StencilBuffer &setTest(bool stencilTest)
@@ -296,7 +296,7 @@ public:
   std::unordered_map<GLenum, GLuint> emptyTextures = {};
 
   // init
-  GLState(QOpenGLContext *context) :
+  State(QOpenGLContext *context) :
      glfunctions(context), colorBuffer(context), stencilBuffer(context, this), depthBuffer(this)
   {
     emptyTextures[GL_TEXTURE_2D] = createTexture(GL_TEXTURE_2D, GL_TEXTURE_2D, 1);
@@ -324,13 +324,13 @@ public:
     setBlending(Blending::Normal);
   }
 
-  GLState &initAttributes()
+  State &initAttributes()
   {
     newAttributes.assign(newAttributes.size(), 0);
     return *this;
   }
 
-  GLState &enableAttribute(uint8_t attribute)
+  State &enableAttribute(uint8_t attribute)
   {
     newAttributes[attribute] = 1;
 
@@ -346,7 +346,7 @@ public:
     return *this;
   }
 
-  GLState &enableAttributeAndDivisor(uint8_t attribute, GLuint meshPerAttribute)
+  State &enableAttributeAndDivisor(uint8_t attribute, GLuint meshPerAttribute)
   {
     newAttributes[attribute] = 1;
 
@@ -362,7 +362,7 @@ public:
     return *this;
   }
 
-  GLState &disableUnusedAttributes()
+  State &disableUnusedAttributes()
   {
     for (size_t i = 0, l = enabledAttributes.size(); i != l; ++i) {
       if (enabledAttributes[i] != newAttributes[i]) {
@@ -411,7 +411,7 @@ public:
     return false;
   }
 
-  GLState &
+  State &
   setBlending(Blending blending, BlendEq blendEquation = BlendEq::None, BlendFunc blendSrc = BlendFunc::None,
               BlendFunc blendDst = BlendFunc::None, BlendEq blendEquationAlpha = BlendEq::None,
               BlendFunc blendSrcAlpha = BlendFunc::None, BlendFunc blendDstAlpha = BlendFunc::None,
@@ -509,7 +509,7 @@ public:
     currentPremultipledAlpha = premultipliedAlpha;
   }
 
-  GLState &setMaterial(const Material::Ptr material)
+  State &setMaterial(const Material::Ptr material)
   {
     material->side == Side::Double
     ? disable(GL_CULL_FACE)
@@ -533,7 +533,7 @@ public:
 
   //
 
-  GLState &setFlipSided(FrontFaceDirection flipSided)
+  State &setFlipSided(FrontFaceDirection flipSided)
   {
     if (currentFlipSided != flipSided) {
       glFrontFace((GLenum) flipSided);
@@ -542,7 +542,7 @@ public:
     }
   }
 
-  GLState &setCullFace(CullFace cullFace)
+  State &setCullFace(CullFace cullFace)
   {
     if (cullFace != CullFace::None) {
       enable(GL_CULL_FACE);
@@ -559,7 +559,7 @@ public:
     currentCullFace = cullFace;
   }
 
-  GLState &setLineWidth(GLfloat width)
+  State &setLineWidth(GLfloat width)
   {
     if (width != currentLineWidth) {
       glLineWidth(width);
@@ -567,7 +567,7 @@ public:
     }
   }
 
-  GLState &setPolygonOffset(bool polygonOffset, GLfloat factor, GLfloat units)
+  State &setPolygonOffset(bool polygonOffset, GLfloat factor, GLfloat units)
   {
     if (polygonOffset) {
       enable(GL_POLYGON_OFFSET_FILL);
@@ -590,7 +590,7 @@ public:
     return currentScissorTest;
   }
 
-  GLState &setScissorTest(bool scissorTest)
+  State &setScissorTest(bool scissorTest)
   {
 
     currentScissorTest = scissorTest;
@@ -602,7 +602,7 @@ public:
   }
 
   // texture
-  GLState &activeTexture(GLenum glSlot=0)
+  State &activeTexture(GLenum glSlot=0)
   {
     if(glSlot == 0) glSlot = GL_TEXTURE0 + maxTextures - 1;
 

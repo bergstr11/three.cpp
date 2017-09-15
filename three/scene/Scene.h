@@ -19,6 +19,8 @@ class Scene : public Object3D
   bool _autoUpdate;
 
 public:
+  using Ptr = std::shared_ptr<Scene>;
+
   Scene(const Color &background, const Fog &fog) : _background(background), _fog(fog) {}
   Scene() {}
 

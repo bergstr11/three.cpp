@@ -6,7 +6,20 @@
 
 namespace three {
 
-Texture::Texture(const TextureData &data) : TextureData(data) {}
+Texture::Texture(const Options &options)
+   : _image(options.image),
+     _mapping(options.mapping),
+     _wrapS(options.wrapS),
+     _wrapT(options.wrapT),
+     _magFilter(options.magFilter),
+     _minFilter(options.minFilter),
+     _anisotropy(options.anisotropy),
+     _format(options.format),
+     _type(options.type),
+     _encoding(options.encoding)
+{
+
+}
 
 #if 0
 Texture::transformUv(TextureMapping::UV uv)

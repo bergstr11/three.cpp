@@ -29,7 +29,7 @@ public:
     mask &= ~ ( 1 << channel | 0 );
   }
 
-  bool test(const Layers &layers) {
+  bool test(const Layers &layers) const {
     return (mask & layers.mask ) != 0;
   }
 };

@@ -200,6 +200,15 @@ enum class BindingTarget : GLenum
   textureCubeMap=GL_TEXTURE_CUBE_MAP
 };
 
+enum class ShadowMapType
+{
+  Basic=0, PCF=1, PCFSoft=2
+};
+
+enum class DepthPacking {
+  Basic=3200, RGBA=3201
+};
+
 }
 
 #endif //THREE_QT_CONSTANTS
