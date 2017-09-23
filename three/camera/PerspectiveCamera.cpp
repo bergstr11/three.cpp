@@ -72,9 +72,9 @@ void PerspectiveCamera::updateProjectionMatrix()
 
   float near = _near;
   double top = near * std::tan(math::DEG2RAD * 0.5 * _fov) / _zoom;
-  unsigned height = (unsigned)(2 * top);
-  unsigned width = (unsigned)(_aspect * height);
-  unsigned left = (unsigned)(-0.5 * width);
+  auto height = (unsigned)(2 * top);
+  auto width = (unsigned)(_aspect * height);
+  auto left = (unsigned)(-0.5 * width);
 
   if(!_view.isNull) {
     left += _view.offsetX * width / _view.fullWidth;

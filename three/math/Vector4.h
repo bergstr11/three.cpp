@@ -24,6 +24,8 @@ class Vector4
   };
 
 public:
+  Vector4() : _x(0), _y(0), _z(0), _w(0) {}
+
   Vector4(float x, float y, float z, float w) : _x(x), _y(y), _z(z), _w(w) {}
   
   Vector4(const Vector4 &vector)

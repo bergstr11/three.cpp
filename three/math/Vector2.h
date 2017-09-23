@@ -42,6 +42,8 @@ public:
 
   const float x() const { return _x; }
   const float y() const { return _y; }
+  const float width() const { return _x; }
+  const float height() const { return _y; }
   float &x() { return _x; }
   float &y() { return _y; }
 

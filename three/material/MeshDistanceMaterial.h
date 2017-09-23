@@ -21,7 +21,7 @@ class MeshDistanceMaterial : public Material
 
 public:
   using Ptr = std::shared_ptr<MeshDistanceMaterial>;
-  static Ptr make(bool morphing, bool skinning) {return Ptr(new MeshDistanceMaterial(morphing, skinning);}
+  static Ptr make(bool morphing, bool skinning) {return Ptr(new MeshDistanceMaterial(morphing, skinning));}
 };
 
 }

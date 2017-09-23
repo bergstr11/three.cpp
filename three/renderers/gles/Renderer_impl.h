@@ -14,12 +14,20 @@
 #include "State.h"
 #include "Clipping.h"
 #include "RenderLists.h"
+#include "ShadowMap.h"
 
 namespace three {
 namespace gl {
 
 class Renderer_impl : public OpenGLRenderer
 {
+public:
+  struct MemoryInfo {
+    unsigned geomtries = 0;
+    unsigned textures = 0;
+  };
+
+protected:
   std::vector<Light::Ptr> _lightsArray;
   std::vector<Light::Ptr> _shadowsArray;
 
@@ -69,11 +77,12 @@ class Renderer_impl : public OpenGLRenderer
   Camera::Ptr _currentCamera;
   Camera::Ptr _currentArrayCamera;
 
-  QVector4D _currentViewport;
-  QVector4D _currentScissor;
+  math::Vector4 _currentViewport;
+  math::Vector4 _currentScissor;
   //_currentScissorTest = null,
 
   //
+  ShadowMap::Ptr _shadowMap;
 
   unsigned _usedTextureUnits = 0;
 
@@ -82,8 +91,8 @@ class Renderer_impl : public OpenGLRenderer
 
   float _pixelRatio = 1;
 
-  QVector4D _viewport;// = new Vector4( 0, 0, _width, _height ),
-  QVector4D _scissor; // = new Vector4( 0, 0, _width, _height ),
+  math::Vector4 _viewport;// = new Vector4( 0, 0, _width, _height ),
+  math::Vector4 _scissor; // = new Vector4( 0, 0, _width, _height ),
   bool _scissorTest = false;
 
   // frustum
@@ -92,7 +101,6 @@ class Renderer_impl : public OpenGLRenderer
   // clipping
   Clipping _clipping;
   bool _clippingEnabled = false;
-  //bool _localClippingEnabled = false;
 
   // camera matrices cache
   math::Matrix4 _projScreenMatrix;
@@ -119,6 +127,10 @@ public:
   void render(const Scene::Ptr scene, const Camera::Ptr camera) override;
 
   gl::State &state() {return _state;}
+
+  Renderer_impl &setRenderTarget(const RenderTarget::Ptr renderTarget);
+
+  bool localClippingEnabled() const {return _localClippingEnabled;}
 };
 
 }

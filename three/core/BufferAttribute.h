@@ -10,12 +10,48 @@
 #include <core/Color.h>
 #include <memory>
 
-#include "math/Vector2.h"
-#include "math/Vector3.h"
-#include "math/Vector4.h"
-#include "math/Box3.h"
+#include <qopengl.h>
+
+#include <helper/sole.h>
+#include <helper/simplesignal.h>
+#include <math/Vector2.h>
+#include <math/Vector3.h>
+#include <math/Vector4.h>
+#include <math/Box3.h>
 
 namespace three {
+
+template<typename T>
+struct Cpp2GL;
+
+template<>
+struct Cpp2GL<float> {
+  static const GLenum glEnum = GL_FLOAT;
+};
+template<>
+struct Cpp2GL<uint16_t> {
+  static const GLenum glEnum = GL_UNSIGNED_SHORT;
+};
+template<>
+struct Cpp2GL<int16_t> {
+  static const GLenum glEnum = GL_SHORT;
+};
+template<>
+struct Cpp2GL<uint32_t> {
+  static const GLenum glEnum = GL_UNSIGNED_INT;
+};
+template<>
+struct Cpp2GL<int32_t> {
+  static const GLenum glEnum = GL_INT;
+};
+template<>
+struct Cpp2GL<int8_t> {
+  static const GLenum glEnum = GL_BYTE;
+};
+template<>
+struct Cpp2GL<uint8_t> {
+  static const GLenum glEnum = GL_UNSIGNED_BYTE;
+};
 
 struct Index
 {
@@ -24,10 +60,20 @@ struct Index
   Index(uint32_t a, uint32_t b, uint32_t c) : a(a), b(b), c(c) {}
 };
 
+struct UpdateRange {
+  int32_t offset, count;
+};
+
 class BufferAttributeBase
 {
+protected:
+  unsigned _version = 0;
+
 public:
-  bool needsUpdate = false;
+  void needsUpdate() {_version++;}
+  bool needsUpdate() const {return _version > 0;}
+
+  unsigned version() const {return _version;}
 
   virtual void apply(const math::Matrix4 &matrix) = 0;
 
@@ -43,29 +89,33 @@ class BufferAttribute : public BufferAttributeBase
   bool _normalized;
 
   bool _dynamic = false;
-  unsigned _updateRange = 0;
-  unsigned _updateCount = -1;
+  UpdateRange _updateRange = {0, -1};
+
+protected:
+  BufferAttribute(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
+     : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize), uuid(sole::uuid0())
+  {}
+
+  explicit BufferAttribute(unsigned itemSize, bool normalized=false)
+     : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0), uuid(sole::uuid0())
+  {}
+
+  BufferAttribute(const BufferAttribute&source) :
+     _array(source._array), _itemSize(source._itemSize), _count(source._count),
+     _normalized(source._normalized), _dynamic(source._dynamic), uuid(sole::uuid0())
+  {}
 
 public:
   using Ptr = std::shared_ptr<BufferAttribute<Type>>;
 
   static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
   {
-    return std::make_shared<BufferAttribute<Type>>(array, itemSize, normalized);
+    return std::shared_ptr<BufferAttribute<Type>>(new BufferAttribute<Type>(array, itemSize, normalized));
   }
 
-  BufferAttribute(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
-    : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
-  {}
+  const sole::uuid uuid;
 
-  explicit BufferAttribute(unsigned itemSize, bool normalized=false)
-     : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
-  {}
-
-  BufferAttribute(const BufferAttribute&source) :
-     _array(source._array), _itemSize(source._itemSize), _count(source._count),
-     _normalized(source._normalized), _dynamic(source._dynamic)
-  {}
+  Signal<void(const BufferAttribute<Type> &)> onUpload;
 
   const size_t size() const {return _array.size();}
 
@@ -80,6 +130,18 @@ public:
     _count = array.size() / _itemSize;
     _array = array;
   }
+
+  GLenum glType() const {return Cpp2GL<Type>::glEnum;}
+
+  unsigned bytesPerElement() const {return sizeof(Type);}
+
+  bool dynamic() const {return _dynamic;}
+
+  const Type *data() const {return _array.data();}
+
+  const Type *data(uint32_t offset) const {return _array.data()+offset;}
+
+  UpdateRange &updateRange() {return _updateRange;}
 
   BufferAttribute &setDynamic(bool value)
   {

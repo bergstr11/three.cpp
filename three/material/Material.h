@@ -8,11 +8,14 @@
 #include <memory>
 #include <Constants.h>
 #include <textures/Texture.h>
+#include <helper/sole.h>
+#include <math/Plane.h>
 
 namespace three {
 
 struct Material
 {
+  sole::uuid uuid;
   uint16_t _id;
 
   bool fog = true;
@@ -38,11 +41,16 @@ struct Material
   bool depthTest = true;
   bool depthWrite = true;
 
-  //clippingPlanes = null;
+  std::vector<math::Plane> clippingPlanes;
   bool clipIntersection = false;
   bool clipShadows = false;
 
   bool colorWrite = true;
+
+  bool wireframe = false;
+  unsigned wireframeLineWidth;
+  LineCap wireframeLineCap = LineCap::round;
+  LineJoin wireframeLineJoin = LineJoin::round;
 
   //precision = null; // override the renderer's default precision for this material
 
@@ -77,7 +85,7 @@ struct Material
   bool _lights = false;
 
 protected:
-  Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets)
+  Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets), uuid(sole::uuid0())
   {}
 
 public:

@@ -295,6 +295,7 @@ public:
 
   std::unordered_map<GLenum, GLuint> emptyTextures = {};
 
+public:
   // init
   State(QOpenGLContext *context) :
      glfunctions(context), colorBuffer(context), stencilBuffer(context, this), depthBuffer(this)

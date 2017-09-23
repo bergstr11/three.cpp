@@ -13,6 +13,20 @@
 
 namespace three {
 
+struct Viewport
+{
+  unsigned fullWidth=0;
+  unsigned fullHeight=0;
+  unsigned offsetX=0;
+  unsigned offsetY=0;
+  unsigned width=0;
+  unsigned height=0;
+
+  bool isNull() {
+    return fullWidth == 0 && fullHeight == 0;
+  }
+};
+
 class Camera : public Object3D
 {
 protected:
@@ -29,14 +43,14 @@ public:
   const math::Matrix4 &matrixWorldInverse() const {return _matrixWorldInverse;}
   //math::Matrix4 &matrixWorldInverse() {return _matrixWorldInverse;}
 
-  math::Vector3 getWorldDirection() const
+  math::Vector3 getWorldDirection() const override
   {
     math::Quaternion quaternion = getWorldQuaternion();
 
     return math::Vector3(0, 0, - 1).apply(quaternion);
   }
 
-  void updateMatrixWorld(bool force=false) {
+  void updateMatrixWorld(bool force) override {
 
     Object3D::updateMatrixWorld(force);
 
@@ -44,6 +58,8 @@ public:
   }
 
   virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;
+
+  virtual void updateProjectionMatrix() = 0;
 };
 
 }

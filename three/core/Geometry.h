@@ -9,6 +9,7 @@
 #include <math/Matrix4.h>
 #include <math/Sphere.h>
 #include <math/Box3.h>
+#include <helper/simplesignal.h>
 #include "Raycaster.h"
 
 namespace three {
@@ -21,13 +22,22 @@ using Vertex = math::Vector3;
 
 class Geometry
 {
+  static uint32_t id_count;
+
 protected:
   math::Box3 _boundingBox;
   math::Sphere _boundingSphere;
 
   virtual Geometry &apply(const math::Matrix4 &matrix) = 0;
 
+  Geometry() : id(id_count++) {}
+
 public:
+  const uint32_t id;
+
+  using OnDispose = Signal<void(Geometry *)>;
+  OnDispose onDispose;
+
   using Ptr = std::shared_ptr<Geometry>;
 
   const math::Box3 &boundingBox() const {return _boundingBox;}
@@ -47,6 +57,8 @@ public:
                        math::Vector3 &intersectionPoint,
                        math::Vector3 &intersectionPointWorld,
                        std::vector<Intersection> &intersects) = 0;
+
+  virtual bool useMorphing() const = 0;
 
   // rotate geometry around world x-axis
   Geometry &rotateX(float angle)
@@ -91,7 +103,10 @@ public:
 
     apply(math::Matrix4::rotation(q));
   }
-  
+
+  virtual void dispose() {
+    onDispose.emitSignal(this);
+  }
 };
 
 }

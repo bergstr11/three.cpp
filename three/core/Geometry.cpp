@@ -14,6 +14,8 @@ namespace three {
 using namespace math;
 using namespace impl;
 
+uint32_t Geometry::id_count = 0;
+
 void StaticGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,

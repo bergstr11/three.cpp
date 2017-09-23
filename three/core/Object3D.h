@@ -40,6 +40,8 @@ protected:
   math::Quaternion _quaternion;
   math::Vector3 _scale {1, 1, 1};
 
+  math::Matrix4 _normalMatrix;
+
   math::Matrix4 _matrix = math::Matrix4::identity();
   math::Matrix4 _matrixWorld = math::Matrix4::identity();
 
@@ -51,10 +53,6 @@ protected:
   Layers _layers;
   bool _visible = true;
 
-  bool _castShadow = false;
-  bool _receiveShadow = false;
-
-  bool _frustumCulled = true;
   int _renderOrder = -1;
 
   Geometry::Ptr _geometry;
@@ -64,6 +62,14 @@ protected:
   Object3D(Geometry::Ptr geometry);
 
 public:
+  math::Matrix4 modelViewMatrix;
+  bool castShadow = false;
+  bool receiveShadow = false;
+  bool frustumCulled = true;
+
+  Material::Ptr customDepthMaterial;
+  Material::Ptr customDistanceMaterial;
+
   uint16_t id() const {return _id;}
   const Layers &layers() const {return _layers;}
   const Geometry::Ptr geometry() const {return _geometry;}
@@ -259,7 +265,7 @@ public:
 
   void updateMatrix();
 
-  void updateMatrixWorld(bool force=false);
+  virtual void updateMatrixWorld(bool force);
 
   virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const {};
 };

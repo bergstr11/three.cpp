@@ -20,6 +20,8 @@ struct Group {
      : start(start), count(count), materialIndex(materialIndex) {}
 };
 
+class Object3D;
+
 class BufferGeometry : public Geometry
 {
   BufferAttribute<uint32_t>::Ptr _index;
@@ -30,11 +32,12 @@ class BufferGeometry : public Geometry
   BufferAttribute<float>::Ptr _uv2;
 
   std::vector<Group> _groups;
-  /*
-  this.morphAttributes = {};
 
-  this.drawRange = { start: 0, count: Infinity };
-*/
+  std::vector<BufferAttribute<float>> _morphAttributes_position;
+  std::vector<BufferAttribute<float>> _morphAttributes_normal;
+
+  //this.drawRange = { start: 0, count: Infinity };
+
 protected:
   BufferGeometry &computeBoundingBox() override
   {
@@ -68,9 +71,42 @@ protected:
     }
   }
 
+  explicit BufferGeometry() {}
+  explicit BufferGeometry(std::shared_ptr<Object3D> object);
+
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
-  static Ptr make() {return std::make_shared<BufferGeometry>();}
+  static Ptr make() {
+    return std::shared_ptr<BufferGeometry>(new BufferGeometry());
+  }
+  static Ptr make(std::shared_ptr<Object3D> object) {
+    return std::shared_ptr<BufferGeometry>(new BufferGeometry(object));
+  }
+
+  BufferGeometry &update(std::shared_ptr<Object3D> object);
+
+  bool useMorphing() const override
+  {
+    return !_morphAttributes_position.empty();
+  }
+
+  const BufferAttribute<uint32_t>::Ptr &index() const {return _index;}
+
+  BufferAttribute<uint32_t>::Ptr &getIndex() {return _index;}
+
+  const BufferAttribute<float>::Ptr &position() const {return _position;}
+
+  const BufferAttribute<float>::Ptr &normal() const {return _normal;}
+
+  const BufferAttribute<float>::Ptr &color() const {return _color;}
+
+  const BufferAttribute<float>::Ptr &uv() const {return _uv;}
+
+  const BufferAttribute<float>::Ptr &uv2() const {return _uv2;}
+
+  std::vector<BufferAttribute<float>> &morphPositions() {return _morphAttributes_position;}
+
+  std::vector<BufferAttribute<float>> &morphNormals() {return _morphAttributes_normal;}
 
   void setIndex(const std::vector<uint32_t> &indices) {
     if(_index)
@@ -79,52 +115,30 @@ public:
       _index = BufferAttribute<uint32_t>::make(indices, 3);
   }
 
-  const BufferAttribute<uint32_t>::Ptr &index() const {return _index;}
-
-  const BufferAttribute<float>::Ptr &position() const
-  {
-    return _position;
-  }
   BufferGeometry &setPosition(const BufferAttribute<float>::Ptr &position)
   {
     _position = position;
     return *this;
   }
 
-  const BufferAttribute<float>::Ptr &normal() const
-  {
-    return _normal;
-  }
   BufferGeometry &setNormal(const BufferAttribute<float>::Ptr &normal)
   {
     _normal = normal;
     return *this;
   }
 
-  const BufferAttribute<float>::Ptr &color() const
-  {
-    return _color;
-  }
   BufferGeometry &setColor(const BufferAttribute<float>::Ptr &color)
   {
     _color = color;
     return *this;
   }
 
-  const BufferAttribute<float>::Ptr &uv() const
-  {
-    return _uv;
-  }
   BufferGeometry &setUV(const BufferAttribute<float>::Ptr &uv)
   {
     _uv = uv;
     return *this;
   }
 
-  const BufferAttribute<float>::Ptr &uv2() const
-  {
-    return _uv2;
-  }
   BufferGeometry &setUV2(const BufferAttribute<float>::Ptr &uv2)
   {
     _uv2 = uv2;
@@ -147,7 +161,7 @@ public:
   {
     if (_position) {
       _position->apply(matrix);
-      _position->needsUpdate = true;
+      _position->needsUpdate();
     }
 
     if (_normal) {
@@ -155,7 +169,7 @@ public:
       math::Matrix3 normalMatrix = matrix.normalMatrix();
 
       _normal->apply(normalMatrix);
-      _normal->needsUpdate = true;
+      _normal->needsUpdate();
     }
 
     computeBoundingBox();

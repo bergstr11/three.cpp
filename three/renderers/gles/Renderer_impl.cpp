@@ -14,7 +14,7 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
-   : OpenGLRenderer(context), state(context)
+   : OpenGLRenderer(context), _state(context)
 {}
 
 void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
@@ -28,11 +28,11 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
   _currentCamera = nullptr;
 
   // update scene graph
-  if (scene->autoUpdate()) scene->updateMatrixWorld();
+  if (scene->autoUpdate()) scene->updateMatrixWorld(false);
 
   // update camera matrices and frustum
 
-  if (!camera->parent()) camera->updateMatrixWorld();
+  if (!camera->parent()) camera->updateMatrixWorld(false);
 
   /*if ( vr.enabled ) {
 
@@ -83,7 +83,7 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
 
   }
 
-  this.setRenderTarget(renderTarget);
+  setRenderTarget(renderTarget);
 
   //
 
@@ -140,6 +140,66 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
   }
 
   // _gl.finish();
+}
+
+Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {
+
+  _currentRenderTarget = renderTarget;
+
+  if ( renderTarget && properties.get( renderTarget ).__webglFramebuffer === undefined ) {
+
+    textures.setupRenderTarget( renderTarget );
+
+  }
+
+  var framebuffer = null;
+  var isCube = false;
+
+  if ( renderTarget ) {
+
+    var __webglFramebuffer = properties.get( renderTarget ).__webglFramebuffer;
+
+    if ( renderTarget.isWebGLRenderTargetCube ) {
+
+      framebuffer = __webglFramebuffer[ renderTarget.activeCubeFace ];
+      isCube = true;
+
+    } else {
+
+      framebuffer = __webglFramebuffer;
+
+    }
+
+    _currentViewport.copy( renderTarget.viewport );
+    _currentScissor.copy( renderTarget.scissor );
+    _currentScissorTest = renderTarget.scissorTest;
+
+  } else {
+
+    _currentViewport.copy( _viewport ).multiplyScalar( _pixelRatio );
+    _currentScissor.copy( _scissor ).multiplyScalar( _pixelRatio );
+    _currentScissorTest = _scissorTest;
+
+  }
+
+  if ( _currentFramebuffer !== framebuffer ) {
+
+    _gl.bindFramebuffer( _gl.FRAMEBUFFER, framebuffer );
+    _currentFramebuffer = framebuffer;
+
+  }
+
+  state.viewport( _currentViewport );
+  state.scissor( _currentScissor );
+  state.setScissorTest( _currentScissorTest );
+
+  if ( isCube ) {
+
+    var textureProperties = properties.get( renderTarget.texture );
+    _gl.framebufferTexture2D( _gl.FRAMEBUFFER, _gl.COLOR_ATTACHMENT0, _gl.TEXTURE_CUBE_MAP_POSITIVE_X + renderTarget.activeCubeFace, textureProperties.__webglTexture, renderTarget.activeMipMapLevel );
+
+  }
+
 }
 
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )

@@ -99,9 +99,21 @@ public:
 
   void clearViewOffset();
 
-  void updateProjectionMatrix();
+  void updateProjectionMatrix() override;
 
   void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
+
+  float far() const {return _far;}
+
+  float fov() const {return _fov;}
+
+  float aspect() const {return _aspect;}
+
+  void set(float fov, float aspect, float far) {
+    _fov = fov;
+    _aspect = aspect;
+    _far = far;
+  }
 };
 
 }

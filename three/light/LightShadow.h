@@ -8,35 +8,57 @@
 #include <camera/Camera.h>
 #include <math/Vector2.h>
 #include <textures/Texture.h>
+#include <type_traits>
+#include <renderers/Renderer.h>
+#include "Light.h"
 
 namespace three {
 
+class Light;
+
 class LightShadow
 {
-  Camera::Ptr _camera;
-
+protected:
   float _bias = 0;
   float _radius = 1;
 
   math::Vector2 _mapSize {512, 512};
 
-  Texture::Ptr _map;
-  math::Matrix4 matrix;
-
-  LightShadow(Camera::Ptr camera) : _camera(camera) {}
+  Renderer::Target::Ptr _map;
+  math::Matrix4 _matrix;
 
 public:
   using Ptr = std::shared_ptr<LightShadow>;
-  static Ptr make(Camera::Ptr camera) {
-    return std::shared_ptr<LightShadow>(camera);
-  }
 
-  const Camera::Ptr camera() const {return _camera;}
+  virtual const Camera::Ptr camera() const = 0;
+  virtual void update(std::shared_ptr<Light> light) {}
 
   const math::Vector2 &mapSize() const {return _mapSize;}
 
-  const Texture::Ptr map() const {return _map;}
-  void setMap(const Texture::Ptr map) {_map = map;}
+  const Renderer::Target::Ptr &map() const {return _map;}
+  Renderer::Target::Ptr &map() {return _map;}
+
+  math::Matrix4 &matrix() {return _matrix;}
+};
+
+
+template <typename C=Camera>
+class LightShadowBase : public LightShadow
+{
+  static_assert(std::is_base_of<Camera, C>::value, "template parameter must be derived from three::Camera");
+
+protected:
+  std::shared_ptr<C> _camera;
+
+  explicit LightShadowBase(std::shared_ptr<C> camera) : _camera(camera) {}
+
+public:
+  using Ptr = std::shared_ptr<LightShadowBase<C>>;
+  static Ptr make(std::shared_ptr<C> camera) {
+    return std::shared_ptr<LightShadowBase<C>>(camera);
+  }
+
+  const std::shared_ptr<C> camera() const override {return _camera;}
 };
 
 }

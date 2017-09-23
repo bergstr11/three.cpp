@@ -9,6 +9,7 @@
 #include <Constants.h>
 #include <scene/Scene.h>
 #include <camera/Camera.h>
+#include "Renderer.h"
 
 namespace three {
 
@@ -22,7 +23,7 @@ struct OpenGLRendererOptions
   bool preserveDrawingBuffer = false;
 };
 
-class OpenGLRenderer : private OpenGLRendererOptions
+class OpenGLRenderer : public Renderer, private OpenGLRendererOptions
 {
 protected:
   QOpenGLContext *_context;
@@ -41,8 +42,6 @@ public:
   OpenGLRenderer &setSize(unsigned width, unsigned height) {
 
   }
-
-  virtual void render(const Scene::Ptr scene, const Camera::Ptr camera) = 0;
 };
 
 }

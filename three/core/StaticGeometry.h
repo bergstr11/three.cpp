@@ -132,6 +132,11 @@ public:
 
   }
 
+  bool useMorphing() const override
+  {
+    return !_morphTargets.empty();
+  }
+
   StaticGeometry &apply(const math::Matrix4 &matrix) override
   {
 		math::Matrix3 normalMatrix = matrix.normalMatrix();

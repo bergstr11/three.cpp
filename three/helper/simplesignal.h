@@ -1,3 +1,6 @@
+#ifndef SIMPLE_SIGNAL_H
+#define SIMPLE_SIGNAL_H
+
 #include <stdint.h>
 #include <assert.h>
 #include <functional>
@@ -582,3 +585,5 @@ public:
 using VoidSignal = Signal<void()>;
 
 }  // namespace lo
+
+#endif //SIMPLE_SIGNAL_H
