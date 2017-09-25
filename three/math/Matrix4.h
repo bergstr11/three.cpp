@@ -98,7 +98,7 @@ public:
 
   Matrix4 &setBasis(Vector3 &xAxis, Vector3 &yAxis, Vector3 &zAxis);
 
-  Matrix4 rotation(const Matrix4 &m);
+  static Matrix4 rotation(const Matrix4 &m);
 
   static Matrix4 rotation(const Euler &euler);
 

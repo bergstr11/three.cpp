@@ -76,7 +76,7 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
 
   _shadowMap->render(_shadowsArray, scene, camera);
 
-  _lights.setup(lightsArray, shadowsArray, camera);
+  _lights.setup(_lightsArray, camera);
 
   if (_clippingEnabled) _clipping.endShadows();
 
@@ -152,7 +152,7 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
 
   // _gl.finish();
 }
-
+#if 0
 Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {
 
   _currentRenderTarget = renderTarget;
@@ -311,6 +311,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
 
   }
 }
+#endif
 
 }
 }

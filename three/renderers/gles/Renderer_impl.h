@@ -12,6 +12,7 @@
 #include <objects/LensFlare.h>
 #include "RenderTarget.h"
 #include "State.h"
+#include "Lights.h"
 #include "Clipping.h"
 #include "RenderLists.h"
 #include "ShadowMap.h"
@@ -83,6 +84,8 @@ protected:
 
   //
   ShadowMap::Ptr _shadowMap;
+
+  Lights _lights;
 
   unsigned _usedTextureUnits = 0;
 

@@ -13,7 +13,7 @@ namespace three {
 class PointLight : public Light
 {
   float _distance = 0;
-  float decay = 1;	// for physically correct lights, should be 2.
+  float _decay = 1;	// for physically correct lights, should be 2.
 
 protected:
   PointLight(const Color &color, float intensity, float distance, float angle)
@@ -33,6 +33,8 @@ public:
   {
     return false;
   }
+
+  float decay() const {return _decay;}
 
   float power() const
   {

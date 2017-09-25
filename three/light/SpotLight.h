@@ -38,6 +38,10 @@ public:
     return new SpotLight(target, color, intensity, distance, angle, penumbra, decay);
   }
 
+  float penumbra() const {return _penumbra;}
+
+  float decay() const {return _decay;}
+
   double power() {
     return _intensity * M_PI;
   }

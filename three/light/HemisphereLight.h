@@ -11,10 +11,20 @@ namespace three {
 
 class HemisphereLight : public Light
 {
+  Color _groundColor;
+
 public:
-  HemisphereLight(const Color &color, float intensity, float distance, float angle)
-     : Light(color, intensity, distance, angle)
-  {}
+  HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity)
+     : Light(LightResolver<HemisphereLight>::make(this), skyColor, intensity),
+       _groundColor(groundColor), _position(0, 1, 0)
+  {
+    updateMatrix();
+
+    _groundColor = groundColor;
+  }
+
+  const Color &skyColor() {return color();}
+  const Color &groundColor() {return _groundColor;}
 };
 
 }

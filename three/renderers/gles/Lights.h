@@ -125,23 +125,20 @@ class Lights
   struct State {
     std::vector<Texture::Ptr> directionalShadowMap;
     std::vector<math::Matrix4 &> directionalShadowMatrix;
-    std::vector<UniformsBase::Ptr> directional;
-     /*ambient: [ 0, 0, 0 ],
-     spot: [],
-     spotShadowMap: [],
-     spotShadowMatrix: [],
-     rectArea: [],
-     point: [],
-     pointShadowMap: [],
-     pointShadowMatrix: [],
-     hemi: []*/
+    std::vector<Uniforms<DirectionalLight>::Ptr> directional;
+    std::vector<Texture::Ptr> spotShadowMap;
+    std::vector<math::Matrix4 &> spotShadowMatrix;
+    std::vector<Uniforms<SpotLight>::Ptr> spot;
+    std::vector<Uniforms<RectAreaLight>::Ptr> rectArea;
+    std::vector<Texture::Ptr> pointShadowMap;
+    std::vector<math::Matrix4 &> pointShadowMatrix;
+    std::vector<Uniforms<PointLight>::Ptr> point;
+    std::vector<Uniforms<HemisphereLight>::Ptr> hemi;
+    Color ambient;
   } state;
 
-  //var vector3 = new Vector3();
-  //var matrix4 = new Matrix4();
-  //var matrix42 = new Matrix4();
-
-  void setup(std::vector<Light::Ptr> lights, std::vector<LightShadow::Ptr> shadows, Camera::Ptr camera )
+public:
+  void setup(const std::vector<Light::Ptr> &lights, Camera::Ptr camera )
   {
     float r = 0, g = 0, b = 0;
 
@@ -172,7 +169,7 @@ class Lights
       };
       lightFuncs.directional = [&](DirectionalLight::Ptr dlight)
       {
-        Uniforms<DirectionalLight>::Ptr uniforms = cache.get( light );
+        Uniforms<DirectionalLight>::Ptr uniforms = cache.get( dlight );
 
         uniforms->color = light->color() * light->intensity();
 
@@ -195,7 +192,7 @@ class Lights
       };
       lightFuncs.spot = [&](SpotLight::Ptr slight)
       {
-        Uniforms<SpotLight>::Ptr uniforms = cache.get( light );
+        Uniforms<SpotLight>::Ptr uniforms = cache.get( slight );
 
         uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
         uniforms->position.apply( viewMatrix );
@@ -208,132 +205,103 @@ class Lights
         uniforms->direction.transformDirection( viewMatrix );
 
         uniforms->coneCos = std::cos( light->angle() );
-        uniforms.penumbraCos = Math.cos( light.angle * ( 1 - light.penumbra ) );
-        uniforms.decay = ( light.distance === 0 ) ? 0.0 : light.decay;
+        uniforms->penumbraCos = std::cos( light->angle() * ( 1 - slight->penumbra() ) );
+        uniforms->decay = ( light->distance() == 0 ) ? 0.0f : slight->decay();
 
-        uniforms.shadow = light.castShadow;
+        uniforms->shadow = light->castShadow();
 
-        if ( light.castShadow ) {
+        if (light->castShadow) {
 
-          var shadow = light.shadow;
+          LightShadow::Ptr shadow = light->shadow();
 
-          uniforms.shadowBias = shadow.bias;
-          uniforms.shadowRadius = shadow.radius;
-          uniforms.shadowMapSize = shadow.mapSize;
+          uniforms->shadowBias = shadow->bias();
+          uniforms->shadowRadius = shadow->radius();
+          uniforms->shadowMapSize = shadow->mapSize();
 
         }
 
-        state.spotShadowMap[ spotLength ] = shadowMap;
-        state.spotShadowMatrix[ spotLength ] = light.shadow.matrix;
-        state.spot[ spotLength ] = uniforms;
-
-        spotLength ++;
-
-      } else if ( light.isRectAreaLight ) {
-
-        var uniforms = cache.get( light );
+        state.spotShadowMap.push_back(shadowMap);
+        state.spotShadowMatrix.push_back(light->shadow()->matrix());
+        state.spot.push_back(uniforms);
+      };
+      lightFuncs.rectarea = [&](RectAreaLight::Ptr rlight)
+      {
+        Uniforms<RectAreaLight>::Ptr uniforms = cache.get( rlight );
 
         // (a) intensity controls irradiance of entire light
-        uniforms.color
-           .copy( color )
-           .multiplyScalar( intensity / ( light.width * light.height ) );
+        uniforms->color = color  * ( intensity / ( rlight->width() * rlight->height()));
 
         // (b) intensity controls the radiance per light area
         // uniforms.color.copy( color ).multiplyScalar( intensity );
 
-        uniforms.position.setFromMatrixPosition( light.matrixWorld );
-        uniforms.position.applyMatrix4( viewMatrix );
+        uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
+        uniforms->position.apply( viewMatrix );
 
         // extract local rotation of light to derive width/height half vectors
-        matrix42.identity();
-        matrix4.copy( light.matrixWorld );
+        math::Matrix4 matrix4 = light->matrixWorld();
         matrix4.premultiply( viewMatrix );
-        matrix42.extractRotation( matrix4 );
+        math::Matrix4 matrix42 = math::Matrix4 ::rotation( matrix4 );
 
-        uniforms.halfWidth.set( light.width * 0.5,                0.0, 0.0 );
-        uniforms.halfHeight.set(              0.0, light.height * 0.5, 0.0 );
+        uniforms->halfWidth = math::Vector3(rlight->width() * 0.5, 0.0, 0.0 );
+        uniforms->halfHeight = math::Vector3(0.0, rlight->height() * 0.5, 0.0 );
 
-        uniforms.halfWidth.applyMatrix4( matrix42 );
-        uniforms.halfHeight.applyMatrix4( matrix42 );
+        uniforms->halfWidth.apply( matrix42 );
+        uniforms->halfHeight.apply( matrix42 );
 
         // TODO (abelnation): RectAreaLight distance?
         // uniforms.distance = distance;
 
-        state.rectArea[ rectAreaLength ] = uniforms;
+        state.rectArea.push_back(uniforms);
+      };
+      lightFuncs.point = [&](PointLight::Ptr plight)
+      {
+        Uniforms<PointLight>::Ptr uniforms = cache.get( plight );
 
-        rectAreaLength ++;
+        uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
+        uniforms->position.apply( viewMatrix );
 
-      } else if ( light.isPointLight ) {
+        uniforms->color = light->color() * light->intensity();
+        uniforms->distance = light->distance();
+        uniforms->decay = (light->distance() == 0) ? 0.0f : plight->decay();
 
-        var uniforms = cache.get( light );
+        uniforms->shadow = light->castShadow();
 
-        uniforms.position.setFromMatrixPosition( light.matrixWorld );
-        uniforms.position.applyMatrix4( viewMatrix );
+        if ( light->castShadow() ) {
 
-        uniforms.color.copy( light.color ).multiplyScalar( light.intensity );
-        uniforms.distance = light.distance;
-        uniforms.decay = ( light.distance === 0 ) ? 0.0 : light.decay;
+          LightShadow::Ptr shadow = plight->shadow();
 
-        uniforms.shadow = light.castShadow;
-
-        if ( light.castShadow ) {
-
-          var shadow = light.shadow;
-
-          uniforms.shadowBias = shadow.bias;
-          uniforms.shadowRadius = shadow.radius;
-          uniforms.shadowMapSize = shadow.mapSize;
-          uniforms.shadowCameraNear = shadow.camera.near;
-          uniforms.shadowCameraFar = shadow.camera.far;
-
+          uniforms->shadowBias = shadow->bias();
+          uniforms->shadowRadius = shadow->radius();
+          uniforms->shadowMapSize = shadow->mapSize();
+          uniforms->shadowCameraNear = shadow->camera()->near();
+          uniforms->shadowCameraFar = shadow->camera()->far();
         }
 
-        state.pointShadowMap[ pointLength ] = shadowMap;
-        state.pointShadowMatrix[ pointLength ] = light.shadow.matrix;
-        state.point[ pointLength ] = uniforms;
+        state.pointShadowMap.push_back(shadowMap);
+        state.pointShadowMatrix.push_back(plight->shadow().matrix());
+        state.point.push_back(uniforms);
+      };
+      lightFuncs.hemisphere = [&](HemisphereLight::Ptr hlight)
+      {
+        Uniforms<HemisphereLight>::Ptr uniforms = cache.get( hlight );
 
-        pointLength ++;
+        uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
+        uniforms->direction.transformDirection( viewMatrix );
+        uniforms->direction.normalize();
 
-      } else if ( light.isHemisphereLight ) {
+        uniforms->skyColor = light->color() * intensity;
+        uniforms->groundColor = hlight->groundColor() * intensity;
 
-        var uniforms = cache.get( light );
-
-        uniforms.direction.setFromMatrixPosition( light.matrixWorld );
-        uniforms.direction.transformDirection( viewMatrix );
-        uniforms.direction.normalize();
-
-        uniforms.skyColor.copy( light.color ).multiplyScalar( intensity );
-        uniforms.groundColor.copy( light.groundColor ).multiplyScalar( intensity );
-
-        state.hemi[ hemiLength ] = uniforms;
-
-        hemiLength ++;
-
-      }
-
+        state.hemi.push_back(uniforms);
+      };
     }
 
-    state.ambient[ 0 ] = r;
-    state.ambient[ 1 ] = g;
-    state.ambient[ 2 ] = b;
-
-    state.directional.length = directionalLength;
-    state.spot.length = spotLength;
-    state.rectArea.length = rectAreaLength;
-    state.point.length = pointLength;
-    state.hemi.length = hemiLength;
+    state.ambient = Color(r, g, b);
 
     // TODO (sam-g-steel) why aren't we using join
-    state.hash = directionalLength + ',' + pointLength + ',' + spotLength + ',' + rectAreaLength + ',' + hemiLength + ',' + shadows.length;
-
+    //state.hash = directionalLength + ',' + pointLength + ',' + spotLength + ',' + rectAreaLength + ',' + hemiLength + ',' + shadows.length;
   }
-
-  return {
-     setup: setup,
-     state: state
-  }
-
-}
+};
 
 }
 }
