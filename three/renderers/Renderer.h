@@ -23,6 +23,8 @@ public:
 
   public:
     using Ptr = std::shared_ptr<Target>;
+
+    Texture::Ptr texture() {return _texture;}
   };
 
   virtual void render(const Scene::Ptr scene, const Camera::Ptr camera) = 0;

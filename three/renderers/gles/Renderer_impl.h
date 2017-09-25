@@ -19,7 +19,7 @@
 namespace three {
 namespace gl {
 
-class Renderer_impl : public OpenGLRenderer
+class Renderer_impl : public OpenGLRenderer, public QOpenGLFunctions
 {
 public:
   struct MemoryInfo {
@@ -131,6 +131,8 @@ public:
   Renderer_impl &setRenderTarget(const RenderTarget::Ptr renderTarget);
 
   bool localClippingEnabled() const {return _localClippingEnabled;}
+
+  void clear(bool color=true, bool depth=true, bool stencil=true);
 };
 
 }

@@ -107,6 +107,24 @@ struct Color
     return r == g && g == b && b == std::numeric_limits<float>::infinity();
   }
 
+  Color &operator *=(const Color &color)
+  {
+    r *= color.r;
+    g *= color.g;
+    b *= color.b;
+
+    return *this;
+  }
+
+  Color &operator *=(float s)
+  {
+    r *= s;
+    g *= s;
+    b *= s;
+
+    return *this;
+  }
+
 #if 0
   static Color fromHsl(unsigned h, float s, float l)
   {
@@ -293,26 +311,6 @@ struct Color
 
   },
 
-  multiply: function ( color ) {
-
-    this.r *= color.r;
-    this.g *= color.g;
-    this.b *= color.b;
-
-    return this;
-
-  },
-
-  multiplyScalar: function ( s ) {
-
-    this.r *= s;
-    this.g *= s;
-    this.b *= s;
-
-    return this;
-
-  },
-
   lerp: function ( color, alpha ) {
 
     this.r += ( color.r - this.r ) * alpha;
@@ -355,6 +353,20 @@ struct Color
   }
 #endif
 };
+
+Color operator *(const Color &color1, const Color &color2)
+{
+  Color result(color1);
+  result *= color2;
+  return result;
+}
+
+Color operator *(const Color &color1, const float scalar)
+{
+  Color result(color1);
+  result *= scalar;
+  return result;
+}
 
 }
 

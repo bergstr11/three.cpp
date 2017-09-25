@@ -45,7 +45,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     _shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
 
-    PointLight::Ptr pointLight = std::dynamic_pointer_cast<PointLight::Ptr>(light);
+    PointLight::Ptr pointLight = std::dynamic_pointer_cast<PointLight>(light);
     if (pointLight) {
 
       float vpWidth = _shadowMapSize.x();
@@ -111,7 +111,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       shadow->matrix() = math::Matrix4::translation(-_lightPositionWorld.x(), -_lightPositionWorld.y(), -_lightPositionWorld.z());
     }
     else {
-      TargetLight::Ptr targetLight = std::dynamic_pointer_cast<TargetLight::Ptr>(light);
+      TargetLight::Ptr targetLight = std::dynamic_pointer_cast<TargetLight>(light);
       assert(targetLight);
 
       faceCount = 1;

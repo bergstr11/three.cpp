@@ -17,6 +17,17 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
    : OpenGLRenderer(context), _state(context)
 {}
 
+void Renderer_impl::clear(bool color, bool depth, bool stencil)
+{
+  unsigned bits = 0;
+
+  if (color) bits |= GL_COLOR_BUFFER_BIT;
+  if (depth) bits |= GL_DEPTH_BUFFER_BIT;
+  if (stencil) bits |= GL_STENCIL_BUFFER_BIT;
+
+  glClear( bits );
+}
+
 void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
 {
   if (_isContextLost) return;
@@ -63,9 +74,9 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
   //
   if (_clippingEnabled) _clipping.beginShadows();
 
-  _shadowMap.render(shadowsArray, scene, camera);
+  _shadowMap->render(_shadowsArray, scene, camera);
 
-  lights.setup(lightsArray, shadowsArray, camera);
+  _lights.setup(lightsArray, shadowsArray, camera);
 
   if (_clippingEnabled) _clipping.endShadows();
 

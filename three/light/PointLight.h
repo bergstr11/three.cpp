@@ -16,16 +16,22 @@ class PointLight : public Light
   float decay = 1;	// for physically correct lights, should be 2.
 
 protected:
-  PointLight(const Color &color, float intensity, float distance, float angle) : Light(color, intensity, distance, angle)
+  PointLight(const Color &color, float intensity, float distance, float angle)
+     : Light(LightResolver<PointLight>::make(this), color, intensity, distance, angle)
   {
-    _shadow = LightShadowBase<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
+    _shadow = CameraShadow<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
 public:
   using Ptr = std::shared_ptr<PointLight>;
-  static Ptr make(const Color &color, float intensity, float distance, float angle) : Light(color, intensity, distance, angle)
+  static Ptr make(const Color &color, float intensity, float distance, float angle)
   {
     return Ptr(new PointLight(color, intensity, distance, angle));
+  }
+
+  bool castShadow() override
+  {
+    return false;
   }
 
   float power() const

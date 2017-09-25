@@ -11,9 +11,9 @@
 
 namespace three {
 
-class SpotLightShadow : public LightShadowBase<PerspectiveCamera>
+class SpotLightShadow : public CameraShadow<PerspectiveCamera>
 {
-  SpotLightShadow() : LightShadowBase(PerspectiveCamera::make( 50, 1, 0.5, 500 )) {}
+  SpotLightShadow() : CameraShadow(PerspectiveCamera::make( 50, 1, 0.5, 500 )) {}
 
 public:
   using Ptr = std::shared_ptr<SpotLightShadow>;

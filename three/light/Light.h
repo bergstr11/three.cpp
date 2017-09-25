@@ -6,6 +6,7 @@
 #define THREE_QT_LIGHT_H
 
 #include <core/Object3D.h>
+#include <renderers/Resolver.h>
 #include "LightShadow.h"
 
 namespace three {
@@ -19,12 +20,14 @@ protected:
   float _angle;
   LightShadow::Ptr _shadow;
 
-  Light(const Color &color, float intensity, float distance=0, float angle=0)
+  Light(Resolver::Ptr resolver, const Color &color, float intensity, float distance=0, float angle=0)
      : _color(color), _intensity(intensity), _angle(angle), _distance(distance)
   {}
 
 public:
   using Ptr = std::shared_ptr<Light>;
+
+  const Resolver::Ptr resolver;
 
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}

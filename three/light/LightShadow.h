@@ -33,6 +33,8 @@ public:
   virtual const Camera::Ptr camera() const = 0;
   virtual void update(std::shared_ptr<Light> light) {}
 
+  float bias() const {return _bias;}
+  float radius() const {return _radius;}
   const math::Vector2 &mapSize() const {return _mapSize;}
 
   const Renderer::Target::Ptr &map() const {return _map;}
@@ -43,22 +45,22 @@ public:
 
 
 template <typename C=Camera>
-class LightShadowBase : public LightShadow
+class CameraShadow : public LightShadow
 {
   static_assert(std::is_base_of<Camera, C>::value, "template parameter must be derived from three::Camera");
 
 protected:
   std::shared_ptr<C> _camera;
 
-  explicit LightShadowBase(std::shared_ptr<C> camera) : _camera(camera) {}
+  explicit CameraShadow(std::shared_ptr<C> camera) : _camera(camera) {}
 
 public:
-  using Ptr = std::shared_ptr<LightShadowBase<C>>;
+  using Ptr = std::shared_ptr<CameraShadow<C>>;
   static Ptr make(std::shared_ptr<C> camera) {
-    return std::shared_ptr<LightShadowBase<C>>(camera);
+    return std::shared_ptr<CameraShadow<C>>(camera);
   }
 
-  const std::shared_ptr<C> camera() const override {return _camera;}
+  const Camera::Ptr camera() const override {return _camera;}
 };
 
 }
