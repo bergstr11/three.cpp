@@ -20,6 +20,15 @@ class Intersection;
 
 using Vertex = math::Vector3;
 
+struct Group {
+  const uint32_t start;
+  const uint32_t count;
+  const uint32_t materialIndex;
+
+  Group(uint32_t start, uint32_t count, uint32_t materialIndex)
+     : start(start), count(count), materialIndex(materialIndex) {}
+};
+
 class Geometry
 {
   static uint32_t id_count;
@@ -27,6 +36,8 @@ class Geometry
 protected:
   math::Box3 _boundingBox;
   math::Sphere _boundingSphere;
+
+  std::vector<Group> _groups;
 
   virtual Geometry &apply(const math::Matrix4 &matrix) = 0;
 
@@ -59,6 +70,18 @@ public:
                        std::vector<Intersection> &intersects) = 0;
 
   virtual bool useMorphing() const = 0;
+
+  Geometry &addGroup(uint32_t start, uint32_t count, uint32_t materialIndex=0)
+  {
+    _groups.emplace_back(start, count, materialIndex);
+  }
+
+  Geometry &clearGroups()
+  {
+    _groups.clear();
+  }
+
+  const std::vector<Group> &groups() const {return _groups;}
 
   // rotate geometry around world x-axis
   Geometry &rotateX(float angle)

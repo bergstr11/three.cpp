@@ -30,7 +30,6 @@ protected:
 public:
   using Ptr = std::shared_ptr<LightShadow>;
 
-  virtual const Camera::Ptr camera() const = 0;
   virtual void update(std::shared_ptr<Light> light) {}
 
   float bias() const {return _bias;}
@@ -41,6 +40,8 @@ public:
   Renderer::Target::Ptr &map() {return _map;}
 
   math::Matrix4 &matrix() {return _matrix;}
+
+  virtual const Camera::Ptr camera() const {return nullptr;}
 };
 
 
@@ -57,8 +58,10 @@ protected:
 public:
   using Ptr = std::shared_ptr<CameraShadow<C>>;
   static Ptr make(std::shared_ptr<C> camera) {
-    return std::shared_ptr<CameraShadow<C>>(camera);
+    return Ptr(new CameraShadow(camera));
   }
+
+  const typename std::shared_ptr<C> specificCamera() const {return _camera;}
 
   const Camera::Ptr camera() const override {return _camera;}
 };

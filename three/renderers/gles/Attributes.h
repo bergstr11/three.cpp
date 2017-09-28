@@ -28,14 +28,14 @@ class Attributes : public QOpenGLFunctions
   void createBuffer(Buffer &buffer, const BufferAttribute<T> &attribute, BufferType bufferType)
   {
     const std::vector<T> &array = attribute.array();
-    GLenum usage = attribute.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
     glGenBuffers(1, &buffer.buf);
 
     glBindBuffer((GLenum)bufferType, buffer.buf);
     glBufferData((GLenum)bufferType, array.size(), array.data(), usage);
 
-    attribute.onUpload.emitSignal(attribute);
+    const_cast<BufferAttribute<T> &>(attribute).onUpload.emitSignal(attribute);
 
     buffer.type = attribute.glType();
 

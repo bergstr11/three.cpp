@@ -11,6 +11,7 @@
 #include <objects/Sprite.h>
 #include <objects/LensFlare.h>
 #include "RenderTarget.h"
+#include "Helpers.h"
 #include "State.h"
 #include "Lights.h"
 #include "Clipping.h"
@@ -22,12 +23,6 @@ namespace gl {
 
 class Renderer_impl : public OpenGLRenderer, public QOpenGLFunctions
 {
-public:
-  struct MemoryInfo {
-    unsigned geomtries = 0;
-    unsigned textures = 0;
-  };
-
 protected:
   std::vector<Light::Ptr> _lightsArray;
   std::vector<Light::Ptr> _shadowsArray;
@@ -82,10 +77,19 @@ protected:
   math::Vector4 _currentScissor;
   //_currentScissorTest = null,
 
+  MemoryInfo _infoMemory;
+  RenderInfo _infoRender;
+
   //
   ShadowMap::Ptr _shadowMap;
 
+  Attributes _attributes;
+
+  Geometries _geometries;
+
   Lights _lights;
+
+  Objects _objects;
 
   unsigned _usedTextureUnits = 0;
 
@@ -127,11 +131,11 @@ public:
   //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
   Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height);
 
-  void render(const Scene::Ptr scene, const Camera::Ptr camera) override;
+  void render(const Scene::Ptr scene, const Camera::Ptr camera, const Renderer::Target::Ptr renderTarget) override;
 
   gl::State &state() {return _state;}
 
-  Renderer_impl &setRenderTarget(const RenderTarget::Ptr renderTarget);
+  Renderer_impl &setRenderTarget(const Renderer::Target::Ptr renderTarget);
 
   bool localClippingEnabled() const {return _localClippingEnabled;}
 

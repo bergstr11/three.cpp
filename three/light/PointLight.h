@@ -29,9 +29,14 @@ public:
     return Ptr(new PointLight(color, intensity, distance, angle));
   }
 
+  CameraShadow<PerspectiveCamera>::Ptr shadow()
+  {
+    return std::dynamic_pointer_cast<CameraShadow<PerspectiveCamera>>(_shadow);
+  }
+
   bool castShadow() override
   {
-    return false;
+    return true;
   }
 
   float decay() const {return _decay;}

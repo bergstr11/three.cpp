@@ -160,7 +160,10 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
       // set object matrices & frustum culling
 
-      renderObject(scene, camera, shadowCamera, (bool)pointLight);
+      if (pointLight)
+        renderObject(scene, camera, pointLight->shadow()->specificCamera());
+      else
+        renderObject(scene, camera, nullptr);
     }
   }
 
@@ -171,8 +174,8 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
                                Material::Ptr material,
                                bool isPointLight,
                                const math::Vector3 &lightPositionWorld,
-                               Camera::Ptr shadowCameraNear,
-                               Camera::Ptr shadowCameraFar )
+                               float shadowCameraNear,
+                               float shadowCameraFar )
 {
   auto geometry = object->geometry();
   Material::Ptr result;
@@ -190,7 +193,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
 
     bool useMorphing = material->morphTargets() ? geometry->useMorphing() : false;
 
-    bool useSkinning = object->isSkinnedMesh && material->skinning();
+    bool useSkinning = object->skinned() && material->skinning();
 
     unsigned variantIndex = 0;
 
@@ -204,7 +207,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     result = customMaterial;
   }
 
-  if ( _renderer.localClippingEnabled &&
+  if ( _renderer.localClippingEnabled() &&
        material->clipShadows && !material->clippingPlanes.empty()) {
 
     // in this case we need a unique material instance reflecting the
@@ -215,13 +218,13 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
 
     if (_materialCache.find(keyA) == _materialCache.end()) {
 
-      _materialCache.emplace(keyA);
+      _materialCache.emplace(keyA, std::unordered_map<sole::uuid, Material::Ptr>());
     }
     auto & materialsForVariant = _materialCache[ keyA ];
 
     if (materialsForVariant.find(keyB) == materialsForVariant.end()) {
 
-      materialsForVariant.emplace(std::make_pair(keyB, *result));
+      materialsForVariant.emplace(keyB, result);
     }
     result = materialsForVariant[ keyB ];
   }
@@ -251,66 +254,64 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
 
   result->wireframeLineWidth = material->wireframeLineWidth;
 
-  if ( isPointLight && result->isMeshDistanceMaterial ) {
+  if (isPointLight) {
 
-    result->referencePosition = lightPositionWorld;
-    result->nearDistance = shadowCameraNear;
-    result->farDistance = shadowCameraFar;
+    result->setupPointLight(lightPositionWorld, shadowCameraNear, shadowCameraFar);
   }
 
   return result;
 }
 
-void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight )
+void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera)
 {
   if (!object->visible()) return;
 
+  bool isPointLight = (bool)shadowCamera;
+
   bool visible = object->layers().test( camera->layers() );
 
-  if ( visible && ( object->isMesh || object->isLine || object->isPoints ) ) {
+  if ( visible && object->renderable()) {
 
     if ( object->castShadow && ( ! object->frustumCulled || _frustum.intersectsObject( object ) ) ) {
 
       object->modelViewMatrix = shadowCamera->matrixWorldInverse() * object->matrixWorld();
 
-      var geometry = _objects.update( object );
-      var material = object.material;
+      Geometry::Ptr geometry = _objects.update( object );
+      if ( object->materials().size() > 1 ) {
 
-      if ( Array.isArray( material ) ) {
+        const std::vector<Group> &groups = geometry->groups();
 
-        var groups = geometry.groups;
+        for (const Group &group : groups) {
 
-        for ( var k = 0, kl = groups.length; k < kl; k ++ ) {
+          Material::Ptr groupMaterial = object->material(group.materialIndex);
 
-          var group = groups[ k ];
-          var groupMaterial = material[ group.materialIndex ];
+          if ( groupMaterial && groupMaterial->visible ) {
 
-          if ( groupMaterial && groupMaterial.visible ) {
-
-            var depthMaterial = getDepthMaterial( object, groupMaterial, isPointLight, _lightPositionWorld, shadowCamera.near, shadowCamera.far );
-            _renderer.renderBufferDirect( shadowCamera, null, geometry, depthMaterial, object, group );
+            Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld,
+                                                 shadowCamera->near(), shadowCamera->far() );
+            //_renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, group );
 
           }
 
         }
 
-      } else if ( material.visible ) {
+      } else {
+        Material::Ptr material = object->material();
+        if (material->visible) {
 
-        var depthMaterial = getDepthMaterial( object, material, isPointLight, _lightPositionWorld, shadowCamera.near, shadowCamera.far );
-        _renderer.renderBufferDirect( shadowCamera, null, geometry, depthMaterial, object, null );
-
+          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld, shadowCamera->near(), shadowCamera->far());
+          //_renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
+        }
       }
-
     }
 
   }
 
-  var children = object.children;
+  std::vector<Object3D::Ptr> children = object->children();
 
-  for ( var i = 0, l = children.length; i < l; i ++ ) {
+  for (auto child : object->children()) {
 
-    renderObject( children[ i ], camera, shadowCamera, isPointLight );
-
+    renderObject( child, camera, shadowCamera );
   }
 }
 

@@ -14,8 +14,9 @@
 #include <material/MeshDistanceMaterial.h>
 #include <light/Light.h>
 #include <scene/Scene.h>
-#include <camera/Camera.h>
+#include <camera/PerspectiveCamera.h>
 
+#include "Objects.h"
 #include "RenderTarget.h"
 
 namespace three {
@@ -66,11 +67,11 @@ class ShadowMap
   bool _renderSingleSided = true;
 
   Renderer_impl &_renderer;
-  const std::vector<Object3D::Ptr> &_objects;
+  Objects &_objects;
   const size_t _maxTextureSize;
 
   // init
-  ShadowMap(Renderer_impl &renderer, const std::vector<Object3D::Ptr> &objects, size_t maxTextureSize)
+  ShadowMap(Renderer_impl &renderer, Objects &objects, size_t maxTextureSize)
      : _renderer(renderer), _objects(objects), _maxTextureSize(maxTextureSize)
   {
     for (size_t i = 0; i < _NumberOfMaterialVariants; ++ i ) {
@@ -86,7 +87,7 @@ class ShadowMap
 
 public:
   using Ptr = std::shared_ptr<ShadowMap>;
-  static Ptr make(Renderer_impl &renderer, const std::vector<Object3D::Ptr> &objects, size_t maxTextureSize)
+  static Ptr make(Renderer_impl &renderer, Objects &objects, size_t maxTextureSize)
   {
     return std::shared_ptr<ShadowMap>(new ShadowMap(renderer, objects, maxTextureSize));
   }
@@ -97,10 +98,10 @@ public:
                             Material::Ptr material,
                             bool isPointLight,
                             const math::Vector3 &lightPositionWorld,
-                            Camera::Ptr shadowCameraNear,
-                            Camera::Ptr shadowCameraFar );
+                            float shadowCameraNear,
+                            float shadowCameraFar );
 
-  void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight );
+  void renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera);
 };
 
 }

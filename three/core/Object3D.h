@@ -78,6 +78,8 @@ public:
 
   void applyMatrix(const math::Matrix4 &matrix);
 
+  virtual bool skinned() {return false;}
+
   bool visible() const {return _visible;}
 
   const std::vector<Ptr> &children() const {return _children;}
@@ -97,7 +99,10 @@ public:
 
   int renderOrder() const {return _renderOrder;}
 
+  virtual bool renderable() const {return false;}
+
   const std::vector<Material::Ptr> materials() const {return _materials;}
+
   const Material::Ptr material(unsigned index) const {
     return _materials.size() > index ? _materials.at(index) : nullptr;
   }

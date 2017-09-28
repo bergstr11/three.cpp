@@ -26,22 +26,22 @@ class Geometries
 
   unsigned geometryCount = 0;
 
-  Attributes &attributes;
+  Attributes &_attributes;
 
   void onGeometryDispose(Geometry *geometry)
   {
     GeometryInfo &gi = geometries[ geometry->id ];
     BufferGeometry::Ptr buffergeometry = gi.geometry;
 
-    if (buffergeometry->index) {
-      attributes.remove( *buffergeometry->index() );
+    if (buffergeometry->index()) {
+      _attributes.remove( *buffergeometry->index() );
     }
 
-    if(buffergeometry->position()) attributes.remove(*buffergeometry->position());
-    if(buffergeometry->normal()) attributes.remove(*buffergeometry->normal());
-    if(buffergeometry->color()) attributes.remove(*buffergeometry->color());
-    if(buffergeometry->uv()) attributes.remove(*buffergeometry->uv());
-    if(buffergeometry->uv2()) attributes.remove(*buffergeometry->uv2());
+    if(buffergeometry->position()) _attributes.remove(*buffergeometry->position());
+    if(buffergeometry->normal()) _attributes.remove(*buffergeometry->normal());
+    if(buffergeometry->color()) _attributes.remove(*buffergeometry->color());
+    if(buffergeometry->uv()) _attributes.remove(*buffergeometry->uv());
+    if(buffergeometry->uv2()) _attributes.remove(*buffergeometry->uv2());
 
     geometry->onDispose.disconnect(gi.connectionId);
 
@@ -50,13 +50,13 @@ class Geometries
     // TODO Remove duplicate code
     if (wireframeAttributes.find(geometry->id) != wireframeAttributes.end()) {
       auto &attribute = wireframeAttributes[geometry->id];
-      attributes.remove( *attribute );
+      _attributes.remove( *attribute );
       wireframeAttributes.erase(geometry->id);
     }
 
     if (wireframeAttributes.find(buffergeometry->id) != wireframeAttributes.end()) {
       auto &attribute = wireframeAttributes[buffergeometry->id];
-      attributes.remove( *attribute );
+      _attributes.remove( *attribute );
       wireframeAttributes.erase(buffergeometry->id);
     }
 
@@ -65,15 +65,17 @@ class Geometries
   }
 
 public:
+  Geometries(Attributes &attributes) : _attributes(attributes) {}
+
   BufferGeometry::Ptr get(Object3D::Ptr object, Geometry::Ptr geometry)
   {
     GeometryInfo &gi = geometries[ geometry->id ];
 
     if (gi.geometry) return gi.geometry;
 
-    geometry->onDispose.connect(onGeometryDispose);
+    geometry->onDispose.connect(*this, &Geometries::onGeometryDispose);
 
-    BufferGeometry::Ptr buffergeometry = std::dynamic_pointer_cast<BufferGeometry::Ptr>(geometry);
+    BufferGeometry::Ptr buffergeometry = std::dynamic_pointer_cast<BufferGeometry>(geometry);
     if (!buffergeometry) buffergeometry = BufferGeometry::make(object);
 
     gi.geometry = buffergeometry;
@@ -89,22 +91,22 @@ public:
     //var geometryAttributes = geometry.attributes;
 
     if (buffergeometry->index()) {
-      attributes.update(*buffergeometry->getIndex(), BufferType::ElementArray);
+      _attributes.update(*buffergeometry->getIndex(), BufferType::ElementArray);
     }
 
-    if(buffergeometry->position()) attributes.update(*buffergeometry->position(), BufferType::Array);
-    if(buffergeometry->normal()) attributes.update(*buffergeometry->normal(), BufferType::Array);
-    if(buffergeometry->color()) attributes.update(*buffergeometry->color(), BufferType::Array);
-    if(buffergeometry->uv()) attributes.update(*buffergeometry->uv(), BufferType::Array);
-    if(buffergeometry->uv2()) attributes.update(*buffergeometry->uv2(), BufferType::Array);
+    if(buffergeometry->position()) _attributes.update(*buffergeometry->position(), BufferType::Array);
+    if(buffergeometry->normal()) _attributes.update(*buffergeometry->normal(), BufferType::Array);
+    if(buffergeometry->color()) _attributes.update(*buffergeometry->color(), BufferType::Array);
+    if(buffergeometry->uv()) _attributes.update(*buffergeometry->uv(), BufferType::Array);
+    if(buffergeometry->uv2()) _attributes.update(*buffergeometry->uv2(), BufferType::Array);
 
     // morph targets
 
     for (BufferAttribute<float> &pos : buffergeometry->morphPositions()) {
-      attributes.update(pos, BufferType::Array);
+      _attributes.update(pos, BufferType::Array);
     }
     for (BufferAttribute<float> &normal : buffergeometry->morphNormals()) {
-      attributes.update(normal, BufferType::Array);
+      _attributes.update(normal, BufferType::Array);
     }
   }
 
@@ -155,7 +157,7 @@ public:
 
     attribute = BufferAttribute<uint32_t>::make(indices, 1);
 
-    attributes.update(*attribute, BufferType::ElementArray);
+    _attributes.update(*attribute, BufferType::ElementArray);
 
     wireframeAttributes[ geometry->id ] = attribute;
 

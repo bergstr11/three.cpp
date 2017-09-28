@@ -18,10 +18,10 @@ class Objects
   std::unordered_map<unsigned, unsigned> _updateList;
 
   Geometries &_geometries;
-  InfoRender &_infoRender;
+  RenderInfo &_infoRender;
 
 public:
-  Objects(Geometries &geometries, InfoRender &infoRender)
+  Objects(Geometries &geometries, RenderInfo &infoRender)
      : _geometries(geometries), _infoRender(infoRender)
   {}
 

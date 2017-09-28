@@ -104,11 +104,11 @@ class UniformsCache
 public:
 
   template <typename L>
-  const std::shared_ptr<Uniforms<L>> get(std::shared_ptr<L> light)
+  const std::shared_ptr<Uniforms<L>> get(L *light)
   {
-    if (lights.find(light->id) != lights.end()) {
+    if (lights.find(light->id()) != lights.end()) {
 
-      return std::dynamic_pointer_cast<Uniforms<L>>(lights[ light->id ]);
+      return std::dynamic_pointer_cast<Uniforms<L>>(lights[ light->id() ]);
     }
 
     std::shared_ptr<Uniforms<L>> u = std::make_shared<Uniforms<L>>();
@@ -124,14 +124,14 @@ class Lights
 
   struct State {
     std::vector<Texture::Ptr> directionalShadowMap;
-    std::vector<math::Matrix4 &> directionalShadowMatrix;
+    std::vector<math::Matrix4> directionalShadowMatrix;
     std::vector<Uniforms<DirectionalLight>::Ptr> directional;
     std::vector<Texture::Ptr> spotShadowMap;
-    std::vector<math::Matrix4 &> spotShadowMatrix;
+    std::vector<math::Matrix4> spotShadowMatrix;
     std::vector<Uniforms<SpotLight>::Ptr> spot;
     std::vector<Uniforms<RectAreaLight>::Ptr> rectArea;
     std::vector<Texture::Ptr> pointShadowMap;
-    std::vector<math::Matrix4 &> pointShadowMatrix;
+    std::vector<math::Matrix4> pointShadowMatrix;
     std::vector<Uniforms<PointLight>::Ptr> point;
     std::vector<Uniforms<HemisphereLight>::Ptr> hemi;
     Color ambient;
@@ -161,13 +161,13 @@ public:
 
       LightFunctions lightFuncs;
 
-      lightFuncs.ambient = [&](AmbientLight::Ptr alight)
+      lightFuncs.ambient = [&](AmbientLight *alight)
       {
         r += color.r * intensity;
         g += color.g * intensity;
         b += color.b * intensity;
       };
-      lightFuncs.directional = [&](DirectionalLight::Ptr dlight)
+      lightFuncs.directional = [&](DirectionalLight *dlight)
       {
         Uniforms<DirectionalLight>::Ptr uniforms = cache.get( dlight );
 
@@ -190,7 +190,7 @@ public:
         state.directionalShadowMatrix.push_back(light->shadow()->matrix());
         state.directional.push_back(uniforms);
       };
-      lightFuncs.spot = [&](SpotLight::Ptr slight)
+      lightFuncs.spot = [&](SpotLight *slight)
       {
         Uniforms<SpotLight>::Ptr uniforms = cache.get( slight );
 
@@ -210,7 +210,7 @@ public:
 
         uniforms->shadow = light->castShadow();
 
-        if (light->castShadow) {
+        if (light->castShadow()) {
 
           LightShadow::Ptr shadow = light->shadow();
 
@@ -224,7 +224,7 @@ public:
         state.spotShadowMatrix.push_back(light->shadow()->matrix());
         state.spot.push_back(uniforms);
       };
-      lightFuncs.rectarea = [&](RectAreaLight::Ptr rlight)
+      lightFuncs.rectarea = [&](RectAreaLight *rlight)
       {
         Uniforms<RectAreaLight>::Ptr uniforms = cache.get( rlight );
 
@@ -253,7 +253,7 @@ public:
 
         state.rectArea.push_back(uniforms);
       };
-      lightFuncs.point = [&](PointLight::Ptr plight)
+      lightFuncs.point = [&](PointLight *plight)
       {
         Uniforms<PointLight>::Ptr uniforms = cache.get( plight );
 
@@ -268,20 +268,20 @@ public:
 
         if ( light->castShadow() ) {
 
-          LightShadow::Ptr shadow = plight->shadow();
+          auto shadow = plight->shadow();
 
           uniforms->shadowBias = shadow->bias();
           uniforms->shadowRadius = shadow->radius();
           uniforms->shadowMapSize = shadow->mapSize();
-          uniforms->shadowCameraNear = shadow->camera()->near();
-          uniforms->shadowCameraFar = shadow->camera()->far();
+          uniforms->shadowCameraNear = shadow->specificCamera()->near();
+          uniforms->shadowCameraFar = shadow->specificCamera()->far();
         }
 
         state.pointShadowMap.push_back(shadowMap);
-        state.pointShadowMatrix.push_back(plight->shadow().matrix());
+        state.pointShadowMatrix.push_back(plight->shadow()->matrix());
         state.point.push_back(uniforms);
       };
-      lightFuncs.hemisphere = [&](HemisphereLight::Ptr hlight)
+      lightFuncs.hemisphere = [&](HemisphereLight *hlight)
       {
         Uniforms<HemisphereLight>::Ptr uniforms = cache.get( hlight );
 

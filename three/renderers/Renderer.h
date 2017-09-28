@@ -27,7 +27,7 @@ public:
     Texture::Ptr texture() {return _texture;}
   };
 
-  virtual void render(const Scene::Ptr scene, const Camera::Ptr camera) = 0;
+  virtual void render(const Scene::Ptr scene, const Camera::Ptr camera, const Target::Ptr renderTarget) = 0;
 };
 
 }

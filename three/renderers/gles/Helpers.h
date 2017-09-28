@@ -8,7 +8,12 @@
 namespace three {
 namespace gl {
 
-struct InfoRender
+struct MemoryInfo {
+  unsigned geomtries = 0;
+  unsigned textures = 0;
+};
+
+struct RenderInfo
 {
   unsigned frame = 0;
   unsigned  calls = 0;

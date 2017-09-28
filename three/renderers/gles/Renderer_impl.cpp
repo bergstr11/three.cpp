@@ -14,7 +14,7 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
-   : OpenGLRenderer(context), _state(context)
+   : OpenGLRenderer(context), _state(context), _objects(_geometries, _infoRender), _geometries(_attributes)
 {}
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
@@ -28,7 +28,7 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
-void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
+void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera, const Renderer::Target::Ptr renderTarget)
 {
   if (_isContextLost) return;
 
@@ -88,17 +88,10 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
   _infoRender.faces = 0;
   _infoRender.points = 0;
 
-  if (renderTarget == = undefined) {
-
-    renderTarget = null;
-
-  }
-
   setRenderTarget(renderTarget);
-
+#if 0
   //
-
-  background.render(currentRenderList, scene, camera, forceClear);
+  _background.render(currentRenderList, scene, camera, forceClear);
 
   // render scene
 
@@ -151,6 +144,7 @@ void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera)
   }
 
   // _gl.finish();
+#endif
 }
 #if 0
 Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {

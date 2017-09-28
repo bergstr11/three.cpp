@@ -354,14 +354,14 @@ struct Color
 #endif
 };
 
-Color operator *(const Color &color1, const Color &color2)
+inline Color operator *(const Color &color1, const Color &color2)
 {
   Color result(color1);
   result *= color2;
   return result;
 }
 
-Color operator *(const Color &color1, const float scalar)
+inline Color operator *(const Color &color1, const float scalar)
 {
   Color result(color1);
   result *= scalar;

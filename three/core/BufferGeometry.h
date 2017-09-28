@@ -11,15 +11,6 @@
 
 namespace three {
 
-struct Group {
-  const uint32_t start;
-  const uint32_t count;
-  const uint32_t materialIndex;
-
-  Group(uint32_t start, uint32_t count, uint32_t materialIndex)
-     : start(start), count(count), materialIndex(materialIndex) {}
-};
-
 class Object3D;
 
 class BufferGeometry : public Geometry
@@ -30,8 +21,6 @@ class BufferGeometry : public Geometry
   BufferAttribute<float>::Ptr _color;
   BufferAttribute<float>::Ptr _uv;
   BufferAttribute<float>::Ptr _uv2;
-
-  std::vector<Group> _groups;
 
   std::vector<BufferAttribute<float>> _morphAttributes_position;
   std::vector<BufferAttribute<float>> _morphAttributes_normal;
@@ -144,18 +133,6 @@ public:
     _uv2 = uv2;
     return *this;
   }
-
-  BufferGeometry &addGroup(uint32_t start, uint32_t count, uint32_t materialIndex=0)
-  {
-    _groups.emplace_back(start, count, materialIndex);
-  }
-
-  BufferGeometry &clearGroups()
-  {
-    _groups.clear();
-  }
-
-  const std::vector<Group> &groups() const {return _groups;}
 
   BufferGeometry &apply(const math::Matrix4 &matrix) override
   {

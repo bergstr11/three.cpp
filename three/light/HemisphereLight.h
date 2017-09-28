@@ -15,12 +15,11 @@ class HemisphereLight : public Light
 
 public:
   HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity)
-     : Light(LightResolver<HemisphereLight>::make(this), skyColor, intensity),
-       _groundColor(groundColor), _position(0, 1, 0)
+     : Light(LightResolver<HemisphereLight>::make(this), skyColor, intensity), _groundColor(groundColor)
   {
     updateMatrix();
 
-    _groundColor = groundColor;
+    _position = math::Vector3(0, 1, 0);
   }
 
   const Color &skyColor() {return color();}

@@ -39,6 +39,8 @@ public:
     return std::shared_ptr<Mesh>(new Mesh(geometry, material));
   }
 
+  bool renderable() const override {return true;}
+
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;

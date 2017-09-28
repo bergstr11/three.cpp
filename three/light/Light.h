@@ -35,7 +35,7 @@ public:
   float distance() const {return _distance;}
   const LightShadow::Ptr shadow() const {return _shadow;};
 
-  virtual bool castShadow() = 0;
+  virtual bool castShadow() {return false;};
 };
 
 }

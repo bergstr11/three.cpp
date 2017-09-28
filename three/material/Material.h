@@ -13,6 +13,8 @@
 
 namespace three {
 
+class Camera;
+
 struct Material
 {
   sole::uuid uuid;
@@ -93,7 +95,13 @@ public:
 
   uint16_t id() const {return _id;}
 
+  bool skinning() const {return _skinning;}
+
   bool morphTargets() const {return _morphTargets;}
+
+  virtual void setupPointLight(const math::Vector3 &position, float near, float far)
+  {
+  }
 };
 
 }

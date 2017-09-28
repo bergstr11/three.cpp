@@ -35,7 +35,7 @@ class SpotLight : public TargetLight
 public:
   using Ptr = std::shared_ptr<SpotLight>;
   static Ptr make(Object3D::Ptr target, const Color &color, float intensity, float distance, float angle, float penumbra, float decay) {
-    return new SpotLight(target, color, intensity, distance, angle, penumbra, decay);
+    return Ptr(new SpotLight(target, color, intensity, distance, angle, penumbra, decay));
   }
 
   float penumbra() const {return _penumbra;}

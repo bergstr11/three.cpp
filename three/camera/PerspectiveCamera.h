@@ -103,6 +103,8 @@ public:
 
   void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
 
+  float near() const {return _near;}
+
   float far() const {return _far;}
 
   float fov() const {return _fov;}

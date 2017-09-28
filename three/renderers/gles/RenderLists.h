@@ -30,60 +30,61 @@ struct RenderItem
   {}
 };
 
-int painterSortStable(const RenderItem &a, const RenderItem &b)
-{
-  if (a.renderOrder != b.renderOrder) {
-
-    return a.renderOrder - b.renderOrder;
-  }
-  else if (a.program != nullptr && b.program != nullptr && a.program != b.program) {
-
-    return a.program->id() - b.program->id();
-  }
-  else if (a.material->id() != b.material->id()) {
-    return a.material->id() - b.material->id();
-  }
-  else if (a.z != b.z) {
-    return a.z - b.z;
-  }
-  else {
-    return a.id - b.id;
-  }
-}
-
-int reversePainterSortStable(const RenderItem &a, const RenderItem &b)
-{
-  if (a.renderOrder != b.renderOrder) {
-
-    return a.renderOrder - b.renderOrder;
-  }
-  if (a.z != b.z) {
-
-    return b.z - a.z;
-  }
-  else {
-
-    return a.id - b.id;
-  }
-}
-
 class RenderList
 {
   std::vector<RenderItem> renderItems;
-  size_t renderItemsIndex = 0;
 
   std::vector<size_t> opaque;
   std::vector<size_t> transparent;
 
+  int painterSortStable(size_t index_a, size_t index_b)
+  {
+    const RenderItem &a = renderItems.at(index_a);
+    const RenderItem &b = renderItems.at(index_b);
+
+    if (a.renderOrder != b.renderOrder) {
+
+      return a.renderOrder - b.renderOrder;
+    }
+    else if (a.program != nullptr && b.program != nullptr && a.program != b.program) {
+
+      return a.program->id() - b.program->id();
+    }
+    else if (a.material->id() != b.material->id()) {
+      return a.material->id() - b.material->id();
+    }
+    else if (a.z != b.z) {
+      return a.z - b.z;
+    }
+    else {
+      return a.id - b.id;
+    }
+  }
+
+  int reversePainterSortStable(size_t index_a, size_t index_b)
+  {
+    const RenderItem &a = renderItems.at(index_a);
+    const RenderItem &b = renderItems.at(index_b);
+
+    if (a.renderOrder != b.renderOrder) {
+
+      return a.renderOrder - b.renderOrder;
+    }
+    if (a.z != b.z) {
+
+      return b.z - a.z;
+    }
+    else {
+
+      return a.id - b.id;
+    }
+  }
 public:
   void init()
   {
-
-    renderItemsIndex = 0;
-
+    renderItems.clear();
     opaque.clear();
     transparent.clear();
-
   }
 
   RenderList &push_back(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, int group)
@@ -100,9 +101,11 @@ public:
   RenderList &sort()
   {
     if (!opaque.empty())
-      std::sort(opaque.begin(), opaque.end(), painterSortStable);
+      std::sort(opaque.begin(), opaque.end(),
+                [this](size_t a, size_t b) {return painterSortStable(a, b);});
     if (!transparent.empty())
-      std::sort(transparent.begin(), transparent.end(), reversePainterSortStable);
+      std::sort(transparent.begin(), transparent.end(),
+                [this](size_t a, size_t b) {return reversePainterSortStable(a, b);});
   }
 };
 
@@ -117,7 +120,7 @@ public:
     uint32_t key = (uint32_t)scene->id() << 16 | camera->id();
 
     if(_lists.find(key) == _lists.end()) {
-      _lists.emplace(_lists.end(), key);
+      _lists.emplace(key, RenderList());
     }
     return &_lists[key];
   }
