@@ -126,12 +126,15 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
+  void doRender(const Scene::Ptr &scene,
+                const Camera::Ptr &camera,
+                const Renderer::Target::Ptr &renderTarget,
+                bool forceClear) override;
+
 public:
 
   //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
   Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height);
-
-  void render(const Scene::Ptr scene, const Camera::Ptr camera, const Renderer::Target::Ptr renderTarget) override;
 
   gl::State &state() {return _state;}
 

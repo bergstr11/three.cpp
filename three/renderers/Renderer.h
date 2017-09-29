@@ -25,9 +25,23 @@ public:
     using Ptr = std::shared_ptr<Target>;
 
     Texture::Ptr texture() {return _texture;}
+
   };
 
-  virtual void render(const Scene::Ptr scene, const Camera::Ptr camera, const Target::Ptr renderTarget) = 0;
+protected:
+  virtual void doRender(const Scene::Ptr &scene,
+                        const Camera::Ptr &camera,
+                        const Target::Ptr &renderTarget,
+                        bool forceClear) = 0;
+
+public:
+  void render(const Scene::Ptr scene,
+              const Camera::Ptr camera,
+              const Target::Ptr renderTarget=nullptr,
+              bool forceClear=true)
+  {
+    doRender(scene, camera, renderTarget, forceClear);
+  }
 };
 
 }

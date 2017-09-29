@@ -28,7 +28,8 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
-void Renderer_impl::render(const Scene::Ptr scene, const Camera::Ptr camera, const Renderer::Target::Ptr renderTarget)
+void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
+                             const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if (_isContextLost) return;
 

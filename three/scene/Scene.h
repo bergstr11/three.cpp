@@ -18,11 +18,18 @@ class Scene : public Object3D
 
   bool _autoUpdate;
 
-public:
-  using Ptr = std::shared_ptr<Scene>;
-
+protected:
   Scene(const Color &background, const Fog &fog) : _background(background), _fog(fog) {}
   Scene() {}
+
+public:
+  using Ptr = std::shared_ptr<Scene>;
+  static Ptr make(const Color &background, const Fog &fog) {
+    return Ptr(new Scene(background, fog));
+  }
+  static Ptr make() {
+    return Ptr(new Scene());
+  }
 
   const Color &background() const {return _background;}
   const Fog &fog() const {return _fog;}
