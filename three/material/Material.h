@@ -20,6 +20,7 @@ struct Material
   sole::uuid uuid;
   uint16_t _id;
 
+protected:
   bool fog = true;
   bool lights = true;
 
@@ -86,7 +87,6 @@ struct Material
   bool _fog = false;
   bool _lights = false;
 
-protected:
   Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets), uuid(sole::uuid0())
   {}
 

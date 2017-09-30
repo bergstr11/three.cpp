@@ -9,6 +9,7 @@
 #include <objects/Mesh.h>
 #include <textures/CubeTexture.h>
 #include <geometry/Box.h>
+#include <material/ShaderMaterial.h>
 #include "Renderer_impl.h"
 
 namespace three {
@@ -54,9 +55,8 @@ public:
 
         // Normalized box
         // 1.1547 = (1,1,1).normalize() * 2.0
-
-        boxMesh = Mesh::make(
-           geometry::BoxBuffer::make( 1.1547, 1.1547, 1.1547 ),
+        geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make( 1.1547, 1.1547, 1.1547 );
+        boxMesh = Mesh::make( box,
            ShaderMaterial::make( {
                                   uniforms: ShaderLib.cube.uniforms,
                                   vertexShader: ShaderLib.cube.vertexShader,
@@ -68,8 +68,8 @@ public:
                                } )
         );
 
-        boxMesh->geometry()->removeAttribute( 'normal' );
-        boxMesh->geometry()->removeAttribute( 'uv' );
+        box->setNormal(nullptr);
+        box->setUV(nullptr);
 
         boxMesh->onBeforeRender = [this] (Renderer::Ptr renderer, Scene::Ptr scene, Camera::Ptr camera ) {
 
@@ -80,8 +80,7 @@ public:
 
         };
 
-        geometries.update( boxMesh.geometry );
-
+        geometries.update(box);
       }
 
       boxMesh->material()->uniforms.tCube.value = background;
@@ -105,7 +104,6 @@ public:
       planeMesh.material.map = background;
 
       // TODO Push this to renderList
-
       renderer.renderBufferDirect( planeCamera, null, planeMesh->geometry(), planeMesh->material(), planeMesh, null );
     };
 

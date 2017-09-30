@@ -209,9 +209,15 @@ enum class DepthPacking {
   Basic=3200, RGBA=3201
 };
 
-enum BufferType {
+enum class BufferType {
   Array=GL_ARRAY_BUFFER, ElementArray=GL_ELEMENT_ARRAY_BUFFER
 };
+
+enum class ShaderType {
+  Vertex=GL_VERTEX_SHADER,
+  Fragment=GL_FRAGMENT_SHADER
+};
+
 }
 
 #endif //THREE_QT_CONSTANTS

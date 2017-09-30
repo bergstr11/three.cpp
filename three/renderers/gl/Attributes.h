@@ -20,7 +20,7 @@ struct Buffer {
   unsigned version;
 };
 
-class Attributes : public QOpenGLFunctions
+class Attributes : private QOpenGLFunctions
 {
   std::unordered_map<sole::uuid, Buffer> _buffers;
 

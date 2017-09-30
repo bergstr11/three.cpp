@@ -21,7 +21,7 @@
 namespace three {
 namespace gl {
 
-class Renderer_impl : public OpenGLRenderer, public QOpenGLFunctions
+class Renderer_impl : public OpenGLRenderer, private QOpenGLFunctions
 {
 protected:
   std::vector<Light::Ptr> _lightsArray;
