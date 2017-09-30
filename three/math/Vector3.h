@@ -44,6 +44,8 @@ class Vector3
   };
 
 public:
+  enum class Element {x=0, y=1, z=2};
+
   Vector3() : _x(0.0f), _y(0.0f), _z(0.0f) {}
   Vector3(float x, float y, float z) : _x(x), _y(y), _z(z) {}
   Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
@@ -84,16 +86,14 @@ public:
   float &y() {return _y;}
   float &z() {return _z;}
 
-  float &operator[](unsigned index)
+  float &operator[](Element element)
   {
-    assert(index < 3);
-    return _xyz[index];
+    return _xyz[(size_t)element];
   }
 
-  const float operator[] (unsigned index) const
+  const float operator[] (Element element) const
   {
-    assert(index < 3);
-    return _xyz[index];
+    return _xyz[(size_t)element];
   }
 
   Vector3 &operator +=(const Vector3 &vector)

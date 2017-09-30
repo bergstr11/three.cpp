@@ -32,12 +32,6 @@ protected:
   std::vector<Sprite::Ptr> _spritesArray;
   std::vector<LensFlare::Ptr> _flaresArray;
 
-  // clearing
-  bool _autoClear = true;
-  bool _autoClearColor = true;
-  bool _autoClearDepth = true;
-  bool _autoClearStencil = true;
-
   // scene graph
   bool _sortObjects = true;
 
@@ -132,6 +126,11 @@ protected:
                 bool forceClear) override;
 
 public:
+  // clearing
+  bool autoClear = true;
+  bool autoClearColor = true;
+  bool autoClearDepth = true;
+  bool autoClearStencil = true;
 
   //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
   Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height);

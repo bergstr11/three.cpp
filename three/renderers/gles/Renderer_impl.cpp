@@ -90,7 +90,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.points = 0;
 
   setRenderTarget(renderTarget);
-#if 0
+
   //
   _background.render(currentRenderList, scene, camera, forceClear);
 
@@ -145,7 +145,6 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   }
 
   // _gl.finish();
-#endif
 }
 #if 0
 Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {

@@ -16,7 +16,7 @@ class RectAreaLight : public Light
 
 public:
   RectAreaLight(const Color &color, float intensity, float width, float height, float distance, float angle)
-     : Light(LightResolver<RectAreaLight>::make(this), color, intensity, distance, angle), _width(width), _height(height)
+     : Light(light::Resolver<RectAreaLight>::make(this), color, intensity, distance, angle), _width(width), _height(height)
   {
     _position.set( 0, 1, 0 );
     updateMatrix();

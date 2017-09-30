@@ -17,6 +17,24 @@
 #include <memory>
 #include <functional>
 
+#define DEF_RESOLVER() \
+struct ResolverBase  { \
+  using Ptr = std::shared_ptr<ResolverBase>; \
+  virtual void call(Functions &functions) const = 0; \
+}; \
+template <typename L> \
+class Resolver {};
+
+#define MK_RESOLVER(Clz, func) \
+template <> \
+struct Resolver<Clz> : public ResolverBase \
+{ \
+  Clz *target; \
+  Resolver(Clz *target) : target(target) {} \
+  static Ptr make(Clz *target) {return Ptr(new Resolver<Clz>(target));} \
+  void call(Functions &f) const override {f.func(target);} \
+};
+
 namespace three {
 
 class AmbientLight;
@@ -26,48 +44,22 @@ class PointLight;
 class RectAreaLight;
 class SpotLight;
 
-class Resolver
-{
-public:
-  using Ptr = std::shared_ptr<Resolver>;
-  virtual void resolve() const = 0;
-};
-
-struct LightFunctions
-{
-  template <typename L>
-  using Func = std::function<void(L *)>;
-
-  Func<AmbientLight> ambient;
-  Func<DirectionalLight> directional;
-  Func<HemisphereLight> hemisphere;
-  Func<PointLight> point;
-  Func<RectAreaLight> rectarea;
-  Func<SpotLight> spot;
-};
-
 template <typename L>
-class LightResolverBase : public Resolver, protected LightFunctions
+using ResolveFunc = std::function<void(L *)>;
+
+namespace light {
+
+struct Functions
 {
-protected:
-  L *light;
-
-  explicit LightResolverBase(L *light) : light(light) {}
+  ResolveFunc<AmbientLight> ambient;
+  ResolveFunc<DirectionalLight> directional;
+  ResolveFunc<HemisphereLight> hemisphere;
+  ResolveFunc<PointLight> point;
+  ResolveFunc<RectAreaLight> rectarea;
+  ResolveFunc<SpotLight> spot;
 };
 
-template <typename L>
-class LightResolver
-{
-};
-
-#define MK_RESOLVER(Clz, func) \
-template <> \
-struct LightResolver<Clz> : public LightResolverBase<Clz> \
-{ \
-  LightResolver(Clz *light) : LightResolverBase(light) {} \
-  static Ptr make(Clz *light) {return Ptr(new LightResolver<Clz>(light));} \
-  void resolve() const override {func(light);} \
-};
+DEF_RESOLVER()
 
 MK_RESOLVER(AmbientLight, ambient)
 MK_RESOLVER(DirectionalLight, directional)
@@ -75,5 +67,29 @@ MK_RESOLVER(HemisphereLight, hemisphere)
 MK_RESOLVER(PointLight, point)
 MK_RESOLVER(RectAreaLight, rectarea)
 MK_RESOLVER(SpotLight, spot)
+
+}
+
+class CubeTexture;
+class Texture;
+class Color;
+
+namespace scene {
+
+struct Functions
+{
+  ResolveFunc<CubeTexture> cubeTexture;
+  ResolveFunc<Texture> texture;
+  ResolveFunc<Color> color;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(CubeTexture, cubeTexture)
+MK_RESOLVER(Texture, texture)
+MK_RESOLVER(Color, color)
+
+}
+
 }
 #endif //THREE_QT_RESOLVER_H

@@ -13,7 +13,7 @@ class DirectionalLight : public TargetLight
 {
 protected:
   DirectionalLight(const Ptr &target, const Color &color, float intensity, float distance, float angle)
-     : TargetLight(LightResolver<DirectionalLight>::make(this),  target, color, intensity, distance, angle)
+     : TargetLight(light::Resolver<DirectionalLight>::make(this),  target, color, intensity, distance, angle)
   {}
 
 public:

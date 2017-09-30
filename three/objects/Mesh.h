@@ -8,6 +8,7 @@
 #include <core/Object3D.h>
 #include <material/Material.h>
 #include <material/MeshBasicMaterial.h>
+#include <helper/simplesignal.h>
 
 namespace three {
 
@@ -38,6 +39,8 @@ public:
   {
     return std::shared_ptr<Mesh>(new Mesh(geometry, material));
   }
+
+  Signal<void()> onBeforeRender;
 
   bool renderable() const override {return true;}
 

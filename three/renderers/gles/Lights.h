@@ -159,7 +159,7 @@ public:
       Texture::Ptr shadowMap = ( light->shadow() && light->shadow()->map() ) ?
                                light->shadow()->map()->texture() : nullptr;
 
-      LightFunctions lightFuncs;
+      light::Functions lightFuncs;
 
       lightFuncs.ambient = [&](AmbientLight *alight)
       {
@@ -294,6 +294,8 @@ public:
 
         state.hemi.push_back(uniforms);
       };
+
+      light->resolver->call(lightFuncs);
     }
 
     state.ambient = Color(r, g, b);

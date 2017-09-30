@@ -66,10 +66,10 @@ protected:
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
   static Ptr make() {
-    return std::shared_ptr<BufferGeometry>(new BufferGeometry());
+    return Ptr(new BufferGeometry());
   }
   static Ptr make(std::shared_ptr<Object3D> object) {
-    return std::shared_ptr<BufferGeometry>(new BufferGeometry(object));
+    return Ptr(new BufferGeometry(object));
   }
 
   BufferGeometry &update(std::shared_ptr<Object3D> object);

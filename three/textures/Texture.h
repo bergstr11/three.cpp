@@ -61,7 +61,6 @@ private:
 
   bool _generateMipmaps = true;
   bool _premultiplyAlpha = false;
-  bool _flipY = true;
   unsigned _unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
   // Values of encoding !== THREE.LinearEncoding only supported on map, envMap and emissiveMap.
@@ -73,10 +72,11 @@ private:
   unsigned _version = 0;
 
 protected:
+  bool _flipY = true;
+
   Texture(const Options &data);
 
 public:
-
   using Ptr = std::shared_ptr<Texture>;
   static Ptr make(const Options &options) {
     return Ptr(new Texture(options));

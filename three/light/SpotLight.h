@@ -23,7 +23,7 @@ class SpotLight : public TargetLight
             float angle=(float)M_PI / 3.0f,
             float penumbra=0,
             float decay=1) // for physically correct lights, should be 2.
-     : TargetLight(LightResolver<SpotLight>::make(this),
+     : TargetLight(light::Resolver<SpotLight>::make(this),
                    target, color, intensity, distance, angle), _penumbra(penumbra), _decay(decay)
   {
     _position = math::Vector3( 0, 1, 0 );
