@@ -20,7 +20,6 @@ struct Material
   sole::uuid uuid;
   uint16_t _id;
 
-protected:
   bool fog = true;
   bool lights = true;
 
@@ -90,7 +89,6 @@ protected:
   Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets), uuid(sole::uuid0())
   {}
 
-public:
   using Ptr = std::shared_ptr<Material>;
 
   uint16_t id() const {return _id;}

@@ -218,6 +218,11 @@ enum class ShaderType {
   Fragment=GL_FRAGMENT_SHADER
 };
 
+enum class Precision
+{
+  lowp, mediump, highp
+};
+
 }
 
 #endif //THREE_QT_CONSTANTS

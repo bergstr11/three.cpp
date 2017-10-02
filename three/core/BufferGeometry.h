@@ -64,6 +64,8 @@ protected:
   explicit BufferGeometry(std::shared_ptr<Object3D> object);
 
 public:
+  static size_t MaxIndex;
+
   using Ptr = std::shared_ptr<BufferGeometry>;
   static Ptr make() {
     return Ptr(new BufferGeometry());

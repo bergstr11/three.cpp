@@ -5,7 +5,6 @@
 #ifndef THREE_QT_GLSTATE_H
 #define THREE_QT_GLSTATE_H
 
-#include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
 #include <math/Vector4.h>
 #include <material/Material.h>
@@ -16,19 +15,17 @@
 namespace three {
 namespace gl {
 
-using glfunctions = QOpenGLExtraFunctions;
-
-class State : private glfunctions
+class State
 {
 public:
-  struct ColorBuffer : private glfunctions
+  struct ColorBuffer
   {
     bool locked = false;
     math::Vector4 color = {0, 0, 0, 0};
     GLboolean currentColorMask = 0;
     math::Vector4 currentColorClear = {0, 0, 0, 0};
 
-    ColorBuffer(QOpenGLContext *context) : glfunctions(context)
+    ColorBuffer(QOpenGLExtraFunctions *fn)
     {}
 
     ColorBuffer &setMask(GLboolean colorMask)
@@ -67,7 +64,7 @@ public:
     }
   };
 
-  struct DepthBuffer : public glfunctions
+  struct DepthBuffer
   {
     State *const glState;
 
@@ -136,7 +133,7 @@ public:
     }
   };
 
-  struct StencilBuffer : private glfunctions
+  struct StencilBuffer
   {
     State *const glState;
 
@@ -151,7 +148,7 @@ public:
     Op currentStencilZPass = Op::Zero;
     GLint currentStencilClear = 0;
 
-    StencilBuffer(QOpenGLContext *context, State *state) : glfunctions(context), glState(state)
+    StencilBuffer(QOpenGLExtraFunctions *fn, State *state) : glState(state)
     {}
 
     StencilBuffer &setTest(bool stencilTest)
@@ -293,12 +290,16 @@ public:
     return texture;
   }
 
+  QOpenGLExtraFunctions * const _fn;
   std::unordered_map<GLenum, GLuint> emptyTextures = {};
 
 public:
   // init
-  State(QOpenGLContext *context) :
-     glfunctions(context), colorBuffer(context), stencilBuffer(context, this), depthBuffer(this)
+  State(QOpenGLExtraFunctions *fn) :
+     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this), _fn(fn)
+  {}
+
+  void init()
   {
     emptyTextures[GL_TEXTURE_2D] = createTexture(GL_TEXTURE_2D, GL_TEXTURE_2D, 1);
     emptyTextures[GL_TEXTURE_CUBE_MAP] = createTexture(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_POSITIVE_X, 6);
@@ -336,12 +337,12 @@ public:
     newAttributes[attribute] = 1;
 
     if (enabledAttributes[attribute] == 0) {
-      glEnableVertexAttribArray(attribute);
+      _fn->glEnableVertexAttribArray(attribute);
       enabledAttributes[attribute] = 1;
     }
 
     if (attributeDivisors[attribute] != 0) {
-      glVertexAttribDivisor(attribute, 0);
+      _fn->glVertexAttribDivisor(attribute, 0);
       attributeDivisors[attribute] = 0;
     }
     return *this;
@@ -352,12 +353,12 @@ public:
     newAttributes[attribute] = 1;
 
     if (enabledAttributes[attribute] == 0) {
-      glEnableVertexAttribArray(attribute);
+      _fn->glEnableVertexAttribArray(attribute);
       enabledAttributes[attribute] = 1;
     }
 
     if (attributeDivisors[attribute] != meshPerAttribute) {
-      glVertexAttribDivisor(attribute, meshPerAttribute);
+      _fn->glVertexAttribDivisor(attribute, meshPerAttribute);
       attributeDivisors[attribute] = meshPerAttribute;
     }
     return *this;
@@ -367,7 +368,7 @@ public:
   {
     for (size_t i = 0, l = enabledAttributes.size(); i != l; ++i) {
       if (enabledAttributes[i] != newAttributes[i]) {
-        glDisableVertexAttribArray(i);
+        _fn->glDisableVertexAttribArray(i);
         enabledAttributes[i] = 0;
       }
     }
@@ -405,7 +406,7 @@ public:
   {
     if (currentProgram != program) {
 
-      glUseProgram(program);
+      _fn->glUseProgram(program);
       currentProgram = program;
       return true;
     }
@@ -431,45 +432,45 @@ public:
         switch (blending) {
           case Blending::Additive:
             if (premultipliedAlpha) {
-              glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _fn->glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
             }
             else {
-              glBlendEquation(GL_FUNC_ADD);
-              glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+              _fn->glBlendEquation(GL_FUNC_ADD);
+              _fn->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             }
             break;
 
           case Blending::Subtractive:
             if (premultipliedAlpha) {
-              glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              glBlendFuncSeparate(GL_ZERO, GL_ZERO, GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _fn->glBlendFuncSeparate(GL_ZERO, GL_ZERO, GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
             }
             else {
-              glBlendEquation(GL_FUNC_ADD);
-              glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+              _fn->glBlendEquation(GL_FUNC_ADD);
+              _fn->glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
             }
             break;
 
           case Blending::Multiply:
             if (premultipliedAlpha) {
-              glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              glBlendFuncSeparate(GL_ZERO, GL_SRC_COLOR, GL_ZERO, GL_SRC_ALPHA);
+              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _fn->glBlendFuncSeparate(GL_ZERO, GL_SRC_COLOR, GL_ZERO, GL_SRC_ALPHA);
             }
             else {
-              glBlendEquation(GL_FUNC_ADD);
-              glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+              _fn->glBlendEquation(GL_FUNC_ADD);
+              _fn->glBlendFunc(GL_ZERO, GL_SRC_COLOR);
             }
             break;
 
           default:
             if (premultipliedAlpha) {
-              glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _fn->glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
             }
             else {
-              glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _fn->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
             }
         }
       }
@@ -488,7 +489,7 @@ public:
 
       if (blendEquation != currentBlendEquation || blendEquationAlpha != currentBlendEquationAlpha) {
 
-        glBlendEquationSeparate((GLenum) blendEquation, (GLenum) blendEquationAlpha);
+        _fn->glBlendEquationSeparate((GLenum) blendEquation, (GLenum) blendEquationAlpha);
 
         currentBlendEquation = blendEquation;
         currentBlendEquationAlpha = blendEquationAlpha;
@@ -497,7 +498,7 @@ public:
       if (blendSrc != currentBlendSrc || blendDst != currentBlendDst || blendSrcAlpha != currentBlendSrcAlpha ||
           blendDstAlpha != currentBlendDstAlpha) {
 
-        glBlendFuncSeparate((GLenum) blendSrc, (GLenum) blendDst, (GLenum) blendSrcAlpha, (GLenum) blendDstAlpha);
+        _fn->glBlendFuncSeparate((GLenum) blendSrc, (GLenum) blendDst, (GLenum) blendSrcAlpha, (GLenum) blendDstAlpha);
 
         currentBlendSrc = blendSrc;
         currentBlendDst = blendDst;
@@ -512,9 +513,7 @@ public:
 
   State &setMaterial(const Material::Ptr material)
   {
-    material->side == Side::Double
-    ? disable(GL_CULL_FACE)
-    : enable(GL_CULL_FACE);
+    material->side == Side::Double ? disable(GL_CULL_FACE) : enable(GL_CULL_FACE);
 
     setFlipSided(material->side == Side::Back ? FrontFaceDirection::CW : FrontFaceDirection::CCW);
 
@@ -674,7 +673,7 @@ public:
   {
     for(size_t i=0; i < enabledAttributes.size(); i ++ ) {
       if (enabledAttributes[ i ] == 1) {
-        glDisableVertexAttribArray( i );
+        _fn->glDisableVertexAttribArray( i );
         enabledAttributes[ i ] = 0;
       }
     }

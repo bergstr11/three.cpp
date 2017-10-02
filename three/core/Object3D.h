@@ -9,11 +9,12 @@
 #include <memory>
 #include <functional>
 
-#include "core/StaticGeometry.h"
-#include "math/Euler.h"
-#include "math/Quaternion.h"
-#include "math/Matrix4.h"
-#include "material/Material.h"
+#include <helper/sole.h>
+#include <math/Euler.h>
+#include <math/Quaternion.h>
+#include <math/Matrix4.h>
+#include <material/Material.h>
+#include "StaticGeometry.h"
 #include "Layers.h"
 
 namespace three {
@@ -24,6 +25,7 @@ class Intersection;
 class Object3D
 {
 public:
+  const sole::uuid uuid;
   using Ptr = std::shared_ptr<Object3D>;
 
 private:

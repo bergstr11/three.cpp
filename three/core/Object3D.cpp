@@ -10,11 +10,11 @@ namespace three {
 
 using namespace three::math;
 
-Object3D::Object3D(Geometry::Ptr geometry) : _geometry(geometry)
+Object3D::Object3D(Geometry::Ptr geometry) : _geometry(geometry), uuid(sole::uuid0())
 {
 }
 
-Object3D::Object3D()
+Object3D::Object3D() : uuid(sole::uuid0())
 {
 }
 

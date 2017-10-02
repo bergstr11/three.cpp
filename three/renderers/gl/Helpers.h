@@ -5,6 +5,9 @@
 #ifndef THREE_QT_HELPERS_H
 #define THREE_QT_HELPERS_H
 
+#include <string>
+#include <Constants.h>
+
 namespace three {
 namespace gl {
 
@@ -20,6 +23,22 @@ struct RenderInfo
   unsigned  vertices = 0;
   unsigned  faces = 0;
   unsigned  points = 0;
+};
+
+struct Parameters {
+  bool envMapCubeUV;
+  bool bumpMap;
+  bool normalMap;
+  bool flatShading;
+  bool logarithmicDepthBuffer;
+  bool envMap;
+  unsigned numDirLights;
+  unsigned numSpotLights;
+  unsigned numRectAreaLights;
+  unsigned numPointLights;
+  unsigned numHemiLights;
+
+  Precision precision = Precision::highp;
 };
 
 }

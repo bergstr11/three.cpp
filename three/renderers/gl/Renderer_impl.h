@@ -13,6 +13,9 @@
 #include "RenderTarget.h"
 #include "Helpers.h"
 #include "State.h"
+#include "Extensions.h"
+#include "Capabilities.h"
+#include "Properties.h"
 #include "Lights.h"
 #include "Clipping.h"
 #include "RenderLists.h"
@@ -21,7 +24,7 @@
 namespace three {
 namespace gl {
 
-class Renderer_impl : public OpenGLRenderer, private QOpenGLFunctions
+class Renderer_impl : public OpenGLRenderer, private QOpenGLExtraFunctions
 {
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -71,6 +74,11 @@ protected:
   math::Vector4 _currentScissor;
   //_currentScissorTest = null,
 
+  Parameters _parameters;
+  Extensions _extensions;
+  Capabilities _capabilities;
+  Properties _properties;
+
   MemoryInfo _infoMemory;
   RenderInfo _infoRender;
 
@@ -117,6 +125,8 @@ protected:
   }
 
   gl::State _state;
+
+  void initContext();
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 

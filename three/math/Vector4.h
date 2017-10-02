@@ -332,6 +332,13 @@ public:
   }
 };
 
+inline Vector4 operator *(const Vector4 &vector, float scalar)
+{
+  Vector4 value(vector);
+  value.multiply(scalar);
+  return value;
+}
+
 inline Vector4 operator - (const Vector4 &a, const Vector4 &b)
 {
   float x = a.x() - b.x();

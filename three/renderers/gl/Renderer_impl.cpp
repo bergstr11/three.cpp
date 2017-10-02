@@ -14,8 +14,60 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
-   : OpenGLRenderer(context), _state(context), _objects(_geometries, _infoRender), _geometries(_attributes)
-{}
+   : OpenGLRenderer(context), _state(this), _objects(_geometries, _infoRender),
+     _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters )
+{
+
+}
+
+void Renderer_impl::initContext()
+{
+  initializeOpenGLFunctions();
+
+  _extensions.get({Extension::WEBGL_depth_texture, Extension::OES_texture_float,
+                   Extension::OES_texture_float_linear, Extension::OES_texture_half_float,
+                   Extension::OES_texture_half_float_linear, Extension::OES_standard_derivatives,
+                   Extension::ANGLE_instanced_arrays});
+
+  if (_extensions.get(Extension::OES_element_index_uint) ) {
+
+    BufferGeometry::MaxIndex = 4294967296;
+  }
+
+  _capabilities.init();
+
+  _state.init();
+  _currentScissor = _scissor * _pixelRatio;
+  _currentViewport = _viewport * _pixelRatio;
+  _state.scissor(_currentScissor);
+  _state.viewport(_currentViewport);
+
+  textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
+  attributes = new WebGLAttributes( _gl );
+  geometries = new WebGLGeometries( _gl, attributes, _infoMemory );
+  objects = new WebGLObjects( geometries, _infoRender );
+  morphtargets = new WebGLMorphtargets( _gl );
+  programCache = new WebGLPrograms( _this, extensions, capabilities );
+  lights = new WebGLLights();
+  renderLists = new WebGLRenderLists();
+
+  background = new WebGLBackground( _this, state, geometries, _premultipliedAlpha );
+
+  bufferRenderer = new WebGLBufferRenderer( _gl, extensions, _infoRender );
+  indexedBufferRenderer = new WebGLIndexedBufferRenderer( _gl, extensions, _infoRender );
+
+  flareRenderer = new WebGLFlareRenderer( _this, _gl, state, textures, capabilities );
+  spriteRenderer = new WebGLSpriteRenderer( _this, _gl, state, textures, capabilities );
+
+  _this.info.programs = programCache.programs;
+
+  _this.context = _gl;
+  _this.capabilities = capabilities;
+  _this.extensions = extensions;
+  _this.properties = properties;
+  _this.renderLists = renderLists;
+  _this.state = state;
+}
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
 {
