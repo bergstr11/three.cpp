@@ -8,25 +8,147 @@
 #include <unordered_map>
 #include <string>
 #include <core/Object3D.h>
+#include <textures/Texture.h>
 
 namespace three {
 namespace gl {
 
-class Properties
+class Property
 {
-  std::unordered_map<sole::uuid, std::unordered_map<std::string, std::string>> properties = {};
+  enum Type {glu, glup, s, f, u} type;
+  union {
+    GLuint gluint_value;
+    GLuint *gluintp_value;
+    std::string string_value;
+    float float_value;
+  };
 
 public:
-  std::unordered_map<std::string, std::string> get(const Object3D::Ptr object)
-  {
-    //var uuid = object->uuid;
-    if(properties.find(object->uuid) == properties.end())
-      properties.emplace(object->uuid, std::unordered_map<std::string, std::string>());
-
-    return properties[object->uuid];
+  explicit Property() : gluint_value(0L), type(u) {}
+  explicit Property(GLuint v) : gluint_value(v), type(glu) {}
+  explicit Property(GLuint *v) : gluintp_value(v), type(glup) {}
+  explicit Property(std::string v) : string_value(v), type(s) {}
+  explicit Property(float v) : float_value(v), type(f) {}
+  ~Property() {
+    switch(type) {
+      case s:
+        string_value.~basic_string();
+        break;
+      default:
+        break;
+    }
   }
 
-  void remove(const Object3D::Ptr object)
+  Property(const Property &prop) : type(prop.type) {
+    type = prop.type;
+    switch(prop.type) {
+      case glu:
+        gluint_value = prop.gluint_value;
+        break;
+      case glup:
+        gluintp_value = prop.gluintp_value;
+        break;
+      case s:
+        new (&string_value) std::string();
+        string_value = prop.string_value;
+        break;
+      case f:
+        float_value = prop.float_value;
+        break;
+      default:
+        break;
+    }
+  }
+
+  Property &operator =(GLuint v) {gluint_value = v; type = glu;}
+  Property &operator =(GLuint *v) {gluintp_value = v; type = glup;}
+  Property &operator =(std::string v) {string_value = v; type = s;}
+  Property &operator =(float v) {float_value = v; type = f;}
+
+  explicit operator GLuint *() const
+  {
+    switch(type) {
+      case glup:
+        return gluintp_value;
+      default:
+        throw std::logic_error("pointer cannot be cast to ");
+    }
+  }
+  explicit operator GLuint() const
+  {
+    switch(type) {
+      case glu:
+        return gluint_value;
+      case s:
+        return (GLuint)wcstoul(string_value);
+      case f:
+        return (GLuint)float_value;
+    }
+  }
+  explicit operator std::string() const
+  {
+    switch(type) {
+      case glu:
+        return std::to_string(gluint_value);
+      case s:
+        return string_value;
+      case f:
+        return std::to_string(float_value);
+    }
+  }
+  explicit operator float() const
+  {
+    switch(type) {
+      case glu:
+        return gluint_value;
+      case s:
+        return stof(string_value);
+      case f:
+        return float_value;
+    }
+  }
+};
+
+enum PropertyKey
+{
+  __image__webglTextureCube, __webglInit, __webglTexture, __webglFramebuffer, __webglDepthbuffer
+};
+
+class Properties
+{
+  std::unordered_map<sole::uuid, std::unordered_map<PropertyKey, Property>> properties = {};
+
+public:
+  std::unordered_map<PropertyKey, Property> get(const sole::uuid &uuid)
+  {
+    if(properties.find(uuid) == properties.end())
+      properties.emplace(uuid, std::unordered_map<std::string, Property>());
+
+    return properties[uuid];
+  }
+
+  bool has(const sole::uuid &uuid, PropertyKey key)
+  {
+    if(properties.find(uuid) != properties.end()) {
+      auto &props = properties[uuid];
+      return props.find(key) != props.end();
+    }
+    return false;
+  }
+
+  template <typename T>
+  std::unordered_map<PropertyKey, Property> get(const T *object)
+  {
+    return get(object->uuid);
+  }
+
+  template <typename T>
+  bool has(const T *object, PropertyKey key) {
+    return has(object->uuid, key);
+  }
+
+  template <typename T>
+  void remove(const T *object)
   {
     properties.erase(object->uuid);
   }

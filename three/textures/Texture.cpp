@@ -16,7 +16,8 @@ Texture::Texture(const Options &options)
      _anisotropy(options.anisotropy),
      _format(options.format),
      _type(options.type),
-     _encoding(options.encoding)
+     _encoding(options.encoding),
+     uuid(sole::uuid0())
 {
 
 }

@@ -371,7 +371,7 @@ class Signal<Result(Args...)> {
       removed, meaning the slot will still be called during emission,
       albeit one time less.
       @param[in] id The signal-slot connection Id, as returned by `connect()`.
-      @returns true iff the identified connection was removed. */
+      @returns true if the identified connection was removed. */
   bool disconnect(ConnectionId id) {
     if (id && m_head) {
       // Scan the list for the matching connection
@@ -391,6 +391,25 @@ class Signal<Result(Args...)> {
       }
     }
     return false;
+  }
+
+  /** remove all connections */
+  void disconnectAll() {
+    if (m_head) {
+      Connection * node = m_head->next();
+      while (node != m_head.get())
+        node = node->next();
+
+      if (node != m_head.get()) {
+        // Delete or deactivate the connection
+        if (m_recursionDepth == 0) {
+          delete node->extract();
+        } else {
+          node->deactivate();
+          m_deactivations = true;
+        }
+      }
+    }
   }
 
   /** Emit a signal to all its connected slots, optionally collating

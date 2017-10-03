@@ -17,7 +17,7 @@ class Camera;
 
 struct Material
 {
-  sole::uuid uuid;
+  const sole::uuid uuid;
   uint16_t _id;
 
   bool fog = true;

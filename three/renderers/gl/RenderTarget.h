@@ -8,6 +8,7 @@
 #include <memory>
 #include <helper/simplesignal.h>
 #include <textures/Texture.h>
+#include <helper/sole.h>
 #include "../Renderer.h"
 
 namespace three {
@@ -27,6 +28,8 @@ public:
     }
   };
 
+  const sole::uuid uuid;
+
 private:
   float _width;
   float _height;
@@ -42,7 +45,7 @@ private:
 
   RenderTarget(float width, float height, const Options &options)
      : Renderer::Target(Texture::make(options)),
-       _width(width), _height(height), _scissor(0, 0, width, height), _viewport(0, 0, width, height)
+       _width(width), _height(height), _scissor(0, 0, width, height), _viewport(0, 0, width, height), uuid(sole::uuid0())
   {
     _depthBuffer = options.depthBuffer;
     _stencilBuffer = options.stencilBuffer;
@@ -50,12 +53,14 @@ private:
   }
 
 public:
-  Signal<void()> onDispose;
+  Signal<void(RenderTarget *)> onDispose;
 
   using Ptr = std::shared_ptr<RenderTarget>;
   static Ptr make(float width, float height, const Options &options) {
     return Ptr(new RenderTarget(width, height, options));
   }
+
+  Texture::Ptr depthTexture() {return _depthTexture;}
 
   RenderTarget &setSize(float width, float height )
   {
@@ -64,7 +69,7 @@ public:
       _width = width;
       _height = height;
 
-      onDispose.emitSignal();
+      onDispose.emitSignal(this);
     }
 
     _viewport.set( 0, 0, width, height );

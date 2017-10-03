@@ -10,6 +10,8 @@
 #include <vector>
 #include <memory>
 #include <Constants.h>
+#include <helper/simplesignal.h>
+#include <helper/sole.h>
 
 namespace three {
 
@@ -38,6 +40,7 @@ public:
     TextureType type = TextureType::UnsignedByte;
     Encoding encoding = Encoding::Linear;
   };
+  const sole::uuid uuid;
 
 private:
   QImage _image;
@@ -80,6 +83,26 @@ public:
   using Ptr = std::shared_ptr<Texture>;
   static Ptr make(const Options &options) {
     return Ptr(new Texture(options));
+  }
+
+  QImage &image() {return _image;}
+
+  Signal<void(Texture *)> onDispose;
+
+  void dispose() {
+    onDispose.emitSignal(this);
+  }
+
+  bool needsPowerOfTwo()
+  {
+    return (_wrapS != TextureWrapping ::ClampToEdge || _wrapT != TextureWrapping ::ClampToEdge )
+           || (_minFilter != TextureFilter ::Nearest && _minFilter != TextureFilter ::Linear );
+  }
+
+  bool needsGenerateMipmaps(bool isPowerOfTwo)
+  {
+    return _generateMipmaps && isPowerOfTwo && _minFilter != TextureFilter::Nearest
+           && _minFilter != TextureFilter ::Linear;
   }
 };
 
