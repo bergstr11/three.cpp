@@ -67,6 +67,8 @@ public:
 
   void deallocateTexture(Texture *texture);
   void deallocateRenderTarget(RenderTarget *renderTarget);
+  void setTexture2D(Texture::Ptr texture, unsigned slot);
+  void setTextureCube(Texture::Ptr texture, unsigned slot);
 
   void onTextureDispose(Texture *texture);
   void onRenderTargetDispose(RenderTarget *renderTarget);

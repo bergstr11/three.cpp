@@ -23,21 +23,24 @@ class Property
     float float_value;
   };
 
+  void release()
+  {
+    switch (type) {
+      case glup:
+        delete[] gluintp_value;
+        type = u;
+        break;
+      default:
+        break;
+    }
+  }
+
 public:
   explicit Property() : gluint_value(0L), type(u) {}
   explicit Property(GLuint v) : gluint_value(v), type(glu) {}
   explicit Property(GLuint *v) : gluintp_value(v), type(glup) {}
   explicit Property(std::string v) : string_value(v), type(s) {}
   explicit Property(float v) : float_value(v), type(f) {}
-  ~Property() {
-    switch(type) {
-      case s:
-        string_value.~basic_string();
-        break;
-      default:
-        break;
-    }
-  }
 
   Property(const Property &prop) : type(prop.type) {
     type = prop.type;
@@ -60,10 +63,35 @@ public:
     }
   }
 
-  Property &operator =(GLuint v) {gluint_value = v; type = glu;}
-  Property &operator =(GLuint *v) {gluintp_value = v; type = glup;}
-  Property &operator =(std::string v) {string_value = v; type = s;}
-  Property &operator =(float v) {float_value = v; type = f;}
+  ~Property() {
+    switch(type) {
+      case glup:
+        delete [] gluintp_value;
+        break;
+      case s:
+        string_value.~basic_string();
+        break;
+      default:
+        break;
+    }
+  }
+
+  Property &operator =(GLuint v) {
+    release();
+    gluint_value = v; type = glu;
+  }
+  Property &operator =(GLuint *v) {
+    release();
+    gluintp_value = v; type = glup;
+  }
+  Property &operator =(std::string v) {
+    release();
+    string_value = v; type = s;
+  }
+  Property &operator =(float v) {
+    release();
+    float_value = v; type = f;
+  }
 
   explicit operator GLuint *() const
   {
@@ -111,7 +139,8 @@ public:
 
 enum PropertyKey
 {
-  __image__webglTextureCube, __webglInit, __webglTexture, __webglFramebuffer, __webglDepthbuffer
+  __image__webglTextureCube, __webglInit, __webglTexture, __webglFramebuffer, __webglDepthbuffer,
+  __version
 };
 
 class Properties
@@ -143,7 +172,18 @@ public:
   }
 
   template <typename T>
+  std::unordered_map<PropertyKey, Property> get(const std::shared_ptr<T> object)
+  {
+    return get(object->uuid);
+  }
+
+  template <typename T>
   bool has(const T *object, PropertyKey key) {
+    return has(object->uuid, key);
+  }
+
+  template <typename T>
+  bool has(const std::shared_ptr<T> object, PropertyKey key) {
     return has(object->uuid, key);
   }
 

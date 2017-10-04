@@ -89,6 +89,8 @@ public:
 
   Signal<void(Texture *)> onDispose;
 
+  unsigned version() const {return _version;}
+
   void dispose() {
     onDispose.emitSignal(this);
   }

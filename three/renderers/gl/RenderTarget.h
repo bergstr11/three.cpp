@@ -43,6 +43,7 @@ private:
   bool _stencilBuffer;
   Texture::Ptr _depthTexture;
 
+protected:
   RenderTarget(float width, float height, const Options &options)
      : Renderer::Target(Texture::make(options)),
        _width(width), _height(height), _scissor(0, 0, width, height), _viewport(0, 0, width, height), uuid(sole::uuid0())
@@ -74,6 +75,10 @@ public:
 
     _viewport.set( 0, 0, width, height );
     _scissor.set( 0, 0, width, height );
+  }
+
+  virtual int bufCount() {
+    return 1;
   }
 };
 
