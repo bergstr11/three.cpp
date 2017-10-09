@@ -14,7 +14,7 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
-   : OpenGLRenderer(context), _state(this), _objects(_geometries, _infoRender),
+   : OpenGLRenderer(context), _state(this), _attributes(this), _objects(_geometries, _infoRender),
      _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters )
 {
 
@@ -24,7 +24,7 @@ void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
 
-  _extensions.get({Extension::WEBGL_depth_texture, Extension::OES_texture_float,
+  _extensions.get({Extension::ARB_depth_texture, Extension::OES_texture_float,
                    Extension::OES_texture_float_linear, Extension::OES_texture_half_float,
                    Extension::OES_texture_half_float_linear, Extension::OES_standard_derivatives,
                    Extension::ANGLE_instanced_arrays});
@@ -42,11 +42,8 @@ void Renderer_impl::initContext()
   _state.scissor(_currentScissor);
   _state.viewport(_currentViewport);
 
-  textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
-  attributes = new WebGLAttributes( _gl );
-  geometries = new WebGLGeometries( _gl, attributes, _infoMemory );
-  objects = new WebGLObjects( geometries, _infoRender );
-  morphtargets = new WebGLMorphtargets( _gl );
+  //textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
+  _morphtargets = new WebGLMorphtargets( _gl );
   programCache = new WebGLPrograms( _this, extensions, capabilities );
   lights = new WebGLLights();
   renderLists = new WebGLRenderLists();

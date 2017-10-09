@@ -38,9 +38,6 @@ public:
     TextureFormat format = TextureFormat::RGBA;
     TextureType type = TextureType::UnsignedByte;
     Encoding encoding = Encoding::Linear;
-
-  protected:
-    Options() {}
   };
   const sole::uuid uuid;
 
@@ -63,7 +60,9 @@ private:
   math::Vector2 _offset {0.0f, 0.0f};
   math::Vector2 _repeat {1.0f, 1.0f};
 
+  bool _generateMipmaps = true;
   bool _premultiplyAlpha = false;
+  unsigned _unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
   // Values of encoding !== THREE.LinearEncoding only supported on map, envMap and emissiveMap.
   //
@@ -74,11 +73,9 @@ private:
   unsigned _version = 0;
 
 protected:
-  bool _generateMipmaps = true;
   bool _flipY = true;
-  unsigned _unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
-  explicit TextureBase(const Options &options);
+  TextureBase(const Options &data);
 
 public:
   using Ptr = std::shared_ptr<TextureBase>;
@@ -86,9 +83,6 @@ public:
   Signal<void(TextureBase *)> onDispose;
 
   unsigned version() const {return _version;}
-
-  TextureFormat format() const {return _format;}
-  TextureType type() const {return _type;}
 
   bool flipY() {return _flipY;}
 
@@ -107,27 +101,6 @@ public:
     return _generateMipmaps && isPowerOfTwo && _minFilter != TextureFilter::Nearest
            && _minFilter != TextureFilter ::Linear;
   }
-};
-
-class Texture :public TextureBase
-{
-public:
-  struct Options : public TextureBase::Options {};
-
-private:
-  QImage _image;
-
-protected:
-
-  Texture(const QImage &image, const Options &options) : TextureBase(options), _image(image) {}
-
-public:
-  using Ptr = std::shared_ptr<Texture>;
-  static Ptr make(const QImage &image, const Options &options) {
-    return Ptr(new Texture(image, options));
-  }
-
-  QImage &image() {return _image;}
 };
 
 }

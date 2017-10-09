@@ -8,7 +8,7 @@
 #include <QOpenGLFunctions>
 #include <QImage>
 #include <math/Math.h>
-#include <textures/Texture.h>
+#include <textures/CubeTexture.h>
 #include "RenderTarget.h"
 #include "Extensions.h"
 #include "State.h"
@@ -68,7 +68,7 @@ public:
   void deallocateTexture(Texture *texture);
   void deallocateRenderTarget(RenderTarget *renderTarget);
   void setTexture2D(Texture::Ptr texture, unsigned slot);
-  void setTextureCube(Texture::Ptr texture, unsigned slot);
+  void setTextureCube(CubeTexture::Ptr texture, unsigned slot);
 
   void onTextureDispose(Texture *texture);
   void onRenderTargetDispose(RenderTarget *renderTarget);

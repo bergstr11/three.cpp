@@ -7,25 +7,50 @@
 
 #include <QOpenGLContext>
 #include <unordered_map>
+#include <Constants.h>
+#include <QOpenGLTexture>
 
 namespace three {
 namespace gl {
 
 enum class Extension
 {
-  WEBGL_depth_texture,
-  EXT_frag_depth,
-  EXT_texture_filter_anisotropic,
-  WEBGL_compressed_texture_s3tc,
-  WEBGL_compressed_texture_pvrtc,
-  WEBGL_compressed_texture_etc1,
-  OES_texture_float,
-  OES_texture_float_linear,
-  OES_texture_half_float,
-  OES_texture_half_float_linear,
-  OES_standard_derivatives,
-  ANGLE_instanced_arrays,
-  OES_element_index_uint
+  ARB_depth_texture = 1,
+  EXT_frag_depth = 1<<1,
+  EXT_texture_filter_anisotropic = 1<<2,
+  EXT_blend_minmax = 1<<3,
+  EXT_texture_compression_s3tc = 1<<4,
+  EXT_shader_texture_lod = 1<<5,
+  OES_texture_float = 1<<6,
+  OES_texture_float_linear = 1<<7,
+  OES_texture_half_float = 1<<8,
+  OES_texture_half_float_linear = 1<<9,
+  OES_standard_derivatives = 1<<10,
+  ANGLE_instanced_arrays = 1<<11,
+  OES_element_index_uint = 1<<12,
+  GL_EXT_draw_buffers = 1<<13
+};
+
+class UseExtension
+{
+  uint16_t bits;
+
+  template<typename Ret> static Ret decl() {return (Ret)0;}
+  template<typename Ret, Extension e, Extension... Args> static Ret decl() {
+    return (Ret)e | decl<Ret, Args...>();
+  };
+
+  UseExtension(uint16_t bits) : bits(bits) {}
+public:
+  template <Extension ... extensions>
+  static UseExtension use()
+  {
+    return UseExtension(decl<uint16_t, extensions...>());
+  }
+
+  bool get(Extension ext) const {
+    return (bits & (size_t)ext) != 0;
+  }
 };
 
 class Extensions
@@ -51,29 +76,18 @@ public:
       return _extensions[extension];
     }
     switch (extension) {
-      case Extension::WEBGL_compressed_texture_etc1:
-        _extensions[extension] = context->hasExtension( "WEBGL_compressed_texture_etc1" );
+      case Extension::EXT_texture_compression_s3tc:
+        _extensions[extension] = context->hasExtension( "EXT_texture_compression_s3tc" );
         break;
-      case Extension::WEBGL_compressed_texture_pvrtc:
-        _extensions[extension] = context->hasExtension( "WEBGL_compressed_texture_pvrtc" )
-                                 || context->hasExtension( "WEBKIT_WEBGL_compressed_texture_pvrtc" );
-        break;
-      case Extension::WEBGL_compressed_texture_s3tc:
-        _extensions[extension] = context->hasExtension( "WEBGL_compressed_texture_s3tc" )
-                                 || context->hasExtension( "MOZ_WEBGL_compressed_texture_s3tc" )
-                                 || context->hasExtension( "WEBKIT_WEBGL_compressed_texture_s3tc" );
-        break;
-      case Extension::WEBGL_depth_texture:
-        _extensions[extension] = context->hasExtension("WEBGL_depth_texture")
-                                 || context->hasExtension("MOZ_WEBGL_depth_texture")
-                                 || context->hasExtension("WEBKIT_WEBGL_depth_texture");
+      case Extension::ARB_depth_texture:
+        _extensions[extension] = context->hasExtension("ARB_depth_texture");
         break;
       case Extension::EXT_texture_filter_anisotropic:
-        _extensions[extension] = context->hasExtension("EXT_texture_filter_anisotropic")
-                                 || context->hasExtension("MOZ_EXT_texture_filter_anisotropic")
-                                 || context->hasExtension("WEBKIT_EXT_texture_filter_anisotropic");
+        _extensions[extension] = context->hasExtension("EXT_texture_filter_anisotropic");
         break;
-      case Extension::OES_texture_float
+      case Extension::EXT_blend_minmax:
+        _extensions[extension] = context->hasExtension("EXT_blend_minmax");
+      case Extension::OES_texture_float:
         _extensions[extension] = context->hasExtension("OES_texture_float");
         break;
       case Extension::OES_texture_float_linear:
@@ -94,11 +108,49 @@ public:
       case Extension::OES_element_index_uint:
         _extensions[extension] = context->hasExtension("OES_element_index_uint");
         break;
+      case Extension::EXT_shader_texture_lod:
+        _extensions[extension] = context->hasExtension("EXT_shader_texture_lod");
+        break;
       case Extension::EXT_frag_depth:
         _extensions[extension] = context->hasExtension("EXT_frag_depth");
         break;
     }
     return _extensions[extension];
+  }
+
+  GLenum extend(TextureType type)
+  {
+    switch(type) {
+      case TextureType::HalfFloat:
+        return get(Extension::OES_texture_half_float) ? 0x8D61 /*GL_HALF_FLOAT_OES*/ : (GLenum)type;
+      default:
+        return (GLenum)type;
+    }
+  }
+
+  GLenum extend(Equation type)
+  {
+    switch(type) {
+      case Equation::Min:
+        return get(Extension::EXT_blend_minmax) ? GL_MIN_EXT : GL_MIN;
+      case Equation::Max:
+        return get(Extension::EXT_blend_minmax) ? GL_MAX_EXT : GL_MAX;
+      default:
+        return (GLenum)type;
+    }
+  }
+
+  GLenum extend(TextureFormat format)
+  {
+    switch(format) {
+      case TextureFormat::RGB_S3TC_DXT1:
+      case TextureFormat::RGBA_S3TC_DXT1:
+      case TextureFormat::RGBA_S3TC_DXT3:
+      case TextureFormat::RGBA_S3TC_DXT5:
+        return get(Extension::EXT_texture_compression_s3tc) ? (GLenum)format : 0;
+      default:
+        return (GLenum)format;
+    }
   }
 
   bool operator[](Extension extension) const {

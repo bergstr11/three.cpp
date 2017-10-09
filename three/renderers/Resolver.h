@@ -20,7 +20,8 @@
 #define DEF_RESOLVER() \
 struct ResolverBase  { \
   using Ptr = std::shared_ptr<ResolverBase>; \
-  virtual void call(Functions &functions) const = 0; \
+  virtual void call(Functions &functions) const {} \
+  virtual void call(Functions &functions, unsigned index) const {} \
 }; \
 template <typename L> \
 class Resolver {};

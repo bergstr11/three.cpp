@@ -3,6 +3,7 @@
 //
 
 #include "Textures.h"
+#include <renderers/Resolver.h>
 
 namespace three {
 namespace gl {
@@ -99,94 +100,83 @@ void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
   _state.bindTexture(GL_TEXTURE_2D, textureProperties[PropertyKey::__webglTexture].gluint_value);
 }
 
-void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
+void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
 {
   auto textureProperties = _properties.get(texture);
 
-  if ( texture->image().byteCount() == 6) {
+  if ( texture->version() > 0 && textureProperties[PropertyKey::__version].gluint_value != texture->version() ) {
 
-    if ( texture->version() > 0 && textureProperties[PropertyKey::__version].gluint_value != texture->version() ) {
+    GLuint webglTextureCube;
+    if ( textureProperties.find(PropertyKey::__image__webglTextureCube) == textureProperties.end()) {
 
-      if ( textureProperties.find(PropertyKey::__image__webglTextureCube) == textureProperties.end()) {
+      texture->onDispose.connect(onTextureDispose);
 
-        texture->onDispose.connect(onTextureDispose);
+      _fn->glGenTextures(1, &webglTextureCube);
+      textureProperties[PropertyKey::__image__webglTextureCube] = webglTextureCube;
+      _infoMemory.textures ++;
+    }
+    else
+      webglTextureCube = textureProperties[PropertyKey::__image__webglTextureCube].gluint_value;
 
-        GLuint webglTextureCube;
-        _fn->glGenTextures(1, &webglTextureCube);
-        textureProperties[PropertyKey::__image__webglTextureCube] = webglTextureCube;
-        _infoMemory.textures ++;
-      }
 
-      state.activeTexture( _gl.TEXTURE0 + slot );
-      state.bindTexture( _gl.TEXTURE_CUBE_MAP, textureProperties.__image__webglTextureCube );
+    _state.activeTexture(GL_TEXTURE0 + slot );
+    _state.bindTexture(GL_TEXTURE_CUBE_MAP, webglTextureCube);
 
-      _gl.pixelStorei( _gl.UNPACK_FLIP_Y_WEBGL, texture.flipY );
+    _fn->glPixelStorei(GL_UNPACK_FLIP_Y_WEBGL, texture->flipY() );
 
-      var isCompressed = ( texture && texture.isCompressedTexture );
-      var isDataTexture = ( texture.image[ 0 ] && texture.image[ 0 ].isDataTexture );
+    //var isCompressed = ( texture && texture.isCompressedTexture );
+    //var isDataTexture = ( texture.image[ 0 ] && texture.image[ 0 ].isDataTexture );
 
-      var cubeImage = [];
 
-      for ( var i = 0; i < 6; i ++ ) {
+    QImage cubeImages[6];
 
-        if ( ! isCompressed && ! isDataTexture ) {
+    for (unsigned i = 0; i < 6; i ++ ) {
+      cubeImages[ i ] = clampToMaxSize( texture->images(i), _capabilities.maxCubemapSize );
+    }
 
-          cubeImage[ i ] = clampToMaxSize( texture.image[ i ], capabilities.maxCubemapSize );
+    //var image = cubeImage[ 0 ],
+    bool isPowerOfTwoImage = isPowerOfTwo(cubeImages[0]);
+    GLenum glFormat = _extensions.extend(texture->format());
+    GLenum glType = _extensions.extend(texture->type());
+
+    setTextureParameters(GL_TEXTURE_CUBE_MAP, texture, isPowerOfTwoImage );
+
+    for (unsigned i = 0; i < 6; i ++) {
+      if ( ! isCompressed ) {
+
+        if ( isDataTexture ) {
+
+          _state.texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat, cubeImage[ i ].width, cubeImage[ i ].height, glFormat, glType, cubeImage[ i ].data );
 
         } else {
 
-          cubeImage[ i ] = isDataTexture ? texture.image[ i ].image : texture.image[ i ];
+          _state.texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat, cubeImage[ i ].width, cubeImage[ i ].height, glFormat, glType, cubeImage[ i ] );
 
         }
 
-      }
+      } else {
 
-      var image = cubeImage[ 0 ],
-         isPowerOfTwoImage = isPowerOfTwo( image ),
-         glFormat = paramThreeToGL( texture.format ),
-         glType = paramThreeToGL( texture.type );
+        var mipmap, mipmaps = cubeImage[ i ].mipmaps;
 
-      setTextureParameters( _gl.TEXTURE_CUBE_MAP, texture, isPowerOfTwoImage );
+        for ( var j = 0, jl = mipmaps.length; j < jl; j ++ ) {
 
-      for ( var i = 0; i < 6; i ++ ) {
+          mipmap = mipmaps[ j ];
 
-        if ( ! isCompressed ) {
+          if ( texture.format !== RGBAFormat && texture.format !== RGBFormat ) {
 
-          if ( isDataTexture ) {
+            if ( state.getCompressedTextureFormats().indexOf( glFormat ) > - 1 ) {
 
-            state.texImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat, cubeImage[ i ].width, cubeImage[ i ].height, 0, glFormat, glType, cubeImage[ i ].data );
-
-          } else {
-
-            state.texImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat, glFormat, glType, cubeImage[ i ] );
-
-          }
-
-        } else {
-
-          var mipmap, mipmaps = cubeImage[ i ].mipmaps;
-
-          for ( var j = 0, jl = mipmaps.length; j < jl; j ++ ) {
-
-            mipmap = mipmaps[ j ];
-
-            if ( texture.format !== RGBAFormat && texture.format !== RGBFormat ) {
-
-              if ( state.getCompressedTextureFormats().indexOf( glFormat ) > - 1 ) {
-
-                state.compressedTexImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, j, glFormat, mipmap.width, mipmap.height, 0, mipmap.data );
-
-              } else {
-
-                console.warn( 'THREE.WebGLRenderer: Attempt to load unsupported compressed texture format in .setTextureCube()' );
-
-              }
+              state.compressedTexImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, j, glFormat, mipmap.width, mipmap.height, 0, mipmap.data );
 
             } else {
 
-              state.texImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, j, glFormat, mipmap.width, mipmap.height, 0, glFormat, glType, mipmap.data );
+              console.warn( 'THREE.WebGLRenderer: Attempt to load unsupported compressed texture format in .setTextureCube()' );
 
             }
+
+          } else {
+
+            state.texImage2D( _gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, j, glFormat, mipmap.width, mipmap.height, 0, glFormat, glType, mipmap.data );
 
           }
 
@@ -194,25 +184,24 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
 
       }
 
-      if ( textureNeedsGenerateMipmaps( texture, isPowerOfTwoImage ) ) {
+    }
 
-        _gl.generateMipmap( _gl.TEXTURE_CUBE_MAP );
+    if ( textureNeedsGenerateMipmaps( texture, isPowerOfTwoImage ) ) {
 
-      }
-
-      textureProperties.__version = texture.version;
-
-      if ( texture.onUpdate ) texture.onUpdate( texture );
-
-    } else {
-
-      state.activeTexture( _gl.TEXTURE0 + slot );
-      state.bindTexture( _gl.TEXTURE_CUBE_MAP, textureProperties.__image__webglTextureCube );
+      _gl.generateMipmap( _gl.TEXTURE_CUBE_MAP );
 
     }
 
-  }
+    textureProperties.__version = texture.version;
 
+    if ( texture.onUpdate ) texture.onUpdate( texture );
+
+  } else {
+
+    state.activeTexture( _gl.TEXTURE0 + slot );
+    state.bindTexture( _gl.TEXTURE_CUBE_MAP, textureProperties.__image__webglTextureCube );
+
+  }
 }
 
 function setTextureCubeDynamic( texture, slot ) {

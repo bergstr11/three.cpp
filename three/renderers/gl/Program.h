@@ -13,22 +13,12 @@
 #include <Constants.h>
 #include <QOpenGLFunctions>
 #include "Helpers.h"
+#include "Renderer_impl.h"
+#include "Extensions.h"
+#include "Uniforms.h"
 
 namespace three {
 namespace gl {
-
-struct Extensions {
-  bool derivatives;
-  bool fragDepth;
-  bool drawBuffers;
-  bool shaderTextureLOD;
-};
-
-struct RenderExtensions {
-  bool frag_depth;          //EXT_frag_depth
-  bool draw_buffers;        //WEBGL_draw_buffers
-  bool shader_texture_lod;  //EXT_shader_texture_lod
-};
 
 std::vector<std::string> getEncodingComponents(Encoding encoding);
 
@@ -40,7 +30,7 @@ std::string getToneMappingFunction(const char *functionName, ToneMapping toneMap
 
 std::string generateDefines(std::unordered_map<std::string, std::string> defines);
 
-std::string generateExtensions(const Extensions &extensions, const Parameters &parameters, const RenderExtensions &rendererExtensions);
+std::string generateExtensions(const Extensions &extensions, const UseExtension &use, const Parameters &parameters);
 
 
 class Program : private QOpenGLFunctions
@@ -51,12 +41,25 @@ class Program : private QOpenGLFunctions
 
   GLuint _program;
 
+  Renderer_impl &_renderer;
+
+  Uniforms::Ptr _cachedUniforms;
+
   std::unordered_map<std::string, GLint> fetchAttributeLocations();
 
 public:
   using Ptr = std::shared_ptr<Program>;
 
   unsigned id() const {return _id;}
+
+  Uniforms::Ptr getUniforms()
+  {
+    if (_cachedUniforms == nullptr) {
+      _cachedUniforms = Uniforms::make(this, this, _renderer );
+    }
+
+    return _cachedUniforms;
+  };
 };
 
 }

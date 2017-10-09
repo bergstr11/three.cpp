@@ -40,6 +40,7 @@ public:
   Renderer::Target::Ptr &map() {return _map;}
 
   math::Matrix4 &matrix() {return _matrix;}
+  math::Matrix4 cmatrix() const {return _matrix;}
 
   virtual const Camera::Ptr camera() const {return nullptr;}
 };

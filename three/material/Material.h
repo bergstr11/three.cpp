@@ -67,6 +67,7 @@ struct Material
 
   bool _skinning = false;
   bool _morphTargets = false;
+  bool _morphNormals = false;
 
   unsigned overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 
@@ -86,7 +87,8 @@ struct Material
   bool _fog = false;
   bool _lights = false;
 
-  Material(bool morphTargets, bool skinning) : _skinning(skinning), _morphTargets(morphTargets), uuid(sole::uuid0())
+  Material(bool morphTargets, bool morphNormals, bool skinning)
+     : _skinning(skinning), _morphTargets(morphTargets), _morphNormals(morphNormals), uuid(sole::uuid0())
   {}
 
   using Ptr = std::shared_ptr<Material>;
@@ -96,6 +98,8 @@ struct Material
   bool skinning() const {return _skinning;}
 
   bool morphTargets() const {return _morphTargets;}
+
+  bool morphNormals() const {return _morphNormals;}
 
   virtual void setupPointLight(const math::Vector3 &position, float near, float far)
   {

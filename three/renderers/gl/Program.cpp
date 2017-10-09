@@ -84,16 +84,16 @@ string getToneMappingFunction(const char *functionName, ToneMapping toneMapping)
 }
 
 string
-generateExtensions(const Extensions &extensions, const Parameters &parameters, const RenderExtensions &rendererExtensions)
+generateExtensions(const Extensions &extensions, const UseExtension &use, const Parameters &parameters)
 {
   stringstream ss;
-  if (extensions.derivatives || parameters.envMapCubeUV || parameters.bumpMap || parameters.normalMap || parameters.flatShading)
+  if (extensions.get(Extension::OES_standard_derivatives) || parameters.envMapCubeUV || parameters.bumpMap || parameters.normalMap || parameters.flatShading)
     ss << "#extension GL_OES_standard_derivatives : enable" << endl;
-  if ((extensions.fragDepth || parameters.logarithmicDepthBuffer) && rendererExtensions.frag_depth)
+  if ((extensions.get(Extension::EXT_frag_depth) || parameters.logarithmicDepthBuffer) && use.get(Extension::EXT_frag_depth))
     ss << "#extension GL_EXT_frag_depth : enable" << endl;
-  if (extensions.drawBuffers && rendererExtensions.draw_buffers)
+  if (extensions.get(Extension::GL_EXT_draw_buffers) && use.get(Extension::GL_EXT_draw_buffers))
     ss << "#extension GL_EXT_draw_buffers : require" << endl;
-  if ((extensions.shaderTextureLOD || parameters.envMap) && rendererExtensions.shader_texture_lod)
+  if ((extensions.get(Extension::EXT_shader_texture_lod) || parameters.envMap) && use.get(Extension::EXT_shader_texture_lod))
     ss << "#extension GL_EXT_shader_texture_lod : enable" << endl;
 
   return ss.str();
@@ -145,11 +145,11 @@ unordered_map<string, GLint> Program::fetchAttributeLocations()
 
 string replaceLightNums(string value, const Parameters &parameters)
 {
-  return replace_all(value, {{"NUM_DIR_LIGHTS",       to_string(parameters.numDirLights},
-                             {"NUM_SPOT_LIGHTS",      to_string(parameters.numSpotLights},
-                             {"NUM_RECT_AREA_LIGHTS", to_string(parameters.numRectAreaLights},
-                             {"NUM_POINT_LIGHTS",     to_string(parameters.numPointLights},
-                             {"NUM_HEMI_LIGHTS",      to_string(parameters.numHemiLights}});
+  return replace_all(value, {{"NUM_DIR_LIGHTS",       to_string(parameters.numDirLights)},
+                             {"NUM_SPOT_LIGHTS",      to_string(parameters.numSpotLights)},
+                             {"NUM_RECT_AREA_LIGHTS", to_string(parameters.numRectAreaLights)},
+                             {"NUM_POINT_LIGHTS",     to_string(parameters.numPointLights)},
+                             {"NUM_HEMI_LIGHTS",      to_string(parameters.numHemiLights)}});
 }
 
 string parseIncludes(string lookat, unordered_map<string, string> ShaderChunk)

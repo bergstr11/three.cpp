@@ -20,8 +20,9 @@ struct Buffer {
   unsigned version;
 };
 
-class Attributes : private QOpenGLFunctions
+class Attributes
 {
+  QOpenGLFunctions * const _fn;
   std::unordered_map<sole::uuid, Buffer> _buffers;
 
   template <typename T>
@@ -30,10 +31,10 @@ class Attributes : private QOpenGLFunctions
     const std::vector<T> &array = attribute.array();
     GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
-    glGenBuffers(1, &buffer.buf);
+    _fn->glGenBuffers(1, &buffer.buf);
 
-    glBindBuffer((GLenum)bufferType, buffer.buf);
-    glBufferData((GLenum)bufferType, array.size(), array.data(), usage);
+    _fn->glBindBuffer((GLenum)bufferType, buffer.buf);
+    _fn->glBufferData((GLenum)bufferType, array.size(), array.data(), usage);
 
     const_cast<BufferAttribute<T> &>(attribute).onUpload.emitSignal(attribute);
 
@@ -44,26 +45,28 @@ class Attributes : private QOpenGLFunctions
   }
 
 public:
+  Attributes(QOpenGLFunctions *fn) : _fn(fn) {}
+
   template <typename T>
   void updateBuffer(const Buffer &buffer, BufferAttribute<T> &attribute, BufferType bufferType)
   {
     UpdateRange &updateRange = attribute.updateRange();
 
-    glBindBuffer(bufferType, buffer.buf);
+    _fn->glBindBuffer((GLenum)bufferType, buffer.buf);
 
     if(!attribute.dynamic()) {
-      glBufferData(bufferType, buffer.bytesPerElement * attribute.size(), attribute.data(), GL_STATIC_DRAW );
+      _fn->glBufferData((GLenum)bufferType, buffer.bytesPerElement * attribute.size(), attribute.data(), GL_STATIC_DRAW );
     }
     else if(updateRange.count == -1) {
       // Not using update ranges
-      glBufferSubData(bufferType, 0, buffer.bytesPerElement * attribute.size(), attribute.data());
+      _fn->glBufferSubData((GLenum)bufferType, 0, buffer.bytesPerElement * attribute.size(), attribute.data());
     }
     else if(updateRange.count == 0 ) {
 
       throw std::logic_error("updateBuffer: dynamic BufferAttribute marked as needsUpdate but updateRange.count is 0, ensure you are using set methods or updating manually");
 
     } else {
-      glBufferSubData(bufferType,
+      _fn->glBufferSubData((GLenum)bufferType,
                       updateRange.offset * buffer.bytesPerElement,
                       updateRange.count * buffer.bytesPerElement,
                       attribute.data(updateRange.offset));
@@ -89,7 +92,7 @@ public:
 
       const Buffer &data = _buffers[ attribute.uuid ];
 
-      glDeleteBuffers(1, &data.buf);
+      _fn->glDeleteBuffers(1, &data.buf);
 
       _buffers.erase(attribute.uuid);
     }

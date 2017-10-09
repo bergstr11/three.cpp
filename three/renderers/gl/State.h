@@ -634,24 +634,27 @@ public:
     }
   }
 
-#if 0
-  void compressedTexImage2D()
+  void compressedTexImage2D(TextureTarget target, GLint level, TextureFormat internalFormat, GLsizei width, GLsizei height, GLsizei size, const void *data)
   {
-    try {
-      glCompressedTexImage2D.apply( gl, arguments );
-    } catch ( error ) {
-      console.error( 'THREE.WebGLState:', error );
+    glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, size, data);
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw std::logic_error("glCompressedTexImage2D error: "+error);
     }
   }
 
-  function texImage2D() {
-    try {
-      gl.texImage2D.apply( gl, arguments );
-    } catch ( error ) {
-      console.error( 'THREE.WebGLState:', error );
+  void texImage2D(TextureTarget target, GLint level,
+                  TextureFormat internalFormat,
+                  GLsizei width, GLsizei height,
+                  TextureFormat format, TextureType type,
+                  const QImage &image)
+  {
+    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
     }
   }
-#endif
 
   void scissor(const math::Vector4 &scissor)
   {

@@ -6,9 +6,8 @@
 
 namespace three {
 
-Texture::Texture(const Options &options)
-   : _image(options.image),
-     _mapping(options.mapping),
+TextureBase::TextureBase(const Options &options)
+   : _mapping(options.mapping),
      _wrapS(options.wrapS),
      _wrapT(options.wrapT),
      _magFilter(options.magFilter),
@@ -18,6 +17,12 @@ Texture::Texture(const Options &options)
      _type(options.type),
      _encoding(options.encoding),
      uuid(sole::uuid0())
+{
+
+}
+
+Texture::Texture(const QImage &image, const Options &options)
+   : TextureBase(options), _image(image)
 {
 
 }

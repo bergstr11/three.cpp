@@ -44,6 +44,8 @@ public:
 
   bool renderable() const override {return true;}
 
+  const std::vector<float> morphTargetInfluences() const {return _morphTargetInfluences;}
+
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;

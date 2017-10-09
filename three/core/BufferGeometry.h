@@ -13,6 +13,10 @@ namespace three {
 
 class Object3D;
 
+enum IndexedAttribute
+{
+  morphTarget, morphNormal
+};
 class BufferGeometry : public Geometry
 {
   BufferAttribute<uint32_t>::Ptr _index;
@@ -22,9 +26,10 @@ class BufferGeometry : public Geometry
   BufferAttribute<float>::Ptr _uv;
   BufferAttribute<float>::Ptr _uv2;
 
-  std::vector<BufferAttribute<float>> _morphAttributes_position;
-  std::vector<BufferAttribute<float>> _morphAttributes_normal;
+  std::vector<BufferAttribute<float>::Ptr> _morphAttributes_position;
+  std::vector<BufferAttribute<float>::Ptr> _morphAttributes_normal;
 
+  std::unordered_map<std::pair<IndexedAttribute, size_t>, BufferAttribute<float>::Ptr> _indexedAttributes;
   //this.drawRange = { start: 0, count: Infinity };
 
 protected:
@@ -95,9 +100,17 @@ public:
 
   const BufferAttribute<float>::Ptr &uv2() const {return _uv2;}
 
-  std::vector<BufferAttribute<float>> &morphPositions() {return _morphAttributes_position;}
+  const std::vector<BufferAttribute<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
 
-  std::vector<BufferAttribute<float>> &morphNormals() {return _morphAttributes_normal;}
+  const std::vector<BufferAttribute<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
+
+  void addAttribute(IndexedAttribute attribute, size_t index, BufferAttribute<float>::Ptr value) {
+    _indexedAttributes.insert({attribute, index}, value);
+  }
+
+  void removeAttribute(IndexedAttribute attribute, size_t index) {
+    _indexedAttributes.erase({attribute, index});
+  }
 
   void setIndex(const std::vector<uint32_t> &indices) {
     if(_index)
