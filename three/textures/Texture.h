@@ -45,6 +45,8 @@ public:
   const sole::uuid uuid;
 
 private:
+  bool _needsUpdate;
+
   std::vector<Mipmap> _mipmaps;
 
   TextureMapping _mapping;
@@ -95,6 +97,10 @@ public:
   void dispose() {
     onDispose.emitSignal(this);
   }
+
+  bool needsUpdate() const {return _needsUpdate;}
+
+  void needsUpdate(bool value) {_needsUpdate = value;}
 
   bool needsPowerOfTwo()
   {

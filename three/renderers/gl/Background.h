@@ -41,7 +41,7 @@ public:
        premultipliedAlpha(premultipiledAlpha)
   {}
 
-  void doRender(RenderList &renderList, const Scene::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true)
+  void doRender(RenderList &renderList, const SceneBase::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true)
   {
     scene::Functions functions;
     functions.color = [this](Color *color) {

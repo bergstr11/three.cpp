@@ -28,12 +28,16 @@ class Skeleton
   Texture::Ptr _boneTexture;
 
 public:
+  Skeleton() {}
+
   explicit Skeleton(const std::vector<Bone::Ptr> bones) : _bones(bones)
   {
     for(Bone::Ptr bone : _bones) {
       _boneInverses.push_back(bone->matrixWorld().inverse());
     }
   }
+
+  const std::vector<Bone::Ptr> bones() const {return _bones;}
 
   void pose()
   {
@@ -45,7 +49,7 @@ public:
 
     // compute the local matrices, positions, rotations and scales
     for(Bone::Ptr bone : _bones) {
-      Bone *parent = bone->parent() ? dynamic_cast<Bone *>(bone->parent) : nullptr;
+      const Bone *parent = bone->parent() ? dynamic_cast<const Bone *>(bone->parent()) : nullptr;
       if (parent) {
         bone->matrix() = parent->matrixWorld().inverse();
         bone->matrix() *= bone->matrixWorld();
@@ -57,7 +61,7 @@ public:
     }
   }
 
-  update()
+  void update()
   {
     // flatten bone matrices to array
     size_t index = 0;

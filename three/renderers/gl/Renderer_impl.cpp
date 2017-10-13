@@ -13,10 +13,11 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 
 namespace gl {
 
-Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
+Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha)
    : OpenGLRenderer(context), _state(this), _attributes(this), _objects(_geometries, _infoRender),
      _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters ),
-     _morphTargets(this)
+     _morphTargets(this), _programs(_extensions, _capabilities),
+     _background(*this, _state, _geometries, _premultipliedAlpha)
 {
 
 }
@@ -45,7 +46,6 @@ void Renderer_impl::initContext()
 
   //textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
 #if 0
-  programCache = new WebGLPrograms( _this, extensions, capabilities );
   background = new WebGLBackground( _this, state, geometries, _premultipliedAlpha );
   bufferRenderer = new WebGLBufferRenderer( _gl, extensions, _infoRender );
   indexedBufferRenderer = new WebGLIndexedBufferRenderer( _gl, extensions, _infoRender );

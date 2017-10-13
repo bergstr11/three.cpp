@@ -22,6 +22,7 @@
 #include "ShadowMap.h"
 #include "MorphTargets.h"
 #include "Programs.h"
+#include "Background.h"
 
 namespace three {
 namespace gl {
@@ -81,7 +82,11 @@ protected:
   Capabilities _capabilities;
   Properties _properties;
 
-  Programs programCache;
+  Programs _programs;
+
+  Background _background;
+
+  bool _premultipliedAlpha;
 
   MemoryInfo _infoMemory;
   RenderInfo _infoRender;
@@ -149,7 +154,7 @@ public:
   bool autoClearStencil = true;
 
   //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
-  Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height);
+  Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}
 

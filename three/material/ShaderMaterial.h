@@ -28,12 +28,12 @@ class ShaderMaterial : public Material
   // When rendered geometry doesn't include these attributes but the material does,
   // use these default values in WebGL. This avoids errors when buffer data is missing.
   math::Vector3 default_color = {1, 1, 1};
-  math::Vector2 default_uv = {0, 0};
-  math::Vector2 default_uv2 = {0, 0};
+  math::Vector2 default_uv = {0.0f, 0.0f};
+  math::Vector2 default_uv2 = {0.0f, 0.0f};
 
   std::string index0AttributeName;
 
-  ShaderMaterial(bool morphTargets, bool skinning) : Material(morphTargets, skinning)
+  ShaderMaterial(bool morphTargets, bool skinning) : Material(morphTargets, false, skinning)
   {
     unsigned linewidth = 1;
 
