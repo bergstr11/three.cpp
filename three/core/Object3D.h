@@ -78,6 +78,8 @@ public:
   const math::Matrix4 &matrix() const {return _matrix;}
   const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
+  math::Matrix4 &matrix() {return _matrix;}
+
   void applyMatrix(const math::Matrix4 &matrix);
 
   virtual bool skinned() {return false;}
@@ -91,11 +93,15 @@ public:
   math::Euler &rotation() {return _rotation;}
   math::Matrix4 &matrixWorld() {return _matrixWorld;}
   Material::Ptr material() {return _materials.empty() ? nullptr : _materials.at(0);}
+  math::Quaternion &quaternion() {return _quaternion;}
+  math::Vector3 &scale() {return _scale;}
 
   const math::Vector3 &position() const {return _position;}
   const math::Euler &rotation() const {return _rotation;}
   const math::Matrix4 &matrixWorld() const {return _matrixWorld;}
   const Material::Ptr material() const {return _materials.empty() ? nullptr : _materials.at(0);}
+  const math::Quaternion &quaternion() const {return _quaternion;}
+  const math::Vector3 &scale() const {return _scale;}
 
   const Object3D *parent() const {return _parent;}
 

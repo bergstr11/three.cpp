@@ -6,6 +6,7 @@
 #define THREE_QT_SKELETON_H
 
 #include <core/Object3D.h>
+#include <textures/Texture.h>
 
 namespace three {
 
@@ -21,7 +22,57 @@ public:
 
 class Skeleton
 {
+  std::vector<Bone::Ptr> _bones;
+  std::vector<float> _boneMatrices;
+  std::vector<math::Matrix4> _boneInverses;
+  Texture::Ptr _boneTexture;
 
+public:
+  explicit Skeleton(const std::vector<Bone::Ptr> bones) : _bones(bones)
+  {
+    for(Bone::Ptr bone : _bones) {
+      _boneInverses.push_back(bone->matrixWorld().inverse());
+    }
+  }
+
+  void pose()
+  {
+    // recover the bind-time world matrices
+    size_t index = 0;
+    for(Bone::Ptr bone : _bones) {
+      bone->matrixWorld() = _boneInverses[index++].inverse();
+    }
+
+    // compute the local matrices, positions, rotations and scales
+    for(Bone::Ptr bone : _bones) {
+      Bone *parent = bone->parent() ? dynamic_cast<Bone *>(bone->parent) : nullptr;
+      if (parent) {
+        bone->matrix() = parent->matrixWorld().inverse();
+        bone->matrix() *= bone->matrixWorld();
+      }
+      else {
+        bone->matrix() = bone->matrixWorld();
+      }
+      bone->matrix().decompose( bone->position(), bone->quaternion(), bone->scale());
+    }
+  }
+
+  update()
+  {
+    // flatten bone matrices to array
+    size_t index = 0;
+    for(Bone::Ptr bone : _bones) {
+      // compute the offset between the current and the original transform
+      math::Matrix4 matrix = bone ? bone->matrixWorld() : math::Matrix4::identity();
+
+      math::Matrix4 offsetMatrix = matrix * _boneInverses[index];
+      offsetMatrix.writeTo(_boneMatrices.data(), index * 16);
+    }
+
+    if (_boneTexture) {
+      _boneTexture->needsUpdate(true);
+    }
+  }
 };
 
 }
