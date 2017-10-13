@@ -26,8 +26,7 @@ protected:
     _materials.push_back(material);
   }
 
-  Mesh()
-     : Object3D(BufferGeometry::make()), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3D(BufferGeometry::make()), _drawMode(DrawMode::Triangles)
   {
     _materials.push_back(MeshBasicMaterial::make());
   }

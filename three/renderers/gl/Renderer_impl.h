@@ -21,6 +21,7 @@
 #include "RenderLists.h"
 #include "ShadowMap.h"
 #include "MorphTargets.h"
+#include "Programs.h"
 
 namespace three {
 namespace gl {
@@ -79,6 +80,8 @@ protected:
   Extensions _extensions;
   Capabilities _capabilities;
   Properties _properties;
+
+  Programs programCache;
 
   MemoryInfo _infoMemory;
   RenderInfo _infoRender;
