@@ -20,6 +20,7 @@
 #include "Clipping.h"
 #include "RenderLists.h"
 #include "ShadowMap.h"
+#include "MorphTargets.h"
 
 namespace three {
 namespace gl {
@@ -93,6 +94,8 @@ protected:
 
   Objects _objects;
 
+  MorphTargets _morphTargets;
+
   unsigned _usedTextureUnits = 0;
 
   unsigned _width;
@@ -130,7 +133,7 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
-  void doRender(const Scene::Ptr &scene,
+  void doRender(const SceneBase::Ptr &scene,
                 const Camera::Ptr &camera,
                 const Renderer::Target::Ptr &renderTarget,
                 bool forceClear) override;
@@ -152,6 +155,8 @@ public:
   bool localClippingEnabled() const {return _localClippingEnabled;}
 
   void clear(bool color=true, bool depth=true, bool stencil=true);
+
+  unsigned allocTextureUnit();
 };
 
 }

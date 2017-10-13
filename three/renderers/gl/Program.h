@@ -13,7 +13,6 @@
 #include <Constants.h>
 #include <QOpenGLFunctions>
 #include "Helpers.h"
-#include "Renderer_impl.h"
 #include "Extensions.h"
 #include "Uniforms.h"
 
@@ -35,7 +34,7 @@ std::string generateExtensions(const Extensions &extensions, const UseExtension 
 
 class Program : private QOpenGLFunctions
 {
-  static unsigned programIdCount = 0;
+  static unsigned programIdCount;
 
   unsigned _id;
 
@@ -55,11 +54,11 @@ public:
   Uniforms::Ptr getUniforms()
   {
     if (_cachedUniforms == nullptr) {
-      _cachedUniforms = Uniforms::make(this, this, _renderer );
+      _cachedUniforms = Uniforms::make(this, _program);
     }
 
     return _cachedUniforms;
-  };
+  }
 };
 
 }

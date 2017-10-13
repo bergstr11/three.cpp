@@ -35,7 +35,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 {
   QColor m_background;
 
-  three::Scene::Ptr _scene;
+  three::Scene<Color>::Ptr _scene;
   three::PerspectiveCamera::Ptr _camera;
   three::OpenGLRenderer::Ptr _renderer;
 
@@ -45,7 +45,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 public:
   FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
-       _scene(three::Scene::make()),
+       _scene(three::Scene<Color>::make()),
        _camera(three::PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
        _renderer(three::OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
@@ -150,7 +150,7 @@ void ThreeDItem::setBackground(QColor background) {
   }
 }
 
-const shared_ptr<Scene> ThreeDItem::pendingModel()
+const shared_ptr<SceneBase> ThreeDItem::pendingModel()
 {
   //if (m_pendingModel) {
   //  m_pendingModel = false;

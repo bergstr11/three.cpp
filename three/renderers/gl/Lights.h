@@ -18,101 +18,104 @@
 
 namespace three {
 namespace gl {
+namespace uniforms_cache {
+
+struct EntryBase
+{
+  virtual void apply() {}
+  using Ptr = std::shared_ptr<EntryBase>;
+};
+
+template<typename T>
+struct Entry {};
+
+template<>
+struct Entry<DirectionalLight> : public EntryBase
+{
+  using Ptr = std::shared_ptr<Entry<DirectionalLight>>;
+
+  math::Vector3 direction;
+  Color color;
+  bool shadow = false;
+  float shadowBias = 0;
+  float shadowRadius = 1;
+  math::Vector2 shadowMapSize;
+};
+
+template<>
+struct Entry<SpotLight> : public EntryBase
+{
+  using Ptr = std::shared_ptr<Entry<SpotLight>>;
+
+  math::Vector3 position;
+  math::Vector3 direction;
+  Color color;
+  float distance = 0;
+  float coneCos = 0;
+  float penumbraCos = 0;
+  float decay = 0;
+  bool shadow = false;
+  float shadowBias = 0;
+  float shadowRadius = 1;
+  math::Vector2 shadowMapSize;
+};
+
+template<>
+struct Entry<PointLight> : public EntryBase
+{
+  using Ptr = std::shared_ptr<Entry<PointLight>>;
+
+  math::Vector3 position;
+  Color color;
+  float distance = 0;
+  float decay = 0;
+  bool shadow = false;
+  float shadowBias = 0;
+  float shadowRadius = 1;
+  math::Vector2 shadowMapSize;
+  float shadowCameraNear = 1;
+  float shadowCameraFar = 1000;
+};
+
+template<>
+struct Entry<HemisphereLight> : public EntryBase
+{
+  using Ptr = std::shared_ptr<Entry<HemisphereLight>>;
+
+  math::Vector3 direction;
+  Color skyColor;
+  Color groundColor;
+};
+
+template<>
+struct Entry<RectAreaLight> : public EntryBase
+{
+  using Ptr = std::shared_ptr<Entry<RectAreaLight>>;
+
+  math::Vector3 position;
+  Color color;
+  math::Vector3 halfWidth;
+  math::Vector3 halfHeight;
+};
+
+}
 
 class UniformsCache
 {
 public:
-  struct EntryBase
-  {
-    virtual void apply() {}
-    using Ptr = std::shared_ptr<EntryBase>;
-  };
-
-  template<typename T>
-  struct Entry {};
-
-  template<>
-  struct Entry<DirectionalLight> : public EntryBase
-  {
-    using Ptr = std::shared_ptr<Entry<DirectionalLight>>;
-
-    math::Vector3 direction;
-    Color color;
-    bool shadow = false;
-    float shadowBias = 0;
-    float shadowRadius = 1;
-    math::Vector2 shadowMapSize;
-  };
-
-  template<>
-  struct Entry<SpotLight> : public EntryBase
-  {
-    using Ptr = std::shared_ptr<Entry<SpotLight>>;
-
-    math::Vector3 position;
-    math::Vector3 direction;
-    Color color;
-    float distance = 0;
-    float coneCos = 0;
-    float penumbraCos = 0;
-    float decay = 0;
-    bool shadow = false;
-    float shadowBias = 0;
-    float shadowRadius = 1;
-    math::Vector2 shadowMapSize;
-  };
-
-  template<>
-  struct Entry<PointLight> : public EntryBase
-  {
-    using Ptr = std::shared_ptr<Entry<PointLight>>;
-
-    math::Vector3 position;
-    Color color;
-    float distance = 0;
-    float decay = 0;
-    bool shadow = false;
-    float shadowBias = 0;
-    float shadowRadius = 1;
-    math::Vector2 shadowMapSize;
-    float shadowCameraNear = 1;
-    float shadowCameraFar = 1000;
-  };
-
-  template<>
-  struct Entry<HemisphereLight> : public EntryBase
-  {
-    using Ptr = std::shared_ptr<Entry<HemisphereLight>>;
-
-    math::Vector3 direction;
-    Color skyColor;
-    Color groundColor;
-  };
-
-  template<>
-  struct Entry<RectAreaLight> : public EntryBase
-  {
-    using Ptr = std::shared_ptr<Entry<RectAreaLight>>;
-
-    math::Vector3 position;
-    Color color;
-    math::Vector3 halfWidth;
-    math::Vector3 halfHeight;
-  };
-
-  std::unordered_map<unsigned, EntryBase::Ptr> lights;
+  std::unordered_map<unsigned, uniforms_cache::EntryBase::Ptr> lights;
 
 public:
 
   template <typename L>
-  const std::shared_ptr<Entry<L>> get(L *light)
+  const std::shared_ptr<uniforms_cache::Entry<L>> get(L *light)
   {
     if (lights.find(light->id()) != lights.end()) {
 
-      return std::dynamic_pointer_cast<Entry<L>>(lights[ light->id() ]);
+      return std::dynamic_pointer_cast<uniforms_cache::Entry<L>>(lights[ light->id() ]);
     }
 
-    std::shared_ptr<Entry<L>> u = std::make_shared<Entry<L>>();
+    std::shared_ptr<uniforms_cache::Entry<L>> u = std::make_shared<uniforms_cache::Entry<L>>();
     lights[light->id()] = u;
 
     return u;
@@ -126,15 +129,15 @@ class Lights
   struct State {
     std::vector<Texture::Ptr> directionalShadowMap;
     std::vector<math::Matrix4> directionalShadowMatrix;
-    std::vector<UniformsCache::Entry<DirectionalLight>::Ptr> directional;
+    std::vector<uniforms_cache::Entry<DirectionalLight>::Ptr> directional;
     std::vector<Texture::Ptr> spotShadowMap;
     std::vector<math::Matrix4> spotShadowMatrix;
-    std::vector<UniformsCache::Entry<SpotLight>::Ptr> spot;
-    std::vector<UniformsCache::Entry<RectAreaLight>::Ptr> rectArea;
+    std::vector<uniforms_cache::Entry<SpotLight>::Ptr> spot;
+    std::vector<uniforms_cache::Entry<RectAreaLight>::Ptr> rectArea;
     std::vector<Texture::Ptr> pointShadowMap;
     std::vector<math::Matrix4> pointShadowMatrix;
-    std::vector<UniformsCache::Entry<PointLight>::Ptr> point;
-    std::vector<UniformsCache::Entry<HemisphereLight>::Ptr> hemi;
+    std::vector<uniforms_cache::Entry<PointLight>::Ptr> point;
+    std::vector<uniforms_cache::Entry<HemisphereLight>::Ptr> hemi;
     Color ambient;
   } state;
 
@@ -170,7 +173,7 @@ public:
       };
       lightFuncs.directional = [&](DirectionalLight *dlight)
       {
-        UniformsCache::Entry<DirectionalLight>::Ptr uniforms = cache.get( dlight );
+        uniforms_cache::Entry<DirectionalLight>::Ptr uniforms = cache.get( dlight );
 
         uniforms->color = light->color() * light->intensity();
 
@@ -193,7 +196,7 @@ public:
       };
       lightFuncs.spot = [&](SpotLight *slight)
       {
-        UniformsCache::Entry<SpotLight>::Ptr uniforms = cache.get( slight );
+        uniforms_cache::Entry<SpotLight>::Ptr uniforms = cache.get( slight );
 
         uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
         uniforms->position.apply( viewMatrix );
@@ -227,7 +230,7 @@ public:
       };
       lightFuncs.rectarea = [&](RectAreaLight *rlight)
       {
-        UniformsCache::Entry<RectAreaLight>::Ptr uniforms = cache.get( rlight );
+        uniforms_cache::Entry<RectAreaLight>::Ptr uniforms = cache.get( rlight );
 
         // (a) intensity controls irradiance of entire light
         uniforms->color = color  * ( intensity / ( rlight->width() * rlight->height()));
@@ -256,7 +259,7 @@ public:
       };
       lightFuncs.point = [&](PointLight *plight)
       {
-        UniformsCache::Entry<PointLight>::Ptr uniforms = cache.get( plight );
+        uniforms_cache::Entry<PointLight>::Ptr uniforms = cache.get( plight );
 
         uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
         uniforms->position.apply( viewMatrix );
@@ -284,7 +287,7 @@ public:
       };
       lightFuncs.hemisphere = [&](HemisphereLight *hlight)
       {
-        UniformsCache::Entry<HemisphereLight>::Ptr uniforms = cache.get( hlight );
+        uniforms_cache::Entry<HemisphereLight>::Ptr uniforms = cache.get( hlight );
 
         uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
         uniforms->direction.transformDirection( viewMatrix );

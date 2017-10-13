@@ -102,11 +102,11 @@ public:
 
     // morph targets
 
-    for (BufferAttribute<float> &pos : buffergeometry->morphPositions()) {
-      _attributes.update(pos, BufferType::Array);
+    for (BufferAttribute<float>::Ptr pos : buffergeometry->morphPositions()) {
+      _attributes.update(*pos, BufferType::Array);
     }
-    for (BufferAttribute<float> &normal : buffergeometry->morphNormals()) {
-      _attributes.update(normal, BufferType::Array);
+    for (BufferAttribute<float>::Ptr normal : buffergeometry->morphNormals()) {
+      _attributes.update(*normal, BufferType::Array);
     }
   }
 

@@ -94,7 +94,7 @@ public:
       _morphInfluences[ i ] = 0;
     }
 
-    program->getUniforms().setValue( gl, 'morphTargetInfluences', morphInfluences );
+    //program->getUniforms().setValue( gl, 'morphTargetInfluences', morphInfluences );
   }
 };
 

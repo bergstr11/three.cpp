@@ -43,7 +43,7 @@ struct MeshBasicMaterial : public Material
 
 private:
   MeshBasicMaterial(bool morphTargets, bool skinning)
-  : Material(morphTargets, skinning)
+  : Material(morphTargets, false, skinning)
   {
 
   }

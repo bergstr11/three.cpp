@@ -40,7 +40,7 @@ class Vector3
     struct {
       float _x, _y, _z;
     };
-    float _xyz[3];
+    float _elements[3];
   };
 
 public:
@@ -50,6 +50,8 @@ public:
   Vector3(float x, float y, float z) : _x(x), _y(y), _z(z) {}
   Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
   Vector3(const Vector3 &v) : _x(v._x), _y(v._y), _z(v._z) {}
+
+  const float *elements() const {return _elements;}
 
   static Vector3 fromSpherical(const Spherical &s);
 
@@ -76,8 +78,6 @@ public:
   const float y() const {return _y;}
   const float z() const {return _z;}
 
-  const float *elements() const {return _xyz;}
-
   Vector3 &set(float x, float y, float z) {
     _x = x; _y = y; _z = z;
   }
@@ -88,12 +88,12 @@ public:
 
   float &operator[](Element element)
   {
-    return _xyz[(size_t)element];
+    return _elements[(size_t)element];
   }
 
   const float operator[] (Element element) const
   {
-    return _xyz[(size_t)element];
+    return _elements[(size_t)element];
   }
 
   Vector3 &operator +=(const Vector3 &vector)

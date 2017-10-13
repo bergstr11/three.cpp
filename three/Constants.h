@@ -51,7 +51,7 @@ enum class TextureFormat
   Luminance = GL_LUMINANCE,
   LuminanceAlpha = GL_LUMINANCE4_ALPHA4,
   Depth = GL_DEPTH,
-  DepthStencil = GL_DEPTH_STENCIL
+  DepthStencil = GL_DEPTH_STENCIL,
 
   RGB_S3TC_DXT1 = GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
   RGBA_S3TC_DXT1 = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
@@ -238,6 +238,27 @@ enum class ShaderType {
 enum class Precision
 {
   lowp, mediump, highp
+};
+
+enum class UniformType
+{
+  Float=GL_FLOAT,
+  FloatVect2=GL_FLOAT_VEC2,
+  FloatVec3=GL_FLOAT_VEC3,
+  FloatVec4=GL_FLOAT_VEC4,
+  Int=GL_INT,
+  IntVec2=GL_INT_VEC2,
+  IntVec3=GL_INT_VEC3,
+  IntVect4=GL_INT_VEC4,
+  Bool=GL_BOOL,
+  BoolVec2=GL_BOOL_VEC2,
+  BoolVec3=GL_BOOL_VEC3,
+  BoolVec4=GL_BOOL_VEC4,
+  FloatMat2=GL_FLOAT_MAT2,
+  FloatMat3=GL_FLOAT_MAT3,
+  FloatMat4=GL_FLOAT_MAT4,
+  Sampler2D=GL_SAMPLER_2D,
+  SamplerCube=GL_SAMPLER_CUBE
 };
 
 }

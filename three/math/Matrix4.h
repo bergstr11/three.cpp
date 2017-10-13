@@ -45,13 +45,9 @@ public:
     lookAt(eye, target, up);
   }
 
-  const float * elements() const {
-    return _elements;
-  }
+  const float * elements() const {return _elements;}
 
-  float * elements() {
-    return _elements;
-  }
+  float * elements() {return _elements;}
 
   Matrix4 &set(float n11, float n12, float n13, float n14, float n21, float n22, float n23, float n24, float n31, float n32, float n33, float n34, float n41, float n42, float n43, float n44)
   {

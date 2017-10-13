@@ -11,8 +11,9 @@ namespace three {
 
 class SpriteMaterial : public Material
 {
-  SpriteMaterial() : Material(false, false) {}
+  SpriteMaterial() : Material(false, false, false) {}
 public:
+  using Ptr = std::shared_ptr<SpriteMaterial>;
   static Ptr make() {return Ptr(new SpriteMaterial());}
 };
 }

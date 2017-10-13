@@ -2,13 +2,15 @@
 // Created by byter on 01.10.17.
 //
 
-#include "Program.h"
 #include <sstream>
 #include <regex>
 #include <helper/utils.h>
+#include "Program.h"
 
 namespace three {
 namespace gl {
+
+unsigned Program::programIdCount = 0;
 
 using namespace std;
 
@@ -84,7 +86,7 @@ string getToneMappingFunction(const char *functionName, ToneMapping toneMapping)
 }
 
 string
-generateExtensions(const Extensions &extensions, const UseExtension &use, const Parameters &parameters)
+generateExtensions(Extensions &extensions, const UseExtension &use, const Parameters &parameters)
 {
   stringstream ss;
   if (extensions.get(Extension::OES_standard_derivatives) || parameters.envMapCubeUV || parameters.bumpMap || parameters.normalMap || parameters.flatShading)
@@ -193,6 +195,7 @@ string unrollLoops(string loops)
       ss2 << "[ " << i << " ]";
       unroll << regex_replace(snippet.str(), rex2, ss2.str());
     }
+    rex_it++;
   }
 
   return unroll.str();

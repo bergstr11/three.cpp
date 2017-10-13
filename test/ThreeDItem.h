@@ -53,7 +53,7 @@ public:
 
   void setBackground(QColor background);
 
-  const std::shared_ptr<three::Scene> pendingModel();
+  const std::shared_ptr<three::SceneBase> pendingModel();
 
 private slots:
 

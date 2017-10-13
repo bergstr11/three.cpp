@@ -21,12 +21,6 @@ TextureBase::TextureBase(const Options &options)
 
 }
 
-Texture::Texture(const QImage &image, const Options &options)
-   : TextureBase(options), _image(image)
-{
-
-}
-
 #if 0
 Texture::transformUv(TextureMapping::UV uv)
 {

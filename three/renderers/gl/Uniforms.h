@@ -6,18 +6,157 @@
 #define THREE_QT_UNIFORMS_H
 
 #include <QOpenGLFunctions>
+#include <QOpenGLTexture>
 #include <array>
+#include <memory>
 #include <unordered_map>
+
+#include <math/Vector2.h>
+#include <math/Vector3.h>
+#include <math/Vector4.h>
+#include <math/Matrix3.h>
+#include <math/Matrix4.h>
+
+#include <Constants.h>
 
 namespace three {
 namespace gl {
+
+class UniformContainer;
+class Renderer_impl;
+
+class Uniform
+{
+  const std::string _id;
+  const GLint _addr;
+  const UniformType _type;
+  QOpenGLFunctions * const _fn;
+
+protected:
+  Uniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
+     : _id(id), _addr(addr), _type(type), _fn(fn) {}
+
+public:
+  using Ptr = std::shared_ptr<Uniform>;
+  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+    return Ptr(new Uniform(fn, id, type, addr));
+  }
+
+  const std::string &id() const {return _id;}
+
+  // Single scalar
+  void setValue1f(GLfloat v) { _fn->glUniform1f( _addr, v ); }
+
+  void setValue1i(GLint v) { _fn->glUniform1i( _addr, v ); }
+
+  void setValue(const math::Vector2 &v) {
+    _fn->glUniform2fv(_addr, 2, v.elements());
+  }
+
+  void setValue(const math::Vector3 &v) {
+    _fn->glUniform3fv(_addr, 3, v.elements());
+  }
+
+  void setValue(const math::Vector4 &v) {
+    _fn->glUniform4fv(_addr, 4, v.elements());
+  }
+
+  void setValue(const math::Matrix3 &v) {
+    _fn->glUniformMatrix3fv( _addr, 9, GL_FALSE, v.elements());
+  }
+
+  void setValue(const math::Matrix4 &v) {
+    _fn->glUniformMatrix4fv( _addr, 16, GL_FALSE, v.elements());
+  }
+
+// Single texture (2D / Cube)
+#if 0
+  void setValueT1(const QOpenGLTexture &texture, Renderer_impl &renderer )
+  {
+    unsigned unit = renderer.allocTextureUnit();
+    _fn->glUniform1i( _addr, unit );
+    renderer.setTexture2D(v, unit );
+  }
+
+  void setValueT6(const QOpenGLTexture &texture, Renderer_impl &renderer )
+  {
+    unsigned unit = renderer.allocTextureUnit();
+    _fn->glUniform1i( _addr, unit );
+    renderer.setTextureCube(v, unit );
+  }
+#endif
+  template <unsigned Sz>
+  void setValue(const std::array<GLint, Sz> &v) {
+    _fn->glUniform2iv(_addr, Sz, v.data());
+  }
+
+  virtual UniformContainer *asContainer() {return nullptr;}
+};
+
+class ArrayUniform : public Uniform
+{
+  const GLint _index;
+
+protected:
+  ArrayUniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
+  : Uniform(fn, id, type, addr), _index(stoi(id)) {}
+
+public:
+  using Ptr = std::shared_ptr<ArrayUniform>;
+  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+    return Ptr(new ArrayUniform(fn, id, type, addr));
+  }
+};
+
+class UniformContainer
+{
+  friend class Uniforms;
+
+protected:
+  std::vector<std::string> _sequence;
+  std::unordered_map<std::string, Uniform::Ptr> _map;
+
+public:
+  void add(Uniform::Ptr uniform) {
+    _sequence.push_back(uniform->id());
+    _map[uniform->id()] = uniform;
+  }
+
+  virtual QOpenGLFunctions * fn() const = 0;
+  virtual const std::string &id() const = 0;
+};
+
+class StructuredUniform : public Uniform, public UniformContainer
+{
+protected:
+  StructuredUniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
+  : Uniform(fn, id, type, addr) {}
+
+public:
+  using Ptr = std::shared_ptr<StructuredUniform>;
+  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+    return Ptr(new StructuredUniform(fn, id, type, addr));
+  }
+
+  UniformContainer *asContainer() override {return this;}
+
+  const std::string &id() const override
+  {
+    return Uniform::id();
+  }
+
+  QOpenGLFunctions *fn() const override
+  {
+    return nullptr;
+  }
+};
 
 /**
  * @author tschw
  *
  * Uniforms of a program.
  * Those form a tree structure with a special top-level container for the root,
- * which you get by calling 'new WebGLUniforms( gl, program, renderer )'.
+ * which you get by calling 'new WebGLUniforms(program, renderer )'.
  *
  *
  * Properties of inner nodes including the top-level container:
@@ -28,7 +167,7 @@ namespace gl {
  *
  * Methods of all nodes except the top-level container:
  *
- * .setValue( gl, value, [renderer] )
+ * .setValue(value, [renderer] )
  *
  * 		uploads a uniform value(s)
  *  	the 'renderer' parameter is needed for sampler uniforms
@@ -36,7 +175,7 @@ namespace gl {
  *
  * Static methods of the top-level container (renderer factorizations):
  *
- * .upload( gl, seq, values, renderer )
+ * .upload(seq, values, renderer )
  *
  * 		sets uniforms in 'seq' to 'values[id].value'
  *
@@ -47,24 +186,23 @@ namespace gl {
  *
  * Methods of the top-level container (renderer factorizations):
  *
- * .setValue( gl, name, value )
+ * .setValue(name, value )
  *
  * 		sets uniform with  name 'name' to 'value'
  *
- * .set( gl, obj, prop )
+ * .set(obj, prop )
  *
  * 		sets uniform from object and property with same name than uniform
  *
- * .setOptional( gl, obj, prop )
+ * .setOptional(obj, prop )
  *
  * 		like .set for an optional property of the object
  *
  */
-class Uniforms
+class Uniforms : public UniformContainer
 {
-  QOpenGLFunctions * _fn;
-
   // --- Utilities ---
+  QOpenGLFunctions * const _fn;
 
   // Array Caches (provide typed arrays for temporary by size)
   std::unordered_map<size_t, std::vector<float>> arrayCacheF32;
@@ -97,20 +235,30 @@ class Uniforms
   }
 
   // Texture unit allocation
-  std::vector<int32_t> &allocTexUnits(Renderer_impl &renderer, size_t n)
+  std::vector<int32_t> &allocTexUnits(Renderer_impl &renderer, size_t n);
+
+  static void parseUniform(GLuint program, unsigned index, UniformContainer *container);
+
+  Uniforms(QOpenGLFunctions * fn, GLuint program) : _fn(fn)
   {
-    if(arrayCacheI32.find(n) == arrayCacheI32.end()) {
-      arrayCacheI32.emplace(n, std::vector<int32_t>(n));
-      arrayCacheI32[n].resize(n);
+    GLint numUniforms;
+    fn->glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+    for (unsigned i = 0; i < numUniforms; ++ i) {
+      parseUniform(program, i, this);
     }
-    auto &r = arrayCacheI32[ n ];
-
-    for ( size_t i = 0; i < n; ++i)
-      r[i] = renderer.allocTextureUnit();
-
-    return r;
   }
 
+  const std::string _id = "uniforms";
+
+public:
+  using Ptr = std::shared_ptr<Uniforms>;
+  static Ptr make(QOpenGLFunctions * fn, GLuint program) {
+    return Ptr(new Uniforms(fn, program));
+  }
+
+  QOpenGLFunctions * fn() const override {return _fn;}
+  const std::string &id() const override {return _id;}
 };
 
 }

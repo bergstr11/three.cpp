@@ -17,7 +17,7 @@ class MeshDistanceMaterial : public Material
   float _nearDistance = 1;
   float _farDistance = 1000;
 
-  MeshDistanceMaterial(bool morphing, bool skinning) : Material(morphing, skinning) {}
+  MeshDistanceMaterial(bool morphing, bool skinning) : Material(morphing, false, skinning) {}
 
 public:
   using Ptr = std::shared_ptr<MeshDistanceMaterial>;

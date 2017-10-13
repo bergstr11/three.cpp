@@ -5,7 +5,7 @@
 #ifndef THREE_QT_CAPABILITIES_H
 #define THREE_QT_CAPABILITIES_H
 
-#include <QOpenGLFunctions>;
+#include <QOpenGLFunctions>
 #include "Extensions.h"
 #include "Helpers.h"
 
@@ -14,8 +14,8 @@ namespace gl {
 
 struct Capabilities
 {
-  const Extensions &_extensions;
-  const Parameters &_parameters;
+  Extensions &_extensions;
+  Parameters &_parameters;
   QOpenGLFunctions * const _fn;
 
   bool logarithmicDepthBuffer;
@@ -38,7 +38,7 @@ struct Capabilities
   Precision maxPrecision;
 
 public:
-  void Capabilities(QOpenGLFunctions *fn, const Extensions &extensions, const Parameters &parameters)
+  Capabilities(QOpenGLFunctions *fn, Extensions &extensions, Parameters &parameters)
   : _fn(fn), _extensions(extensions), _parameters(parameters)
   { }
 

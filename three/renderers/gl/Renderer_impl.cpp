@@ -15,7 +15,8 @@ namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height)
    : OpenGLRenderer(context), _state(this), _attributes(this), _objects(_geometries, _infoRender),
-     _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters )
+     _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters ),
+     _morphTargets(this)
 {
 
 }
@@ -43,27 +44,16 @@ void Renderer_impl::initContext()
   _state.viewport(_currentViewport);
 
   //textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
-  _morphtargets = new WebGLMorphtargets( _gl );
+#if 0
   programCache = new WebGLPrograms( _this, extensions, capabilities );
-  lights = new WebGLLights();
-  renderLists = new WebGLRenderLists();
-
   background = new WebGLBackground( _this, state, geometries, _premultipliedAlpha );
-
   bufferRenderer = new WebGLBufferRenderer( _gl, extensions, _infoRender );
   indexedBufferRenderer = new WebGLIndexedBufferRenderer( _gl, extensions, _infoRender );
-
   flareRenderer = new WebGLFlareRenderer( _this, _gl, state, textures, capabilities );
   spriteRenderer = new WebGLSpriteRenderer( _this, _gl, state, textures, capabilities );
 
-  _this.info.programs = programCache.programs;
-
-  _this.context = _gl;
-  _this.capabilities = capabilities;
-  _this.extensions = extensions;
-  _this.properties = properties;
-  _this.renderLists = renderLists;
-  _this.state = state;
+  _info.programs = programCache.programs;
+#endif
 }
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
@@ -77,7 +67,7 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
-void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
+void Renderer_impl::doRender(const SceneBase::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if (_isContextLost) return;
@@ -139,33 +129,26 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.points = 0;
 
   setRenderTarget(renderTarget);
-
+#if 0
   //
   _background.render(currentRenderList, scene, camera, forceClear);
 
   // render scene
-
   var opaqueObjects = currentRenderList.opaque;
   var transparentObjects = currentRenderList.transparent;
 
   if (scene.overrideMaterial) {
-
     var overrideMaterial = scene.overrideMaterial;
 
     if (opaqueObjects.length) renderObjects(opaqueObjects, scene, camera, overrideMaterial);
     if (transparentObjects.length) renderObjects(transparentObjects, scene, camera, overrideMaterial);
-
   }
   else {
-
     // opaque pass (front-to-back order)
-
     if (opaqueObjects.length) renderObjects(opaqueObjects, scene, camera);
 
     // transparent pass (back-to-front order)
-
     if (transparentObjects.length) renderObjects(transparentObjects, scene, camera);
-
   }
 
   // custom renderers
@@ -176,25 +159,38 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   // Generate mipmap if we're using any kind of mipmap filtering
 
   if (renderTarget) {
-
-    textures.updateRenderTargetMipmap(renderTarget);
-
+    _textures.updateRenderTargetMipmap(renderTarget);
   }
 
   // Ensure depth buffer writing is enabled so it can be cleared on next render
-
-  state.buffers.depth.setTest(true);
-  state.buffers.depth.setMask(true);
-  state.buffers.color.setMask(true);
-
-  if (vr.enabled) {
-
+  _state.depthBuffer.setTest(true);
+  _state.depthBuffer.setMask(true);
+  _state.colorBuffer.setMask(true);
+#endif
+  /*if (vr.enabled) {
     vr.submitFrame();
-
-  }
-
+  }*/
   // _gl.finish();
 }
+
+unsigned Renderer_impl::allocTextureUnit()
+{
+  unsigned textureUnit = _usedTextureUnits;
+
+  if(textureUnit >= _capabilities.maxTextures ) {
+    throw std::logic_error("max texture units exceeded");
+  }
+
+  _usedTextureUnits += 1;
+
+  return textureUnit;
+}
+
+void setTexture2D(Texture::Ptr texture, unsigned slot )
+{
+  //_textures.setTexture2D( texture, slot );
+}
+
 #if 0
 Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {
 

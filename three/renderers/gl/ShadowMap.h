@@ -92,7 +92,7 @@ public:
     return std::shared_ptr<ShadowMap>(new ShadowMap(renderer, objects, maxTextureSize));
   }
 
-  void render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
+  void render(std::vector<Light::Ptr> lights, SceneBase::Ptr scene, Camera::Ptr camera );
 
   Material::Ptr getDepthMaterial(Object3D::Ptr object,
                             Material::Ptr material,

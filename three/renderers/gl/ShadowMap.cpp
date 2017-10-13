@@ -10,7 +10,7 @@
 namespace three {
 namespace gl {
 
-void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
+void ShadowMap::render(std::vector<Light::Ptr> lights, SceneBase::Ptr scene, Camera::Ptr camera)
 {
 
   if (!_enabled) return;
@@ -213,8 +213,8 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     // in this case we need a unique material instance reflecting the
     // appropriate state
 
-    sole::uuid &keyA = result->uuid;
-    sole::uuid &keyB = material->uuid;
+    const sole::uuid &keyA = result->uuid;
+    const sole::uuid &keyB = material->uuid;
 
     if (_materialCache.find(keyA) == _materialCache.end()) {
 

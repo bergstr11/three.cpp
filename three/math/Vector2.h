@@ -24,7 +24,7 @@ class Vector2
     struct {
       float _x, _y;
     };
-    float _xy[2];
+    float _elements[2];
   };
 
 public:
@@ -47,6 +47,8 @@ public:
   float &x() { return _x; }
   float &y() { return _y; }
 
+  const float *elements() const {return _elements;}
+
   const float length() const
   {
     return std::sqrt(_x * _x + _y * _y );
@@ -65,13 +67,13 @@ public:
   float &operator[](unsigned index)
   {
     assert(index < 2);
-    return _xy[index];
+    return _elements[index];
   }
 
   const float operator[] (unsigned index) const
   {
     assert(index < 2);
-    return _xy[index];
+    return _elements[index];
   }
 
   Vector2 &operator+=(const Vector2 &vector)

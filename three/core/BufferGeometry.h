@@ -6,6 +6,7 @@
 #define THREE_QT_BUFFERGEOMETRY_H
 
 #include <unordered_map>
+#include <helper/utils.h>
 #include "Geometry.h"
 #include "BufferAttribute.h"
 
@@ -13,10 +14,11 @@ namespace three {
 
 class Object3D;
 
-enum IndexedAttribute
+enum class IndexedAttribute
 {
   morphTarget, morphNormal
 };
+
 class BufferGeometry : public Geometry
 {
   BufferAttribute<uint32_t>::Ptr _index;
@@ -29,7 +31,8 @@ class BufferGeometry : public Geometry
   std::vector<BufferAttribute<float>::Ptr> _morphAttributes_position;
   std::vector<BufferAttribute<float>::Ptr> _morphAttributes_normal;
 
-  std::unordered_map<std::pair<IndexedAttribute, size_t>, BufferAttribute<float>::Ptr> _indexedAttributes;
+  using IndexedAttributesKey = std::pair<IndexedAttribute, size_t>;
+  std::unordered_map<IndexedAttributesKey, BufferAttribute<float>::Ptr, pair_hash> _indexedAttributes;
   //this.drawRange = { start: 0, count: Infinity };
 
 protected:
@@ -105,7 +108,8 @@ public:
   const std::vector<BufferAttribute<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
 
   void addAttribute(IndexedAttribute attribute, size_t index, BufferAttribute<float>::Ptr value) {
-    _indexedAttributes.insert({attribute, index}, value);
+    IndexedAttributesKey key = {attribute, index};
+    _indexedAttributes[key] = value;
   }
 
   void removeAttribute(IndexedAttribute attribute, size_t index) {

@@ -15,6 +15,9 @@ namespace gl {
 
 class Property
 {
+  friend class Properties;
+  friend class Textures;
+
   enum Type {glu, glup, s, f, u} type;
   union {
     GLuint gluint_value;
@@ -108,7 +111,7 @@ public:
       case glu:
         return gluint_value;
       case s:
-        return (GLuint)wcstoul(string_value);
+        return (GLuint)std::stoul(string_value);
       case f:
         return (GLuint)float_value;
     }
@@ -130,7 +133,7 @@ public:
       case glu:
         return gluint_value;
       case s:
-        return stof(string_value);
+        return std::stof(string_value);
       case f:
         return float_value;
     }
@@ -151,7 +154,7 @@ public:
   std::unordered_map<PropertyKey, Property> get(const sole::uuid &uuid)
   {
     if(properties.find(uuid) == properties.end())
-      properties.emplace(uuid, std::unordered_map<std::string, Property>());
+      properties.emplace(uuid, std::unordered_map<PropertyKey, Property>());
 
     return properties[uuid];
   }

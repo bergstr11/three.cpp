@@ -53,6 +53,8 @@ public:
     te[8] = n33;
   }
 
+  const float *elements() {return _elements;}
+
   Matrix3 &identity()
   {
     std::memcpy(_elements, IDENTITY, sizeof(_elements));

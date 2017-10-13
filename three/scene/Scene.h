@@ -39,18 +39,18 @@ class Scene : public SceneBase
   _Background _background;
 
 protected:
-  Scene(scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog &fog)
+  Scene(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog &fog)
      : SceneBase(resolver, fog), _background(background) {}
-  Scene(scene::Resolver<_Background>::Ptr resolver)
+  Scene(typename scene::Resolver<_Background>::Ptr resolver)
      : SceneBase(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Scene<_Background>>;
   static Ptr make(const Color &background, const Fog &fog) {
-    return Ptr(new Scene(scene::Resolver<_Background>::make(&_background), background, fog));
+    return Ptr(new Scene(scene::Resolver<_Background>::make(&background), background, fog));
   }
   static Ptr make() {
-    return Ptr(new SceneBase(scene::Resolver<_Background>::make(&_background)));
+    return Ptr(new Scene(scene::Resolver<_Background>::make(nullptr)));
   }
 
   const _Background &background() const {return _background;}

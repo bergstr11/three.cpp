@@ -118,13 +118,16 @@ private:
   QImage _image;
 
 protected:
-
   Texture(const QImage &image, const Options &options) : TextureBase(options), _image(image) {}
+  Texture(const Options &options) : TextureBase(options) {}
 
 public:
   using Ptr = std::shared_ptr<Texture>;
   static Ptr make(const QImage &image, const Options &options) {
     return Ptr(new Texture(image, options));
+  }
+  static Ptr make(const Options &options) {
+    return Ptr(new Texture(options));
   }
 
   QImage &image() {return _image;}

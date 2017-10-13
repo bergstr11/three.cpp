@@ -63,17 +63,17 @@ public:
   Extensions(QOpenGLContext *context) : context(context)
   {}
 
-  void get(std::vector<Extension> extensions) const
+  void get(std::vector<Extension> extensions)
   {
     for(Extension extension : extensions) {
       get(extension);
     }
   }
 
-  bool get(Extension extension) const
+  bool get(Extension extension)
   {
     if (_extensions.find(extension) != _extensions.end()) {
-      return _extensions[extension];
+      return _extensions.at(extension);
     }
     switch (extension) {
       case Extension::EXT_texture_compression_s3tc:
@@ -153,7 +153,8 @@ public:
     }
   }
 
-  bool operator[](Extension extension) const {
+  bool operator[](Extension extension)
+  {
     return get(extension);
   }
 };

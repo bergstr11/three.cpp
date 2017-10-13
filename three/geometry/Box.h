@@ -36,8 +36,8 @@ class BoxBuffer : public BufferGeometry
   unsigned _widthSegments, _heightSegments, _depthSegments;
 
 protected:
-  BoxBuffer::BoxBuffer(unsigned int width, unsigned int height, unsigned int depth,
-                       unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
+  BoxBuffer(unsigned int width, unsigned int height, unsigned int depth, unsigned widthSegments,
+            unsigned heightSegments, unsigned depthSegments);
 
 public:
   using Ptr = std::shared_ptr<BoxBuffer>;

@@ -14,7 +14,9 @@ class CubeTexture :public TextureBase
 {
 public:
   struct Options : public TextureBase::Options {
-    mapping = TextureMapping::CubeReflection;
+    Options() {
+      mapping = TextureMapping::CubeReflection;
+    }
   };
 
 protected:

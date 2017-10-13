@@ -92,7 +92,7 @@ void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
 
     } else {
 
-      uploadTexture( textureProperties, texture, slot );
+      //uploadTexture( textureProperties, texture, slot );
       return;
     }
   }
@@ -100,6 +100,7 @@ void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
   _state.bindTexture(GL_TEXTURE_2D, textureProperties[PropertyKey::__webglTexture].gluint_value);
 }
 
+#if 0
 void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
 {
   auto textureProperties = _properties.get(texture);
@@ -650,6 +651,6 @@ function updateRenderTargetMipmap( renderTarget ) {
 
   }
 }
-
+#endif
 }
 }
