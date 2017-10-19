@@ -7,10 +7,13 @@
 
 #include <core/Color.h>
 #include <objects/Mesh.h>
+#include <camera/OrtographicCamera.h>
 #include <textures/CubeTexture.h>
 #include <geometry/Box.h>
+#include <geometry/Plane.h>
 #include <material/ShaderMaterial.h>
 #include "Renderer_impl.h"
+#include "shader/ShaderLib.h"
 
 namespace three {
 namespace gl {
@@ -22,7 +25,7 @@ class Background
 
   Camera::Ptr planeCamera;
   Mesh::Ptr planeMesh;
-  Mesh::Ptr boxMesh;
+  Mesh<ShaderMaterial>::Ptr boxMesh;
 
   Renderer_impl &renderer;
   State &state;
@@ -51,53 +54,43 @@ public:
     };
     functions.cubeTexture = [this](CubeTexture *tex) {
 
-      if (boxMesh == nullptr) {
+      if (!boxMesh) {
 
         // Normalized box
         // 1.1547 = (1,1,1).normalize() * 2.0
-        geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make( 1.1547, 1.1547, 1.1547 );
-        boxMesh = Mesh::make( box,
-           ShaderMaterial::make( {
-                                  uniforms: ShaderLib.cube.uniforms,
-                                  vertexShader: ShaderLib.cube.vertexShader,
-                                  fragmentShader: ShaderLib.cube.fragmentShader,
-                                  side: BackSide,
-                                  depthTest: true,
-                                  depthWrite: false,
-                                  fog: false
-                               } )
-        );
+        geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make(1.1547, 1.1547, 1.1547);
+        boxMesh = Mesh<ShaderMaterial>::make(box,
+           ShaderMaterial::make(ShaderLib::cube, Side::Back, true, false, false));
 
         box->setNormal(nullptr);
         box->setUV(nullptr);
 
-        boxMesh->onBeforeRender = [this] (Renderer::Ptr renderer, Scene::Ptr scene, Camera::Ptr camera ) {
+        boxMesh->onBeforeRender = [&] () {
 
           float scale = camera->far();
 
-          boxMesh->matrixWorld().makeScale( scale, scale, scale );
-          boxMesh->matrixWorld().copyPosition( camera.matrixWorld );
-
+          boxMesh->matrixWorld() = math::Matrix4::scaling( scale, scale, scale );
+          boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
         };
 
         geometries.update(box);
       }
 
-      boxMesh->material()->uniforms.tCube.value = background;
+      boxMesh->material<0>()->uniforms.tCube.value = background;
 
       renderList.push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, -1);
     };
     functions.texture = [this] (Texture *tex) {
-      if ( planeCamera === undefined ) {
+      if (!planeCamera) {
 
-        planeCamera = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+        planeCamera = OrtographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
 
-        planeMesh = new Mesh(
-           new PlaneBufferGeometry( 2, 2 ),
-           new MeshBasicMaterial( { depthTest: false, depthWrite: false, fog: false } )
+        planeMesh = Mesh::make(
+           geometry::buffer::Plane::make( 2, 2 ),
+           MeshBasicMaterial::make( { depthTest: false, depthWrite: false, fog: false } )
         );
 
-        geometries.update( planeMesh.geometry );
+        geometries.update( planeMesh->geometry() );
 
       }
 

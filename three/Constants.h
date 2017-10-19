@@ -99,9 +99,9 @@ enum class Blending
 
 enum class Side
 {
-  Front = 0,
-  Back = 1,
-  Double = 2
+  Front = GL_FRONT,
+  Back = GL_BACK,
+  Double = GL_FRONT_AND_BACK
 };
 
 enum class Equation

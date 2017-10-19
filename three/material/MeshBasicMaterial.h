@@ -50,8 +50,8 @@ private:
 
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
-  static Ptr make() {
-    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(false, false));
+  static Ptr make(bool morphTargets, bool skinning) {
+    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(morphTargets, skinning));
   }
 
 

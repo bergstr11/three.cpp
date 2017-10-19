@@ -12,7 +12,8 @@
 
 namespace three {
 
-class Mesh : public Object3D
+template <typename Mat=MeshBasicMaterial>
+class Mesh : public Object3DBase<Mat>
 {
   DrawMode _drawMode;
 
@@ -20,15 +21,13 @@ class Mesh : public Object3D
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  Mesh(const Geometry::Ptr &geometry, const Material::Ptr &material)
-     : Object3D(geometry), _drawMode(DrawMode::Triangles)
+  Mesh(const Geometry::Ptr &geometry, std::shared_ptr<Mat> material)
+     : Object3DBase<Mat>(geometry, material), _drawMode(DrawMode::Triangles)
   {
-    _materials.push_back(material);
   }
 
-  Mesh() : Object3D(BufferGeometry::make()), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3DBase(BufferGeometry::make(), MeshBasicMaterial::make()), _drawMode(DrawMode::Triangles)
   {
-    _materials.push_back(MeshBasicMaterial::make());
   }
 
 public:

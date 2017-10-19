@@ -24,7 +24,7 @@ struct Material
   bool lights = true;
 
   Blending blending = Blending::Normal;
-  Side side = Side::Front;
+  Side _side = Side::Front;
   bool flatShading = false;
   Colors vertexColors = Colors::None;
 
@@ -40,8 +40,8 @@ struct Material
   BlendEq blendEquationAlpha = BlendEq::None;
 
   Func depthFunc = Func::LessEqual;
-  bool depthTest = true;
-  bool depthWrite = true;
+  bool _depthTest = true;
+  bool _depthWrite = true;
 
   std::vector<math::Plane> clippingPlanes;
   bool clipIntersection = false;
@@ -87,8 +87,15 @@ struct Material
   bool _fog = false;
   bool _lights = false;
 
-  Material(bool morphTargets, bool morphNormals, bool skinning)
-     : _skinning(skinning), _morphTargets(morphTargets), _morphNormals(morphNormals), uuid(sole::uuid0())
+  Material(bool morphTargets, bool morphNormals, bool skinning, Side side, bool depthTest, bool depthWrite, bool fog)
+     : uuid(sole::uuid0()),
+       _skinning(skinning),
+       _morphTargets(morphTargets),
+       _morphNormals(morphNormals),
+       _side(side),
+       _depthTest(depthTest),
+       _depthWrite(depthWrite),
+       _fog(fog)
   {}
 
   using Ptr = std::shared_ptr<Material>;

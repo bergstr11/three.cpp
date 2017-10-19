@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/shader">
+        <file>cube_frag.glsl</file>
+        <file>cube_vert.glsl</file>
+        <file>depth_frag.glsl</file>
+        <file>depth_vert.glsl</file>
+        <file>distanceRGBA_frag.glsl</file>
+        <file>distanceRGBA_vert.glsl</file>
+        <file>equirect_frag.glsl</file>
+        <file>equirect_vert.glsl</file>
+        <file>linedashed_frag.glsl</file>
+        <file>linedashed_vert.glsl</file>
+        <file>meshbasic_frag.glsl</file>
+        <file>meshbasic_vert.glsl</file>
+        <file>meshlambert_frag.glsl</file>
+        <file>meshlambert_vert.glsl</file>
+        <file>meshphong_frag.glsl</file>
+        <file>meshphong_vert.glsl</file>
+        <file>meshphysical_frag.glsl</file>
+        <file>meshphysical_vert.glsl</file>
+        <file>normal_frag.glsl</file>
+        <file>normal_vert.glsl</file>
+        <file>points_frag.glsl</file>
+        <file>points_vert.glsl</file>
+        <file>ShaderLib.qrc
+        <file>shadow_frag.glsl</file>
+        <file>shadow_vert.glsl</file>
+    </qresource>
+</RCC>

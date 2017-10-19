@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <tuple>
+#include <array>
 
 #include <helper/sole.h>
 #include <math/Euler.h>
@@ -46,8 +48,6 @@ protected:
 
   math::Matrix4 _matrix = math::Matrix4::identity();
   math::Matrix4 _matrixWorld = math::Matrix4::identity();
-
-  std::vector<Material::Ptr> _materials;
 
   bool _matrixAutoUpdate = true;
   bool _matrixWorldNeedsUpdate = false;
@@ -92,14 +92,12 @@ public:
   math::Vector3 &position() {return _position;}
   math::Euler &rotation() {return _rotation;}
   math::Matrix4 &matrixWorld() {return _matrixWorld;}
-  Material::Ptr material() {return _materials.empty() ? nullptr : _materials.at(0);}
   math::Quaternion &quaternion() {return _quaternion;}
   math::Vector3 &scale() {return _scale;}
 
   const math::Vector3 &position() const {return _position;}
   const math::Euler &rotation() const {return _rotation;}
   const math::Matrix4 &matrixWorld() const {return _matrixWorld;}
-  const Material::Ptr material() const {return _materials.empty() ? nullptr : _materials.at(0);}
   const math::Quaternion &quaternion() const {return _quaternion;}
   const math::Vector3 &scale() const {return _scale;}
 
@@ -109,11 +107,8 @@ public:
 
   virtual bool renderable() const {return false;}
 
-  const std::vector<Material::Ptr> materials() const {return _materials;}
-
-  const Material::Ptr material(unsigned index) const {
-    return _materials.size() > index ? _materials.at(index) : nullptr;
-  }
+  virtual const Material::Ptr material() const = 0;
+  virtual const Material::Ptr material(size_t index) const = 0;
 
   void applyQuaternion(math::Quaternion q)
   {
@@ -282,6 +277,28 @@ public:
   virtual void updateMatrixWorld(bool force);
 
   virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const {};
+};
+
+template <typename ... Mat>
+class Object3DBase : public Object3D
+{
+  std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
+  std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
+
+protected:
+  Object3DBase(Geometry::Ptr geometry, std::shared_ptr<Mat> ... args)
+     : Object3D(geometry), _materialsTuple(args...), _materialsArray({args...}) {
+  }
+
+public:
+  const Material::Ptr material() const override {return _materialsArray[0];}
+
+  const Material::Ptr material(size_t index) const override {return _materialsArray[index];}
+
+  template<int N>
+  decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}
+
+  size_t materialCount() {return sizeof ... (Mat);}
 };
 
 }

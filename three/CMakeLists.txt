@@ -6,6 +6,10 @@ find_package(Qt5Gui REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 
+qt5_add_resources(SHADER_RESOURCES
+        three/gl/shader/ShaderLib/ShaderLib.qrc
+        three/gl/shader/ShaderChunk/ShaderChunk.qrc)
+
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h _include/*)
 
