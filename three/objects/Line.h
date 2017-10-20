@@ -19,7 +19,8 @@ class Line : public Object3D
   const unsigned _steps;
 
 protected:
-  Line(Geometry::Ptr geometry, Material::Ptr material, unsigned steps) : _steps(steps), _geometry(geometry), _material(material) {}
+  Line(Geometry::Ptr geometry, Material::Ptr material, unsigned steps)
+     : Object3D(object::Resolver<Line>::make(*this)), _steps(steps), _geometry(geometry), _material(material) {}
 
 public:
   Line(Geometry::Ptr geometry, Material::Ptr material) : Line(geometry, material, 1) {}

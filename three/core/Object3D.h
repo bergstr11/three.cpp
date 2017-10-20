@@ -16,6 +16,7 @@
 #include <math/Quaternion.h>
 #include <math/Matrix4.h>
 #include <material/Material.h>
+#include <renderers/Resolver.h>
 #include "StaticGeometry.h"
 #include "Layers.h"
 
@@ -60,10 +61,12 @@ protected:
   Geometry::Ptr _geometry;
 
 protected:
-  Object3D();
-  Object3D(Geometry::Ptr geometry);
+  Object3D(const object::ResolverBase::Ptr &resolver = object::Resolver<void>::make());
+  Object3D(const Geometry::Ptr &geometry, const object::ResolverBase::Ptr &resolver = object::Resolver<void>::make());
 
 public:
+  const object::ResolverBase::Ptr resolver;
+
   math::Matrix4 modelViewMatrix;
   bool castShadow = false;
   bool receiveShadow = false;

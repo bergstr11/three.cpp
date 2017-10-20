@@ -26,7 +26,8 @@ class Sprite : public Object3D
 {
   Material::Ptr _material;
 
-  explicit Sprite(Material::Ptr material) : _material(material)
+  explicit Sprite(Material::Ptr material)
+     : Object3D(object::Resolver<Sprite>::make(*this)), _material(material)
   {}
 
 public:

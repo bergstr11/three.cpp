@@ -49,7 +49,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<SceneBase<_Background>>;
-  static Ptr make(const Color &background, const Fog &fog) {
+  static Ptr make(const _Background &background, const Fog &fog) {
     return Ptr(new SceneBase(scene::Resolver<_Background>::make(&background), background, fog));
   }
 

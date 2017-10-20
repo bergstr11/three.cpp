@@ -7,7 +7,7 @@
 
 namespace three {
 
-static const size_t MaxIndex = 65535;
+size_t BufferGeometry::MaxIndex = 65535;
 
 BufferGeometry::BufferGeometry(Object3D::Ptr object)
 {

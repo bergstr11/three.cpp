@@ -191,65 +191,61 @@ void setTexture2D(Texture::Ptr texture, unsigned slot )
   //_textures.setTexture2D( texture, slot );
 }
 
-#if 0
-Renderer_impl& Renderer_impl::setRenderTarget( renderTarget ) {
-
+Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr renderTarget)
+{
   _currentRenderTarget = renderTarget;
 
-  if ( renderTarget && properties.get( renderTarget ).__webglFramebuffer === undefined ) {
+  auto renderTargetProperties = _properties.get( renderTarget );
 
-    textures.setupRenderTarget( renderTarget );
-
+  GLuint *__webglFramebuffer = nullptr;
+  if (renderTarget && renderTargetProperties.find(PropertyKey::__webglFramebuffer) != renderTargetProperties.end())
+  {
+    __webglFramebuffer = renderTargetProperties[PropertyKey::__webglFramebuffer].gluintp_value;
+    //textures.setupRenderTarget( renderTarget );
   }
 
-  var framebuffer = null;
-  var isCube = false;
+  //var framebuffer = null;
+  bool isCube = false;
+  GLuint framebuffer = UINT_MAX;
 
-  if ( renderTarget ) {
+  if (__webglFramebuffer) {
 
-    var __webglFramebuffer = properties.get( renderTarget ).__webglFramebuffer;
+    if (renderTarget->isCube) {
 
-    if ( renderTarget.isWebGLRenderTargetCube ) {
-
-      framebuffer = __webglFramebuffer[ renderTarget.activeCubeFace ];
+      framebuffer = __webglFramebuffer[ renderTarget->activeCubeFace];
       isCube = true;
-
-    } else {
-
-      framebuffer = __webglFramebuffer;
-
+    }
+    else {
+      framebuffer = *__webglFramebuffer;
     }
 
-    _currentViewport.copy( renderTarget.viewport );
-    _currentScissor.copy( renderTarget.scissor );
-    _currentScissorTest = renderTarget.scissorTest;
+    _currentViewport = renderTarget->viewport();
+    _currentScissor = renderTarget->scissor();
+    _currentScissorTest = renderTarget->scissorTest();
+  }
+  else {
 
-  } else {
-
-    _currentViewport.copy( _viewport ).multiplyScalar( _pixelRatio );
-    _currentScissor.copy( _scissor ).multiplyScalar( _pixelRatio );
+    _currentViewport = _viewport * _pixelRatio;
+    _currentScissor = _scissor * _pixelRatio;
     _currentScissorTest = _scissorTest;
-
   }
 
-  if ( _currentFramebuffer !== framebuffer ) {
+  if (_currentFramebuffer != framebuffer ) {
 
-    _gl.bindFramebuffer( _gl.FRAMEBUFFER, framebuffer );
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer );
     _currentFramebuffer = framebuffer;
-
   }
 
-  state.viewport( _currentViewport );
-  state.scissor( _currentScissor );
-  state.setScissorTest( _currentScissorTest );
+  _state.viewport( _currentViewport );
+  _state.scissor( _currentScissor );
+  _state.setScissorTest( _currentScissorTest );
 
   if ( isCube ) {
-
-    var textureProperties = properties.get( renderTarget.texture );
-    _gl.framebufferTexture2D( _gl.FRAMEBUFFER, _gl.COLOR_ATTACHMENT0, _gl.TEXTURE_CUBE_MAP_POSITIVE_X + renderTarget.activeCubeFace, textureProperties.__webglTexture, renderTarget.activeMipMapLevel );
-
+    auto textureProperties = _properties.get(renderTarget->texture());
+    GLenum textarget = textureProperties[PropertyKey::__webglTexture].gluint_value;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTarget->activeCubeFace,
+                           textarget, renderTarget->activeMipMapLevel );
   }
-
 }
 
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )
@@ -257,19 +253,19 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   if (!object->visible()) return;
 
   bool visible = object->layers().test(camera->layers());
-
+#if 0
   if ( visible ) {
 
-    if ( object.isLight ) {
+    object::Functions funcs;
 
-      lightsArray.push( object );
+    funcs.light = [&] (Light &light) {
+      _lightsArray.push( object );
 
-      if ( object.castShadow ) {
-
-        shadowsArray.push( object );
-
+      if ( light.castShadow() ) {
+        _shadowsArray.push( object );
       }
-
+    };
+    if ( object.isLight ) {
     } else if ( object.isSprite ) {
 
       if ( ! object.frustumCulled || _frustum.intersectsSprite( object ) ) {
@@ -349,8 +345,8 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
     projectObject( children[ i ], camera, sortObjects );
 
   }
-}
 #endif
+}
 
 void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
                                        const Fog *fog,

@@ -38,7 +38,7 @@ private:
 
   std::string index0AttributeName;
 
-  ShaderMaterial(const Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
+  ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
      : vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
        uniforms(shader.uniforms())
   {
@@ -67,7 +67,7 @@ public:
   static Ptr make(bool morphTargets, bool skinning) {
     return Ptr(new ShaderMaterial(morphTargets, skinning));
   }
-  static Ptr make(const Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog) {
+  static Ptr make(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog) {
     return Ptr(new ShaderMaterial(shader, side, depthTest, depthWrite, fog));
   }
 };

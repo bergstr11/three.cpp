@@ -61,6 +61,10 @@ public:
     return Ptr(new RenderTarget(width, height, options));
   }
 
+  const math::Vector4 &scissor() const override {return _scissor;}
+  bool scissorTest() const override {return _scissorTest;}
+  const math::Vector4 &viewport() const override {return _viewport;}
+
   Texture::Ptr depthTexture() {return _depthTexture;}
 
   RenderTarget &setSize(float width, float height )

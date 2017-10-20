@@ -65,8 +65,8 @@ protected:
   bool _isContextLost = false;
 
   // internal state cache
-  RenderTarget::Ptr _currentRenderTarget = nullptr;
-  //_currentFramebuffer = null,
+  Renderer::Target::Ptr _currentRenderTarget = nullptr;
+  GLuint _currentFramebuffer = UINT_MAX;
   int _currentMaterialId = -1;
   unsigned _currentGeometryProgram = 0;
 
@@ -75,7 +75,7 @@ protected:
 
   math::Vector4 _currentViewport;
   math::Vector4 _currentScissor;
-  //_currentScissorTest = null,
+  bool _currentScissorTest = false;
 
   Parameters _parameters;
   Extensions _extensions;

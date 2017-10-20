@@ -21,10 +21,9 @@ class Mesh : public virtual Object3D
 
 protected:
   Mesh(const Geometry::Ptr &geometry)
-     : Object3D(geometry), _drawMode(DrawMode::Triangles)
+     : Object3D(geometry, object::Resolver<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
-
-  Mesh() : Object3D(BufferGeometry::make()), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3D(BufferGeometry::make(), object::Resolver<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
 
 public:

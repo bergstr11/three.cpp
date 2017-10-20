@@ -36,6 +36,8 @@ class LensFlare : public Object3D
 
   std::vector<Flare> _flares;
 
+  LensFlare() : Object3D(object::Resolver<LensFlare>::make(*this)) {}
+
 public:
   using Ptr = std::shared_ptr<LensFlare>;
   static Ptr make(const Texture::Ptr texture, size_t size, float distance, Blending blending, const Color &color, float opacity)

@@ -16,7 +16,27 @@ namespace gl {
 
 namespace shaderlib {
 
-static Shader cube = {
+static void init();
+
+class ShaderImpl : public Shader
+{
+  QResource _vertex;
+  QByteArray _uncompressedVertex;
+  const char *_vertexShader = nullptr;
+
+  QResource _fragment;
+  QByteArray _uncompressedFragment;
+  const char *_fragmentShader = nullptr;
+
+public:
+  ShaderImpl(const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
+
+  const char *vertexShader() override;
+
+  const char *fragmentShader() override;
+};
+
+static ShaderImpl cube = {
    {
       tCube(nullptr),
       tFlip(-1),
@@ -27,13 +47,6 @@ static Shader cube = {
 };
 
 }
-struct ShaderLib
-{
-  ShaderLib() = delete;
-
-  static void init();
-
-};
 
 }
 }

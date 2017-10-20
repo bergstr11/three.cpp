@@ -21,7 +21,12 @@ protected:
   LightShadow::Ptr _shadow;
 
   Light(light::ResolverBase::Ptr resolver, const Color &color, float intensity, float distance=0, float angle=0)
-     : resolver(resolver), _color(color), _intensity(intensity), _angle(angle), _distance(distance)
+     : Object3D(object::Resolver<Light>::make(*this)),
+       resolver(resolver),
+       _color(color),
+       _intensity(intensity),
+       _angle(angle),
+       _distance(distance)
   {}
 
 public:

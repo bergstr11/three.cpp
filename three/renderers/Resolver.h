@@ -104,5 +104,37 @@ MK_VOID_RESOLVER(_void)
 
 }
 
+class Light;
+class Sprite;
+class LensFlare;
+class Mesh;
+class Line;
+class Points;
+
+namespace object {
+
+struct Functions
+{
+  ResolveFunc<Light> light;
+  ResolveFunc<Sprite> sprite;
+  ResolveFunc<LensFlare> lensFlare;
+  ResolveFunc<Mesh> mesh;
+  ResolveFunc<Line> line;
+  ResolveFunc<Points> points;
+  VoidFunc _void;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(Light, light)
+MK_RESOLVER(Sprite, sprite)
+MK_RESOLVER(LensFlare, lensFlare)
+MK_RESOLVER(Mesh, mesh)
+MK_RESOLVER(Line, line)
+MK_RESOLVER(Points, points)
+MK_VOID_RESOLVER(_void)
+
+}
+
 }
 #endif //THREE_QT_RESOLVER_H

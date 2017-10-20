@@ -17,6 +17,7 @@ class Property
 {
   friend class Properties;
   friend class Textures;
+  friend class Renderer_impl;
 
   enum Type {glu, glup, s, f, u} type;
   union {

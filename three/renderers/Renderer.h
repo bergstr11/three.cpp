@@ -8,6 +8,7 @@
 #include <textures/Texture.h>
 #include <scene/Scene.h>
 #include <camera/Camera.h>
+#include <helper/sole.h>
 
 namespace three {
 
@@ -19,13 +20,22 @@ public:
   protected:
     Texture::Ptr _texture;
 
-    Target(Texture::Ptr texture) : _texture(texture) {}
+    Target(Texture::Ptr texture, bool isCube=false) : uuid(sole::uuid0()), _texture(texture), isCube(isCube) {}
 
   public:
+    const sole::uuid uuid;
+
+    const bool isCube;
+    unsigned activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
+    unsigned activeMipMapLevel = 0;
+
     using Ptr = std::shared_ptr<Target>;
 
     Texture::Ptr texture() {return _texture;}
 
+    virtual const math::Vector4 &scissor() const = 0;
+    virtual bool scissorTest() const = 0;
+    virtual const math::Vector4 &viewport() const = 0;
   };
 
 protected:

@@ -22,7 +22,6 @@
         <file>normal_vert.glsl</file>
         <file>points_frag.glsl</file>
         <file>points_vert.glsl</file>
-        <file>ShaderLib.qrc
         <file>shadow_frag.glsl</file>
         <file>shadow_vert.glsl</file>
     </qresource>

@@ -94,7 +94,8 @@ struct UniformValue
 template<typename T, unsigned _id>
 struct UniformValueBase : public UniformValue
 {
-  const static unsigned id = _id;
+  const static unsigned id() {return _id;}
+
   explicit UniformValueBase(T t) : UniformValue(_id, t)
   {}
 };
@@ -116,17 +117,22 @@ public:
   }
 
   template <typename T, typename V> void set(const V &v) {
-    values[T::id].set(v);
+    values[T::id()].set(v);
   }
 };
 
-struct Shader
+class Shader
 {
-  const UniformValues &uniforms() const;
-  const char *vertexShader() const;
-  const char *fragmentShader() const;
+protected:
+  UniformValues _uniforms;
 
-  Shader(UniformValues uniforms, const char *vertex, const char *fragment);
+public:
+  explicit Shader(const UniformValues &uniforms) : _uniforms(uniforms) {}
+
+  const UniformValues &uniforms() const {return _uniforms;}
+
+  virtual const char *vertexShader() = 0;
+  virtual const char *fragmentShader() = 0;
 };
 
 }
