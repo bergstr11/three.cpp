@@ -27,6 +27,8 @@ struct Group {
 
   Group(uint32_t start, uint32_t count, uint32_t materialIndex)
      : start(start), count(count), materialIndex(materialIndex) {}
+
+  Group() : start(0), count(0), materialIndex(0) {}
 };
 
 class Geometry

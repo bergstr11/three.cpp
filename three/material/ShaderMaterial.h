@@ -12,9 +12,11 @@ namespace three {
 
 class ShaderMaterial : public Material
 {
+public:
   //defines = {};
   UniformValues uniforms;
 
+private:
   const char *vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
   const char * fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
@@ -37,24 +39,27 @@ class ShaderMaterial : public Material
   std::string index0AttributeName;
 
   ShaderMaterial(const Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
-     : Material(false, false, false, side, depthTest, depthWrite, fog),
-       vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
+     : vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
        uniforms(shader.uniforms())
   {
+    this->depthTest = depthTest;
+    this->depthWrite = depthWrite;
+    this->_fog = fog;
+    this->_side = side;
   }
 
-  ShaderMaterial(bool morphTargets, bool skinning) : Material(morphTargets, false, skinning)
+  ShaderMaterial(bool morphTargets, bool skinning) : Material(), uniforms({})
   {
     unsigned linewidth = 1;
+
+    this->_morphTargets = morphTargets;
+    this->_skinning = skinning;
 
     wireframe = false;
     wireframeLineWidth = 1;
 
     fog = false; // set to use scene fog
     lights = false; // set to use scene lights
-
-    skinning = false; // set to use skinning attribute streams
-    morphTargets = false; // set to use morph targets
   }
 
 public:

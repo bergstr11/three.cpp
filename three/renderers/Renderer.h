@@ -29,13 +29,13 @@ public:
   };
 
 protected:
-  virtual void doRender(const SceneBase::Ptr &scene,
+  virtual void doRender(const Scene::Ptr &scene,
                         const Camera::Ptr &camera,
                         const Target::Ptr &renderTarget,
                         bool forceClear) = 0;
 
 public:
-  void render(const SceneBase::Ptr scene,
+  void render(const Scene::Ptr scene,
               const Camera::Ptr camera,
               const Target::Ptr renderTarget=nullptr,
               bool forceClear=true)

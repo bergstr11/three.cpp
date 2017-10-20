@@ -107,8 +107,9 @@ public:
 
   virtual bool renderable() const {return false;}
 
-  virtual const Material::Ptr material() const = 0;
-  virtual const Material::Ptr material(size_t index) const = 0;
+  virtual const Material::Ptr material() const {return nullptr;}
+  virtual const Material::Ptr material(size_t index) const {return nullptr;}
+  virtual const size_t materialCount() const {return 0;}
 
   void applyQuaternion(math::Quaternion q)
   {
@@ -280,7 +281,7 @@ public:
 };
 
 template <typename ... Mat>
-class Object3DBase : public Object3D
+class Object3DBase : public virtual Object3D
 {
   std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
   std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
@@ -294,6 +295,8 @@ public:
   const Material::Ptr material() const override {return _materialsArray[0];}
 
   const Material::Ptr material(size_t index) const override {return _materialsArray[index];}
+
+  const size_t materialCount() const override {return sizeof ... (Mat);}
 
   template<int N>
   decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}

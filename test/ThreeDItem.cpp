@@ -35,7 +35,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 {
   QColor m_background;
 
-  three::Scene<Color>::Ptr _scene;
+  three::Scene::Ptr _scene;
   three::PerspectiveCamera::Ptr _camera;
   three::OpenGLRenderer::Ptr _renderer;
 
@@ -45,9 +45,9 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 public:
   FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
-       _scene(three::Scene<Color>::make()),
-       _camera(three::PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
-       _renderer(three::OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
+       _scene(Scene::make()),
+       _camera(PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
+       _renderer(OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
     _renderer->setClearColor(Color(0xEEEEEE));
     _renderer->setSize(item->width(), item->height());
@@ -58,7 +58,7 @@ public:
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
     planeMaterial->color = three::Color(0xcccccc);
 
-    Mesh::Ptr plane = Mesh::make(planeGeometry, planeMaterial);
+    Mesh::Ptr plane = MeshBase<MeshBasicMaterial>::make(planeGeometry, planeMaterial);
     plane->rotation().x() = -0.5f * M_PI;
     plane->position().set(15, 0, 0);
 
@@ -150,7 +150,7 @@ void ThreeDItem::setBackground(QColor background) {
   }
 }
 
-const shared_ptr<SceneBase> ThreeDItem::pendingModel()
+const shared_ptr<Scene> ThreeDItem::pendingModel()
 {
   //if (m_pendingModel) {
   //  m_pendingModel = false;

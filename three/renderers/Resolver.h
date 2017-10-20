@@ -30,10 +30,18 @@ class Resolver {};
 template <> \
 struct Resolver<Clz> : public ResolverBase \
 { \
-  Clz *target; \
-  Resolver(Clz *target) : target(target) {} \
-  static Ptr make(Clz *target) {return Ptr(new Resolver<Clz>(target));} \
+  Clz &target; \
+  Resolver(Clz &target) : target(target) {} \
+  static Ptr make(Clz &target) {return Ptr(new Resolver<Clz>(target));} \
   void call(Functions &f) const override {f.func(target);} \
+};
+
+#define MK_VOID_RESOLVER(func) \
+template <> \
+struct Resolver<void> : public ResolverBase \
+{ \
+  static Ptr make() {return Ptr(new Resolver<void>());} \
+  void call(Functions &f) const override {f.func();} \
 };
 
 namespace three {
@@ -46,7 +54,9 @@ class RectAreaLight;
 class SpotLight;
 
 template <typename L>
-using ResolveFunc = std::function<void(L *)>;
+using ResolveFunc = std::function<void(L &)>;
+
+using VoidFunc = std::function<void()>;
 
 namespace light {
 
@@ -79,16 +89,18 @@ namespace scene {
 
 struct Functions
 {
-  ResolveFunc<CubeTexture> cubeTexture;
-  ResolveFunc<Texture> texture;
+  ResolveFunc<std::shared_ptr<CubeTexture>> cubeTexture;
+  ResolveFunc<std::shared_ptr<Texture>> texture;
   ResolveFunc<Color> color;
+  VoidFunc _void;
 };
 
 DEF_RESOLVER()
 
-MK_RESOLVER(CubeTexture, cubeTexture)
-MK_RESOLVER(Texture, texture)
+MK_RESOLVER(std::shared_ptr<CubeTexture>, cubeTexture)
+MK_RESOLVER(std::shared_ptr<Texture>, texture)
 MK_RESOLVER(Color, color)
+MK_VOID_RESOLVER(_void)
 
 }
 

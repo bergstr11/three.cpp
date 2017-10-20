@@ -31,8 +31,13 @@ class MeshDepthMaterial : public Material
   bool _fog = false;
   bool _lights = false;
 
-  MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning)
-     : Material(morphing, false, skinning), _depthPacking(packing) {}
+  MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning) : _depthPacking(packing)
+  {
+    this->_morphTargets = morphing;
+    this->_morphNormals = morphing;
+    this->_skinning = skinning;
+  }
+
 public:
   using Ptr = std::shared_ptr<MeshDepthMaterial>;
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {

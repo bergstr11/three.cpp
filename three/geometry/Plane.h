@@ -29,8 +29,8 @@ namespace buffer {
 
 class Plane : public BufferGeometry, public PlaneParameters
 {
-protected:
-  Plane(float width, float height, float widthSegments, float heightSegments)
+public:
+  Plane(float width, float height, float widthSegments=1, float heightSegments=1)
      : PlaneParameters(width, height, widthSegments, heightSegments)
   {
     float width_half = width / 2;
@@ -87,7 +87,7 @@ protected:
     setNormal(BufferAttribute<float>::make(normals, 3));
     setUV(BufferAttribute<float>::make(uvs, 2));
   }
-public:
+
   using Ptr = std::shared_ptr<Plane>;
   static Ptr make(float width, float height, float widthSegments=1, float heightSegments=1) {
     return Ptr(new Plane(width, height, widthSegments, heightSegments));

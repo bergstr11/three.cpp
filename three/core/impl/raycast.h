@@ -37,11 +37,11 @@ inline bool checkIntersection(const Object3D &object,
                               Intersection &result)
 {
   bool intersect;
-  if (material->side == Side::Back) {
+  if (material->_side == Side::Back) {
     intersect = ray.intersectTriangle(pC, pB, pA, true, point);
   }
   else {
-    intersect = ray.intersectTriangle(pA, pB, pC, material->side != Side::Double, point);
+    intersect = ray.intersectTriangle(pA, pB, pC, material->_side != Side::Double, point);
   }
 
   if (!intersect) return false;

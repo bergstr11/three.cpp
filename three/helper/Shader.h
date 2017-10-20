@@ -5,38 +5,120 @@
 #ifndef THREE_QT_UNIFORMVALUE_H
 #define THREE_QT_UNIFORMVALUE_H
 
-#include <textures/Texture.h>
-#include <set>
+#include <textures/CubeTexture.h>
+#include <unordered_map>
+#include <initializer_list>
 
 namespace three {
 
 struct UniformValue
 {
+  enum Type {tCube, glint, flt} type;
+
+  unsigned id;
+
   union
   {
     float float_val;
     GLint glint_val;
-  } value;
+    CubeTexture::Ptr tCube_val;
+  };
 
-  explicit UniformValue(float val) : value(val)
+  UniformValue() {}
+
+  explicit UniformValue(unsigned id, float val) : id(id), type(flt), float_val(val)
   {}
 
-  explicit UniformValue(GLint val) : value(val)
+  explicit UniformValue(unsigned id, Type type, GLint val) : id(id), type(glint), glint_val(val)
   {}
+
+  explicit UniformValue(unsigned id, const CubeTexture::Ptr &tex) : id(id), type(tCube), tCube_val(tex)
+  {}
+
+  ~UniformValue() {
+    switch(type) {
+      case tCube:
+        tCube_val.reset();
+      default:
+        break;
+    }
+  }
+
+  UniformValue &operator =(const UniformValue &other)
+  {
+    id = other.id;
+    if(type == tCube) tCube_val.reset();
+    type = other.type;
+    switch(type) {
+      case tCube:
+        tCube_val = other.tCube_val;
+        break;
+      case flt:
+        float_val = other.float_val;
+        break;
+      case glint:
+        glint_val = other.glint_val;
+        break;
+    }
+  }
+
+  UniformValue(const UniformValue &other) : id(other.id), type(other.type)
+  {
+    switch(type) {
+      case tCube:
+        tCube_val = other.tCube_val;
+        break;
+      case flt:
+        float_val = other.float_val;
+        break;
+      case glint:
+        glint_val = other.glint_val;
+        break;
+    }
+  }
+
+  void set(const CubeTexture::Ptr &t) {
+    if(type != tCube) throw std::invalid_argument("tCube");
+    tCube_val = t;
+  }
+  void set(const GLint &i) {
+    if(type != glint) throw std::invalid_argument("glint");
+    glint_val = i;
+  }
+  void set(const float &f) {
+    if(type != flt) throw std::invalid_argument("flt");
+    float_val = f;
+  }
 };
 
-template<typename T>
+template<typename T, unsigned _id>
 struct UniformValueBase : public UniformValue
 {
-  explicit UniformValueBase(T t) : UniformValue(t)
+  const static unsigned id = _id;
+  explicit UniformValueBase(T t) : UniformValue(_id, t)
   {}
 };
 
-using tCube = UniformValueBase<Texture::Ptr>;
-using tFlip = UniformValueBase<GLint>;
-using opacity = UniformValueBase<float>;
+using tCube = UniformValueBase<CubeTexture::Ptr, 1>;
+using tFlip = UniformValueBase<GLint, 2>;
+using opacity = UniformValueBase<float, 3>;
 
-using UniformValues = std::set<UniformValue>;
+class UniformValues
+{
+  std::unordered_map<unsigned, UniformValue> values;
+
+public:
+  UniformValues(std::initializer_list<UniformValue> vals) {
+    for(auto it = std::begin(vals); it != std::end(vals); it++) {
+      const UniformValue &val = *it;
+      values[val.id] = val;
+    }
+  }
+
+  template <typename T, typename V> void set(const V &v) {
+    values[T::id].set(v);
+  }
+};
 
 struct Shader
 {

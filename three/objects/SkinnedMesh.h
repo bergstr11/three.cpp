@@ -10,7 +10,7 @@
 
 namespace three {
 
-class SkinnedMesh : public Mesh
+class SkinnedMesh : public MeshBase<Material>
 {
   //BindMode bindMode = BindMode::attached;
   math::Matrix4 bindMatrix;
@@ -20,7 +20,7 @@ class SkinnedMesh : public Mesh
 
 protected:
   SkinnedMesh(const Geometry::Ptr &geometry, const Material::Ptr &material)
-     : Mesh(geometry, material) {}
+     : MeshBase(geometry, material) {}
 
 public:
   using Ptr = std::shared_ptr<SkinnedMesh>;

@@ -12,17 +12,20 @@
 
 namespace three {
 
-class SceneBase : public Object3D
+class Scene : public Object3D
 {
   Fog _fog;
   bool _autoUpdate;
 
 protected:
-  SceneBase(scene::ResolverBase::Ptr resolver, const Fog &fog) : _fog(fog) {}
-  SceneBase(scene::ResolverBase::Ptr resolver) {}
+  Scene(scene::ResolverBase::Ptr resolver, const Fog &fog) : _fog(fog) {}
+  Scene(scene::ResolverBase::Ptr resolver) {}
 
 public:
-  using Ptr = std::shared_ptr<SceneBase>;
+  using Ptr = std::shared_ptr<Scene>;
+  static Ptr make() {
+    return Ptr(new Scene(scene::Resolver<void>::make()));
+  }
 
   scene::ResolverBase::Ptr resolver;
 
@@ -34,23 +37,20 @@ public:
 };
 
 template <typename _Background>
-class Scene : public SceneBase
+class SceneBase : public Scene
 {
   _Background _background;
 
 protected:
-  Scene(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog &fog)
-     : SceneBase(resolver, fog), _background(background) {}
-  Scene(typename scene::Resolver<_Background>::Ptr resolver)
-     : SceneBase(resolver) {}
+  SceneBase(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog &fog)
+     : Scene(resolver, fog), _background(background) {}
+  SceneBase(typename scene::Resolver<_Background>::Ptr resolver)
+     : Scene(resolver) {}
 
 public:
-  using Ptr = std::shared_ptr<Scene<_Background>>;
+  using Ptr = std::shared_ptr<SceneBase<_Background>>;
   static Ptr make(const Color &background, const Fog &fog) {
-    return Ptr(new Scene(scene::Resolver<_Background>::make(&background), background, fog));
-  }
-  static Ptr make() {
-    return Ptr(new Scene(scene::Resolver<_Background>::make(nullptr)));
+    return Ptr(new SceneBase(scene::Resolver<_Background>::make(&background), background, fog));
   }
 
   const _Background &background() const {return _background;}

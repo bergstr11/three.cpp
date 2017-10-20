@@ -67,7 +67,7 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
-void Renderer_impl::doRender(const SceneBase::Ptr &scene, const Camera::Ptr &camera,
+void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if (_isContextLost) return;
@@ -351,6 +351,174 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   }
 }
 #endif
+
+void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
+                                       const Fog *fog,
+                                       Geometry::Ptr geometry,
+                                       Material::Ptr material,
+                                       Object3D::Ptr object,
+                                       const Group &group)
+{
+#if 0
+  state.setMaterial( material );
+
+  var program = setProgram( camera, fog, material, object );
+  var geometryProgram = geometry.id + '_' + program.id + '_' + ( material.wireframe === true );
+
+  var updateBuffers = false;
+
+  if ( geometryProgram !== _currentGeometryProgram ) {
+
+    _currentGeometryProgram = geometryProgram;
+    updateBuffers = true;
+
+  }
+
+  if ( object.morphTargetInfluences ) {
+
+    morphtargets.update( object, geometry, material, program );
+
+    updateBuffers = true;
+
+  }
+
+  //
+
+  var index = geometry.index;
+  var position = geometry.attributes.position;
+  var rangeFactor = 1;
+
+  if ( material.wireframe === true ) {
+
+    index = geometries.getWireframeAttribute( geometry );
+    rangeFactor = 2;
+
+  }
+
+  var attribute;
+  var renderer = bufferRenderer;
+
+  if ( index !== null ) {
+
+    attribute = attributes.get( index );
+
+    renderer = indexedBufferRenderer;
+    renderer.setIndex( attribute );
+
+  }
+
+  if ( updateBuffers ) {
+
+    setupVertexAttributes( material, program, geometry );
+
+    if ( index !== null ) {
+
+      _gl.bindBuffer( _gl.ELEMENT_ARRAY_BUFFER, attribute.buffer );
+
+    }
+
+  }
+
+  //
+
+  var dataCount = 0;
+
+  if ( index !== null ) {
+
+    dataCount = index.count;
+
+  } else if ( position !== undefined ) {
+
+    dataCount = position.count;
+
+  }
+
+  var rangeStart = geometry.drawRange.start * rangeFactor;
+  var rangeCount = geometry.drawRange.count * rangeFactor;
+
+  var groupStart = group !== null ? group.start * rangeFactor : 0;
+  var groupCount = group !== null ? group.count * rangeFactor : Infinity;
+
+  var drawStart = Math.max( rangeStart, groupStart );
+  var drawEnd = Math.min( dataCount, rangeStart + rangeCount, groupStart + groupCount ) - 1;
+
+  var drawCount = Math.max( 0, drawEnd - drawStart + 1 );
+
+  if ( drawCount === 0 ) return;
+
+  //
+
+  if ( object.isMesh ) {
+
+    if ( material.wireframe === true ) {
+
+      state.setLineWidth( material.wireframeLinewidth * getTargetPixelRatio() );
+      renderer.setMode( _gl.LINES );
+
+    } else {
+
+      switch ( object.drawMode ) {
+
+        case TrianglesDrawMode:
+          renderer.setMode( _gl.TRIANGLES );
+          break;
+
+        case TriangleStripDrawMode:
+          renderer.setMode( _gl.TRIANGLE_STRIP );
+          break;
+
+        case TriangleFanDrawMode:
+          renderer.setMode( _gl.TRIANGLE_FAN );
+          break;
+
+      }
+
+    }
+
+
+  } else if ( object.isLine ) {
+
+    var lineWidth = material.linewidth;
+
+    if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
+
+    state.setLineWidth( lineWidth * getTargetPixelRatio() );
+
+    if ( object.isLineSegments ) {
+
+      renderer.setMode( _gl.LINES );
+
+    } else if ( object.isLineLoop ) {
+
+      renderer.setMode( _gl.LINE_LOOP );
+
+    } else {
+
+      renderer.setMode( _gl.LINE_STRIP );
+
+    }
+
+  } else if ( object.isPoints ) {
+
+    renderer.setMode( _gl.POINTS );
+
+  }
+
+  if ( geometry && geometry.isInstancedBufferGeometry ) {
+
+    if ( geometry.maxInstancedCount > 0 ) {
+
+      renderer.renderInstances( geometry, drawStart, drawCount );
+
+    }
+
+  } else {
+
+    renderer.render( drawStart, drawCount );
+
+  }
+#endif
+}
 
 }
 }

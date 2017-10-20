@@ -115,7 +115,7 @@ class RenderLists
   std::unordered_map<uint32_t, RenderList> _lists;
 
 public:
-  RenderList *get(SceneBase::Ptr scene, Camera::Ptr camera)
+  RenderList *get(Scene::Ptr scene, Camera::Ptr camera)
   {
     uint32_t key = (uint32_t)scene->id() << 16 | camera->id();
 

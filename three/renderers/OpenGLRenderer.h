@@ -2,8 +2,8 @@
 // Created by byter on 29.07.17.
 //
 
-#ifndef THREEQT_WEBGLRENDERER
-#define THREEQT_WEBGLRENDERER
+#ifndef THREE_QT_OPENGLRENDERER
+#define THREE_QT_OPENGLRENDERER
 
 #include <QOpenGLContext>
 #include <Constants.h>
@@ -47,4 +47,4 @@ public:
 }
 
 
-#endif //THREEQT_WEBGLRENDERER
+#endif //THREE_QT_OPENGLRENDERER

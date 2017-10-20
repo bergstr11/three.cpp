@@ -12,7 +12,7 @@ namespace three {
 
 void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const
 {
-  if (_materials.empty()) return;
+  if (materialCount() == 0) return;
 
   // Checking boundingSphere distance to ray
   if (_geometry->boundingSphere().isEmpty()) _geometry->computeBoundingSphere();

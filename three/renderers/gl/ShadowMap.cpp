@@ -10,7 +10,7 @@
 namespace three {
 namespace gl {
 
-void ShadowMap::render(std::vector<Light::Ptr> lights, SceneBase::Ptr scene, Camera::Ptr camera)
+void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
 {
 
   if (!_enabled) return;
@@ -232,7 +232,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   result->visible = material->visible;
   result->wireframe = material->wireframe;
 
-  Side side = material->side;
+  Side side = material->_side;
 
   if ( _renderSingleSided && side == Side::Double ) {
 
@@ -246,7 +246,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     else if ( side == Side::Back ) side = Side::Front;
   }
 
-  result->side = side;
+  result->_side = side;
 
   result->clipShadows = material->clipShadows;
   result->clippingPlanes = material->clippingPlanes;
@@ -277,7 +277,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
       object->modelViewMatrix = shadowCamera->matrixWorldInverse() * object->matrixWorld();
 
       Geometry::Ptr geometry = _objects.update( object );
-      if ( object->materials().size() > 1 ) {
+      if ( object->materialCount() > 1 ) {
 
         const std::vector<Group> &groups = geometry->groups();
 
@@ -289,7 +289,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
 
             Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld,
                                                  shadowCamera->near(), shadowCamera->far() );
-            //_renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, group );
+            _renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, group );
 
           }
 
@@ -300,7 +300,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
         if (material->visible) {
 
           Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld, shadowCamera->near(), shadowCamera->far());
-          //_renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
+          _renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, Group());
         }
       }
     }

@@ -513,9 +513,9 @@ public:
 
   State &setMaterial(const Material::Ptr material)
   {
-    material->side == Side::Double ? disable(GL_CULL_FACE) : enable(GL_CULL_FACE);
+    material->_side == Side::Double ? disable(GL_CULL_FACE) : enable(GL_CULL_FACE);
 
-    setFlipSided(material->side == Side::Back ? FrontFaceDirection::CW : FrontFaceDirection::CCW);
+    setFlipSided(material->_side == Side::Back ? FrontFaceDirection::CW : FrontFaceDirection::CCW);
 
     if (material->transparent)
       setBlending(material->blending, material->blendEquation, material->blendSrc, material->blendDst,

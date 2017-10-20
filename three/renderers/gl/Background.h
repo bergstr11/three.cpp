@@ -7,16 +7,21 @@
 
 #include <core/Color.h>
 #include <objects/Mesh.h>
+#include <scene/Scene.h>
 #include <camera/OrtographicCamera.h>
 #include <textures/CubeTexture.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 #include <material/ShaderMaterial.h>
-#include "Renderer_impl.h"
+#include "State.h"
+#include "Geometries.h"
+#include "RenderLists.h"
 #include "shader/ShaderLib.h"
 
 namespace three {
 namespace gl {
+
+class Renderer_impl;
 
 class Background
 {
@@ -24,8 +29,8 @@ class Background
   float clearAlpha;
 
   Camera::Ptr planeCamera;
-  Mesh::Ptr planeMesh;
-  Mesh<ShaderMaterial>::Ptr boxMesh;
+  MeshBase<MeshBasicMaterial>::Ptr planeMesh;
+  MeshBase<ShaderMaterial>::Ptr boxMesh;
 
   Renderer_impl &renderer;
   State &state;
@@ -44,72 +49,7 @@ public:
        premultipliedAlpha(premultipiledAlpha)
   {}
 
-  void doRender(RenderList &renderList, const SceneBase::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true)
-  {
-    scene::Functions functions;
-    functions.color = [this](Color *color) {
-
-      setClear( *color, 1 );
-      forceClear = true;
-    };
-    functions.cubeTexture = [this](CubeTexture *tex) {
-
-      if (!boxMesh) {
-
-        // Normalized box
-        // 1.1547 = (1,1,1).normalize() * 2.0
-        geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make(1.1547, 1.1547, 1.1547);
-        boxMesh = Mesh<ShaderMaterial>::make(box,
-           ShaderMaterial::make(ShaderLib::cube, Side::Back, true, false, false));
-
-        box->setNormal(nullptr);
-        box->setUV(nullptr);
-
-        boxMesh->onBeforeRender = [&] () {
-
-          float scale = camera->far();
-
-          boxMesh->matrixWorld() = math::Matrix4::scaling( scale, scale, scale );
-          boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
-        };
-
-        geometries.update(box);
-      }
-
-      boxMesh->material<0>()->uniforms.tCube.value = background;
-
-      renderList.push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, -1);
-    };
-    functions.texture = [this] (Texture *tex) {
-      if (!planeCamera) {
-
-        planeCamera = OrtographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
-
-        planeMesh = Mesh::make(
-           geometry::buffer::Plane::make( 2, 2 ),
-           MeshBasicMaterial::make( { depthTest: false, depthWrite: false, fog: false } )
-        );
-
-        geometries.update( planeMesh->geometry() );
-
-      }
-
-      planeMesh.material.map = background;
-
-      // TODO Push this to renderList
-      renderer.renderBufferDirect( planeCamera, null, planeMesh->geometry(), planeMesh->material(), planeMesh, null );
-    };
-
-    if(!scene->hasBackground()) {
-      setClear( clearColor, clearAlpha );
-    }
-    if ( renderer.autoClear || forceClear ) {
-      renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-    }
-    if(scene->hasBackground()) {
-      scene->resolver->call(functions);
-    }
-  }
+  void doRender(RenderList &renderList, const Scene::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true);
 
   const Color &getClearColor()
   {

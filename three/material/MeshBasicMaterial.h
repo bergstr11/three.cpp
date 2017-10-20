@@ -14,7 +14,7 @@ struct MeshBasicMaterial : public Material
 {
   Color color {0xffffff}; // emissive
 
-  //map = null;
+  Texture::Ptr map;
 
   //lightMap = null;
   float lightMapIntensity = 1.0;
@@ -43,18 +43,24 @@ struct MeshBasicMaterial : public Material
 
 private:
   MeshBasicMaterial(bool morphTargets, bool skinning)
-  : Material(morphTargets, false, skinning)
   {
-
+    this->morphTargets = morphTargets;
+    this->skinning = skinning;
   }
+
+  MeshBasicMaterial() : Material()
+  {}
 
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
+
   static Ptr make(bool morphTargets, bool skinning) {
     return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(morphTargets, skinning));
   }
 
-
+  static Ptr make() {
+    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial());
+  }
 };
 
 }

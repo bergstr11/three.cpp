@@ -2,8 +2,8 @@
 // Created by byter on 05.08.17.
 //
 
-#ifndef THREE_QT_OPENGLRENDERER_H
-#define THREE_QT_OPENGLRENDERER_H
+#ifndef THREE_QT_RENDERERIMPL
+#define THREE_QT_RENDERERIMPL
 
 #include <renderers/OpenGLRenderer.h>
 #include <light/Light.h>
@@ -141,7 +141,7 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
-  void doRender(const SceneBase::Ptr &scene,
+  void doRender(const Scene::Ptr &scene,
                 const Camera::Ptr &camera,
                 const Renderer::Target::Ptr &renderTarget,
                 bool forceClear) override;
@@ -165,8 +165,15 @@ public:
   void clear(bool color=true, bool depth=true, bool stencil=true);
 
   unsigned allocTextureUnit();
+
+  void renderBufferDirect(Camera::Ptr camera,
+                          const Fog *fog,
+                          Geometry::Ptr geometry,
+                          Material::Ptr material,
+                          Object3D::Ptr object,
+                          const Group &group);
 };
 
 }
 }
-#endif //THREE_QT_OPENGLRENDERER_H
+#endif //THREE_QT_RENDERERIMPL

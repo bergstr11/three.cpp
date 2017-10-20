@@ -8,26 +8,31 @@
 #include <QString>
 #include <QResource>
 
+#include <helper/Shader.h>
 #include "UniformsLib.h"
 
 namespace three {
 namespace gl {
 
+namespace shaderlib {
+
+static Shader cube = {
+   {
+      tCube(nullptr),
+      tFlip(-1),
+      opacity(1.0f)
+   },
+   ":chunk/cube_vert.glsl",
+   ":chunk/cube_frag.glsl"
+};
+
+}
 struct ShaderLib
 {
   ShaderLib() = delete;
 
   static void init();
 
-  static Shader cube = {
-     {
-        tCube(nullptr),
-        tFlip(-1),
-        opacity(1.0f)
-     },
-     ":chunk/cube_vert.glsl",
-     ":chunk/cube_frag.glsl"
-  };
 };
 
 }
