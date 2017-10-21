@@ -41,6 +41,14 @@ struct Parameters {
   Precision precision = Precision::highp;
 };
 
+struct Buffer
+{
+  GLuint buf;
+  GLenum type;
+  unsigned bytesPerElement;
+  unsigned version;
+};
+
 }
 }
 #endif //THREE_QT_HELPERS_H

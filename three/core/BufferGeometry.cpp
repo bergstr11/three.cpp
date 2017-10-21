@@ -16,7 +16,7 @@ BufferGeometry::BufferGeometry(Object3D::Ptr object)
 
   if ( object.isPoints || object.isLine ) {
 
-    BufferAttribute<float> positions(geometry.vertices.length * 3, 3 );
+    BufferAttributeBase<float> positions(geometry.vertices.length * 3, 3 );
     var colors = new Float32BufferAttribute( geometry.colors.length * 3, 3 );
 
     this.addAttribute( 'position', positions.copyVector3sArray( geometry.vertices ) );

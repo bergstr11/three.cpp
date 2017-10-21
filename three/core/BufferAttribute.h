@@ -12,12 +12,14 @@
 
 #include <qopengl.h>
 
+#include <Constants.h>
 #include <helper/sole.h>
 #include <helper/simplesignal.h>
 #include <math/Vector2.h>
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 #include <math/Box3.h>
+#include <renderers/Resolver.h>
 
 namespace three {
 
@@ -60,16 +62,21 @@ struct Index
   Index(uint32_t a, uint32_t b, uint32_t c) : a(a), b(b), c(c) {}
 };
 
-struct UpdateRange {
-  int32_t offset, count;
-};
-
-class BufferAttributeBase
+class BufferAttribute
 {
 protected:
   unsigned _version = 0;
 
+  BufferAttribute(bufferattribute::Resolver<void>::Ptr resolver=bufferattribute::Resolver<void>::make())
+     : uuid(sole::uuid0()), resolver(resolver) {}
+
 public:
+  using Ptr = std::shared_ptr<BufferAttribute>;
+
+  const bufferattribute::ResolverBase::Ptr resolver;
+
+  const sole::uuid uuid;
+
   void needsUpdate() {_version++;}
   bool needsUpdate() const {return _version > 0;}
 
@@ -81,7 +88,7 @@ public:
 };
 
 template <typename Type>
-class BufferAttribute : public BufferAttributeBase
+class BufferAttributeBase : public BufferAttribute
 {
   std::vector<Type> _array;
   unsigned _itemSize;
@@ -92,30 +99,28 @@ class BufferAttribute : public BufferAttributeBase
   UpdateRange _updateRange = {0, -1};
 
 protected:
-  BufferAttribute(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
-     : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize), uuid(sole::uuid0())
+  BufferAttributeBase(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
+     : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
   {}
 
-  explicit BufferAttribute(unsigned itemSize, bool normalized=false)
-     : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0), uuid(sole::uuid0())
+  explicit BufferAttributeBase(unsigned itemSize, bool normalized=false)
+     : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
   {}
 
-  BufferAttribute(const BufferAttribute&source) :
+  BufferAttributeBase(const BufferAttributeBase &source) :
      _array(source._array), _itemSize(source._itemSize), _count(source._count),
-     _normalized(source._normalized), _dynamic(source._dynamic), uuid(sole::uuid0())
+     _normalized(source._normalized), _dynamic(source._dynamic)
   {}
 
 public:
-  using Ptr = std::shared_ptr<BufferAttribute<Type>>;
+  using Ptr = std::shared_ptr<BufferAttributeBase<Type>>;
 
   static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
   {
-    return std::shared_ptr<BufferAttribute<Type>>(new BufferAttribute<Type>(array, itemSize, normalized));
+    return std::shared_ptr<BufferAttributeBase<Type>>(new BufferAttributeBase<Type>(array, itemSize, normalized));
   }
 
-  const sole::uuid uuid;
-
-  Signal<void(const BufferAttribute<Type> &)> onUpload;
+  Signal<void(const BufferAttributeBase<Type> &)> onUpload;
 
   const size_t size() const {return _array.size();}
 
@@ -143,7 +148,7 @@ public:
 
   UpdateRange &updateRange() {return _updateRange;}
 
-  BufferAttribute &setDynamic(bool value)
+  BufferAttributeBase &setDynamic(bool value)
   {
     _dynamic = value;
 
@@ -151,7 +156,7 @@ public:
   }
 
 
-  BufferAttribute &copyAt(unsigned dstIndex, const BufferAttribute &srcAttribute, unsigned srcIndex)
+  BufferAttributeBase &copyAt(unsigned dstIndex, const BufferAttributeBase &srcAttribute, unsigned srcIndex)
   {
     std::memcpy(_array.data() + dstIndex * _itemSize,
                 srcAttribute._array.data() + srcIndex * srcAttribute._itemSize,
@@ -159,13 +164,13 @@ public:
     return *this;
   }
 
-  BufferAttribute &copyArray(const std::vector<Type> &array)
+  BufferAttributeBase &copyArray(const std::vector<Type> &array)
   {
     _array = array;
     return *this;
   }
 
-  BufferAttribute &copyColors(std::vector<Color> colors)
+  BufferAttributeBase &copyColors(std::vector<Color> colors)
   {
     size_t offset = 0;
 
@@ -178,7 +183,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &copyIndices(const std::vector<Index> &indices)
+  BufferAttributeBase &copyIndices(const std::vector<Index> &indices)
   {
     unsigned offset = 0;
 
@@ -194,7 +199,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &copyVector2s(std::vector<math::Vector2> vectors )
+  BufferAttributeBase &copyVector2s(std::vector<math::Vector2> vectors )
   {
     size_t offset = 0;
 
@@ -206,7 +211,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &copyVector3s(std::vector<math::Vector3> vectors)
+  BufferAttributeBase &copyVector3s(std::vector<math::Vector3> vectors)
   {
     size_t offset = 0;
 
@@ -219,7 +224,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &copyVector4s(std::vector<math::Vector4> vectors)
+  BufferAttributeBase &copyVector4s(std::vector<math::Vector4> vectors)
   {
     size_t offset = 0;
 
@@ -233,7 +238,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &set(Type value, size_t offset=0) 
+  BufferAttributeBase &set(Type value, size_t offset=0)
   {
     _array[offset] = value;
 
@@ -245,7 +250,7 @@ public:
     return _array[ index * _itemSize ];
   }
 
-  BufferAttribute &set_x(size_t index, Type x) 
+  BufferAttributeBase &set_x(size_t index, Type x)
   {
     _array[ index * _itemSize ] = x;
 
@@ -257,7 +262,7 @@ public:
     return _array[ index * _itemSize + 1 ];
   }
 
-  BufferAttribute &set_y(size_t index, Type y)
+  BufferAttributeBase &set_y(size_t index, Type y)
   {
     _array[ index * _itemSize + 1 ] = y;
 
@@ -269,7 +274,7 @@ public:
     return _array[ index * _itemSize + 2 ];
   }
 
-  BufferAttribute &set_z(size_t index, Type z)
+  BufferAttributeBase &set_z(size_t index, Type z)
   {
     _array[ index * _itemSize + 2 ] = z;
 
@@ -281,14 +286,14 @@ public:
     return _array[ index * _itemSize + 3 ];
   }
 
-  BufferAttribute &set_w(size_t index, Type w)
+  BufferAttributeBase &set_w(size_t index, Type w)
   {
     _array[ index * _itemSize + 3 ] = w;
 
     return *this;
   }
 
-  BufferAttribute &setXY(size_t index, Type x, Type y)
+  BufferAttributeBase &setXY(size_t index, Type x, Type y)
   {
     index *= _itemSize;
 
@@ -298,7 +303,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &setXYZ(size_t index, Type x, Type y, Type z )
+  BufferAttributeBase &setXYZ(size_t index, Type x, Type y, Type z )
   {
     index *= _itemSize;
 
@@ -309,7 +314,7 @@ public:
     return *this;
   }
 
-  BufferAttribute &setXYZW(size_t index, Type x, Type y, Type z, Type w)
+  BufferAttributeBase &setXYZW(size_t index, Type x, Type y, Type z, Type w)
   {
     index *= _itemSize;
 

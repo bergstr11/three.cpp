@@ -21,18 +21,18 @@ enum class IndexedAttribute
 
 class BufferGeometry : public Geometry
 {
-  BufferAttribute<uint32_t>::Ptr _index;
-  BufferAttribute<float>::Ptr _position;
-  BufferAttribute<float>::Ptr _normal;
-  BufferAttribute<float>::Ptr _color;
-  BufferAttribute<float>::Ptr _uv;
-  BufferAttribute<float>::Ptr _uv2;
+  BufferAttributeBase<uint32_t>::Ptr _index;
+  BufferAttributeBase<float>::Ptr _position;
+  BufferAttributeBase<float>::Ptr _normal;
+  BufferAttributeBase<float>::Ptr _color;
+  BufferAttributeBase<float>::Ptr _uv;
+  BufferAttributeBase<float>::Ptr _uv2;
 
-  std::vector<BufferAttribute<float>::Ptr> _morphAttributes_position;
-  std::vector<BufferAttribute<float>::Ptr> _morphAttributes_normal;
+  std::vector<BufferAttributeBase<float>::Ptr> _morphAttributes_position;
+  std::vector<BufferAttributeBase<float>::Ptr> _morphAttributes_normal;
 
   using IndexedAttributesKey = std::pair<IndexedAttribute, size_t>;
-  std::unordered_map<IndexedAttributesKey, BufferAttribute<float>::Ptr, pair_hash> _indexedAttributes;
+  std::unordered_map<IndexedAttributesKey, BufferAttributeBase<float>::Ptr, pair_hash> _indexedAttributes;
   //this.drawRange = { start: 0, count: Infinity };
 
 protected:
@@ -89,25 +89,25 @@ public:
     return !_morphAttributes_position.empty();
   }
 
-  const BufferAttribute<uint32_t>::Ptr &index() const {return _index;}
+  const BufferAttributeBase<uint32_t>::Ptr &index() const {return _index;}
 
-  BufferAttribute<uint32_t>::Ptr &getIndex() {return _index;}
+  BufferAttributeBase<uint32_t>::Ptr &getIndex() {return _index;}
 
-  const BufferAttribute<float>::Ptr &position() const {return _position;}
+  const BufferAttributeBase<float>::Ptr &position() const {return _position;}
 
-  const BufferAttribute<float>::Ptr &normal() const {return _normal;}
+  const BufferAttributeBase<float>::Ptr &normal() const {return _normal;}
 
-  const BufferAttribute<float>::Ptr &color() const {return _color;}
+  const BufferAttributeBase<float>::Ptr &color() const {return _color;}
 
-  const BufferAttribute<float>::Ptr &uv() const {return _uv;}
+  const BufferAttributeBase<float>::Ptr &uv() const {return _uv;}
 
-  const BufferAttribute<float>::Ptr &uv2() const {return _uv2;}
+  const BufferAttributeBase<float>::Ptr &uv2() const {return _uv2;}
 
-  const std::vector<BufferAttribute<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
+  const std::vector<BufferAttributeBase<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
 
-  const std::vector<BufferAttribute<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
+  const std::vector<BufferAttributeBase<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
 
-  void addAttribute(IndexedAttribute attribute, size_t index, BufferAttribute<float>::Ptr value) {
+  void addAttribute(IndexedAttribute attribute, size_t index, BufferAttributeBase<float>::Ptr value) {
     IndexedAttributesKey key = {attribute, index};
     _indexedAttributes[key] = value;
   }
@@ -120,34 +120,34 @@ public:
     if(_index)
       _index->set(indices);
     else
-      _index = BufferAttribute<uint32_t>::make(indices, 3);
+      _index = BufferAttributeBase<uint32_t>::make(indices, 3);
   }
 
-  BufferGeometry &setPosition(const BufferAttribute<float>::Ptr &position)
+  BufferGeometry &setPosition(const BufferAttributeBase<float>::Ptr &position)
   {
     _position = position;
     return *this;
   }
 
-  BufferGeometry &setNormal(const BufferAttribute<float>::Ptr &normal)
+  BufferGeometry &setNormal(const BufferAttributeBase<float>::Ptr &normal)
   {
     _normal = normal;
     return *this;
   }
 
-  BufferGeometry &setColor(const BufferAttribute<float>::Ptr &color)
+  BufferGeometry &setColor(const BufferAttributeBase<float>::Ptr &color)
   {
     _color = color;
     return *this;
   }
 
-  BufferGeometry &setUV(const BufferAttribute<float>::Ptr &uv)
+  BufferGeometry &setUV(const BufferAttributeBase<float>::Ptr &uv)
   {
     _uv = uv;
     return *this;
   }
 
-  BufferGeometry &setUV2(const BufferAttribute<float>::Ptr &uv2)
+  BufferGeometry &setUV2(const BufferAttributeBase<float>::Ptr &uv2)
   {
     _uv2 = uv2;
     return *this;
@@ -184,6 +184,26 @@ public:
                math::Vector3 &intersectionPoint,
                math::Vector3 &intersectionPointWorld,
                std::vector<Intersection> &intersects) override;
+};
+
+class InstancedBufferGeometry : public BufferGeometry
+{
+  unsigned _maxInstancedCount = 0;
+
+protected:
+  explicit InstancedBufferGeometry() : BufferGeometry() {}
+  explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object) : BufferGeometry(object) {}
+
+public:
+  using Ptr = std::shared_ptr<InstancedBufferGeometry>;
+  static Ptr make() {
+    return Ptr(new InstancedBufferGeometry());
+  }
+  static Ptr make(std::shared_ptr<Object3D> object) {
+    return Ptr(new InstancedBufferGeometry(object));
+  }
+
+  unsigned maxInstancedCount() const {return _maxInstancedCount;}
 };
 
 }

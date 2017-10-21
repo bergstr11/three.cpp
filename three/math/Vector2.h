@@ -14,7 +14,7 @@
 namespace three {
 
 template<typename T>
-class BufferAttribute;
+class BufferAttributeBase;
 
 namespace math {
 
@@ -38,7 +38,7 @@ public:
 
   Vector2(float scalar) : _x(scalar), _y(scalar) {}
 
-  static Vector2 fromBufferAttribute(const BufferAttribute<float> &attribute, unsigned index);
+  static Vector2 fromBufferAttribute(const BufferAttributeBase<float> &attribute, unsigned index);
 
   const float x() const { return _x; }
   const float y() const { return _y; }

@@ -431,8 +431,8 @@ public:
 	}
 
   void addFacre(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
-               const BufferAttribute<float>::Ptr &normals, const BufferAttribute<float>::Ptr &uvs,
-               const BufferAttribute<float>::Ptr &uv2s,
+               const BufferAttributeBase<float>::Ptr &normals, const BufferAttributeBase<float>::Ptr &uvs,
+               const BufferAttributeBase<float>::Ptr &uv2s,
                const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,
                const std::vector<UV> &tempUVs2)
   {
@@ -444,11 +444,11 @@ public:
     std::vector<UV> tempUVs;
     std::vector<UV> tempUVs2;
 
-    const BufferAttribute<float>::Ptr &positions = geometry.position();
-    const BufferAttribute<float>::Ptr &normals = geometry.normal();
-    const BufferAttribute<float>::Ptr &colors = geometry.color();
-    const BufferAttribute<float>::Ptr &uvs = geometry.uv();
-    const BufferAttribute<float>::Ptr &uv2s = geometry.uv2();
+    const BufferAttributeBase<float>::Ptr &positions = geometry.position();
+    const BufferAttributeBase<float>::Ptr &normals = geometry.normal();
+    const BufferAttributeBase<float>::Ptr &colors = geometry.color();
+    const BufferAttributeBase<float>::Ptr &uvs = geometry.uv();
+    const BufferAttributeBase<float>::Ptr &uv2s = geometry.uv2();
 
     for(size_t i = 0, j = 0; i < positions->size(); i += 3, j += 2 ) {
 
@@ -492,7 +492,7 @@ public:
       }
     };
 
-    const BufferAttribute<uint32_t>::Ptr &indices = geometry.index();
+    const BufferAttributeBase<uint32_t>::Ptr &indices = geometry.index();
 
     if (geometry.groups().size() > 0 ) {
 

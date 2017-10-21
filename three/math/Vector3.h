@@ -17,7 +17,7 @@ namespace three {
 class Camera;
 
 template<typename T>
-class BufferAttribute;
+class BufferAttributeBase;
 
 namespace math {
 
@@ -59,7 +59,7 @@ public:
 
   static Vector3 fromMatrixPosition(const Matrix4 &m);
 
-  static Vector3 fromBufferAttribute(const BufferAttribute<float> &att, unsigned index);
+  static Vector3 fromBufferAttribute(const BufferAttributeBase<float> &att, unsigned index);
 
   template <typename T>
   static Vector3 fromArray(const T array, unsigned offset)

@@ -126,7 +126,7 @@ Vector3 &Vector3::apply(const Matrix3 &m)
   _z = e[ 2 ] * _x + e[ 5 ] * _y + e[ 8 ] * _z;
 }
 
-Vector3 Vector3::fromBufferAttribute(const BufferAttribute<float> &attribute, unsigned index)
+Vector3 Vector3::fromBufferAttribute(const BufferAttributeBase<float> &attribute, unsigned index)
 {
   return Vector3(attribute.get_x( index ), attribute.get_y( index ), attribute.get_z( index ));
 }

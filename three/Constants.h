@@ -171,9 +171,13 @@ enum class Op
 
 enum class DrawMode
 {
-  Triangles = 0,
-  TriangleStrip = 1,
-  TriangleFan = 2
+  Points = GL_POINTS,
+  LineStrip = GL_LINE_STRIP,
+  LineLoop = GL_LINE_LOOP,
+  Lines = GL_LINES,
+  Triangles = GL_TRIANGLES,
+  TriangleStrip = GL_TRIANGLE_STRIP,
+  TriangleFan = GL_TRIANGLE_FAN
 };
 
 enum class CombineOperation
@@ -259,6 +263,14 @@ enum class UniformType
   FloatMat4=GL_FLOAT_MAT4,
   Sampler2D=GL_SAMPLER_2D,
   SamplerCube=GL_SAMPLER_CUBE
+};
+
+struct UpdateRange
+{
+  uint32_t offset;
+  int32_t count;
+
+  UpdateRange(uint32_t offset, int32_t count) : offset(offset), count(count) {}
 };
 
 }

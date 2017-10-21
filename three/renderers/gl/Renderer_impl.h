@@ -11,6 +11,7 @@
 #include <objects/Sprite.h>
 #include <objects/LensFlare.h>
 #include "RenderTarget.h"
+#include "BufferRenderer.h"
 #include "Helpers.h"
 #include "State.h"
 #include "Extensions.h"
@@ -83,6 +84,10 @@ protected:
   Properties _properties;
 
   Programs _programs;
+
+  BufferRenderer _bufferRenderer;
+
+  IndexedBufferRenderer _indexedRenderer;
 
   Background _background;
 

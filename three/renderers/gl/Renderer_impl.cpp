@@ -17,7 +17,10 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
    : OpenGLRenderer(context), _state(this), _attributes(this), _objects(_geometries, _infoRender),
      _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters ),
      _morphTargets(this), _programs(_extensions, _capabilities),
-     _background(*this, _state, _geometries, _premultipliedAlpha)
+     _background(*this, _state, _geometries, _premultipliedAlpha),
+     _bufferRenderer(this, this, _extensions, _infoRender),
+     _indexedRenderer(this, this, _extensions, _infoRender)
+
 {
 
 }
@@ -46,7 +49,6 @@ void Renderer_impl::initContext()
 
   //textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
 #if 0
-  background = new WebGLBackground( _this, state, geometries, _premultipliedAlpha );
   bufferRenderer = new WebGLBufferRenderer( _gl, extensions, _infoRender );
   indexedBufferRenderer = new WebGLIndexedBufferRenderer( _gl, extensions, _infoRender );
   flareRenderer = new WebGLFlareRenderer( _this, _gl, state, textures, capabilities );

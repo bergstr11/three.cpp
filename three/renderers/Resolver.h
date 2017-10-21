@@ -136,5 +136,22 @@ MK_VOID_RESOLVER(_void)
 
 }
 
+class InterleavedBufferAttribute;
+
+namespace bufferattribute {
+
+struct Functions
+{
+  ResolveFunc<InterleavedBufferAttribute> interleaved;
+  VoidFunc _void;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(InterleavedBufferAttribute, interleaved)
+MK_VOID_RESOLVER(_void)
+
+}
+
 }
 #endif //THREE_QT_RESOLVER_H
