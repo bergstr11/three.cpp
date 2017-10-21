@@ -18,9 +18,11 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
      _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters ),
      _morphTargets(this), _programs(_extensions, _capabilities),
      _background(*this, _state, _geometries, _premultipliedAlpha),
+     _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
      _bufferRenderer(this, this, _extensions, _infoRender),
-     _indexedRenderer(this, this, _extensions, _infoRender)
-
+     _indexedRenderer(this, this, _extensions, _infoRender),
+     _spriteRenderer(this, _state, _textures, _capabilities),
+     _flareRenderer(this, _state, _textures, _capabilities)
 {
 
 }
@@ -46,16 +48,6 @@ void Renderer_impl::initContext()
   _currentViewport = _viewport * _pixelRatio;
   _state.scissor(_currentScissor);
   _state.viewport(_currentViewport);
-
-  //textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, _infoMemory );
-#if 0
-  bufferRenderer = new WebGLBufferRenderer( _gl, extensions, _infoRender );
-  indexedBufferRenderer = new WebGLIndexedBufferRenderer( _gl, extensions, _infoRender );
-  flareRenderer = new WebGLFlareRenderer( _this, _gl, state, textures, capabilities );
-  spriteRenderer = new WebGLSpriteRenderer( _this, _gl, state, textures, capabilities );
-
-  _info.programs = programCache.programs;
-#endif
 }
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
@@ -131,32 +123,24 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.points = 0;
 
   setRenderTarget(renderTarget);
-#if 0
   //
-  _background.render(currentRenderList, scene, camera, forceClear);
+  _background.render(_currentRenderList, scene, camera, forceClear);
 
   // render scene
-  var opaqueObjects = currentRenderList.opaque;
-  var transparentObjects = currentRenderList.transparent;
+  auto opaqueObjects = _currentRenderList->opaque();
+  auto transparentObjects = _currentRenderList->transparent();
 
-  if (scene.overrideMaterial) {
-    var overrideMaterial = scene.overrideMaterial;
+  // opaque pass (front-to-back order)
+  if (opaqueObjects)
+    renderObjects(opaqueObjects, scene, camera, scene->overrideMaterial);
 
-    if (opaqueObjects.length) renderObjects(opaqueObjects, scene, camera, overrideMaterial);
-    if (transparentObjects.length) renderObjects(transparentObjects, scene, camera, overrideMaterial);
-  }
-  else {
-    // opaque pass (front-to-back order)
-    if (opaqueObjects.length) renderObjects(opaqueObjects, scene, camera);
-
-    // transparent pass (back-to-front order)
-    if (transparentObjects.length) renderObjects(transparentObjects, scene, camera);
-  }
+  // transparent pass (back-to-front order)
+  if (transparentObjects)
+    renderObjects(transparentObjects, scene, camera, scene->overrideMaterial);
 
   // custom renderers
-
-  spriteRenderer.render(spritesArray, scene, camera);
-  flareRenderer.render(flaresArray, scene, camera, _currentViewport);
+  _spriteRenderer.render(_spritesArray, scene, camera);
+  _flareRenderer.render(_flaresArray, scene, camera, _currentViewport);
 
   // Generate mipmap if we're using any kind of mipmap filtering
 
@@ -168,7 +152,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _state.depthBuffer.setTest(true);
   _state.depthBuffer.setMask(true);
   _state.colorBuffer.setMask(true);
-#endif
+
   /*if (vr.enabled) {
     vr.submitFrame();
   }*/
@@ -249,6 +233,86 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
                            textarget, renderTarget->activeMipMapLevel );
   }
 }
+
+void renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera, Material::Ptr overrideMaterial)
+{
+#if 0
+  for ( var i = 0, l = renderList.length; i < l; i ++ ) {
+
+    var renderItem = renderList[ i ];
+
+    var object = renderItem.object;
+    var geometry = renderItem.geometry;
+    var material = overrideMaterial === undefined ? renderItem.material : overrideMaterial;
+    var group = renderItem.group;
+
+    if ( camera.isArrayCamera ) {
+
+      _currentArrayCamera = camera;
+
+      var cameras = camera.cameras;
+
+      for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
+
+        var camera2 = cameras[ j ];
+
+        if ( object.layers.test( camera2.layers ) ) {
+
+          var bounds = camera2.bounds;
+
+          var x = bounds.x * _width;
+          var y = bounds.y * _height;
+          var width = bounds.z * _width;
+          var height = bounds.w * _height;
+
+          state.viewport( _currentViewport.set( x, y, width, height ).multiplyScalar( _pixelRatio ) );
+
+          renderObject( object, scene, camera2, geometry, material, group );
+
+        }
+
+      }
+
+    } else {
+
+      _currentArrayCamera = null;
+
+      renderObject( object, scene, camera, geometry, material, group );
+
+    }
+
+  }
+#endif
+}
+
+#if 0
+function renderObject( object, scene, camera, geometry, material, group ) {
+
+  object.onBeforeRender( _this, scene, camera, geometry, material, group );
+
+  object.modelViewMatrix.multiplyMatrices( camera.matrixWorldInverse, object.matrixWorld );
+  object.normalMatrix.getNormalMatrix( object.modelViewMatrix );
+
+  if ( object.isImmediateRenderObject ) {
+
+    state.setMaterial( material );
+
+    var program = setProgram( camera, scene.fog, material, object );
+
+    _currentGeometryProgram = '';
+
+    renderObjectImmediate( object, program, material );
+
+  } else {
+
+    _this.renderBufferDirect( camera, scene.fog, geometry, material, object, group );
+
+  }
+
+  object.onAfterRender( _this, scene, camera, geometry, material, group );
+
+}
+#endif
 
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )
 {

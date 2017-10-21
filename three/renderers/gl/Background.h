@@ -49,7 +49,7 @@ public:
        premultipliedAlpha(premultipiledAlpha)
   {}
 
-  void doRender(RenderList &renderList, const Scene::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true);
+  void render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera=nullptr, bool forceClear=true);
 
   const Color &getClearColor()
   {

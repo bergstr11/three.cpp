@@ -12,6 +12,8 @@
 #include <objects/LensFlare.h>
 #include "RenderTarget.h"
 #include "BufferRenderer.h"
+#include "SpriteRenderer.h"
+#include "FlareRenderer.h"
 #include "Helpers.h"
 #include "State.h"
 #include "Extensions.h"
@@ -85,9 +87,15 @@ protected:
 
   Programs _programs;
 
+  Textures _textures;
+
   BufferRenderer _bufferRenderer;
 
   IndexedBufferRenderer _indexedRenderer;
+
+  SpriteRenderer _spriteRenderer;
+
+  FlareRenderer _flareRenderer;
 
   Background _background;
 
@@ -151,6 +159,11 @@ protected:
                 const Renderer::Target::Ptr &renderTarget,
                 bool forceClear) override;
 
+  void renderObjects(RenderList::iterator renderIterator,
+                     Scene::Ptr scene,
+                     Camera::Ptr camera,
+                     Material::Ptr overrideMaterial);
+
 public:
   // clearing
   bool autoClear = true;
@@ -158,7 +171,6 @@ public:
   bool autoClearDepth = true;
   bool autoClearStencil = true;
 
-  //OpenGLRenderer_impl(QOpenGLContext *context, Options options=Options());
   Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}

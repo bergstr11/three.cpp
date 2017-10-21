@@ -28,8 +28,9 @@ public:
     ColorBuffer(QOpenGLExtraFunctions *fn)
     {}
 
-    ColorBuffer &setMask(GLboolean colorMask)
+    ColorBuffer &setMask(bool _colorMask)
     {
+      GLboolean colorMask = _colorMask ?  1 : 0;
       if (currentColorMask != colorMask && !locked) {
         glColorMask(colorMask, colorMask, colorMask, colorMask);
         currentColorMask = colorMask;

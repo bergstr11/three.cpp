@@ -69,6 +69,7 @@ public:
   void deallocateRenderTarget(RenderTarget *renderTarget);
   void setTexture2D(Texture::Ptr texture, unsigned slot);
   void setTextureCube(CubeTexture::Ptr texture, unsigned slot);
+  void updateRenderTargetMipmap(const Renderer::Target::Ptr &renderTarget);
 
   void onTextureDispose(Texture *texture);
   void onRenderTargetDispose(RenderTarget *renderTarget);

@@ -32,15 +32,15 @@ struct RenderItem
 
 class RenderList
 {
-  std::vector<RenderItem> renderItems;
+  std::vector<RenderItem> _renderItems;
 
-  std::vector<size_t> opaque;
-  std::vector<size_t> transparent;
+  std::vector<size_t> _opaque;
+  std::vector<size_t> _transparent;
 
   int painterSortStable(size_t index_a, size_t index_b)
   {
-    const RenderItem &a = renderItems.at(index_a);
-    const RenderItem &b = renderItems.at(index_b);
+    const RenderItem &a = _renderItems.at(index_a);
+    const RenderItem &b = _renderItems.at(index_b);
 
     if (a.renderOrder != b.renderOrder) {
 
@@ -63,8 +63,8 @@ class RenderList
 
   int reversePainterSortStable(size_t index_a, size_t index_b)
   {
-    const RenderItem &a = renderItems.at(index_a);
-    const RenderItem &b = renderItems.at(index_b);
+    const RenderItem &a = _renderItems.at(index_a);
+    const RenderItem &b = _renderItems.at(index_b);
 
     if (a.renderOrder != b.renderOrder) {
 
@@ -80,31 +80,82 @@ class RenderList
     }
   }
 public:
+  class iterator
+  {
+    size_t _index;
+    const std::vector<size_t> &_indizes;
+    const std::vector<RenderItem> &_renderItems;
+
+  public:
+    typedef iterator self_type;
+    typedef const RenderItem value_type;
+    typedef const RenderItem &reference;
+    typedef const RenderItem *pointer;
+    typedef int difference_type;
+    typedef std::forward_iterator_tag iterator_category;
+
+    iterator(const std::vector<size_t> &indizes,
+                const std::vector<RenderItem> &renderItems,
+                size_t index=0)
+       : _indizes(indizes), _renderItems(renderItems), _index(index)
+    {}
+
+    self_type operator++()
+    {
+      self_type i = *this;
+      _index++;
+      return i;
+    }
+
+    self_type operator++(int junk)
+    {
+      _index++;
+      return *this;
+    }
+
+    const reference operator*()
+    { return _renderItems[_indizes[_index]]; }
+
+    const pointer operator->()
+    { return &_renderItems[_indizes[_index]]; }
+
+    bool operator==(const self_type &rhs)
+    { return _index == rhs._index; }
+
+    bool operator!=(const self_type &rhs)
+    { return _index != rhs._index; }
+
+    operator bool () {return _index < _indizes.size();}
+  };
+
   void init()
   {
-    renderItems.clear();
-    opaque.clear();
-    transparent.clear();
+    _renderItems.clear();
+    _opaque.clear();
+    _transparent.clear();
   }
 
   RenderList &push_back(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, int group)
   {
-
-    renderItems.emplace_back(object, geometry, material, z, group);
+    _renderItems.emplace_back(object, geometry, material, z, group);
 
     if(material->transparent)
-      transparent.push_back(renderItems.size() - 1);
+      _transparent.push_back(_renderItems.size() - 1);
     else
-      opaque.push_back(renderItems.size() - 1);
+      _opaque.push_back(_renderItems.size() - 1);
   }
+
+  iterator opaque() const {return iterator(_opaque, _renderItems);}
+
+  iterator transparent() const {return iterator(_transparent, _renderItems);}
 
   RenderList &sort()
   {
-    if (!opaque.empty())
-      std::sort(opaque.begin(), opaque.end(),
+    if (!_opaque.empty())
+      std::sort(_opaque.begin(), _opaque.end(),
                 [this](size_t a, size_t b) {return painterSortStable(a, b);});
-    if (!transparent.empty())
-      std::sort(transparent.begin(), transparent.end(),
+    if (!_transparent.empty())
+      std::sort(_transparent.begin(), _transparent.end(),
                 [this](size_t a, size_t b) {return reversePainterSortStable(a, b);});
   }
 };

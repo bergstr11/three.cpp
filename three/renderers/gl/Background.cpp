@@ -8,7 +8,7 @@
 namespace three  {
 namespace gl {
 
-void Background::doRender(RenderList &renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
+void Background::render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
 {
   scene::Functions functions;
   functions._void = [&] () {
@@ -47,7 +47,7 @@ void Background::doRender(RenderList &renderList, const Scene::Ptr scene, const 
 
     boxMesh->material<0>()->uniforms.set<tCube>(tex);
 
-    renderList.push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, -1);
+    renderList->push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, -1);
   };
   functions.texture = [&] (Texture::Ptr &tex) {
 

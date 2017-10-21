@@ -29,6 +29,8 @@ public:
 
   scene::ResolverBase::Ptr resolver;
 
+  Material::Ptr overrideMaterial;
+
   const Fog &fog() const {return _fog;}
 
   Fog &fog() {return _fog;}
