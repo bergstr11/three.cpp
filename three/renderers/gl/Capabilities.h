@@ -38,7 +38,6 @@ struct Capabilities
   Precision maxPrecision;
   Precision precision;
 
-public:
   Capabilities(QOpenGLFunctions *fn, Extensions &extensions, Parameters &parameters)
   : _fn(fn), _extensions(extensions), _parameters(parameters)
   { }
@@ -65,6 +64,18 @@ public:
     if ( maxPrecision != precision ) {
       //warn( 'THREE.WebGLRenderer:', precision, 'not supported, using', maxPrecision, 'instead.' );
       precision = maxPrecision;
+    }
+  }
+
+  std::string precisionS()
+  {
+    switch(precision) {
+      case Precision::highp:
+        return "highp";
+      case Precision::lowp:
+        return "lowp";
+      case Precision::mediump:
+        return "mediump";
     }
   }
 

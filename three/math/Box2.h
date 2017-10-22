@@ -75,7 +75,7 @@ public:
 
   Vector2 getCenter()
   {
-    return isEmpty() ? Vector2(0.0, 0.0) : Vector2(_min, _max) * 0.5;
+    return isEmpty() ? Vector2(0.0, 0.0) : (_min + _max) * 0.5;
   }
 
   Vector2 getSize()

@@ -14,6 +14,34 @@ namespace gl {
 using namespace std;
 using namespace math;
 
+struct FlareRenderer::Data
+{
+  GLuint vertex_att;
+  GLuint uv_att;
+
+  GLint renderType;
+  GLint map;
+  GLint occlusionMap;
+  GLint opacity;
+  GLint color;
+  GLint scale;
+  GLint rotation;
+  GLint screenPosition;
+
+  Data(QOpenGLFunctions *f, GLuint program) {
+    vertex_att = f->glGetAttribLocation(program, "position" );
+    uv_att = f->glGetAttribLocation( program, "uv" );
+    renderType = f->glGetUniformLocation(program, "renderType" ),
+       map = f->glGetUniformLocation( program, "map" );
+    occlusionMap = f->glGetUniformLocation( program, "occlusionMap" );
+    opacity = f->glGetUniformLocation( program, "opacity" );
+    color = f->glGetUniformLocation( program, "color" );
+    scale = f->glGetUniformLocation( program, "scale" );
+    rotation = f->glGetUniformLocation( program, "rotation" );
+    screenPosition = f->glGetUniformLocation( program, "screenPosition" );
+  }
+};
+
 FlareRenderer::~FlareRenderer()
 {
   if(_data) delete _data;
@@ -22,10 +50,10 @@ FlareRenderer::~FlareRenderer()
 void FlareRenderer::init()
 {
   array<float, 16> vertices = {
-     -1f, -1f, 0f, 0f,
-     1f, -1f, 1f, 0f,
-     1f, 1f, 1f, 1f,
-     -1f, 1f, 0f, 1f
+     -1.0f, -1.0f, 0.0f, 0.0f,
+     1.0f, -1.0f, 1.0f, 0.0f,
+     1.0f, 1.0f, 1.0f, 1.0f,
+     -1.0f, 1.0f, 0.0f, 1.0f
   };
 
   array<uint16_t, 6> faces = {
@@ -154,11 +182,11 @@ void FlareRenderer::init()
   GLuint vshader = _fn->glCreateShader( GL_VERTEX_SHADER );
 
   stringstream ss;
-  ss << "precision " << _capabilities.precision << " float;" << endl << vertexShader;
+  ss << "precision " << _capabilities.precisionS() << " float;" << endl << vertexShader;
   const char *vsource = ss.str().data();
   _fn->glShaderSource(vshader, 1, &vsource, nullptr);
 
-  ss << "precision " << _capabilities.precision << " float;" << endl << fragmentShader;
+  ss << "precision " << _capabilities.precisionS() << " float;" << endl << fragmentShader;
   const char *fsource = ss.str().data();
   _fn->glShaderSource(fshader, 1, &fsource, nullptr);
 
@@ -172,34 +200,6 @@ void FlareRenderer::init()
 
   _data = new Data(_fn, _program);
 }
-
-struct Data
-{
-  GLint vertex_att;
-  GLint uv_att;
-
-  GLint renderType;
-  GLint map;
-  GLint occlusionMap;
-  GLint opacity;
-  GLint color;
-  GLint scale;
-  GLint rotation;
-  GLint screenPosition;
-
-  Data(QOpenGLFunctions *f, GLuint program) {
-     vertex_att = f->glGetAttribLocation(program, "position" );
-     uv_att = f->glGetAttribLocation( program, "uv" );
-     renderType = f->glGetUniformLocation(program, "renderType" ),
-     map = f->glGetUniformLocation( program, "map" );
-     occlusionMap = f->glGetUniformLocation( program, "occlusionMap" );
-     opacity = f->glGetUniformLocation( program, "opacity" );
-     color = f->glGetUniformLocation( program, "color" );
-     scale = f->glGetUniformLocation( program, "scale" );
-     rotation = f->glGetUniformLocation( program, "rotation" );
-     screenPosition = f->glGetUniformLocation( program, "screenPosition" );
-  }
-};
 
 void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
                            Scene::Ptr scene, Camera::Ptr camera, const Vector4 &viewport)
@@ -241,8 +241,8 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
   _fn->glUniform1i( _data->map, 1 );
 
   _fn->glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer );
-  _fn->glVertexAttribPointer( _data->vertex_att, 2, gl.FLOAT, false, 2 * 8, 0 );
-  _fn->glVertexAttribPointer( _data->uv_att, 2, gl.FLOAT, false, 2 * 8, 8 );
+  _fn->glVertexAttribPointer( _data->vertex_att, 2, GL_FLOAT, false, 2 * 8, (const void *)0 );
+  _fn->glVertexAttribPointer( _data->uv_att, 2, GL_FLOAT, false, 2 * 8, (const void *)8 );
 
   _fn->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );
 
@@ -250,6 +250,10 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
   _state.depthBuffer.setMask( false );
 
   for (LensFlare::Ptr flare : flares) {
+
+    size = 16 / viewport.w();
+    scale.set( size * invAspect, size );
+
     // calc object screen position
 
     tempPosition.set( flare->matrixWorld().elements()[ 12 ],
@@ -270,7 +274,7 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
 
     // screen cull
 
-    if ( validArea.containsPoint( screenPositionPixels ) === true ) {
+    if ( validArea.containsPoint( screenPositionPixels )) {
 
       // save current RGB to temp texture
 
@@ -314,44 +318,31 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
 
       flare->setScreenPosition(screenPosition);
 
-      if ( flare.customUpdateCallback ) {
-
-        flare.customUpdateCallback( flare );
-
-      } else {
-
-        flare.updateLensFlares();
-
-      }
-
       // render flares
 
       _fn->glUniform1i( _data->renderType, 2 );
       _state.enable( GL_BLEND );
 
-      for ( var j = 0, jl = flare.lensFlares.length; j < jl; j ++ ) {
-
-        var sprite = flare.lensFlares[ j ];
+      for (const LensFlare::Flare &sprite : flare->flares()) {
 
         if ( sprite.opacity > 0.001 && sprite.scale > 0.001 ) {
 
           screenPosition.set(sprite.x, sprite.y, sprite.z);
 
-          size = sprite.size * sprite.scale / viewport.w;
+          size = sprite.size * sprite.scale / viewport.w();
 
-          scale.x = size * invAspect;
-          scale.y = size;
+          scale.set(size * invAspect, size);
 
-          _fn->glUniform3f( _data->screenPosition, screenPosition.x, screenPosition.y, screenPosition.z );
-          _fn->glUniform2f( _data->scale, scale.x, scale.y );
+          _fn->glUniform3f( _data->screenPosition, screenPosition.x(), screenPosition.y(), screenPosition.z());
+          _fn->glUniform2f( _data->scale, scale.x(), scale.y());
           _fn->glUniform1f( _data->rotation, sprite.rotation );
 
           _fn->glUniform1f( _data->opacity, sprite.opacity );
           _fn->glUniform3f( _data->color, sprite.color.r, sprite.color.g, sprite.color.b );
 
-          _state.setBlending( sprite.blending, sprite.blendEquation, sprite.blendSrc, sprite.blendDst );
+          _state.setBlending(sprite.blending);
 
-          _textures.setTexture2D( sprite.texture, 1 );
+          _textures.setTexture2D(sprite.texture, 1);
 
           _fn->glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 

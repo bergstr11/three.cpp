@@ -13,9 +13,7 @@ namespace three {
 
 class LensFlare : public Object3D
 {
-  math::Vector3 _positionScreen;
-  //customUpdateCallback
-
+public:
   struct Flare {
     Texture::Ptr texture; // THREE.Texture
     size_t size;          // size in pixels (-1 = use texture.width)
@@ -30,9 +28,12 @@ class LensFlare : public Object3D
     Flare(Texture::Ptr texture, size_t size, float distance, unsigned int x, unsigned int y,
           unsigned int z, float scale, float rotation, float opacity, const Color &color,
           Blending blending) : texture(texture), size(size), distance(distance), x(x), y(y), z(z), scale(scale),
-                                     rotation(rotation), opacity(opacity), color(color), blending(blending)
+                               rotation(rotation), opacity(opacity), color(color), blending(blending)
     {}
   };
+
+private:
+  math::Vector3 _positionScreen;
 
   std::vector<Flare> _flares;
 
@@ -45,6 +46,10 @@ public:
     return Ptr(new LensFlare());
   }
 
+  std::function<void(LensFlare *)> customUpdateCallback;
+
+  const std::vector<LensFlare::Flare> flares() const {return _flares;}
+
   LensFlare &add(Texture::Ptr texture, size_t size, float distance,
                  Blending blending=Blending::Normal, const Color &color=Color(0xffffff), float opacity=1.0f)
   {
@@ -55,6 +60,18 @@ public:
   }
 
   math::Vector3 &positionScreen() {return _positionScreen;}
+
+  void setScreenPosition(const math::Vector3 &screenPosition)
+  {
+    _positionScreen = screenPosition;
+
+    if (customUpdateCallback) {
+      customUpdateCallback(this);
+    }
+    else {
+      updateLensFlares();
+    }
+  }
 
   /*
    * Update lens flares update positions on all flares based on the screen position
