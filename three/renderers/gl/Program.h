@@ -36,8 +36,6 @@ class Program : private QOpenGLFunctions
 {
   static unsigned programIdCount;
 
-  unsigned _id;
-
   GLuint _program;
 
   Renderer_impl &_renderer;
@@ -49,7 +47,7 @@ class Program : private QOpenGLFunctions
 public:
   using Ptr = std::shared_ptr<Program>;
 
-  unsigned id() const {return _id;}
+  GLuint id() const {return _program;}
 
   Uniforms::Ptr getUniforms()
   {

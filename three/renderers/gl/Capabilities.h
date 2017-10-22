@@ -36,6 +36,7 @@ struct Capabilities
 
   GLint maxAnisotropy = -1;
   Precision maxPrecision;
+  Precision precision;
 
 public:
   Capabilities(QOpenGLFunctions *fn, Extensions &extensions, Parameters &parameters)
@@ -58,7 +59,7 @@ public:
     floatFragmentTextures = _extensions.get(Extension::OES_texture_float);
     floatVertexTextures = vertexTextures && floatFragmentTextures;
 
-    Precision precision = _parameters.precision;
+    precision = _parameters.precision;
     maxPrecision = getMaxPrecision( precision );
 
     if ( maxPrecision != precision ) {

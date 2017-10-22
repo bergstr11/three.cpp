@@ -54,6 +54,8 @@ public:
     return *this;
   }
 
+  math::Vector3 &positionScreen() {return _positionScreen;}
+
   /*
    * Update lens flares update positions on all flares based on the screen position
    * Set myLensFlare.customUpdateCallback to alter the flares in your project specific way.
