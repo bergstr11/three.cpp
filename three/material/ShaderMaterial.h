@@ -44,8 +44,8 @@ private:
   {
     this->depthTest = depthTest;
     this->depthWrite = depthWrite;
-    this->_fog = fog;
-    this->_side = side;
+    this->fog = fog;
+    this->side = side;
   }
 
   ShaderMaterial(bool morphTargets, bool skinning) : Material(), uniforms({})

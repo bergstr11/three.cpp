@@ -16,8 +16,8 @@ using namespace math;
 
 struct FlareRenderer::Data
 {
-  GLuint vertex_att;
-  GLuint uv_att;
+  GLint position_att;
+  GLint uv_att;
 
   GLint renderType;
   GLint map;
@@ -29,10 +29,10 @@ struct FlareRenderer::Data
   GLint screenPosition;
 
   Data(QOpenGLFunctions *f, GLuint program) {
-    vertex_att = f->glGetAttribLocation(program, "position" );
+    position_att = f->glGetAttribLocation(program, "position" );
     uv_att = f->glGetAttribLocation( program, "uv" );
-    renderType = f->glGetUniformLocation(program, "renderType" ),
-       map = f->glGetUniformLocation( program, "map" );
+    renderType = f->glGetUniformLocation(program, "renderType" );
+    map = f->glGetUniformLocation( program, "map" );
     occlusionMap = f->glGetUniformLocation( program, "occlusionMap" );
     opacity = f->glGetUniformLocation( program, "opacity" );
     color = f->glGetUniformLocation( program, "color" );
@@ -91,8 +91,6 @@ void FlareRenderer::init()
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
   static const char * vertexShader =
-     "'precision {precision} float;\n"
-
      "uniform lowp int renderType;\n"
   
      "uniform vec3 screenPosition;\n"
@@ -186,6 +184,7 @@ void FlareRenderer::init()
   const char *vsource = ss.str().data();
   _fn->glShaderSource(vshader, 1, &vsource, nullptr);
 
+  ss.clear();
   ss << "precision " << _capabilities.precisionS() << " float;" << endl << fragmentShader;
   const char *fsource = ss.str().data();
   _fn->glShaderSource(fshader, 1, &fsource, nullptr);
@@ -230,7 +229,7 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
   _state.useProgram(_program);
 
   _state.initAttributes();
-  _state.enableAttribute( _data->vertex_att );
+  _state.enableAttribute( _data->position_att );
   _state.enableAttribute( _data->uv_att );
   _state.disableUnusedAttributes();
 
@@ -241,7 +240,7 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
   _fn->glUniform1i( _data->map, 1 );
 
   _fn->glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer );
-  _fn->glVertexAttribPointer( _data->vertex_att, 2, GL_FLOAT, false, 2 * 8, (const void *)0 );
+  _fn->glVertexAttribPointer( _data->position_att, 2, GL_FLOAT, false, 2 * 8, (const void *)0 );
   _fn->glVertexAttribPointer( _data->uv_att, 2, GL_FLOAT, false, 2 * 8, (const void *)8 );
 
   _fn->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );

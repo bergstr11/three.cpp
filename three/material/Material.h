@@ -24,7 +24,7 @@ struct Material
   bool lights = true;
 
   Blending blending = Blending::Normal;
-  Side _side = Side::Front;
+  Side side = Side::Front;
   bool flatShading = false;
   Colors vertexColors = Colors::None;
 
@@ -75,17 +75,14 @@ struct Material
 
   bool needsUpdate = true;
 
-  Texture::Ptr _map;
+  Texture::Ptr map;
 
-  Texture::Ptr _alphaMap;
+  Texture::Ptr alphaMap;
 
-  Texture::Ptr _displacementMap;
+  Texture::Ptr displacementMap;
 
-  float _displacementScale = 1;
-  float _displacementBias = 0;
-
-  bool _fog = false;
-  bool _lights = false;
+  float displacementScale = 1;
+  float displacementBias = 0;
 
   Material() : uuid(sole::uuid0()) {}
 

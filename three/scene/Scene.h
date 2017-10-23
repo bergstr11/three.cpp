@@ -14,11 +14,11 @@ namespace three {
 
 class Scene : public Object3D
 {
-  Fog _fog;
+  Fog::Ptr _fog;
   bool _autoUpdate;
 
 protected:
-  Scene(scene::ResolverBase::Ptr resolver, const Fog &fog) : _fog(fog) {}
+  Scene(scene::ResolverBase::Ptr resolver, const Fog::Ptr fog) : _fog(fog) {}
   Scene(scene::ResolverBase::Ptr resolver) {}
 
 public:
@@ -31,9 +31,9 @@ public:
 
   Material::Ptr overrideMaterial;
 
-  const Fog &fog() const {return _fog;}
+  const Fog::Ptr fog() const {return _fog;}
 
-  Fog &fog() {return _fog;}
+  Fog::Ptr fog() {return _fog;}
 
   bool autoUpdate() const {return _autoUpdate;}
 };
@@ -44,14 +44,14 @@ class SceneBase : public Scene
   _Background _background;
 
 protected:
-  SceneBase(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog &fog)
+  SceneBase(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog::Ptr &fog)
      : Scene(resolver, fog), _background(background) {}
   SceneBase(typename scene::Resolver<_Background>::Ptr resolver)
      : Scene(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<SceneBase<_Background>>;
-  static Ptr make(const _Background &background, const Fog &fog) {
+  static Ptr make(const _Background &background, const Fog::Ptr &fog) {
     return Ptr(new SceneBase(scene::Resolver<_Background>::make(&background), background, fog));
   }
 

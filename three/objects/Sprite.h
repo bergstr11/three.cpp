@@ -22,17 +22,19 @@ struct Intersect
   {}
 };
 
-class Sprite : public Object3D
+class Sprite : public Object3DBase<SpriteMaterial>
 {
   Material::Ptr _material;
 
-  explicit Sprite(Material::Ptr material)
-     : Object3D(object::Resolver<Sprite>::make(*this)), _material(material)
+  explicit Sprite(SpriteMaterial::Ptr material)
+     : Object3DBase(object::Resolver<Sprite>::make(*this), material)
   {}
 
 public:
-  static Ptr make(Material::Ptr material = SpriteMaterial::make())
-  { return Ptr(new Sprite(material)); }
+  using Ptr = std::shared_ptr<Sprite>;
+  static Ptr make(SpriteMaterial::Ptr material = SpriteMaterial::make()) {
+    return Ptr(new Sprite(material));
+  }
 
   void raycast(Raycaster raycaster, std::vector<Intersect> &intersects)
   {

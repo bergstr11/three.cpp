@@ -50,11 +50,11 @@ class MeshBase : public Mesh, public Object3DBase<Mat>
 
 protected:
   MeshBase(const Geometry::Ptr &geometry, std::shared_ptr<Mat> material)
-     : Object3DBase<Mat>(geometry, material), _drawMode(DrawMode::Triangles)
+     : Object3DBase<Mat>(geometry, defaultResolver(), material), _drawMode(DrawMode::Triangles)
   {
   }
 
-  MeshBase() : Object3DBase<Mat>(BufferGeometry::make(), Mat::make()), _drawMode(DrawMode::Triangles)
+  MeshBase() : Object3DBase<Mat>(BufferGeometry::make(), defaultResolver(), Mat::make()), _drawMode(DrawMode::Triangles)
   {
   }
 

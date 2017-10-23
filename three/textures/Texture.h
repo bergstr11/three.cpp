@@ -87,6 +87,9 @@ public:
 
   Signal<void(TextureBase *)> onDispose;
 
+  const math::Vector2 &offset() const {return _offset;}
+  const math::Vector2 &repeat() const {return _repeat;}
+
   unsigned version() const {return _version;}
 
   TextureFormat format() const {return _format;}

@@ -153,5 +153,22 @@ MK_VOID_RESOLVER(_void)
 
 }
 
+class DefaultFog;
+class FogExp2;
+
+namespace fog {
+
+struct Functions
+{
+  ResolveFunc<DefaultFog> fogDefault;
+  ResolveFunc<FogExp2> fogExp2;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(DefaultFog, fogDefault)
+MK_RESOLVER(FogExp2, fogExp2)
+
+}
 }
 #endif //THREE_QT_RESOLVER_H

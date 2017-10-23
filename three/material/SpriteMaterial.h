@@ -11,6 +11,11 @@ namespace three {
 
 class SpriteMaterial : public Material
 {
+  Color _color = {255, 255, 255};
+  Texture::Ptr _map = nullptr;
+
+  float _rotation = 0;
+
   SpriteMaterial()
   {
     this->_morphTargets = false;
@@ -20,6 +25,14 @@ class SpriteMaterial : public Material
 public:
   using Ptr = std::shared_ptr<SpriteMaterial>;
   static Ptr make() {return Ptr(new SpriteMaterial());}
+
+  bool fog = false;
+  bool lights = false;
+  
+  const Color &color() const {return _color;}
+  const Texture::Ptr map() const {return _map;}
+
+  float rotation() const {return _rotation;}
 };
 }
 #endif //THREE_QT_SPRITEMATERIAL_H

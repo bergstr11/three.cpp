@@ -232,7 +232,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   result->visible = material->visible;
   result->wireframe = material->wireframe;
 
-  Side side = material->_side;
+  Side side = material->side;
 
   if ( _renderSingleSided && side == Side::Double ) {
 
@@ -246,7 +246,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     else if ( side == Side::Back ) side = Side::Front;
   }
 
-  result->_side = side;
+  result->side = side;
 
   result->clipShadows = material->clipShadows;
   result->clippingPlanes = material->clippingPlanes;
