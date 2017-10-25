@@ -13,10 +13,10 @@ class DataTexture : public TextureBase
 {
 public:
   struct Options : public TextureBase::Options {
-    magFilter = TextureFilter ::Nearest;
-    minFilter = TextureFilter ::Nearest;
-
-    Options() {}
+    Options() {
+      magFilter = TextureFilter ::Nearest;
+      minFilter = TextureFilter ::Nearest;
+    }
   };
 
 protected:

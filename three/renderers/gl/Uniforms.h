@@ -45,9 +45,9 @@ public:
   const std::string &id() const {return _id;}
 
   // Single scalar
-  void setValue1f(GLfloat v) { _fn->glUniform1f( _addr, v ); }
+  void setValue(GLfloat v) { _fn->glUniform1f( _addr, v ); }
 
-  void setValue1i(GLint v) { _fn->glUniform1i( _addr, v ); }
+  void setValue(GLint v) { _fn->glUniform1i( _addr, v ); }
 
   void setValue(const math::Vector2 &v) {
     _fn->glUniform2fv(_addr, 2, v.elements());

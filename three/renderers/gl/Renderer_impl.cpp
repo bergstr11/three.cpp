@@ -288,8 +288,8 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   object->modelViewMatrix = camera->matrixWorldInverse() * object->matrixWorld();
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
-  if ( object.isImmediateRenderObject ) {
-
+  object::Functions func;
+  /*func.immediate = [&] (ImmediateRenderObject &iro) {
     _state.setMaterial( material );
 
     var program = setProgram( camera, scene->fog(), material, object );
@@ -297,11 +297,11 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
     _currentGeometryProgram = '';
 
     renderObjectImmediate( object, program, material );
-  }
-  else {
-
+  };*/
+  func._void = [&] () {
     renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
-  }
+  };
+  object->resolver->call(func);
 
   object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
 }
@@ -576,6 +576,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
 {
+#if 0
   _usedTextureUnits = 0;
 
   auto &materialProperties = _properties.get( material );
@@ -773,78 +774,57 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniformsFog( m_uniforms, fog );
     }
 
-    if ( material.isMeshBasicMaterial ) {
-
+    material::Functions mfuncs;
+    mfuncs.meshBasic = [&](MeshBasicMaterial &mbm) {
       refreshUniformsCommon( m_uniforms, material );
-
-    } else if ( material.isMeshLambertMaterial ) {
-
+    };
+    mfuncs.meshLambert = [&] (MeshLambertMaterial &mlm) {
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsLambert( m_uniforms, material );
-
-    } else if ( material.isMeshPhongMaterial ) {
-
+    };
+    mfuncs.meshPhong = [&](MeshPhongMaterial &mpm) {
       refreshUniformsCommon( m_uniforms, material );
-
-      if ( material.isMeshToonMaterial ) {
-
-        refreshUniformsToon( m_uniforms, material );
-
-      } else {
-
-        refreshUniformsPhong( m_uniforms, material );
-
-      }
-
-    } else if ( material.isMeshStandardMaterial ) {
-
+      refreshUniformsPhong( m_uniforms, material );
+    };
+    mfuncs.meshToon = [&](MeshToonMaterial &mtm) {
       refreshUniformsCommon( m_uniforms, material );
-
-      if ( material.isMeshPhysicalMaterial ) {
-
-        refreshUniformsPhysical( m_uniforms, material );
-
-      } else {
-
-        refreshUniformsStandard( m_uniforms, material );
-
-      }
-
-    } else if ( material.isMeshDepthMaterial ) {
-
+      refreshUniformsToon( m_uniforms, material );
+    };
+    mfuncs.meshStandard = [&] (MeshStandardMaterial &msm) {
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsStandard( m_uniforms, material );
+    };
+    mfuncs.meshPysical= [&](MeshPhysicalMaterial &mdm) {
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsPhysical( m_uniforms, material );
+    };
+    mfuncs.meshDepth = [&](MeshDepthMaterial &mdm) {
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsDepth( m_uniforms, material );
-
-    } else if ( material.isMeshDistanceMaterial ) {
-
+    };
+    mfuncs.meshDistance = [&](MeshDistanceMaterial &mdm) {
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsDistance( m_uniforms, material );
-
-    } else if ( material.isMeshNormalMaterial ) {
-
+    };
+    mfuncs.meshNormal = [&](MeshNormalMaterial &mnm) {
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsNormal( m_uniforms, material );
-
-    } else if ( material.isLineBasicMaterial ) {
-
+    };
+    mfuncs.lineBasic = [&](LineBasicMaterial &lbm) {
       refreshUniformsLine( m_uniforms, material );
-
-      if ( material.isLineDashedMaterial ) {
-
-        refreshUniformsDash( m_uniforms, material );
-
-      }
-
-    } else if ( material.isPointsMaterial ) {
-
+    };
+    mfuncs.lineDashed = [&](LineDashedMaterial &ldm) {
+      refreshUniformsLine( m_uniforms, material );
+      refreshUniformsDash( m_uniforms, material );
+    };
+    mfuncs.points = [&] (PointsMaterial &pm) {
       refreshUniformsPoints( m_uniforms, material );
-
-    } else if ( material.isShadowMaterial ) {
-
-      m_uniforms.color.value = material.color;
-      m_uniforms.opacity.value = material.opacity;
-
-    }
+    };
+    mfuncs.shadow = [&] (ShadowMaterial &sm) {
+      m_uniforms->color.value = material.color;
+      m_uniforms->opacity.value = material.opacity;
+    };
+    material->resolver->call(mfuncs);
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation
@@ -854,17 +834,16 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     WebGLUniforms.upload(
        _gl, materialProperties.uniformsList, m_uniforms, _this );
-
   }
 
-
   // common matrices
-
   p_uniforms->get("modelViewMatrix")->setValue(object->modelViewMatrix );
   p_uniforms->get("normalMatrix")->setValue(object->normalMatrix );
   p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
 
   return program;
+#endif
+  return nullptr;
 }
 
 }

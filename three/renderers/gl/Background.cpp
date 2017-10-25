@@ -72,7 +72,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     planeMesh->material<0>()->map = tex;
 
     // TODO Push this to renderList
-    renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry(), planeMesh->material(), planeMesh, Group());
+    renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry(), planeMesh->material(), planeMesh, nullptr);
   };
   scene->resolver->call(functions);
 }
