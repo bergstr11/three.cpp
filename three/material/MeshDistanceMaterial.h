@@ -18,6 +18,7 @@ class MeshDistanceMaterial : public Material
   float _farDistance = 1000;
 
   MeshDistanceMaterial(bool morphing, bool skinning)
+     : Material(material::Resolver<MeshDistanceMaterial>::make(*this))
   {
     this->_morphTargets = morphing;
     this->_morphNormals = morphing;

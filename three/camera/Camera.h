@@ -10,6 +10,7 @@
 #include <math/Quaternion.h>
 #include <math/Ray.h>
 #include <core/Object3D.h>
+#include <renderers/Resolver.h>
 
 namespace three {
 
@@ -33,15 +34,19 @@ protected:
   math::Matrix4 _matrixWorldInverse;
   math::Matrix4 _projectionMatrix;
 
-  Camera() : _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
+  Camera(camera::ResolverBase::Ptr resolver)
+     : resolver(resolver), _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
 
+  Camera()
+     : resolver(camera::Resolver<Camera>::make(*this)), _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
 public:
   using Ptr = std::shared_ptr<Camera>;
 
+  camera::ResolverBase::Ptr resolver;
+
   const math::Matrix4 &projectionMatrix() const {return _projectionMatrix;}
-  //math::Matrix4 &projectionMatrix() {return _projectionMatrix;}
+
   const math::Matrix4 &matrixWorldInverse() const {return _matrixWorldInverse;}
-  //math::Matrix4 &matrixWorldInverse() {return _matrixWorldInverse;}
 
   math::Vector3 getWorldDirection() const override
   {

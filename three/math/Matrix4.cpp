@@ -60,6 +60,11 @@ Matrix4 &Matrix4::setPosition(const Vector3 &v)
   return *this;
 }
 
+Vector3 Matrix4::getPosition()
+{
+  return Vector3(_elements[12], _elements[13], _elements[14]);
+}
+
 Matrix4 &Matrix4::setBasis(Vector3 &xAxis, Vector3 &yAxis, Vector3 &zAxis)
 {
   set(

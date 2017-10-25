@@ -47,7 +47,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
     boxMesh->material<0>()->uniforms.set<tCube>(tex);
 
-    renderList->push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, -1);
+    renderList->push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, nullptr);
   };
   functions.texture = [&] (Texture::Ptr &tex) {
 

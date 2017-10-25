@@ -22,11 +22,6 @@ struct MeshBasicMaterial : public Material
   //aoMap = null;
   float aoMapIntensity = 1.0;
 
-  //specularMap = null;
-
-  //alphaMap = null;
-
-  //envMap = null;
   CombineOperation combine = CombineOperation::Multiply;
   float reflectivity = 1;
   float refractionRatio = 0.98;
@@ -48,7 +43,7 @@ private:
     this->skinning = skinning;
   }
 
-  MeshBasicMaterial() : Material()
+  MeshBasicMaterial() : Material(material::Resolver<MeshBasicMaterial>::make(*this))
   {}
 
 public:

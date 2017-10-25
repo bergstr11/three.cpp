@@ -45,6 +45,9 @@ public:
     return enabled;
   }
 
+  size_t numPlanes() const
+  { return _numPlanes; }
+
   size_t numIntersection() const
   { return _numIntersection; }
 

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <sstream>
+#include "Renderer_impl.h"
 
 namespace three {
 namespace gl {
@@ -76,17 +77,17 @@ void SpriteRenderer::init()
      0, 2, 3
   };
 
-  _fn->glGenBuffers(1, &_vertexBuffer);
-  _fn->glGenBuffers(1, &_elementBuffer);
+  _r.glGenBuffers(1, &_vertexBuffer);
+  _r.glGenBuffers(1, &_elementBuffer);
 
-  _fn->glBindBuffer( GL_ARRAY_BUFFER, _vertexBuffer );
-  _fn->glBufferData( GL_ARRAY_BUFFER, 16 * sizeof(float), vertices.data(), GL_STATIC_DRAW );
+  _r.glBindBuffer( GL_ARRAY_BUFFER, _vertexBuffer );
+  _r.glBufferData( GL_ARRAY_BUFFER, 16 * sizeof(float), vertices.data(), GL_STATIC_DRAW );
 
-  _fn->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );
-  _fn->glBufferData( GL_ELEMENT_ARRAY_BUFFER, 12, faces.data(), GL_STATIC_DRAW );
+  _r.glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );
+  _r.glBufferData( GL_ELEMENT_ARRAY_BUFFER, 12, faces.data(), GL_STATIC_DRAW );
 
-  GLuint vshader = _fn->glCreateShader( GL_VERTEX_SHADER );
-  GLuint fshader = _fn->glCreateShader( GL_FRAGMENT_SHADER );
+  GLuint vshader = _r.glCreateShader( GL_VERTEX_SHADER );
+  GLuint fshader = _r.glCreateShader( GL_FRAGMENT_SHADER );
 
   static const char * vertexShader =
      "#define SHADER_NAME SpriteMaterial"
@@ -128,7 +129,7 @@ void SpriteRenderer::init()
   stringstream ss;
   ss << "precision " << _capabilities.precisionS() << " float;" << endl << vertexShader;
   const char *vsource = ss.str().data();
-  _fn->glShaderSource(vshader, 1, &vsource, nullptr);
+  _r.glShaderSource(vshader, 1, &vsource, nullptr);
 
   static const char * fragmentShader =
     "#define SHADER_NAME  SpriteMaterial"
@@ -180,15 +181,15 @@ void SpriteRenderer::init()
   ss.clear();
   ss << "precision " << _capabilities.precisionS() << " float;" << endl << fragmentShader;
   const char *fsource = ss.str().data();
-  _fn->glShaderSource(fshader, 1, &fsource, nullptr);
+  _r.glShaderSource(fshader, 1, &fsource, nullptr);
 
-  _fn->glCompileShader(vshader);
-  _fn->glCompileShader(fshader);
+  _r.glCompileShader(vshader);
+  _r.glCompileShader(fshader);
 
-  _fn->glAttachShader( _program, vshader );
-  _fn->glAttachShader( _program, fshader );
+  _r.glAttachShader( _program, vshader );
+  _r.glAttachShader( _program, fshader );
 
-  _fn->glLinkProgram( _program );
+  _r.glLinkProgram( _program );
 
   /*var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
   canvas.width = 8;
@@ -221,17 +222,17 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
   _state.disable( GL_CULL_FACE );
   _state.enable( GL_BLEND );
 
-  _fn->glBindBuffer( GL_ARRAY_BUFFER, _vertexBuffer );
-  _fn->glVertexAttribPointer( _data->position_att, 2, GL_FLOAT, GL_FALSE, 2 * 8, (const void *)0 );
-  _fn->glVertexAttribPointer( _data->uv_att, 2, GL_FLOAT, GL_FALSE, 2 * 8, (const void *)8 );
+  _r.glBindBuffer( GL_ARRAY_BUFFER, _vertexBuffer );
+  _r.glVertexAttribPointer( _data->position_att, 2, GL_FLOAT, GL_FALSE, 2 * 8, (const void *)0 );
+  _r.glVertexAttribPointer( _data->uv_att, 2, GL_FLOAT, GL_FALSE, 2 * 8, (const void *)8 );
 
-  _fn->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );
+  _r.glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _elementBuffer );
 
-  _fn->glUniformMatrix4fv(_data->projectionMatrix, sizeof(camera->projectionMatrix()), GL_FALSE,
+  _r.glUniformMatrix4fv(_data->projectionMatrix, sizeof(camera->projectionMatrix()), GL_FALSE,
                           camera->projectionMatrix().elements());
 
   _state.activeTexture( GL_TEXTURE0 );
-  _fn->glUniform1i( _data->map, 0 );
+  _r.glUniform1i( _data->map, 0 );
 
   GLint oldFogType = 0;
   GLint sceneFogType = 0;
@@ -239,29 +240,29 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
   if ( fog ) {
 
-    _fn->glUniform3f( _data->fogColor, fog->color().r, fog->color().g, fog->color().b );
+    _r.glUniform3f( _data->fogColor, fog->color().r, fog->color().g, fog->color().b );
 
     fog::Functions funcs;
     funcs.fogDefault = [&](DefaultFog &df) {
 
-      _fn->glUniform1f( _data->fogNear, df.near() );
-      _fn->glUniform1f( _data->fogFar, df.far() );
+      _r.glUniform1f( _data->fogNear, df.near() );
+      _r.glUniform1f( _data->fogFar, df.far() );
 
-      _fn->glUniform1i( _data->fogType, 1 );
+      _r.glUniform1i( _data->fogType, 1 );
       oldFogType = 1;
       sceneFogType = 1;
     };
     funcs.fogExp2 = [&] (FogExp2 &fe) {
-      _fn->glUniform1f( _data->fogDensity, fe.density() );
+      _r.glUniform1f( _data->fogDensity, fe.density() );
 
-      _fn->glUniform1i( _data->fogType, 2 );
+      _r.glUniform1i( _data->fogType, 2 );
       oldFogType = 2;
       sceneFogType = 2;
     };
   }
   else {
 
-    _fn->glUniform1i( _data->fogType, 0 );
+    _r.glUniform1i( _data->fogType, 0 );
     oldFogType = 0;
     sceneFogType = 0;
 
@@ -302,10 +303,10 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
     if (!material->visible) continue;
 
-    //sprite->onBeforeRender(renderer, scene, camera, nullptr, material, nullptr);
+    sprite->onBeforeRender.emitSignal(_r, scene, camera, nullptr, material, nullptr);
 
-    _fn->glUniform1f( _data->alphaTest, material->alphaTest );
-    _fn->glUniformMatrix4fv(_data->modelViewMatrix, 1, GL_FALSE, sprite->modelViewMatrix.elements() );
+    _r.glUniform1f( _data->alphaTest, material->alphaTest );
+    _r.glUniformMatrix4fv(_data->modelViewMatrix, 1, GL_FALSE, sprite->modelViewMatrix.elements() );
 
     sprite->matrixWorld().decompose( _spritePosition, _spriteRotation, _spriteScale );
 
@@ -316,27 +317,27 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
     if ( oldFogType != fogType ) {
 
-      _fn->glUniform1i( _data->fogType, fogType );
+      _r.glUniform1i( _data->fogType, fogType );
       oldFogType = fogType;
     }
 
     if (material->map()) {
 
-      _fn->glUniform2f( _data->uvOffset, material->map()->offset().x(), material->map()->offset().y());
-      _fn->glUniform2f( _data->uvScale, material->map()->repeat().x(), material->map()->repeat().y());
+      _r.glUniform2f( _data->uvOffset, material->map()->offset().x(), material->map()->offset().y());
+      _r.glUniform2f( _data->uvScale, material->map()->repeat().x(), material->map()->repeat().y());
 
     } else {
 
-      _fn->glUniform2f( _data->uvOffset, 0, 0 );
-      _fn->glUniform2f( _data->uvScale, 1, 1 );
+      _r.glUniform2f( _data->uvOffset, 0, 0 );
+      _r.glUniform2f( _data->uvScale, 1, 1 );
 
     }
 
-    _fn->glUniform1f( _data->opacity, material->opacity);
-    _fn->glUniform3f( _data->color, material->color().r, material->color().g, material->color().b );
+    _r.glUniform1f( _data->opacity, material->opacity);
+    _r.glUniform3f( _data->color, material->color().r, material->color().g, material->color().b );
 
-    _fn->glUniform1f( _data->rotation, material->rotation() );
-    _fn->glUniform2fv(_data->scale, 1, scale);
+    _r.glUniform1f( _data->rotation, material->rotation() );
+    _r.glUniform2fv(_data->scale, 1, scale);
 
     _state.setBlending( material->blending, material->blendEquation, material->blendSrc, material->blendDst,
                         material->blendEquationAlpha, material->blendSrcAlpha, material->blendDstAlpha,
@@ -350,9 +351,9 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
     else if(_texture)
     _textures.setTexture2D( _texture, 0 );
 
-    _fn->glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
+    _r.glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 
-    //sprite->onAfterRender( renderer, scene, camera, nullptr, material, nullptr );
+    sprite->onAfterRender.emitSignal( _r, scene, camera, nullptr, material, nullptr );
   }
 
   // restore gl

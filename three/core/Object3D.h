@@ -12,6 +12,7 @@
 #include <array>
 
 #include <helper/sole.h>
+#include <helper/simplesignal.h>
 #include <math/Euler.h>
 #include <math/Quaternion.h>
 #include <math/Matrix4.h>
@@ -22,8 +23,12 @@
 
 namespace three {
 
+class Renderer;
 class Raycaster;
 class Intersection;
+class Scene;
+using ScenePtr = std::shared_ptr<Scene>;
+using CameraPtr = std::shared_ptr<Camera>;
 
 class Object3D
 {
@@ -44,8 +49,6 @@ protected:
   math::Euler _rotation;
   math::Quaternion _quaternion;
   math::Vector3 _scale {1, 1, 1};
-
-  math::Matrix4 _normalMatrix;
 
   math::Matrix4 _matrix = math::Matrix4::identity();
   math::Matrix4 _matrixWorld = math::Matrix4::identity();
@@ -69,7 +72,12 @@ protected:
 public:
   const object::ResolverBase::Ptr resolver;
 
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onBeforeRender;
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onAfterRender;
+
   math::Matrix4 modelViewMatrix;
+  math::Matrix3 normalMatrix;
+
   bool castShadow = false;
   bool receiveShadow = false;
   bool frustumCulled = true;

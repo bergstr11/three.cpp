@@ -14,12 +14,14 @@
 namespace three {
 namespace gl {
 
+class Renderer_impl;
+
 class SpriteRenderer
 {
   class Data;
   Data *_data = nullptr;
 
-  QOpenGLFunctions * const _fn;
+  Renderer_impl &_r;
   State &_state;
   Textures &_textures;
   Capabilities &_capabilities;
@@ -39,8 +41,8 @@ class SpriteRenderer
   void init();
 
 public:
-  SpriteRenderer(QOpenGLFunctions * fn, State &state, Textures &textures, Capabilities &capabilities)
-     : _fn(fn), _state(state), _textures(textures), _capabilities(capabilities) {}
+  SpriteRenderer(Renderer_impl &r, State &state, Textures &textures, Capabilities &capabilities)
+     : _r(r), _state(state), _textures(textures), _capabilities(capabilities) {}
 
   ~SpriteRenderer();
 

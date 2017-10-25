@@ -31,7 +31,9 @@ class PerspectiveCamera : public Camera
   } _view;
 
 protected:
-  PerspectiveCamera( float fov, float aspect, float near, float far );
+  PerspectiveCamera( float fov, float aspect, float near, float far, camera::ResolverBase::Ptr resolver);
+
+  PerspectiveCamera( float fov, float aspect, float near, float far);
 
 public:
   using Ptr = std::shared_ptr<PerspectiveCamera>;

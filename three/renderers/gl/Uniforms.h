@@ -90,6 +90,7 @@ public:
     _fn->glUniform2iv(_addr, Sz, v.data());
   }
 
+  virtual Uniform *asUniform() {return this;}
   virtual UniformContainer *asContainer() {return nullptr;}
 };
 
@@ -121,9 +122,6 @@ public:
     _sequence.push_back(uniform->id());
     _map[uniform->id()] = uniform;
   }
-
-  virtual QOpenGLFunctions * fn() const = 0;
-  virtual const std::string &id() const = 0;
 };
 
 class StructuredUniform : public Uniform, public UniformContainer
@@ -138,17 +136,8 @@ public:
     return Ptr(new StructuredUniform(fn, id, type, addr));
   }
 
+  Uniform *asUniform() override {return nullptr;}
   UniformContainer *asContainer() override {return this;}
-
-  const std::string &id() const override
-  {
-    return Uniform::id();
-  }
-
-  QOpenGLFunctions *fn() const override
-  {
-    return nullptr;
-  }
 };
 
 /**
@@ -237,7 +226,7 @@ class Uniforms : public UniformContainer
   // Texture unit allocation
   std::vector<int32_t> &allocTexUnits(Renderer_impl &renderer, size_t n);
 
-  static void parseUniform(GLuint program, unsigned index, UniformContainer *container);
+  void parseUniform(GLuint program, unsigned index, UniformContainer *container);
 
   Uniforms(QOpenGLFunctions * fn, GLuint program) : _fn(fn)
   {
@@ -257,8 +246,12 @@ public:
     return Ptr(new Uniforms(fn, program));
   }
 
-  QOpenGLFunctions * fn() const override {return _fn;}
-  const std::string &id() const override {return _id;}
+  Uniform *get(const char *name)
+  {
+    if(_map.find(name) != _map.end()) {
+      return _map[name]->asUniform();
+    }
+  }
 };
 
 }

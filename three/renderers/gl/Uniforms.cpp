@@ -35,8 +35,8 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   GLint *size;
   GLenum *type;
 
-  container->fn()->glGetActiveUniform( program, index, bufSize, length, size, type, uname);
-  GLint addr = container->fn()->glGetUniformLocation(program, uname);
+  _fn->glGetActiveUniform( program, index, bufSize, length, size, type, uname);
+  GLint addr = _fn->glGetUniformLocation(program, uname);
 
   string name(uname);
   sregex_iterator rex_it(name.cbegin(), name.cend(), rex);
@@ -52,13 +52,13 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
     if(!match[3].matched || match[3].second == name.end()) {
       // bare name or "pure" bottom-level array "[0]" suffix
       container->add(match[3].matched ?
-          Uniform::make(container->fn(), id, (UniformType)*type, addr) :
-          ArrayUniform::make(container->fn(), id, (UniformType)*type, addr));
+          Uniform::make(_fn, id, (UniformType)*type, addr) :
+          ArrayUniform::make(_fn, id, (UniformType)*type, addr));
     }
     else {
       // step into inner node / create it in case it doesn't exist
       if(container->_map.find(id) == container->_map.end()) {
-        StructuredUniform::Ptr next = StructuredUniform::make(container->fn(), id, (UniformType)*type, addr);
+        StructuredUniform::Ptr next = StructuredUniform::make(_fn, id, (UniformType)*type, addr);
         container->add(next);
       }
       container = container->_map[id]->asContainer();

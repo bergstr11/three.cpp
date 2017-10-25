@@ -20,8 +20,7 @@
 #define DEF_RESOLVER() \
 struct ResolverBase  { \
   using Ptr = std::shared_ptr<ResolverBase>; \
-  virtual void call(Functions &functions) const {} \
-  virtual void call(Functions &functions, unsigned index) const {} \
+  virtual bool call(Functions &functions) const {} \
 }; \
 template <typename L> \
 class Resolver {};
@@ -31,9 +30,9 @@ template <> \
 struct Resolver<Clz> : public ResolverBase \
 { \
   Clz &target; \
-  Resolver(Clz &target) : target(target) {} \
+  explicit Resolver(Clz &target) : target(target) {} \
   static Ptr make(Clz &target) {return Ptr(new Resolver<Clz>(target));} \
-  void call(Functions &f) const override {f.func(target);} \
+  bool call(Functions &f) const override {if(f.func) {f.func(target); return true;} return false;} \
 };
 
 #define MK_VOID_RESOLVER(func) \
@@ -41,8 +40,27 @@ template <> \
 struct Resolver<void> : public ResolverBase \
 { \
   static Ptr make() {return Ptr(new Resolver<void>());} \
-  void call(Functions &f) const override {f.func();} \
+  bool call(Functions &f) const override {if(f.func) {f.func(); return true;} return false;} \
 };
+
+#define MK_BOOL_RESOLVER() \
+template <> \
+struct Resolver<bool> : public ResolverBase \
+{ \
+  bool what; \
+  explicit Resolver(bool what) : what(what) {} \
+  static Ptr make(bool what) {return Ptr(new Resolver<bool>(what));} \
+  bool call(Functions &f) const override {return what;} \
+};
+
+namespace resolver {
+
+template <typename L>
+using Func = std::function<void(L &)>;
+
+using Void = std::function<void()>;
+
+}
 
 namespace three {
 
@@ -53,21 +71,16 @@ class PointLight;
 class RectAreaLight;
 class SpotLight;
 
-template <typename L>
-using ResolveFunc = std::function<void(L &)>;
-
-using VoidFunc = std::function<void()>;
-
 namespace light {
 
 struct Functions
 {
-  ResolveFunc<AmbientLight> ambient;
-  ResolveFunc<DirectionalLight> directional;
-  ResolveFunc<HemisphereLight> hemisphere;
-  ResolveFunc<PointLight> point;
-  ResolveFunc<RectAreaLight> rectarea;
-  ResolveFunc<SpotLight> spot;
+  resolver::Func<AmbientLight> ambient;
+  resolver::Func<DirectionalLight> directional;
+  resolver::Func<HemisphereLight> hemisphere;
+  resolver::Func<PointLight> point;
+  resolver::Func<RectAreaLight> rectarea;
+  resolver::Func<SpotLight> spot;
 };
 
 DEF_RESOLVER()
@@ -89,10 +102,10 @@ namespace scene {
 
 struct Functions
 {
-  ResolveFunc<std::shared_ptr<CubeTexture>> cubeTexture;
-  ResolveFunc<std::shared_ptr<Texture>> texture;
-  ResolveFunc<Color> color;
-  VoidFunc _void;
+  resolver::Func<std::shared_ptr<CubeTexture>> cubeTexture;
+  resolver::Func<std::shared_ptr<Texture>> texture;
+  resolver::Func<Color> color;
+  resolver::Void _void;
 };
 
 DEF_RESOLVER()
@@ -108,6 +121,7 @@ class Light;
 class Sprite;
 class LensFlare;
 class Mesh;
+class SkinnedMesh;
 class Line;
 class Points;
 
@@ -115,13 +129,14 @@ namespace object {
 
 struct Functions
 {
-  ResolveFunc<Light> light;
-  ResolveFunc<Sprite> sprite;
-  ResolveFunc<LensFlare> lensFlare;
-  ResolveFunc<Mesh> mesh;
-  ResolveFunc<Line> line;
-  ResolveFunc<Points> points;
-  VoidFunc _void;
+  resolver::Func<Light> light;
+  resolver::Func<Sprite> sprite;
+  resolver::Func<LensFlare> lensFlare;
+  resolver::Func<Mesh> mesh;
+  resolver::Func<SkinnedMesh> skinnedMesh;
+  resolver::Func<Line> line;
+  resolver::Func<Points> points;
+  resolver::Void _void;
 };
 
 DEF_RESOLVER()
@@ -142,8 +157,8 @@ namespace bufferattribute {
 
 struct Functions
 {
-  ResolveFunc<InterleavedBufferAttribute> interleaved;
-  VoidFunc _void;
+  resolver::Func<InterleavedBufferAttribute> interleaved;
+  resolver::Void _void;
 };
 
 DEF_RESOLVER()
@@ -160,14 +175,73 @@ namespace fog {
 
 struct Functions
 {
-  ResolveFunc<DefaultFog> fogDefault;
-  ResolveFunc<FogExp2> fogExp2;
+  resolver::Func<DefaultFog> fogDefault;
+  resolver::Func<FogExp2> fogExp2;
 };
 
 DEF_RESOLVER()
 
 MK_RESOLVER(DefaultFog, fogDefault)
 MK_RESOLVER(FogExp2, fogExp2)
+
+}
+
+class Camera;
+class ArrayCamera;
+class PerspectiveCamera;
+
+namespace camera {
+
+struct Functions
+{
+  resolver::Func<ArrayCamera> array;
+  resolver::Func<PerspectiveCamera> perspective;
+  resolver::Func<Camera> base;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(PerspectiveCamera, perspective)
+MK_RESOLVER(ArrayCamera, array)
+MK_RESOLVER(Camera, base)
+
+}
+
+class Material;
+class ShaderMaterial;
+class MeshPhongMaterial;
+class MeshDepthMaterial;
+class MeshStandardMaterial;
+class MeshDistanceMaterial;
+class MeshLambertMaterial;
+class MeshBasicMaterial;
+class SpriteMaterial;
+
+namespace material {
+
+struct Functions
+{
+  resolver::Func<ShaderMaterial> shader;
+  resolver::Func<MeshPhongMaterial> meshPhong;
+  resolver::Func<MeshDepthMaterial> meshDepth;
+  resolver::Func<MeshDistanceMaterial> meshDistance;
+  resolver::Func<MeshStandardMaterial> meshStandard;
+  resolver::Func<MeshLambertMaterial> meshLambert;
+  resolver::Func<MeshBasicMaterial> meshBasic;
+  resolver::Func<SpriteMaterial> sprite;
+};
+
+DEF_RESOLVER()
+
+MK_RESOLVER(ShaderMaterial, shader);
+MK_RESOLVER(MeshPhongMaterial, meshPhong);
+MK_RESOLVER(MeshDepthMaterial, meshDepth);
+MK_RESOLVER(MeshDistanceMaterial, meshDistance);
+MK_RESOLVER(MeshStandardMaterial, meshStandard);
+MK_RESOLVER(MeshLambertMaterial, meshLambert);
+MK_RESOLVER(MeshBasicMaterial, meshBasic);
+MK_RESOLVER(SpriteMaterial, sprite);
+MK_BOOL_RESOLVER()
 
 }
 }

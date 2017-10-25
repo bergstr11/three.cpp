@@ -10,6 +10,7 @@
 #include <math/Frustum.h>
 #include <objects/Sprite.h>
 #include <objects/LensFlare.h>
+#include <camera/ArrayCamera.h>
 #include "RenderTarget.h"
 #include "BufferRenderer.h"
 #include "SpriteRenderer.h"
@@ -30,7 +31,7 @@
 namespace three {
 namespace gl {
 
-class Renderer_impl : public OpenGLRenderer, private QOpenGLExtraFunctions
+class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -74,7 +75,7 @@ protected:
   unsigned _currentGeometryProgram = 0;
 
   Camera::Ptr _currentCamera;
-  Camera::Ptr _currentArrayCamera;
+  ArrayCamera::Ptr _currentArrayCamera;
 
   math::Vector4 _currentViewport;
   math::Vector4 _currentScissor;
@@ -164,6 +165,11 @@ protected:
                      Camera::Ptr camera,
                      Material::Ptr overrideMaterial);
 
+  void renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
+                    Material::Ptr material, Group *group );
+
+  GLuint setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object );
+
 public:
   // clearing
   bool autoClear = true;
@@ -188,7 +194,7 @@ public:
                           Geometry::Ptr geometry,
                           Material::Ptr material,
                           Object3D::Ptr object,
-                          const Group &group);
+                          const Group *group);
 };
 
 }

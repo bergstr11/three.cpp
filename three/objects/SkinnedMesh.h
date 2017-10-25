@@ -13,10 +13,10 @@ namespace three {
 class SkinnedMesh : public MeshBase<Material>
 {
   //BindMode bindMode = BindMode::attached;
-  math::Matrix4 bindMatrix;
-  math::Matrix4 bindMatrixInverse;
+  math::Matrix4 _bindMatrix;
+  math::Matrix4 _bindMatrixInverse;
 
-  Skeleton _skeleton;
+  Skeleton::Ptr _skeleton;
 
 protected:
   SkinnedMesh(const Geometry::Ptr &geometry, const Material::Ptr &material)
@@ -29,7 +29,10 @@ public:
     return Ptr(new SkinnedMesh(geometry, material));
   }
 
-  const Skeleton &skeleton() const {return _skeleton;}
+  const Skeleton::Ptr skeleton() const {return _skeleton;}
+
+  const math::Matrix4 &bindMatrix() const {return _bindMatrix;}
+  const math::Matrix4 &bindMatrixInverse() const {return _bindMatrixInverse;}
 };
 
 };

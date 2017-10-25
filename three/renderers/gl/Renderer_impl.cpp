@@ -3,6 +3,9 @@
 //
 
 #include "Renderer_impl.h"
+#include <renderers/Resolver.h>
+#include <math/Math.h>
+#include <textures/DataTexture.h>
 
 namespace three {
 
@@ -21,7 +24,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
      _bufferRenderer(this, this, _extensions, _infoRender),
      _indexedRenderer(this, this, _extensions, _infoRender),
-     _spriteRenderer(this, _state, _textures, _capabilities),
+     _spriteRenderer(*this, _state, _textures, _capabilities),
      _flareRenderer(this, _state, _textures, _capabilities)
 {
 
@@ -234,85 +237,74 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   }
 }
 
-void renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera, Material::Ptr overrideMaterial)
+void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera, Material::Ptr overrideMaterial)
 {
-#if 0
-  for ( var i = 0, l = renderList.length; i < l; i ++ ) {
+  while(renderIterator) {
 
-    var renderItem = renderList[ i ];
+    const RenderItem &renderItem = *renderIterator;
 
-    var object = renderItem.object;
-    var geometry = renderItem.geometry;
-    var material = overrideMaterial === undefined ? renderItem.material : overrideMaterial;
-    var group = renderItem.group;
+    //var object = renderItem.object;
+    //var geometry = renderItem.geometry;
+    Material::Ptr material = overrideMaterial ? renderItem.material : overrideMaterial;
+    //var group = renderItem.group;
 
-    if ( camera.isArrayCamera ) {
+    camera::Functions funcs;
+    funcs.array = [&](ArrayCamera &acamera) {
+      _currentArrayCamera = std::dynamic_pointer_cast<ArrayCamera>(camera);
 
-      _currentArrayCamera = camera;
+      for ( unsigned j = 0; j < acamera.cameraCount; j ++ ) {
 
-      var cameras = camera.cameras;
+        PerspectiveCamera::Ptr camera2 = acamera[ j ];
 
-      for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
+        if ( renderItem.object->layers().test( camera2->layers() ) ) {
 
-        var camera2 = cameras[ j ];
-
-        if ( object.layers.test( camera2.layers ) ) {
-
-          var bounds = camera2.bounds;
+          /*var bounds = camera2->bounds;
 
           var x = bounds.x * _width;
           var y = bounds.y * _height;
           var width = bounds.z * _width;
           var height = bounds.w * _height;
 
-          state.viewport( _currentViewport.set( x, y, width, height ).multiplyScalar( _pixelRatio ) );
+          _state.viewport( _currentViewport.set( x, y, width, height ).multiplyScalar( _pixelRatio ) );*/
 
-          renderObject( object, scene, camera2, geometry, material, group );
-
+          renderObject( renderItem.object, scene, camera2, renderItem.geometry, material, renderItem.group );
         }
-
       }
+    };
+    funcs.base = [&] (Camera &cam) {
+      _currentArrayCamera = nullptr;
 
-    } else {
-
-      _currentArrayCamera = null;
-
-      renderObject( object, scene, camera, geometry, material, group );
-
-    }
-
+      renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
+    };
+    camera->resolver->call(funcs);
   }
-#endif
 }
 
-#if 0
-function renderObject( object, scene, camera, geometry, material, group ) {
+void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
+                  Material::Ptr material, Group *group)
+{
+  object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
 
-  object.onBeforeRender( _this, scene, camera, geometry, material, group );
-
-  object.modelViewMatrix.multiplyMatrices( camera.matrixWorldInverse, object.matrixWorld );
-  object.normalMatrix.getNormalMatrix( object.modelViewMatrix );
+  object->modelViewMatrix = camera->matrixWorldInverse() * object->matrixWorld();
+  object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
   if ( object.isImmediateRenderObject ) {
 
-    state.setMaterial( material );
+    _state.setMaterial( material );
 
-    var program = setProgram( camera, scene.fog, material, object );
+    var program = setProgram( camera, scene->fog(), material, object );
 
     _currentGeometryProgram = '';
 
     renderObjectImmediate( object, program, material );
+  }
+  else {
 
-  } else {
-
-    _this.renderBufferDirect( camera, scene.fog, geometry, material, object, group );
-
+    renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
   }
 
-  object.onAfterRender( _this, scene, camera, geometry, material, group );
-
+  object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
 }
-#endif
 
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )
 {
@@ -419,7 +411,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
                                        Geometry::Ptr geometry,
                                        Material::Ptr material,
                                        Object3D::Ptr object,
-                                       const Group &group)
+                                       const Group *group)
 {
 #if 0
   state.setMaterial( material );
@@ -580,6 +572,302 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
   }
 #endif
+}
+
+GLuint Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
+{
+  _usedTextureUnits = 0;
+
+  auto &materialProperties = _properties.get( material );
+
+  if ( _clippingEnabled ) {
+
+    if ( _localClippingEnabled || camera != _currentCamera ) {
+
+      bool useCache = camera == _currentCamera && material->id() == _currentMaterialId;
+
+      // we might want to call this function with some ClippingGroup
+      // object instead of the material, once it becomes feasible
+      // (#8465, #8379)
+      _clipping.setState(
+         material->clippingPlanes, material->clipIntersection, material->clipShadows,
+         camera, materialProperties, useCache );
+    }
+  }
+
+  if (!material->needsUpdate) {
+
+    if (!materialProperties.program) {
+
+      material->needsUpdate = true;
+
+    } else if ( material->fog && materialProperties.fog != fog ) {
+
+      material->needsUpdate = true;
+
+    } else if ( material->lights && materialProperties.lightsHash != _lights.state.hash) {
+
+      material->needsUpdate = true;
+
+    } else if ( materialProperties.numClippingPlanes != nullptr &&
+       ( materialProperties.numClippingPlanes != _clipping.numPlanes() ||
+          materialProperties.numIntersection != _clipping.numIntersection ) ) {
+
+      material->needsUpdate = true;
+    }
+  }
+
+  if ( material->needsUpdate ) {
+
+    initMaterial( material, fog, object );
+    material->needsUpdate = false;
+  }
+
+  bool refreshProgram = false;
+  bool refreshMaterial = false;
+  bool refreshLights = false;
+
+  Program::Ptr program = materialProperties.program;
+  Uniforms::Ptr p_uniforms = program->getUniforms();
+  Uniforms::Ptr m_uniforms = materialProperties.shader.uniforms;
+
+  if (_state.useProgram(program->id()) ) {
+
+    refreshProgram = true;
+    refreshMaterial = true;
+    refreshLights = true;
+
+  }
+
+  if ( material->id() != _currentMaterialId ) {
+
+    _currentMaterialId = material->id();
+
+    refreshMaterial = true;
+  }
+
+  if ( refreshProgram || camera != _currentCamera ) {
+
+    p_uniforms->get("projectionMatrix")->setValue(camera->projectionMatrix());
+
+    if (_capabilities.logarithmicDepthBuffer) {
+
+      p_uniforms->get("logDepthBufFC")->setValue(2.0 / ( std::log( camera->far() + 1.0 ) / M_LN2 ) );
+    }
+
+    // Avoid unneeded uniform updates per ArrayCamera's sub-camera
+
+    if(_currentArrayCamera && _currentCamera != _currentArrayCamera || _currentCamera != camera) {
+      _currentCamera = _currentArrayCamera ? _currentArrayCamera : camera;
+
+      // lighting uniforms depend on the camera so enforce an update
+      // now, in case this material supports lights - or later, when
+      // the next material that does gets activated:
+
+      refreshMaterial = true;		// set to true on material change
+      refreshLights = true;		// remains set until update done
+    }
+
+    // load material specific uniforms
+    // (shader material also gets them for the sake of genericity)
+
+    resolver::Func<Material> fmat = [&] (Material &mat) {
+
+      Uniform *uCamPos = p_uniforms->get("cameraPosition");
+
+      if(uCamPos) {
+        _vector3 = camera->matrixWorld().getPosition();
+        uCamPos->setValue(_vector3);
+      }
+    };
+    material::Functions funcs;
+    funcs.shader = funcs.meshPhong = funcs.meshStandard = fmat;
+    if(!material->resolver->call(funcs) && material->envMap) {
+      fmat(*material.get());
+    }
+
+    fmat = [&] (Material &mat) {
+
+      p_uniforms->get("viewMatrix")->setValue(camera->matrixWorldInverse() );
+    };
+    material::Functions funcs2;
+    funcs2.meshPhong = funcs2.meshLambert = funcs2.meshBasic = funcs.meshStandard = fmat = funcs2.shader = fmat;
+    if(!material->resolver->call(funcs2) && material->skinning) {
+      fmat(*material.get());
+    }
+  }
+
+  // skinning uniforms must be set even if material didn't change
+  // auto-setting of texture unit for bone texture must go before other textures
+  // not sure why, but otherwise weird things happen
+
+  if ( material->skinning ) {
+
+    object::Functions funcs;
+    funcs.skinnedMesh = [&] (SkinnedMesh &m) {
+      p_uniforms->get("bindMatrix")->setValue(m.bindMatrix());
+      p_uniforms->get("bindMatrixInverse")->setValue(m.bindMatrixInverse());
+
+      if (m.skeleton()) {
+
+        if (_capabilities.floatVertexTextures ) {
+
+          if (m.skeleton()->boneTexture()) {
+
+            // layout (1 matrix = 4 pixels)
+            //      RGBA RGBA RGBA RGBA (=> column1, column2, column3, column4)
+            //  with  8x8  pixel texture max   16 bones * 4 pixels =  (8 * 8)
+            //       16x16 pixel texture max   64 bones * 4 pixels = (16 * 16)
+            //       32x32 pixel texture max  256 bones * 4 pixels = (32 * 32)
+            //       64x64 pixel texture max 1024 bones * 4 pixels = (64 * 64)
+
+
+            auto &bones = m.skeleton()->bones();
+            float size = std::sqrt( bones.size() * 4 ); // 4 pixels needed for 1 matrix
+            size = math::ceilPowerOfTwo( size );
+            size = std::max( size, 4 );
+
+            m.skeleton()->boneMatrices().resize(size * size * 4); // 4 floats per RGBA pixel
+
+            DataTexture::Ptr boneTexture = DataTexture::make(m.skeleton()->boneMatrices(),
+                                                             size, size, TextureFormat::RGBA, TextureType::Float );
+
+            m.skeleton()->setBoneTexture(boneTexture);
+            m.skeleton()->setBoneTextureSize(size);
+          }
+
+          p_uniforms->get("boneTexture")->setValue(m.skeleton()->boneTexture() );
+          p_uniforms->get("boneTextureSize")->setValue(m.skeleton()->boneTextureSize() );
+
+        } else {
+          if(!m.skeleton()->boneMatrices().empty())
+            p_uniforms->get("boneMatrices")->setValue(m.skeleton()->boneMatrices().data());
+        }
+      }
+    };
+  }
+
+  if ( refreshMaterial ) {
+
+    p_uniforms.setValue( _gl, 'toneMappingExposure', _this.toneMappingExposure );
+    p_uniforms.setValue( _gl, 'toneMappingWhitePoint', _this.toneMappingWhitePoint );
+
+    if ( material.lights ) {
+
+      // the current material requires lighting info
+
+      // note: all lighting uniforms are always set correctly
+      // they simply reference the renderer's state for their
+      // values
+      //
+      // use the current material's .needsUpdate flags to set
+      // the GL state when required
+
+      markUniformsLightsNeedsUpdate( m_uniforms, refreshLights );
+
+    }
+
+    // refresh uniforms common to several materials
+
+    if ( fog && material.fog ) {
+
+      refreshUniformsFog( m_uniforms, fog );
+
+    }
+
+    if ( material.isMeshBasicMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+
+    } else if ( material.isMeshLambertMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsLambert( m_uniforms, material );
+
+    } else if ( material.isMeshPhongMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+
+      if ( material.isMeshToonMaterial ) {
+
+        refreshUniformsToon( m_uniforms, material );
+
+      } else {
+
+        refreshUniformsPhong( m_uniforms, material );
+
+      }
+
+    } else if ( material.isMeshStandardMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+
+      if ( material.isMeshPhysicalMaterial ) {
+
+        refreshUniformsPhysical( m_uniforms, material );
+
+      } else {
+
+        refreshUniformsStandard( m_uniforms, material );
+
+      }
+
+    } else if ( material.isMeshDepthMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsDepth( m_uniforms, material );
+
+    } else if ( material.isMeshDistanceMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsDistance( m_uniforms, material );
+
+    } else if ( material.isMeshNormalMaterial ) {
+
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsNormal( m_uniforms, material );
+
+    } else if ( material.isLineBasicMaterial ) {
+
+      refreshUniformsLine( m_uniforms, material );
+
+      if ( material.isLineDashedMaterial ) {
+
+        refreshUniformsDash( m_uniforms, material );
+
+      }
+
+    } else if ( material.isPointsMaterial ) {
+
+      refreshUniformsPoints( m_uniforms, material );
+
+    } else if ( material.isShadowMaterial ) {
+
+      m_uniforms.color.value = material.color;
+      m_uniforms.opacity.value = material.opacity;
+
+    }
+
+    // RectAreaLight Texture
+    // TODO (mrdoob): Find a nicer implementation
+
+    if ( m_uniforms.ltcMat !== undefined ) m_uniforms.ltcMat.value = UniformsLib.LTC_MAT_TEXTURE;
+    if ( m_uniforms.ltcMag !== undefined ) m_uniforms.ltcMag.value = UniformsLib.LTC_MAG_TEXTURE;
+
+    WebGLUniforms.upload(
+       _gl, materialProperties.uniformsList, m_uniforms, _this );
+
+  }
+
+
+  // common matrices
+
+  p_uniforms.setValue( _gl, 'modelViewMatrix', object.modelViewMatrix );
+  p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
+  p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
+
+  return program;
+
 }
 
 }

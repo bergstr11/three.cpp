@@ -152,7 +152,7 @@ class Properties
   std::unordered_map<sole::uuid, std::unordered_map<PropertyKey, Property>> properties = {};
 
 public:
-  std::unordered_map<PropertyKey, Property> get(const sole::uuid &uuid)
+  std::unordered_map<PropertyKey, Property> &get(const sole::uuid &uuid)
   {
     if(properties.find(uuid) == properties.end())
       properties.emplace(uuid, std::unordered_map<PropertyKey, Property>());
@@ -170,13 +170,13 @@ public:
   }
 
   template <typename T>
-  std::unordered_map<PropertyKey, Property> get(const T *object)
+  std::unordered_map<PropertyKey, Property> &get(const T *object)
   {
     return get(object->uuid);
   }
 
   template <typename T>
-  std::unordered_map<PropertyKey, Property> get(const std::shared_ptr<T> object)
+  std::unordered_map<PropertyKey, Property> &get(const std::shared_ptr<T> object)
   {
     return get(object->uuid);
   }

@@ -105,6 +105,16 @@ inline int nearestPowerOfTwo(int value)
   return std::pow( 2, std::round( std::log( value ) / M_LN2 ) );
 }
 
+inline int ceilPowerOfTwo(float value)
+{
+  return std::pow( 2, std::ceil( std::log( value ) / M_LN2 ) );
+}
+
+inline int floorPowerOfTwo(float value)
+{
+  return std::pow( 2, std::floor( std::log( value ) / M_LN2 ) );
+}
+
 inline int nextPowerOfTwo(int value )
 {
   value --;

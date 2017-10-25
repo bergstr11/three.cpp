@@ -10,6 +10,7 @@
 #include <textures/Texture.h>
 #include <helper/sole.h>
 #include <math/Plane.h>
+#include <renderers/Resolver.h>
 
 namespace three {
 
@@ -65,6 +66,12 @@ struct Material
   unsigned alphaTest = 0;
   bool premultipliedAlpha = false;
 
+  Texture::Ptr specularMap;
+
+  Texture::Ptr alphaMap;
+
+  Texture::Ptr envMap;
+
   bool _skinning = false;
   bool _morphTargets = false;
   bool _morphNormals = false;
@@ -84,7 +91,10 @@ struct Material
   float displacementScale = 1;
   float displacementBias = 0;
 
-  Material() : uuid(sole::uuid0()) {}
+  material::ResolverBase::Ptr resolver;
+
+  Material(material::ResolverBase::Ptr resolver=material::Resolver<bool>::make(false))
+     : uuid(sole::uuid0()), resolver(resolver) {}
 
   using Ptr = std::shared_ptr<Material>;
 
