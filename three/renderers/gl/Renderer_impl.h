@@ -168,7 +168,7 @@ protected:
   void renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
                     Material::Ptr material, Group *group );
 
-  GLuint setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object );
+  Program::Ptr setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object );
 
 public:
   // clearing

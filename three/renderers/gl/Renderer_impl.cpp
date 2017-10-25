@@ -574,7 +574,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 #endif
 }
 
-GLuint Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
+Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
 {
   _usedTextureUnits = 0;
 
@@ -749,10 +749,10 @@ GLuint Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr
 
   if ( refreshMaterial ) {
 
-    p_uniforms.setValue( _gl, 'toneMappingExposure', _this.toneMappingExposure );
-    p_uniforms.setValue( _gl, 'toneMappingWhitePoint', _this.toneMappingWhitePoint );
+    p_uniforms->get("toneMappingExposure")->setValue(_toneMappingExposure );
+    p_uniforms->get("toneMappingWhitePoint")->setValue(_toneMappingWhitePoint );
 
-    if ( material.lights ) {
+    if ( material->lights ) {
 
       // the current material requires lighting info
 
@@ -764,15 +764,13 @@ GLuint Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr
       // the GL state when required
 
       markUniformsLightsNeedsUpdate( m_uniforms, refreshLights );
-
     }
 
     // refresh uniforms common to several materials
 
-    if ( fog && material.fog ) {
+    if ( fog && material->fog ) {
 
       refreshUniformsFog( m_uniforms, fog );
-
     }
 
     if ( material.isMeshBasicMaterial ) {
@@ -862,12 +860,11 @@ GLuint Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr
 
   // common matrices
 
-  p_uniforms.setValue( _gl, 'modelViewMatrix', object.modelViewMatrix );
-  p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
-  p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
+  p_uniforms->get("modelViewMatrix")->setValue(object->modelViewMatrix );
+  p_uniforms->get("normalMatrix")->setValue(object->normalMatrix );
+  p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
 
   return program;
-
 }
 
 }

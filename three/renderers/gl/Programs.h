@@ -25,8 +25,8 @@ public:
 
   unsigned allocateBones(SkinnedMesh::Ptr object) 
   {
-    const Skeleton &skeleton = object->skeleton();
-    const std::vector<Bone::Ptr> bones = skeleton.bones();
+    const Skeleton::Ptr skeleton = object->skeleton();
+    const std::vector<Bone::Ptr> bones = skeleton->bones();
 
     if (_capabilities.floatVertexTextures ) {
       return 1024;

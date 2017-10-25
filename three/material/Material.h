@@ -84,8 +84,6 @@ struct Material
 
   Texture::Ptr map;
 
-  Texture::Ptr alphaMap;
-
   Texture::Ptr displacementMap;
 
   float displacementScale = 1;
