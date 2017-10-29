@@ -64,13 +64,11 @@ protected:
   Geometry::Ptr _geometry;
 
 protected:
-  static const object::ResolverBase::Ptr defaultResolver() {return object::Resolver<void>::make();}
-
-  Object3D(const object::ResolverBase::Ptr &resolver=defaultResolver());
-  Object3D(const Geometry::Ptr &geometry, const object::ResolverBase::Ptr &resolver=defaultResolver());
+  Object3D(object::Resolver::Ptr resolver=nullptr);
+  Object3D(const Geometry::Ptr &geometry, const object::Resolver::Ptr resolver=nullptr);
 
 public:
-  const object::ResolverBase::Ptr resolver;
+  const object::Resolver::Ptr objectResolver;
 
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onBeforeRender;
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onAfterRender;
@@ -300,10 +298,10 @@ class Object3DBase : public virtual Object3D
   std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
 
 protected:
-  Object3DBase(const object::ResolverBase::Ptr &resolver, std::shared_ptr<Mat> ... args)
+  Object3DBase(const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
      : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}) {
   }
-  Object3DBase(Geometry::Ptr geometry, const object::ResolverBase::Ptr &resolver, std::shared_ptr<Mat> ... args)
+  Object3DBase(Geometry::Ptr geometry, const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
      : Object3D(geometry, resolver), _materialsTuple(args...), _materialsArray({args...}) {
   }
 

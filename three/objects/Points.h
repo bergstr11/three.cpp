@@ -11,7 +11,7 @@ namespace three {
 
 class Points : public Object3D
 {
-  Points() : Object3D(object::Resolver<Points>::make(*this)) {}
+  Points() : Object3D(object::ResolverT<Points>::make(*this)) {}
 public:
   bool renderable() const override {return true;}
 };

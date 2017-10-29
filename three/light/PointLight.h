@@ -17,7 +17,7 @@ class PointLight : public Light
 
 protected:
   PointLight(const Color &color, float intensity, float distance, float angle)
-     : Light(light::Resolver<PointLight>::make(*this), color, intensity, distance, angle)
+     : Light(light::ResolverT<PointLight>::make(*this), color, intensity, distance, angle)
   {
     _shadow = CameraShadow<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }

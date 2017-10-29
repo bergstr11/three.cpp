@@ -72,7 +72,7 @@ protected:
   Renderer::Target::Ptr _currentRenderTarget = nullptr;
   GLuint _currentFramebuffer = UINT_MAX;
   int _currentMaterialId = -1;
-  unsigned _currentGeometryProgram = 0;
+  std::string _currentGeometryProgram;
 
   Camera::Ptr _currentCamera;
   ArrayCamera::Ptr _currentArrayCamera;
@@ -90,9 +90,9 @@ protected:
 
   Textures _textures;
 
-  BufferRenderer _bufferRenderer;
+  DefaultBufferRenderer _bufferRenderer;
 
-  IndexedBufferRenderer _indexedRenderer;
+  IndexedBufferRenderer _indexedBufferRenderer;
 
   SpriteRenderer _spriteRenderer;
 
@@ -153,6 +153,8 @@ protected:
 
   void initContext();
 
+  void initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object);
+
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
   void doRender(const Scene::Ptr &scene,
@@ -190,8 +192,8 @@ public:
   unsigned allocTextureUnit();
 
   void renderBufferDirect(Camera::Ptr camera,
-                          const Fog *fog,
-                          Geometry::Ptr geometry,
+                          Fog::Ptr fog,
+                          BufferGeometry::Ptr geometry,
                           Material::Ptr material,
                           Object3D::Ptr object,
                           const Group *group);

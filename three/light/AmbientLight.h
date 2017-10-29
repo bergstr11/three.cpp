@@ -13,7 +13,7 @@ class AmbientLight : public Light
 {
 public:
   AmbientLight(const Color &color, float intensity, float distance, float angle)
-     : Light(light::Resolver<AmbientLight>::make(*this), color, intensity, distance, angle)
+     : Light(light::ResolverT<AmbientLight>::make(*this), color, intensity, distance, angle)
   {}
 };
 

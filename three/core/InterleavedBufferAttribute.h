@@ -20,7 +20,7 @@ class InterleavedBufferAttribute : public BufferAttribute
 
 public:
   InterleavedBufferAttribute(InterleavedBuffer &buffer, unsigned itemSize, unsigned offset, bool normalized=true)
-     : BufferAttribute(bufferattribute::Resolver<InterleavedBufferAttribute>::make(*this)),
+     : BufferAttribute(bufferattribute::ResolverT<InterleavedBufferAttribute>::make(*this)),
        _data(buffer), _itemSize(itemSize), _offset(offset), _normalized(normalized) {}
 
   unsigned count() const {return _data.count();}

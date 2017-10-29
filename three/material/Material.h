@@ -89,9 +89,9 @@ struct Material
   float displacementScale = 1;
   float displacementBias = 0;
 
-  material::ResolverBase::Ptr resolver;
+  material::Resolver::Ptr resolver;
 
-  Material(material::ResolverBase::Ptr resolver=material::Resolver<bool>::make(false))
+  Material(material::Resolver::Ptr resolver=material::ResolverT<Material>::make(*this))
      : uuid(sole::uuid0()), resolver(resolver) {}
 
   using Ptr = std::shared_ptr<Material>;

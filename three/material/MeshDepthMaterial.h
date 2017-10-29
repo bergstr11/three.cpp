@@ -32,7 +32,7 @@ class MeshDepthMaterial : public Material
   bool _lights = false;
 
   MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning)
-     : Material(material::Resolver<MeshDepthMaterial>::make(*this)), _depthPacking(packing)
+     : Material(material::ResolverT<MeshDepthMaterial>::make(*this)), _depthPacking(packing)
   {
     this->_morphTargets = morphing;
     this->_morphNormals = morphing;

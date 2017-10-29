@@ -21,15 +21,17 @@ class Mesh : public virtual Object3D
 
 protected:
   Mesh(const Geometry::Ptr &geometry)
-     : Object3D(geometry, object::Resolver<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
+     : Object3D(geometry, object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
-  Mesh() : Object3D(BufferGeometry::make(), object::Resolver<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3D(BufferGeometry::make(), object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
 
 public:
   using Ptr = std::shared_ptr<Mesh>;
 
   Signal<void()> onBeforeRender;
+
+  DrawMode drawMode() const {return _drawMode;}
 
   bool renderable() const override {return true;}
 
@@ -43,18 +45,16 @@ public:
 template <typename Mat>
 class MeshBase : public Mesh, public Object3DBase<Mat>
 {
-  DrawMode _drawMode;
-
   std::vector<float> _morphTargetInfluences;
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
   MeshBase(const Geometry::Ptr &geometry, std::shared_ptr<Mat> material)
-     : Object3DBase<Mat>(geometry, defaultResolver(), material), _drawMode(DrawMode::Triangles)
+     : Object3DBase<Mat>(geometry, nullptr, material), _drawMode(DrawMode::Triangles)
   {
   }
 
-  MeshBase() : Object3DBase<Mat>(BufferGeometry::make(), defaultResolver(), Mat::make()), _drawMode(DrawMode::Triangles)
+  MeshBase() : Object3DBase<Mat>(BufferGeometry::make(), nullptr, Mat::make()), _drawMode(DrawMode::Triangles)
   {
   }
 

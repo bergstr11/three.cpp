@@ -16,7 +16,7 @@ class SpriteMaterial : public Material
 
   float _rotation = 0;
 
-  SpriteMaterial() : Material(material::Resolver<SpriteMaterial>::make(*this))
+  SpriteMaterial() : Material(material::ResolverT<SpriteMaterial>::make(*this))
   {
     this->_morphTargets = false;
     this->_morphNormals = false;

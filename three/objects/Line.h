@@ -8,19 +8,17 @@
 #include <core/Object3D.h>
 #include <material/Material.h>
 #include <core/Raycaster.h>
+#include <material/LineMaterial.h>
 
 namespace three {
 
-class Line : public Object3D
+class Line : public Object3DBase<LineBasicMaterial>
 {
-  Geometry::Ptr _geometry;
-  Material::Ptr _material;
-
   const unsigned _steps;
 
 protected:
-  Line(Geometry::Ptr geometry, Material::Ptr material, unsigned steps)
-     : Object3D(object::Resolver<Line>::make(*this)), _steps(steps), _geometry(geometry), _material(material) {}
+  Line(Geometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
+     : Object3DBase(geometry, object::Resolver<Line>::make(*this), material), _steps(steps) {}
 
 public:
   Line(Geometry::Ptr geometry, Material::Ptr material) : Line(geometry, material, 1) {}

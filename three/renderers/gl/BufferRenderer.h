@@ -15,7 +15,7 @@
 namespace three {
 namespace gl {
 
-class BufferRendererCommon
+class BufferRenderer
 {
 protected:
   DrawMode _mode;
@@ -24,29 +24,32 @@ protected:
   Extensions &_extensions;
   RenderInfo &_renderInfo;
 
-public:
-  BufferRendererCommon(QOpenGLFunctions *fn, QOpenGLExtraFunctions *fnx,
+  BufferRenderer(QOpenGLFunctions *fn, QOpenGLExtraFunctions *fnx,
                  Extensions &extensions, RenderInfo &renderinfo)
      : _fn(fn), _fx(fnx), _extensions(extensions), _renderInfo(renderinfo), _mode(DrawMode::Triangles)
   {}
 
+public:
   void setMode(DrawMode mode) {_mode = mode;}
+
+  virtual void render(GLint start, GLsizei count) = 0;
+  virtual void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) = 0;
 };
 
-class BufferRenderer : private BufferRendererCommon
+class DefaultBufferRenderer : public BufferRenderer
 {
 public:
-  BufferRenderer(QOpenGLFunctions *fn, QOpenGLExtraFunctions *fnx,
+  DefaultBufferRenderer(QOpenGLFunctions *fn, QOpenGLExtraFunctions *fnx,
                  Extensions &extensions, RenderInfo &renderinfo)
-     : BufferRendererCommon(fn, fnx, extensions, renderinfo)
+     : BufferRenderer(fn, fnx, extensions, renderinfo)
   {
   }
 
-  void render(GLint start, GLsizei count);
-  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count);
+  void render(GLint start, GLsizei count) override;
+  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) override;
 };
 
-class IndexedBufferRenderer : private BufferRendererCommon
+class IndexedBufferRenderer : public BufferRenderer
 {
   GLenum _type = 0;
   GLsizei _bytesPerElement = 0;
@@ -54,7 +57,7 @@ class IndexedBufferRenderer : private BufferRendererCommon
 public:
   IndexedBufferRenderer(QOpenGLFunctions *fn, QOpenGLExtraFunctions *fnx,
                  Extensions &extensions, RenderInfo &renderinfo)
-     : BufferRendererCommon(fn, fnx, extensions, renderinfo)
+     : BufferRenderer(fn, fnx, extensions, renderinfo)
   {
   }
 
@@ -64,8 +67,8 @@ public:
     _bytesPerElement = value.bytesPerElement;
   }
 
-  void render(unsigned start, unsigned count);
-  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count);
+  void render(GLint start, GLsizei count) override;
+  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) override;
 };
 
 }

@@ -8,7 +8,7 @@
 namespace three {
 namespace gl {
 
-void BufferRenderer::render(GLint start, GLsizei count)
+void DefaultBufferRenderer::render(GLint start, GLsizei count)
 {
   _fn->glDrawArrays((GLenum)_mode, start, count);
 
@@ -19,7 +19,7 @@ void BufferRenderer::render(GLint start, GLsizei count)
   else if (_mode == DrawMode::Points) _renderInfo.points += count;
 }
 
-void BufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count)
+void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count)
 {
   bool extension = _extensions.get(Extension::ANGLE_instanced_arrays);
 
@@ -49,7 +49,7 @@ void BufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometry, GLin
   else if (_mode == DrawMode::Points) _renderInfo.points += geometry->maxInstancedCount() * count;
 }
 
-void IndexedBufferRenderer::render(unsigned start, unsigned count)
+void IndexedBufferRenderer::render(GLint start, GLsizei count)
 {
   _fn->glDrawElements((GLenum)_mode, count, _type, (GLubyte *)(start * _bytesPerElement));
 

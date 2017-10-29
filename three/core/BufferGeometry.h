@@ -33,7 +33,8 @@ class BufferGeometry : public Geometry
 
   using IndexedAttributesKey = std::pair<IndexedAttribute, size_t>;
   std::unordered_map<IndexedAttributesKey, BufferAttributeBase<float>::Ptr, pair_hash> _indexedAttributes;
-  //this.drawRange = { start: 0, count: Infinity };
+
+  UpdateRange _drawRange = {0, std::numeric_limits<int32_t>::infinity()};
 
 protected:
   BufferGeometry &computeBoundingBox() override
@@ -88,6 +89,8 @@ public:
   {
     return !_morphAttributes_position.empty();
   }
+
+  const UpdateRange &drawRange() const {return _drawRange;}
 
   const BufferAttributeBase<uint32_t>::Ptr &index() const {return _index;}
 

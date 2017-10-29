@@ -6,12 +6,16 @@
 #include <renderers/Resolver.h>
 #include <math/Math.h>
 #include <textures/DataTexture.h>
+#include <sstream>
+#include <objects/Line.h>
 
 namespace three {
 
+using namespace std;
+
 OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, float height, const OpenGLRendererOptions &options)
 {
-  return std::shared_ptr<OpenGLRenderer>(new gl::Renderer_impl(context, width, height));
+  return shared_ptr<OpenGLRenderer>(new gl::Renderer_impl(context, width, height));
 }
 
 namespace gl {
@@ -23,7 +27,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
      _background(*this, _state, _geometries, _premultipliedAlpha),
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
      _bufferRenderer(this, this, _extensions, _infoRender),
-     _indexedRenderer(this, this, _extensions, _infoRender),
+     _indexedBufferRenderer(this, this, _extensions, _infoRender),
      _spriteRenderer(*this, _state, _textures, _capabilities),
      _flareRenderer(this, _state, _textures, _capabilities)
 {
@@ -71,7 +75,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   // reset caching for this frame
 
-  _currentGeometryProgram = 0;
+  _currentGeometryProgram.clear();
   _currentMaterialId = -1;
   _currentCamera = nullptr;
 
@@ -82,6 +86,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   if (!camera->parent()) camera->updateMatrixWorld(false);
 
+  //TODO VR
   /*if ( vr.enabled ) {
 
     camera = vr.getCamera( camera );
@@ -156,6 +161,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _state.depthBuffer.setMask(true);
   _state.colorBuffer.setMask(true);
 
+  //TODO VR
   /*if (vr.enabled) {
     vr.submitFrame();
   }*/
@@ -167,7 +173,7 @@ unsigned Renderer_impl::allocTextureUnit()
   unsigned textureUnit = _usedTextureUnits;
 
   if(textureUnit >= _capabilities.maxTextures ) {
-    throw std::logic_error("max texture units exceeded");
+    throw logic_error("max texture units exceeded");
   }
 
   _usedTextureUnits += 1;
@@ -250,7 +256,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 
     camera::Functions funcs;
     funcs.array = [&](ArrayCamera &acamera) {
-      _currentArrayCamera = std::dynamic_pointer_cast<ArrayCamera>(camera);
+      _currentArrayCamera = dynamic_pointer_cast<ArrayCamera>(camera);
 
       for ( unsigned j = 0; j < acamera.cameraCount; j ++ ) {
 
@@ -258,6 +264,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 
         if ( renderItem.object->layers().test( camera2->layers() ) ) {
 
+          //TODO VR
           /*var bounds = camera2->bounds;
 
           var x = bounds.x * _width;
@@ -289,15 +296,15 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
   object::Functions func;
-  /*func.immediate = [&] (ImmediateRenderObject &iro) {
+  func.immediate = [&] (ImmediateRenderObject &iro) {
     _state.setMaterial( material );
 
-    var program = setProgram( camera, scene->fog(), material, object );
+    Program::Ptr program = setProgram( camera, scene->fog(), material, object );
 
-    _currentGeometryProgram = '';
+    _currentGeometryProgram.clear();
 
-    renderObjectImmediate( object, program, material );
-  };*/
+    renderObjectImmediate( iro, program, material );
+  };
   func._void = [&] () {
     renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
   };
@@ -311,234 +318,189 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   if (!object->visible()) return;
 
   bool visible = object->layers().test(camera->layers());
-#if 0
   if ( visible ) {
 
     object::Functions funcs;
 
     funcs.light = [&] (Light &light) {
-      _lightsArray.push( object );
+      Light::Ptr lp = dynamic_pointer_cast<Light>(object);
+      _lightsArray.push_back(lp);
 
       if ( light.castShadow() ) {
-        _shadowsArray.push( object );
+        _shadowsArray.push_back( lp );
       }
     };
-    if ( object.isLight ) {
-    } else if ( object.isSprite ) {
-
-      if ( ! object.frustumCulled || _frustum.intersectsSprite( object ) ) {
-
-        spritesArray.push( object );
-
+    funcs.sprite = [&](Sprite &sprite) {
+      Sprite::Ptr sp = dynamic_pointer_cast<Sprite>(object);
+      if ( ! sprite.frustumCulled || _frustum.intersectsSprite(sp) ) {
+        _spritesArray.push_back( sp );
       }
-
-    } else if ( object.isLensFlare ) {
-
-      flaresArray.push( object );
-
-    } else if ( object.isImmediateRenderObject ) {
-
+    };
+    funcs.lensFlare = [&](LensFlare &flare) {
+      LensFlare::Ptr fp = dynamic_pointer_cast<LensFlare>(object);
+      _flaresArray.push_back( fp );
+    };
+    funcs.immediate = [&](ImmediateRenderObject &iro) {
       if ( sortObjects ) {
 
-        _vector3.setFromMatrixPosition( object.matrixWorld )
-           .applyMatrix4( _projScreenMatrix );
-
+        _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
       }
+      _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
+    };
+    funcs.mesh = [&](Mesh &mesh) {
 
-      currentRenderList.push( object, null, object.material, _vector3.z, null );
-
-    } else if ( object.isMesh || object.isLine || object.isPoints ) {
-
-      if ( object.isSkinnedMesh ) {
-
-        object.skeleton.update();
-
-      }
-
-      if ( ! object.frustumCulled || _frustum.intersectsObject( object ) ) {
+      if ( ! object->frustumCulled || _frustum.intersectsObject( object ) ) {
 
         if ( sortObjects ) {
-
-          _vector3.setFromMatrixPosition( object.matrixWorld )
-             .applyMatrix4( _projScreenMatrix );
-
+          _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
         }
 
-        var geometry = objects.update( object );
-        var material = object.material;
+        Geometry::Ptr geometry = _objects.update( object );
 
-        if ( Array.isArray( material ) ) {
+        if ( object->materialCount() > 1) {
 
-          var groups = geometry.groups;
+          const vector<Group> &groups = geometry->groups();
 
-          for ( var i = 0, l = groups.length; i < l; i ++ ) {
+          for (const Group &group : groups) {
 
-            var group = groups[ i ];
-            var groupMaterial = material[ group.materialIndex ];
+            Material::Ptr groupMaterial = object->material(group.materialIndex);
 
-            if ( groupMaterial && groupMaterial.visible ) {
+            if ( groupMaterial && groupMaterial->visible ) {
 
-              currentRenderList.push( object, geometry, groupMaterial, _vector3.z, group );
-
+              _currentRenderList->push_back( object, geometry, groupMaterial, _vector3.z(), &group );
             }
-
           }
-
-        } else if ( material.visible ) {
-
-          currentRenderList.push( object, geometry, material, _vector3.z, null );
-
+        } else {
+          Material::Ptr material = object->material();
+          if ( material->visible )
+            _currentRenderList->push_back( object, geometry, material, _vector3.z(), nullptr);
         }
-
       }
+    };
+    funcs.skinnedMesh = [&](SkinnedMesh &sk) {
+      sk.skeleton()->update();
+      funcs.mesh(sk);
+    };
+    funcs.line = funcs.mesh;
+    funcs.points = funcs.mesh;
 
-    }
-
+    object->resolver->call(funcs);
   }
 
-  var children = object.children;
+  for (Object3D::Ptr child : object->children()) {
 
-  for ( var i = 0, l = children.length; i < l; i ++ ) {
-
-    projectObject( children[ i ], camera, sortObjects );
-
+    projectObject( child, camera, sortObjects );
   }
-#endif
 }
 
 void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
-                                       const Fog *fog,
-                                       Geometry::Ptr geometry,
+                                       Fog::Ptr fog,
+                                       BufferGeometry::Ptr geometry,
                                        Material::Ptr material,
                                        Object3D::Ptr object,
                                        const Group *group)
 {
-#if 0
-  state.setMaterial( material );
+  _state.setMaterial( material );
 
-  var program = setProgram( camera, fog, material, object );
-  var geometryProgram = geometry.id + '_' + program.id + '_' + ( material.wireframe === true );
+  Program::Ptr program = setProgram( camera, fog, material, object );
+  
+  stringstream ss;
+  ss << geometry->id << '_' << program->id() << '_' << material->wireframe;
+  string geometryProgram = ss.str();
 
-  var updateBuffers = false;
+  bool updateBuffers = false;
 
-  if ( geometryProgram !== _currentGeometryProgram ) {
+  if (geometryProgram != _currentGeometryProgram ) {
 
     _currentGeometryProgram = geometryProgram;
     updateBuffers = true;
-
   }
 
-  if ( object.morphTargetInfluences ) {
+  Mesh::Ptr mesh = dynamic_pointer_cast<Mesh>(object);
+  if ( mesh && mesh->morphTargetInfluences ) {
 
-    morphtargets.update( object, geometry, material, program );
+    _morphTargets.update( mesh, geometry, material, program );
 
     updateBuffers = true;
-
   }
 
-  //
+  BufferAttributeBase<uint32_t>::Ptr index;
+  unsigned rangeFactor = 1;
+  BufferRenderer *renderer;
 
-  var index = geometry.index;
-  var position = geometry.attributes.position;
-  var rangeFactor = 1;
-
-  if ( material.wireframe === true ) {
-
-    index = geometries.getWireframeAttribute( geometry );
+  if ( material->wireframe ) {
+    index = _geometries.getWireframeAttribute( geometry );
     rangeFactor = 2;
-
+  }
+  else {
+    index = geometry->index();
   }
 
-  var attribute;
-  var renderer = bufferRenderer;
-
-  if ( index !== null ) {
-
-    attribute = attributes.get( index );
-
-    renderer = indexedBufferRenderer;
-    renderer.setIndex( attribute );
-
-  }
-
-  if ( updateBuffers ) {
-
+  if ( updateBuffers )
     setupVertexAttributes( material, program, geometry );
 
-    if ( index !== null ) {
+  if (geometry->index()) {
 
-      _gl.bindBuffer( _gl.ELEMENT_ARRAY_BUFFER, attribute.buffer );
+    const Buffer &attribute = _attributes.get( *geometry->index() );
 
-    }
+    if ( updateBuffers )
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, attribute.buf);
 
+    _indexedBufferRenderer.setIndex( attribute );
+    renderer = &_indexedBufferRenderer;
+  }
+  else {
+    renderer = &_bufferRenderer;
   }
 
   //
+  size_t dataCount = 0;
 
-  var dataCount = 0;
+  if (index) {
 
-  if ( index !== null ) {
+    dataCount = index->count();
+  }
+  else if (geometry->position()) {
 
-    dataCount = index.count;
-
-  } else if ( position !== undefined ) {
-
-    dataCount = position.count;
-
+    dataCount = geometry->position()->count();
   }
 
-  var rangeStart = geometry.drawRange.start * rangeFactor;
-  var rangeCount = geometry.drawRange.count * rangeFactor;
+  auto rangeStart = geometry->drawRange().offset * rangeFactor;
+  auto rangeCount = geometry->drawRange().count * rangeFactor;
 
-  var groupStart = group !== null ? group.start * rangeFactor : 0;
-  var groupCount = group !== null ? group.count * rangeFactor : Infinity;
+  size_t groupStart = group ? group->start * rangeFactor : 0;
+  size_t groupCount = group ? group->count * rangeFactor : numeric_limits<size_t>::infinity();
 
-  var drawStart = Math.max( rangeStart, groupStart );
-  var drawEnd = Math.min( dataCount, rangeStart + rangeCount, groupStart + groupCount ) - 1;
+  size_t drawStart = std::max( rangeStart, groupStart );
+  size_t drawEnd = std::min( dataCount, rangeStart + rangeCount, groupStart + groupCount ) - 1;
 
-  var drawCount = Math.max( 0, drawEnd - drawStart + 1 );
+  size_t drawCount = std::max( 0, drawEnd - drawStart + 1 );
 
-  if ( drawCount === 0 ) return;
+  if ( drawCount == 0 ) return;
 
   //
+  object::Functions funcs;
+  funcs.mesh = [&] (Mesh &mesh) {
+    if ( material->wireframe ) {
 
-  if ( object.isMesh ) {
-
-    if ( material.wireframe === true ) {
-
-      state.setLineWidth( material.wireframeLinewidth * getTargetPixelRatio() );
-      renderer.setMode( _gl.LINES );
+      _state.setLineWidth( material->wireframeLineWidth * getTargetPixelRatio() );
+      renderer->setMode(DrawMode::Lines);
 
     } else {
 
-      switch ( object.drawMode ) {
-
-        case TrianglesDrawMode:
-          renderer.setMode( _gl.TRIANGLES );
-          break;
-
-        case TriangleStripDrawMode:
-          renderer.setMode( _gl.TRIANGLE_STRIP );
-          break;
-
-        case TriangleFanDrawMode:
-          renderer.setMode( _gl.TRIANGLE_FAN );
-          break;
-
-      }
-
+      renderer->setMode(mesh.drawMode());
     }
+  };
+  funcs.line = [&] (Line &line) {
+    //var lineWidth = material.linewidth;
+    //if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
 
+    _state.setLineWidth( line.material<0>()->linewidth * getTargetPixelRatio() );
 
-  } else if ( object.isLine ) {
+    renderer->setMode(DrawMode::LineStrip);
 
-    var lineWidth = material.linewidth;
-
-    if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
-
-    state.setLineWidth( lineWidth * getTargetPixelRatio() );
-
-    if ( object.isLineSegments ) {
+    //TODO implement classes
+    /*if ( line.isLineSegments ) {
 
       renderer.setMode( _gl.LINES );
 
@@ -546,37 +508,172 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
       renderer.setMode( _gl.LINE_LOOP );
 
-    } else {
+    }*/
+  };
+  funcs.points = [&](Points &points) {
 
-      renderer.setMode( _gl.LINE_STRIP );
+    renderer->setMode(DrawMode::Points);
+  };
 
+  InstancedBufferGeometry::Ptr ibg = dynamic_pointer_cast<InstancedBufferGeometry>(geometry);
+  if (ibg) {
+    if ( ibg->maxInstancedCount() > 0 ) {
+      renderer->renderInstances( geometry, drawStart, drawCount );
     }
-
-  } else if ( object.isPoints ) {
-
-    renderer.setMode( _gl.POINTS );
-
+  } else {
+    renderer->render( drawStart, drawCount );
   }
+}
 
-  if ( geometry && geometry.isInstancedBufferGeometry ) {
+void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
+{
+  auto &materialProperties = _properties.get( material );
 
-    if ( geometry.maxInstancedCount > 0 ) {
+  var parameters = _programs.getParameters(
+     material, lights.state, _shadowsArray, fog, _clipping.numPlanes, _clipping.numIntersection, object );
 
-      renderer.renderInstances( geometry, drawStart, drawCount );
+  var code = programCache.getProgramCode( material, parameters );
 
-    }
+  var program = materialProperties.program;
+  var programChange = true;
+
+  if ( program === undefined ) {
+
+    // new material
+    material.addEventListener( 'dispose', onMaterialDispose );
+
+  } else if ( program.code !== code ) {
+
+    // changed glsl or parameters
+    releaseMaterialProgramReference( material );
+
+  } else if ( parameters.shaderID !== undefined ) {
+
+    // same glsl and uniform list
+    return;
 
   } else {
 
-    renderer.render( drawStart, drawCount );
+    // only rebuild uniform list
+    programChange = false;
 
   }
-#endif
+
+  if ( programChange ) {
+
+    if ( parameters.shaderID ) {
+
+      var shader = ShaderLib[ parameters.shaderID ];
+
+      materialProperties.shader = {
+         name: material.type,
+         uniforms: UniformsUtils.clone( shader.uniforms ),
+         vertexShader: shader.vertexShader,
+         fragmentShader: shader.fragmentShader
+      };
+
+    } else {
+
+      materialProperties.shader = {
+         name: material.type,
+         uniforms: material.uniforms,
+         vertexShader: material.vertexShader,
+         fragmentShader: material.fragmentShader
+      };
+
+    }
+
+    material.onBeforeCompile( materialProperties.shader );
+
+    program = programCache.acquireProgram( material, materialProperties.shader, parameters, code );
+
+    materialProperties.program = program;
+    material.program = program;
+
+  }
+
+  var programAttributes = program.getAttributes();
+
+  if ( material.morphTargets ) {
+
+    material.numSupportedMorphTargets = 0;
+
+    for ( var i = 0; i < _this.maxMorphTargets; i ++ ) {
+
+      if ( programAttributes[ 'morphTarget' + i ] >= 0 ) {
+
+        material.numSupportedMorphTargets ++;
+
+      }
+
+    }
+
+  }
+
+  if ( material.morphNormals ) {
+
+    material.numSupportedMorphNormals = 0;
+
+    for ( var i = 0; i < _this.maxMorphNormals; i ++ ) {
+
+      if ( programAttributes[ 'morphNormal' + i ] >= 0 ) {
+
+        material.numSupportedMorphNormals ++;
+
+      }
+
+    }
+
+  }
+
+  var uniforms = materialProperties.shader.uniforms;
+
+  if ( ! material.isShaderMaterial &&
+       ! material.isRawShaderMaterial ||
+       material.clipping === true ) {
+
+    materialProperties.numClippingPlanes = _clipping.numPlanes;
+    materialProperties.numIntersection = _clipping.numIntersection;
+    uniforms.clippingPlanes = _clipping.uniform;
+
+  }
+
+  materialProperties.fog = fog;
+
+  // store the light setup it was created for
+
+  materialProperties.lightsHash = lights.state.hash;
+
+  if ( material.lights ) {
+
+    // wire up the material to this renderer's lighting state
+
+    uniforms.ambientLightColor.value = lights.state.ambient;
+    uniforms.directionalLights.value = lights.state.directional;
+    uniforms.spotLights.value = lights.state.spot;
+    uniforms.rectAreaLights.value = lights.state.rectArea;
+    uniforms.pointLights.value = lights.state.point;
+    uniforms.hemisphereLights.value = lights.state.hemi;
+
+    uniforms.directionalShadowMap.value = lights.state.directionalShadowMap;
+    uniforms.directionalShadowMatrix.value = lights.state.directionalShadowMatrix;
+    uniforms.spotShadowMap.value = lights.state.spotShadowMap;
+    uniforms.spotShadowMatrix.value = lights.state.spotShadowMatrix;
+    uniforms.pointShadowMap.value = lights.state.pointShadowMap;
+    uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
+    // TODO (abelnation): add area lights shadow info to uniforms
+
+  }
+
+  var progUniforms = materialProperties.program.getUniforms(),
+     uniformsList =
+     WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
+
+  materialProperties.uniformsList = uniformsList;
 }
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
 {
-#if 0
   _usedTextureUnits = 0;
 
   auto &materialProperties = _properties.get( material );
@@ -653,7 +750,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     if (_capabilities.logarithmicDepthBuffer) {
 
-      p_uniforms->get("logDepthBufFC")->setValue(2.0 / ( std::log( camera->far() + 1.0 ) / M_LN2 ) );
+      p_uniforms->get("logDepthBufFC")->setValue(2.0 / ( log( camera->far() + 1.0 ) / M_LN2 ) );
     }
 
     // Avoid unneeded uniform updates per ArrayCamera's sub-camera
@@ -724,9 +821,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
 
             auto &bones = m.skeleton()->bones();
-            float size = std::sqrt( bones.size() * 4 ); // 4 pixels needed for 1 matrix
+            float size = sqrt( bones.size() * 4 ); // 4 pixels needed for 1 matrix
             size = math::ceilPowerOfTwo( size );
-            size = std::max( size, 4 );
+            size = max( size, 4 );
 
             m.skeleton()->boneMatrices().resize(size * size * 4); // 4 floats per RGBA pixel
 
@@ -737,8 +834,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
             m.skeleton()->setBoneTextureSize(size);
           }
 
-          p_uniforms->get("boneTexture")->setValue(m.skeleton()->boneTexture() );
-          p_uniforms->get("boneTextureSize")->setValue(m.skeleton()->boneTextureSize() );
+          //TODO texture
+          //p_uniforms->get("boneTexture")->setValue(m.skeleton()->boneTexture() );
+          //p_uniforms->get("boneTextureSize")->setValue(m.skeleton()->boneTextureSize() );
 
         } else {
           if(!m.skeleton()->boneMatrices().empty())
@@ -786,17 +884,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsPhong( m_uniforms, material );
     };
-    mfuncs.meshToon = [&](MeshToonMaterial &mtm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsToon( m_uniforms, material );
-    };
     mfuncs.meshStandard = [&] (MeshStandardMaterial &msm) {
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsStandard( m_uniforms, material );
-    };
-    mfuncs.meshPysical= [&](MeshPhysicalMaterial &mdm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsPhysical( m_uniforms, material );
     };
     mfuncs.meshDepth = [&](MeshDepthMaterial &mdm) {
       refreshUniformsCommon( m_uniforms, material );
@@ -806,10 +896,6 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniformsCommon( m_uniforms, material );
       refreshUniformsDistance( m_uniforms, material );
     };
-    mfuncs.meshNormal = [&](MeshNormalMaterial &mnm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsNormal( m_uniforms, material );
-    };
     mfuncs.lineBasic = [&](LineBasicMaterial &lbm) {
       refreshUniformsLine( m_uniforms, material );
     };
@@ -817,13 +903,26 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniformsLine( m_uniforms, material );
       refreshUniformsDash( m_uniforms, material );
     };
+    /* TODO implement classes
+    mfuncs.meshToon = [&](MeshToonMaterial &mtm) {
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsToon( m_uniforms, material );
+    };
+    mfuncs.meshPysical= [&](MeshPhysicalMaterial &mdm) {
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsPhysical( m_uniforms, material );
+    };
+    mfuncs.meshNormal = [&](MeshNormalMaterial &mnm) {
+      refreshUniformsCommon( m_uniforms, material );
+      refreshUniformsNormal( m_uniforms, material );
+    };
     mfuncs.points = [&] (PointsMaterial &pm) {
       refreshUniformsPoints( m_uniforms, material );
     };
     mfuncs.shadow = [&] (ShadowMaterial &sm) {
       m_uniforms->color.value = material.color;
       m_uniforms->opacity.value = material.opacity;
-    };
+    };*/
     material->resolver->call(mfuncs);
 
     // RectAreaLight Texture
@@ -832,8 +931,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     if ( m_uniforms.ltcMat !== undefined ) m_uniforms.ltcMat.value = UniformsLib.LTC_MAT_TEXTURE;
     if ( m_uniforms.ltcMag !== undefined ) m_uniforms.ltcMag.value = UniformsLib.LTC_MAG_TEXTURE;
 
-    WebGLUniforms.upload(
-       _gl, materialProperties.uniformsList, m_uniforms, _this );
+    m_uniforms->upload(this, materialProperties.uniformsList);
   }
 
   // common matrices
@@ -842,8 +940,6 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
 
   return program;
-#endif
-  return nullptr;
 }
 
 }

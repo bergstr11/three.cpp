@@ -37,7 +37,7 @@ private:
 
   std::vector<Flare> _flares;
 
-  LensFlare() : Object3D(object::Resolver<LensFlare>::make(*this)) {}
+  LensFlare() : Object3D(object::ResolverT<LensFlare>::make(*this)) {}
 
 public:
   using Ptr = std::shared_ptr<LensFlare>;

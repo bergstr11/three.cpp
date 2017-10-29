@@ -20,9 +20,9 @@ protected:
   float _angle;
   LightShadow::Ptr _shadow;
 
-  Light(light::ResolverBase::Ptr resolver, const Color &color, float intensity, float distance=0, float angle=0)
-     : Object3D(object::Resolver<Light>::make(*this)),
-       resolver(resolver),
+  Light(light::Resolver::Ptr resolver, const Color &color, float intensity, float distance=0, float angle=0)
+     : Object3D(object::ResolverT<Light>::make(*this)),
+       lightResolver(resolver),
        _color(color),
        _intensity(intensity),
        _angle(angle),
@@ -32,7 +32,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<Light>;
 
-  const light::ResolverBase::Ptr resolver;
+  const light::Resolver::Ptr lightResolver;
 
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}

@@ -15,12 +15,12 @@ class Fog
 protected:
   Color _color;
 
-  Fog(const Color &color, fog::ResolverBase::Ptr resolver) : _color(color), resolver(resolver) {}
+  Fog(const Color &color, fog::Resolver::Ptr resolver) : _color(color), resolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Fog>;
 
-  fog::ResolverBase::Ptr resolver;
+  fog::Resolver::Ptr resolver;
 
   const Color &color() const {return _color;}
   Color &color() {return _color;}
@@ -32,7 +32,7 @@ class DefaultFog : public Fog
   float _far;
 
   DefaultFog(const Color &color, float near, float far)
-     : Fog(color, fog::Resolver<DefaultFog>::make(*this)), _near(near), _far(far) {}
+     : Fog(color, fog::ResolverT<DefaultFog>::make(*this)), _near(near), _far(far) {}
 
 public:
   using Ptr = std::shared_ptr<DefaultFog>;
@@ -53,7 +53,7 @@ class FogExp2 : public Fog
 
 public:
   FogExp2(const Color &color, float density)
-     : Fog(color, fog::Resolver<FogExp2>::make(*this)), _density(density) {}
+     : Fog(color, fog::ResolverT<FogExp2>::make(*this)), _density(density) {}
 
   const float density() const {return _density;}
   float &density() {return _density;}

@@ -49,7 +49,7 @@ private:
   }
 
   ShaderMaterial(bool morphTargets, bool skinning)
-     : Material(material::Resolver<ShaderMaterial>::make(*this)), uniforms({})
+     : Material(material::ResolverT<ShaderMaterial>::make(*this)), uniforms({})
   {
     unsigned linewidth = 1;
 

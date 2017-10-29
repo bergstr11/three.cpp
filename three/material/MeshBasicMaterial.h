@@ -43,7 +43,7 @@ private:
     this->skinning = skinning;
   }
 
-  MeshBasicMaterial() : Material(material::Resolver<MeshBasicMaterial>::make(*this))
+  MeshBasicMaterial() : Material(material::ResolverT<MeshBasicMaterial>::make(*this))
   {}
 
 public:

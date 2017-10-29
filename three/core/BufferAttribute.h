@@ -67,13 +67,13 @@ class BufferAttribute
 protected:
   unsigned _version = 0;
 
-  BufferAttribute(bufferattribute::Resolver<void>::Ptr resolver=bufferattribute::Resolver<void>::make())
+  BufferAttribute(bufferattribute::Resolver<void>::Ptr resolver=nullptr)
      : uuid(sole::uuid0()), resolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<BufferAttribute>;
 
-  const bufferattribute::ResolverBase::Ptr resolver;
+  const bufferattribute::Resolver::Ptr resolver;
 
   const sole::uuid uuid;
 
