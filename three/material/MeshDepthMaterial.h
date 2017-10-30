@@ -10,29 +10,27 @@
 
 namespace three {
 
-class MeshDepthMaterial : public Material
+struct MeshDepthMaterial : public Material
 {
-  DepthPacking _depthPacking = DepthPacking::Basic;
+  DepthPacking depthPacking = DepthPacking::Basic;
 
-  bool _skinning = false;
+  bool skinning = false;
 
-  Texture::Ptr _map;
+  Texture::Ptr alphaMap;
 
-  Texture::Ptr _alphaMap;
+  Texture::Ptr displacementMap;
 
-  Texture::Ptr _displacementMap;
+  float displacementScale = 1;
+  float displacementBias = 0;
 
-  float _displacementScale = 1;
-  float _displacementBias = 0;
+  bool wireframe = false;
+  float wireframeLinewidth = 1;
 
-  bool _wireframe = false;
-  float _wireframeLinewidth = 1;
-
-  bool _fog = false;
-  bool _lights = false;
+  bool fog = false;
+  bool lights = false;
 
   MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning)
-     : Material(material::ResolverT<MeshDepthMaterial>::make(*this)), _depthPacking(packing)
+     : Material(material::ResolverT<MeshDepthMaterial>::make(*this)), depthPacking(packing)
   {
     this->_morphTargets = morphing;
     this->_morphNormals = morphing;

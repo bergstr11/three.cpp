@@ -47,6 +47,36 @@ public:
   bool gradientMap;
   CombineOperation combine;
   Colors vertexColors;
+  bool fog;
+  bool useFog;
+  bool fogExp;
+  bool flatShading;
+  bool logarithmicDepthBuffer;
+  bool sizeAttenuation = false;
+  bool skinning;
+  size_t maxBones;
+  bool useVertexTexture;
+  bool morphTargets;
+  bool morphNormals;
+  unsigned maxMorphTargets;
+  unsigned maxMorphNormals;
+  size_t numDirLights;
+  size_t numPointLights;
+  size_t numSpotLights;
+  size_t numRectAreaLights;
+  size_t numHemiLights;
+  size_t numClippingPlanes;
+  size_t numClipIntersection;
+  bool dithering;
+  bool shadowMapEnabled;
+  ShadowMapType shadowMapType;
+  ToneMapping toneMapping;
+  bool physicallyCorrectLights;
+  bool premultipliedAlpha;
+  bool alphaTest;
+  bool doubleSided;
+  bool flipSided;
+  DepthPacking depthPacking;
 };
 
 class Programs
@@ -92,13 +122,15 @@ public:
     }
   }
 
-  ProgramParameters::Ptr getParameters(Material::Ptr material,
-                                Lights::State &lights,
-                                const std::vector<Light::Ptr> &shadows,
-                                const Fog::Ptr fog,
-                                size_t nClipPlanes,
-                                size_t nClipIntersection,
-                                Object3D::Ptr object );
+  ProgramParameters::Ptr getParameters(const Renderer_impl &renderer,
+                                       Material::Ptr material,
+                                       Lights::State &lights,
+                                       const std::vector<Light::Ptr> &shadows,
+                                       const Fog::Ptr fog,
+                                       size_t nClipPlanes,
+                                       size_t nClipIntersection,
+                                       Object3D::Ptr object);
+
 #if 0
   void getProgramCode(Material::Ptr material, parameters ) {
 

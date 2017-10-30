@@ -16,6 +16,7 @@ protected:
   Color _color;
 
   Fog(const Color &color, fog::Resolver::Ptr resolver) : _color(color), resolver(resolver) {}
+  virtual ~Fog() {}
 
 public:
   using Ptr = std::shared_ptr<Fog>;

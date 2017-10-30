@@ -66,9 +66,9 @@ struct Material
   unsigned alphaTest = 0;
   bool premultipliedAlpha = false;
 
-  Texture::Ptr specularMap;
+  Texture::Ptr map;
 
-  Texture::Ptr alphaMap;
+  Texture::Ptr specularMap;
 
   Texture::Ptr envMap;
 
@@ -77,6 +77,11 @@ struct Material
   Texture::Ptr gradientMap;
 
   Texture::Ptr emissiveMap;
+
+  Texture::Ptr displacementMap;
+
+  float displacementScale = 1;
+  float displacementBias = 0;
 
   bool _skinning = false;
   bool _morphTargets = false;
@@ -87,13 +92,6 @@ struct Material
   bool visible = true;
 
   bool needsUpdate = true;
-
-  Texture::Ptr map;
-
-  Texture::Ptr displacementMap;
-
-  float displacementScale = 1;
-  float displacementBias = 0;
 
   material::Resolver::Ptr resolver;
 

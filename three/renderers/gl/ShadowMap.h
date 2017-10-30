@@ -102,6 +102,10 @@ public:
                             float shadowCameraFar );
 
   void renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera);
+
+  bool enabled() const {return _enabled;}
+
+  ShadowMapType type() const {return _type;}
 };
 
 }

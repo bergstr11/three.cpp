@@ -7,13 +7,14 @@
 namespace three {
 namespace gl {
 
-ProgramParameters::Ptr Programs::getParameters(Material::Ptr material,
-                              Lights::State &lights,
-                              const std::vector<Light::Ptr> &shadows,
-                              const Fog::Ptr fog,
-                              size_t nClipPlanes,
-                              size_t nClipIntersection,
-                              Object3D::Ptr object )
+ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
+                                               Material::Ptr material,
+                                               Lights::State &lights,
+                                               const std::vector<Light::Ptr> &shadows,
+                                               const Fog::Ptr fog,
+                                               size_t nClipPlanes,
+                                               size_t nClipIntersection,
+                                               Object3D::Ptr object)
 {
   static const material::ShaderIDs shaderIds;
 
@@ -49,7 +50,6 @@ ProgramParameters::Ptr Programs::getParameters(Material::Ptr material,
   parameters->envMapCubeUV = material->envMap &&
                              (material->envMap->mapping() == TextureMapping::CubeUVReflection
                               || material->envMap->mapping() == TextureMapping::CubeUVRefraction);
-  parameters->alphaMap = (bool)material->alphaMap;
   parameters->lightMap = (bool)material->lightMap;
   parameters->gradientMap = (bool)material->gradientMap;
   parameters->emissiveMap = (bool)material->emissiveMap;
@@ -66,8 +66,13 @@ ProgramParameters::Ptr Programs::getParameters(Material::Ptr material,
   dispatch.func<MeshDistanceMaterial>() = [parameters] (MeshDistanceMaterial &mat) {
   };
   dispatch.func<MeshDepthMaterial>() = [parameters] (MeshDepthMaterial &mat) {
+    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->depthPacking = mat.depthPacking;
   };
-  /*dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
+  /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
+    parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
+  };
+  dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
     parameters->aoMap = mat.aoMap;
     parameters->bumpMap = mat.bumpMap;
     parameters->normalMap = mat.normalMap;
@@ -89,52 +94,46 @@ ProgramParameters::Ptr Programs::getParameters(Material::Ptr material,
     parameters->aoMap = mat.aoMap;
     parameters->alphaMap = mat.alphaMap;
   };*/
-  /*var parameters = {
 
-    fog: !! fog,
-    useFog: material.fog,
-    fogExp: ( fog && fog.isFogExp2 ),
+  parameters->fog = (bool)fog;
+  parameters->useFog = material->fog;
+  parameters->fogExp = (bool)std::dynamic_pointer_cast<FogExp2>(fog);
+  parameters->flatShading = material->flatShading;
 
-    flatShading: material.flatShading,
+  parameters->logarithmicDepthBuffer = _capabilities.logarithmicDepthBuffer;
 
-    sizeAttenuation: material.sizeAttenuation,
-    logarithmicDepthBuffer: capabilities.logarithmicDepthBuffer,
+  parameters->skinning = material->skinning() && maxBones > 0;
+  parameters->maxBones = maxBones;
+  parameters->useVertexTexture = _capabilities.floatVertexTextures;
 
-    skinning: material.skinning && maxBones > 0,
-    maxBones: maxBones,
-    useVertexTexture: capabilities.floatVertexTextures,
+  parameters->morphTargets = material->morphTargets();
+  parameters->morphNormals = material->morphNormals();
+  parameters->maxMorphTargets = renderer._maxMorphTargets;
+  parameters->maxMorphNormals = renderer._maxMorphNormals;
 
-    morphTargets: material.morphTargets,
-    morphNormals: material.morphNormals,
-    maxMorphTargets: renderer.maxMorphTargets,
-    maxMorphNormals: renderer.maxMorphNormals,
+  parameters->numDirLights = lights.directional.size();
+  parameters->numPointLights = lights.point.size();
+  parameters->numSpotLights = lights.spot.size();
+  parameters->numRectAreaLights = lights.rectArea.size();
+  parameters->numHemiLights = lights.hemi.size();
 
-    numDirLights: lights.directional.length,
-    numPointLights: lights.point.length,
-    numSpotLights: lights.spot.length,
-    numRectAreaLights: lights.rectArea.length,
-    numHemiLights: lights.hemi.length,
+  parameters->numClippingPlanes = nClipPlanes;
+  parameters->numClipIntersection = nClipIntersection;
 
-    numClippingPlanes: nClipPlanes,
-    numClipIntersection: nClipIntersection,
+  parameters->dithering = material->dithering;
 
-    dithering: material.dithering,
+  parameters->shadowMapEnabled = renderer._shadowMap->enabled() && object->receiveShadow && !shadows.empty();
+  parameters->shadowMapType = renderer._shadowMap->type();
 
-    shadowMapEnabled: renderer.shadowMap.enabled && object.receiveShadow && shadows.length > 0,
-    shadowMapType: renderer.shadowMap.type,
+  parameters->toneMapping = renderer._toneMapping;
+  parameters->physicallyCorrectLights = renderer._physicallyCorrectLights;
 
-    toneMapping: renderer.toneMapping,
-    physicallyCorrectLights: renderer.physicallyCorrectLights,
+  parameters->premultipliedAlpha = material->premultipliedAlpha;
 
-    premultipliedAlpha: material.premultipliedAlpha,
+  parameters->alphaTest = material->alphaTest;
+  parameters->doubleSided = material->side == Side::Double;
+  parameters->flipSided = material->side == Side::Back;
 
-    alphaTest: material.alphaTest,
-    doubleSided: material.side === DoubleSide,
-    flipSided: material.side === BackSide,
-
-    depthPacking: ( material.depthPacking !== undefined ) ? material.depthPacking : false
-
- };*/
   return parameters;
 }
 
