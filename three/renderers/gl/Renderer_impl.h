@@ -185,6 +185,8 @@ public:
 
   Renderer_impl &setRenderTarget(const Renderer::Target::Ptr renderTarget);
 
+  const Renderer::Target::Ptr getRenderTarget() {return _currentRenderTarget;}
+
   bool localClippingEnabled() const {return _localClippingEnabled;}
 
   void clear(bool color=true, bool depth=true, bool stencil=true);

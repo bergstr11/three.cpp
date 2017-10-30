@@ -209,7 +209,7 @@ public:
 
 #define DEF_STRING_TABLE(Cls) \
 struct Cls { \
-template <typename T> std::string string(T &t) const = delete; \
+template <typename T> std::string string(T &t) const {return "";} \
 template <typename T> resolver::NullFuncAssoc func() const {return resolver::NullFuncAssoc();} \
 };
 
@@ -393,9 +393,6 @@ PUT_FUNC_TABLE(Dispatch, MeshBasicMaterial)
 PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
 
 DEF_STRING_TABLE(ShaderIDs)
-PUT_STRING_TABLE(ShaderIDs, Material, "null")
-PUT_STRING_TABLE(ShaderIDs, SpriteMaterial, "null")
-PUT_STRING_TABLE(ShaderIDs, ShaderMaterial, "null")
 PUT_STRING_TABLE(ShaderIDs, MeshDepthMaterial, "depth")
 PUT_STRING_TABLE(ShaderIDs, MeshDistanceMaterial, "distanceRGBA")
 PUT_STRING_TABLE(ShaderIDs, MeshNormalMaterial, "normal")

@@ -21,9 +21,14 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, f
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha)
-   : OpenGLRenderer(context), _state(this), _attributes(this), _objects(_geometries, _infoRender),
-     _geometries(_attributes), _extensions(context), _capabilities(this, _extensions, _parameters ),
-     _morphTargets(this), _programs(_extensions, _capabilities),
+   : OpenGLRenderer(context), _state(this),
+     _attributes(this),
+     _objects(_geometries, _infoRender),
+     _geometries(_attributes),
+     _extensions(context),
+     _capabilities(this, _extensions, _parameters ),
+     _morphTargets(this),
+     _programs(*this, _extensions, _capabilities),
      _background(*this, _state, _geometries, _premultipliedAlpha),
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
      _bufferRenderer(this, this, _extensions, _infoRender),
@@ -528,12 +533,12 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
-  auto &materialProperties = _properties.get( material );
 #if 0
+  auto &materialProperties = _properties.get( material );
   var parameters = _programs.getParameters(
-     material, lights.state, _shadowsArray, fog, _clipping.numPlanes, _clipping.numIntersection, object );
+     material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
-  var code = programCache.getProgramCode( material, parameters );
+  var code = _programs.getProgramCode( material, parameters );
 
   var program = materialProperties.program;
   var programChange = true;

@@ -55,7 +55,7 @@ struct Material
   LineCap wireframeLineCap = LineCap::round;
   LineJoin wireframeLineJoin = LineJoin::round;
 
-  //precision = null; // override the renderer's default precision for this material
+  Precision precision = Precision::unknown; // override the renderer's default precision for this material
 
   bool polygonOffset = false;
   unsigned polygonOffsetFactor = 0;
@@ -71,6 +71,12 @@ struct Material
   Texture::Ptr alphaMap;
 
   Texture::Ptr envMap;
+
+  Texture::Ptr lightMap;
+
+  Texture::Ptr gradientMap;
+
+  Texture::Ptr emissiveMap;
 
   bool _skinning = false;
   bool _morphTargets = false;

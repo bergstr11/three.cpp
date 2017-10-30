@@ -16,10 +16,9 @@ struct MeshBasicMaterial : public Material
 
   Texture::Ptr map;
 
-  //lightMap = null;
   float lightMapIntensity = 1.0;
 
-  //aoMap = null;
+  Texture::Ptr aoMap;
   float aoMapIntensity = 1.0;
 
   CombineOperation combine = CombineOperation::Multiply;

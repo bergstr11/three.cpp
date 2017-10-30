@@ -101,6 +101,10 @@ public:
     onDispose.emitSignal(this);
   }
 
+  TextureMapping mapping() const {return _mapping;}
+
+  Encoding encoding() const {return _encoding;}
+
   bool needsUpdate() const {return _needsUpdate;}
 
   void needsUpdate(bool value) {_needsUpdate = value;}

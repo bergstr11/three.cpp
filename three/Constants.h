@@ -26,6 +26,7 @@ enum class TextureFilter
 
 enum class TextureMapping
 {
+  Unknown = 0,
   UV = 300,
   CubeReflection = 301,
   CubeRefraction = 302,
@@ -241,7 +242,7 @@ enum class ShaderType {
 
 enum class Precision
 {
-  lowp, mediump, highp
+  lowp, mediump, highp, unknown
 };
 
 enum class UniformType

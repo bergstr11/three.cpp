@@ -7,21 +7,59 @@
 
 #include <objects/SkinnedMesh.h>
 #include "Program.h"
+#include "Lights.h"
 #include "Extensions.h"
 #include "Capabilities.h"
 
 namespace three {
 namespace gl {
 
+class Renderer_impl;
+
+class ProgramParameters {
+  ProgramParameters() {};
+
+public:
+  using Ptr = std::shared_ptr<ProgramParameters>;
+  static Ptr make() {return Ptr(new ProgramParameters());}
+
+  std::string shaderID;
+  Precision precision;
+  bool supportsVertexTextures;
+  Encoding outputEncoding;
+  bool hasMap;
+  Encoding mapEncoding;
+  bool hasEnvMap;
+  Encoding envMapEncoding;
+  TextureMapping envMapMode;
+  bool envMapCubeUV;
+  bool lightMap;
+  bool aoMap;
+  bool emissiveMap;
+  Encoding emissiveMapEncoding;
+  bool bumpMap;
+  bool normalMap;
+  bool displacementMap;
+  bool roughnessMap;
+  bool metalnessMap;
+  bool specularMap;
+  bool alphaMap;
+  bool gradientMap;
+  CombineOperation combine;
+  Colors vertexColors;
+};
+
 class Programs
 {
   std::vector<Program::Ptr> _programs;
+
+  Renderer_impl &_renderer;
   Extensions &_extensions;
   Capabilities &_capabilities;
 
 public:
-  Programs(Extensions &extensions, Capabilities &capabilities)
-     : _extensions(extensions), _capabilities(capabilities) {}
+  Programs(Renderer_impl &renderer, Extensions &extensions, Capabilities &capabilities)
+     : _renderer(renderer), _extensions(extensions), _capabilities(capabilities) {}
 
   unsigned allocateBones(SkinnedMesh::Ptr object) 
   {
@@ -54,125 +92,15 @@ public:
     }
   }
 
-  std::string getShaderId(Material::Ptr material)
-  {
-    static const material::ShaderIDs ids;
-
-    return ids.string(*material);
-  }
-
-  void getParameters(Material::Ptr material,
-                     Lights::State &lights,
-                     const std::vector<Light::Ptr> &shadows,
-                     const Fog::Ptr fog,
-                     size_t nClipPlanes,
-                     size_t nClipIntersection,
-                     Object3D::Ptr object )
-  {
+  ProgramParameters::Ptr getParameters(Material::Ptr material,
+                                Lights::State &lights,
+                                const std::vector<Light::Ptr> &shadows,
+                                const Fog::Ptr fog,
+                                size_t nClipPlanes,
+                                size_t nClipIntersection,
+                                Object3D::Ptr object );
 #if 0
-    var shaderID = shaderIDs[ material->type ];
-
-    // heuristics to create shader parameters according to lights in the scene
-    // (not to blow over maxLights budget)
-
-    var maxBones = object.isSkinnedMesh ? allocateBones( object ) : 0;
-    var precision = capabilities.precision;
-
-    if ( material.precision !== null ) {
-
-      precision = capabilities.getMaxPrecision( material.precision );
-
-      if ( precision !== material.precision ) {
-
-        console.warn( 'THREE.WebGLProgram.getParameters:', material.precision, 'not supported, using', precision, 'instead.' );
-
-      }
-
-    }
-
-    var currentRenderTarget = renderer.getRenderTarget();
-
-    var parameters = {
-
-       shaderID: shaderID,
-
-       precision: precision,
-       supportsVertexTextures: capabilities.vertexTextures,
-       outputEncoding: getTextureEncodingFromMap( ( ! currentRenderTarget ) ? null : currentRenderTarget.texture, renderer.gammaOutput ),
-       map: !! material.map,
-       mapEncoding: getTextureEncodingFromMap( material.map, renderer.gammaInput ),
-       envMap: !! material.envMap,
-       envMapMode: material.envMap && material.envMap.mapping,
-       envMapEncoding: getTextureEncodingFromMap( material.envMap, renderer.gammaInput ),
-       envMapCubeUV: ( !! material.envMap ) && ( ( material.envMap.mapping === CubeUVReflectionMapping ) || ( material.envMap.mapping === CubeUVRefractionMapping ) ),
-       lightMap: !! material.lightMap,
-       aoMap: !! material.aoMap,
-       emissiveMap: !! material.emissiveMap,
-       emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap, renderer.gammaInput ),
-       bumpMap: !! material.bumpMap,
-       normalMap: !! material.normalMap,
-       displacementMap: !! material.displacementMap,
-       roughnessMap: !! material.roughnessMap,
-       metalnessMap: !! material.metalnessMap,
-       specularMap: !! material.specularMap,
-       alphaMap: !! material.alphaMap,
-
-       gradientMap: !! material.gradientMap,
-
-       combine: material.combine,
-
-       vertexColors: material.vertexColors,
-
-       fog: !! fog,
-       useFog: material.fog,
-       fogExp: ( fog && fog.isFogExp2 ),
-
-       flatShading: material.flatShading,
-
-       sizeAttenuation: material.sizeAttenuation,
-       logarithmicDepthBuffer: capabilities.logarithmicDepthBuffer,
-
-       skinning: material.skinning && maxBones > 0,
-       maxBones: maxBones,
-       useVertexTexture: capabilities.floatVertexTextures,
-
-       morphTargets: material.morphTargets,
-       morphNormals: material.morphNormals,
-       maxMorphTargets: renderer.maxMorphTargets,
-       maxMorphNormals: renderer.maxMorphNormals,
-
-       numDirLights: lights.directional.length,
-       numPointLights: lights.point.length,
-       numSpotLights: lights.spot.length,
-       numRectAreaLights: lights.rectArea.length,
-       numHemiLights: lights.hemi.length,
-
-       numClippingPlanes: nClipPlanes,
-       numClipIntersection: nClipIntersection,
-
-       dithering: material.dithering,
-
-       shadowMapEnabled: renderer.shadowMap.enabled && object.receiveShadow && shadows.length > 0,
-       shadowMapType: renderer.shadowMap.type,
-
-       toneMapping: renderer.toneMapping,
-       physicallyCorrectLights: renderer.physicallyCorrectLights,
-
-       premultipliedAlpha: material.premultipliedAlpha,
-
-       alphaTest: material.alphaTest,
-       doubleSided: material.side === DoubleSide,
-       flipSided: material.side === BackSide,
-
-       depthPacking: ( material.depthPacking !== undefined ) ? material.depthPacking : false
-
-    };
-    return parameters;
-#endif
-
-  }
-#if 0
-  void getProgramCode = function ( material, parameters ) {
+  void getProgramCode(Material::Ptr material, parameters ) {
 
     var array = [];
 
@@ -211,7 +139,8 @@ public:
     return array.join();
 
   }
-
+#endif
+#if 0
   void acquireProgram ( material, shader, parameters, code ) {
 
     var program;
