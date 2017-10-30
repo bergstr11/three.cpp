@@ -287,7 +287,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
   }
 }
 
-void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
+void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, BufferGeometry::Ptr geometry,
                   Material::Ptr material, const Group *group)
 {
   object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
@@ -306,7 +306,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
     //TODO renderObjectImmediate( iro, program, material );
   };
   dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
-    //renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
+    renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   };
   object->objectResolver->getFunc(dispatch);
 
@@ -355,7 +355,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
           _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
         }
 
-        Geometry::Ptr geometry = _objects.update( object );
+        BufferGeometry::Ptr geometry = _objects.update( object );
 
         if ( object->materialCount() > 1) {
 

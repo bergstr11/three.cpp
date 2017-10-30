@@ -12,16 +12,16 @@
 
 namespace three {
 
-class Line : public Object3DMat<LineBasicMaterial>
+class Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
 {
   const unsigned _steps;
 
 protected:
-  Line(Geometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
-     : Object3DMat(geometry, object::ResolverT<Line>::make(*this), material), _steps(steps) {}
+  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
+     : Object3D_GM(geometry, object::ResolverT<Line>::make(*this), material), _steps(steps) {}
 
 public:
-  Line(Geometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 1) {}
+  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 1) {}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 
@@ -33,7 +33,7 @@ public:
 class LineSegments : public Line
 {
 public:
-  LineSegments(Geometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 2) {}
+  LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 2) {}
 };
 
 }

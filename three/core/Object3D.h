@@ -30,6 +30,9 @@ class Scene;
 using ScenePtr = std::shared_ptr<Scene>;
 using CameraPtr = std::shared_ptr<Camera>;
 
+/**
+ * 3D object without geometry or material
+ */
 class Object3D
 {
 public:
@@ -61,11 +64,8 @@ protected:
 
   int _renderOrder = -1;
 
-  Geometry::Ptr _geometry;
-
 protected:
-  Object3D(object::Resolver::Ptr resolver=object::NullResolver::make());
-  Object3D(const Geometry::Ptr &geometry, const object::Resolver::Ptr resolver=object::NullResolver::make());
+  Object3D(const object::Resolver::Ptr resolver=object::NullResolver::make());
 
 public:
   const object::Resolver::Ptr objectResolver;
@@ -87,7 +87,6 @@ public:
 
   uint16_t id() const {return _id;}
   const Layers &layers() const {return _layers;}
-  const Geometry::Ptr geometry() const {return _geometry;}
   const math::Matrix4 &matrix() const {return _matrix;}
   const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
@@ -123,6 +122,8 @@ public:
   virtual const Material::Ptr material() const {return nullptr;}
   virtual const Material::Ptr material(size_t index) const {return nullptr;}
   virtual const size_t materialCount() const {return 0;}
+
+  virtual const Geometry::Ptr geometry() const {return nullptr;}
 
   void applyQuaternion(math::Quaternion q)
   {
@@ -293,19 +294,54 @@ public:
   virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const {};
 };
 
-template <typename ... Mat>
-class Object3DMat : public virtual Object3D
+/**
+ * 3D object with a geometry
+ *
+ * @tparam Geom
+ */
+template <typename Geom=BufferGeometry>
+class Object3D_G : public Object3D
 {
+  using GeometryPtr = std::shared_ptr<Geom>;
+
+  GeometryPtr _geometry;
+
+protected:
+  Object3D_G(const object::Resolver::Ptr &resolver) : Object3D(resolver), _geometry(Geom::make())
+  {}
+  Object3D_G(GeometryPtr geometry, const object::Resolver::Ptr &resolver)
+     : Object3D(resolver), _geometry(geometry)
+  {}
+
+public:
+  const Geometry::Ptr geometry() const override {return _geometry;}
+
+  const GeometryPtr geometry_t() const {return _geometry;}
+};
+
+/**
+ * 3D object with geometry and material(s)
+ *
+ * @tparam Geom
+ * @tparam Mat
+ */
+template <typename Geom=BufferGeometry, typename ... Mat>
+class Object3D_GM : public virtual Object3D
+{
+  using GeometryPtr = std::shared_ptr<Geom>;
+
+  GeometryPtr _geometry;
+
   std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
   std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
 
 protected:
-  Object3DMat(const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
-     : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}) {
-  }
-  Object3DMat(Geometry::Ptr geometry, const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
-     : Object3D(geometry, resolver), _materialsTuple(args...), _materialsArray({args...}) {
-  }
+  explicit Object3D_GM(const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
+     : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
+  {}
+  explicit Object3D_GM(GeometryPtr geometry, const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
+     : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(geometry)
+  {}
 
 public:
   const Material::Ptr material() const override {return _materialsArray[0];}
@@ -314,10 +350,12 @@ public:
 
   const size_t materialCount() const override {return sizeof ... (Mat);}
 
+  const Geometry::Ptr geometry() const override {return _geometry;}
+
+  const GeometryPtr geometry_t() const {return _geometry;}
+
   template<int N>
   decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}
-
-  size_t materialCount() {return sizeof ... (Mat);}
 };
 
 }

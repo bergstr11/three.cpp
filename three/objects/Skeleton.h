@@ -10,9 +10,9 @@
 
 namespace three {
 
-class Bone : public Object3D
+class Bone : public Object3D_G<Geometry>
 {
-  Bone(Geometry::Ptr geometry) : Object3D(geometry) {}
+  Bone(Geometry::Ptr geometry) : Object3D_G(geometry, object::NullResolver::make()) {}
 public:
   using Ptr = std::shared_ptr<Bone>;
   static Ptr make(Geometry::Ptr geometry) {

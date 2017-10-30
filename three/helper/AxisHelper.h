@@ -13,9 +13,9 @@ namespace helper {
 
 class AxisHelper : public Line {
 
-  static Geometry::Ptr createGeometry(float size)
+  static BufferGeometry::Ptr createGeometry(float size)
   {
-    Geometry::Ptr geometry;// = new BufferGeometry();
+    BufferGeometry::Ptr geometry = BufferGeometry::make();
     //geometry.addAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
     //geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
     return geometry;

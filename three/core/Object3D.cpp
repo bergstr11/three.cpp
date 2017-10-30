@@ -10,13 +10,8 @@ namespace three {
 
 using namespace three::math;
 
-Object3D::Object3D(const Geometry::Ptr &geometry, object::Resolver::Ptr resolver)
-   : _geometry(geometry), objectResolver(resolver), uuid(sole::uuid0())
-{
-}
-
 Object3D::Object3D(object::Resolver::Ptr resolver)
-   : uuid(sole::uuid0()), objectResolver(resolver)
+   : objectResolver(resolver), uuid(sole::uuid0())
 {
 }
 

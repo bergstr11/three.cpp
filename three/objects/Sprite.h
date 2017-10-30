@@ -22,12 +22,10 @@ struct Intersect
   {}
 };
 
-class Sprite : public Object3DMat<SpriteMaterial>
+class Sprite : public Object3D_GM<BufferGeometry, SpriteMaterial>
 {
-  Material::Ptr _material;
-
   explicit Sprite(SpriteMaterial::Ptr material)
-     : Object3DMat(object::ResolverT<Sprite>::make(*this), material)
+     : Object3D_GM(object::ResolverT<Sprite>::make(*this), material)
   {}
 
 public:

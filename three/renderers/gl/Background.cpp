@@ -31,7 +31,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     if (!boxMesh) {
 
       geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make(1, 1, 1);
-      boxMesh = MeshBase<ShaderMaterial>::make(box,
+      boxMesh = Mesh_T<geometry::BoxBuffer, ShaderMaterial>::make(box,
                                            ShaderMaterial::make(shaderlib::cube, Side::Back, true, false, false));
 
       box->setNormal(nullptr);
@@ -47,7 +47,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
     boxMesh->material<0>()->uniforms.set<tCube>(tex);
 
-    renderList->push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, nullptr);
+    renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
   };
   textures.func<Texture::Ptr>() = [&] (Texture::Ptr &tex) {
 
@@ -64,7 +64,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
       mat->fog = false;
 
       auto planeGeom = geometry::buffer::Plane::make( 2, 2 );
-      planeMesh = MeshBase<MeshBasicMaterial>::make(planeGeom, mat);
+      planeMesh = Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
 
       geometries.update(planeGeom);
     }
@@ -72,7 +72,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     planeMesh->material<0>()->map = tex;
 
     // TODO Push this to renderList
-    //renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry(), planeMesh->material(), planeMesh, nullptr);
+    renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry_t(), planeMesh->material(), planeMesh, nullptr);
   };
   scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getFunc(textures);
 }

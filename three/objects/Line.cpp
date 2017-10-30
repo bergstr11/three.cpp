@@ -8,9 +8,9 @@ namespace three {
 void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const
 {
   // Checking boundingSphere distance to ray
-  if ( _geometry->boundingSphere().isEmpty()) _geometry->computeBoundingSphere();
+  if ( geometry()->boundingSphere().isEmpty()) geometry()->computeBoundingSphere();
 
-  math::Sphere sphere = _geometry->boundingSphere();
+  math::Sphere sphere = geometry()->boundingSphere();
   sphere.apply(_matrixWorld);
 
   if (!raycaster.ray().intersectsSphere(sphere)) return;
@@ -19,7 +19,7 @@ void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Ray ray = raycaster.ray();
   ray.applyMatrix4( inverseMatrix );
 
-  _geometry->raycast(*this, raycaster, ray, intersects);
+  geometry()->raycast(*this, raycaster, ray, intersects);
 }
 
 }

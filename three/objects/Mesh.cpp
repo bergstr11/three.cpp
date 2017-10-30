@@ -15,9 +15,9 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   if (materialCount() == 0) return;
 
   // Checking boundingSphere distance to ray
-  if (_geometry->boundingSphere().isEmpty()) _geometry->computeBoundingSphere();
+  if (geometry()->boundingSphere().isEmpty()) geometry()->computeBoundingSphere();
 
-  math::Sphere sphere = _geometry->boundingSphere();
+  math::Sphere sphere = geometry()->boundingSphere();
   sphere.apply(_matrixWorld);
 
   if (!raycaster.ray().intersectsSphere(sphere)) return;
@@ -26,14 +26,14 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Ray ray = raycaster.ray() * inverseMatrix;
 
   // Check boundingBox before continuing
-  if (!_geometry->boundingBox().isEmpty()) {
-    if (!ray.intersectsBox(_geometry->boundingBox())) return;
+  if (!geometry()->boundingBox().isEmpty()) {
+    if (!ray.intersectsBox(geometry()->boundingBox())) return;
   }
 
   math::Vector3 intersectionPoint;
   math::Vector3 intersectionPointWorld;
 
-  _geometry->raycast(*this, raycaster, ray, intersectionPoint, intersectionPointWorld, intersects);
+  geometry()->raycast(*this, raycaster, ray, intersectionPoint, intersectionPointWorld, intersects);
 }
 
 }

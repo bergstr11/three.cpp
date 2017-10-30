@@ -25,7 +25,7 @@ public:
      : _geometries(geometries), _infoRender(infoRender)
   {}
 
-  Geometry::Ptr update(Object3D::Ptr object)
+  BufferGeometry::Ptr update(Object3D::Ptr object)
   {
     unsigned frame = _infoRender.frame;
 

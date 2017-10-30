@@ -29,8 +29,8 @@ class Background
   float clearAlpha;
 
   Camera::Ptr planeCamera;
-  MeshBase<MeshBasicMaterial>::Ptr planeMesh;
-  MeshBase<ShaderMaterial>::Ptr boxMesh;
+  Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::Ptr planeMesh;
+  Mesh_T<geometry::BoxBuffer, ShaderMaterial>::Ptr boxMesh;
 
   Renderer_impl &renderer;
   State &state;

@@ -12,6 +12,9 @@
 
 namespace three {
 
+/**
+ * a mesh without geometry and material
+ */
 class Mesh : public virtual Object3D
 {
   DrawMode _drawMode;
@@ -20,10 +23,7 @@ class Mesh : public virtual Object3D
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  Mesh(const Geometry::Ptr &geometry)
-     : Object3D(geometry, object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
-  {}
-  Mesh() : Object3D(BufferGeometry::make(), object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3D(object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
 
 public:
@@ -44,30 +44,32 @@ public:
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 };
 
-template <typename Mat>
-class MeshBase : public Mesh, public Object3DMat<Mat>
+template <typename Geom, typename Mat>
+class Mesh_T : public Mesh, public Object3D_GM<Geom, Mat>
 {
+  using GeometryPtr = std::shared_ptr<Geom>;
+
   std::vector<float> _morphTargetInfluences;
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  MeshBase(const Geometry::Ptr &geometry, std::shared_ptr<Mat> material)
-     : Object3DMat<Mat>(geometry, nullptr, material)
+  Mesh_T(const GeometryPtr &geometry, std::shared_ptr<Mat> material)
+     : Object3D_GM<Geom, Mat>(geometry, nullptr, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
-  MeshBase() : Object3DMat<Mat>(BufferGeometry::make(), nullptr, Mat::make())
+  Mesh_T() : Object3D_GM<Geom, Mat>(BufferGeometry::make(), nullptr, Mat::make())
   {
     setDrawMode(DrawMode::Triangles);
   }
 
 public:
-  using Ptr = std::shared_ptr<MeshBase>;
-  static Ptr make() {return std::shared_ptr<MeshBase>(new MeshBase());}
-  static Ptr make(const Geometry::Ptr &geometry, const std::shared_ptr<Mat> &material)
+  using Ptr = std::shared_ptr<Mesh_T>;
+  static Ptr make() {return std::shared_ptr<Mesh_T>(new Mesh_T());}
+  static Ptr make(const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
   {
-    return Ptr(new MeshBase(geometry, material));
+    return Ptr(new Mesh_T(geometry, material));
   }
 };
 
