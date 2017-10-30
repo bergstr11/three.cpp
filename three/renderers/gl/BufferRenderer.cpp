@@ -30,17 +30,17 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
 
   BufferAttributeBase<float>::Ptr position = geometry->position();
 
-  bufferattribute::Functions funcs;
-  funcs.interleaved = [&](InterleavedBufferAttribute &att) {
+  bufferattribute::Dispatch dispatch;
+  dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {
 
     count = att.count();
     _fx->glDrawArraysInstanced((GLenum)_mode, 0, count, geometry->maxInstancedCount());
   };
-  funcs._void = [&] () {
+  dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
     _fx->glDrawArraysInstanced((GLenum)_mode, start, count, geometry->maxInstancedCount() );
   };
 
-  position->resolver->call(funcs);
+  position->resolver->getFunc(dispatch);
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count * geometry->maxInstancedCount();

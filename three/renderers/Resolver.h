@@ -16,6 +16,8 @@
 
 namespace resolver {
 
+static const nullptr_t null = nullptr;
+
 template<typename T>
 struct Functor
 {
@@ -58,6 +60,13 @@ class Assoc<T, Functor<T>>
 
 public:
   template <typename F>
+  Assoc(F&& f) : ft(new FunctorT<T, F>(f)) {}
+  Assoc() : ft(nullptr) {}
+  Assoc(Assoc &&ass) : ft(ass.ft) {
+    ass.ft = nullptr;
+  }
+
+  template <typename F>
   void operator =(F&& f) {
     ft = new FunctorT<T, F>(f);
   }
@@ -65,6 +74,13 @@ public:
   bool operator()(T &t) const {
     if(ft) {(*ft)(t); return true;}
     return false;
+  }
+
+  void clear() {
+    if(ft) {
+      delete ft;
+      ft = nullptr;
+    }
   }
 
   ~Assoc() {
@@ -186,11 +202,10 @@ public:
 
   using Ptr = std::shared_ptr<ResolversT>;
   static Ptr make(Base &b) {return Ptr(new ResolversT(b));}
+  static Ptr make() {return Ptr(resolver::null);}
 };
 
-} //namespace resolver
-
-using namespace std;
+} //namespace: resolver
 
 #define DEF_STRING_TABLE(Cls) \
 struct Cls { \
@@ -212,28 +227,32 @@ template <typename T> std::string string(T &t) const {throw std::logic_error("ge
 
 #define PUT_FUNC_TABLE(Cls, Type) \
 template <> inline resolver::FuncAssoc<Type> &Cls::func() const { \
-static resolver::FuncAssoc<Type> f; \
+thread_local static resolver::FuncAssoc<Type> f; \
 return f; \
 }
 
 #define DEF_RESOLVER_1(Map) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map>; \
+using NullResolver = resolver::ResolversT<nullptr_t, Map>; \
 using Resolver = resolver::Resolvers<Map>;
 
 #define DEF_RESOLVER_2(Map1, Map2) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2>; \
+using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2>; \
 using Resolver = resolver::Resolvers<Map1, Map2>;
 
 #define DEF_RESOLVER_3(Map1, Map2, Map3) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2, Map3>; \
+using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2, Map3>; \
 using Resolver = resolver::Resolvers<Map1, Map2, Map3>;
 
 #define DEF_RESOLVER_4(Map1, Map2, Map3, Map4) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2, Map3, Map4>; \
+using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2, Map3, Map4>; \
 using Resolver = resolver::Resolvers<Map1, Map2, Map3, Map4>;
 
 namespace three {
@@ -265,12 +284,13 @@ class Color;
 
 namespace scene {
 
-DEF_FUNC_TABLE(TextureDispatch)
-PUT_FUNC_TABLE(TextureDispatch, CubeTexture)
-PUT_FUNC_TABLE(TextureDispatch, Texture)
-PUT_FUNC_TABLE(TextureDispatch, Color)
+DEF_FUNC_TABLE(BackgroundDispatch)
+PUT_FUNC_TABLE(BackgroundDispatch, nullptr_t)
+PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<CubeTexture>)
+PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<Texture>)
+PUT_FUNC_TABLE(BackgroundDispatch, Color)
 
-DEF_RESOLVER_1(TextureDispatch)
+DEF_RESOLVER_1(BackgroundDispatch)
 
 }
 
@@ -286,13 +306,14 @@ class ImmediateRenderObject;
 namespace object {
 
 DEF_FUNC_TABLE(Dispatch)
+PUT_FUNC_TABLE(Dispatch, nullptr_t)
 PUT_FUNC_TABLE(Dispatch, Light)
 PUT_FUNC_TABLE(Dispatch, Sprite)
 PUT_FUNC_TABLE(Dispatch, LensFlare)
 PUT_FUNC_TABLE(Dispatch, Mesh)
+PUT_FUNC_TABLE(Dispatch, SkinnedMesh)
 PUT_FUNC_TABLE(Dispatch, Line)
 PUT_FUNC_TABLE(Dispatch, Points)
-PUT_FUNC_TABLE(Dispatch, Sprite)
 PUT_FUNC_TABLE(Dispatch, ImmediateRenderObject)
 
 DEF_RESOLVER_1(Dispatch)
@@ -304,6 +325,7 @@ class InterleavedBufferAttribute;
 namespace bufferattribute {
 
 DEF_FUNC_TABLE(Dispatch)
+PUT_FUNC_TABLE(Dispatch, nullptr_t)
 PUT_FUNC_TABLE(Dispatch, InterleavedBufferAttribute)
 
 DEF_RESOLVER_1(Dispatch)
@@ -371,6 +393,9 @@ PUT_FUNC_TABLE(Dispatch, MeshBasicMaterial)
 PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
 
 DEF_STRING_TABLE(ShaderIDs)
+PUT_STRING_TABLE(ShaderIDs, Material, "null")
+PUT_STRING_TABLE(ShaderIDs, SpriteMaterial, "null")
+PUT_STRING_TABLE(ShaderIDs, ShaderMaterial, "null")
 PUT_STRING_TABLE(ShaderIDs, MeshDepthMaterial, "depth")
 PUT_STRING_TABLE(ShaderIDs, MeshDistanceMaterial, "distanceRGBA")
 PUT_STRING_TABLE(ShaderIDs, MeshNormalMaterial, "normal")

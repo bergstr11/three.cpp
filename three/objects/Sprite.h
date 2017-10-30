@@ -22,12 +22,12 @@ struct Intersect
   {}
 };
 
-class Sprite : public Object3DBase<SpriteMaterial>
+class Sprite : public Object3DMat<SpriteMaterial>
 {
   Material::Ptr _material;
 
   explicit Sprite(SpriteMaterial::Ptr material)
-     : Object3DBase(object::ResolverT<Sprite>::make(*this), material)
+     : Object3DMat(object::ResolverT<Sprite>::make(*this), material)
   {}
 
 public:

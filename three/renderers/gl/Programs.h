@@ -58,9 +58,7 @@ public:
   {
     static const material::ShaderIDs ids;
 
-    std::string shaderId = resolver::get<std::string>(ids, *material);
-
-    return material.resolver.resolve(funcs);
+    return ids.string(*material);
   }
 
   void getParameters(Material::Ptr material,
@@ -71,6 +69,7 @@ public:
                      size_t nClipIntersection,
                      Object3D::Ptr object )
   {
+#if 0
     var shaderID = shaderIDs[ material->type ];
 
     // heuristics to create shader parameters according to lights in the scene
@@ -168,11 +167,11 @@ public:
        depthPacking: ( material.depthPacking !== undefined ) ? material.depthPacking : false
 
     };
-
     return parameters;
+#endif
 
   }
-
+#if 0
   void getProgramCode = function ( material, parameters ) {
 
     var array = [];
@@ -259,8 +258,8 @@ public:
     }
 
   }
+#endif
 };
-
 }
 }
 #endif //THREE_QT_PROGRAMS_H

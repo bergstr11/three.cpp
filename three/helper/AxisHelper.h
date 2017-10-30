@@ -21,16 +21,11 @@ class AxisHelper : public Line {
     return geometry;
   }
 
-  static Material::Ptr createMaterial(float size) {
-    Material::Ptr material;// = new LineBasicMaterial( { vertexColors: VertexColors } );
-    return material;
-  }
-
-  AxisHelper(float size) : Line(createGeometry(size), createMaterial(size)) {}
+  AxisHelper(size_t size) : Line(createGeometry(size), LineBasicMaterial::make(size)) {}
 
 public:
   using Ptr = std::shared_ptr<AxisHelper>;
-  static Ptr make(float size) {return std::shared_ptr<AxisHelper>(new AxisHelper(size));}
+  static Ptr make(size_t size) {return std::shared_ptr<AxisHelper>(new AxisHelper(size));}
 };
 
 }

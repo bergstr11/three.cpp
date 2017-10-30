@@ -100,9 +100,9 @@ void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
   _state.bindTexture(GL_TEXTURE_2D, textureProperties[PropertyKey::__webglTexture].gluint_value);
 }
 
-#if 0
 void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
 {
+#if 0
   auto textureProperties = _properties.get(texture);
 
   if ( texture->version() > 0 && textureProperties[PropertyKey::__version].gluint_value != texture->version() ) {
@@ -203,8 +203,10 @@ void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
     state.bindTexture( _gl.TEXTURE_CUBE_MAP, textureProperties.__image__webglTextureCube );
 
   }
+#endif
 }
 
+#if 0
 function setTextureCubeDynamic( texture, slot ) {
 
   state.activeTexture( _gl.TEXTURE0 + slot );
@@ -634,9 +636,10 @@ function setupRenderTarget( renderTarget ) {
   }
 
 }
-
-function updateRenderTargetMipmap( renderTarget ) {
-
+#endif
+void Textures::updateRenderTargetMipmap(const Renderer::Target::Ptr &renderTarget)
+{
+#if 0
   var texture = renderTarget.texture;
   var isTargetPowerOfTwo = isPowerOfTwo( renderTarget );
 
@@ -650,7 +653,8 @@ function updateRenderTargetMipmap( renderTarget ) {
     state.bindTexture( target, null );
 
   }
-}
 #endif
+}
+
 }
 }

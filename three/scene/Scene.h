@@ -18,16 +18,16 @@ class Scene : public Object3D
   bool _autoUpdate;
 
 protected:
-  Scene(scene::ResolverBase::Ptr resolver, const Fog::Ptr fog) : _fog(fog) {}
-  Scene(scene::ResolverBase::Ptr resolver) {}
+  Scene(const Fog::Ptr fog, scene::Resolver::Ptr resolver=scene::NullResolver::make()) : _fog(fog), backgroundResolver(resolver) {}
+  Scene(scene::Resolver::Ptr resolver=scene::NullResolver::make()) : backgroundResolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Scene>;
   static Ptr make() {
-    return Ptr(new Scene(scene::Resolver<void>::make()));
+    return Ptr(new Scene(scene::NullResolver::make()));
   }
 
-  scene::ResolverBase::Ptr resolver;
+  scene::Resolver::Ptr backgroundResolver;
 
   Material::Ptr overrideMaterial;
 
@@ -44,15 +44,15 @@ class SceneBase : public Scene
   _Background _background;
 
 protected:
-  SceneBase(typename scene::Resolver<_Background>::Ptr resolver, const _Background &background, const Fog::Ptr &fog)
-     : Scene(resolver, fog), _background(background) {}
-  SceneBase(typename scene::Resolver<_Background>::Ptr resolver)
-     : Scene(resolver) {}
+  SceneBase(const _Background &background, const Fog::Ptr &fog)
+     : Scene(fog, scene::ResolverT<_Background>::make(*this)), _background(background) {}
+  SceneBase()
+     : Scene(scene::ResolverT<_Background>::make(*this)) {}
 
 public:
   using Ptr = std::shared_ptr<SceneBase<_Background>>;
   static Ptr make(const _Background &background, const Fog::Ptr &fog) {
-    return Ptr(new SceneBase(scene::Resolver<_Background>::make(&background), background, fog));
+    return Ptr(new SceneBase(background, fog));
   }
 
   const _Background &background() const {return _background;}

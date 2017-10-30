@@ -254,8 +254,8 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
     Material::Ptr material = overrideMaterial ? renderItem.material : overrideMaterial;
     //var group = renderItem.group;
 
-    camera::Functions funcs;
-    funcs.array = [&](ArrayCamera &acamera) {
+    camera::Dispatch dispatch;
+    dispatch.func<ArrayCamera>() = [&](ArrayCamera &acamera) {
       _currentArrayCamera = dynamic_pointer_cast<ArrayCamera>(camera);
 
       for ( unsigned j = 0; j < acamera.cameraCount; j ++ ) {
@@ -278,37 +278,37 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
         }
       }
     };
-    funcs.base = [&] (Camera &cam) {
+    dispatch.func<Camera>() = [&] (Camera &cam) {
       _currentArrayCamera = nullptr;
 
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     };
-    camera->resolver->call(funcs);
+    camera->cameraResolver->getFunc(dispatch);
   }
 }
 
 void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
-                  Material::Ptr material, Group *group)
+                  Material::Ptr material, const Group *group)
 {
   object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
 
   object->modelViewMatrix = camera->matrixWorldInverse() * object->matrixWorld();
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
-  object::Functions func;
-  func.immediate = [&] (ImmediateRenderObject &iro) {
+  object::Dispatch dispatch;
+  dispatch.func<ImmediateRenderObject>() = [&] (ImmediateRenderObject &iro) {
     _state.setMaterial( material );
 
     Program::Ptr program = setProgram( camera, scene->fog(), material, object );
 
     _currentGeometryProgram.clear();
 
-    renderObjectImmediate( iro, program, material );
+    //TODO renderObjectImmediate( iro, program, material );
   };
-  func._void = [&] () {
-    renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
+  dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
+    //renderBufferDirect( camera, scene->fog().get(), geometry, material, object, group );
   };
-  object->resolver->call(func);
+  object->objectResolver->getFunc(dispatch);
 
   object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
 }
@@ -320,9 +320,9 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   bool visible = object->layers().test(camera->layers());
   if ( visible ) {
 
-    object::Functions funcs;
+    object::Dispatch dispatch;
 
-    funcs.light = [&] (Light &light) {
+    dispatch.func<Light>() = [&] (Light &light) {
       Light::Ptr lp = dynamic_pointer_cast<Light>(object);
       _lightsArray.push_back(lp);
 
@@ -330,24 +330,24 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
         _shadowsArray.push_back( lp );
       }
     };
-    funcs.sprite = [&](Sprite &sprite) {
+    dispatch.func<Sprite>() = [&](Sprite &sprite) {
       Sprite::Ptr sp = dynamic_pointer_cast<Sprite>(object);
       if ( ! sprite.frustumCulled || _frustum.intersectsSprite(sp) ) {
         _spritesArray.push_back( sp );
       }
     };
-    funcs.lensFlare = [&](LensFlare &flare) {
+    dispatch.func<LensFlare>() = [&](LensFlare &flare) {
       LensFlare::Ptr fp = dynamic_pointer_cast<LensFlare>(object);
       _flaresArray.push_back( fp );
     };
-    funcs.immediate = [&](ImmediateRenderObject &iro) {
+    dispatch.func<ImmediateRenderObject>() = [&](ImmediateRenderObject &iro) {
       if ( sortObjects ) {
 
         _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
       }
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
     };
-    funcs.mesh = [&](Mesh &mesh) {
+    resolver::FuncAssoc<Object3D> assoc = [&](Object3D &mesh) {
 
       if ( ! object->frustumCulled || _frustum.intersectsObject( object ) ) {
 
@@ -377,14 +377,15 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
         }
       }
     };
-    funcs.skinnedMesh = [&](SkinnedMesh &sk) {
+    dispatch.func<SkinnedMesh>() = [&](SkinnedMesh &sk) {
       sk.skeleton()->update();
-      funcs.mesh(sk);
+      assoc(sk);
     };
-    funcs.line = funcs.mesh;
-    funcs.points = funcs.mesh;
+    dispatch.func<Mesh>() = assoc;
+    dispatch.func<Line>() = assoc;
+    //dispatch.func<Points>() = assoc;
 
-    object->resolver->call(funcs);
+    object->objectResolver->getFunc(dispatch);
   }
 
   for (Object3D::Ptr child : object->children()) {
@@ -417,7 +418,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   }
 
   Mesh::Ptr mesh = dynamic_pointer_cast<Mesh>(object);
-  if ( mesh && mesh->morphTargetInfluences ) {
+  if ( mesh && !mesh->morphTargetInfluences().empty() ) {
 
     _morphTargets.update( mesh, geometry, material, program );
 
@@ -436,8 +437,8 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     index = geometry->index();
   }
 
-  if ( updateBuffers )
-    setupVertexAttributes( material, program, geometry );
+  /*if ( updateBuffers )
+    setupVertexAttributes( material, program, geometry );*/
 
   if (geometry->index()) {
 
@@ -465,22 +466,22 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     dataCount = geometry->position()->count();
   }
 
-  auto rangeStart = geometry->drawRange().offset * rangeFactor;
-  auto rangeCount = geometry->drawRange().count * rangeFactor;
+  size_t rangeStart = geometry->drawRange().offset * rangeFactor;
+  size_t rangeCount = geometry->drawRange().count * rangeFactor;
 
   size_t groupStart = group ? group->start * rangeFactor : 0;
   size_t groupCount = group ? group->count * rangeFactor : numeric_limits<size_t>::infinity();
 
   size_t drawStart = std::max( rangeStart, groupStart );
-  size_t drawEnd = std::min( dataCount, rangeStart + rangeCount, groupStart + groupCount ) - 1;
+  size_t drawEnd = std::min( dataCount, std::min(rangeStart + rangeCount, groupStart + groupCount)) - 1;
 
-  size_t drawCount = std::max( 0, drawEnd - drawStart + 1 );
+  size_t drawCount = std::max( (size_t)0, drawEnd - drawStart + 1 );
 
   if ( drawCount == 0 ) return;
 
   //
-  object::Functions funcs;
-  funcs.mesh = [&] (Mesh &mesh) {
+  object::Dispatch dispatch;
+  dispatch.func<Mesh>() = [&] (Mesh &mesh) {
     if ( material->wireframe ) {
 
       _state.setLineWidth( material->wireframeLineWidth * getTargetPixelRatio() );
@@ -491,7 +492,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       renderer->setMode(mesh.drawMode());
     }
   };
-  funcs.line = [&] (Line &line) {
+  dispatch.func<Line>() = [&] (Line &line) {
     //var lineWidth = material.linewidth;
     //if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
 
@@ -510,7 +511,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
     }*/
   };
-  funcs.points = [&](Points &points) {
+  dispatch.func<Points>() = [&](Points &points) {
 
     renderer->setMode(DrawMode::Points);
   };
@@ -518,7 +519,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   InstancedBufferGeometry::Ptr ibg = dynamic_pointer_cast<InstancedBufferGeometry>(geometry);
   if (ibg) {
     if ( ibg->maxInstancedCount() > 0 ) {
-      renderer->renderInstances( geometry, drawStart, drawCount );
+      renderer->renderInstances( ibg, drawStart, drawCount );
     }
   } else {
     renderer->render( drawStart, drawCount );
@@ -528,7 +529,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
   auto &materialProperties = _properties.get( material );
-
+#if 0
   var parameters = _programs.getParameters(
      material, lights.state, _shadowsArray, fog, _clipping.numPlanes, _clipping.numIntersection, object );
 
@@ -670,10 +671,12 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
      WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
 
   materialProperties.uniformsList = uniformsList;
+#endif
 }
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
 {
+#if 0
   _usedTextureUnits = 0;
 
   auto &materialProperties = _properties.get( material );
@@ -769,7 +772,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     // load material specific uniforms
     // (shader material also gets them for the sake of genericity)
 
-    resolver::Func<Material> fmat = [&] (Material &mat) {
+    material::Dispatch dispatch;
+    resolver::FuncAssoc<Material> assoc = [&] (Material &mat) {
 
       Uniform *uCamPos = p_uniforms->get("cameraPosition");
 
@@ -778,20 +782,24 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
         uCamPos->setValue(_vector3);
       }
     };
-    material::Functions funcs;
-    funcs.shader = funcs.meshPhong = funcs.meshStandard = fmat;
-    if(!material->resolver->call(funcs) && material->envMap) {
-      fmat(*material.get());
+    dispatch.func<MeshPhongMaterial>() = dispatch.func<MeshStandardMaterial>() = dispatch.func<ShaderMaterial>() = assoc;
+
+    if(!material->resolver->getFunc(dispatch) && material->envMap) {
+      assoc(*material.get());
     }
 
-    fmat = [&] (Material &mat) {
+    assoc = [&] (Material &mat) {
 
       p_uniforms->get("viewMatrix")->setValue(camera->matrixWorldInverse() );
     };
-    material::Functions funcs2;
-    funcs2.meshPhong = funcs2.meshLambert = funcs2.meshBasic = funcs.meshStandard = fmat = funcs2.shader = fmat;
-    if(!material->resolver->call(funcs2) && material->skinning) {
-      fmat(*material.get());
+    dispatch.func<MeshPhongMaterial>()
+       = dispatch.func<MeshLambertMaterial>()
+       = dispatch.func<MeshBasicMaterial>()
+       = dispatch.func<MeshStandardMaterial>()
+       = dispatch.func<ShaderMaterial>() = assoc;
+
+    if(!material->resolver->getFunc(dispatch) && material->skinning) {
+      assoc(*material.get());
     }
   }
 
@@ -801,8 +809,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   if ( material->skinning ) {
 
-    object::Functions funcs;
-    funcs.skinnedMesh = [&] (SkinnedMesh &m) {
+    object::Dispatch dispatch;
+    dispatch.func<SkinnedMesh>() = [&] (SkinnedMesh &m) {
       p_uniforms->get("bindMatrix")->setValue(m.bindMatrix());
       p_uniforms->get("bindMatrixInverse")->setValue(m.bindMatrixInverse());
 
@@ -844,8 +852,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
         }
       }
     };
+    object->objectResolver->getFunc(dispatch);
   }
-
   if ( refreshMaterial ) {
 
     p_uniforms->get("toneMappingExposure")->setValue(_toneMappingExposure );
@@ -938,8 +946,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   p_uniforms->get("modelViewMatrix")->setValue(object->modelViewMatrix );
   p_uniforms->get("normalMatrix")->setValue(object->normalMatrix );
   p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
-
-  return program;
+#endif
+  return Program::make();
 }
 
 }

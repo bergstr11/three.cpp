@@ -289,7 +289,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
 
             Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld,
                                                  shadowCamera->near(), shadowCamera->far() );
-            _renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, &group );
+            //_renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, &group );
 
           }
 
@@ -300,7 +300,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
         if (material->visible) {
 
           Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld, shadowCamera->near(), shadowCamera->far());
-          _renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
+          //_renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
         }
       }
     }

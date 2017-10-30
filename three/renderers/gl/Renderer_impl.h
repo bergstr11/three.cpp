@@ -168,7 +168,7 @@ protected:
                      Material::Ptr overrideMaterial);
 
   void renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, Geometry::Ptr geometry,
-                    Material::Ptr material, Group *group );
+                    Material::Ptr material, const Group *group );
 
   Program::Ptr setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object );
 

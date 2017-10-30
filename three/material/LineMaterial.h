@@ -13,8 +13,9 @@ namespace three {
 class LineBasicMaterial : public Material
 {
 protected:
-  LineBasicMaterial(material::Resolver::Ptr resolver=material::ResolverT<LineBasicMaterial>::make(*this))
-     : Material(resolver) {}
+  LineBasicMaterial() : Material(material::ResolverT<LineBasicMaterial>::make(*this)) {}
+  LineBasicMaterial(material::Resolver::Ptr resolver) : Material(resolver) {}
+
 public:
   Color color = {255, 2555, 255};
 
@@ -25,7 +26,7 @@ public:
   bool lights = false;
 
   using Ptr = std::shared_ptr<LineBasicMaterial>;
-  static Ptr make() {
+  static Ptr make(size_t size) {
     return Ptr(new LineBasicMaterial());
   }
 };

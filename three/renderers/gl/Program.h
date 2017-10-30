@@ -38,7 +38,7 @@ class Program : private QOpenGLFunctions
 
   GLuint _program;
 
-  Renderer_impl &_renderer;
+  //Renderer_impl &_renderer;
 
   Uniforms::Ptr _cachedUniforms;
 
@@ -46,6 +46,7 @@ class Program : private QOpenGLFunctions
 
 public:
   using Ptr = std::shared_ptr<Program>;
+  static Ptr make() {return Ptr(new Program());}
 
   GLuint id() const {return _program;}
 

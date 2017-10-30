@@ -23,9 +23,9 @@ struct RenderItem
   Program::Ptr program;
   int renderOrder;
   unsigned z;
-  Group *group;
+  const Group *group;
 
-  RenderItem(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, Group *group, Program::Ptr program=nullptr)
+  RenderItem(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group, Program::Ptr program=nullptr)
      : object(object), geometry(geometry), material(material), program(program), renderOrder(object->renderOrder()), z(z), group(group)
   {}
 };
@@ -135,7 +135,7 @@ public:
     _transparent.clear();
   }
 
-  RenderList &push_back(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, Group *group)
+  RenderList &push_back(Object3D::Ptr object, Geometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group)
   {
     _renderItems.emplace_back(object, geometry, material, z, group);
 

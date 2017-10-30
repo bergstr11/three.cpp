@@ -91,8 +91,8 @@ struct Material
 
   material::Resolver::Ptr resolver;
 
-  Material(material::Resolver::Ptr resolver=material::ResolverT<Material>::make(*this))
-     : uuid(sole::uuid0()), resolver(resolver) {}
+  Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), resolver(resolver) {}
+  Material() : uuid(sole::uuid0()), resolver(material::ResolverT<Material>::make(*this)) {}
 
   using Ptr = std::shared_ptr<Material>;
 

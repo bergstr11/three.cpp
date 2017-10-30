@@ -31,15 +31,15 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
     Texture::Ptr shadowMap = ( light->shadow() && light->shadow()->map() ) ?
                              light->shadow()->map()->texture() : nullptr;
 
-    light::Functions lightFuncs;
+    light::Dispatch dispatch;
 
-    lightFuncs.ambient = [&](AmbientLight &alight)
+    dispatch.func<AmbientLight>() = [&](AmbientLight &alight)
     {
       r += color.r * intensity;
       g += color.g * intensity;
       b += color.b * intensity;
     };
-    lightFuncs.directional = [&](DirectionalLight &dlight)
+    dispatch.func<DirectionalLight>() = [&](DirectionalLight &dlight)
     {
       uniforms_cache::Entry<DirectionalLight>::Ptr uniforms = cache.get( &dlight );
 
@@ -62,7 +62,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       state.directionalShadowMatrix.push_back(light->shadow()->cmatrix());
       state.directional.push_back(uniforms);
     };
-    lightFuncs.spot = [&](SpotLight &slight)
+    dispatch.func<SpotLight>() = [&](SpotLight &slight)
     {
       uniforms_cache::Entry<SpotLight>::Ptr uniforms = cache.get( &slight );
 
@@ -96,7 +96,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       state.spotShadowMatrix.push_back(light->shadow()->cmatrix());
       state.spot.push_back(uniforms);
     };
-    lightFuncs.rectarea = [&](RectAreaLight &rlight)
+    dispatch.func<RectAreaLight>() = [&](RectAreaLight &rlight)
     {
       uniforms_cache::Entry<RectAreaLight>::Ptr uniforms = cache.get( &rlight );
 
@@ -125,7 +125,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 
       state.rectArea.push_back(uniforms);
     };
-    lightFuncs.point = [&](PointLight &plight)
+    dispatch.func<PointLight>() = [&](PointLight &plight)
     {
       uniforms_cache::Entry<PointLight>::Ptr uniforms = cache.get( &plight );
 
@@ -153,7 +153,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       state.pointShadowMatrix.push_back(plight.shadow()->cmatrix());
       state.point.push_back(uniforms);
     };
-    lightFuncs.hemisphere = [&](HemisphereLight &hlight)
+    dispatch.func<HemisphereLight>() = [&](HemisphereLight &hlight)
     {
       uniforms_cache::Entry<HemisphereLight>::Ptr uniforms = cache.get( &hlight );
 
@@ -167,7 +167,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       state.hemi.push_back(uniforms);
     };
 
-    light->resolver->call(lightFuncs);
+    light->lightResolver->getFunc(dispatch);
   }
 
   state.ambient = Color(r, g, b);

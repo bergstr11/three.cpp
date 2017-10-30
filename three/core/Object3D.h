@@ -64,14 +64,16 @@ protected:
   Geometry::Ptr _geometry;
 
 protected:
-  Object3D(object::Resolver::Ptr resolver=nullptr);
-  Object3D(const Geometry::Ptr &geometry, const object::Resolver::Ptr resolver=nullptr);
+  Object3D(object::Resolver::Ptr resolver=object::NullResolver::make());
+  Object3D(const Geometry::Ptr &geometry, const object::Resolver::Ptr resolver=object::NullResolver::make());
 
 public:
   const object::Resolver::Ptr objectResolver;
 
-  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onBeforeRender;
-  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry, Material::Ptr material, Group *group)> onAfterRender;
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
+              Material::Ptr material, const Group *group)> onBeforeRender;
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
+              Material::Ptr material, const Group *group)> onAfterRender;
 
   math::Matrix4 modelViewMatrix;
   math::Matrix3 normalMatrix;
@@ -292,16 +294,16 @@ public:
 };
 
 template <typename ... Mat>
-class Object3DBase : public virtual Object3D
+class Object3DMat : public virtual Object3D
 {
   std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
   std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
 
 protected:
-  Object3DBase(const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
+  Object3DMat(const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
      : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}) {
   }
-  Object3DBase(Geometry::Ptr geometry, const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
+  Object3DMat(Geometry::Ptr geometry, const object::Resolver::Ptr &resolver, std::shared_ptr<Mat> ... args)
      : Object3D(geometry, resolver), _materialsTuple(args...), _materialsArray({args...}) {
   }
 

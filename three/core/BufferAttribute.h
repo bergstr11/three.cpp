@@ -67,7 +67,7 @@ class BufferAttribute
 protected:
   unsigned _version = 0;
 
-  BufferAttribute(bufferattribute::Resolver<void>::Ptr resolver=nullptr)
+  BufferAttribute(bufferattribute::Resolver::Ptr resolver=bufferattribute::NullResolver::make())
      : uuid(sole::uuid0()), resolver(resolver) {}
 
 public:

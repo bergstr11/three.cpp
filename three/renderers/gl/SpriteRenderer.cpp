@@ -242,8 +242,8 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
     _r.glUniform3f( _data->fogColor, fog->color().r, fog->color().g, fog->color().b );
 
-    fog::Functions funcs;
-    funcs.fogDefault = [&](DefaultFog &df) {
+    fog::Dispatch dispatch;
+    dispatch.func<DefaultFog>() = [&](DefaultFog &df) {
 
       _r.glUniform1f( _data->fogNear, df.near() );
       _r.glUniform1f( _data->fogFar, df.far() );
@@ -252,7 +252,7 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
       oldFogType = 1;
       sceneFogType = 1;
     };
-    funcs.fogExp2 = [&] (FogExp2 &fe) {
+    dispatch.func<FogExp2>() = [&] (FogExp2 &fe) {
       _r.glUniform1f( _data->fogDensity, fe.density() );
 
       _r.glUniform1i( _data->fogType, 2 );

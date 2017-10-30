@@ -9,10 +9,10 @@
 
 namespace three {
 
-class ImmediateRenderObject : public Object3DBase<Material>
+class ImmediateRenderObject : public Object3DMat<Material>
 {
   explicit ImmediateRenderObject(Material::Ptr material)
-     : Object3DBase<Material>(object::ResolverT<ImmediateRenderObject>::make(*this), material) {}
+     : Object3DMat<Material>(object::ResolverT<ImmediateRenderObject>::make(*this), material) {}
 
 public:
   using Ptr = std::shared_ptr<ImmediateRenderObject>;

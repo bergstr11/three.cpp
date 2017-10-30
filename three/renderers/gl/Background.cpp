@@ -10,20 +10,20 @@ namespace gl {
 
 void Background::render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
 {
-  scene::Functions functions;
-  functions._void = [&] () {
+  scene::BackgroundDispatch textures;
+  textures.func<nullptr_t>() = [&] (nullptr_t &) {
 
     setClear( clearColor, clearAlpha );
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
     }
   };
-  functions.color = [this](Color &color) {
+  textures.func<Color>() = [this](Color &color) {
 
     setClear( color, 1 );
     renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
   };
-  functions.cubeTexture = [&](CubeTexture::Ptr &tex) {
+  textures.func<CubeTexture::Ptr>() = [&](CubeTexture::Ptr &tex) {
 
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
@@ -49,7 +49,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
     renderList->push_back(boxMesh, boxMesh->geometry(), boxMesh->material(), 0, nullptr);
   };
-  functions.texture = [&] (Texture::Ptr &tex) {
+  textures.func<Texture::Ptr>() = [&] (Texture::Ptr &tex) {
 
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
@@ -72,9 +72,9 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     planeMesh->material<0>()->map = tex;
 
     // TODO Push this to renderList
-    renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry(), planeMesh->material(), planeMesh, nullptr);
+    //renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry(), planeMesh->material(), planeMesh, nullptr);
   };
-  scene->resolver->call(functions);
+  scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getFunc(textures);
 }
 
 }
