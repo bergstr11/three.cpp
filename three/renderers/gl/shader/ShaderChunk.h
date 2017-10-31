@@ -16,9 +16,9 @@ enum class ShaderChunk
   encodings_pars_fragment
 };
 
-std::string getShaderChunk(ShaderChunk chunk);
+const char *getShaderChunk(ShaderChunk chunk);
 
-std::string getShaderChunk(std::string chunk);
+const char *getShaderChunk(std::string chunk);
 
 }
 }
