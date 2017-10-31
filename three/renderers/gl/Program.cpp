@@ -2,11 +2,13 @@
 // Created by byter on 01.10.17.
 //
 
+#include <iostream>
 #include <sstream>
 #include <regex>
 #include <helper/utils.h>
 #include "Program.h"
 #include "Renderer_impl.h"
+#include "shader/ShaderChunk.h"
 
 namespace three {
 namespace gl {
@@ -155,7 +157,7 @@ string replaceLightNums(string value, const ProgramParameters &parameters)
                              {"NUM_HEMI_LIGHTS",      to_string(parameters.numHemiLights)}});
 }
 
-string parseIncludes(string lookat, unordered_map<string, string> ShaderChunk)
+string parseIncludes(string lookat)
 {
   static regex rex("[ \r\n\t]*#include +<([\\w\\d.]+)>");
 
@@ -164,7 +166,7 @@ string parseIncludes(string lookat, unordered_map<string, string> ShaderChunk)
 
   while(rex_it != rex_end) {
     ssub_match sub = (*rex_it)[1];
-    string r = ShaderChunk[sub.str()];
+    string r = getShaderChunk(sub.str());
     if(r.empty()) {
       stringstream ss;
       ss << "unable to resolve #include <" << sub.str() << ">";
@@ -202,11 +204,61 @@ string unrollLoops(string loops)
   return unroll.str();
 }
 
+enum class InfoObject {program, shader};
+string getInfoLog(QOpenGLFunctions *f, InfoObject obj, GLuint handle)
+{
+  GLint length = 0;
+  if(obj == InfoObject::shader) {
+    f->glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &length);
+  }
+  else {
+    f->glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &length);
+  }
+  if(length == 0) return "";
+
+  string info;
+  info.resize(length);
+
+  if(obj == InfoObject::shader)
+    f->glGetShaderInfoLog(handle, length, nullptr, &info.front());
+  else
+    f->glGetProgramInfoLog(handle, length, nullptr, &info.front());
+
+  return info;
+}
+
+GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
+{
+  GLuint shader = f->glCreateShader( type );
+
+  const char * source = glsl.data();
+  f->glShaderSource( shader, 1, &source, nullptr);
+  f->glCompileShader( shader );
+
+  GLint value;
+  f->glGetShaderiv( shader, GL_COMPILE_STATUS, &value);
+
+  string info = getInfoLog(f, InfoObject::shader, shader);
+  if(!info.empty()) {
+    cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info<< endl;
+  }
+
+  if(value != GL_TRUE) {
+    throw logic_error("GLSL compile error");
+  }
+
+  // --enable-privileged-webgl-extension
+  // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
+
+  return shader;
+
+}
+
 Program::Program(Renderer_impl &renderer,
                  Extensions &extensions,
                  const std::string code,
                  const Material::Ptr material,
-                 const Shader &shader,
+                 Shader &shader,
                  const ProgramParameters &parameters )
    : _renderer(renderer), _cachedAttributes(&renderer)
 {
@@ -297,7 +349,7 @@ Program::Program(Renderer_impl &renderer,
 
   string prefixVertex, prefixFragment;
 
-  if(parameters.rawShader) {
+  if(parameters.rawShaderMaterial) {
 
     prefixVertex =  customDefines;
     prefixFragment = customExtensions + customDefines;
@@ -326,7 +378,7 @@ Program::Program(Renderer_impl &renderer,
     if(parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
     if(parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
     if(parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
-    if(parameters.vertexColors) ss << "#define USE_COLOR" << endl;
+    if(parameters.vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
 
     if(parameters.flatShading) ss << "#define FLAT_SHADED" << endl;
 
@@ -334,7 +386,7 @@ Program::Program(Renderer_impl &renderer,
     if(parameters.useVertexTexture) ss << "#define BONE_TEXTURE" << endl;
 
     if(parameters.morphTargets) ss << "#define USE_MORPHTARGETS" << endl;
-    if(parameters.morphNormals && parameters.flatShading === false) ss << "#define USE_MORPHNORMALS" << endl;
+    if(parameters.morphNormals && !parameters.flatShading) ss << "#define USE_MORPHNORMALS" << endl;
     if(parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
     if(parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
 
@@ -430,7 +482,7 @@ Program::Program(Renderer_impl &renderer,
     if(parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
     if(parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
     if(parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
-    if(parameters.vertexColors) ss << "#define USE_COLOR" << endl;
+    if(parameters.vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
 
     if(parameters.gradientMap) ss << "#define USE_GRADIENTMAP" << endl;
 
@@ -461,126 +513,100 @@ Program::Program(Renderer_impl &renderer,
       ss << "#define TONE_MAPPING" << endl;
 
       // this code is required here because it is used by the toneMapping() function defined below
-      ss << ShaderChunk[ "tonemapping_pars_fragment" ];
+      ss << getShaderChunk(ShaderChunk::tonemapping_pars_fragment);
 
       ss << getToneMappingFunction( "toneMapping", parameters.toneMapping );
     }
 
     if(parameters.dithering) ss << "#define DITHERING" << endl;
 
-    if( parameters.outputEncoding || parameters.mapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding )
+    if( parameters.outputEncoding != Encoding::Unknown
+        || parameters.mapEncoding  != Encoding::Unknown
+        || parameters.envMapEncoding  != Encoding::Unknown
+        || parameters.emissiveMapEncoding  != Encoding::Unknown)
       // this code is required here because it is used by the various encoding/decoding function defined below
-      ss << ShaderChunk[ "encodings_pars_fragment" ];
+      ss << getShaderChunk(ShaderChunk::encodings_pars_fragment);
 
-    if(parameters.mapEncoding) ss << getTexelDecodingFunction( "mapTexelToLinear", parameters.mapEncoding );
-    if(parameters.envMapEncoding) ss << getTexelDecodingFunction( "envMapTexelToLinear", parameters.envMapEncoding );
-    if(parameters.emissiveMapEncoding) ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", parameters.emissiveMapEncoding );
-    if(parameters.outputEncoding) ss << getTexelEncodingFunction( "linearToOutputTexel", parameters.outputEncoding );
+    if(parameters.mapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "mapTexelToLinear", parameters.mapEncoding );
+    if(parameters.envMapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "envMapTexelToLinear", parameters.envMapEncoding );
+    if(parameters.emissiveMapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", parameters.emissiveMapEncoding );
+    if(parameters.outputEncoding != Encoding::Unknown)
+      ss << getTexelEncodingFunction( "linearToOutputTexel", parameters.outputEncoding );
 
-    if(parameters.depthPacking != DepthPacking::Unknown) ss << "#define DEPTH_PACKING " << parameters.depthPacking;
+    if(parameters.depthPacking != DepthPacking::Unknown)
+      ss << "#define DEPTH_PACKING " << parameters.depthPacking;
 
     prefixFragment = ss.str();
   }
 
-  vertexShader = parseIncludes( vertexShader );
-  vertexShader = replaceLightNums( vertexShader, parameters );
+  string vertexShader = parseIncludes( shader.vertexShader() );
+  vertexShader = replaceLightNums( shader.vertexShader(), parameters );
 
-  fragmentShader = parseIncludes( fragmentShader );
+  string fragmentShader = parseIncludes( shader.fragmentShader() );
   fragmentShader = replaceLightNums( fragmentShader, parameters );
 
-  if ( ! material.isShaderMaterial ) {
+  if ( ! parameters.shaderMaterial ) {
 
     vertexShader = unrollLoops( vertexShader );
     fragmentShader = unrollLoops( fragmentShader );
-
   }
 
-  var vertexGlsl = prefixVertex + vertexShader;
-  var fragmentGlsl = prefixFragment + fragmentShader;
+  string vertexGlsl = prefixVertex + vertexShader;
+  string fragmentGlsl = prefixFragment + fragmentShader;
 
-  // console.log( '*VERTEX*', vertexGlsl );
-  // console.log( '*FRAGMENT*', fragmentGlsl );
+  GLuint glVertexShader = createShader(&_renderer, GL_VERTEX_SHADER, vertexGlsl );
+  GLuint glFragmentShader = createShader(&_renderer, GL_FRAGMENT_SHADER, fragmentGlsl );
 
-  var glVertexShader = WebGLShader( gl, gl.VERTEX_SHADER, vertexGlsl );
-  var glFragmentShader = WebGLShader( gl, gl.FRAGMENT_SHADER, fragmentGlsl );
-
-  gl.attachShader( program, glVertexShader );
-  gl.attachShader( program, glFragmentShader );
+  _renderer.glAttachShader( program, glVertexShader );
+  _renderer.glAttachShader( program, glFragmentShader );
 
   // Force a particular attribute to index 0.
 
-  if ( material.index0AttributeName !== undefined ) {
+  if (!parameters.index0AttributeName.empty()) {
 
-    gl.bindAttribLocation( program, 0, material.index0AttributeName );
+    _renderer.glBindAttribLocation( program, 0, parameters.index0AttributeName.data());
 
-  } else if ( parameters.morphTargets === true ) {
+  } else if (parameters.morphTargets) {
 
     // programs with morphTargets displace position out of attribute 0
-    gl.bindAttribLocation( program, 0, "position" );
-
+    _renderer.glBindAttribLocation( program, 0, "position" );
   }
 
-  gl.linkProgram( program );
+  _renderer.glLinkProgram( program );
 
-  var programLog = gl.getProgramInfoLog( program );
-  var vertexLog = gl.getShaderInfoLog( glVertexShader );
-  var fragmentLog = gl.getShaderInfoLog( glFragmentShader );
+  string programLog = getInfoLog(&_renderer, InfoObject::program, program );
 
-  var runnable = true;
-  var haveDiagnostics = true;
+  bool runnable = true;
+  bool haveDiagnostics = true;
 
   // console.log( '**VERTEX**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glVertexShader ) );
   // console.log( '**FRAGMENT**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glFragmentShader ) );
 
-  if ( gl.getProgramParameter( program, gl.LINK_STATUS ) === false ) {
+  GLint value;
+  _renderer.glGetProgramiv( program, GL_LINK_STATUS, &value);
+  if(value != GL_TRUE) {
 
     runnable = false;
+    GLint status;
+    _renderer.glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 
-    console.error( "THREE.WebGLProgram: shader error: ", gl.getError(), "gl.VALIDATE_STATUS", gl.getProgramParameter( program, gl.VALIDATE_STATUS ), "gl.getProgramInfoLog", programLog, vertexLog, fragmentLog );
+    cerr << "shader compilation failed: " << _renderer.glGetError() << endl << "VALIDATE_STATUS: " << status << endl
+         << "ProgramInfoLog: ", programLog;
+  }
+  else if ( !programLog.empty()) {
 
-  } else if ( programLog !== "" ) {
-
-    console.warn( "THREE.WebGLProgram: gl.getProgramInfoLog()", programLog );
-
-  } else if ( vertexLog === "" || fragmentLog === "" ) {
-
-    haveDiagnostics = false;
+    cerr << "ProgramInfoLog: " << programLog;
 
   }
-
-  if ( haveDiagnostics ) {
-
-    this.diagnostics = {
-
-       runnable: runnable,
-       material: material,
-
-       programLog: programLog,
-
-       vertexShader: {
-
-          log: vertexLog,
-          prefix: prefixVertex
-
-       },
-
-       fragmentShader: {
-
-          log: fragmentLog,
-          prefix: prefixFragment
-
-       }
-
-    };
-
-  }
-
   // clean up
-
-  gl.deleteShader( glVertexShader );
-  gl.deleteShader( glFragmentShader );
+  _renderer.glDeleteShader( glVertexShader );
+  _renderer.glDeleteShader( glFragmentShader );
 }
 
+#if 0
 // set up caching for uniform locations
 this.getUniforms = function () {
 
@@ -603,6 +629,16 @@ this.getAttributes = function () {
   }
 
   return cachedAttributes;
+}
+#endif
+
+Uniforms::Ptr Program::getUniforms()
+{
+  if (_cachedUniforms == nullptr) {
+    _cachedUniforms = Uniforms::make(&_renderer, _program);
+  }
+
+  return _cachedUniforms;
 }
 
 Program::~Program() {

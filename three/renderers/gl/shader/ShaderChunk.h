@@ -5,4 +5,21 @@
 #ifndef THREE_QT_SHADERCHUNK_H
 #define THREE_QT_SHADERCHUNK_H
 
+#include <string>
+
+namespace three {
+namespace gl {
+
+enum class ShaderChunk
+{
+  tonemapping_pars_fragment,
+  encodings_pars_fragment
+};
+
+std::string getShaderChunk(ShaderChunk chunk);
+
+std::string getShaderChunk(std::string chunk);
+
+}
+}
 #endif //THREE_QT_SHADERCHUNK_H

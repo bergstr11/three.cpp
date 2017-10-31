@@ -17,8 +17,8 @@ public:
 
   UniformValues uniforms;
 
-  const char *vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
-  const char * fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
+  std::string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
+  std::string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
 private:
   bool clipping = false; // set to use user-defined clipping planes
@@ -29,8 +29,6 @@ private:
   math::Vector3 default_color = {1, 1, 1};
   math::Vector2 default_uv = {0.0f, 0.0f};
   math::Vector2 default_uv2 = {0.0f, 0.0f};
-
-  std::string index0AttributeName;
 
 protected:
   ShaderMaterial(material::Resolver::Ptr resolver, Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
@@ -73,6 +71,8 @@ public:
   bool use_fragDepth = false; // set to use fragment depth values
   bool use_drawBuffers = false; // set to use draw buffers
   bool use_shaderTextureLOD = false; // set to use shader texture LOD
+
+  std::string index0AttributeName;
 
   using Ptr = std::shared_ptr<ShaderMaterial>;
   static Ptr make(bool morphTargets, bool skinning) {

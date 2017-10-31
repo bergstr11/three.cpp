@@ -24,11 +24,11 @@ void init() {
   qInitResource();
 }
 
-ShaderImpl::ShaderImpl(const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
-  : Shader(uniforms), _vertex(vertexShader), _fragment(fragmentShader)
+ShaderImpl::ShaderImpl(std::string name, const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
+  : Shader(name, uniforms), _vertex(vertexShader), _fragment(fragmentShader)
 {}
 
-const char *ShaderImpl::vertexShader()
+const std::string ShaderImpl::vertexShader()
 {
   if(_vertexShader) return _vertexShader;
 
@@ -42,7 +42,7 @@ const char *ShaderImpl::vertexShader()
   return _vertexShader;
 }
 
-const char *ShaderImpl::fragmentShader()
+const std::string ShaderImpl::fragmentShader()
 {
   if(_fragmentShader) return _fragmentShader;
 

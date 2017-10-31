@@ -84,7 +84,7 @@ protected:
   math::Vector4 _currentScissor;
   bool _currentScissorTest = false;
 
-  Parameters _parameters;
+  Capabilities::Parameters _parameters;
   Extensions _extensions;
   Capabilities _capabilities;
   Properties _properties;

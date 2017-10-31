@@ -6,6 +6,7 @@
 #define THREE_QT_CONSTANTS
 
 #include <GL/gl.h>
+#include <iostream>
 
 namespace three {
 
@@ -78,6 +79,7 @@ enum class TextureType
 
 enum class Encoding
 {
+  Unknown=0,
   Linear = 3000,
   sRGB = 3001,
   Gamma = 3007,
@@ -234,10 +236,10 @@ enum class DepthPacking {
 inline std::ostream& operator <<(std::ostream& stream, const DepthPacking& depthPacking)
 {
   switch(depthPacking) {
-    case Basic:
+    case DepthPacking::Basic:
       stream << "BASIC";
       break;
-    case RGBA:
+    case DepthPacking::RGBA:
       stream << "RGBA";
       break;
     default:
@@ -262,13 +264,13 @@ enum class Precision
 inline std::ostream& operator <<(std::ostream& stream, const Precision& precision)
 {
   switch(precision) {
-    case lowp:
+    case Precision::lowp:
       stream << "lowp";
       break;
-    case mediump:
+    case Precision::mediump:
       stream << "mediump";
       break;
-    case highp:
+    case Precision::highp:
       stream << "highp";
       break;
     default:

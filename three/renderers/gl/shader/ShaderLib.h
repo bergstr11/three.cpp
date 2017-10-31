@@ -29,14 +29,15 @@ class ShaderImpl : public Shader
   const char *_fragmentShader = nullptr;
 
 public:
-  ShaderImpl(const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
+  ShaderImpl(std::string name, const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
 
-  const char *vertexShader() override;
+  const std::string vertexShader() override;
 
-  const char *fragmentShader() override;
+  const std::string fragmentShader() override;
 };
 
 static ShaderImpl cube = {
+   "CUBE",
    {
       tCube(nullptr),
       tFlip(-1),

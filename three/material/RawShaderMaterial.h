@@ -8,7 +8,6 @@
 #include "ShaderMaterial.h"
 
 namespace three {
-namespace gl {
 
 class RawShaderMaterial : public ShaderMaterial
 {
@@ -25,6 +24,5 @@ public:
   }
 };
 
-}
 }
 #endif //THREE_QT_RAWSHADERMATERIAL_H

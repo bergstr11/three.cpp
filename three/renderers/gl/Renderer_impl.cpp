@@ -537,6 +537,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
+#if 0
   var code = _programs.getProgramCode( material, parameters );
 
   var program = materialProperties.program;
@@ -675,6 +676,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
      WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
 
   materialProperties.uniformsList = uniformsList;
+#endif
 }
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
@@ -950,7 +952,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   p_uniforms->get("normalMatrix")->setValue(object->normalMatrix );
   p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
 #endif
-  return Program::make();
+  return nullptr;//Program::make();
 }
 
 }

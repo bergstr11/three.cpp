@@ -4,6 +4,7 @@
 #include "Renderer_impl.h"
 #include "Programs.h"
 #include <sstream>
+#include <material/RawShaderMaterial.h>
 
 namespace three {
 namespace gl {
@@ -83,10 +84,12 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
       parameters->extensions.add(Extension::EXT_shader_texture_lod);
 
     parameters->defines.insert(mat.defines.begin(), mat.defines.end());
+    parameters->shaderMaterial = true;
+    parameters->index0AttributeName = mat.index0AttributeName;
   };
-  dispatch.func<RawShaderMaterial>() = [parameters] (RawShaderMaterial &mat) {
+  dispatch.func<RawShaderMaterial>() = [&] (RawShaderMaterial &mat) {
     dispatch.func<ShaderMaterial>()(mat);
-    parameters->rawShader = true;
+    parameters->rawShaderMaterial = true;
   };
   /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
@@ -175,7 +178,7 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
   ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
 
   stringstream ss;
-
+#if 0
   if ( parameters->shaderID ) {
     ss << parameters->shaderID << ',';
   }
@@ -198,7 +201,7 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
   array.push( material.onBeforeCompile.toString() );
 
   array.push( renderer.gammaOutput );
-
+#endif
   return ss.str();
 
 }

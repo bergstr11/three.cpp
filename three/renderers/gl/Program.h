@@ -22,27 +22,31 @@ namespace three {
 
 namespace gl {
 
-class ProgramParameters {
-  ProgramParameters() {};
+class ProgramParameters
+{
+  ProgramParameters()
+  {};
 
 public:
   using Ptr = std::shared_ptr<ProgramParameters>;
-  static Ptr make() {return Ptr(new ProgramParameters());}
+
+  static Ptr make()
+  { return Ptr(new ProgramParameters()); }
 
   std::string shaderID;
   Precision precision;
   bool supportsVertexTextures;
-  Encoding outputEncoding;
+  Encoding outputEncoding = Encoding::Unknown;
   bool map;
-  Encoding mapEncoding;
+  Encoding mapEncoding = Encoding::Unknown;
   bool envMap;
-  Encoding envMapEncoding;
+  Encoding envMapEncoding = Encoding::Unknown;
   TextureMapping envMapMode;
   bool envMapCubeUV;
   bool lightMap;
   bool aoMap;
   bool emissiveMap;
-  Encoding emissiveMapEncoding;
+  Encoding emissiveMapEncoding = Encoding::Unknown;
   bool bumpMap;
   bool normalMap;
   bool displacementMap;
@@ -85,14 +89,16 @@ public:
   bool flipSided;
   DepthPacking depthPacking;
   std::unordered_map<std::string, std::string> defines;
-  bool rawShader;
+  bool rawShaderMaterial;
+  bool shaderMaterial;
+  std::string index0AttributeName = nullptr;
 };
 
 std::vector<std::string> getEncodingComponents(Encoding encoding);
 
 std::string getTexelDecodingFunction(const char *functionName, Encoding encoding);
 
-std::string getTexelEncodingFunction(const char *functionName, Encoding encoding );
+std::string getTexelEncodingFunction(const char *functionName, Encoding encoding);
 
 std::string getToneMappingFunction(const char *functionName, ToneMapping toneMapping);
 
@@ -103,6 +109,10 @@ std::string generateExtensions(Extensions &extensions, const ProgramParameters &
 
 class Program
 {
+public:
+  using Ptr = std::shared_ptr<Program>;
+
+private:
   friend class Programs;
 
   static unsigned programIdCount;
@@ -117,20 +127,20 @@ class Program
 
   std::unordered_map<std::string, GLint> fetchAttributeLocations();
 
-  Program::Program(Renderer_impl &renderer,
-                   Extensions &extensions,
-                   const std::string code,
-                   const Material::Ptr material,
-                   const Shader &shader,
-                   const ProgramParameters &parameters );
+  Program(Renderer_impl &renderer,
+          Extensions &extensions,
+          const std::string code,
+          const Material::Ptr material,
+          Shader &shader,
+          const ProgramParameters &parameters);
 
-  using Ptr = std::shared_ptr<Program>;
   static Ptr make(Renderer_impl &renderer,
                   Extensions &extensions,
                   const std::string code,
                   const Material::Ptr material,
-                  const Shader &shader,
-                  const ProgramParameters &parameters) {
+                  Shader &shader,
+                  const ProgramParameters &parameters)
+  {
     return Ptr(new Program(renderer, extensions, code, material, shader, parameters));
   }
 
@@ -138,18 +148,12 @@ public:
 
   ~Program();
 
-  GLuint id() const {return _program;}
+  GLuint id() const
+  { return _program; }
 
   std::string code;
 
-  Uniforms::Ptr getUniforms()
-  {
-    if (_cachedUniforms == nullptr) {
-      _cachedUniforms = Uniforms::make(this, _program);
-    }
-
-    return _cachedUniforms;
-  }
+  Uniforms::Ptr getUniforms();
 };
 
 }

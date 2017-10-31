@@ -135,8 +135,8 @@ public:
 
   const std::string name() const {return _name;}
 
-  virtual const char *vertexShader() = 0;
-  virtual const char *fragmentShader() = 0;
+  virtual const std::string vertexShader() = 0;
+  virtual const std::string fragmentShader() = 0;
 };
 
 }

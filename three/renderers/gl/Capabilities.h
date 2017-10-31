@@ -14,6 +14,11 @@ namespace gl {
 
 struct Capabilities
 {
+  struct Parameters {
+    bool logarithmicDepthBuffer = true;
+    Precision precision = Precision::mediump;
+  };
+
   Extensions &_extensions;
   Parameters &_parameters;
   QOpenGLFunctions * const _fn;

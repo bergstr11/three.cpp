@@ -78,7 +78,7 @@ public:
     if(_programs.find(code) != _programs.end()) {
       return _programs[code];
     }
-    program = Program::make( _renderer, _extensions, code, material, shader, parameters );
+    program = Program::make( _renderer, _extensions, code, material, shader, *parameters );
     _programs[code] = program;
 
     return program;
@@ -93,8 +93,8 @@ public:
     }
 
   }
-#endif
 };
+
 }
 }
 #endif //THREE_QT_PROGRAMS_H
