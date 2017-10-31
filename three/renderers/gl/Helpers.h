@@ -25,22 +25,6 @@ struct RenderInfo
   unsigned  points = 0;
 };
 
-struct Parameters {
-  bool envMapCubeUV;
-  bool bumpMap;
-  bool normalMap;
-  bool flatShading;
-  bool logarithmicDepthBuffer;
-  bool envMap;
-  unsigned numDirLights;
-  unsigned numSpotLights;
-  unsigned numRectAreaLights;
-  unsigned numPointLights;
-  unsigned numHemiLights;
-
-  Precision precision = Precision::highp;
-};
-
 struct Buffer
 {
   GLuint buf;

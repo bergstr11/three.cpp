@@ -16,72 +16,9 @@ namespace gl {
 
 class Renderer_impl;
 
-class ProgramParameters {
-  ProgramParameters() {};
-
-public:
-  using Ptr = std::shared_ptr<ProgramParameters>;
-  static Ptr make() {return Ptr(new ProgramParameters());}
-
-  std::string shaderID;
-  Precision precision;
-  bool supportsVertexTextures;
-  Encoding outputEncoding;
-  bool hasMap;
-  Encoding mapEncoding;
-  bool hasEnvMap;
-  Encoding envMapEncoding;
-  TextureMapping envMapMode;
-  bool envMapCubeUV;
-  bool lightMap;
-  bool aoMap;
-  bool emissiveMap;
-  Encoding emissiveMapEncoding;
-  bool bumpMap;
-  bool normalMap;
-  bool displacementMap;
-  bool roughnessMap;
-  bool metalnessMap;
-  bool specularMap;
-  bool alphaMap;
-  bool gradientMap;
-  CombineOperation combine;
-  Colors vertexColors;
-  bool fog;
-  bool useFog;
-  bool fogExp;
-  bool flatShading;
-  bool logarithmicDepthBuffer;
-  bool sizeAttenuation = false;
-  bool skinning;
-  size_t maxBones;
-  bool useVertexTexture;
-  bool morphTargets;
-  bool morphNormals;
-  unsigned maxMorphTargets;
-  unsigned maxMorphNormals;
-  size_t numDirLights;
-  size_t numPointLights;
-  size_t numSpotLights;
-  size_t numRectAreaLights;
-  size_t numHemiLights;
-  size_t numClippingPlanes;
-  size_t numClipIntersection;
-  bool dithering;
-  bool shadowMapEnabled;
-  ShadowMapType shadowMapType;
-  ToneMapping toneMapping;
-  bool physicallyCorrectLights;
-  bool premultipliedAlpha;
-  bool alphaTest;
-  bool doubleSided;
-  bool flipSided;
-  DepthPacking depthPacking;
-};
-
 class Programs
 {
-  std::vector<Program::Ptr> _programs;
+  std::unordered_map<std::string ,Program::Ptr> _programs;
 
   Renderer_impl &_renderer;
   Extensions &_extensions;
@@ -131,91 +68,28 @@ public:
                                        size_t nClipIntersection,
                                        Object3D::Ptr object);
 
-#if 0
-  void getProgramCode(Material::Ptr material, parameters ) {
+  std::string getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters);
 
-    var array = [];
-
-    if ( parameters.shaderID ) {
-
-      array.push( parameters.shaderID );
-
-    } else {
-
-      array.push( material.fragmentShader );
-      array.push( material.vertexShader );
-
-    }
-
-    if ( material.defines !== undefined ) {
-
-      for ( var name in material.defines ) {
-
-        array.push( name );
-        array.push( material.defines[ name ] );
-
-      }
-
-    }
-
-    for ( var i = 0; i < parameterNames.length; i ++ ) {
-
-      array.push( parameters[ parameterNames[ i ] ] );
-
-    }
-
-    array.push( material.onBeforeCompile.toString() );
-
-    array.push( renderer.gammaOutput );
-
-    return array.join();
-
-  }
-#endif
-#if 0
-  void acquireProgram ( material, shader, parameters, code ) {
-
-    var program;
+  Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters, std::string code )
+  {
+    Program::Ptr program;
 
     // Check if code has been already compiled
-    for ( var p = 0, pl = programs.length; p < pl; p ++ ) {
-
-      var programInfo = programs[ p ];
-
-      if ( programInfo.code === code ) {
-
-        program = programInfo;
-        ++ program.usedTimes;
-
-        break;
-
-      }
-
+    if(_programs.find(code) != _programs.end()) {
+      return _programs[code];
     }
-
-    if ( program === undefined ) {
-
-      program = new WebGLProgram( renderer, extensions, code, material, shader, parameters );
-      programs.push( program );
-
-    }
+    program = Program::make( _renderer, _extensions, code, material, shader, parameters );
+    _programs[code] = program;
 
     return program;
-
   }
 
-  void releaseProgram( program ) {
+  void releaseProgram(Program::Ptr program)
+  {
+    if (program.use_count() == 2) {
 
-    if ( -- program.usedTimes === 0 ) {
-
-      // Remove from unordered set
-      var i = programs.indexOf( program );
-      programs[ i ] = programs[ programs.length - 1 ];
-      programs.pop();
-
-      // Free WebGL resources
-      program.destroy();
-
+      //should call the program destructor
+      _programs.erase(program->code);
     }
 
   }

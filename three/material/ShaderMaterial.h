@@ -13,22 +13,16 @@ namespace three {
 class ShaderMaterial : public Material
 {
 public:
-  //defines = {};
+  std::unordered_map<std::string, std::string> defines;
+
   UniformValues uniforms;
 
-private:
   const char *vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
   const char * fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
+private:
   bool clipping = false; // set to use user-defined clipping planes
   bool morphNormals = false; // set to use morph normals
-
-  /*
-  bool ext_derivatives = false; // set to use derivatives
-  bool ext_fragDepth = false; // set to use fragment depth values
-  bool ext_drawBuffers = false; // set to use draw buffers
-  bool ext_shaderTextureLOD = false; // set to use shader texture LOD
-  */
 
   // When rendered geometry doesn't include these attributes but the material does,
   // use these default values in WebGL. This avoids errors when buffer data is missing.
@@ -38,9 +32,20 @@ private:
 
   std::string index0AttributeName;
 
-  ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
-     : vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
+protected:
+  ShaderMaterial(material::Resolver::Ptr resolver, Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
+     : Material(resolver),
+       vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
        uniforms(shader.uniforms())
+  {
+    this->depthTest = depthTest;
+    this->depthWrite = depthWrite;
+    this->fog = fog;
+    this->side = side;
+  }
+
+  ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
+     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), shader, side, depthTest, depthWrite, fog)
   {
     this->depthTest = depthTest;
     this->depthWrite = depthWrite;
@@ -64,6 +69,11 @@ private:
   }
 
 public:
+  bool use_derivatives = false; // set to use derivatives
+  bool use_fragDepth = false; // set to use fragment depth values
+  bool use_drawBuffers = false; // set to use draw buffers
+  bool use_shaderTextureLOD = false; // set to use shader texture LOD
+
   using Ptr = std::shared_ptr<ShaderMaterial>;
   static Ptr make(bool morphTargets, bool skinning) {
     return Ptr(new ShaderMaterial(morphTargets, skinning));

@@ -13,7 +13,7 @@
 namespace three {
 namespace gl {
 
-enum class Extension
+enum class Extension : uint16_t
 {
   ARB_depth_texture = 1,
   EXT_frag_depth = 1<<1,
@@ -40,12 +40,17 @@ class UseExtension
     return (Ret)e | decl<Ret, Args...>();
   };
 
-  UseExtension(uint16_t bits) : bits(bits) {}
 public:
+  UseExtension(uint16_t bits=0) : bits(bits) {}
+
   template <Extension ... extensions>
   static UseExtension use()
   {
     return UseExtension(decl<uint16_t, extensions...>());
+  }
+
+  UseExtension &add(Extension ext) {
+    bits |= (uint16_t)ext;
   }
 
   bool get(Extension ext) const {

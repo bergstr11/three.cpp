@@ -6,6 +6,7 @@
 #include <regex>
 #include <helper/utils.h>
 #include "Program.h"
+#include "Renderer_impl.h"
 
 namespace three {
 namespace gl {
@@ -86,16 +87,16 @@ string getToneMappingFunction(const char *functionName, ToneMapping toneMapping)
 }
 
 string
-generateExtensions(Extensions &extensions, const UseExtension &use, const Parameters &parameters)
+generateExtensions(Extensions &extensions, const ProgramParameters &parameters)
 {
   stringstream ss;
   if (extensions.get(Extension::OES_standard_derivatives) || parameters.envMapCubeUV || parameters.bumpMap || parameters.normalMap || parameters.flatShading)
     ss << "#extension GL_OES_standard_derivatives : enable" << endl;
-  if ((extensions.get(Extension::EXT_frag_depth) || parameters.logarithmicDepthBuffer) && use.get(Extension::EXT_frag_depth))
+  if ((extensions.get(Extension::EXT_frag_depth) || parameters.logarithmicDepthBuffer) && parameters.extensions.get(Extension::EXT_frag_depth))
     ss << "#extension GL_EXT_frag_depth : enable" << endl;
-  if (extensions.get(Extension::GL_EXT_draw_buffers) && use.get(Extension::GL_EXT_draw_buffers))
+  if (extensions.get(Extension::GL_EXT_draw_buffers) && parameters.extensions.get(Extension::GL_EXT_draw_buffers))
     ss << "#extension GL_EXT_draw_buffers : require" << endl;
-  if ((extensions.get(Extension::EXT_shader_texture_lod) || parameters.envMap) && use.get(Extension::EXT_shader_texture_lod))
+  if ((extensions.get(Extension::EXT_shader_texture_lod) || parameters.envMap) && parameters.extensions.get(Extension::EXT_shader_texture_lod))
     ss << "#extension GL_EXT_shader_texture_lod : enable" << endl;
 
   return ss.str();
@@ -129,23 +130,23 @@ unordered_map<string, GLint> Program::fetchAttributeLocations()
   unordered_map<string, GLint> attributes;
 
   GLint numActive;
-  glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
+  _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
 
   AttribInfo info;
   for (unsigned i = 0; i < numActive; i++) {
 
-    glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
+    _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
     info.name[info.length] = 0;
     string name(info.name);
 
     // console.log("THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:", name, i );
-    attributes[name] = glGetAttribLocation(_program, info.name);
+    attributes[name] = _renderer.glGetAttribLocation(_program, info.name);
   }
 
   return attributes;
 }
 
-string replaceLightNums(string value, const Parameters &parameters)
+string replaceLightNums(string value, const ProgramParameters &parameters)
 {
   return replace_all(value, {{"NUM_DIR_LIGHTS",       to_string(parameters.numDirLights)},
                              {"NUM_SPOT_LIGHTS",      to_string(parameters.numSpotLights)},
@@ -199,6 +200,414 @@ string unrollLoops(string loops)
   }
 
   return unroll.str();
+}
+
+Program::Program(Renderer_impl &renderer,
+                 Extensions &extensions,
+                 const std::string code,
+                 const Material::Ptr material,
+                 const Shader &shader,
+                 const ProgramParameters &parameters )
+   : _renderer(renderer), _cachedAttributes(&renderer)
+{
+  //var gl = renderer.context;
+  //var defines = material.defines;
+
+  //var vertexShader = shader.vertexShader;
+  //var fragmentShader = shader.fragmentShader;
+
+  const char *shadowMapTypeDefine;
+
+  switch(parameters.shadowMapType) {
+    case ShadowMapType::PCF:
+      shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF";
+      break;
+    case ShadowMapType::PCFSoft:
+      shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF_SOFT";
+      break;
+    default:
+      shadowMapTypeDefine = "SHADOWMAP_TYPE_BASIC";
+      break;
+  }
+
+  const char *envMapTypeDefine = "ENVMAP_TYPE_CUBE";
+  const char *envMapModeDefine = "ENVMAP_MODE_REFLECTION";
+  const char *envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
+
+  if ( parameters.envMap ) {
+    switch ( material->envMap->mapping() ) {
+
+      case TextureMapping::CubeReflection:
+      case TextureMapping::CubeRefraction:
+        envMapTypeDefine = "ENVMAP_TYPE_CUBE";
+        break;
+
+      case TextureMapping::CubeUVReflection:
+      case TextureMapping::CubeUVRefraction:
+        envMapTypeDefine = "ENVMAP_TYPE_CUBE_UV";
+        break;
+
+      case TextureMapping::EquirectangularReflection:
+      case TextureMapping::EquirectangularRefraction:
+        envMapTypeDefine = "ENVMAP_TYPE_EQUIREC";
+        break;
+
+      case TextureMapping::SphericalReflection:
+        envMapTypeDefine = "ENVMAP_TYPE_SPHERE";
+        break;
+
+      default: break;
+    }
+
+    switch( material->envMap->mapping() ) {
+
+      case TextureMapping::CubeRefraction:
+      case TextureMapping::EquirectangularRefraction:
+        envMapModeDefine = "ENVMAP_MODE_REFRACTION";
+        break;
+
+      default: break;
+    }
+
+    switch ( parameters.combine ) {
+
+      case CombineOperation::Multiply:
+        envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
+        break;
+
+      case CombineOperation::Mix:
+        envMapBlendingDefine = "ENVMAP_BLENDING_MIX";
+        break;
+
+      case CombineOperation::Add:
+        envMapBlendingDefine = "ENVMAP_BLENDING_ADD";
+        break;
+    }
+  }
+
+  float gammaFactorDefine = renderer._gammaFactor > 0 ? renderer._gammaFactor : 1.0;
+
+  string customExtensions = generateExtensions(extensions, parameters);
+
+  string customDefines = generateDefines( parameters.defines );
+
+  //
+
+  GLuint program = _renderer.glCreateProgram();
+
+  string prefixVertex, prefixFragment;
+
+  if(parameters.rawShader) {
+
+    prefixVertex =  customDefines;
+    prefixFragment = customExtensions + customDefines;
+
+  } else {
+    stringstream ss;
+    ss << "precision " << parameters.precision << " float;" << endl;
+    ss << "precision " << parameters.precision << " int;" << endl;
+    ss << "#define SHADER_NAME " << shader.name() << endl;
+    ss << customDefines;
+    if(parameters.supportsVertexTextures) ss << "#define VERTEX_TEXTURES" << endl;
+    ss << "#define GAMMA_FACTOR " << gammaFactorDefine << endl;
+    ss << "#define MAX_BONES " << parameters.maxBones << endl;
+    if( parameters.useFog && parameters.fog ) ss << "#define USE_FOG" << endl;
+    if( parameters.useFog && parameters.fogExp ) ss << "#define FOG_EXP2" << endl;
+    if(parameters.map) ss << "#define USE_MAP" << endl;
+    if(parameters.envMap) ss << "#define USE_ENVMAP" << endl;
+    if(parameters.envMap) ss << "#define " << envMapModeDefine << endl;
+    if(parameters.lightMap) ss << "#define USE_LIGHTMAP" << endl;
+    if(parameters.aoMap) ss << "#define USE_AOMAP" << endl;
+    if(parameters.emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
+    if(parameters.bumpMap) ss << "#define USE_BUMPMAP" << endl;
+    if(parameters.normalMap) ss << "#define USE_NORMALMAP" << endl;
+    if(parameters.displacementMap && parameters.supportsVertexTextures) ss << "#define USE_DISPLACEMENTMAP" << endl;
+    if(parameters.specularMap) ss << "#define USE_SPECULARMAP" << endl;
+    if(parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
+    if(parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
+    if(parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
+    if(parameters.vertexColors) ss << "#define USE_COLOR" << endl;
+
+    if(parameters.flatShading) ss << "#define FLAT_SHADED" << endl;
+
+    if(parameters.skinning) ss << "#define USE_SKINNING" << endl;
+    if(parameters.useVertexTexture) ss << "#define BONE_TEXTURE" << endl;
+
+    if(parameters.morphTargets) ss << "#define USE_MORPHTARGETS" << endl;
+    if(parameters.morphNormals && parameters.flatShading === false) ss << "#define USE_MORPHNORMALS" << endl;
+    if(parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
+    if(parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
+
+    ss << "#define NUM_CLIPPING_PLANES " << parameters.numClippingPlanes << endl;
+
+    if(parameters.shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
+    if(parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
+
+    if(parameters.sizeAttenuation) ss << "#define USE_SIZEATTENUATION" << endl;
+
+    if(parameters.logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
+    if(parameters.logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
+
+    ss << "uniform mat4 modelMatrix;" << endl;
+    ss << "uniform mat4 modelViewMatrix;" << endl;
+    ss << "uniform mat4 projectionMatrix;" << endl;
+    ss << "uniform mat4 viewMatrix;" << endl;
+    ss << "uniform mat3 normalMatrix;" << endl;
+    ss << "uniform vec3 cameraPosition;" << endl;
+
+    ss << "attribute vec3 position;" << endl;
+    ss << "attribute vec3 normal;" << endl;
+    ss << "attribute vec2 uv;" << endl;
+
+    ss << "#ifdef USE_COLOR" << endl;
+
+    ss << "	attribute vec3 color;" << endl;
+
+    ss << "#endif" << endl;
+
+    ss << "#ifdef USE_MORPHTARGETS" << endl;
+
+    ss << "	attribute vec3 morphTarget0;" << endl;
+    ss << "	attribute vec3 morphTarget1;" << endl;
+    ss << "	attribute vec3 morphTarget2;" << endl;
+    ss << "	attribute vec3 morphTarget3;" << endl;
+
+    ss << "	#ifdef USE_MORPHNORMALS" << endl;
+
+    ss << "		attribute vec3 morphNormal0;" << endl;
+    ss << "		attribute vec3 morphNormal1;" << endl;
+    ss << "		attribute vec3 morphNormal2;" << endl;
+    ss << "		attribute vec3 morphNormal3;" << endl;
+
+    ss << "	#else" << endl;
+
+    ss << "		attribute vec3 morphTarget4;" << endl;
+    ss << "		attribute vec3 morphTarget5;" << endl;
+    ss << "		attribute vec3 morphTarget6;" << endl;
+    ss << "		attribute vec3 morphTarget7;" << endl;
+
+    ss << "	#endif" << endl;
+
+    ss << "#endif" << endl;
+
+    ss << "#ifdef USE_SKINNING" << endl;
+
+    ss << "	attribute vec4 skinIndex;" << endl;
+    ss << "	attribute vec4 skinWeight;" << endl;
+
+    ss << "#endif" << endl;
+
+    prefixVertex = ss.str();
+
+    ss.clear();
+    ss << customExtensions;
+
+    ss << "precision " << parameters.precision << " float;" << endl;
+    ss << "precision " << parameters.precision << " int;" << endl;
+
+    ss << "#define SHADER_NAME " << shader.name();
+
+    ss << customDefines;
+
+    if(parameters.alphaTest) ss << "#define ALPHATEST " + parameters.alphaTest << endl;
+
+    ss << "#define GAMMA_FACTOR " << gammaFactorDefine;
+
+    if(( parameters.useFog && parameters.fog )) ss << "#define USE_FOG" << endl;
+    if(( parameters.useFog && parameters.fogExp )) ss << "#define FOG_EXP2" << endl;
+
+    if(parameters.map) ss << "#define USE_MAP" << endl;
+    if(parameters.envMap) ss << "#define USE_ENVMAP" << endl;
+    if(parameters.envMap) ss << "#define " << envMapTypeDefine << endl;
+    if(parameters.envMap) ss << "#define " << envMapModeDefine << endl;
+    if(parameters.envMap) ss << "#define " << envMapBlendingDefine << endl;
+    if(parameters.lightMap) ss << "#define USE_LIGHTMAP" << endl;
+    if(parameters.aoMap) ss << "#define USE_AOMAP" << endl;
+    if(parameters.emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
+    if(parameters.bumpMap) ss << "#define USE_BUMPMAP" << endl;
+    if(parameters.normalMap) ss << "#define USE_NORMALMAP" << endl;
+    if(parameters.specularMap) ss << "#define USE_SPECULARMAP" << endl;
+    if(parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
+    if(parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
+    if(parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
+    if(parameters.vertexColors) ss << "#define USE_COLOR" << endl;
+
+    if(parameters.gradientMap) ss << "#define USE_GRADIENTMAP" << endl;
+
+    if(parameters.flatShading) ss << "#define FLAT_SHADED" << endl;
+
+    if(parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
+    if(parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
+
+    ss << "#define NUM_CLIPPING_PLANES " + parameters.numClippingPlanes;
+    ss << "#define UNION_CLIPPING_PLANES " + ( parameters.numClippingPlanes - parameters.numClipIntersection );
+
+    if(parameters.shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
+    if(parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine;
+
+    if(parameters.premultipliedAlpha) ss << "#define PREMULTIPLIED_ALPHA" << endl;
+
+    if(parameters.physicallyCorrectLights) ss << "#define PHYSICALLY_CORRECT_LIGHTS" << endl;
+
+    if(parameters.logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
+    if(parameters.logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
+
+    if(parameters.envMap && extensions.get(Extension::EXT_shader_texture_lod)) ss << "#define TEXTURE_LOD_EXT" << endl;
+
+    ss << "uniform mat4 viewMatrix;" << endl;
+    ss << "uniform vec3 cameraPosition;" << endl;
+
+    if(( parameters.toneMapping != ToneMapping::None)) {
+      ss << "#define TONE_MAPPING" << endl;
+
+      // this code is required here because it is used by the toneMapping() function defined below
+      ss << ShaderChunk[ "tonemapping_pars_fragment" ];
+
+      ss << getToneMappingFunction( "toneMapping", parameters.toneMapping );
+    }
+
+    if(parameters.dithering) ss << "#define DITHERING" << endl;
+
+    if( parameters.outputEncoding || parameters.mapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding )
+      // this code is required here because it is used by the various encoding/decoding function defined below
+      ss << ShaderChunk[ "encodings_pars_fragment" ];
+
+    if(parameters.mapEncoding) ss << getTexelDecodingFunction( "mapTexelToLinear", parameters.mapEncoding );
+    if(parameters.envMapEncoding) ss << getTexelDecodingFunction( "envMapTexelToLinear", parameters.envMapEncoding );
+    if(parameters.emissiveMapEncoding) ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", parameters.emissiveMapEncoding );
+    if(parameters.outputEncoding) ss << getTexelEncodingFunction( "linearToOutputTexel", parameters.outputEncoding );
+
+    if(parameters.depthPacking != DepthPacking::Unknown) ss << "#define DEPTH_PACKING " << parameters.depthPacking;
+
+    prefixFragment = ss.str();
+  }
+
+  vertexShader = parseIncludes( vertexShader );
+  vertexShader = replaceLightNums( vertexShader, parameters );
+
+  fragmentShader = parseIncludes( fragmentShader );
+  fragmentShader = replaceLightNums( fragmentShader, parameters );
+
+  if ( ! material.isShaderMaterial ) {
+
+    vertexShader = unrollLoops( vertexShader );
+    fragmentShader = unrollLoops( fragmentShader );
+
+  }
+
+  var vertexGlsl = prefixVertex + vertexShader;
+  var fragmentGlsl = prefixFragment + fragmentShader;
+
+  // console.log( '*VERTEX*', vertexGlsl );
+  // console.log( '*FRAGMENT*', fragmentGlsl );
+
+  var glVertexShader = WebGLShader( gl, gl.VERTEX_SHADER, vertexGlsl );
+  var glFragmentShader = WebGLShader( gl, gl.FRAGMENT_SHADER, fragmentGlsl );
+
+  gl.attachShader( program, glVertexShader );
+  gl.attachShader( program, glFragmentShader );
+
+  // Force a particular attribute to index 0.
+
+  if ( material.index0AttributeName !== undefined ) {
+
+    gl.bindAttribLocation( program, 0, material.index0AttributeName );
+
+  } else if ( parameters.morphTargets === true ) {
+
+    // programs with morphTargets displace position out of attribute 0
+    gl.bindAttribLocation( program, 0, "position" );
+
+  }
+
+  gl.linkProgram( program );
+
+  var programLog = gl.getProgramInfoLog( program );
+  var vertexLog = gl.getShaderInfoLog( glVertexShader );
+  var fragmentLog = gl.getShaderInfoLog( glFragmentShader );
+
+  var runnable = true;
+  var haveDiagnostics = true;
+
+  // console.log( '**VERTEX**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glVertexShader ) );
+  // console.log( '**FRAGMENT**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glFragmentShader ) );
+
+  if ( gl.getProgramParameter( program, gl.LINK_STATUS ) === false ) {
+
+    runnable = false;
+
+    console.error( "THREE.WebGLProgram: shader error: ", gl.getError(), "gl.VALIDATE_STATUS", gl.getProgramParameter( program, gl.VALIDATE_STATUS ), "gl.getProgramInfoLog", programLog, vertexLog, fragmentLog );
+
+  } else if ( programLog !== "" ) {
+
+    console.warn( "THREE.WebGLProgram: gl.getProgramInfoLog()", programLog );
+
+  } else if ( vertexLog === "" || fragmentLog === "" ) {
+
+    haveDiagnostics = false;
+
+  }
+
+  if ( haveDiagnostics ) {
+
+    this.diagnostics = {
+
+       runnable: runnable,
+       material: material,
+
+       programLog: programLog,
+
+       vertexShader: {
+
+          log: vertexLog,
+          prefix: prefixVertex
+
+       },
+
+       fragmentShader: {
+
+          log: fragmentLog,
+          prefix: prefixFragment
+
+       }
+
+    };
+
+  }
+
+  // clean up
+
+  gl.deleteShader( glVertexShader );
+  gl.deleteShader( glFragmentShader );
+}
+
+// set up caching for uniform locations
+this.getUniforms = function () {
+
+  if ( cachedUniforms === undefined ) {
+
+    cachedUniforms = new WebGLUniforms( gl, program, renderer );
+
+  }
+
+  return cachedUniforms;
+}
+
+// set up caching for attribute locations
+this.getAttributes = function () {
+
+  if ( cachedAttributes === undefined ) {
+
+    cachedAttributes = fetchAttributeLocations( gl, program );
+
+  }
+
+  return cachedAttributes;
+}
+
+Program::~Program() {
+  _renderer.glDeleteProgram(_program);
+  _program = 0;
 }
 
 }

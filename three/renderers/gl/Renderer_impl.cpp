@@ -533,9 +533,8 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
-#if 0
   auto &materialProperties = _properties.get( material );
-  var parameters = _programs.getParameters(
+  ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
   var code = _programs.getProgramCode( material, parameters );
@@ -591,7 +590,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     material.onBeforeCompile( materialProperties.shader );
 
-    program = programCache.acquireProgram( material, materialProperties.shader, parameters, code );
+    program = _programs.acquireProgram( material, materialProperties.shader, parameters, code );
 
     materialProperties.program = program;
     material.program = program;
@@ -676,7 +675,6 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
      WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
 
   materialProperties.uniformsList = uniformsList;
-#endif
 }
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )

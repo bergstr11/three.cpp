@@ -3,14 +3,17 @@
 //
 #include "Renderer_impl.h"
 #include "Programs.h"
+#include <sstream>
 
 namespace three {
 namespace gl {
 
+using namespace std;
+
 ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                                Material::Ptr material,
                                                Lights::State &lights,
-                                               const std::vector<Light::Ptr> &shadows,
+                                               const vector<Light::Ptr> &shadows,
                                                const Fog::Ptr fog,
                                                size_t nClipPlanes,
                                                size_t nClipIntersection,
@@ -24,7 +27,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   // heuristics to create shader parameters according to lights in the scene
   // (not to blow over maxLights budget)
 
-  SkinnedMesh::Ptr skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(object);
+  SkinnedMesh::Ptr skinnedMesh = dynamic_pointer_cast<SkinnedMesh>(object);
 
   size_t maxBones = skinnedMesh ? allocateBones( skinnedMesh ) : 0;
   parameters->precision = _capabilities.precision;
@@ -42,9 +45,9 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   const Renderer::Target::Ptr currentRenderTarget = _renderer.getRenderTarget();
   parameters->outputEncoding = currentRenderTarget->texture() ? currentRenderTarget->texture()->encoding() : Encoding::Linear;
-  parameters->hasMap = (bool)material->map;
+  parameters->map = (bool)material->map;
   parameters->mapEncoding = material->map ? material->map->encoding() : Encoding::Linear;
-  parameters->hasEnvMap = (bool)material->envMap;
+  parameters->envMap = (bool)material->envMap;
   parameters->envMapEncoding = material->envMap ? material->envMap->encoding() : Encoding::Linear;
   parameters->envMapMode = material->envMap ? material->envMap->mapping() : TextureMapping::Unknown;
   parameters->envMapCubeUV = material->envMap &&
@@ -69,6 +72,22 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->alphaMap = (bool)mat.alphaMap;
     parameters->depthPacking = mat.depthPacking;
   };
+  dispatch.func<ShaderMaterial>() = [parameters] (ShaderMaterial &mat) {
+    if(mat.use_derivatives)
+      parameters->extensions.add(Extension::OES_standard_derivatives);
+    if(mat.use_drawBuffers)
+      parameters->extensions.add(Extension::GL_EXT_draw_buffers);
+    if(mat.use_fragDepth)
+      parameters->extensions.add(Extension::EXT_frag_depth);
+    if(mat.use_shaderTextureLOD)
+      parameters->extensions.add(Extension::EXT_shader_texture_lod);
+
+    parameters->defines.insert(mat.defines.begin(), mat.defines.end());
+  };
+  dispatch.func<RawShaderMaterial>() = [parameters] (RawShaderMaterial &mat) {
+    dispatch.func<ShaderMaterial>()(mat);
+    parameters->rawShader = true;
+  };
   /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
   };
@@ -85,6 +104,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->roughnessMap = mat.roughnessMap
     parameters->metalnessMap = mat.metalnessMap;
     parameters->alphaMap = mat.alphaMap;
+    parameters->defines.insert(mat.defines.begin(), mat.defines.end());
   };
   dispatch.func<MeshNormalMaterial>() = [&parameters] (MeshNormalMaterial &mat) {
     parameters->bumpMap = mat->bumpMap;
@@ -97,7 +117,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->fog = (bool)fog;
   parameters->useFog = material->fog;
-  parameters->fogExp = (bool)std::dynamic_pointer_cast<FogExp2>(fog);
+  parameters->fogExp = (bool)dynamic_pointer_cast<FogExp2>(fog);
   parameters->flatShading = material->flatShading;
 
   parameters->logarithmicDepthBuffer = _capabilities.logarithmicDepthBuffer;
@@ -135,6 +155,52 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->flipSided = material->side == Side::Back;
 
   return parameters;
+}
+
+string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters)
+{
+  static const char *parameterNames[] = {
+     "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
+     "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
+     "roughnessMap", "metalnessMap", "gradientMap",
+     "alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
+     "flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
+     "maxBones", "useVertexTexture", "morphTargets", "morphNormals",
+     "maxMorphTargets", "maxMorphNormals", "premultipliedAlpha",
+     "numDirLights", "numPointLights", "numSpotLights", "numHemiLights", "numRectAreaLights",
+     "shadowMapEnabled", "shadowMapType", "toneMapping", "physicallyCorrectLights",
+     "alphaTest", "doubleSided", "flipSided", "numClippingPlanes", "numClipIntersection", "depthPacking", "dithering"
+  };
+
+  ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
+
+  stringstream ss;
+
+  if ( parameters->shaderID ) {
+    ss << parameters->shaderID << ',';
+  }
+  else if(sm) {
+    ss << sm->fragmentShader << ',' << sm->vertexShader << ',';
+  }
+
+  if (sm ) {
+    for (auto define : sm->defines ) {
+      ss << define.first << ',' << define.second << ',';
+    }
+  }
+
+  unsigned numNames = sizeof(parameterNames) / sizeof(char *);
+  for ( unsigned i = 0; i < numNames; i ++ ) {
+
+    ss << parameters[ parameterNames[ i ] ] );
+  }
+
+  array.push( material.onBeforeCompile.toString() );
+
+  array.push( renderer.gammaOutput );
+
+  return ss.str();
+
 }
 
 }

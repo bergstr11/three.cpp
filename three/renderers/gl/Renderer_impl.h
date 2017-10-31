@@ -34,6 +34,7 @@ namespace gl {
 class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
   friend class Programs;
+  friend class Program;
 
 protected:
   std::vector<Light::Ptr> _lightsArray;

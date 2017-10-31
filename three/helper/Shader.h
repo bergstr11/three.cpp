@@ -125,11 +125,15 @@ class Shader
 {
 protected:
   UniformValues _uniforms;
+  std::string _name;
 
 public:
-  explicit Shader(const UniformValues &uniforms) : _uniforms(uniforms) {}
+  explicit Shader(const std::string &name, const UniformValues &uniforms)
+     : _name(name), _uniforms(uniforms) {}
 
   const UniformValues &uniforms() const {return _uniforms;}
+
+  const std::string name() const {return _name;}
 
   virtual const char *vertexShader() = 0;
   virtual const char *fragmentShader() = 0;

@@ -362,6 +362,7 @@ DEF_RESOLVER_1(Dispatch)
 
 class Material;
 class ShaderMaterial;
+class RawShaderMaterial;
 class LineBasicMaterial;
 class LineDashedMaterial;
 class MeshPhongMaterial;
@@ -382,6 +383,7 @@ namespace material {
 DEF_FUNC_TABLE(Dispatch)
 PUT_FUNC_TABLE(Dispatch, Material)
 PUT_FUNC_TABLE(Dispatch, ShaderMaterial)
+PUT_FUNC_TABLE(Dispatch, RawShaderMaterial)
 PUT_FUNC_TABLE(Dispatch, LineBasicMaterial)
 PUT_FUNC_TABLE(Dispatch, LineDashedMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshPhongMaterial)

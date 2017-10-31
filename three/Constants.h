@@ -228,8 +228,22 @@ enum class ShadowMapType
 };
 
 enum class DepthPacking {
-  Basic=3200, RGBA=3201
+  Basic=3200, RGBA=3201, Unknown=0
 };
+
+inline std::ostream& operator <<(std::ostream& stream, const DepthPacking& depthPacking)
+{
+  switch(depthPacking) {
+    case Basic:
+      stream << "BASIC";
+      break;
+    case RGBA:
+      stream << "RGBA";
+      break;
+    default:
+      throw std::invalid_argument("unknown depthPacking");
+  }
+}
 
 enum class BufferType {
   Array=GL_ARRAY_BUFFER, ElementArray=GL_ELEMENT_ARRAY_BUFFER
@@ -244,6 +258,23 @@ enum class Precision
 {
   lowp, mediump, highp, unknown
 };
+
+inline std::ostream& operator <<(std::ostream& stream, const Precision& precision)
+{
+  switch(precision) {
+    case lowp:
+      stream << "lowp";
+      break;
+    case mediump:
+      stream << "mediump";
+      break;
+    case highp:
+      stream << "highp";
+      break;
+    default:
+      throw std::invalid_argument("unknown precision");
+  }
+}
 
 enum class UniformType
 {
