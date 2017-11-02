@@ -14,11 +14,9 @@
 namespace three {
 namespace gl {
 
-namespace shaderlib {
-
 static void init();
 
-class ShaderImpl : public Shader
+class Shader : public three::Shader
 {
   QResource _vertex;
   QByteArray _uncompressedVertex;
@@ -29,14 +27,16 @@ class ShaderImpl : public Shader
   const char *_fragmentShader = nullptr;
 
 public:
-  ShaderImpl(std::string name, const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
+  Shader(std::string name, const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
 
   const std::string vertexShader() override;
 
   const std::string fragmentShader() override;
 };
 
-static ShaderImpl cube = {
+namespace shaderlib {
+
+static Shader cube = {
    "CUBE",
    {
       tCube(nullptr),

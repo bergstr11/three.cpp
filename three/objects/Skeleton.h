@@ -25,7 +25,7 @@ class Skeleton
   std::vector<Bone::Ptr> _bones;
   std::vector<float> _boneMatrices;
   std::vector<math::Matrix4> _boneInverses;
-  Texture::Ptr _boneTexture;
+  TextureBase::Ptr _boneTexture;
   size_t _boneTextureSize;
 
   Skeleton() {}
@@ -45,12 +45,12 @@ public:
   const std::vector<Bone::Ptr> bones() const {return _bones;}
   const std::vector<float> boneMatrices() const {return _boneMatrices;}
   const std::vector<math::Matrix4> boneInverses() const {return _boneInverses;}
-  const Texture::Ptr boneTexture() const {return _boneTexture;}
+  const TextureBase::Ptr boneTexture() const {return _boneTexture;}
   const size_t boneTextureSize() const {return _boneTextureSize;}
 
   std::vector<float> &boneMatrices() {return _boneMatrices;}
 
-  Skeleton &setBoneTexture(Texture::Ptr texture) {
+  Skeleton &setBoneTexture(TextureBase::Ptr texture) {
     _boneTexture = texture;
   }
 

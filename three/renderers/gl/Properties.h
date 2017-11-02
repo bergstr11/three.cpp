@@ -9,6 +9,8 @@
 #include <string>
 #include <core/Object3D.h>
 #include <textures/Texture.h>
+#include "Program.h"
+#include "shader/ShaderLib.h"
 
 namespace three {
 namespace gl {
@@ -147,9 +149,22 @@ enum PropertyKey
   __version
 };
 
+struct MaterialProperties
+{
+  Program::Ptr program;
+  Fog::Ptr fog;
+  std::vector<float> clippingState;
+  std::string lightsHash;
+  size_t numClippingPlanes;
+  size_t numIntersection;
+  gl::Shader *shader;
+};
+
 class Properties
 {
   std::unordered_map<sole::uuid, std::unordered_map<PropertyKey, Property>> properties = {};
+
+  std::unordered_map<sole::uuid, MaterialProperties> materialProperties = {};
 
 public:
   std::unordered_map<PropertyKey, Property> &get(const sole::uuid &uuid)
@@ -167,6 +182,11 @@ public:
       return props.find(key) != props.end();
     }
     return false;
+  }
+
+  MaterialProperties &getMaterial(const Material::Ptr &material)
+  {
+    return materialProperties[material->uuid];
   }
 
   template <typename T>

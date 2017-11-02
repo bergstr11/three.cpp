@@ -162,6 +162,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
 string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters)
 {
+#if 0
   static const char *parameterNames[] = {
      "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
      "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
@@ -178,8 +179,7 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
   ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
 
   stringstream ss;
-#if 0
-  if ( parameters->shaderID ) {
+  if ( !parameters->shaderID.empty() ) {
     ss << parameters->shaderID << ',';
   }
   else if(sm) {
@@ -202,7 +202,7 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
 
   array.push( renderer.gammaOutput );
 #endif
-  return ss.str();
+  return "";//ss.str();
 
 }
 

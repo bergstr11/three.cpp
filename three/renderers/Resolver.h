@@ -113,11 +113,13 @@ public:
     virtual bool getFunc(const Tmap &t) const = 0;
     virtual std::string getString(const Tmap &t) const = 0;
   };
+
   Callback *callback = nullptr;
 
   bool getFunc(const Tmap &t) {
     if(callback) callback->getFunc(t);
   }
+
   std::string getString(const Tmap &t) {
     if(callback) return callback->getString(t);
     throw std::logic_error("callback not set");
@@ -196,6 +198,7 @@ public:
   bool getFunc(const Tmap &t) const override {
     return t.template func<Base>()(this->b);
   }
+
   std::string getString(const Tmap &t) const override {
     return t.string(this->b);
   }

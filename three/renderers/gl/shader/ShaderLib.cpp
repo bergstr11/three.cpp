@@ -18,17 +18,16 @@ static void qInitResource()
 
 namespace three {
 namespace gl {
-namespace shaderlib {
 
 void init() {
   qInitResource();
 }
 
-ShaderImpl::ShaderImpl(std::string name, const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
-  : Shader(name, uniforms), _vertex(vertexShader), _fragment(fragmentShader)
+Shader::Shader(std::string name, const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
+  : three::Shader(name, uniforms), _vertex(vertexShader), _fragment(fragmentShader)
 {}
 
-const std::string ShaderImpl::vertexShader()
+const std::string Shader::vertexShader()
 {
   if(_vertexShader) return _vertexShader;
 
@@ -42,7 +41,7 @@ const std::string ShaderImpl::vertexShader()
   return _vertexShader;
 }
 
-const std::string ShaderImpl::fragmentShader()
+const std::string Shader::fragmentShader()
 {
   if(_fragmentShader) return _fragmentShader;
 
@@ -54,7 +53,6 @@ const std::string ShaderImpl::fragmentShader()
     _fragmentShader = (const char *)_fragment.data();
 
   return _fragmentShader;
-}
 }
 
 }

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <Constants.h>
 #include <material/Material.h>
-#include <helper/Shader.h>
+#include "shader/ShaderLib.h"
 #include "Helpers.h"
 #include "Extensions.h"
 #include "Uniforms.h"

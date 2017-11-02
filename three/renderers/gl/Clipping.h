@@ -7,14 +7,10 @@
 
 #include <camera/Camera.h>
 #include <math/Plane.h>
+#include "Properties.h"
 
 namespace three {
 namespace gl {
-
-struct Cache
-{
-  std::vector<float> clippingState;
-};
 
 class Clipping
 {
@@ -67,7 +63,7 @@ public:
                 bool clipIntersection,
                 bool clipShadows,
                 Camera::Ptr camera,
-                Cache &cache,
+                MaterialProperties &cache,
                 bool fromCache)
   {
     if (!_localClippingEnabled || planes.empty() || _renderingShadows && !clipShadows) {
