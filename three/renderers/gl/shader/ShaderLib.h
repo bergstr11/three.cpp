@@ -34,6 +34,7 @@ enum class ShaderID : unsigned
 namespace shaderlib {
 
 Shader &get(ShaderID id);
+
 Shader::Ptr get(ShaderID id, const char *name);
 
 }

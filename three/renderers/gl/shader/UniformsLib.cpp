@@ -7,12 +7,11 @@
 
 namespace three {
 namespace gl {
-namespace uniforms {
-
-using namespace std;
 
 DataTexture::Ptr LTC_MAT_TEXTURE;
 DataTexture::Ptr LTC_MAG_TEXTURE;
+
+using namespace std;
 
 vector<float> loadTexture(const char *name)
 {
@@ -74,6 +73,24 @@ void initRectAreaLight()
   //Object.assign(ShaderLib.physical.uniforms, ltc_brdf);
 }
 
+namespace uniformslib {
+
+UniformValues &get(UniformsID id)
+{
+  static UniformValues vals({});
+
+  return vals;
 }
+
+UniformValues merge(std::initializer_list<UniformsID> ids)
+{
+  for(auto it = std::begin(ids); it != std::end(ids); it++) {
+    const UniformsID &id = *it;
+  }
+  return UniformValues({});
+}
+
+}
+
 }
 }

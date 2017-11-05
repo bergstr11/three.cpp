@@ -6,10 +6,11 @@
 #define THREE_QT_UNIFORMSLIB_H
 
 #include <textures/DataTexture.h>
+#include <textures/CubeTexture.h>
+#include "../Uniforms.h"
 
 namespace three {
 namespace gl {
-namespace uniforms {
 
 extern DataTexture::Ptr LTC_MAT_TEXTURE;
 extern DataTexture::Ptr LTC_MAG_TEXTURE;
@@ -30,7 +31,44 @@ extern DataTexture::Ptr LTC_MAG_TEXTURE;
  */
 void initRectAreaLight();
 
+enum class UniformsID {
+  common,
+  envmap,
+  aomap,
+  lightmap,
+  specularmap,
+  emissivemap,
+  bumpmap,
+  normalmap,
+  displacementmap,
+  roughnessmap,
+  metalnessmap,
+  gradientmap,
+  fog,
+  lights,
+  points
+};
+
+namespace uniformslib {
+
+template<typename T, UniformName _nm>
+struct UniformValueBase : public UniformValue
+{
+  explicit UniformValueBase(T t) : UniformValue(_nm, t)
+  {}
+};
+
+using Cube = UniformValueBase<CubeTexture::Ptr, UniformName::cube>;
+using Equirect = UniformValueBase<Texture::Ptr, UniformName::equirect>;
+using Flip = UniformValueBase<GLint, UniformName::flip>;
+using Opacity = UniformValueBase<float, UniformName::opacity>;
+
+UniformValues &get(UniformsID id);
+
+UniformValues merge(std::initializer_list<UniformsID> id);
+
 }
+
 }
 }
 #endif //THREE_QT_UNIFORMSLIB_H

@@ -3,13 +3,12 @@
 //
 
 #include "ShaderLib.h"
-#include <utility>
 
 static void qInitResource()
 {
   static bool done = false;
 
-  if(done) return;
+  if (done) return;
   done = true;
 
   //must do this outside of namespace - hence this function
@@ -46,28 +45,28 @@ public:
 
   const std::string vertexShader() override
   {
-    if(_vertexShader) return _vertexShader;
+    if (_vertexShader) return _vertexShader;
 
-    if(_vertex.isCompressed()) {
+    if (_vertex.isCompressed()) {
       _uncompressedVertex = qUncompress(_vertex.data(), _vertex.size());
       _vertexShader = _uncompressedVertex.data();
     }
     else
-      _vertexShader = (const char *)_vertex.data();
+      _vertexShader = (const char *) _vertex.data();
 
     return _vertexShader;
   }
 
   const std::string fragmentShader() override
   {
-    if(_fragmentShader) return _fragmentShader;
+    if (_fragmentShader) return _fragmentShader;
 
-    if(_fragment.isCompressed()) {
+    if (_fragment.isCompressed()) {
       _uncompressedFragment = qUncompress(_fragment.data(), _fragment.size());
       _fragmentShader = _uncompressedFragment.data();
     }
     else
-      _fragmentShader = (const char *)_fragment.data();
+      _fragmentShader = (const char *) _fragment.data();
 
     return _fragmentShader;
   }
@@ -75,15 +74,17 @@ public:
 
 class Shader : public three::Shader
 {
-  LibShader & _libShader;
+  LibShader &_libShader;
 
 public:
-  Shader(const char *name, LibShader &libShader) : three::Shader(name, _libShader._uniforms), _libShader(libShader) {}
+  Shader(const char *name, LibShader &libShader) : three::Shader(name, _libShader._uniforms), _libShader(libShader)
+  {}
 
   const std::string vertexShader() override
   {
     return _libShader.vertexShader();
   }
+
   const std::string fragmentShader() override
   {
     return _libShader.fragmentShader();
@@ -95,38 +96,183 @@ class Shaders
   std::unordered_map<ShaderID, three::gl::LibShader> _shaders;
 
 public:
-  Shaders() {
+  Shaders()
+  {
     qInitResource();
 
+    _shaders.emplace(std::make_pair(ShaderID::basic, LibShader(ShaderID::basic,
+                                                               uniformslib::merge(
+                                                                  {
+                                                                     UniformsID::common,
+                                                                     UniformsID::specularmap,
+                                                                     UniformsID::envmap,
+                                                                     UniformsID::aomap,
+                                                                     UniformsID::lightmap,
+                                                                     UniformsID::fog
+                                                                  }
+                                                               ),
+                                                               ":chunk/cube_vert.glsl",
+                                                               ":chunk/cube_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::lambert, LibShader(ShaderID::lambert,
+                                                                 uniformslib::merge(
+                                                                    {
+                                                                       UniformsID::common,
+                                                                       UniformsID::specularmap,
+                                                                       UniformsID::envmap,
+                                                                       UniformsID::aomap,
+                                                                       UniformsID::lightmap,
+                                                                       UniformsID::emissivemap,
+                                                                       UniformsID::fog,
+                                                                       UniformsID::lights
+                                                                    }
+                                                                 ),
+                                                                 ":chunk/meshlambert_vert.glsl",
+                                                                 ":chunk/meshlambert_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::phong, LibShader(ShaderID::phong,
+                                                               uniformslib::merge(
+                                                                  {
+                                                                     UniformsID::common,
+                                                                     UniformsID::specularmap,
+                                                                     UniformsID::envmap,
+                                                                     UniformsID::aomap,
+                                                                     UniformsID::lightmap,
+                                                                     UniformsID::emissivemap,
+                                                                     UniformsID::bumpmap,
+                                                                     UniformsID::normalmap,
+                                                                     UniformsID::displacementmap,
+                                                                     UniformsID::gradientmap,
+                                                                     UniformsID::fog,
+                                                                     UniformsID::lights
+                                                                  }
+                                                               ),
+                                                               ":chunk/meshphong_vert.glsl",
+                                                               ":chunk/meshphong_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::standard, LibShader(ShaderID::standard,
+                                                                  uniformslib::merge(
+                                                                     {
+                                                                        UniformsID::common,
+                                                                        UniformsID::envmap,
+                                                                        UniformsID::aomap,
+                                                                        UniformsID::lightmap,
+                                                                        UniformsID::emissivemap,
+                                                                        UniformsID::bumpmap,
+                                                                        UniformsID::normalmap,
+                                                                        UniformsID::displacementmap,
+                                                                        UniformsID::roughnessmap,
+                                                                        UniformsID::metalnessmap,
+                                                                        UniformsID::fog,
+                                                                        UniformsID::lights
+                                                                     }
+                                                                  ),
+                                                                  ":chunk/meshphysical_vert.glsl",
+                                                                  ":chunk/meshphysical_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::points, LibShader(ShaderID::points,
+                                                                uniformslib::merge(
+                                                                   {
+                                                                      UniformsID::points,
+                                                                      UniformsID::fog
+                                                                   }
+                                                                ),
+                                                                ":chunk/points_vert.glsl",
+                                                                ":chunk/points_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::dashed, LibShader(ShaderID::dashed,
+                                                                uniformslib::merge(
+                                                                   {
+                                                                      UniformsID::common,
+                                                                      UniformsID::fog
+                                                                   }
+                                                                ),
+                                                                ":chunk/linedashed_vert.glsl",
+                                                                ":chunk/linedashed_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::depth, LibShader(ShaderID::depth,
+                                                               uniformslib::merge(
+                                                                  {
+                                                                     UniformsID::common,
+                                                                     UniformsID::displacementmap
+                                                                  }
+                                                               ),
+                                                               ":chunk/depth_vert.glsl",
+                                                               ":chunk/depth_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::normal, LibShader(ShaderID::normal,
+                                                                uniformslib::merge(
+                                                                   {
+                                                                      UniformsID::common,
+                                                                      UniformsID::bumpmap,
+                                                                      UniformsID::normalmap,
+                                                                      UniformsID::displacementmap
+                                                                   }
+                                                                ),
+                                                                ":chunk/normal_vert.glsl",
+                                                                ":chunk/normal_frag.glsl"
+    )));
     _shaders.emplace(std::make_pair(ShaderID::cube, LibShader(ShaderID::cube,
-       {
-          uniform::Cube(nullptr),
-          uniform::Flip(-1),
-          uniform::Opacity(1.0f)
-       },
-       ":chunk/cube_vert.glsl",
-       ":chunk/cube_frag.glsl"
+                                                              {
+                                                                 uniformslib::Cube(nullptr),
+                                                                 uniformslib::Flip(-1),
+                                                                 uniformslib::Opacity(1.0f)
+                                                              },
+                                                              ":chunk/cube_vert.glsl",
+                                                              ":chunk/cube_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::equirect, LibShader(ShaderID::equirect,
+                                                                  {
+                                                                     uniformslib::Equirect(nullptr),
+                                                                  },
+                                                                  ":chunk/equirect_vert.glsl",
+                                                                  ":chunk/equirect_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::distanceRGBA, LibShader(ShaderID::distanceRGBA,
+                                                                      uniformslib::merge(
+                                                                         {
+                                                                            UniformsID::common,
+                                                                            UniformsID::displacementmap
+                                                                         }
+                                                                      ),
+                                                                      ":chunk/distanceRGBA_vert.glsl",
+                                                                      ":chunk/distanceRGBA_frag.glsl"
+    )));
+    _shaders.emplace(std::make_pair(ShaderID::shadow, LibShader(ShaderID::shadow,
+                                                                uniformslib::merge(
+                                                                   {
+                                                                      UniformsID::lights,
+                                                                      UniformsID::fog
+                                                                   }
+                                                                ),
+                                                                ":chunk/distanceRGBA_vert.glsl",
+                                                                ":chunk/distanceRGBA_frag.glsl"
     )));
   }
-  LibShader &operator[](ShaderID id) {
+
+  LibShader &operator[](ShaderID id)
+  {
     return _shaders.at(id);
   }
 };
 
 namespace shaderlib {
 
-three::Shader::Ptr get(ShaderID id, const char *name)
-{
-  static Shaders shaders;
-
-  return three::Shader::Ptr(new three::gl::Shader(name, shaders[id]));
-}
-
-three::Shader &get(ShaderID id)
+LibShader &_get(ShaderID id)
 {
   static Shaders shaders;
 
   return shaders[id];
+}
+
+three::Shader &get(ShaderID id)
+{
+  return _get(id);
+}
+
+three::Shader::Ptr get(ShaderID id, const char *name)
+{
+  return three::Shader::Ptr(new three::gl::Shader(name, _get(id)));
 }
 
 }

@@ -17,8 +17,10 @@
 
 namespace three {
 
-enum class UniformName {
+enum class UniformName
+{
   cube,
+  equirect,
   flip,
   opacity,
   diffuse,
@@ -34,12 +36,48 @@ enum class UniformName {
   bindMatrixInverse,
   toneMappingExposure,
   toneMappingWhitePoint,
-  cameraPosition
+  cameraPosition,
+  map,
+  uvTransform,
+  alphaMap,
+  specularMap,
+  envMap,
+  flipEnvMap,
+  reflectivity,
+  refractionRatio,
+  aoMap,
+  aoMapIntensity,
+  lightMap,
+  lightMapIntensity,
+  emissiveMap,
+  bumpMap,
+  bumpScale,
+  normalMap,
+  normalScale,
+  displacementMap,
+  displacementScale,
+  displacementBias,
+  roughnessMap,
+  metalnessMap,
+  gradientMap,
+  fogDensity,
+  fogNear,
+  fogFar,
+  fogColor,
+  ambientLightColor,
+  direction,
+  color,
+  shadow,
+  shadowBias,
+  shadowRadius,
+  shadowMapSize,
+  size,
+  scale
 };
 
 struct UniformValue
 {
-  enum Type {tCube, glint, flt, vect2, vect3, vect4, mat3, mat4, color} type;
+  enum Type {cube, tex, glint, flt, vect2, vect3, vect4, mat3, mat4, color} type;
 
   UniformName id;
 
@@ -47,7 +85,8 @@ struct UniformValue
   {
     float float_val;
     GLint glint_val;
-    CubeTexture::Ptr tCube_val;
+    Texture::Ptr tex_val;
+    CubeTexture::Ptr cube_val;
     math::Vector2 vect2_val;
     math::Vector3 vect3_val;
     math::Vector4 vect4_val;
@@ -64,7 +103,9 @@ struct UniformValue
   {}
   explicit UniformValue(UniformName id, GLint val) : id(id), type(glint), glint_val(val)
   {}
-  explicit UniformValue(UniformName id, const CubeTexture::Ptr &tex) : id(id), type(tCube), tCube_val(tex)
+  explicit UniformValue(UniformName id, const Texture::Ptr &tx) : id(id), type(tex), tex_val(tx)
+  {}
+  explicit UniformValue(UniformName id, const CubeTexture::Ptr &tx) : id(id), type(cube), cube_val(tx)
   {}
   explicit UniformValue(UniformName id, const math::Vector2 &val) : id(id), type(vect2), vect2_val(val)
   {}
@@ -81,8 +122,10 @@ struct UniformValue
 
   ~UniformValue() {
     switch(type) {
-      case tCube:
-        tCube_val.reset();
+      case tex:
+        tex_val.reset();
+      case cube:
+        cube_val.reset();
       default:
         break;
     }
@@ -91,11 +134,15 @@ struct UniformValue
   UniformValue &operator =(const UniformValue &other)
   {
     id = other.id;
-    if(type == tCube) tCube_val.reset();
+    if(type == tex) tex_val.reset();
+    if(type == cube) cube_val.reset();
     type = other.type;
     switch(type) {
-      case tCube:
-        tCube_val = other.tCube_val;
+      case tex:
+        tex_val = other.tex_val;
+        break;
+      case cube:
+        cube_val = other.cube_val;
         break;
       case flt:
         float_val = other.float_val;
@@ -127,8 +174,11 @@ struct UniformValue
   UniformValue(const UniformValue &other) : id(other.id), type(other.type)
   {
     switch(type) {
-      case tCube:
-        tCube_val = other.tCube_val;
+      case tex:
+        tex_val = other.tex_val;
+        break;
+      case cube:
+        cube_val = other.cube_val;
         break;
       case flt:
         float_val = other.float_val;
@@ -157,9 +207,13 @@ struct UniformValue
     }
   }
 
+  UniformValue &operator = (const Texture::Ptr &t) {
+    if(type != tex) throw std::invalid_argument("invalid type");
+    tex_val = t;
+  }
   UniformValue &operator = (const CubeTexture::Ptr &t) {
-    if(type != tCube) throw std::invalid_argument("invalid type");
-    tCube_val = t;
+    if(type != cube) throw std::invalid_argument("invalid type");
+    cube_val = t;
   }
   UniformValue &operator = (const GLint &i) {
     if(type != glint) throw std::invalid_argument("invalid type");
@@ -194,21 +248,6 @@ struct UniformValue
     color_val = c;
   }
 };
-
-namespace uniform {
-
-template<typename T, UniformName _nm>
-struct UniformValueBase : public UniformValue
-{
-  explicit UniformValueBase(T t) : UniformValue(_nm, t)
-  {}
-};
-
-using Cube = UniformValueBase<CubeTexture::Ptr, UniformName::cube>;
-using Flip = UniformValueBase<GLint, UniformName::flip>;
-using Opacity = UniformValueBase<float, UniformName::opacity>;
-
-}
 
 class UniformValues
 {
