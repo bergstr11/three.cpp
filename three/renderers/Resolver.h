@@ -214,7 +214,8 @@ public:
 struct Cls { \
 template <typename T> std::string string(T &t) const {return "";} \
 template <typename T> resolver::NullFuncAssoc func() const {return resolver::NullFuncAssoc();} \
-};
+}; \
+using Cls##Resolver = resolver::Resolve<Cls>;
 
 #define PUT_STRING_TABLE(Cls, Type, Val) \
 template <> inline std::string Cls::string(Type &t) const { \
@@ -226,7 +227,8 @@ return sa(t); \
 struct Cls { \
 template <typename T> resolver::FuncAssoc<T> &func() const = delete; \
 template <typename T> std::string string(T &t) const {throw std::logic_error("getting string from function map");} \
-};
+}; \
+using Cls##Resolver = resolver::Resolve<Cls>;
 
 #define PUT_FUNC_TABLE(Cls, Type) \
 template <> inline resolver::FuncAssoc<Type> &Cls::func() const { \
@@ -395,6 +397,9 @@ PUT_FUNC_TABLE(Dispatch, MeshDistanceMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshStandardMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshLambertMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshBasicMaterial)
+PUT_FUNC_TABLE(Dispatch, MeshNormalMaterial)
+PUT_FUNC_TABLE(Dispatch, MeshPhysicalMaterial)
+PUT_FUNC_TABLE(Dispatch, MeshToonMaterial)
 PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
 
 DEF_STRING_TABLE(ShaderIDs)

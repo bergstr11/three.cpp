@@ -13,12 +13,12 @@
 namespace three {
 namespace gl {
 
-class Shader : private QOpenGLFunctions
+class LibShader : private QOpenGLFunctions
 {
   GLuint _shader;
 
 public:
-  Shader(ShaderType type, std::string glsl)
+  LibShader(ShaderType type, std::string glsl)
   {
     _shader = glCreateShader((GLenum)type);
 

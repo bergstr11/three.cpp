@@ -50,8 +50,8 @@ class RenderList
 
       return a.program->id() - b.program->id();
     }
-    else if (a.material->id() != b.material->id()) {
-      return a.material->id() - b.material->id();
+    else if (a.material->id != b.material->id) {
+      return a.material->id - b.material->id;
     }
     else if (a.z != b.z) {
       return a.z - b.z;

@@ -18,9 +18,9 @@ class SpriteMaterial : public Material
 
   SpriteMaterial() : Material(material::ResolverT<SpriteMaterial>::make(*this))
   {
-    this->_morphTargets = false;
-    this->_morphNormals = false;
-    this->_skinning = false;
+    this->morphTargets = false;
+    this->morphNormals = false;
+    this->skinning = false;
   }
 public:
   using Ptr = std::shared_ptr<SpriteMaterial>;

@@ -20,9 +20,9 @@ class MeshDistanceMaterial : public Material
   MeshDistanceMaterial(bool morphing, bool skinning)
      : Material(material::ResolverT<MeshDistanceMaterial>::make(*this))
   {
-    this->_morphTargets = morphing;
-    this->_morphNormals = morphing;
-    this->_skinning = skinning;
+    this->morphTargets = morphing;
+    this->morphNormals = morphing;
+    this->skinning = skinning;
   }
 
 public:

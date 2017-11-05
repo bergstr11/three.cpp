@@ -32,7 +32,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
       geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make(1, 1, 1);
       boxMesh = Mesh_T<geometry::BoxBuffer, ShaderMaterial>::make(box,
-                                           ShaderMaterial::make(shaderlib::cube, Side::Back, true, false, false));
+                                           ShaderMaterial::make(shaderlib::get(ShaderID::cube), Side::Back, true, false, false));
 
       box->setNormal(nullptr);
       box->setUV(nullptr);
@@ -45,7 +45,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
       geometries.update(box);
     }
 
-    boxMesh->material<0>()->uniforms.set<tCube>(tex);
+    boxMesh->material<0>()->uniforms[UniformName::cube] = tex;
 
     renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
   };

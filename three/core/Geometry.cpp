@@ -36,7 +36,7 @@ void StaticGeometry::raycast(const Mesh &mesh,
     Vector3 &fvB = _vertices[face.b];
     Vector3 &fvC = _vertices[face.c];
 
-    if (faceMaterial->morphTargets()) {
+    if (faceMaterial->morphTargets) {
 
       math::Vector3 vA(0, 0, 0);
       math::Vector3 vB(0, 0, 0);

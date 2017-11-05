@@ -25,6 +25,31 @@ std::vector<int32_t> &Uniforms::allocTexUnits(Renderer_impl &renderer, size_t n)
   return r;
 }
 
+#define MATCH_NAME(nm) if(name == #nm) return UniformName::nm;
+
+UniformName toUniformName(string name)
+{
+  MATCH_NAME(cube)
+  MATCH_NAME(flip)
+  MATCH_NAME(opacity)
+  MATCH_NAME(diffuse)
+  MATCH_NAME(emissive)
+  MATCH_NAME(projectionMatrix)
+  MATCH_NAME(viewMatrix)
+  MATCH_NAME(modelViewMatrix)
+  MATCH_NAME(normalMatrix)
+  MATCH_NAME(modelMatrix)
+  MATCH_NAME(logDepthBufFC)
+  MATCH_NAME(boneMatrices)
+  MATCH_NAME(bindMatrix)
+  MATCH_NAME(bindMatrixInverse)
+  MATCH_NAME(toneMappingExposure)
+  MATCH_NAME(toneMappingWhitePoint)
+  MATCH_NAME(cameraPosition)
+
+  throw std::invalid_argument(std::string("unknown variable ")+name);
+}
+
 void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *container)
 {
   static regex rex(R"(([\w\d_]+)(\])?(\[|\.)?)");
@@ -45,7 +70,7 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   while(rex_it != rex_end) {
     smatch match = *rex_it;
 
-    string id = match[1];
+    UniformName id = toUniformName(match[1]);
     bool isIndex = match[2] == "]";
     string subscript = match[3];
 

@@ -32,9 +32,9 @@ struct MeshDepthMaterial : public Material
   MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning)
      : Material(material::ResolverT<MeshDepthMaterial>::make(*this)), depthPacking(packing)
   {
-    this->_morphTargets = morphing;
-    this->_morphNormals = morphing;
-    this->_skinning = skinning;
+    this->morphTargets = morphing;
+    this->morphNormals = morphing;
+    this->skinning = skinning;
   }
 
 public:

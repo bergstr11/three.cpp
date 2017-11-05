@@ -48,8 +48,8 @@ public:
     }
     std::vector<Influence> &influences = _influencesList[ geometry->id ];
 
-    bool morphTargets = material->morphTargets() && !geometry->morphPositions().empty();
-    bool morphNormals = material->morphNormals() && !geometry->morphNormals().empty();
+    bool morphTargets = material->morphTargets && !geometry->morphPositions().empty();
+    bool morphNormals = material->morphNormals && !geometry->morphNormals().empty();
 
     // Remove current morphAttributes
     for ( unsigned i = 0; i < length; i ++ ) {

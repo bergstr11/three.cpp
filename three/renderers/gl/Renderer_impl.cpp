@@ -8,6 +8,13 @@
 #include <textures/DataTexture.h>
 #include <sstream>
 #include <objects/Line.h>
+#include "shader/UniformsLib.h"
+#include <material/MeshStandardMaterial.h>
+#include <material/MeshPhongMaterial.h>
+#include <material/MeshNormalMaterial.h>
+#include <material/MeshLambertMaterial.h>
+#include <material/MeshToonMaterial.h>
+#include <material/MeshPhysicalMaterial.h>
 
 namespace three {
 
@@ -680,30 +687,184 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
 void refreshUniformsCommon(const UniformValues &uniforms, Material &material)
 {
+#if 0
+  if ( material.map ) {
+
+    uniforms.map.value = material.map;
+
+  }
+
+  if ( material.alphaMap ) {
+
+    uniforms.alphaMap.value = material.alphaMap;
+
+  }
+
+  if ( material.specularMap ) {
+
+    uniforms.specularMap.value = material.specularMap;
+
+  }
+
+  if ( material.envMap ) {
+
+    uniforms.envMap.value = material.envMap;
+
+    // don't flip CubeTexture envMaps, flip everything else:
+    //  WebGLRenderTargetCube will be flipped for backwards compatibility
+    //  WebGLRenderTargetCube.texture will be flipped because it's a Texture and NOT a CubeTexture
+    // this check must be handled differently, or removed entirely, if WebGLRenderTargetCube uses a CubeTexture in the future
+    uniforms.flipEnvMap.value = ( ! ( material.envMap && material.envMap.isCubeTexture ) ) ? 1 : - 1;
+
+    uniforms.reflectivity.value = material.reflectivity;
+    uniforms.refractionRatio.value = material.refractionRatio;
+
+  }
+
+  if ( material.lightMap ) {
+
+    uniforms.lightMap.value = material.lightMap;
+    uniforms.lightMapIntensity.value = material.lightMapIntensity;
+
+  }
+
+  if ( material.aoMap ) {
+
+    uniforms.aoMap.value = material.aoMap;
+    uniforms.aoMapIntensity.value = material.aoMapIntensity;
+
+  }
+
+  // uv repeat and offset setting priorities
+  // 1. color map
+  // 2. specular map
+  // 3. normal map
+  // 4. bump map
+  // 5. alpha map
+  // 6. emissive map
+
+  var uvScaleMap;
+
+  if ( material.map ) {
+
+    uvScaleMap = material.map;
+
+  } else if ( material.specularMap ) {
+
+    uvScaleMap = material.specularMap;
+
+  } else if ( material.displacementMap ) {
+
+    uvScaleMap = material.displacementMap;
+
+  } else if ( material.normalMap ) {
+
+    uvScaleMap = material.normalMap;
+
+  } else if ( material.bumpMap ) {
+
+    uvScaleMap = material.bumpMap;
+
+  } else if ( material.roughnessMap ) {
+
+    uvScaleMap = material.roughnessMap;
+
+  } else if ( material.metalnessMap ) {
+
+    uvScaleMap = material.metalnessMap;
+
+  } else if ( material.alphaMap ) {
+
+    uvScaleMap = material.alphaMap;
+
+  } else if ( material.emissiveMap ) {
+
+    uvScaleMap = material.emissiveMap;
+
+  }
+
+  if ( uvScaleMap !== undefined ) {
+
+    // backwards compatibility
+    if ( uvScaleMap.isWebGLRenderTarget ) {
+
+      uvScaleMap = uvScaleMap.texture;
+
+    }
+
+    if ( uvScaleMap.matrixAutoUpdate === true ) {
+
+      var offset = uvScaleMap.offset;
+      var repeat = uvScaleMap.repeat;
+      var rotation = uvScaleMap.rotation;
+      var center = uvScaleMap.center;
+
+      uvScaleMap.matrix.setUvTransform( offset.x, offset.y, repeat.x, repeat.y, rotation, center.x, center.y );
+
+    }
+
+    uniforms.uvTransform.value.copy( uvScaleMap.matrix );
+
+  }
+#endif
+}
+
+void refreshUniforms(UniformValues &uniforms, MeshBasicMaterial &material)
+{
+  uniforms[UniformName::opacity] = material.opacity;
+
+  uniforms[UniformName::diffuse] = material.color;
+}
+
+void refreshUniforms(UniformValues &uniforms, MeshDepthMaterial &material)
+{
+  uniforms[UniformName::opacity] = material.opacity;
 
 }
 
-void refreshUniforms(const UniformValues &uniforms, MeshDepthMaterial &material)
+void refreshUniforms(UniformValues &uniforms, MeshDistanceMaterial &material)
+{
+  uniforms[UniformName::opacity] = material.opacity;
+
+}
+
+void refreshUniforms(UniformValues &uniforms, MeshStandardMaterial &material)
+{
+  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
+}
+void refreshUniforms(UniformValues &uniforms, MeshLambertMaterial &material )
+{
+  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
+}
+void refreshUniforms(UniformValues &uniforms, MeshPhongMaterial &material )
+{
+  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
+}
+void refreshUniforms(UniformValues &uniforms, MeshToonMaterial &material )
+{
+
+}
+void refreshUniforms(UniformValues &uniforms, MeshPhysicalMaterial &material )
+{
+
+}
+void refreshUniforms(UniformValues &uniforms, MeshNormalMaterial &material )
 {
 
 }
 
-void refreshUniforms(const UniformValues &uniforms, MeshDistanceMaterial &material)
+void refreshUniforms(UniformValues &uniforms, LineBasicMaterial &material)
 {
-
+  uniforms[UniformName::opacity] = material.opacity;
+  uniforms[UniformName::diffuse] = material.color;
 }
 
-void refreshUniforms(const UniformValues &uniforms, LineBasicMaterial &material)
+void refreshUniforms(UniformValues &uniforms, LineDashedMaterial &material)
 {
-
+  refreshUniforms(uniforms, (LineBasicMaterial &)material);
 }
 
-void refreshUniforms(const UniformValues &uniforms, LineDashedMaterial &material)
-{
-
-}
-
-void refreshUniforms(const UniformValues &uniforms, Fog &fog)
+void refreshUniforms(UniformValues &uniforms, Fog &fog)
 {
 
 }
@@ -711,6 +872,43 @@ void refreshUniforms(const UniformValues &uniforms, Fog &fog)
 void markUniformsLightsNeedsUpdate(const UniformValues &uniforms, bool refreshLights )
 {
 
+}
+
+void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues &values ) {
+
+  for (auto &up : uniformsList) {
+
+    UniformValue &v = values[up->id()];
+
+    if ( !v.needsUpdate ) {
+
+      // note: always updating when .needsUpdate is undefined
+
+      switch(v.type) {
+        case UniformValue::Type::flt:
+          up->setValue( v.float_val);
+          break;
+        case UniformValue::Type::glint:
+          up->setValue( v.glint_val);
+          break;
+        case UniformValue::Type::vect2:
+          up->setValue( v.vect2_val);
+          break;
+        case UniformValue::Type::vect3:
+          up->setValue( v.vect3_val);
+          break;
+        case UniformValue::Type::vect4:
+          up->setValue( v.vect4_val);
+          break;
+        case UniformValue::Type::mat3:
+          up->setValue( v.mat3_val);
+          break;
+        case UniformValue::Type::mat4:
+          up->setValue( v.mat4_val);
+          break;
+      }
+    }
+  }
 }
 
 Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object )
@@ -723,7 +921,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     if ( _localClippingEnabled || camera != _currentCamera ) {
 
-      bool useCache = camera == _currentCamera && material->id() == _currentMaterialId;
+      bool useCache = camera == _currentCamera && material->id == _currentMaterialId;
 
       // we might want to call this function with some ClippingGroup
       // object instead of the material, once it becomes feasible
@@ -768,7 +966,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   Program::Ptr program = materialProperties.program;
   Uniforms::Ptr p_uniforms = program->getUniforms();
-  const UniformValues &m_uniforms = materialProperties.shader->uniforms();
+  UniformValues &m_uniforms = materialProperties.shader->uniforms();
 
   if (_state.useProgram(program->id()) ) {
 
@@ -777,21 +975,21 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     refreshLights = true;
   }
 
-  if ( material->id() != _currentMaterialId ) {
+  if ( material->id != _currentMaterialId ) {
 
-    _currentMaterialId = material->id();
+    _currentMaterialId = material->id;
 
     refreshMaterial = true;
   }
 
   if ( refreshProgram || camera != _currentCamera ) {
 
-    p_uniforms->get("projectionMatrix")->setValue(camera->projectionMatrix());
+    p_uniforms->get(UniformName::projectionMatrix)->setValue(camera->projectionMatrix());
 
     if (_capabilities.logarithmicDepthBuffer) {
       PerspectiveCamera::Ptr pcamera = dynamic_pointer_cast<PerspectiveCamera>(camera);
       if(pcamera)
-        p_uniforms->get("logDepthBufFC")->setValue((GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
+        p_uniforms->get(UniformName::logDepthBufFC)->setValue((GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
     }
 
     // Avoid unneeded uniform updates per ArrayCamera's sub-camera
@@ -813,32 +1011,32 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     material::Dispatch dispatch;
     resolver::FuncAssoc<Material> assoc = [&] (Material &mat) {
 
-      Uniform *uCamPos = p_uniforms->get("cameraPosition");
+      Uniform *uCamPos = p_uniforms->get(UniformName::cameraPosition);
 
       if(uCamPos) {
         _vector3 = camera->matrixWorld().getPosition();
         uCamPos->setValue(_vector3);
       }
     };
-    //dispatch.func<MeshPhongMaterial>() = assoc;
-    //dispatch.func<MeshStandardMaterial>() = assoc;
+    dispatch.func<MeshPhongMaterial>() = assoc;
+    dispatch.func<MeshStandardMaterial>() = assoc;
     dispatch.func<ShaderMaterial>() = assoc;
 
-    if(!material->resolver->resolver::Resolve<material::Dispatch>::getFunc(dispatch) && material->envMap) {
+    if(!material->resolver->material::DispatchResolver::getFunc(dispatch) && material->envMap) {
       assoc(*material.get());
     }
 
     assoc = [&] (Material &mat) {
 
-      p_uniforms->get("viewMatrix")->setValue(camera->matrixWorldInverse() );
+      p_uniforms->get(UniformName::viewMatrix)->setValue(camera->matrixWorldInverse() );
     };
-    //dispatch.func<MeshPhongMaterial>() = assoc;
-    //dispatch.func<MeshLambertMaterial>() = assoc;
+    dispatch.func<MeshPhongMaterial>() = assoc;
+    dispatch.func<MeshLambertMaterial>() = assoc;
     dispatch.func<MeshBasicMaterial>() = assoc;
-    //dispatch.func<MeshStandardMaterial>() = assoc;
+    dispatch.func<MeshStandardMaterial>() = assoc;
     dispatch.func<ShaderMaterial>() = assoc;
 
-    if(!material->resolver->resolver::Resolve<material::Dispatch>::getFunc(dispatch) && material->skinning()) {
+    if(!material->resolver->material::DispatchResolver::getFunc(dispatch) && material->skinning) {
       assoc(*material.get());
     }
   }
@@ -847,12 +1045,12 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   // auto-setting of texture unit for bone texture must go before other textures
   // not sure why, but otherwise weird things happen
 
-  if ( material->skinning() ) {
+  if ( material->skinning ) {
 
     object::Dispatch dispatch;
     dispatch.func<SkinnedMesh>() = [&] (SkinnedMesh &m) {
-      p_uniforms->get("bindMatrix")->setValue(m.bindMatrix());
-      p_uniforms->get("bindMatrixInverse")->setValue(m.bindMatrixInverse());
+      p_uniforms->get(UniformName::bindMatrix)->setValue(m.bindMatrix());
+      p_uniforms->get(UniformName::bindMatrixInverse)->setValue(m.bindMatrixInverse());
 
       if (m.skeleton()) {
 
@@ -888,7 +1086,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
         } else {
           if(!m.skeleton()->boneMatrices().empty())
-            p_uniforms->get("boneMatrices")->setValue(m.skeleton()->boneMatrices().data());
+            p_uniforms->get(UniformName::boneMatrices)->setValue(m.skeleton()->boneMatrices().data());
         }
       }
     };
@@ -896,8 +1094,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   }
   if ( refreshMaterial ) {
 
-    p_uniforms->get("toneMappingExposure")->setValue(_toneMappingExposure );
-    p_uniforms->get("toneMappingWhitePoint")->setValue(_toneMappingWhitePoint );
+    p_uniforms->get(UniformName::toneMappingExposure)->setValue(_toneMappingExposure );
+    p_uniforms->get(UniformName::toneMappingWhitePoint)->setValue(_toneMappingWhitePoint );
 
     if ( material->lights ) {
 
@@ -921,49 +1119,41 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     }
 
     material::Dispatch dispatch;
-    dispatch.func<MeshBasicMaterial>() = [&](MeshBasicMaterial &mbm) {
-      refreshUniformsCommon( m_uniforms, mbm );
+    dispatch.func<MeshBasicMaterial>() = [&](MeshBasicMaterial &material) {
+      refreshUniformsCommon( m_uniforms, material );
     };
-    dispatch.func<MeshDepthMaterial>() = [&](MeshDepthMaterial &mdm) {
-      refreshUniformsCommon( m_uniforms, mdm );
-      refreshUniforms( m_uniforms, mdm);
+    dispatch.func<MeshDepthMaterial>() = [&](MeshDepthMaterial &material) {
+      refreshUniforms( m_uniforms, material);
     };
-    dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &mdm) {
-      refreshUniformsCommon( m_uniforms, mdm );
-      refreshUniforms( m_uniforms, mdm);
+    dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &material) {
+      refreshUniforms( m_uniforms, material);
     };
-    dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &lbm) {
-      refreshUniforms( m_uniforms, lbm );
+    dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &material) {
+      refreshUniforms( m_uniforms, material);
     };
-    dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &ldm) {
+    dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &material) {
       refreshUniforms( m_uniforms, (LineBasicMaterial &)material );
-      refreshUniforms( m_uniforms, ldm );
+      refreshUniforms( m_uniforms, material);
+    };
+    dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
+      refreshUniforms( m_uniforms, material);
+    };
+    dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
+      refreshUniforms( m_uniforms, material);
+    };
+    dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
+      refreshUniforms( m_uniforms, material );
+    };
+    dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
+      refreshUniforms( m_uniforms, material );
+    };
+    dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
+      refreshUniforms( m_uniforms, material );
+    };
+    dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &material) {
+      refreshUniforms( m_uniforms, material );
     };
     /* TODO implement classes
-    dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &msm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsStandard( m_uniforms, material );
-    };
-    dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &mlm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsLambert( m_uniforms, material );
-    };
-    dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &mpm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsPhong( m_uniforms, material );
-    };
-    dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &mtm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsToon( m_uniforms, material );
-    };
-    dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &mdm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsPhysical( m_uniforms, material );
-    };
-    dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &mnm) {
-      refreshUniformsCommon( m_uniforms, material );
-      refreshUniformsNormal( m_uniforms, material );
-    };
     dispatch.func<PointsMaterial>() = [&] (PointsMaterial &pm) {
       refreshUniformsPoints( m_uniforms, material );
     };
@@ -971,21 +1161,21 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       m_uniforms->color.value = material.color;
       m_uniforms->opacity.value = material.opacity;
     };*/
-    material->resolver->resolver::Resolve<material::Dispatch>::getFunc(dispatch);
+    material->resolver->material::DispatchResolver::getFunc(dispatch);
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation
 
-    /*if ( m_uniforms.ltcMat ) m_uniforms.ltcMat.value = UniformsLib.LTC_MAT_TEXTURE;
-    if ( m_uniforms.ltcMag ) m_uniforms.ltcMag.value = UniformsLib.LTC_MAG_TEXTURE;
+    //if ( m_uniforms.ltcMat ) m_uniforms.ltcMat.value = uniforms::LTC_MAT_TEXTURE;
+    //if ( m_uniforms.ltcMag ) m_uniforms.ltcMag.value = uniforms::LTC_MAG_TEXTURE;
 
-    Uniforms::upload(this, materialProperties.uniformsList);*/
+    uploadUniforms(materialProperties.uniformsList, m_uniforms);
   }
 
   // common matrices
-  p_uniforms->get("modelViewMatrix")->setValue(object->modelViewMatrix );
-  p_uniforms->get("normalMatrix")->setValue(object->normalMatrix );
-  p_uniforms->get("modelMatrix")->setValue(object->matrixWorld() );
+  p_uniforms->get(UniformName::modelViewMatrix)->setValue(object->modelViewMatrix );
+  p_uniforms->get(UniformName::normalMatrix)->setValue(object->normalMatrix );
+  p_uniforms->get(UniformName::modelMatrix)->setValue(object->matrixWorld() );
 
   return program;
 }

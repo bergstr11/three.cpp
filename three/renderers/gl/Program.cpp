@@ -287,7 +287,7 @@ Program::Program(Renderer_impl &renderer,
   const char *envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
 
   if ( parameters.envMap ) {
-    switch ( material->envMap->mapping() ) {
+    switch ( parameters.envMap->mapping() ) {
 
       case TextureMapping::CubeReflection:
       case TextureMapping::CubeRefraction:
@@ -311,7 +311,7 @@ Program::Program(Renderer_impl &renderer,
       default: break;
     }
 
-    switch( material->envMap->mapping() ) {
+    switch( parameters.envMap->mapping() ) {
 
       case TextureMapping::CubeRefraction:
       case TextureMapping::EquirectangularRefraction:

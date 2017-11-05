@@ -191,9 +191,9 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
 
   if ( ! customMaterial ) {
 
-    bool useMorphing = material->morphTargets() ? geometry->useMorphing() : false;
+    bool useMorphing = material->morphTargets ? geometry->useMorphing() : false;
 
-    bool useSkinning = object->skinned() && material->skinning();
+    bool useSkinning = object->skinned() && material->skinning;
 
     unsigned variantIndex = 0;
 

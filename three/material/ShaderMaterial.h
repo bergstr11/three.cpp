@@ -56,8 +56,8 @@ protected:
   {
     unsigned linewidth = 1;
 
-    this->_morphTargets = morphTargets;
-    this->_skinning = skinning;
+    this->morphTargets = morphTargets;
+    this->skinning = skinning;
 
     wireframe = false;
     wireframeLineWidth = 1;

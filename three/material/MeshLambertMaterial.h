@@ -1,12 +1,12 @@
 //
-// Created by byter on 29.07.17.
+// Created by byter on 11/4/17.
 //
 
-#ifndef THREEQT_MESHBASICMATERIAL
-#define THREEQT_MESHBASICMATERIAL
+#ifndef THREE_QT_MESHLAMBERTMATERIAL_H
+#define THREE_QT_MESHLAMBERTMATERIAL_H
 
+#include <core/Color.h>
 #include "Material.h"
-#include "core/Color.h"
 
 namespace three {
 
@@ -17,6 +17,7 @@ namespace three {
  * parameters = {
  *  color: <hex>,
  *  opacity: <float>,
+ *
  *  map: new THREE.Texture( <Image> ),
  *
  *  lightMap: new THREE.Texture( <Image> ),
@@ -24,6 +25,10 @@ namespace three {
  *
  *  aoMap: new THREE.Texture( <Image> ),
  *  aoMapIntensity: <float>
+ *
+ *  emissive: <hex>,
+ *  emissiveIntensity: <float>
+ *  emissiveMap: new THREE.Texture( <Image> ),
  *
  *  specularMap: new THREE.Texture( <Image> ),
  *
@@ -34,58 +39,46 @@ namespace three {
  *  reflectivity: <float>,
  *  refractionRatio: <float>,
  *
- *  depthTest: <bool>,
- *  depthWrite: <bool>,
- *
  *  wireframe: <boolean>,
  *  wireframeLinewidth: <float>,
  *
  *  skinning: <bool>,
- *  morphTargets: <bool>
+ *  morphTargets: <bool>,
+ *  morphNormals: <bool>
  * }
  */
-struct MeshBasicMaterial : public Material
+
+struct MeshLambertMaterial : public Material
 {
-  Color color {0xffffff}; // emissive
+  Color color = 0xffffff; // diffuse
 
-  Texture::Ptr map;
 
+  Texture::Ptr lightMap;
   float lightMapIntensity = 1.0;
 
   Texture::Ptr aoMap;
   float aoMapIntensity = 1.0;
+
+  Texture::Ptr emissiveMap;
+  Color emissive = 0x000000;
+  float emissiveIntensity = 1.0;
 
   Texture::Ptr specularMap;
 
   Texture::Ptr alphaMap;
 
   CombineOperation combine = CombineOperation::Multiply;
-  float reflectivity = 1;
+  unsigned reflectivity = 1;
   float refractionRatio = 0.98;
 
-private:
-  MeshBasicMaterial(bool morphTargets, bool skinning)
-  {
-    this->morphTargets = morphTargets;
-    this->skinning = skinning;
-  }
-
-  MeshBasicMaterial() : Material(material::ResolverT<MeshBasicMaterial>::make(*this))
-  {}
+  MeshLambertMaterial() : Material(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
 
 public:
-  using Ptr = std::shared_ptr<MeshBasicMaterial>;
-
-  static Ptr make(bool morphTargets, bool skinning) {
-    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(morphTargets, skinning));
-  }
-
+  using Ptr = std::shared_ptr<MeshLambertMaterial>;
   static Ptr make() {
-    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial());
+    return Ptr(new MeshLambertMaterial());
   }
 };
 
 }
-
-
-#endif //THREEQT_MESHBASICMATERIAL
+#endif //THREE_QT_MESHLAMBERTMATERIAL_H

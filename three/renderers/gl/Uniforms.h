@@ -18,6 +18,7 @@
 #include <math/Matrix4.h>
 
 #include <Constants.h>
+#include <helper/Shader.h>
 
 namespace three {
 namespace gl {
@@ -27,22 +28,22 @@ class Renderer_impl;
 
 class Uniform
 {
-  const std::string _id;
+  const UniformName _id;
   const GLint _addr;
   const UniformType _type;
   QOpenGLFunctions * const _fn;
 
 protected:
-  Uniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
+  Uniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
      : _id(id), _addr(addr), _type(type), _fn(fn) {}
 
 public:
   using Ptr = std::shared_ptr<Uniform>;
-  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new Uniform(fn, id, type, addr));
   }
 
-  const std::string &id() const {return _id;}
+  const UniformName &id() const {return _id;}
 
   // Single scalar
   void setValue(GLfloat v) { _fn->glUniform1f( _addr, v ); }
@@ -99,12 +100,12 @@ class ArrayUniform : public Uniform
   const GLint _index;
 
 protected:
-  ArrayUniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
-  : Uniform(fn, id, type, addr), _index(stoi(id)) {}
+  ArrayUniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
+  : Uniform(fn, id, type, addr), _index(0) {}
 
 public:
   using Ptr = std::shared_ptr<ArrayUniform>;
-  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new ArrayUniform(fn, id, type, addr));
   }
 };
@@ -114,8 +115,8 @@ class UniformContainer
   friend class Uniforms;
 
 protected:
-  std::vector<std::string> _sequence;
-  std::unordered_map<std::string, Uniform::Ptr> _map;
+  std::vector<UniformName> _sequence;
+  std::unordered_map<UniformName, Uniform::Ptr> _map;
 
 public:
   void add(Uniform::Ptr uniform) {
@@ -127,12 +128,12 @@ public:
 class StructuredUniform : public Uniform, public UniformContainer
 {
 protected:
-  StructuredUniform(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr)
+  StructuredUniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
   : Uniform(fn, id, type, addr) {}
 
 public:
   using Ptr = std::shared_ptr<StructuredUniform>;
-  static Ptr make(QOpenGLFunctions * fn, std::string id, UniformType type, const GLint addr) {
+  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new StructuredUniform(fn, id, type, addr));
   }
 
@@ -246,14 +247,29 @@ public:
     return Ptr(new Uniforms(fn, program));
   }
 
-  Uniform *get(const char *name)
+  Uniform *get(UniformName name)
   {
     if(_map.find(name) != _map.end()) {
       return _map[name]->asUniform();
     }
   }
+
+  //seqWithValue
+  std::vector<Uniform::Ptr> forValues(std::vector<UniformValue> values)
+  {
+    std::vector<Uniform::Ptr> result;
+    for(auto &entry : _map) {
+
+      if(std::find_if(values.begin(), values.end(), [&entry](const UniformValue &val) -> bool {
+        return entry.first == val.id;
+      }) != values.end()) {
+        result.push_back(entry.second);
+      }
+    }
+    return result;
+  }
 };
 
 }
-};
+}
 #endif //THREE_QT_UNIFORMS_H

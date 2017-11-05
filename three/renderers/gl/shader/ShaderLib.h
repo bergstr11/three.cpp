@@ -14,38 +14,27 @@
 namespace three {
 namespace gl {
 
-static void init();
-
-class Shader : public three::Shader
+enum class ShaderID : unsigned
 {
-  QResource _vertex;
-  QByteArray _uncompressedVertex;
-  const char *_vertexShader = nullptr;
-
-  QResource _fragment;
-  QByteArray _uncompressedFragment;
-  const char *_fragmentShader = nullptr;
-
-public:
-  Shader(std::string name, const UniformValues &uniforms, const char *vertexPath, const char *fragmentPath);
-
-  const std::string vertexShader() override;
-
-  const std::string fragmentShader() override;
+  basic=0,
+  lambert=1,
+  phong=2,
+  standard=3,
+  normal=4,
+  points=5,
+  dashed=6,
+  depth=7,
+  cube=8,
+  equirect=9,
+  distanceRGBA=10,
+  shadow=11,
+  physical=12,
 };
 
 namespace shaderlib {
 
-static Shader cube = {
-   "CUBE",
-   {
-      tCube(nullptr),
-      tFlip(-1),
-      opacity(1.0f)
-   },
-   ":chunk/cube_vert.glsl",
-   ":chunk/cube_frag.glsl"
-};
+Shader &get(ShaderID id);
+Shader::Ptr get(ShaderID id, const char *name);
 
 }
 

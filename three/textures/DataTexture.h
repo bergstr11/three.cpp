@@ -42,6 +42,13 @@ public:
     o.type = type;
     return Ptr(new DataTexture(data, width, height, o));
   }
+
+  static Ptr make(const std::vector<float> data,
+                  unsigned width, unsigned height,
+                  const DataTexture::Options &options)
+  {
+    return Ptr(new DataTexture(data, width, height, options));
+  }
 };
 
 }

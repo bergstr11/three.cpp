@@ -19,7 +19,7 @@ class Camera;
 struct Material
 {
   const sole::uuid uuid;
-  uint16_t _id;
+  uint16_t id;
 
   bool fog = true;
   bool lights = true;
@@ -67,25 +67,12 @@ struct Material
   bool premultipliedAlpha = false;
 
   Texture::Ptr map;
-
-  Texture::Ptr specularMap;
-
   Texture::Ptr envMap;
-
-  Texture::Ptr lightMap;
-
   Texture::Ptr gradientMap;
 
-  Texture::Ptr emissiveMap;
-
-  Texture::Ptr displacementMap;
-
-  float displacementScale = 1;
-  float displacementBias = 0;
-
-  bool _skinning = false;
-  bool _morphTargets = false;
-  bool _morphNormals = false;
+  bool skinning = false;
+  bool morphTargets = false;
+  bool morphNormals = false;
 
   unsigned overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 
@@ -95,18 +82,12 @@ struct Material
 
   material::Resolver::Ptr resolver;
 
+protected:
   Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), resolver(resolver) {}
   Material() : uuid(sole::uuid0()), resolver(material::ResolverT<Material>::make(*this)) {}
 
+public:
   using Ptr = std::shared_ptr<Material>;
-
-  uint16_t id() const {return _id;}
-
-  bool skinning() const {return _skinning;}
-
-  bool morphTargets() const {return _morphTargets;}
-
-  bool morphNormals() const {return _morphNormals;}
 
   virtual void setupPointLight(const math::Vector3 &position, float near, float far)
   {

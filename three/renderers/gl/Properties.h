@@ -157,7 +157,8 @@ struct MaterialProperties
   std::string lightsHash;
   size_t numClippingPlanes;
   size_t numIntersection;
-  gl::Shader *shader;
+  three::Shader *shader;
+  std::vector<Uniform::Ptr> uniformsList;
 };
 
 class Properties

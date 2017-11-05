@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/materials">
+        <file>LTC_MAG</file>
+        <file>LTC_MAT</file>
+    </qresource>
+</RCC>

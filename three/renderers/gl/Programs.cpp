@@ -5,6 +5,15 @@
 #include "Programs.h"
 #include <sstream>
 #include <material/RawShaderMaterial.h>
+#include <material/MeshPhongMaterial.h>
+#include <material/MeshBasicMaterial.h>
+#include <material/MeshDistanceMaterial.h>
+#include <material/MeshDepthMaterial.h>
+#include <material/MeshToonMaterial.h>
+#include <material/MeshLambertMaterial.h>
+#include <material/MeshNormalMaterial.h>
+#include <material/MeshStandardMaterial.h>
+
 
 namespace three {
 namespace gl {
@@ -48,17 +57,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->outputEncoding = currentRenderTarget->texture() ? currentRenderTarget->texture()->encoding() : Encoding::Linear;
   parameters->map = (bool)material->map;
   parameters->mapEncoding = material->map ? material->map->encoding() : Encoding::Linear;
-  parameters->envMap = (bool)material->envMap;
-  parameters->envMapEncoding = material->envMap ? material->envMap->encoding() : Encoding::Linear;
-  parameters->envMapMode = material->envMap ? material->envMap->mapping() : TextureMapping::Unknown;
-  parameters->envMapCubeUV = material->envMap &&
-                             (material->envMap->mapping() == TextureMapping::CubeUVReflection
-                              || material->envMap->mapping() == TextureMapping::CubeUVRefraction);
-  parameters->lightMap = (bool)material->lightMap;
   parameters->gradientMap = (bool)material->gradientMap;
-  parameters->emissiveMap = (bool)material->emissiveMap;
-  parameters->emissiveMapEncoding = material->emissiveMap ? material->emissiveMap->encoding() : Encoding::Linear;
-  parameters->displacementMap = (bool)material->displacementMap;
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;
@@ -93,30 +92,54 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   };
   /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
-  };
+  };*/
   dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->bumpMap = mat.bumpMap;
-    parameters->normalMap = mat.normalMap;
-    parameters->alphaMap = mat.alphaMap;
+    parameters->aoMap = (bool)mat.aoMap;
+    parameters->bumpMap = (bool)mat.bumpMap;
+    parameters->normalMap = (bool)mat.normalMap;
+    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->envMap = mat.envMap;
+    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
+    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat.envMap &&
+                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->lightMap = (bool)mat.lightMap;
+    parameters->emissiveMap = (bool)mat.emissiveMap;
+    parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
+    parameters->displacementMap = (bool)mat.displacementMap;
   };
   dispatch.func<MeshStandardMaterial>() = [&parameters] (MeshStandardMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->bumpMap = mat.bumpMap;
-    parameters->normalMap = mat.normalMap;
-    parameters->roughnessMap = mat.roughnessMap
-    parameters->metalnessMap = mat.metalnessMap;
-    parameters->alphaMap = mat.alphaMap;
+    parameters->aoMap = (bool)mat.aoMap;
+    parameters->bumpMap = (bool)mat.bumpMap;
+    parameters->normalMap = (bool)mat.normalMap;
+    parameters->roughnessMap = (bool)mat.roughnessMap;
+    parameters->metalnessMap = (bool)mat.metalnessMap;
+    parameters->alphaMap = (bool)mat.alphaMap;
     parameters->defines.insert(mat.defines.begin(), mat.defines.end());
+    parameters->envMap = mat.envMap;
+    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
+    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat.envMap &&
+                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->lightMap = (bool)mat.lightMap;
   };
   dispatch.func<MeshNormalMaterial>() = [&parameters] (MeshNormalMaterial &mat) {
-    parameters->bumpMap = mat->bumpMap;
-    parameters->normalMap = mat.normalMap;
+    parameters->bumpMap = (bool)mat.bumpMap;
+    parameters->normalMap = (bool)mat.normalMap;
   };
   dispatch.func<MeshLambertMaterial>() = [&parameters] (MeshLambertMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->alphaMap = mat.alphaMap;
-  };*/
+    parameters->aoMap = (bool)mat.aoMap;
+    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->envMap = mat.envMap;
+    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
+    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat.envMap &&
+                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->lightMap = (bool)mat.lightMap;
+  };
 
   parameters->fog = (bool)fog;
   parameters->useFog = material->fog;
@@ -125,12 +148,12 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->logarithmicDepthBuffer = _capabilities.logarithmicDepthBuffer;
 
-  parameters->skinning = material->skinning() && maxBones > 0;
+  parameters->skinning = material->skinning && maxBones > 0;
   parameters->maxBones = maxBones;
   parameters->useVertexTexture = _capabilities.floatVertexTextures;
 
-  parameters->morphTargets = material->morphTargets();
-  parameters->morphNormals = material->morphNormals();
+  parameters->morphTargets = material->morphTargets;
+  parameters->morphNormals = material->morphNormals;
   parameters->maxMorphTargets = renderer._maxMorphTargets;
   parameters->maxMorphNormals = renderer._maxMorphNormals;
 

@@ -37,8 +37,6 @@ protected:
   LineDashedMaterial() : LineBasicMaterial(material::ResolverT<LineDashedMaterial>::make(*this)) {}
 
 public:
-  Color color = {255, 2555, 255};
-
   float scale = 1;
   unsigned dashSize = 3;
   unsigned gapSize = 1;
