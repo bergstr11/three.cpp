@@ -82,12 +82,24 @@ UniformValues &get(UniformsID id)
   return vals;
 }
 
-UniformValues merge(std::initializer_list<UniformsID> ids)
+UniformValuesDelegate &UniformValuesDelegate::merge(UniformsID id, std::initializer_list<UniformValue> add)
 {
-  for(auto it = std::begin(ids); it != std::end(ids); it++) {
-    const UniformsID &id = *it;
+  UniformValues extended = get(id);
+  for(auto it = std::begin(add); it != std::end(add); it++) {
+    extended += *it;
   }
-  return UniformValues({});
+  values += extended;
+  return *this;
+}
+
+UniformValuesDelegate merged(std::initializer_list<UniformsID> ids)
+{
+  UniformValues merged {};
+
+  for(auto it = std::begin(ids); it != std::end(ids); it++) {
+    merged += get(*it);
+  }
+  return UniformValuesDelegate(merged);
 }
 
 }

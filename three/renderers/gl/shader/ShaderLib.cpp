@@ -95,159 +95,198 @@ class Shaders
 {
   std::unordered_map<ShaderID, three::gl::LibShader> _shaders;
 
+  void add(ShaderID id, const three::gl::LibShader &sh)
+  {
+    add(id, sh);
+  }
+
 public:
   Shaders()
   {
     qInitResource();
 
-    _shaders.emplace(std::make_pair(ShaderID::basic, LibShader(ShaderID::basic,
-                                                               uniformslib::merge(
-                                                                  {
-                                                                     UniformsID::common,
-                                                                     UniformsID::specularmap,
-                                                                     UniformsID::envmap,
-                                                                     UniformsID::aomap,
-                                                                     UniformsID::lightmap,
-                                                                     UniformsID::fog
-                                                                  }
-                                                               ),
-                                                               ":chunk/cube_vert.glsl",
-                                                               ":chunk/cube_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::lambert, LibShader(ShaderID::lambert,
-                                                                 uniformslib::merge(
-                                                                    {
-                                                                       UniformsID::common,
-                                                                       UniformsID::specularmap,
-                                                                       UniformsID::envmap,
-                                                                       UniformsID::aomap,
-                                                                       UniformsID::lightmap,
-                                                                       UniformsID::emissivemap,
-                                                                       UniformsID::fog,
-                                                                       UniformsID::lights
-                                                                    }
-                                                                 ),
-                                                                 ":chunk/meshlambert_vert.glsl",
-                                                                 ":chunk/meshlambert_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::phong, LibShader(ShaderID::phong,
-                                                               uniformslib::merge(
-                                                                  {
-                                                                     UniformsID::common,
-                                                                     UniformsID::specularmap,
-                                                                     UniformsID::envmap,
-                                                                     UniformsID::aomap,
-                                                                     UniformsID::lightmap,
-                                                                     UniformsID::emissivemap,
-                                                                     UniformsID::bumpmap,
-                                                                     UniformsID::normalmap,
-                                                                     UniformsID::displacementmap,
-                                                                     UniformsID::gradientmap,
-                                                                     UniformsID::fog,
-                                                                     UniformsID::lights
-                                                                  }
-                                                               ),
-                                                               ":chunk/meshphong_vert.glsl",
-                                                               ":chunk/meshphong_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::standard, LibShader(ShaderID::standard,
-                                                                  uniformslib::merge(
-                                                                     {
-                                                                        UniformsID::common,
-                                                                        UniformsID::envmap,
-                                                                        UniformsID::aomap,
-                                                                        UniformsID::lightmap,
-                                                                        UniformsID::emissivemap,
-                                                                        UniformsID::bumpmap,
-                                                                        UniformsID::normalmap,
-                                                                        UniformsID::displacementmap,
-                                                                        UniformsID::roughnessmap,
-                                                                        UniformsID::metalnessmap,
-                                                                        UniformsID::fog,
-                                                                        UniformsID::lights
-                                                                     }
-                                                                  ),
-                                                                  ":chunk/meshphysical_vert.glsl",
-                                                                  ":chunk/meshphysical_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::points, LibShader(ShaderID::points,
-                                                                uniformslib::merge(
-                                                                   {
-                                                                      UniformsID::points,
-                                                                      UniformsID::fog
-                                                                   }
-                                                                ),
-                                                                ":chunk/points_vert.glsl",
-                                                                ":chunk/points_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::dashed, LibShader(ShaderID::dashed,
-                                                                uniformslib::merge(
-                                                                   {
-                                                                      UniformsID::common,
-                                                                      UniformsID::fog
-                                                                   }
-                                                                ),
-                                                                ":chunk/linedashed_vert.glsl",
-                                                                ":chunk/linedashed_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::depth, LibShader(ShaderID::depth,
-                                                               uniformslib::merge(
-                                                                  {
-                                                                     UniformsID::common,
-                                                                     UniformsID::displacementmap
-                                                                  }
-                                                               ),
-                                                               ":chunk/depth_vert.glsl",
-                                                               ":chunk/depth_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::normal, LibShader(ShaderID::normal,
-                                                                uniformslib::merge(
-                                                                   {
-                                                                      UniformsID::common,
-                                                                      UniformsID::bumpmap,
-                                                                      UniformsID::normalmap,
-                                                                      UniformsID::displacementmap
-                                                                   }
-                                                                ),
-                                                                ":chunk/normal_vert.glsl",
-                                                                ":chunk/normal_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::cube, LibShader(ShaderID::cube,
-                                                              {
-                                                                 uniformslib::Cube(nullptr),
-                                                                 uniformslib::Flip(-1),
-                                                                 uniformslib::Opacity(1.0f)
-                                                              },
-                                                              ":chunk/cube_vert.glsl",
-                                                              ":chunk/cube_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::equirect, LibShader(ShaderID::equirect,
-                                                                  {
-                                                                     uniformslib::Equirect(nullptr),
-                                                                  },
-                                                                  ":chunk/equirect_vert.glsl",
-                                                                  ":chunk/equirect_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::distanceRGBA, LibShader(ShaderID::distanceRGBA,
-                                                                      uniformslib::merge(
-                                                                         {
-                                                                            UniformsID::common,
-                                                                            UniformsID::displacementmap
-                                                                         }
-                                                                      ),
-                                                                      ":chunk/distanceRGBA_vert.glsl",
-                                                                      ":chunk/distanceRGBA_frag.glsl"
-    )));
-    _shaders.emplace(std::make_pair(ShaderID::shadow, LibShader(ShaderID::shadow,
-                                                                uniformslib::merge(
-                                                                   {
-                                                                      UniformsID::lights,
-                                                                      UniformsID::fog
-                                                                   }
-                                                                ),
-                                                                ":chunk/distanceRGBA_vert.glsl",
-                                                                ":chunk/distanceRGBA_frag.glsl"
-    )));
+    add(ShaderID::basic,
+        LibShader(ShaderID::basic,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::specularmap,
+                        UniformsID::envmap,
+                        UniformsID::aomap,
+                        UniformsID::lightmap,
+                        UniformsID::fog
+                     }
+                  ),
+                  ":chunk/cube_vert.glsl",
+                  ":chunk/cube_frag.glsl"
+        ));
+    add(ShaderID::lambert,
+        LibShader(ShaderID::lambert,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::specularmap,
+                        UniformsID::envmap,
+                        UniformsID::aomap,
+                        UniformsID::lightmap,
+                        UniformsID::emissivemap,
+                        UniformsID::fog,
+                        UniformsID::lights
+                     }
+                  ).merge(UniformsID::lights, {
+                     {UniformName::emissive, Color()}
+                  }),
+                  ":chunk/meshlambert_vert.glsl",
+                  ":chunk/meshlambert_frag.glsl"
+        ));
+    add(ShaderID::phong,
+        LibShader(ShaderID::phong,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::specularmap,
+                        UniformsID::envmap,
+                        UniformsID::aomap,
+                        UniformsID::lightmap,
+                        UniformsID::emissivemap,
+                        UniformsID::bumpmap,
+                        UniformsID::normalmap,
+                        UniformsID::displacementmap,
+                        UniformsID::gradientmap,
+                        UniformsID::fog,
+                        UniformsID::lights
+                     }
+                  ).merge(UniformsID::lights, {
+                     {UniformName::emissive, Color(0x000000)},
+                     {UniformName::specular, Color(0x111111)},
+                     {UniformName::emissive, 30}
+                  }),
+                  ":chunk/meshphong_vert.glsl",
+                  ":chunk/meshphong_frag.glsl"
+        ));
+    add(ShaderID::standard,
+        LibShader(ShaderID::standard,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::envmap,
+                        UniformsID::aomap,
+                        UniformsID::lightmap,
+                        UniformsID::emissivemap,
+                        UniformsID::bumpmap,
+                        UniformsID::normalmap,
+                        UniformsID::displacementmap,
+                        UniformsID::roughnessmap,
+                        UniformsID::metalnessmap,
+                        UniformsID::fog
+                     }
+                  ).merge(UniformsID::lights, {
+                     {UniformName::emissive,        Color(0x000000)},
+                     {UniformName::roughness,       0.5f},
+                     {UniformName::metalness,       0.5f},
+                     {UniformName::envMapIntensity, 1}
+                  }),
+                  ":chunk/meshphysical_vert.glsl",
+                  ":chunk/meshphysical_frag.glsl"
+        ));
+    add(ShaderID::points,
+        LibShader(ShaderID::points,
+                  uniformslib::merged(
+                     {
+                        UniformsID::points,
+                        UniformsID::fog
+                     }
+                  ),
+                  ":chunk/points_vert.glsl",
+                  ":chunk/points_frag.glsl"
+        ));
+    add(ShaderID::dashed,
+        LibShader(ShaderID::dashed,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common
+                     }
+                  ).merge(UniformsID::fog, {
+                     {UniformName::scale,     1},
+                     {UniformName::dashSize,  1},
+                     {UniformName::totalSize, 2}
+                  }),
+                  ":chunk/linedashed_vert.glsl",
+                  ":chunk/linedashed_frag.glsl"
+        ));
+    add(ShaderID::depth,
+        LibShader(ShaderID::depth,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::displacementmap
+                     }
+                  ),
+                  ":chunk/depth_vert.glsl",
+                  ":chunk/depth_frag.glsl"
+        ));
+    add(ShaderID::normal,
+        LibShader(ShaderID::normal,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::bumpmap,
+                        UniformsID::normalmap,
+                        UniformsID::displacementmap
+                     }
+                  ).merge(UniformsID::displacementmap, {
+                     {UniformName::opacity, 1.0f},
+                  }),
+                  ":chunk/normal_vert.glsl",
+                  ":chunk/normal_frag.glsl"
+        ));
+    add(ShaderID::cube,
+        LibShader(ShaderID::cube,
+                  {
+                     uniformslib::Cube(nullptr),
+                     uniformslib::Flip(-1),
+                     uniformslib::Opacity(1.0f)
+                  },
+                  ":chunk/cube_vert.glsl",
+                  ":chunk/cube_frag.glsl"
+        ));
+    add(ShaderID::equirect,
+        LibShader(ShaderID::equirect,
+                  {
+                     uniformslib::Equirect(nullptr),
+                  },
+                  ":chunk/equirect_vert.glsl",
+                  ":chunk/equirect_frag.glsl"
+        ));
+    add(ShaderID::distanceRGBA,
+        LibShader(ShaderID::distanceRGBA,
+                  uniformslib::merged(
+                     {
+                        UniformsID::common,
+                        UniformsID::displacementmap
+                     }
+                  ).merge(UniformsID::displacementmap, {
+                     {UniformName::referencePosition, math::Vector3()},
+                     {UniformName::nearDistance,      1},
+                     {UniformName::farDistance,       1},
+                  }),
+                  ":chunk/distanceRGBA_vert.glsl",
+                  ":chunk/distanceRGBA_frag.glsl"
+        ));
+    add(ShaderID::shadow,
+        LibShader(ShaderID::shadow,
+                  uniformslib::merged(
+                     {
+                        UniformsID::lights,
+                        UniformsID::fog
+                     }
+                  ).merge(UniformsID::fog, {
+                     {UniformName::color,   Color(0x00000)},
+                     {UniformName::opacity, 1.0f}
+                  }),
+                  ":chunk/distanceRGBA_vert.glsl",
+                  ":chunk/distanceRGBA_frag.glsl"
+        ));
   }
 
   LibShader &operator[](ShaderID id)

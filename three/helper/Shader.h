@@ -25,6 +25,7 @@ enum class UniformName
   opacity,
   diffuse,
   emissive,
+  specular,
   projectionMatrix,
   viewMatrix,
   modelViewMatrix,
@@ -60,6 +61,9 @@ enum class UniformName
   roughnessMap,
   metalnessMap,
   gradientMap,
+  roughness,
+  metalness,
+  envMapIntensity,
   fogDensity,
   fogNear,
   fogFar,
@@ -72,7 +76,12 @@ enum class UniformName
   shadowRadius,
   shadowMapSize,
   size,
-  scale
+  scale,
+  dashSize,
+  totalSize,
+  referencePosition,
+  nearDistance,
+  farDistance
 };
 
 struct UniformValue
@@ -99,25 +108,25 @@ struct UniformValue
 
   UniformValue() {}
 
-  explicit UniformValue(UniformName id, float val) : id(id), type(flt), float_val(val)
+  UniformValue(UniformName id, float val) : id(id), type(flt), float_val(val)
   {}
-  explicit UniformValue(UniformName id, GLint val) : id(id), type(glint), glint_val(val)
+  UniformValue(UniformName id, GLint val) : id(id), type(glint), glint_val(val)
   {}
-  explicit UniformValue(UniformName id, const Texture::Ptr &tx) : id(id), type(tex), tex_val(tx)
+  UniformValue(UniformName id, const Texture::Ptr &tx) : id(id), type(tex), tex_val(tx)
   {}
-  explicit UniformValue(UniformName id, const CubeTexture::Ptr &tx) : id(id), type(cube), cube_val(tx)
+  UniformValue(UniformName id, const CubeTexture::Ptr &tx) : id(id), type(cube), cube_val(tx)
   {}
-  explicit UniformValue(UniformName id, const math::Vector2 &val) : id(id), type(vect2), vect2_val(val)
+  UniformValue(UniformName id, const math::Vector2 &val) : id(id), type(vect2), vect2_val(val)
   {}
-  explicit UniformValue(UniformName id, const math::Vector3 &val) : id(id), type(vect3), vect3_val(val)
+  UniformValue(UniformName id, const math::Vector3 &val) : id(id), type(vect3), vect3_val(val)
   {}
-  explicit UniformValue(UniformName id, const math::Vector4 &val) : id(id), type(vect4), vect4_val(val)
+  UniformValue(UniformName id, const math::Vector4 &val) : id(id), type(vect4), vect4_val(val)
   {}
-  explicit UniformValue(UniformName id, const math::Matrix3 &val) : id(id), type(mat3), mat3_val(val)
+  UniformValue(UniformName id, const math::Matrix3 &val) : id(id), type(mat3), mat3_val(val)
   {}
-  explicit UniformValue(UniformName id, const math::Matrix4 &val) : id(id), type(mat4), mat4_val(val)
+  UniformValue(UniformName id, const math::Matrix4 &val) : id(id), type(mat4), mat4_val(val)
   {}
-  explicit UniformValue(UniformName id, const Color &val) : id(id), type(color), color_val(val)
+  UniformValue(UniformName id, const Color &val) : id(id), type(color), color_val(val)
   {}
 
   ~UniformValue() {
@@ -261,12 +270,32 @@ public:
     }
   }
 
-  template <typename T, typename V> void set(const V &v) {
-    values[T::id()] = v;
+  template <typename V>
+  UniformValues &set(UniformName name, const V &v) {
+    values[name] = v;
   }
 
   UniformValue &operator[](UniformName name) {
     return values.at(name);
+  }
+
+  UniformValues &operator +=(const UniformValue &val)
+  {
+    values.insert({val.id, val});
+    return *this;
+  }
+
+  UniformValues &operator +=(const UniformValues &vals)
+  {
+    values.insert(vals.values.begin(), vals.values.end());
+    return *this;
+  }
+
+  UniformValues merge(const UniformValues &values)
+  {
+    UniformValues merged(values);
+    merged.values.insert(values.values.begin(), values.values.end());
+    return merged;
   }
 };
 

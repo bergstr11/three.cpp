@@ -63,9 +63,20 @@ using Equirect = UniformValueBase<Texture::Ptr, UniformName::equirect>;
 using Flip = UniformValueBase<GLint, UniformName::flip>;
 using Opacity = UniformValueBase<float, UniformName::opacity>;
 
+struct UniformValuesDelegate
+{
+  UniformValues values;
+
+  explicit UniformValuesDelegate(UniformValues values) : values(values) {}
+
+  operator UniformValues &() const {return *this;}
+
+  UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValue> add);
+};
+
 UniformValues &get(UniformsID id);
 
-UniformValues merge(std::initializer_list<UniformsID> id);
+UniformValuesDelegate merged(std::initializer_list<UniformsID> id);
 
 }
 
