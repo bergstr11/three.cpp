@@ -185,47 +185,79 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
 string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters)
 {
-#if 0
-  static const char *parameterNames[] = {
-     "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
-     "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
-     "roughnessMap", "metalnessMap", "gradientMap",
-     "alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
-     "flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
-     "maxBones", "useVertexTexture", "morphTargets", "morphNormals",
-     "maxMorphTargets", "maxMorphNormals", "premultipliedAlpha",
-     "numDirLights", "numPointLights", "numSpotLights", "numHemiLights", "numRectAreaLights",
-     "shadowMapEnabled", "shadowMapType", "toneMapping", "physicallyCorrectLights",
-     "alphaTest", "doubleSided", "flipSided", "numClippingPlanes", "numClipIntersection", "depthPacking", "dithering"
-  };
-
-  ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
+  ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
 
   stringstream ss;
   if ( !parameters->shaderID.empty() ) {
-    ss << parameters->shaderID << ',';
+    ss << parameters->shaderID;
   }
-  else if(sm) {
-    ss << sm->fragmentShader << ',' << sm->vertexShader << ',';
+  else if(shaderMat) {
+    ss << shaderMat->fragmentShader << shaderMat->vertexShader << ',';
   }
 
-  if (sm ) {
-    for (auto define : sm->defines ) {
-      ss << define.first << ',' << define.second << ',';
+  if (shaderMat ) {
+    for (auto define : shaderMat->defines ) {
+      ss << define.first << define.second;
     }
   }
 
-  unsigned numNames = sizeof(parameterNames) / sizeof(char *);
-  for ( unsigned i = 0; i < numNames; i ++ ) {
+  ss << parameters->precision
+     << parameters->supportsVertexTextures
+     << parameters->map
+     << parameters->mapEncoding
+     << parameters->envMap
+     << parameters->envMapMode
+     << parameters->envMapEncoding
+     << parameters->lightMap
+     << parameters->aoMap
+     << parameters->emissiveMap
+     << parameters->emissiveMapEncoding
+     << parameters->bumpMap
+     << parameters->normalMap
+     << parameters->displacementMap
+     << parameters->specularMap
+     << parameters->roughnessMap
+     << parameters->metalnessMap
+     << parameters->gradientMap
+     << parameters->alphaMap
+     << parameters->combine
+     << parameters->vertexColors
+     << parameters->fog
+     << parameters->useFog
+     << parameters->fogExp
+     << parameters->flatShading
+     << parameters->sizeAttenuation
+     << parameters->logarithmicDepthBuffer
+     << parameters->skinning
+     << parameters->maxBones
+     << parameters->useVertexTexture
+     << parameters->morphTargets
+     << parameters->morphNormals
+     << parameters->maxMorphTargets
+     << parameters->maxMorphNormals
+     << parameters->premultipliedAlpha
+     << parameters->numDirLights
+     << parameters->numPointLights
+     << parameters->numSpotLights
+     << parameters->numHemiLights
+     << parameters->numRectAreaLights
+     << parameters->shadowMapEnabled
+     << parameters->shadowMapType
+     << parameters->toneMapping
+     << parameters->physicallyCorrectLights
+     << parameters->alphaTest
+     << parameters->doubleSided
+     << parameters->flipSided
+     << parameters->numClippingPlanes
+     << parameters->numClipIntersection
+     << parameters->depthPacking
+     << parameters->dithering;
 
-    ss << parameters[ parameterNames[ i ] ] );
-  }
+  //ss << material.onBeforeCompile.toString();
 
-  array.push( material.onBeforeCompile.toString() );
+  //ss << _renderer.gammaOutput;
 
-  array.push( renderer.gammaOutput );
-#endif
-  return "";//ss.str();
+  return ss.str();
 
 }
 

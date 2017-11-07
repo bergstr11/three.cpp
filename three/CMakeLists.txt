@@ -8,7 +8,8 @@ set(CMAKE_AUTOMOC ON)
 
 qt5_add_resources(SHADER_RESOURCES
         renderers/gl/shader/ShaderLib/ShaderLib.qrc
-        renderers/gl/shader/ShaderChunk/ShaderChunk.qrc)
+        renderers/gl/shader/ShaderChunk/ShaderChunk.qrc
+        renderers/gl/shader/Materials/Materials.qrc)
 
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h _include/*)

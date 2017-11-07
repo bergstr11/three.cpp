@@ -91,17 +91,17 @@ public:
   }
 };
 
-class Shaders
+class ShaderLib
 {
   std::unordered_map<ShaderID, three::gl::LibShader> _shaders;
 
   void add(ShaderID id, const three::gl::LibShader &sh)
   {
-    add(id, sh);
+    _shaders.insert({id, sh});
   }
 
 public:
-  Shaders()
+  ShaderLib()
   {
     qInitResource();
 
@@ -299,7 +299,7 @@ namespace shaderlib {
 
 LibShader &_get(ShaderID id)
 {
-  static Shaders shaders;
+  static ShaderLib shaders;
 
   return shaders[id];
 }

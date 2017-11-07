@@ -5,6 +5,17 @@
 #include "UniformsLib.h"
 #include "ShaderLib.h"
 
+static void qInitResource()
+{
+  static bool done = false;
+
+  if (done) return;
+  done = true;
+
+  //must do this outside of namespace - hence this function
+  Q_INIT_RESOURCE(Materials);
+}
+
 namespace three {
 namespace gl {
 
@@ -74,6 +85,92 @@ void initRectAreaLight()
 }
 
 namespace uniformslib {
+
+class UniformsLib
+{
+  std::unordered_map<UniformsID, UniformValues> _uniforms;
+
+  void add(UniformsID id, const UniformValues &uv)
+  {
+    _uniforms.insert({id, uv});
+  }
+
+public:
+  UniformsLib()
+  {
+    qInitResource();
+
+    add(UniformsID::common,
+        UniformValues({
+                         Diffuse(Color(0xeeeeee)),
+                         Opacity(1.0f),
+                         Map(nullptr),
+                         UvTransform(math::Matrix3()),
+                         AlphaMap(nullptr)
+                      }));
+    add(UniformsID::specularmap,
+        UniformValues({
+                         SpecularMap(nullptr)
+                      }));
+    add(UniformsID::envmap,
+        UniformValues({
+                         EnvMap(nullptr),
+                         FlipEnvMap(-1),
+                         Map(nullptr),
+                         Reflectivity(math::Matrix3()),
+                         RefractionRatio(0.98f)
+                      }));
+    add(UniformsID::aomap,
+        UniformValues({
+                         AoMap(nullptr),
+                         AoMapIntensity(1)
+                      }));
+    add(UniformsID::lightmap,
+        UniformValues({
+                         LightMap(nullptr),
+                         LightMapIntensity(1)
+                      }));
+    add(UniformsID::emissivemap,
+        UniformValues({
+                         EmissiveMap(nullptr)
+                      }));
+    add(UniformsID::bumpmap,
+        UniformValues({
+                         BumpMap(nullptr),
+                         BumpScale(1)
+                      }));
+    add(UniformsID::normalmap,
+        UniformValues({
+                         NormalMap(nullptr),
+                         NormalScale(math::Vector2(1, 1))
+                      }));
+    add(UniformsID::displacementmap,
+        UniformValues({
+                         DisplacementMap(nullptr),
+                         DisplacementScale(1.0f),
+                         DisplacementBias(1)
+                      }));
+    add(UniformsID::roughnessmap,
+        UniformValues({
+                         RoughnessMap(nullptr)
+                      }));
+    add(UniformsID::metalnessmap,
+        UniformValues({
+                         MetalnessMap(nullptr)
+                      }));
+    add(UniformsID::gradientmap,
+        UniformValues({
+                         GradientMap(nullptr)
+                      }));
+    add(UniformsID::fog,
+        UniformValues({
+                         FogDensity(0.00025f),
+                         FogNear(1),
+                         FogFar(2000),
+                         FogColor(Color(0xffffff))
+                      }));
+  }
+};
 
 UniformValues &get(UniformsID id)
 {

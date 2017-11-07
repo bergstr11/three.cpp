@@ -62,6 +62,34 @@ using Cube = UniformValueBase<CubeTexture::Ptr, UniformName::cube>;
 using Equirect = UniformValueBase<Texture::Ptr, UniformName::equirect>;
 using Flip = UniformValueBase<GLint, UniformName::flip>;
 using Opacity = UniformValueBase<float, UniformName::opacity>;
+using Diffuse = UniformValueBase<Color, UniformName::diffuse>;
+using Map = UniformValueBase<Texture::Ptr, UniformName::map>;
+using UvTransform = UniformValueBase<math::Matrix3, UniformName::uvTransform>;
+using AlphaMap = UniformValueBase<Texture::Ptr, UniformName::alphaMap>;
+using SpecularMap = UniformValueBase<Texture::Ptr, UniformName::specularMap>;
+using EnvMap = UniformValueBase<Texture::Ptr, UniformName::envMap>;
+using FlipEnvMap  = UniformValueBase<GLint, UniformName::flipEnvMap>;
+using Reflectivity = UniformValueBase<math::Matrix3, UniformName::reflectivity>;
+using RefractionRatio = UniformValueBase<GLfloat, UniformName::refractionRatio>;
+using AoMap = UniformValueBase<Texture::Ptr, UniformName::aoMap>;
+using AoMapIntensity = UniformValueBase<GLfloat, UniformName::aoMapIntensity>;
+using LightMap = UniformValueBase<Texture::Ptr, UniformName::lightMap>;
+using LightMapIntensity = UniformValueBase<GLfloat, UniformName::lightMapIntensity>;
+using EmissiveMap = UniformValueBase<Texture::Ptr, UniformName::emissiveMap>;
+using BumpMap = UniformValueBase<Texture::Ptr, UniformName::bumpMap>;
+using BumpScale = UniformValueBase<GLfloat, UniformName::bumpScale>;
+using NormalMap = UniformValueBase<Texture::Ptr, UniformName::normalMap>;
+using NormalScale = UniformValueBase<math::Vector2, UniformName::normalScale>;
+using DisplacementMap = UniformValueBase<Texture::Ptr, UniformName::displacementMap>;
+using DisplacementScale = UniformValueBase<GLfloat, UniformName::displacementScale>;
+using DisplacementBias = UniformValueBase<GLfloat, UniformName::displacementBias>;
+using RoughnessMap = UniformValueBase<Texture::Ptr, UniformName::roughnessMap>;
+using MetalnessMap = UniformValueBase<Texture::Ptr, UniformName::metalnessMap>;
+using GradientMap = UniformValueBase<Texture::Ptr, UniformName::gradientMap>;
+using FogDensity = UniformValueBase<GLfloat, UniformName::fogDensity>;
+using FogNear = UniformValueBase<GLfloat, UniformName::fogNear>;
+using FogFar = UniformValueBase<GLfloat, UniformName::fogFar>;
+using FogColor = UniformValueBase<Color, UniformName::fogColor>;
 
 struct UniformValuesDelegate
 {
