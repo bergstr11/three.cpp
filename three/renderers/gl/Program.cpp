@@ -262,11 +262,7 @@ Program::Program(Renderer_impl &renderer,
                  const ProgramParameters &parameters )
    : _renderer(renderer), _cachedAttributes(&renderer)
 {
-  //var gl = renderer.context;
-  //var defines = material.defines;
-
-  //var vertexShader = shader.vertexShader;
-  //var fragmentShader = shader.fragmentShader;
+  using namespace string_out;
 
   const char *shadowMapTypeDefine;
 

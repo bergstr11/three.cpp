@@ -233,20 +233,6 @@ enum class DepthPacking {
   Basic=3200, RGBA=3201, Unknown=0
 };
 
-inline std::ostream& operator <<(std::ostream& stream, const DepthPacking& depthPacking)
-{
-  switch(depthPacking) {
-    case DepthPacking::Basic:
-      stream << "BASIC";
-      break;
-    case DepthPacking::RGBA:
-      stream << "RGBA";
-      break;
-    default:
-      throw std::invalid_argument("unknown depthPacking");
-  }
-}
-
 enum class BufferType {
   Array=GL_ARRAY_BUFFER, ElementArray=GL_ELEMENT_ARRAY_BUFFER
 };
@@ -260,23 +246,6 @@ enum class Precision
 {
   lowp, mediump, highp, unknown
 };
-
-inline std::ostream& operator <<(std::ostream& stream, const Precision& precision)
-{
-  switch(precision) {
-    case Precision::lowp:
-      stream << "lowp";
-      break;
-    case Precision::mediump:
-      stream << "mediump";
-      break;
-    case Precision::highp:
-      stream << "highp";
-      break;
-    default:
-      throw std::invalid_argument("unknown precision");
-  }
-}
 
 enum class UniformType
 {
@@ -307,6 +276,77 @@ struct UpdateRange
   UpdateRange(uint32_t offset, int32_t count) : offset(offset), count(count) {}
 };
 
+namespace numeric_out {
+
+template <typename Enumeration>
+auto numeric(Enumeration const value)
+-> typename std::underlying_type<Enumeration>::type
+{
+  return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+}
+
+template <class Enumeration, class = typename std::enable_if<std::is_enum<Enumeration>::value>::type>
+std::ostream &operator<<(std::ostream &os, const Enumeration &_enum)
+{
+  os << numeric(_enum);
+}
+
+}
+
+namespace string_out {
+
+inline std::ostream &operator<<(std::ostream &os, const TextureMapping &mapping)
+{
+  switch (mapping) {
+    case TextureMapping::Unknown: os << "Unknown"; break;
+    case TextureMapping::UV: os << "UV"; break;
+    case TextureMapping::CubeReflection: os << "CubeReflection"; break;
+    case TextureMapping::CubeRefraction: os << "CubeRefraction"; break;
+    case TextureMapping::EquirectangularReflection: os << "EquirectangularReflection"; break;
+    case TextureMapping::EquirectangularRefraction: os << "EquirectangularRefraction"; break;
+    case TextureMapping::SphericalReflection: os << "SphericalReflection"; break;
+    case TextureMapping::CubeUVReflection: os << "CubeUVReflection"; break;
+    case TextureMapping::CubeUVRefraction: os << "CubeUVRefraction"; break;
+  }
+}
+
+inline std::ostream &operator<<(std::ostream &os, const Encoding &encoding)
+{
+  switch (encoding) {
+    case Encoding::Unknown: os << "Unknown"; break;
+    case Encoding::Linear: os << "Linear"; break;
+    case Encoding::sRGB: os << "sRGB"; break;
+    case Encoding::Gamma: os << "Gamma"; break;
+    case Encoding::RGBE: os << "RGBE"; break;
+    case Encoding::LogLuv: os << "LogLuv"; break;
+    case Encoding::RGBM7: os << "RGBM7"; break;
+    case Encoding::RGBM16: os << "RGBM16"; break;
+    case Encoding::RGBD: os << "RGBD"; break;
+  }
+}
+
+inline std::ostream &operator<<(std::ostream &stream, const DepthPacking &depthPacking)
+{
+  switch (depthPacking) {
+    case DepthPacking::Basic: stream << "BASIC"; break;
+    case DepthPacking::RGBA: stream << "RGBA"; break;
+    default:
+      throw std::invalid_argument("unknown depthPacking");
+  }
+}
+
+inline std::ostream &operator<<(std::ostream &stream, const Precision &precision)
+{
+  switch (precision) {
+    case Precision::lowp: stream << "lowp"; break;
+    case Precision::mediump: stream << "mediump"; break;
+    case Precision::highp: stream << "highp"; break;
+    default:
+      throw std::invalid_argument("unknown precision");
+  }
+}
+
+}
 }
 
 #endif //THREE_QT_CONSTANTS

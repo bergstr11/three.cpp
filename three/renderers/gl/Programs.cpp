@@ -185,6 +185,8 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
 string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters)
 {
+  using namespace numeric_out;
+
   ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
 
   stringstream ss;
@@ -258,7 +260,6 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
   //ss << _renderer.gammaOutput;
 
   return ss.str();
-
 }
 
 }
