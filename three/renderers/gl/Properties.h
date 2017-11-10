@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <type_traits>
 #include <core/Object3D.h>
 #include <textures/Texture.h>
 #include "Program.h"
@@ -157,6 +158,7 @@ struct MaterialProperties
   std::string lightsHash;
   size_t numClippingPlanes;
   size_t numIntersection;
+  ShaderID shaderID = ShaderID::undefined;
   three::Shader *shader;
   std::vector<Uniform::Ptr> uniformsList;
 };
@@ -185,18 +187,18 @@ public:
     return false;
   }
 
-  MaterialProperties &getMaterial(const Material::Ptr &material)
+  MaterialProperties &get(const Material::Ptr &material)
   {
     return materialProperties[material->uuid];
   }
 
-  template <typename T>
+  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
   std::unordered_map<PropertyKey, Property> &get(const T *object)
   {
     return get(object->uuid);
   }
 
-  template <typename T>
+  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
   std::unordered_map<PropertyKey, Property> &get(const std::shared_ptr<T> object)
   {
     return get(object->uuid);
@@ -212,10 +214,15 @@ public:
     return has(object->uuid, key);
   }
 
-  template <typename T>
+  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
   void remove(const T *object)
   {
     properties.erase(object->uuid);
+  }
+
+  void remove(const Material *material)
+  {
+    materialProperties.erase(material->uuid);
   }
 
   void clear()

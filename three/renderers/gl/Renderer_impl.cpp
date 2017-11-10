@@ -295,7 +295,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     };
-    camera->cameraResolver->getFunc(dispatch);
+    camera->cameraResolver->getValue(dispatch);
   }
 }
 
@@ -320,7 +320,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   };
-  object->objectResolver->getFunc(dispatch);
+  object->objectResolver->getValue(dispatch);
 
   object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
 }
@@ -397,7 +397,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
     dispatch.func<Line>() = assoc;
     //dispatch.func<Points>() = assoc;
 
-    object->objectResolver->getFunc(dispatch);
+    object->objectResolver->getValue(dispatch);
   }
 
   for (Object3D::Ptr child : object->children()) {
@@ -541,25 +541,29 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
   auto &materialProperties = _properties.get( material );
+
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
+
+  string code = _programs.getProgramCode( material, parameters );
+
+  auto program = materialProperties.program;
+  bool programChange = true;
 #if 0
-  var code = _programs.getProgramCode( material, parameters );
-
-  var program = materialProperties.program;
-  var programChange = true;
-
-  if ( program === undefined ) {
+  if (!program) {
 
     // new material
-    material.addEventListener( 'dispose', onMaterialDispose );
+    material->onDispose.connect([&_properties](Material *material) {
+      releaseMaterialProgramReference(*material);
+      _properties.remove(material);
+    });
 
-  } else if ( program.code !== code ) {
+  } else if(program->code != code) {
 
     // changed glsl or parameters
     releaseMaterialProgramReference( material );
 
-  } else if ( parameters.shaderID !== undefined ) {
+  } else if (materialProperties.shaderID != ShaderID::undefined ) {
 
     // same glsl and uniform list
     return;
@@ -568,14 +572,13 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // only rebuild uniform list
     programChange = false;
-
   }
 
   if ( programChange ) {
 
-    if ( parameters.shaderID ) {
+    if ( parameters->shaderName ) {
 
-      var shader = ShaderLib[ parameters.shaderID ];
+      Shader &shader = shaderlib::get(parameters.shaderID);
 
       materialProperties.shader = {
          name: material.type,
@@ -915,7 +918,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 {
   _usedTextureUnits = 0;
 
-  MaterialProperties &materialProperties = _properties.getMaterial( material );
+  MaterialProperties &materialProperties = _properties.get( material );
 
   if ( _clippingEnabled ) {
 
@@ -1022,7 +1025,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     dispatch.func<MeshStandardMaterial>() = assoc;
     dispatch.func<ShaderMaterial>() = assoc;
 
-    if(!material->resolver->material::DispatchResolver::getFunc(dispatch) && material->envMap) {
+    if(!material->resolver->material::DispatchResolver::getValue(dispatch) && material->envMap) {
       assoc(*material.get());
     }
 
@@ -1036,7 +1039,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     dispatch.func<MeshStandardMaterial>() = assoc;
     dispatch.func<ShaderMaterial>() = assoc;
 
-    if(!material->resolver->material::DispatchResolver::getFunc(dispatch) && material->skinning) {
+    if(!material->resolver->material::DispatchResolver::getValue(dispatch) && material->skinning) {
       assoc(*material.get());
     }
   }
@@ -1090,7 +1093,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
         }
       }
     };
-    object->objectResolver->getFunc(dispatch);
+    object->objectResolver->getValue(dispatch);
   }
   if ( refreshMaterial ) {
 
@@ -1161,7 +1164,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       m_uniforms->color.value = material.color;
       m_uniforms->opacity.value = material.opacity;
     };*/
-    material->resolver->material::DispatchResolver::getFunc(dispatch);
+    material->resolver->material::DispatchResolver::getValue(dispatch);
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation

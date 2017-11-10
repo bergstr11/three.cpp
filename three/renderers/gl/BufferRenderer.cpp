@@ -40,7 +40,7 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
     _fx->glDrawArraysInstanced((GLenum)_mode, start, count, geometry->maxInstancedCount() );
   };
 
-  position->resolver->getFunc(dispatch);
+  position->resolver->getValue(dispatch);
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count * geometry->maxInstancedCount();

@@ -32,7 +32,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   static const material::ShaderIDs shaderIds;
 
   ProgramParameters::Ptr parameters = ProgramParameters::make();
-  parameters->shaderID = shaderIds.string(*material);
+  parameters->shaderID = shaderIds.value(*material);
 
   // heuristics to create shader parameters according to lights in the scene
   // (not to blow over maxLights budget)
@@ -190,8 +190,8 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
   ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
 
   stringstream ss;
-  if ( !parameters->shaderID.empty() ) {
-    ss << parameters->shaderID;
+  if (parameters->shaderID != ShaderID::undefined) {
+    ss << (int)parameters->shaderID;
   }
   else if(shaderMat) {
     ss << shaderMat->fragmentShader << shaderMat->vertexShader << ',';

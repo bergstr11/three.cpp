@@ -74,7 +74,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     // TODO Push this to renderList
     renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry_t(), planeMesh->material(), planeMesh, nullptr);
   };
-  scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getFunc(textures);
+  scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getValue(textures);
 }
 
 }

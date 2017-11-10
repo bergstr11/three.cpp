@@ -167,7 +167,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       state.hemi.push_back(uniforms);
     };
 
-    light->lightResolver->getFunc(dispatch);
+    light->lightResolver->getValue(dispatch);
   }
 
   state.ambient = Color(r, g, b);

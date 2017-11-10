@@ -9,7 +9,6 @@
 #include <QResource>
 
 #include <helper/Shader.h>
-#include "UniformsLib.h"
 
 namespace three {
 namespace gl {
@@ -29,6 +28,8 @@ enum class ShaderID : unsigned
   distanceRGBA=10,
   shadow=11,
   physical=12,
+
+  undefined=999
 };
 
 namespace shaderlib {

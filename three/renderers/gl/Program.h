@@ -33,7 +33,7 @@ public:
   static Ptr make()
   { return Ptr(new ProgramParameters()); }
 
-  std::string shaderID;
+  ShaderID shaderID;
   Precision precision;
   bool supportsVertexTextures;
   Encoding outputEncoding = Encoding::Unknown;

@@ -9,6 +9,7 @@
 #include <Constants.h>
 #include <textures/Texture.h>
 #include <helper/sole.h>
+#include <helper/simplesignal.h>
 #include <math/Plane.h>
 #include <renderers/Resolver.h>
 
@@ -81,6 +82,8 @@ struct Material
   bool needsUpdate = true;
 
   material::Resolver::Ptr resolver;
+
+  Signal<void(Material *)> onDispose;
 
 protected:
   Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), resolver(resolver) {}

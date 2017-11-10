@@ -3,6 +3,7 @@
 //
 
 #include "ShaderLib.h"
+#include "UniformsLib.h"
 
 static void qInitResource()
 {

@@ -14,6 +14,8 @@
 #include <type_traits>
 #include <stdexcept>
 
+#include "gl/shader/ShaderLib.h"
+
 namespace resolver {
 
 static const nullptr_t null = nullptr;
@@ -110,18 +112,13 @@ class Resolve
 public:
   struct Callback
   {
-    virtual bool getFunc(const Tmap &t) const = 0;
-    virtual std::string getString(const Tmap &t) const = 0;
+    virtual typename Tmap::value_type getValue(const Tmap &t) const = 0;
   };
 
   Callback *callback = nullptr;
 
-  bool getFunc(const Tmap &t) {
-    if(callback) callback->getFunc(t);
-  }
-
-  std::string getString(const Tmap &t) {
-    if(callback) return callback->getString(t);
+  typename Tmap::value_type getValue(const Tmap &t) {
+    if(callback) return callback->getValue(t);
     throw std::logic_error("callback not set");
   }
 };
@@ -195,12 +192,8 @@ public:
     Resolve<Tmap>::callback = this;
   }
 
-  bool getFunc(const Tmap &t) const override {
-    return t.template func<Base>()(this->b);
-  }
-
-  std::string getString(const Tmap &t) const override {
-    return t.string(this->b);
+  typename Tmap::value_type getValue(const Tmap &t) const override {
+    return t.value(this->b);
   }
 
   using Ptr = std::shared_ptr<ResolversT>;
@@ -210,23 +203,39 @@ public:
 
 } //namespace: resolver
 
-#define DEF_STRING_TABLE(Cls) \
+#define DEF_VALUE_TABLE(Cls, Vtype, Dflt) \
 struct Cls { \
-template <typename T> std::string string(T &t) const {return "";} \
-template <typename T> resolver::NullFuncAssoc func() const {return resolver::NullFuncAssoc();} \
+using value_type = Vtype; \
+template <typename T> Vtype value(T &t) const {return Dflt;}\
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
 
+
+#define PUT_VALUE_TABLE(Cls, Mtype, Vtype, Val) \
+template <> inline Vtype Cls::value(Mtype &t) const { \
+static const resolver::Assoc<Mtype, Vtype> sa {Val}; \
+return sa(t); \
+}
+
+#define DEF_STRING_TABLE(Cls) \
+struct Cls { \
+using value_type = std::string; \
+template <typename T> std::string value(T &t) const {return "";} \
+}; \
+using Cls##Resolver = resolver::Resolve<Cls>;
+
+
 #define PUT_STRING_TABLE(Cls, Type, Val) \
-template <> inline std::string Cls::string(Type &t) const { \
+template <> inline std::string Cls::value(Type &t) const { \
 static const resolver::StringAssoc<Type> sa {#Val}; \
 return sa(t); \
 }
 
 #define DEF_FUNC_TABLE(Cls) \
 struct Cls { \
+using value_type = bool; \
 template <typename T> resolver::FuncAssoc<T> &func() const = delete; \
-template <typename T> std::string string(T &t) const {throw std::logic_error("getting string from function map");} \
+template <typename T> bool value(T &t) const = delete; \
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
 
@@ -234,7 +243,8 @@ using Cls##Resolver = resolver::Resolve<Cls>;
 template <> inline resolver::FuncAssoc<Type> &Cls::func() const { \
 thread_local static resolver::FuncAssoc<Type> f; \
 return f; \
-}
+} \
+template <> inline bool Cls::value(Type &t) const {return func<Type>()(t);}
 
 #define DEF_RESOLVER_1(Map) \
 template <typename Obj> \
@@ -402,20 +412,20 @@ PUT_FUNC_TABLE(Dispatch, MeshPhysicalMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshToonMaterial)
 PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
 
-DEF_STRING_TABLE(ShaderIDs)
-PUT_STRING_TABLE(ShaderIDs, MeshDepthMaterial, "depth")
-PUT_STRING_TABLE(ShaderIDs, MeshDistanceMaterial, "distanceRGBA")
-PUT_STRING_TABLE(ShaderIDs, MeshNormalMaterial, "normal")
-PUT_STRING_TABLE(ShaderIDs, MeshBasicMaterial, "basic")
-PUT_STRING_TABLE(ShaderIDs, MeshLambertMaterial, "lambert")
-PUT_STRING_TABLE(ShaderIDs, MeshPhongMaterial, "phong")
-PUT_STRING_TABLE(ShaderIDs, MeshToonMaterial, "phong")
-PUT_STRING_TABLE(ShaderIDs, MeshStandardMaterial, "physical")
-PUT_STRING_TABLE(ShaderIDs, MeshPhysicalMaterial, "physical")
-PUT_STRING_TABLE(ShaderIDs, LineBasicMaterial, "basic")
-PUT_STRING_TABLE(ShaderIDs, LineDashedMaterial, "dashed")
-PUT_STRING_TABLE(ShaderIDs, PointsMaterial, "points")
-PUT_STRING_TABLE(ShaderIDs, ShadowMaterial, "shadow")
+DEF_VALUE_TABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)
+PUT_VALUE_TABLE(ShaderIDs, MeshDepthMaterial, gl::ShaderID, gl::ShaderID::depth)
+PUT_VALUE_TABLE(ShaderIDs, MeshDistanceMaterial, gl::ShaderID, gl::ShaderID::distanceRGBA)
+PUT_VALUE_TABLE(ShaderIDs, MeshNormalMaterial, gl::ShaderID, gl::ShaderID::normal)
+PUT_VALUE_TABLE(ShaderIDs, MeshBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
+PUT_VALUE_TABLE(ShaderIDs, MeshLambertMaterial, gl::ShaderID, gl::ShaderID::lambert)
+PUT_VALUE_TABLE(ShaderIDs, MeshPhongMaterial, gl::ShaderID, gl::ShaderID::phong)
+PUT_VALUE_TABLE(ShaderIDs, MeshToonMaterial, gl::ShaderID, gl::ShaderID::phong)
+PUT_VALUE_TABLE(ShaderIDs, MeshStandardMaterial, gl::ShaderID, gl::ShaderID::physical)
+PUT_VALUE_TABLE(ShaderIDs, MeshPhysicalMaterial, gl::ShaderID, gl::ShaderID::physical)
+PUT_VALUE_TABLE(ShaderIDs, LineBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
+PUT_VALUE_TABLE(ShaderIDs, LineDashedMaterial, gl::ShaderID, gl::ShaderID::dashed)
+PUT_VALUE_TABLE(ShaderIDs, PointsMaterial, gl::ShaderID, gl::ShaderID::points)
+PUT_VALUE_TABLE(ShaderIDs, ShadowMaterial, gl::ShaderID, gl::ShaderID::shadow)
 
 DEF_RESOLVER_2(Dispatch, ShaderIDs)
 
