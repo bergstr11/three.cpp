@@ -47,6 +47,8 @@ public:
   size_t numIntersection() const
   { return _numIntersection; }
 
+  const std::vector<float> &uniformValue() {return _uniformValue;}
+
   void beginShadows()
   {
     _renderingShadows = true;

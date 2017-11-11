@@ -175,6 +175,8 @@ protected:
 
   Program::Ptr setProgram(Camera::Ptr camera, Fog::Ptr fog, Material::Ptr material, Object3D::Ptr object );
 
+  void releaseMaterialProgramReference(Material &material);
+
 public:
   // clearing
   bool autoClear = true;

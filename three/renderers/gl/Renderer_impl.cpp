@@ -538,8 +538,19 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   }
 }
 
+void Renderer_impl::releaseMaterialProgramReference(Material &material)
+{
+  auto programInfo = _properties.get( material ).program;
+
+  if (programInfo) {
+    _programs.releaseProgram( programInfo );
+  }
+}
+
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
+  static const material::ShaderNames shaderNames;
+
   auto &materialProperties = _properties.get( material );
 
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
@@ -549,143 +560,113 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
   auto program = materialProperties.program;
   bool programChange = true;
-#if 0
-  if (!program) {
 
+  if (!program) {
     // new material
-    material->onDispose.connect([&_properties](Material *material) {
+    material->onDispose.connect([this](Material *material) {
       releaseMaterialProgramReference(*material);
       _properties.remove(material);
     });
-
-  } else if(program->code != code) {
-
+  }
+  else if(program->code != code) {
     // changed glsl or parameters
-    releaseMaterialProgramReference( material );
-
-  } else if (materialProperties.shaderID != ShaderID::undefined ) {
-
+    releaseMaterialProgramReference(*material );
+  }
+  else if (materialProperties.shaderID != ShaderID::undefined ) {
     // same glsl and uniform list
     return;
-
-  } else {
-
+  }
+  else {
     // only rebuild uniform list
     programChange = false;
   }
 
-  if ( programChange ) {
+  if(programChange) {
 
-    if ( parameters->shaderName ) {
+    const char *name = material->resolver->material::ShaderNamesResolver::getValue(shaderNames);
+    if(parameters->shaderID != ShaderID::undefined) {
 
-      Shader &shader = shaderlib::get(parameters.shaderID);
-
-      materialProperties.shader = {
-         name: material.type,
-         uniforms: UniformsUtils.clone( shader.uniforms ),
-         vertexShader: shader.vertexShader,
-         fragmentShader: shader.fragmentShader
-      };
-
-    } else {
-
-      materialProperties.shader = {
-         name: material.type,
-         uniforms: material.uniforms,
-         vertexShader: material.vertexShader,
-         fragmentShader: material.fragmentShader
-      };
-
+      materialProperties.shader = shaderlib::get(parameters->shaderID, name);
+    }
+    else if(parameters->shaderMaterial) {
+      ShaderMaterial *sm = parameters->shaderMaterial;
+      materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
     }
 
-    material.onBeforeCompile( materialProperties.shader );
+    //material.onBeforeCompile( materialProperties.shader );
 
     program = _programs.acquireProgram( material, materialProperties.shader, parameters, code );
 
     materialProperties.program = program;
-    material.program = program;
-
   }
 
-  var programAttributes = program.getAttributes();
+  auto programAttributes = program->getAttributes();
 
-  if ( material.morphTargets ) {
+  if ( material->morphTargets ) {
 
-    material.numSupportedMorphTargets = 0;
+    material->numSupportedMorphTargets = 0;
 
-    for ( var i = 0; i < _this.maxMorphTargets; i ++ ) {
+    for ( unsigned i = 0; i < _maxMorphTargets; i ++ ) {
 
-      if ( programAttributes[ 'morphTarget' + i ] >= 0 ) {
-
-        material.numSupportedMorphTargets ++;
-
+      stringstream ss;
+      ss << "morphTarget" << i;
+      if ( programAttributes.find(ss.str()) != programAttributes.end()) {
+        material->numSupportedMorphTargets ++;
       }
-
     }
-
   }
 
-  if ( material.morphNormals ) {
+  if ( material->morphNormals ) {
 
-    material.numSupportedMorphNormals = 0;
+    material->numSupportedMorphNormals = 0;
 
-    for ( var i = 0; i < _this.maxMorphNormals; i ++ ) {
+    for (unsigned i = 0; i < _maxMorphNormals; i ++ ) {
 
-      if ( programAttributes[ 'morphNormal' + i ] >= 0 ) {
-
-        material.numSupportedMorphNormals ++;
-
+      stringstream ss;
+      ss << "morphNormal" << i;
+      if ( programAttributes.find(ss.str()) != programAttributes.end()) {
+        material->numSupportedMorphNormals ++;
       }
-
     }
-
   }
 
-  var uniforms = materialProperties.shader.uniforms;
+  UniformValues &uniforms = materialProperties.shader.uniforms();
 
-  if ( ! material.isShaderMaterial &&
-       ! material.isRawShaderMaterial ||
-       material.clipping === true ) {
+  if( !parameters->shaderMaterial && !parameters->rawShaderMaterial || parameters->shaderMaterial->clipping) {
 
-    materialProperties.numClippingPlanes = _clipping.numPlanes;
-    materialProperties.numIntersection = _clipping.numIntersection;
-    uniforms.clippingPlanes = _clipping.uniform;
-
+    materialProperties.numClippingPlanes = _clipping.numPlanes();
+    materialProperties.numIntersection = _clipping.numIntersection();
+    //uniforms.set(UniformName::clippingPlanes, _clipping.uniformValue());
   }
 
   materialProperties.fog = fog;
 
   // store the light setup it was created for
 
-  materialProperties.lightsHash = lights.state.hash;
+  materialProperties.lightsHash = _lights.state.hash;
 
-  if ( material.lights ) {
+  if ( material->lights ) {
 
     // wire up the material to this renderer's lighting state
 
-    uniforms.ambientLightColor.value = lights.state.ambient;
-    uniforms.directionalLights.value = lights.state.directional;
-    uniforms.spotLights.value = lights.state.spot;
-    uniforms.rectAreaLights.value = lights.state.rectArea;
-    uniforms.pointLights.value = lights.state.point;
-    uniforms.hemisphereLights.value = lights.state.hemi;
+    uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
+    //uniforms.set(UniformName::directionalLights, _lights.state.directional);
+    //uniforms.set(UniformName::spotLights, _lights.state.spot);
+    //uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
+    //uniforms.set(UniformName::pointLights, _lights.state.point);
+    //uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
 
-    uniforms.directionalShadowMap.value = lights.state.directionalShadowMap;
-    uniforms.directionalShadowMatrix.value = lights.state.directionalShadowMatrix;
-    uniforms.spotShadowMap.value = lights.state.spotShadowMap;
-    uniforms.spotShadowMatrix.value = lights.state.spotShadowMatrix;
-    uniforms.pointShadowMap.value = lights.state.pointShadowMap;
-    uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
+    //uniforms.set(UniformName::directionalShadowMap, _lights.state.directionalShadowMap);
+    //uniforms.set(UniformName::directionalShadowMatrix, _lights.state.directionalShadowMatrix);
+    //uniforms.set(UniformName::spotShadowMap, _lights.state.spotShadowMap);
+    //uniforms.set(UniformName::spotShadowMatrix, _lights.state.spotShadowMatrix);
+    //uniforms.set(UniformName::pointShadowMap, _lights.state.pointShadowMap);
+    //uniforms.set(UniformName::pointShadowMatrix, _lights.state.pointShadowMatrix);
     // TODO (abelnation): add area lights shadow info to uniforms
-
   }
 
-  var progUniforms = materialProperties.program.getUniforms(),
-     uniformsList =
-     WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
-
-  materialProperties.uniformsList = uniformsList;
-#endif
+  auto progUniforms = materialProperties.program->getUniforms();
+  materialProperties.uniformsList = progUniforms->sequenceUniforms(uniforms);
 }
 
 void refreshUniformsCommon(const UniformValues &uniforms, Material &material)
@@ -969,7 +950,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   Program::Ptr program = materialProperties.program;
   Uniforms::Ptr p_uniforms = program->getUniforms();
-  UniformValues &m_uniforms = materialProperties.shader->uniforms();
+  UniformValues &m_uniforms = materialProperties.shader.uniforms();
 
   if (_state.useProgram(program->id()) ) {
 

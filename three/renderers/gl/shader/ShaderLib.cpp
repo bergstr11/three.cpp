@@ -20,13 +20,11 @@ static void qInitResource()
 namespace three {
 namespace gl {
 
-class Shader;
-
-class LibShader : public three::Shader
+class LibShader
 {
-  friend class three::gl::Shader;
-
   ShaderID _id;
+  UniformValues _uniforms;
+
   QResource _vertex;
   QByteArray _uncompressedVertex;
   const char *_vertexShader = nullptr;
@@ -37,14 +35,18 @@ class LibShader : public three::Shader
 
 public:
   LibShader(ShaderID id, const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
-     : three::Shader("", uniforms), _id(id), _vertex(vertexShader), _fragment(fragmentShader)
+     : _uniforms(uniforms), _id(id), _vertex(vertexShader), _fragment(fragmentShader)
   {}
 
   LibShader(const LibShader &shader)
-     : three::Shader("", shader._uniforms), _id(shader._id), _vertex(shader._vertexShader), _fragment(shader._fragmentShader)
+     : _uniforms(shader._uniforms), _id(shader._id), _vertex(shader._vertexShader), _fragment(shader._fragmentShader)
   {}
 
-  const std::string vertexShader() override
+  const UniformValues &uniforms() const {
+    return _uniforms;
+  }
+
+  const char *vertexShader()
   {
     if (_vertexShader) return _vertexShader;
 
@@ -58,7 +60,7 @@ public:
     return _vertexShader;
   }
 
-  const std::string fragmentShader() override
+  const char *fragmentShader()
   {
     if (_fragmentShader) return _fragmentShader;
 
@@ -70,25 +72,6 @@ public:
       _fragmentShader = (const char *) _fragment.data();
 
     return _fragmentShader;
-  }
-};
-
-class Shader : public three::Shader
-{
-  LibShader &_libShader;
-
-public:
-  Shader(const char *name, LibShader &libShader) : three::Shader(name, _libShader._uniforms), _libShader(libShader)
-  {}
-
-  const std::string vertexShader() override
-  {
-    return _libShader.vertexShader();
-  }
-
-  const std::string fragmentShader() override
-  {
-    return _libShader.fragmentShader();
   }
 };
 
@@ -305,14 +288,16 @@ LibShader &_get(ShaderID id)
   return shaders[id];
 }
 
-three::Shader &get(ShaderID id)
+three::gl::ShaderInfo get(ShaderID id)
 {
-  return _get(id);
+  LibShader &lib = _get(id);
+  return three::gl::ShaderInfo(lib.uniforms(), lib.vertexShader(), lib.fragmentShader());
 }
 
-three::Shader::Ptr get(ShaderID id, const char *name)
+three::Shader get(ShaderID id, const char *name)
 {
-  return three::Shader::Ptr(new three::gl::Shader(name, _get(id)));
+  LibShader &lib = _get(id);
+  return three::Shader(name, lib.uniforms(), lib.vertexShader(), lib.fragmentShader());
 }
 
 }

@@ -64,7 +64,7 @@ struct Material
 
   bool dithering = false;
 
-  unsigned alphaTest = 0;
+  float alphaTest = 0;
   bool premultipliedAlpha = false;
 
   Texture::Ptr map;
@@ -73,7 +73,9 @@ struct Material
 
   bool skinning = false;
   bool morphTargets = false;
+  unsigned numSupportedMorphTargets = 0;
   bool morphNormals = false;
+  unsigned numSupportedMorphNormals = 0;
 
   unsigned overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 

@@ -159,7 +159,7 @@ struct MaterialProperties
   size_t numClippingPlanes;
   size_t numIntersection;
   ShaderID shaderID = ShaderID::undefined;
-  three::Shader *shader;
+  three::Shader shader;
   std::vector<Uniform::Ptr> uniformsList;
 };
 
@@ -190,6 +190,11 @@ public:
   MaterialProperties &get(const Material::Ptr &material)
   {
     return materialProperties[material->uuid];
+  }
+
+  MaterialProperties &get(const Material &material)
+  {
+    return materialProperties[material.uuid];
   }
 
   template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>

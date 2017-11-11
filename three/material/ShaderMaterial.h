@@ -17,13 +17,13 @@ public:
 
   UniformValues uniforms;
 
+  bool clipping = false; // set to use user-defined clipping planes
+  bool morphNormals = false; // set to use morph normals
+  
   std::string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
   std::string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
 private:
-  bool clipping = false; // set to use user-defined clipping planes
-  bool morphNormals = false; // set to use morph normals
-
   // When rendered geometry doesn't include these attributes but the material does,
   // use these default values in WebGL. This avoids errors when buffer data is missing.
   math::Vector3 default_color = {1, 1, 1};
@@ -31,10 +31,15 @@ private:
   math::Vector2 default_uv2 = {0.0f, 0.0f};
 
 protected:
-  ShaderMaterial(material::Resolver::Ptr resolver, Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
+  ShaderMaterial(material::Resolver::Ptr resolver,
+                 const UniformValues &uniforms,
+                 const char *vertexShader,
+                 const char *fragmentShader,
+                 Side side, bool depthTest,
+                 bool depthWrite,
+                 bool fog)
      : Material(resolver),
-       vertexShader(shader.vertexShader()), fragmentShader(shader.fragmentShader()),
-       uniforms(shader.uniforms())
+       vertexShader(vertexShader), fragmentShader(fragmentShader), uniforms(uniforms)
   {
     this->depthTest = depthTest;
     this->depthWrite = depthWrite;
@@ -42,13 +47,22 @@ protected:
     this->side = side;
   }
 
-  ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
-     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), shader, side, depthTest, depthWrite, fog)
+  ShaderMaterial(const UniformValues &uniforms,
+                 const char *vertexShader,
+                 const char *fragmentShader,
+                 Side side,
+                 bool depthTest,
+                 bool depthWrite,
+                 bool fog)
+     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), uniforms, vertexShader, fragmentShader,
+       side, depthTest, depthWrite, fog)
   {
-    this->depthTest = depthTest;
-    this->depthWrite = depthWrite;
-    this->fog = fog;
-    this->side = side;
+  }
+
+  ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
+     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), shader.uniforms(),
+                      shader.vertexShader(), shader.fragmentShader(), side, depthTest, depthWrite, fog)
+  {
   }
 
   ShaderMaterial(bool morphTargets, bool skinning)
@@ -78,8 +92,19 @@ public:
   static Ptr make(bool morphTargets, bool skinning) {
     return Ptr(new ShaderMaterial(morphTargets, skinning));
   }
+
   static Ptr make(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog) {
     return Ptr(new ShaderMaterial(shader, side, depthTest, depthWrite, fog));
+  }
+
+  static Ptr make(const UniformValues &uniforms,
+                  const char *vertexShader,
+                  const char *fragmentShader,
+                  Side side,
+                  bool depthTest,
+                  bool depthWrite,
+                  bool fog) {
+    return Ptr(new ShaderMaterial(uniforms, vertexShader, fragmentShader, side, depthTest, depthWrite, fog));
   }
 };
 

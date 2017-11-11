@@ -32,11 +32,22 @@ enum class ShaderID : unsigned
   undefined=999
 };
 
+struct ShaderInfo
+{
+  const UniformValues &uniforms;
+  const char * const vertexShader;
+  const char * const fragmentShader;
+
+  ShaderInfo(const UniformValues &uniforms, const char * vertexShader, const char * fragmentShader)
+     : uniforms(uniforms), vertexShader(vertexShader), fragmentShader(fragmentShader)
+  {}
+};
+
 namespace shaderlib {
 
-Shader &get(ShaderID id);
+ShaderInfo get(ShaderID id);
 
-Shader::Ptr get(ShaderID id, const char *name);
+Shader get(ShaderID id, const char *name);
 
 }
 

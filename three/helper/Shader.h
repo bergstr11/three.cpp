@@ -81,7 +81,19 @@ enum class UniformName
   totalSize,
   referencePosition,
   nearDistance,
-  farDistance
+  farDistance,
+  clippingPlanes,
+  directionalLights,
+  spotLights,
+  rectAreaLights,
+  pointLights,
+  hemisphereLights,
+  directionalShadowMap,
+  directionalShadowMatrix,
+  spotShadowMap,
+  spotShadowMatrix,
+  pointShadowMap,
+  pointShadowMatrix
 };
 
 struct UniformValue
@@ -270,6 +282,10 @@ public:
     }
   }
 
+  bool contains(UniformName name) const {
+    return values.find(name) != values.end();
+  }
+
   template <typename V>
   UniformValues &set(UniformName name, const V &v) {
     values[name] = v;
@@ -302,21 +318,23 @@ public:
 class Shader
 {
 protected:
-  const char * const _name;
+  const char * _name;
   UniformValues _uniforms;
 
-  explicit Shader(const char *name, const UniformValues &uniforms)
-     : _name(name), _uniforms(uniforms) {}
-
-  Shader(const Shader &shader) : _name(shader._name), _uniforms(shader._uniforms) {}
+  std::string _vertexShader;
+  std::string _fragmentShader;
 
 public:
-  using Ptr = std::shared_ptr<Shader>;
+  Shader()
+     : _name(nullptr), _uniforms({}), _vertexShader(nullptr), _fragmentShader(nullptr) {}
+
+  Shader(const char *name, const UniformValues &uniforms, const std::string vertexShader, const std::string fragmentShader)
+     : _name(name), _uniforms(uniforms), _vertexShader(vertexShader), _fragmentShader(fragmentShader) {}
 
   UniformValues &uniforms() {return _uniforms;}
 
-  virtual const std::string vertexShader() = 0;
-  virtual const std::string fragmentShader() = 0;
+  const char *vertexShader() {return _vertexShader.data();}
+  const char *fragmentShader() {return _fragmentShader.data();}
 
   const char *name() const {return _name;}
 };

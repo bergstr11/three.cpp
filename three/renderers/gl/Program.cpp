@@ -260,7 +260,7 @@ Program::Program(Renderer_impl &renderer,
                  const Material::Ptr material,
                  Shader &shader,
                  const ProgramParameters &parameters )
-   : _renderer(renderer), _cachedAttributes(&renderer)
+   : _renderer(renderer), _cachedAttributes(fetchAttributeLocations())
 {
   using namespace string_out;
 
@@ -457,7 +457,7 @@ Program::Program(Renderer_impl &renderer,
 
     ss << customDefines;
 
-    if(parameters.alphaTest) ss << "#define ALPHATEST " + parameters.alphaTest << endl;
+    if(parameters.alphaTest) ss << "#define ALPHATEST " << parameters.alphaTest << endl;
 
     ss << "#define GAMMA_FACTOR " << gammaFactorDefine;
 
@@ -578,6 +578,8 @@ Program::Program(Renderer_impl &renderer,
   bool runnable = true;
   bool haveDiagnostics = true;
 
+  _cachedAttributes = fetchAttributeLocations();
+
   // console.log( '**VERTEX**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glVertexShader ) );
   // console.log( '**FRAGMENT**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glFragmentShader ) );
 
@@ -635,6 +637,11 @@ Uniforms::Ptr Program::getUniforms()
   }
 
   return _cachedUniforms;
+}
+
+const std::unordered_map<std::string, GLint> &Program::getAttributes() const
+{
+  return _cachedAttributes;
 }
 
 Program::~Program() {

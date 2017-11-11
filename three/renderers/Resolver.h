@@ -217,17 +217,17 @@ static const resolver::Assoc<Mtype, Vtype> sa {Val}; \
 return sa(t); \
 }
 
-#define DEF_STRING_TABLE(Cls) \
+#define DEF_STRING_TABLE(Cls, Dflt) \
 struct Cls { \
-using value_type = std::string; \
-template <typename T> std::string value(T &t) const {return "";} \
+using value_type = const char *; \
+template <typename T> const char *value(T &t) const {return Dflt;} \
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
 
 
 #define PUT_STRING_TABLE(Cls, Type, Val) \
-template <> inline std::string Cls::value(Type &t) const { \
-static const resolver::StringAssoc<Type> sa {#Val}; \
+template <> inline const  char *Cls::value(Type &t) const { \
+static const resolver::Assoc<Type, const char *> sa {#Val}; \
 return sa(t); \
 }
 
@@ -427,7 +427,25 @@ PUT_VALUE_TABLE(ShaderIDs, LineDashedMaterial, gl::ShaderID, gl::ShaderID::dashe
 PUT_VALUE_TABLE(ShaderIDs, PointsMaterial, gl::ShaderID, gl::ShaderID::points)
 PUT_VALUE_TABLE(ShaderIDs, ShadowMaterial, gl::ShaderID, gl::ShaderID::shadow)
 
-DEF_RESOLVER_2(Dispatch, ShaderIDs)
+DEF_STRING_TABLE(ShaderNames, "Material")
+PUT_STRING_TABLE(ShaderNames, MeshDepthMaterial, "")
+PUT_STRING_TABLE(ShaderNames, MeshDistanceMaterial, "MeshDepthMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshNormalMaterial, "MeshNormalMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshBasicMaterial, "MeshBasicMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshLambertMaterial, "MeshLambertMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshPhongMaterial, "MeshPhongMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshToonMaterial, "MeshToonMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshStandardMaterial, "MeshStandardMaterial")
+PUT_STRING_TABLE(ShaderNames, MeshPhysicalMaterial, "MeshPhysicalMaterial")
+PUT_STRING_TABLE(ShaderNames, LineBasicMaterial, "LineBasicMaterial")
+PUT_STRING_TABLE(ShaderNames, LineDashedMaterial, "LineDashedMaterial")
+PUT_STRING_TABLE(ShaderNames, PointsMaterial, "PointsMaterial")
+PUT_STRING_TABLE(ShaderNames, ShaderMaterial, "ShaderMaterial")
+PUT_STRING_TABLE(ShaderNames, RawShaderMaterial, "RawShaderMaterial")
+PUT_STRING_TABLE(ShaderNames, ShadowMaterial, "ShadowMaterial")
+PUT_STRING_TABLE(ShaderNames, SpriteMaterial, "SpriteMaterial")
+
+DEF_RESOLVER_3(Dispatch, ShaderIDs, ShaderNames)
 
 }
 

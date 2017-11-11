@@ -4,7 +4,6 @@
 #include "Renderer_impl.h"
 #include "Programs.h"
 #include <sstream>
-#include <material/RawShaderMaterial.h>
 #include <material/MeshPhongMaterial.h>
 #include <material/MeshBasicMaterial.h>
 #include <material/MeshDistanceMaterial.h>
@@ -83,12 +82,12 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
       parameters->extensions.add(Extension::EXT_shader_texture_lod);
 
     parameters->defines.insert(mat.defines.begin(), mat.defines.end());
-    parameters->shaderMaterial = true;
+    parameters->shaderMaterial = &mat;
     parameters->index0AttributeName = mat.index0AttributeName;
   };
   dispatch.func<RawShaderMaterial>() = [&] (RawShaderMaterial &mat) {
     dispatch.func<ShaderMaterial>()(mat);
-    parameters->rawShaderMaterial = true;
+    parameters->rawShaderMaterial = &mat;
   };
   /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;

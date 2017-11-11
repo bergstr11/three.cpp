@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <Constants.h>
 #include <material/Material.h>
+#include <material/ShaderMaterial.h>
+#include <material/RawShaderMaterial.h>
 #include "shader/ShaderLib.h"
 #include "Helpers.h"
 #include "Extensions.h"
@@ -84,13 +86,13 @@ public:
   UseExtension extensions;
   bool physicallyCorrectLights;
   bool premultipliedAlpha;
-  bool alphaTest;
+  float alphaTest;
   bool doubleSided;
   bool flipSided;
   DepthPacking depthPacking;
   std::unordered_map<std::string, std::string> defines;
-  bool rawShaderMaterial;
-  bool shaderMaterial;
+  RawShaderMaterial *rawShaderMaterial = nullptr;
+  ShaderMaterial *shaderMaterial = nullptr;
   std::string index0AttributeName = nullptr;
 };
 
@@ -123,7 +125,7 @@ private:
 
   Uniforms::Ptr _cachedUniforms;
 
-  Attributes _cachedAttributes;
+  std::unordered_map<std::string, GLint> _cachedAttributes;
 
   std::unordered_map<std::string, GLint> fetchAttributeLocations();
 
@@ -154,6 +156,8 @@ public:
   std::string code;
 
   Uniforms::Ptr getUniforms();
+
+  const std::unordered_map<std::string, GLint> &getAttributes() const;
 };
 
 }

@@ -123,6 +123,8 @@ public:
     _sequence.push_back(uniform->id());
     _map[uniform->id()] = uniform;
   }
+
+  const std::vector<UniformName> &sequence() {return _sequence;}
 };
 
 class StructuredUniform : public Uniform, public UniformContainer
@@ -255,15 +257,13 @@ public:
   }
 
   //seqWithValue
-  std::vector<Uniform::Ptr> forValues(std::vector<UniformValue> values)
+  std::vector<Uniform::Ptr> sequenceUniforms(const UniformValues &values)
   {
     std::vector<Uniform::Ptr> result;
-    for(auto &entry : _map) {
+    for(auto name : _sequence) {
 
-      if(std::find_if(values.begin(), values.end(), [&entry](const UniformValue &val) -> bool {
-        return entry.first == val.id;
-      }) != values.end()) {
-        result.push_back(entry.second);
+      if(values.contains(name)) {
+        result.push_back(_map[name]);
       }
     }
     return result;
