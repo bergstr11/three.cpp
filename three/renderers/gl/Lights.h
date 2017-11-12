@@ -14,7 +14,8 @@
 #include <light/LightShadow.h>
 #include <shadow.h>
 #include <unordered_map>
-#include "../Resolver.h"
+#include <renderers/Resolver.h>
+#include "shader/UniformsLib.h"
 
 namespace three {
 namespace gl {
@@ -122,6 +123,12 @@ public:
   }
 };
 
+using CachedDirectionalLights = std::vector<uniforms_cache::Entry<DirectionalLight>::Ptr>;
+using CachedSpotLights = std::vector<uniforms_cache::Entry<SpotLight>::Ptr>;
+using CachedRectareaLights = std::vector<uniforms_cache::Entry<RectAreaLight>::Ptr>;
+using CachedPointLights = std::vector<uniforms_cache::Entry<PointLight>::Ptr>;
+using CachedHemisphereLights = std::vector<uniforms_cache::Entry<HemisphereLight>::Ptr>;
+
 struct Lights
 {
   UniformsCache cache;
@@ -129,15 +136,15 @@ struct Lights
   struct State {
     std::vector<Texture::Ptr> directionalShadowMap;
     std::vector<math::Matrix4> directionalShadowMatrix;
-    std::vector<uniforms_cache::Entry<DirectionalLight>::Ptr> directional;
+    CachedDirectionalLights directional;
     std::vector<Texture::Ptr> spotShadowMap;
     std::vector<math::Matrix4> spotShadowMatrix;
-    std::vector<uniforms_cache::Entry<SpotLight>::Ptr> spot;
-    std::vector<uniforms_cache::Entry<RectAreaLight>::Ptr> rectArea;
+    CachedSpotLights spot;
+    CachedRectareaLights rectArea;
     std::vector<Texture::Ptr> pointShadowMap;
     std::vector<math::Matrix4> pointShadowMatrix;
-    std::vector<uniforms_cache::Entry<PointLight>::Ptr> point;
-    std::vector<uniforms_cache::Entry<HemisphereLight>::Ptr> hemi;
+    CachedPointLights point;
+    CachedHemisphereLights hemi;
     Color ambient;
     std::string hash;
   } state;
@@ -145,6 +152,26 @@ struct Lights
 public:
   void setup(const std::vector<Light::Ptr> &lights, Camera::Ptr camera );
 };
+
+namespace uniformslib {
+
+UNIFORM_VALUE_T(CachedDirectionalLights) {
+
+}
+UNIFORM_VALUE_T(CachedSpotLights) {
+
+}
+UNIFORM_VALUE_T(CachedRectareaLights) {
+
+}
+UNIFORM_VALUE_T(CachedPointLights) {
+
+}
+UNIFORM_VALUE_T(CachedHemisphereLights) {
+
+}
+
+}
 
 }
 }

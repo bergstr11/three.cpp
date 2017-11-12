@@ -155,181 +155,45 @@ struct UniformValue
 template<typename T>
 struct UniformValueT;
 
-template<>
-struct UniformValueT<math::Matrix3> : public UniformValue
-{
-  math::Matrix3 mat;
+#define UNIFORM_VALUE_T(Cls) \
+template<> struct UniformValueT<Cls> : public UniformValue \
+{ \
+  Cls value; \
+  explicit UniformValueT(UniformName nm, const Cls &value) : UniformValue(nm), value(value) {} \
+  UniformValueT &operator = (const Cls &value) { \
+    this->value = value; return *this; \
+  } \
+  Ptr clone() const override { \
+    return Ptr(new UniformValueT(id, value)); \
+  } \
+  void setValue(std::shared_ptr<Uniform> uniform) override; \
+}; \
+inline void UniformValueT<Cls>::setValue(std::shared_ptr<Uniform> uniform)
 
-  explicit UniformValueT(UniformName nm, math::Matrix3 mat) : UniformValue(nm), mat(mat) {}
-
-  UniformValueT &operator = (math::Matrix3 mat) {
-    this->mat = mat;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, mat));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<float> : public UniformValue
-{
-  float value;
-
-  explicit UniformValueT(UniformName nm, float value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (float value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<Color> : public UniformValue
-{
-  Color value;
-
-  explicit UniformValueT(UniformName nm, Color value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (Color value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<int> : public UniformValue
-{
-  int value;
-
-  explicit UniformValueT(UniformName nm, int value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (int value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<Texture::Ptr> : public UniformValue
-{
-  Texture::Ptr value;
-
-  explicit UniformValueT(UniformName nm, Texture::Ptr value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (Texture::Ptr value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<CubeTexture::Ptr> : public UniformValue
-{
-  CubeTexture::Ptr value;
-
-  explicit UniformValueT(UniformName nm, CubeTexture::Ptr value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (CubeTexture::Ptr value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<math::Vector2> : public UniformValue
-{
-  math::Vector2 value;
-
-  explicit UniformValueT(UniformName nm, math::Vector2 value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (math::Vector2 value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
-
-template<>
-struct UniformValueT<math::Vector3> : public UniformValue
-{
-  math::Vector3 value;
-
-  explicit UniformValueT(UniformName nm, math::Vector3 value) : UniformValue(nm), value(value) {}
-
-  UniformValueT &operator = (math::Vector3 value) {
-    this->value = value;
-    return *this;
-  }
-
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
-
-  void setValue(std::shared_ptr<Uniform> uniform) override
-  {
-
-  }
-};
+UNIFORM_VALUE_T(math::Matrix3) {
+}
+UNIFORM_VALUE_T(float) {
+}
+UNIFORM_VALUE_T(Color) {
+}
+UNIFORM_VALUE_T(int) {
+}
+UNIFORM_VALUE_T(Texture::Ptr) {
+}
+UNIFORM_VALUE_T(CubeTexture::Ptr) {
+}
+UNIFORM_VALUE_T(math::Vector2) {
+}
+UNIFORM_VALUE_T(math::Vector3) {
+}
+UNIFORM_VALUE_T(std::vector<float>) {
+}
+UNIFORM_VALUE_T(math::Matrix4) {
+}
+UNIFORM_VALUE_T(std::vector<Texture::Ptr>) {
+}
+UNIFORM_VALUE_T(std::vector<math::Matrix4>) {
+}
 
 class LibUniformValues
 {

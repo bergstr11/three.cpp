@@ -649,19 +649,19 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // wire up the material to this renderer's lighting state
 
-    //uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
-    //uniforms.set(UniformName::directionalLights, _lights.state.directional);
-    //uniforms.set(UniformName::spotLights, _lights.state.spot);
-    //uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
-    //uniforms.set(UniformName::pointLights, _lights.state.point);
-    //uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
+    uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
+    uniforms.set(UniformName::directionalLights, _lights.state.directional);
+    uniforms.set(UniformName::spotLights, _lights.state.spot);
+    uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
+    uniforms.set(UniformName::pointLights, _lights.state.point);
+    uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
 
-    //uniforms.set(UniformName::directionalShadowMap, _lights.state.directionalShadowMap);
-    //uniforms.set(UniformName::directionalShadowMatrix, _lights.state.directionalShadowMatrix);
-    //uniforms.set(UniformName::spotShadowMap, _lights.state.spotShadowMap);
-    //uniforms.set(UniformName::spotShadowMatrix, _lights.state.spotShadowMatrix);
-    //uniforms.set(UniformName::pointShadowMap, _lights.state.pointShadowMap);
-    //uniforms.set(UniformName::pointShadowMatrix, _lights.state.pointShadowMatrix);
+    uniforms.set(UniformName::directionalShadowMap, _lights.state.directionalShadowMap);
+    uniforms.set(UniformName::directionalShadowMatrix, _lights.state.directionalShadowMatrix);
+    uniforms.set(UniformName::spotShadowMap, _lights.state.spotShadowMap);
+    uniforms.set(UniformName::spotShadowMatrix, _lights.state.spotShadowMatrix);
+    uniforms.set(UniformName::pointShadowMap, _lights.state.pointShadowMap);
+    uniforms.set(UniformName::pointShadowMatrix, _lights.state.pointShadowMatrix);
     // TODO (abelnation): add area lights shadow info to uniforms
   }
 
