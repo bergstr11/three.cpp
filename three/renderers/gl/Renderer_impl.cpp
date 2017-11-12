@@ -586,7 +586,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
     const char *name = material->resolver->material::ShaderNamesResolver::getValue(shaderNames);
     if(parameters->shaderID != ShaderID::undefined) {
 
-      materialProperties.shader = shaderlib::get(parameters->shaderID, name);
+      materialProperties.shader = Shader(name, shaderlib::get(parameters->shaderID));
     }
     else if(parameters->shaderMaterial) {
       ShaderMaterial *sm = parameters->shaderMaterial;
@@ -636,7 +636,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     materialProperties.numClippingPlanes = _clipping.numPlanes();
     materialProperties.numIntersection = _clipping.numIntersection();
-    //uniforms.set(UniformName::clippingPlanes, _clipping.uniformValue());
+    uniforms.set(UniformName::clippingPlanes, _clipping.uniformValue());
   }
 
   materialProperties.fog = fog;
@@ -649,7 +649,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // wire up the material to this renderer's lighting state
 
-    uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
+    //uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
     //uniforms.set(UniformName::directionalLights, _lights.state.directional);
     //uniforms.set(UniformName::spotLights, _lights.state.spot);
     //uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
@@ -858,7 +858,9 @@ void markUniformsLightsNeedsUpdate(const UniformValues &uniforms, bool refreshLi
 
 }
 
-void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues &values ) {
+void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues &values )
+{
+  using namespace uniformslib;
 
   for (auto &up : uniformsList) {
 
@@ -867,30 +869,7 @@ void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues
     if ( !v.needsUpdate ) {
 
       // note: always updating when .needsUpdate is undefined
-
-      switch(v.type) {
-        case UniformValue::Type::flt:
-          up->setValue( v.float_val);
-          break;
-        case UniformValue::Type::glint:
-          up->setValue( v.glint_val);
-          break;
-        case UniformValue::Type::vect2:
-          up->setValue( v.vect2_val);
-          break;
-        case UniformValue::Type::vect3:
-          up->setValue( v.vect3_val);
-          break;
-        case UniformValue::Type::vect4:
-          up->setValue( v.vect4_val);
-          break;
-        case UniformValue::Type::mat3:
-          up->setValue( v.mat3_val);
-          break;
-        case UniformValue::Type::mat4:
-          up->setValue( v.mat4_val);
-          break;
-      }
+      v.setValue(up);
     }
   }
 }

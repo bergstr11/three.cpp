@@ -88,9 +88,9 @@ namespace uniformslib {
 
 class UniformsLib
 {
-  std::unordered_map<UniformsID, UniformValues> _uniforms;
+  std::unordered_map<UniformsID, LibUniformValues> _uniforms;
 
-  void add(UniformsID id, const UniformValues &uv)
+  void add(UniformsID id, const LibUniformValues &uv)
   {
     _uniforms.insert({id, uv});
   }
@@ -101,89 +101,89 @@ public:
     qInitResource();
 
     add(UniformsID::common,
-        UniformValues({
-                         Diffuse(Color(0xeeeeee)),
-                         Opacity(1.0f),
-                         Map(nullptr),
-                         UvTransform(math::Matrix3()),
-                         AlphaMap(nullptr)
+        LibUniformValues({
+                         value<Color>(UniformName::diffuse, Color(0xeeeeee)),
+                         value<float>(UniformName::opacity, 1.0f),
+                         value<Texture::Ptr>(UniformName::map, nullptr),
+                         value<math::Matrix3>(UniformName::uvTransform, math::Matrix3()),
+                         value<Texture::Ptr>(UniformName::alphaMap, nullptr)
                       }));
     add(UniformsID::specularmap,
-        UniformValues({
-                         SpecularMap(nullptr)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::specularMap, nullptr)
                       }));
     add(UniformsID::envmap,
-        UniformValues({
-                         EnvMap(nullptr),
-                         FlipEnvMap(-1),
-                         Map(nullptr),
-                         Reflectivity(math::Matrix3()),
-                         RefractionRatio(0.98f)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::envMap, nullptr),
+                         value<GLint>(UniformName::flipEnvMap, -1),
+                         value<Texture::Ptr>(UniformName::map, nullptr),
+                         value<math::Matrix3>(UniformName::reflectivity, math::Matrix3()),
+                         value<GLfloat>(UniformName::refractionRatio, 0.98f)
                       }));
     add(UniformsID::aomap,
-        UniformValues({
-                         AoMap(nullptr),
-                         AoMapIntensity(1)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::aoMap, nullptr),
+                         value<GLfloat>(UniformName::aoMapIntensity, 1)
                       }));
     add(UniformsID::lightmap,
-        UniformValues({
-                         LightMap(nullptr),
-                         LightMapIntensity(1)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::lightMap, nullptr),
+                         value<GLfloat>(UniformName::lightMapIntensity, 1)
                       }));
     add(UniformsID::emissivemap,
-        UniformValues({
-                         EmissiveMap(nullptr)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::emissiveMap, nullptr)
                       }));
     add(UniformsID::bumpmap,
-        UniformValues({
-                         BumpMap(nullptr),
-                         BumpScale(1)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::bumpMap, nullptr),
+                         value<GLfloat>(UniformName::bumpScale, 1)
                       }));
     add(UniformsID::normalmap,
-        UniformValues({
-                         NormalMap(nullptr),
-                         NormalScale(math::Vector2(1, 1))
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::normalMap, nullptr),
+                         value<math::Vector2>(UniformName::normalScale, math::Vector2(1, 1))
                       }));
     add(UniformsID::displacementmap,
-        UniformValues({
-                         DisplacementMap(nullptr),
-                         DisplacementScale(1.0f),
-                         DisplacementBias(1)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::displacementMap, nullptr),
+                         value<GLfloat>(UniformName::displacementScale, 1.0f),
+                         value<GLfloat>(UniformName::displacementBias, 1)
                       }));
     add(UniformsID::roughnessmap,
-        UniformValues({
-                         RoughnessMap(nullptr)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::roughnessMap, nullptr)
                       }));
     add(UniformsID::metalnessmap,
-        UniformValues({
-                         MetalnessMap(nullptr)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::metalnessMap, nullptr)
                       }));
     add(UniformsID::gradientmap,
-        UniformValues({
-                         GradientMap(nullptr)
+        LibUniformValues({
+                         value<Texture::Ptr>(UniformName::gradientMap, nullptr)
                       }));
     add(UniformsID::fog,
-        UniformValues({
-                         FogDensity(0.00025f),
-                         FogNear(1),
-                         FogFar(2000),
-                         FogColor(Color(0xffffff))
+        LibUniformValues({
+                         value<GLfloat>(UniformName::fogDensity, 0.00025f),
+                         value<GLfloat>(UniformName::fogNear, 1),
+                         value<GLfloat>(UniformName::fogFar, 2000),
+                         value<Color>(UniformName::fogColor, Color(0xffffff))
                       }));
   }
 };
 
-UniformValues &get(UniformsID id)
+LibUniformValues &get(UniformsID id)
 {
-  static UniformValues vals({});
+  static LibUniformValues vals({});
 
   return vals;
 }
 
-UniformValuesDelegate &UniformValuesDelegate::merge(UniformsID id, std::initializer_list<UniformValue> add)
+UniformValuesDelegate &UniformValuesDelegate::merge(UniformsID id, std::initializer_list<UniformValueDelegate> add)
 {
-  UniformValues extended = get(id);
+  LibUniformValues extended = get(id);
   for(auto it = std::begin(add); it != std::end(add); it++) {
-    extended += *it;
+    extended += (UniformValue::Ptr)*it;
   }
   values += extended;
   return *this;
@@ -191,7 +191,7 @@ UniformValuesDelegate &UniformValuesDelegate::merge(UniformsID id, std::initiali
 
 UniformValuesDelegate merged(std::initializer_list<UniformsID> ids)
 {
-  UniformValues merged {};
+  LibUniformValues merged {};
 
   for(auto it = std::begin(ids); it != std::end(ids); it++) {
     merged += get(*it);

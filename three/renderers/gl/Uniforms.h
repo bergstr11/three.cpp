@@ -18,7 +18,8 @@
 #include <math/Matrix4.h>
 
 #include <Constants.h>
-#include <helper/Shader.h>
+#include "shader/ShaderLib.h"
+#include "shader/UniformsLib.h"
 
 namespace three {
 namespace gl {

@@ -8,7 +8,7 @@
 #include <QString>
 #include <QResource>
 
-#include <helper/Shader.h>
+#include "UniformsLib.h"
 
 namespace three {
 namespace gl {
@@ -32,22 +32,39 @@ enum class ShaderID : unsigned
   undefined=999
 };
 
+class UniformValues
+{
+  std::unordered_map<UniformName, uniformslib::UniformValue::Ptr> values;
+
+public:
+  explicit UniformValues(const uniformslib::LibUniformValues &libUniforms) : values(libUniforms.cloneValues()) {}
+
+  bool contains(UniformName name) const {
+    return values.find(name) != values.end();
+  }
+
+  template <typename V>
+  UniformValues &set(UniformName name, const V &v) {
+    *values[name] = v;
+  }
+
+  uniformslib::UniformValue &operator[] (UniformName name) {
+    return *values.at(name);
+  }
+};
+
 struct ShaderInfo
 {
-  const UniformValues &uniforms;
+  const UniformValues uniforms;
   const char * const vertexShader;
   const char * const fragmentShader;
 
-  ShaderInfo(const UniformValues &uniforms, const char * vertexShader, const char * fragmentShader)
-     : uniforms(uniforms), vertexShader(vertexShader), fragmentShader(fragmentShader)
-  {}
+  ShaderInfo(const uniformslib::LibUniformValues &uniforms, const char * vertexShader, const char * fragmentShader);
 };
 
 namespace shaderlib {
 
 ShaderInfo get(ShaderID id);
-
-Shader get(ShaderID id, const char *name);
 
 }
 

@@ -11,7 +11,7 @@ namespace three {
 
 class RawShaderMaterial : public ShaderMaterial
 {
-  RawShaderMaterial(const UniformValues &uniforms,
+  RawShaderMaterial(const gl::UniformValues &uniforms,
                     const char *vertexShader,
                     const char *fragmentShader,
                     Side side, bool depthTest, bool depthWrite, bool fog)
@@ -23,7 +23,7 @@ class RawShaderMaterial : public ShaderMaterial
 public:
   using Ptr = std::shared_ptr<RawShaderMaterial>;
 
-  static Ptr make(const UniformValues &uniforms,
+  static Ptr make(const gl::UniformValues &uniforms,
                   const char *vertexShader,
                   const char *fragmentShader,
                   Side side, bool depthTest, bool depthWrite, bool fog) {

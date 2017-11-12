@@ -3,7 +3,8 @@
 //
 
 #include "ShaderLib.h"
-#include "UniformsLib.h"
+#include <core/Color.h>
+#include <math/Vector3.h>
 
 static void qInitResource()
 {
@@ -23,7 +24,7 @@ namespace gl {
 class LibShader
 {
   ShaderID _id;
-  UniformValues _uniforms;
+  uniformslib::LibUniformValues _uniforms;
 
   QResource _vertex;
   QByteArray _uncompressedVertex;
@@ -34,7 +35,7 @@ class LibShader
   const char *_fragmentShader = nullptr;
 
 public:
-  LibShader(ShaderID id, const UniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
+  LibShader(ShaderID id, const uniformslib::LibUniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
      : _uniforms(uniforms), _id(id), _vertex(vertexShader), _fragment(fragmentShader)
   {}
 
@@ -42,7 +43,7 @@ public:
      : _uniforms(shader._uniforms), _id(shader._id), _vertex(shader._vertexShader), _fragment(shader._fragmentShader)
   {}
 
-  const UniformValues &uniforms() const {
+  const uniformslib::LibUniformValues &uniforms() const {
     return _uniforms;
   }
 
@@ -227,9 +228,9 @@ public:
     add(ShaderID::cube,
         LibShader(ShaderID::cube,
                   {
-                     uniformslib::Cube(nullptr),
-                     uniformslib::Flip(-1),
-                     uniformslib::Opacity(1.0f)
+                     uniformslib::value<CubeTexture::Ptr>(UniformName::cube, nullptr),
+                     uniformslib::value<GLint>(UniformName::flip, -1),
+                     uniformslib::value<float>(UniformName::opacity, 1.0f)
                   },
                   ":chunk/cube_vert.glsl",
                   ":chunk/cube_frag.glsl"
@@ -237,7 +238,7 @@ public:
     add(ShaderID::equirect,
         LibShader(ShaderID::equirect,
                   {
-                     uniformslib::Equirect(nullptr),
+                     uniformslib::value<Texture::Ptr>(UniformName::equirect, nullptr)
                   },
                   ":chunk/equirect_vert.glsl",
                   ":chunk/equirect_frag.glsl"
@@ -294,13 +295,11 @@ three::gl::ShaderInfo get(ShaderID id)
   return three::gl::ShaderInfo(lib.uniforms(), lib.vertexShader(), lib.fragmentShader());
 }
 
-three::Shader get(ShaderID id, const char *name)
-{
-  LibShader &lib = _get(id);
-  return three::Shader(name, lib.uniforms(), lib.vertexShader(), lib.fragmentShader());
 }
 
-}
+ShaderInfo::ShaderInfo(const uniformslib::LibUniformValues &uniforms, const char * vertexShader, const char * fragmentShader)
+   : uniforms(uniforms), vertexShader(vertexShader), fragmentShader(fragmentShader)
+{}
 
 }
 }

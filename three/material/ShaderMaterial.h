@@ -15,7 +15,7 @@ class ShaderMaterial : public Material
 public:
   std::unordered_map<std::string, std::string> defines;
 
-  UniformValues uniforms;
+  gl::UniformValues uniforms;
 
   bool clipping = false; // set to use user-defined clipping planes
   bool morphNormals = false; // set to use morph normals
@@ -32,7 +32,7 @@ private:
 
 protected:
   ShaderMaterial(material::Resolver::Ptr resolver,
-                 const UniformValues &uniforms,
+                 const gl::UniformValues &uniforms,
                  const char *vertexShader,
                  const char *fragmentShader,
                  Side side, bool depthTest,
@@ -47,7 +47,7 @@ protected:
     this->side = side;
   }
 
-  ShaderMaterial(const UniformValues &uniforms,
+  ShaderMaterial(const gl::UniformValues &uniforms,
                  const char *vertexShader,
                  const char *fragmentShader,
                  Side side,
@@ -97,7 +97,7 @@ public:
     return Ptr(new ShaderMaterial(shader, side, depthTest, depthWrite, fog));
   }
 
-  static Ptr make(const UniformValues &uniforms,
+  static Ptr make(const gl::UniformValues &uniforms,
                   const char *vertexShader,
                   const char *fragmentShader,
                   Side side,

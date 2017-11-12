@@ -48,7 +48,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
       geometries.update(box);
     }
 
-    boxMesh->material<0>()->uniforms[UniformName::cube] = tex;
+    uniformslib::UniformValue & uv = boxMesh->material<0>()->uniforms[UniformName::cube];// = tex;
 
     renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
   };

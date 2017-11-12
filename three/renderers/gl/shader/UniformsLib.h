@@ -7,7 +7,9 @@
 
 #include <textures/DataTexture.h>
 #include <textures/CubeTexture.h>
-#include "../Uniforms.h"
+#include <core/Color.h>
+#include <math/Matrix3.h>
+#include <math/Vector3.h>
 
 namespace three {
 namespace gl {
@@ -31,6 +33,85 @@ extern DataTexture::Ptr LTC_MAG_TEXTURE;
  */
 void initRectAreaLight();
 
+enum class UniformName
+{
+  cube,
+  equirect,
+  flip,
+  opacity,
+  diffuse,
+  emissive,
+  specular,
+  projectionMatrix,
+  viewMatrix,
+  modelViewMatrix,
+  normalMatrix,
+  modelMatrix,
+  logDepthBufFC,
+  boneMatrices,
+  bindMatrix,
+  bindMatrixInverse,
+  toneMappingExposure,
+  toneMappingWhitePoint,
+  cameraPosition,
+  map,
+  uvTransform,
+  alphaMap,
+  specularMap,
+  envMap,
+  flipEnvMap,
+  reflectivity,
+  refractionRatio,
+  aoMap,
+  aoMapIntensity,
+  lightMap,
+  lightMapIntensity,
+  emissiveMap,
+  bumpMap,
+  bumpScale,
+  normalMap,
+  normalScale,
+  displacementMap,
+  displacementScale,
+  displacementBias,
+  roughnessMap,
+  metalnessMap,
+  gradientMap,
+  roughness,
+  metalness,
+  envMapIntensity,
+  fogDensity,
+  fogNear,
+  fogFar,
+  fogColor,
+  ambientLightColor,
+  direction,
+  color,
+  shadow,
+  shadowBias,
+  shadowRadius,
+  shadowMapSize,
+  size,
+  scale,
+  dashSize,
+  totalSize,
+  referencePosition,
+  nearDistance,
+  farDistance,
+  clippingPlanes,
+  directionalLights,
+  spotLights,
+  rectAreaLights,
+  pointLights,
+  hemisphereLights,
+  directionalShadowMap,
+  directionalShadowMatrix,
+  spotShadowMap,
+  spotShadowMatrix,
+  pointShadowMap,
+  pointShadowMatrix
+};
+
 enum class UniformsID {
   common,
   envmap,
@@ -49,60 +130,289 @@ enum class UniformsID {
   points
 };
 
+class Uniform;
+
 namespace uniformslib {
 
-template<typename T, UniformName _nm>
-struct UniformValueBase : public UniformValue
+struct UniformValue
 {
-  explicit UniformValueBase(T t) : UniformValue(_nm, t)
-  {}
+  const UniformName id;
+
+  bool needsUpdate = false;
+
+  virtual ~UniformValue() {}
+
+  using Ptr = std::shared_ptr<UniformValue>;
+  explicit UniformValue(UniformName nm) : id(nm) {}
+
+  template <typename T>
+  UniformValue &operator = (T t);
+
+  virtual Ptr clone() const = 0;
+  virtual void setValue(std::shared_ptr<Uniform> uniform) = 0;
 };
 
-using Cube = UniformValueBase<CubeTexture::Ptr, UniformName::cube>;
-using Equirect = UniformValueBase<Texture::Ptr, UniformName::equirect>;
-using Flip = UniformValueBase<GLint, UniformName::flip>;
-using Opacity = UniformValueBase<float, UniformName::opacity>;
-using Diffuse = UniformValueBase<Color, UniformName::diffuse>;
-using Map = UniformValueBase<Texture::Ptr, UniformName::map>;
-using UvTransform = UniformValueBase<math::Matrix3, UniformName::uvTransform>;
-using AlphaMap = UniformValueBase<Texture::Ptr, UniformName::alphaMap>;
-using SpecularMap = UniformValueBase<Texture::Ptr, UniformName::specularMap>;
-using EnvMap = UniformValueBase<Texture::Ptr, UniformName::envMap>;
-using FlipEnvMap  = UniformValueBase<GLint, UniformName::flipEnvMap>;
-using Reflectivity = UniformValueBase<math::Matrix3, UniformName::reflectivity>;
-using RefractionRatio = UniformValueBase<GLfloat, UniformName::refractionRatio>;
-using AoMap = UniformValueBase<Texture::Ptr, UniformName::aoMap>;
-using AoMapIntensity = UniformValueBase<GLfloat, UniformName::aoMapIntensity>;
-using LightMap = UniformValueBase<Texture::Ptr, UniformName::lightMap>;
-using LightMapIntensity = UniformValueBase<GLfloat, UniformName::lightMapIntensity>;
-using EmissiveMap = UniformValueBase<Texture::Ptr, UniformName::emissiveMap>;
-using BumpMap = UniformValueBase<Texture::Ptr, UniformName::bumpMap>;
-using BumpScale = UniformValueBase<GLfloat, UniformName::bumpScale>;
-using NormalMap = UniformValueBase<Texture::Ptr, UniformName::normalMap>;
-using NormalScale = UniformValueBase<math::Vector2, UniformName::normalScale>;
-using DisplacementMap = UniformValueBase<Texture::Ptr, UniformName::displacementMap>;
-using DisplacementScale = UniformValueBase<GLfloat, UniformName::displacementScale>;
-using DisplacementBias = UniformValueBase<GLfloat, UniformName::displacementBias>;
-using RoughnessMap = UniformValueBase<Texture::Ptr, UniformName::roughnessMap>;
-using MetalnessMap = UniformValueBase<Texture::Ptr, UniformName::metalnessMap>;
-using GradientMap = UniformValueBase<Texture::Ptr, UniformName::gradientMap>;
-using FogDensity = UniformValueBase<GLfloat, UniformName::fogDensity>;
-using FogNear = UniformValueBase<GLfloat, UniformName::fogNear>;
-using FogFar = UniformValueBase<GLfloat, UniformName::fogFar>;
-using FogColor = UniformValueBase<Color, UniformName::fogColor>;
+template<typename T>
+struct UniformValueT;
+
+template<>
+struct UniformValueT<math::Matrix3> : public UniformValue
+{
+  math::Matrix3 mat;
+
+  explicit UniformValueT(UniformName nm, math::Matrix3 mat) : UniformValue(nm), mat(mat) {}
+
+  UniformValueT &operator = (math::Matrix3 mat) {
+    this->mat = mat;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, mat));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<float> : public UniformValue
+{
+  float value;
+
+  explicit UniformValueT(UniformName nm, float value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (float value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<Color> : public UniformValue
+{
+  Color value;
+
+  explicit UniformValueT(UniformName nm, Color value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (Color value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<int> : public UniformValue
+{
+  int value;
+
+  explicit UniformValueT(UniformName nm, int value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (int value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<Texture::Ptr> : public UniformValue
+{
+  Texture::Ptr value;
+
+  explicit UniformValueT(UniformName nm, Texture::Ptr value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (Texture::Ptr value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<CubeTexture::Ptr> : public UniformValue
+{
+  CubeTexture::Ptr value;
+
+  explicit UniformValueT(UniformName nm, CubeTexture::Ptr value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (CubeTexture::Ptr value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<math::Vector2> : public UniformValue
+{
+  math::Vector2 value;
+
+  explicit UniformValueT(UniformName nm, math::Vector2 value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (math::Vector2 value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+template<>
+struct UniformValueT<math::Vector3> : public UniformValue
+{
+  math::Vector3 value;
+
+  explicit UniformValueT(UniformName nm, math::Vector3 value) : UniformValue(nm), value(value) {}
+
+  UniformValueT &operator = (math::Vector3 value) {
+    this->value = value;
+    return *this;
+  }
+
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+
+  void setValue(std::shared_ptr<Uniform> uniform) override
+  {
+
+  }
+};
+
+class LibUniformValues
+{
+  std::unordered_map<UniformName, UniformValue::Ptr> values;
+
+public:
+  LibUniformValues(std::initializer_list<UniformValue::Ptr> vals) {
+    for(auto it = std::begin(vals); it != std::end(vals); it++) {
+      const UniformValue::Ptr val = *it;
+      values[val->id] = val;
+    }
+  }
+
+  std::unordered_map<UniformName, UniformValue::Ptr> cloneValues() const
+  {
+    std::unordered_map<UniformName, UniformValue::Ptr> cloned;
+
+    for(auto &entry : values) {
+      cloned[entry.first] = entry.second->clone();
+    }
+    return cloned;
+  };
+
+  UniformValue::Ptr operator[](UniformName name) const {
+    return values.at(name);
+  }
+
+  LibUniformValues &operator +=(const UniformValue::Ptr val)
+  {
+    values.insert({val->id, val});
+    return *this;
+  }
+
+  LibUniformValues &operator +=(const LibUniformValues &vals)
+  {
+    values.insert(vals.values.begin(), vals.values.end());
+    return *this;
+  }
+
+  LibUniformValues merge(const LibUniformValues &values)
+  {
+    LibUniformValues merged(values);
+    merged.values.insert(values.values.begin(), values.values.end());
+    return merged;
+  }
+};
+
+template <typename T>
+UniformValue &UniformValue::operator = (T t) {
+  UniformValueT<T> &ut = dynamic_cast<UniformValueT<T> &>(*this);
+  ut = t;
+  return *this;
+}
+
+template<typename T>
+inline UniformValue::Ptr value(UniformName id, T value) {
+  return UniformValue::Ptr(new UniformValueT<T>(id, value));
+}
+
+struct UniformValueDelegate
+{
+  UniformValue::Ptr value;
+
+  template<typename T> UniformValueDelegate(UniformName id, T t)
+  {
+    value = UniformValue::Ptr(new UniformValueT<T>(id, t));
+  }
+
+  operator UniformValue::Ptr () const {return value;}
+};
 
 struct UniformValuesDelegate
 {
-  UniformValues values;
+  LibUniformValues &values;
 
-  explicit UniformValuesDelegate(UniformValues values) : values(values) {}
+  explicit UniformValuesDelegate(LibUniformValues &values) : values(values) {}
 
-  operator UniformValues &() const {return *this;}
+  operator const LibUniformValues &() const {return values;}
 
-  UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValue> add);
+  UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValueDelegate> add);
 };
 
-UniformValues &get(UniformsID id);
+LibUniformValues &get(UniformsID id);
 
 UniformValuesDelegate merged(std::initializer_list<UniformsID> id);
 
