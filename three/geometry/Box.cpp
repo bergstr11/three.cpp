@@ -7,11 +7,12 @@
 
 namespace three {
 namespace geometry {
+namespace buffer {
 
 using El = math::Vector3::Element;
 using BuildPlane = std::function<void(El, El, El, int, int, unsigned, unsigned, int, unsigned, unsigned, unsigned)>;
 
-BoxBuffer::BoxBuffer(unsigned int width, unsigned int height, unsigned int depth,
+Box::Box(unsigned int width, unsigned int height, unsigned int depth,
                      unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
    : _width(width), _height(height), _depth(depth),
      _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
@@ -135,10 +136,11 @@ BoxBuffer::BoxBuffer(unsigned int width, unsigned int height, unsigned int depth
   // build geometry
 
   setIndex(indices);
-  setPosition(BufferAttributeBase<float>::make(vertices, 3));
-  setNormal(BufferAttributeBase<float>::make(normals, 3));
-  setUV(BufferAttributeBase<float>::make(uvs, 2));
+  setPosition(BufferAttributeT<float>::make(vertices, 3));
+  setNormal(BufferAttributeT<float>::make(normals, 3));
+  setUV(BufferAttributeT<float>::make(uvs, 2));
 }
 
+}
 }
 }

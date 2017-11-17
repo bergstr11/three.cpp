@@ -88,7 +88,7 @@ public:
 };
 
 template <typename Type>
-class BufferAttributeBase : public BufferAttribute
+class BufferAttributeT : public BufferAttribute
 {
   std::vector<Type> _array;
   unsigned _itemSize;
@@ -99,28 +99,117 @@ class BufferAttributeBase : public BufferAttribute
   UpdateRange _updateRange = {0, -1};
 
 protected:
-  BufferAttributeBase(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
+  BufferAttributeT(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
      : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
   {}
 
-  explicit BufferAttributeBase(unsigned itemSize, bool normalized=false)
+  explicit BufferAttributeT(unsigned itemSize, bool normalized=false)
      : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
   {}
 
-  BufferAttributeBase(const BufferAttributeBase &source) :
+  BufferAttributeT(const BufferAttributeT &source) :
      _array(source._array), _itemSize(source._itemSize), _count(source._count),
      _normalized(source._normalized), _dynamic(source._dynamic)
   {}
 
+  BufferAttributeT(const std::vector<Color> &colors)
+  {
+    size_t offset = 0;
+    _array.resize(colors.size() * 3);
+
+    for(const Color &color : colors) {
+      _array[ offset ++ ] = color.r;
+      _array[ offset ++ ] = color.g;
+      _array[ offset ++ ] = color.b;
+    }
+  }
+
+  BufferAttributeT(const std::vector<Index> &indices) : BufferAttributeT(3, false)
+  {
+    unsigned offset = 0;
+    _array.resize(indices.size() * 3);
+
+    for (size_t i = 0, l = _array.size(); i < l; i ++ ) {
+
+      const Index &index = indices[ i ];
+
+      _array[ offset ++ ] = index.a;
+      _array[ offset ++ ] = index.b;
+      _array[ offset ++ ] = index.c;
+
+    }
+  }
+
+  BufferAttributeT(std::vector<math::Vector2> vectors)  : BufferAttributeT(2, false)
+  {
+    size_t offset = 0;
+    _array.resize(vectors.size() * 2);
+
+    for(const math::Vector2 &vector : vectors) {
+      _array[ offset ++ ] = vector.x();
+      _array[ offset ++ ] = vector.y();
+    }
+  }
+
+  BufferAttributeT(std::vector<math::Vector3> vectors) : BufferAttributeT(3, false)
+  {
+    size_t offset = 0;
+    _array.resize(vectors.size() * 3);
+
+    for(const math::Vector3 &vector : vectors) {
+      _array[ offset ++ ] = vector.x();
+      _array[ offset ++ ] = vector.y();
+      _array[ offset ++ ] = vector.z();
+    }
+  }
+
+  BufferAttributeT(std::vector<math::Vector4> vectors) : BufferAttributeT(4, false)
+  {
+    size_t offset = 0;
+    _array.resize(vectors.size() * 4);
+
+    for(const math::Vector4 &vector : vectors) {
+      _array[ offset ++ ] = vector.x();
+      _array[ offset ++ ] = vector.y();
+      _array[ offset ++ ] = vector.z();
+      _array[ offset ++ ] = vector.w();
+    }
+  }
+
 public:
-  using Ptr = std::shared_ptr<BufferAttributeBase<Type>>;
+  using Ptr = std::shared_ptr<BufferAttributeT<Type>>;
 
   static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
   {
-    return std::shared_ptr<BufferAttributeBase<Type>>(new BufferAttributeBase<Type>(array, itemSize, normalized));
+    return std::shared_ptr<BufferAttributeT<Type>>(new BufferAttributeT<Type>(array, itemSize, normalized));
   }
 
-  Signal<void(const BufferAttributeBase<Type> &)> onUpload;
+  static Ptr make(const std::vector<Color> colors)
+  {
+    return Ptr(new BufferAttributeT(colors));
+  }
+
+  static Ptr make(const std::vector<Index> &indices)
+  {
+    return Ptr(new BufferAttributeT(indices));
+  }
+
+  static Ptr make(const std::vector<math::Vector2> &vectors)
+  {
+    return Ptr(new BufferAttributeT(vectors));
+  }
+
+  static Ptr make(const std::vector<math::Vector3> &vectors)
+  {
+    return Ptr(new BufferAttributeT(vectors));
+  }
+
+  static Ptr make(const std::vector<math::Vector4> &vectors)
+  {
+    return Ptr(new BufferAttributeT(vectors));
+  }
+
+  Signal<void(const BufferAttributeT<Type> &)> onUpload;
 
   const size_t size() const {return _array.size();}
 
@@ -148,7 +237,7 @@ public:
 
   UpdateRange &updateRange() {return _updateRange;}
 
-  BufferAttributeBase &setDynamic(bool value)
+  BufferAttributeT &setDynamic(bool value)
   {
     _dynamic = value;
 
@@ -156,7 +245,7 @@ public:
   }
 
 
-  BufferAttributeBase &copyAt(unsigned dstIndex, const BufferAttributeBase &srcAttribute, unsigned srcIndex)
+  BufferAttributeT &copyAt(unsigned dstIndex, const BufferAttributeT &srcAttribute, unsigned srcIndex)
   {
     std::memcpy(_array.data() + dstIndex * _itemSize,
                 srcAttribute._array.data() + srcIndex * srcAttribute._itemSize,
@@ -164,81 +253,13 @@ public:
     return *this;
   }
 
-  BufferAttributeBase &copyArray(const std::vector<Type> &array)
+  BufferAttributeT &copyArray(const std::vector<Type> &array)
   {
     _array = array;
     return *this;
   }
 
-  BufferAttributeBase &copyColors(std::vector<Color> colors)
-  {
-    size_t offset = 0;
-
-    for(const Color &color : colors) {
-      _array[ offset ++ ] = color.r;
-      _array[ offset ++ ] = color.g;
-      _array[ offset ++ ] = color.b;
-    }
-
-    return *this;
-  }
-
-  BufferAttributeBase &copyIndices(const std::vector<Index> &indices)
-  {
-    unsigned offset = 0;
-
-    for (size_t i = 0, l = _array.size(); i < l; i ++ ) {
-
-      const Index &index = indices[ i ];
-
-      _array[ offset ++ ] = index.a;
-      _array[ offset ++ ] = index.b;
-      _array[ offset ++ ] = index.c;
-
-    }
-    return *this;
-  }
-
-  BufferAttributeBase &copyVector2s(std::vector<math::Vector2> vectors )
-  {
-    size_t offset = 0;
-
-    for(const math::Vector2 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-    }
-
-    return *this;
-  }
-
-  BufferAttributeBase &copyVector3s(std::vector<math::Vector3> vectors)
-  {
-    size_t offset = 0;
-
-    for(const math::Vector3 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-      _array[ offset ++ ] = vector.z();
-    }
-
-    return *this;
-  }
-
-  BufferAttributeBase &copyVector4s(std::vector<math::Vector4> vectors)
-  {
-    size_t offset = 0;
-
-    for(const math::Vector4 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-      _array[ offset ++ ] = vector.z();
-      _array[ offset ++ ] = vector.w();
-    }
-
-    return *this;
-  }
-
-  BufferAttributeBase &set(Type value, size_t offset=0)
+  BufferAttributeT &set(Type value, size_t offset=0)
   {
     _array[offset] = value;
 
@@ -250,7 +271,7 @@ public:
     return _array[ index * _itemSize ];
   }
 
-  BufferAttributeBase &set_x(size_t index, Type x)
+  BufferAttributeT &set_x(size_t index, Type x)
   {
     _array[ index * _itemSize ] = x;
 
@@ -262,7 +283,7 @@ public:
     return _array[ index * _itemSize + 1 ];
   }
 
-  BufferAttributeBase &set_y(size_t index, Type y)
+  BufferAttributeT &set_y(size_t index, Type y)
   {
     _array[ index * _itemSize + 1 ] = y;
 
@@ -274,7 +295,7 @@ public:
     return _array[ index * _itemSize + 2 ];
   }
 
-  BufferAttributeBase &set_z(size_t index, Type z)
+  BufferAttributeT &set_z(size_t index, Type z)
   {
     _array[ index * _itemSize + 2 ] = z;
 
@@ -286,14 +307,14 @@ public:
     return _array[ index * _itemSize + 3 ];
   }
 
-  BufferAttributeBase &set_w(size_t index, Type w)
+  BufferAttributeT &set_w(size_t index, Type w)
   {
     _array[ index * _itemSize + 3 ] = w;
 
     return *this;
   }
 
-  BufferAttributeBase &setXY(size_t index, Type x, Type y)
+  BufferAttributeT &setXY(size_t index, Type x, Type y)
   {
     index *= _itemSize;
 
@@ -303,7 +324,7 @@ public:
     return *this;
   }
 
-  BufferAttributeBase &setXYZ(size_t index, Type x, Type y, Type z )
+  BufferAttributeT &setXYZ(size_t index, Type x, Type y, Type z )
   {
     index *= _itemSize;
 
@@ -314,7 +335,7 @@ public:
     return *this;
   }
 
-  BufferAttributeBase &setXYZW(size_t index, Type x, Type y, Type z, Type w)
+  BufferAttributeT &setXYZW(size_t index, Type x, Type y, Type z, Type w)
   {
     index *= _itemSize;
 

@@ -30,7 +30,7 @@ class Background
 
   Camera::Ptr planeCamera;
   Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::Ptr planeMesh;
-  Mesh_T<geometry::BoxBuffer, ShaderMaterial>::Ptr boxMesh;
+  Mesh_T<geometry::buffer::Box, ShaderMaterial>::Ptr boxMesh;
 
   Renderer_impl &renderer;
   State &state;

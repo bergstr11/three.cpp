@@ -21,10 +21,10 @@ struct Face3
   };
 
   Vertex normal;
-  std::array<Vertex, 3> vertexNormals;
+  std::vector<Vertex> vertexNormals;
 
   Color color;
-  std::array<Color, 3> vertexColors;
+  std::vector<Color> vertexColors;
 
   unsigned materialIndex = 0;
 
@@ -35,9 +35,12 @@ struct Face3
   {
   }
 
-  Face3(unsigned a, unsigned b, unsigned c, const std::array<Vertex, 3> normal, const std::array<Color, 3> color, unsigned materialIndex=0) :
-     a(a), b(b), c(c), vertexNormals(normal), vertexColors(color), materialIndex(materialIndex)
+  Face3(unsigned a, unsigned b, unsigned c,
+        const std::array<Vertex, 3> normal, const std::array<Color, 3> color, unsigned materialIndex=0) :
+     a(a), b(b), c(c), materialIndex(materialIndex)
   {
+    vertexNormals.insert(vertexNormals.begin(), normal.cbegin(), normal.cend());
+    vertexColors.insert(vertexColors.begin(), color.cbegin(), color.cend());
   }
 };
 

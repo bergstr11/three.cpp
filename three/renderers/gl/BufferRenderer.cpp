@@ -28,7 +28,7 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
        "BufferRenderer: using InstancedBufferGeometry but hardware does not support ANGLE_instanced_arrays");
   }
 
-  BufferAttributeBase<float>::Ptr position = geometry->position();
+  BufferAttributeT<float>::Ptr position = geometry->position();
 
   bufferattribute::Dispatch dispatch;
   dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {

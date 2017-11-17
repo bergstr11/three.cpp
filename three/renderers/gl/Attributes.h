@@ -19,7 +19,7 @@ class Attributes
   std::unordered_map<sole::uuid, Buffer> _buffers;
 
   template <typename T>
-  void createBuffer(Buffer &buffer, const BufferAttributeBase<T> &attribute, BufferType bufferType)
+  void createBuffer(Buffer &buffer, const BufferAttributeT<T> &attribute, BufferType bufferType)
   {
     const std::vector<T> &array = attribute.array();
     GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
@@ -29,7 +29,7 @@ class Attributes
     _fn->glBindBuffer((GLenum)bufferType, buffer.buf);
     _fn->glBufferData((GLenum)bufferType, array.size(), array.data(), usage);
 
-    const_cast<BufferAttributeBase<T> &>(attribute).onUpload.emitSignal(attribute);
+    const_cast<BufferAttributeT<T> &>(attribute).onUpload.emitSignal(attribute);
 
     buffer.type = attribute.glType();
 
@@ -41,7 +41,7 @@ public:
   Attributes(QOpenGLFunctions *fn) : _fn(fn) {}
 
   template <typename T>
-  void updateBuffer(const Buffer &buffer, BufferAttributeBase<T> &attribute, BufferType bufferType)
+  void updateBuffer(const Buffer &buffer, BufferAttributeT<T> &attribute, BufferType bufferType)
   {
     UpdateRange &updateRange = attribute.updateRange();
 
@@ -69,7 +69,7 @@ public:
   }
 
   template <typename T>
-  const Buffer &get(const BufferAttributeBase<T> &attribute ) {
+  const Buffer &get(const BufferAttributeT<T> &attribute ) {
 
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 
@@ -77,7 +77,7 @@ public:
   }
 
   template <typename T>
-  void remove(const BufferAttributeBase<T> &attribute)
+  void remove(const BufferAttributeT<T> &attribute)
   {
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 
@@ -92,7 +92,7 @@ public:
   }
 
   template <typename T>
-  void update(BufferAttributeBase<T> &attribute, BufferType bufferType)
+  void update(BufferAttributeT<T> &attribute, BufferType bufferType)
   {
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 

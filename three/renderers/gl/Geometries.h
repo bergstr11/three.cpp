@@ -22,7 +22,7 @@ class Geometries
     BufferGeometry::OnDispose::ConnectionId connectionId;
   };
   std::unordered_map<unsigned, GeometryInfo> geometries;
-  std::unordered_map<unsigned, BufferAttributeBase<uint32_t>::Ptr> wireframeAttributes;
+  std::unordered_map<unsigned, BufferAttributeT<uint32_t>::Ptr> wireframeAttributes;
 
   unsigned geometryCount = 0;
 
@@ -102,17 +102,17 @@ public:
 
     // morph targets
 
-    for (BufferAttributeBase<float>::Ptr pos : buffergeometry->morphPositions()) {
+    for (BufferAttributeT<float>::Ptr pos : buffergeometry->morphPositions()) {
       _attributes.update(*pos, BufferType::Array);
     }
-    for (BufferAttributeBase<float>::Ptr normal : buffergeometry->morphNormals()) {
+    for (BufferAttributeT<float>::Ptr normal : buffergeometry->morphNormals()) {
       _attributes.update(*normal, BufferType::Array);
     }
   }
 
-  BufferAttributeBase<uint32_t>::Ptr getWireframeAttribute(const BufferGeometry::Ptr geometry)
+  BufferAttributeT<uint32_t>::Ptr getWireframeAttribute(const BufferGeometry::Ptr geometry)
   {
-    BufferAttributeBase<uint32_t>::Ptr attribute = wireframeAttributes[ geometry->id ];
+    BufferAttributeT<uint32_t>::Ptr attribute = wireframeAttributes[ geometry->id ];
 
     if ( attribute ) return attribute;
 
@@ -155,7 +155,7 @@ public:
       }
     }
 
-    attribute = BufferAttributeBase<uint32_t>::make(indices, 1);
+    attribute = BufferAttributeT<uint32_t>::make(indices, 1);
 
     _attributes.update(*attribute, BufferType::ElementArray);
 

@@ -1,23 +1,19 @@
 //
-// Created by byter on 19.10.17.
+// Created by byter on 11/17/17.
 //
 
-#ifndef THREE_QT_UNIFORMVALUE_H
-#define THREE_QT_UNIFORMVALUE_H
+#ifndef THREE_QT_SHADER_H
+#define THREE_QT_SHADER_H
 
-#include <math/Vector2.h>
-#include <math/Vector3.h>
-#include <math/Vector4.h>
-#include <math/Matrix3.h>
-#include <math/Matrix4.h>
-#include <core/Color.h>
-#include <textures/CubeTexture.h>
-#include <unordered_map>
-#include <initializer_list>
+#include <string>
 #include <renderers/gl/shader/ShaderLib.h>
 
 namespace three {
 
+/**
+ * represents a OpenGL shader program. This class is only defined at the non-renderer level to
+ * accomodate the needs of ShaderMaterial
+ */
 class Shader
 {
 protected:
@@ -47,4 +43,4 @@ public:
 
 }
 
-#endif //THREE_QT_UNIFORMVALUE_H
+#endif //THREE_QT_SHADER_H

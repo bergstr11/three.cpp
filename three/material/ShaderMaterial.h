@@ -6,7 +6,7 @@
 #define THREE_QT_SHADERMATERIAL_H
 
 #include "Material.h"
-#include <helper/Shader.h>
+#include "Shader.h"
 
 namespace three {
 

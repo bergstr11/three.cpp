@@ -71,8 +71,8 @@ inline math::Vector2 uvIntersection(const math::Vector3 &point, const math::Vect
 inline bool checkBufferGeometryIntersection(const Object3D &object,
                                             const Raycaster &raycaster,
                                             const math::Ray &ray,
-                                            const BufferAttributeBase<float>::Ptr &position,
-                                            const BufferAttributeBase<float>::Ptr &uv,
+                                            const BufferAttributeT<float>::Ptr &position,
+                                            const BufferAttributeT<float>::Ptr &uv,
                                             unsigned a, unsigned b, unsigned c,
                                             math::Vector3 &intersectionPoint,
                                             Intersection &intersection)

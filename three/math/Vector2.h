@@ -9,12 +9,12 @@
 #include <algorithm>
 #include <cmath>
 
-#include <helper/UV.h>
+#include <helper/Types.h>
 
 namespace three {
 
 template<typename T>
-class BufferAttributeBase;
+class BufferAttributeT;
 
 namespace math {
 
@@ -38,7 +38,7 @@ public:
 
   Vector2(float scalar) : _x(scalar), _y(scalar) {}
 
-  static Vector2 fromBufferAttribute(const BufferAttributeBase<float> &attribute, unsigned index);
+  static Vector2 fromBufferAttribute(const BufferAttributeT<float> &attribute, unsigned index);
 
   const float x() const { return _x; }
   const float y() const { return _y; }

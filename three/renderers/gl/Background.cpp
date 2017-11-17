@@ -30,12 +30,12 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     }
     if (!boxMesh) {
 
-      geometry::BoxBuffer::Ptr box = geometry::BoxBuffer::make(1, 1, 1);
+      geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(1, 1, 1);
       ShaderInfo si = shaderlib::get(ShaderID::cube);
       ShaderMaterial::Ptr sm = ShaderMaterial::make(
          si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
 
-      boxMesh = Mesh_T<geometry::BoxBuffer, ShaderMaterial>::make(box, sm);
+      boxMesh = Mesh_T<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
 
       box->setNormal(nullptr);
       box->setUV(nullptr);

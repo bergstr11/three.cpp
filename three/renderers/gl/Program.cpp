@@ -604,32 +604,6 @@ Program::Program(Renderer_impl &renderer,
   _renderer.glDeleteShader( glFragmentShader );
 }
 
-#if 0
-// set up caching for uniform locations
-this.getUniforms = function () {
-
-  if ( cachedUniforms === undefined ) {
-
-    cachedUniforms = new WebGLUniforms( gl, program, renderer );
-
-  }
-
-  return cachedUniforms;
-}
-
-// set up caching for attribute locations
-this.getAttributes = function () {
-
-  if ( cachedAttributes === undefined ) {
-
-    cachedAttributes = fetchAttributeLocations( gl, program );
-
-  }
-
-  return cachedAttributes;
-}
-#endif
-
 Uniforms::Ptr Program::getUniforms()
 {
   if (_cachedUniforms == nullptr) {

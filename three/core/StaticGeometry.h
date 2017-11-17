@@ -15,7 +15,7 @@
 
 #include <math/Vector4.h>
 #include <math/Matrix3.h>
-#include <helper/UV.h>
+#include <helper/Types.h>
 
 #include "BufferGeometry.h"
 #include "Geometry.h"
@@ -37,12 +37,13 @@ struct MorphNormal {
 
 class StaticGeometry : public Geometry
 {
+  friend class DirectGeometry;
+
   std::vector<Vertex> _vertices;
   std::vector<Color> _colors; // one-to-one vertex colors, used in ParticleSystem, Line and Ribbon
 
   std::vector<Face3> _faces;
 
-  using UV_Array = std::array<UV, 3>;
   std::array<std::vector<UV_Array>, 2> _faceVertexUvs;
 
   std::vector<MorphTarget> _morphTargets;
@@ -125,12 +126,13 @@ class StaticGeometry : public Geometry
     //_normalsNeedUpdate = !_faces.empty();
   }
 
+protected:
+  StaticGeometry() {}
+
 public:
   using Ptr = std::shared_ptr<StaticGeometry>;
 
-  StaticGeometry() {
-
-  }
+  void toBufferGeometry(BufferGeometry &geometry) override;
 
   bool useMorphing() const override
   {
@@ -431,8 +433,8 @@ public:
 	}
 
   void addFacre(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
-               const BufferAttributeBase<float>::Ptr &normals, const BufferAttributeBase<float>::Ptr &uvs,
-               const BufferAttributeBase<float>::Ptr &uv2s,
+               const BufferAttributeT<float>::Ptr &normals, const BufferAttributeT<float>::Ptr &uvs,
+               const BufferAttributeT<float>::Ptr &uv2s,
                const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,
                const std::vector<UV> &tempUVs2)
   {
@@ -444,11 +446,11 @@ public:
     std::vector<UV> tempUVs;
     std::vector<UV> tempUVs2;
 
-    const BufferAttributeBase<float>::Ptr &positions = geometry.position();
-    const BufferAttributeBase<float>::Ptr &normals = geometry.normal();
-    const BufferAttributeBase<float>::Ptr &colors = geometry.color();
-    const BufferAttributeBase<float>::Ptr &uvs = geometry.uv();
-    const BufferAttributeBase<float>::Ptr &uv2s = geometry.uv2();
+    const BufferAttributeT<float>::Ptr &positions = geometry.position();
+    const BufferAttributeT<float>::Ptr &normals = geometry.normal();
+    const BufferAttributeT<float>::Ptr &colors = geometry.color();
+    const BufferAttributeT<float>::Ptr &uvs = geometry.uv();
+    const BufferAttributeT<float>::Ptr &uv2s = geometry.uv2();
 
     for(size_t i = 0, j = 0; i < positions->size(); i += 3, j += 2 ) {
 
@@ -492,7 +494,7 @@ public:
       }
     };
 
-    const BufferAttributeBase<uint32_t>::Ptr &indices = geometry.index();
+    const BufferAttributeT<uint32_t>::Ptr &indices = geometry.index();
 
     if (geometry.groups().size() > 0 ) {
 

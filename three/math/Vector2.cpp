@@ -8,7 +8,7 @@
 namespace three {
 namespace math {
 
-Vector2 Vector2::fromBufferAttribute(const BufferAttributeBase<float> &attribute, unsigned index)
+Vector2 Vector2::fromBufferAttribute(const BufferAttributeT<float> &attribute, unsigned index)
 {
   return Vector2(attribute.get_x( index ), attribute.get_y( index ));
 }

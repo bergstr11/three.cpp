@@ -440,7 +440,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     updateBuffers = true;
   }
 
-  BufferAttributeBase<uint32_t>::Ptr index;
+  BufferAttributeT<uint32_t>::Ptr index;
   unsigned rangeFactor = 1;
   BufferRenderer *renderer;
 

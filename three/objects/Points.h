@@ -13,6 +13,8 @@ class Points : public Object3D
 {
   Points() : Object3D(object::ResolverT<Points>::make(*this)) {}
 public:
+  using Ptr = std::shared_ptr<Points>;
+
   bool renderable() const override {return true;}
 };
 

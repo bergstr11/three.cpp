@@ -5,6 +5,8 @@
 #include <vector>
 #include <objects/Mesh.h>
 #include <objects/Line.h>
+#include <geometry/Box.h>
+#include <geometry/Plane.h>
 
 #include "BufferGeometry.h"
 #include "impl/raycast.h"
@@ -14,7 +16,8 @@ namespace three {
 using namespace math;
 using namespace impl;
 
-uint32_t Geometry::id_count = 0;
+size_t Geometry::id_count = 0;
+size_t BufferGeometry::MaxIndex = 65535;
 
 void StaticGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
@@ -83,6 +86,40 @@ void StaticGeometry::raycast(const Mesh &mesh,
   }
 }
 
+void StaticGeometry::raycast(const Line &line,
+                             const Raycaster &raycaster,
+                             const math::Ray &ray,
+                             std::vector<Intersection> &intersects)
+{
+  Vector3 interSegment;
+  Vector3 interRay;
+  unsigned step = line.steps();
+
+  float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
+
+  for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
+
+    float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
+
+    if (distSq > precisionSq) continue;
+
+    interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
+
+    float distance = raycaster.ray().origin().distanceTo(interRay);
+
+    if (distance < raycaster.near() || distance > raycaster.far()) continue;
+
+    intersects.emplace_back();
+    Intersection &intersect = intersects.back();
+    intersect.distance = distance;
+    // What do we want? intersection point on the ray or on the segment??
+    // point: raycaster.ray.at( distance ),
+    intersect.point = interSegment.apply(line.matrixWorld());
+    intersect.index = i;
+    intersect.object = &line;
+  }
+}
+
 void BufferGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
@@ -128,40 +165,6 @@ void BufferGeometry::raycast(const Mesh &mesh,
       }
       else intersects.pop_back();
     }
-  }
-}
-
-void StaticGeometry::raycast(const Line &line,
-             const Raycaster &raycaster,
-                             const math::Ray &ray,
-             std::vector<Intersection> &intersects)
-{
-  Vector3 interSegment;
-  Vector3 interRay;
-  unsigned step = line.steps();
-
-  float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
-
-  for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
-
-    float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
-
-    if (distSq > precisionSq) continue;
-
-    interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
-
-    float distance = raycaster.ray().origin().distanceTo(interRay);
-
-    if (distance < raycaster.near() || distance > raycaster.far()) continue;
-
-    intersects.emplace_back();
-    Intersection &intersect = intersects.back();
-    intersect.distance = distance;
-    // What do we want? intersection point on the ray or on the segment??
-    // point: raycaster.ray.at( distance ),
-    intersect.point = interSegment.apply(line.matrixWorld());
-    intersect.index = i;
-    intersect.object = &line;
   }
 }
 
@@ -234,6 +237,167 @@ void BufferGeometry::raycast(const Line &line,
          intersection.object = &line;
     }
   }
+}
+
+BufferGeometry::BufferGeometry(Object3D::Ptr object)
+{
+  object->geometry()->toBufferGeometry(*this);
+}
+
+void Geometry::toBufferGeometry(BufferGeometry &geometry)
+{
+
+}
+
+void three::geometry::Plane::toBufferGeometry(BufferGeometry &geometry)
+{
+  StaticGeometry::toBufferGeometry(geometry);
+}
+
+void three::geometry::Box::toBufferGeometry(BufferGeometry &geometry)
+{
+  StaticGeometry::toBufferGeometry(geometry);
+}
+
+void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
+{
+  BufferAttributeT<float>::Ptr positions = BufferAttributeT<float>::make(_vertices);
+  BufferAttributeT<float>::Ptr colors = BufferAttributeT<float>::make(_colors);
+
+  geometry.addAttribute(AttributeName::position, positions);
+  geometry.addAttribute(AttributeName::color, colors);
+
+  geometry.boundingSphere() = _boundingSphere;
+  geometry.boundingBox() = _boundingBox;
+
+  if (_lineDistances.size() == _vertices.size()) {
+
+    BufferAttributeT<float>::Ptr lineDistances = BufferAttributeT<float>::make(_lineDistances, 1);
+
+    geometry.addAttribute(AttributeName::lineDistances, lineDistances);
+  }
+}
+
+BufferGeometry &BufferGeometry::update(std::shared_ptr<Object3D> object)
+{
+  Geometry::Ptr geometry = object->geometry();
+
+  if ( object.isMesh ) {
+
+    var direct = geometry.__directGeometry;
+
+    if ( geometry->elementsNeedUpdate === true ) {
+
+      direct = undefined;
+      geometry->elementsNeedUpdate = false;
+    }
+
+    if ( direct === undefined ) {
+
+      return this.fromGeometry( geometry );
+    }
+
+    direct.verticesNeedUpdate = geometry->verticesNeedUpdate;
+    direct.normalsNeedUpdate = geometry->normalsNeedUpdate;
+    direct.colorsNeedUpdate = geometry->colorsNeedUpdate;
+    direct.uvsNeedUpdate = geometry->uvsNeedUpdate;
+    direct.groupsNeedUpdate = geometry->groupsNeedUpdate;
+
+    geometry->verticesNeedUpdate = false;
+    geometry->normalsNeedUpdate = false;
+    geometry->colorsNeedUpdate = false;
+    geometry->uvsNeedUpdate = false;
+    geometry->groupsNeedUpdate = false;
+
+    geometry = direct;
+  }
+
+  var attribute;
+
+  if ( geometry->verticesNeedUpdate === true ) {
+
+    attribute = this.attributes.position;
+
+    if ( attribute !== undefined ) {
+
+      attribute.copyVector3sArray( geometry.vertices );
+      attribute.needsUpdate = true;
+
+    }
+
+    geometry.verticesNeedUpdate = false;
+
+  }
+
+  if ( geometry.normalsNeedUpdate === true ) {
+
+    attribute = this.attributes.normal;
+
+    if ( attribute !== undefined ) {
+
+      attribute.copyVector3sArray( geometry.normals );
+      attribute.needsUpdate = true;
+
+    }
+
+    geometry.normalsNeedUpdate = false;
+
+  }
+
+  if ( geometry.colorsNeedUpdate === true ) {
+
+    attribute = this.attributes.color;
+
+    if ( attribute !== undefined ) {
+
+      attribute.copyColorsArray( geometry.colors );
+      attribute.needsUpdate = true;
+
+    }
+
+    geometry.colorsNeedUpdate = false;
+
+  }
+
+  if ( geometry.uvsNeedUpdate ) {
+
+    attribute = this.attributes.uv;
+
+    if ( attribute !== undefined ) {
+
+      attribute.copyVector2sArray( geometry.uvs );
+      attribute.needsUpdate = true;
+
+    }
+
+    geometry.uvsNeedUpdate = false;
+
+  }
+
+  if ( geometry.lineDistancesNeedUpdate ) {
+
+    attribute = this.attributes.lineDistance;
+
+    if ( attribute !== undefined ) {
+
+      attribute.copyArray( geometry.lineDistances );
+      attribute.needsUpdate = true;
+
+    }
+
+    geometry.lineDistancesNeedUpdate = false;
+
+  }
+
+  if ( geometry.groupsNeedUpdate ) {
+
+    geometry.computeGroups( object.geometry );
+    this.groups = geometry.groups;
+
+    geometry.groupsNeedUpdate = false;
+
+  }
+  return *this;
 }
 
 }

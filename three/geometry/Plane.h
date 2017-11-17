@@ -83,9 +83,9 @@ public:
 
     // build geometry
     setIndex( indices );
-    setPosition(BufferAttributeBase<float>::make(vertices, 3));
-    setNormal(BufferAttributeBase<float>::make(normals, 3));
-    setUV(BufferAttributeBase<float>::make(uvs, 2));
+    setPosition(BufferAttributeT<float>::make(vertices, 3));
+    setNormal(BufferAttributeT<float>::make(normals, 3));
+    setUV(BufferAttributeT<float>::make(uvs, 2));
   }
 
   using Ptr = std::shared_ptr<Plane>;
@@ -111,6 +111,7 @@ public:
   {
     return Ptr(new Plane(width, height, widthSegments, heightSegments));
   }
+  void toBufferGeometry(BufferGeometry &geometry) override;
 };
 
 }

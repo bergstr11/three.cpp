@@ -10,6 +10,7 @@
 #include <math/Sphere.h>
 #include <math/Box3.h>
 #include <helper/simplesignal.h>
+#include <helper/Types.h>
 #include "Raycaster.h"
 
 namespace three {
@@ -18,22 +19,11 @@ class Mesh;
 class Line;
 class Intersection;
 
-using Vertex = math::Vector3;
-
-struct Group {
-  const uint32_t start;
-  const uint32_t count;
-  const uint32_t materialIndex;
-
-  Group(uint32_t start, uint32_t count, uint32_t materialIndex)
-     : start(start), count(count), materialIndex(materialIndex) {}
-
-  Group() : start(0), count(0), materialIndex(0) {}
-};
+class BufferGeometry;
 
 class Geometry
 {
-  static uint32_t id_count;
+  static size_t id_count;
 
 protected:
   math::Box3 _boundingBox;
@@ -46,7 +36,15 @@ protected:
   Geometry() : id(id_count++) {}
 
 public:
-  const uint32_t id;
+  const size_t id;
+
+  bool elementsNeedUpdate = false;
+  bool verticesNeedUpdate = false;
+  bool uvsNeedUpdate = false;
+  bool normalsNeedUpdate = false;
+  bool colorsNeedUpdate = false;
+  bool lineDistancesNeedUpdate = false;
+  bool groupsNeedUpdate = false;
 
   using OnDispose = Signal<void(Geometry *)>;
   OnDispose onDispose;
@@ -54,7 +52,9 @@ public:
   using Ptr = std::shared_ptr<Geometry>;
 
   const math::Box3 &boundingBox() const {return _boundingBox;}
+  math::Box3 &boundingBox() {return _boundingBox;}
   const math::Sphere &boundingSphere() const {return _boundingSphere;}
+  math::Sphere &boundingSphere() {return _boundingSphere;}
 
   virtual Geometry &computeBoundingBox() = 0;
 
@@ -128,6 +128,8 @@ public:
 
     apply(math::Matrix4::rotation(q));
   }
+
+  virtual void toBufferGeometry(BufferGeometry &geometry);
 
   virtual void dispose() {
     onDispose.emitSignal(this);

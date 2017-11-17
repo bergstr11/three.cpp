@@ -14,25 +14,25 @@ namespace three {
 
 class Object3D;
 
-enum class IndexedAttribute
+enum class AttributeName
 {
-  morphTarget, morphNormal
+  morphTarget, morphNormal, color, position, lineDistances
 };
 
 class BufferGeometry : public Geometry
 {
-  BufferAttributeBase<uint32_t>::Ptr _index;
-  BufferAttributeBase<float>::Ptr _position;
-  BufferAttributeBase<float>::Ptr _normal;
-  BufferAttributeBase<float>::Ptr _color;
-  BufferAttributeBase<float>::Ptr _uv;
-  BufferAttributeBase<float>::Ptr _uv2;
+  BufferAttributeT<uint32_t>::Ptr _index;
+  BufferAttributeT<float>::Ptr _position;
+  BufferAttributeT<float>::Ptr _normal;
+  BufferAttributeT<float>::Ptr _color;
+  BufferAttributeT<float>::Ptr _uv;
+  BufferAttributeT<float>::Ptr _uv2;
 
-  std::vector<BufferAttributeBase<float>::Ptr> _morphAttributes_position;
-  std::vector<BufferAttributeBase<float>::Ptr> _morphAttributes_normal;
+  std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_position;
+  std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_normal;
 
-  using IndexedAttributesKey = std::pair<IndexedAttribute, size_t>;
-  std::unordered_map<IndexedAttributesKey, BufferAttributeBase<float>::Ptr, pair_hash> _indexedAttributes;
+  using IndexedAttributesKey = std::pair<AttributeName, size_t>;
+  std::unordered_map<IndexedAttributesKey, BufferAttributeT<float>::Ptr, pair_hash> _indexedAttributes;
 
   UpdateRange _drawRange = {0, std::numeric_limits<int32_t>::infinity()};
 
@@ -92,30 +92,35 @@ public:
 
   const UpdateRange &drawRange() const {return _drawRange;}
 
-  const BufferAttributeBase<uint32_t>::Ptr &index() const {return _index;}
+  const BufferAttributeT<uint32_t>::Ptr &index() const {return _index;}
 
-  BufferAttributeBase<uint32_t>::Ptr &getIndex() {return _index;}
+  BufferAttributeT<uint32_t>::Ptr &getIndex() {return _index;}
 
-  const BufferAttributeBase<float>::Ptr &position() const {return _position;}
+  const BufferAttributeT<float>::Ptr &position() const {return _position;}
 
-  const BufferAttributeBase<float>::Ptr &normal() const {return _normal;}
+  const BufferAttributeT<float>::Ptr &normal() const {return _normal;}
 
-  const BufferAttributeBase<float>::Ptr &color() const {return _color;}
+  const BufferAttributeT<float>::Ptr &color() const {return _color;}
 
-  const BufferAttributeBase<float>::Ptr &uv() const {return _uv;}
+  const BufferAttributeT<float>::Ptr &uv() const {return _uv;}
 
-  const BufferAttributeBase<float>::Ptr &uv2() const {return _uv2;}
+  const BufferAttributeT<float>::Ptr &uv2() const {return _uv2;}
 
-  const std::vector<BufferAttributeBase<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
+  const std::vector<BufferAttributeT<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
 
-  const std::vector<BufferAttributeBase<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
+  const std::vector<BufferAttributeT<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
 
-  void addAttribute(IndexedAttribute attribute, size_t index, BufferAttributeBase<float>::Ptr value) {
+  void addAttribute(AttributeName attribute, size_t index, BufferAttributeT<float>::Ptr value) {
     IndexedAttributesKey key = {attribute, index};
     _indexedAttributes[key] = value;
   }
 
-  void removeAttribute(IndexedAttribute attribute, size_t index) {
+  void addAttribute(AttributeName attribute, BufferAttributeT<float>::Ptr value) {
+    IndexedAttributesKey key = {attribute, 0};
+    _indexedAttributes[key] = value;
+  }
+
+  void removeAttribute(AttributeName attribute, size_t index) {
     _indexedAttributes.erase({attribute, index});
   }
 
@@ -123,34 +128,34 @@ public:
     if(_index)
       _index->set(indices);
     else
-      _index = BufferAttributeBase<uint32_t>::make(indices, 3);
+      _index = BufferAttributeT<uint32_t>::make(indices, 3);
   }
 
-  BufferGeometry &setPosition(const BufferAttributeBase<float>::Ptr &position)
+  BufferGeometry &setPosition(const BufferAttributeT<float>::Ptr &position)
   {
     _position = position;
     return *this;
   }
 
-  BufferGeometry &setNormal(const BufferAttributeBase<float>::Ptr &normal)
+  BufferGeometry &setNormal(const BufferAttributeT<float>::Ptr &normal)
   {
     _normal = normal;
     return *this;
   }
 
-  BufferGeometry &setColor(const BufferAttributeBase<float>::Ptr &color)
+  BufferGeometry &setColor(const BufferAttributeT<float>::Ptr &color)
   {
     _color = color;
     return *this;
   }
 
-  BufferGeometry &setUV(const BufferAttributeBase<float>::Ptr &uv)
+  BufferGeometry &setUV(const BufferAttributeT<float>::Ptr &uv)
   {
     _uv = uv;
     return *this;
   }
 
-  BufferGeometry &setUV2(const BufferAttributeBase<float>::Ptr &uv2)
+  BufferGeometry &setUV2(const BufferAttributeT<float>::Ptr &uv2)
   {
     _uv2 = uv2;
     return *this;

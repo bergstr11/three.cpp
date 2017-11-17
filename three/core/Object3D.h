@@ -13,13 +13,13 @@
 
 #include <helper/sole.h>
 #include <helper/simplesignal.h>
+#include <helper/Types.h>
 #include <math/Euler.h>
 #include <math/Quaternion.h>
 #include <math/Matrix4.h>
 #include <material/Material.h>
 #include <renderers/Resolver.h>
 #include "StaticGeometry.h"
-#include "Layers.h"
 
 namespace three {
 
