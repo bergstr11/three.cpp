@@ -10,9 +10,9 @@ namespace three {
 
 void MeshDistanceMaterial::setupPointLight(const math::Vector3 &position, float near, float far)
 {
-  _referencePosition = position;
-  _nearDistance = near;
-  _farDistance = far;
+  referencePosition = position;
+  nearDistance = near;
+  farDistance = far;
 }
 
 }

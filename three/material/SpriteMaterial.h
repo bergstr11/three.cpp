@@ -21,9 +21,9 @@ namespace three {
  *	uvScale: new THREE.Vector2()
  * }
  */
-class SpriteMaterial : public Material
+class SpriteMaterial : public MaterialT<material::Colored>
 {
-  SpriteMaterial() : Material(material::ResolverT<SpriteMaterial>::make(*this))
+  SpriteMaterial() : MaterialT(material::ResolverT<SpriteMaterial>::make(*this))
   {
     this->morphTargets = false;
     this->morphNormals = false;
@@ -31,8 +31,6 @@ class SpriteMaterial : public Material
   }
 
 public:
-  Color color = {255, 255, 255};
-
   float rotation = 0;
 
   math::Vector2 uvOffset;

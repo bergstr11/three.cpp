@@ -7,6 +7,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <cmath>
 
 namespace three {
 namespace math {
@@ -200,6 +201,55 @@ public:
     r[6] = m[2];
     r[7] = m[5];
     r[8] = m[8];
+  }
+
+  Matrix3 &setUvTransform(float tx, float ty, float sx, float sy, float rotation, float cx, float cy )
+  {
+    float c = std::cos( rotation );
+    float s = std::sin( rotation );
+
+    return set(
+       sx * c, sx * s, - sx * ( c * cx + s * cy ) + cx + tx,
+       - sy * s, sy * c, - sy * ( - s * cx + c * cy ) + cy + ty,
+       0, 0, 1
+    );
+  }
+
+  Matrix3 &scale(float sx, float sy)
+  {
+    _elements[ 0 ] *= sx; _elements[ 3 ] *= sx; _elements[ 6 ] *= sx;
+    _elements[ 1 ] *= sy; _elements[ 4 ] *= sy; _elements[ 7 ] *= sy;
+
+    return *this;
+  }
+
+  Matrix3 &rotate(float theta)
+  {
+    float c = std::cos( theta );
+    float s = std::sin( theta );
+
+    float a11 = _elements[ 0 ], a12 = _elements[ 3 ], a13 = _elements[ 6 ];
+    float a21 = _elements[ 1 ], a22 = _elements[ 4 ], a23 = _elements[ 7 ];
+
+    _elements[ 0 ] = c * a11 + s * a21;
+    _elements[ 3 ] = c * a12 + s * a22;
+    _elements[ 6 ] = c * a13 + s * a23;
+
+    _elements[ 1 ] = - s * a11 + c * a21;
+    _elements[ 4 ] = - s * a12 + c * a22;
+    _elements[ 7 ] = - s * a13 + c * a23;
+
+    return *this;
+  }
+
+  Matrix3 &translate(float tx, float ty)
+  {
+    float *te = _elements;
+
+    te[ 0 ] += tx * te[ 2 ]; te[ 3 ] += tx * te[ 5 ]; te[ 6 ] += tx * te[ 8 ];
+    te[ 1 ] += ty * te[ 2 ]; te[ 4 ] += ty * te[ 5 ]; te[ 7 ] += ty * te[ 8 ];
+
+    return *this;
   }
 
   bool operator==(const Matrix3 &matrix)

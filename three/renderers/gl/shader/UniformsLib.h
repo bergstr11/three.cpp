@@ -42,6 +42,7 @@ enum class UniformName
   diffuse,
   emissive,
   specular,
+  shininess,
   projectionMatrix,
   viewMatrix,
   modelViewMatrix,
@@ -79,6 +80,8 @@ enum class UniformName
   gradientMap,
   roughness,
   metalness,
+  clearCoat,
+  clearCoatRoughness,
   envMapIntensity,
   fogDensity,
   fogNear,
@@ -148,8 +151,11 @@ struct UniformValue
   template <typename T>
   UniformValue &operator = (T t);
 
+  template <typename T>
+  T &get();
+
   virtual Ptr clone() const = 0;
-  virtual void setValue(std::shared_ptr<Uniform> uniform) = 0;
+  virtual void applyValue(std::shared_ptr<Uniform> uniform) = 0;
 };
 
 template<typename T>
@@ -166,9 +172,9 @@ template<> struct UniformValueT<Cls> : public UniformValue \
   Ptr clone() const override { \
     return Ptr(new UniformValueT(id, value)); \
   } \
-  void setValue(std::shared_ptr<Uniform> uniform) override; \
+  void applyValue(std::shared_ptr<Uniform> uniform) override; \
 }; \
-inline void UniformValueT<Cls>::setValue(std::shared_ptr<Uniform> uniform)
+inline void UniformValueT<Cls>::applyValue(std::shared_ptr<Uniform> uniform)
 
 UNIFORM_VALUE_T(math::Matrix3) {
 }
@@ -177,6 +183,8 @@ UNIFORM_VALUE_T(float) {
 UNIFORM_VALUE_T(Color) {
 }
 UNIFORM_VALUE_T(int) {
+}
+UNIFORM_VALUE_T(unsigned) {
 }
 UNIFORM_VALUE_T(Texture::Ptr) {
 }
@@ -246,6 +254,12 @@ UniformValue &UniformValue::operator = (T t) {
   UniformValueT<T> &ut = dynamic_cast<UniformValueT<T> &>(*this);
   ut = t;
   return *this;
+}
+
+template <typename T>
+T &UniformValue::get() {
+  UniformValueT<T> &ut = dynamic_cast<UniformValueT<T> &>(*this);
+  return ut.value;
 }
 
 template<typename T>

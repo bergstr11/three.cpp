@@ -49,6 +49,7 @@ namespace three {
  */
 
 struct MeshLambertMaterial : public MaterialT<
+   material::Colored,
    material::AoMap,
    material::LightMap,
    material::EmissiveMap,
@@ -56,8 +57,6 @@ struct MeshLambertMaterial : public MaterialT<
    material::SpecularMap,
    material::AlphaMap>
 {
-  Color color = 0xffffff; // diffuse
-
   MeshLambertMaterial() : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
 
 public:

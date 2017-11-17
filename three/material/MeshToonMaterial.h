@@ -31,6 +31,7 @@ public:
     return Ptr(new MeshToonMaterial());
   }
 };
+
 }
 
 #endif //THREE_QT_MESHTOONMATERIAL_H

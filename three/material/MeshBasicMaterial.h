@@ -45,10 +45,13 @@ namespace three {
  * }
  */
 struct MeshBasicMaterial : public MaterialT<
-   material::LightMap, material::AoMap, material::EnvMap, material::AlphaMap, material::SpecularMap>
+   material::Colored,
+   material::LightMap,
+   material::AoMap,
+   material::EnvMap,
+   material::AlphaMap,
+   material::SpecularMap>
 {
-  Color color {0xffffff}; // emissive
-
 private:
   MeshBasicMaterial(bool morphTargets, bool skinning)
   {

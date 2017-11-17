@@ -15,6 +15,7 @@
 #include <material/MeshLambertMaterial.h>
 #include <material/MeshToonMaterial.h>
 #include <material/MeshPhysicalMaterial.h>
+#include <material/PointsMaterial.h>
 
 #include "refresh_uniforms.h"
 
@@ -693,7 +694,7 @@ void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues
     if ( !v.needsUpdate ) {
 
       // note: always updating when .needsUpdate is undefined
-      v.setValue(up);
+      v.applyValue(up);
     }
   }
 }
@@ -914,35 +915,53 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     };
     dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &material) {
       refresh( m_uniforms, material);
+      m_uniforms[UniformName::referencePosition] = material.referencePosition;
+      m_uniforms[UniformName::nearDistance] = material.nearDistance;
+      m_uniforms[UniformName::farDistance] = material.farDistance;
     };
     dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &material) {
-      //refresh( m_uniforms, material);
+      refresh( m_uniforms, material);
     };
     dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &material) {
-      //refresh( m_uniforms, material );
+      refresh( m_uniforms, material );
+      m_uniforms[UniformName::dashSize] = material.dashSize;
+      m_uniforms[UniformName::totalSize] = material.dashSize + material.gapSize;
+      m_uniforms[UniformName::scale] = material.scale;
     };
     dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
       refresh( m_uniforms, material);
+      m_uniforms[UniformName::roughness] = material.roughness;
+      m_uniforms[UniformName::metalness] = material.metalness;
     };
     dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
       refresh( m_uniforms, material);
     };
     dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
       refresh( m_uniforms, material );
+      m_uniforms[UniformName::specular] = material.specular;
+      m_uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     };
     dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
       refresh( m_uniforms, material );
+      m_uniforms[UniformName::specular] = material.specular;
+      m_uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     };
     dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
       refresh( m_uniforms, material );
+      m_uniforms[UniformName::roughness] = material.roughness;
+      m_uniforms[UniformName::metalness] = material.metalness;
+      m_uniforms[UniformName::clearCoat] = material.clearCoat;
+      m_uniforms[UniformName::clearCoatRoughness] = material.clearCoatRoughness;
     };
     dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &material) {
       refresh( m_uniforms, material );
     };
-    /* TODO implement classes
-    dispatch.func<PointsMaterial>() = [&] (PointsMaterial &pm) {
-      refreshUniformsPoints( m_uniforms, material );
+    dispatch.func<PointsMaterial>() = [&] (PointsMaterial &material) {
+      refresh( m_uniforms, material );
+      m_uniforms[UniformName::size] = material.size * _pixelRatio;
+      m_uniforms[UniformName::scale] = _height * 0.5f;
     };
+    /* TODO implement classes
     dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &sm) {
       m_uniforms->color.value = material.color;
       m_uniforms->opacity.value = material.opacity;

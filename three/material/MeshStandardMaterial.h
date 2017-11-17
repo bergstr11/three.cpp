@@ -62,6 +62,7 @@ namespace three {
  */
 
 struct MeshStandardMaterial : public MaterialT<
+   material::Colored,
    material::LightMap,
    material::AoMap,
    material::EmissiveMap,
@@ -73,7 +74,6 @@ struct MeshStandardMaterial : public MaterialT<
 {
   std::unordered_map<std::string, std::string> defines {{ "STANDARD", "" }};
 
-  Color color = 0xffffff; // diffuse
   float roughness = 0.5;
   float metalness = 0.5;
 

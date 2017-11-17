@@ -19,6 +19,11 @@ class Camera;
 
 namespace material {
 
+struct Colored {
+  Color color {0xffffff};
+  float opacity = 1;
+};
+
 struct LightMap
 {
   Texture::Ptr lightMap;
@@ -90,7 +95,6 @@ struct Material
   bool flatShading = false;
   Colors vertexColors = Colors::None;
 
-  float opacity = 1;
   bool transparent = false;
 
   BlendFunc blendSrc = BlendFunc::SrcAlpha;
@@ -163,8 +167,19 @@ template <typename ... Maps>
 struct MaterialT;
 
 template<typename Map>
-struct MaterialT<Map> : public Map
+struct MaterialT<Map> : public Material, public Map
 {
+protected:
+  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
+  MaterialT() : Material() {}
+};
+
+template<>
+struct MaterialT<> : public Material
+{
+protected:
+  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
+  MaterialT() : Material() {}
 };
 
 template<typename Map, typename ... Maps>

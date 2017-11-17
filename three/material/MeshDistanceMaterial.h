@@ -37,10 +37,6 @@ class MeshDistanceMaterial : public MaterialT<
    material::DisplacementMap,
    material::AlphaMap>
 {
-  math::Vector3 _referencePosition;
-  float _nearDistance = 1;
-  float _farDistance = 1000;
-
   MeshDistanceMaterial(bool morphing, bool skinning)
      : MaterialT(material::ResolverT<MeshDistanceMaterial>::make(*this))
   {
@@ -50,6 +46,10 @@ class MeshDistanceMaterial : public MaterialT<
   }
 
 public:
+  math::Vector3 referencePosition;
+  float nearDistance = 1;
+  float farDistance = 1000;
+
   using Ptr = std::shared_ptr<MeshDistanceMaterial>;
   static Ptr make(bool morphing, bool skinning) {return Ptr(new MeshDistanceMaterial(morphing, skinning));}
 

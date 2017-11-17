@@ -23,15 +23,13 @@ namespace three {
  *  linejoin: "round"
  * }
  */
-class LineBasicMaterial : public Material
+class LineBasicMaterial : public MaterialT<material::Colored>
 {
 protected:
-  LineBasicMaterial() : Material(material::ResolverT<LineBasicMaterial>::make(*this)) {}
-  LineBasicMaterial(material::Resolver::Ptr resolver) : Material(resolver) {}
+  LineBasicMaterial() : MaterialT(material::ResolverT<LineBasicMaterial>::make(*this)) {}
+  LineBasicMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
 
 public:
-  Color color = {255, 2555, 255};
-
   unsigned linewidth = 1;
   LineCap linecap = LineCap::round;
   LineJoin linejoin = LineJoin::round;

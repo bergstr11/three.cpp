@@ -410,6 +410,7 @@ PUT_FUNC_TABLE(Dispatch, MeshBasicMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshNormalMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshPhysicalMaterial)
 PUT_FUNC_TABLE(Dispatch, MeshToonMaterial)
+PUT_FUNC_TABLE(Dispatch, PointsMaterial)
 PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
 
 DEF_VALUE_TABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)

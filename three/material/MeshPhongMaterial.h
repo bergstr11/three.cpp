@@ -61,6 +61,7 @@ namespace three {
  */
 
 struct MeshPhongMaterial : public MaterialT<
+   material::Colored,
    material::LightMap,
    material::AoMap,
    material::EmissiveMap,
@@ -71,7 +72,6 @@ struct MeshPhongMaterial : public MaterialT<
    material::AlphaMap,
    material::EnvMap>
 {
-  Color color = 0xffffff; // diffuse
   Color specular = 0x111111;
   float shininess = 30;
 

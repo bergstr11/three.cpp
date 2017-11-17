@@ -7,6 +7,7 @@
 
 #include <QImage>
 #include <math/Vector2.h>
+#include <math/Matrix3.h>
 #include <vector>
 #include <memory>
 #include <Constants.h>
@@ -64,6 +65,11 @@ private:
 
   math::Vector2 _offset {0.0f, 0.0f};
   math::Vector2 _repeat {1.0f, 1.0f};
+  math::Vector2 _center {0.0f, 0.0f};
+  float _rotation = 0;
+
+  bool _matrixAutoUpdate = true;
+  math::Matrix3 _matrix;
 
   bool _premultiplyAlpha = false;
 
@@ -89,6 +95,13 @@ public:
 
   const math::Vector2 &offset() const {return _offset;}
   const math::Vector2 &repeat() const {return _repeat;}
+  const math::Vector2 &center() const {return _center;}
+  float rotation() const {return _rotation;}
+
+  bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
+
+  const math::Matrix3 &matrix() const {return _matrix;}
+  math::Matrix3 &matrix() {return _matrix;}
 
   unsigned version() const {return _version;}
 
