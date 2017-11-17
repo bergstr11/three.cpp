@@ -321,10 +321,10 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
       oldFogType = fogType;
     }
 
-    if (material->map()) {
+    if (material->map) {
 
-      _r.glUniform2f( _data->uvOffset, material->map()->offset().x(), material->map()->offset().y());
-      _r.glUniform2f( _data->uvScale, material->map()->repeat().x(), material->map()->repeat().y());
+      _r.glUniform2f( _data->uvOffset, material->map->offset().x(), material->map->offset().y());
+      _r.glUniform2f( _data->uvScale, material->map->repeat().x(), material->map->repeat().y());
 
     } else {
 
@@ -334,9 +334,9 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
     }
 
     _r.glUniform1f( _data->opacity, material->opacity);
-    _r.glUniform3f( _data->color, material->color().r, material->color().g, material->color().b );
+    _r.glUniform3f( _data->color, material->color.r, material->color.g, material->color.b );
 
-    _r.glUniform1f( _data->rotation, material->rotation() );
+    _r.glUniform1f( _data->rotation, material->rotation );
     _r.glUniform2fv(_data->scale, 1, scale);
 
     _state.setBlending( material->blending, material->blendEquation, material->blendSrc, material->blendDst,
@@ -346,8 +346,8 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
     _state.depthBuffer.setMask( material->depthWrite );
     _state.colorBuffer.setMask( material->colorWrite );
 
-    if(material->map())
-      _textures.setTexture2D(material->map(), 0);
+    if(material->map)
+      _textures.setTexture2D(material->map, 0);
     else if(_texture)
     _textures.setTexture2D( _texture, 0 );
 

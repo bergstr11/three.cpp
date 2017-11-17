@@ -9,30 +9,41 @@
 
 namespace three {
 
+/**
+ * @author alteredq / http://alteredqualia.com/
+ *
+ * parameters = {
+ *  color: <hex>,
+ *  opacity: <float>,
+ *  map: new THREE.Texture( <Image> ),
+ *
+ *	uvOffset: new THREE.Vector2(),
+ *	uvScale: new THREE.Vector2()
+ * }
+ */
 class SpriteMaterial : public Material
 {
-  Color _color = {255, 255, 255};
-  Texture::Ptr _map = nullptr;
-
-  float _rotation = 0;
-
   SpriteMaterial() : Material(material::ResolverT<SpriteMaterial>::make(*this))
   {
     this->morphTargets = false;
     this->morphNormals = false;
     this->skinning = false;
   }
+
 public:
+  Color color = {255, 255, 255};
+
+  float rotation = 0;
+
+  math::Vector2 uvOffset;
+  math::Vector2 uvScale;
+
   using Ptr = std::shared_ptr<SpriteMaterial>;
   static Ptr make() {return Ptr(new SpriteMaterial());}
 
   bool fog = false;
   bool lights = false;
   
-  const Color &color() const {return _color;}
-  const Texture::Ptr map() const {return _map;}
-
-  float rotation() const {return _rotation;}
 };
 }
 #endif //THREE_QT_SPRITEMATERIAL_H

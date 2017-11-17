@@ -60,47 +60,34 @@ namespace three {
  * }
  */
 
-struct MeshPhongMaterial : public Material
+struct MeshPhongMaterial : public MaterialT<
+   material::LightMap,
+   material::AoMap,
+   material::EmissiveMap,
+   material::BumpMap,
+   material::NormalMap,
+   material::DisplacementMap,
+   material::SpecularMap,
+   material::AlphaMap,
+   material::EnvMap>
 {
   Color color = 0xffffff; // diffuse
   Color specular = 0x111111;
   float shininess = 30;
 
-  Texture::Ptr lightMap;
-  float lightMapIntensity = 1.0;
-
-  Texture::Ptr aoMap;
-  float aoMapIntensity = 1.0;
-
-  Color emissive = 0x000000;
-  float emissiveIntensity = 1.0;
-  Texture::Ptr emissiveMap;
-
-  Texture::Ptr bumpMap;
-  float bumpScale = 1;
-
-  Texture::Ptr normalMap;
-  math::Vector2 normalScale {1, 1};
-
-  Texture::Ptr displacementMap;
-  float displacementScale = 1;
-  float displacementBias = 0;
-
-  Texture::Ptr specularMap;
-
-  Texture::Ptr alphaMap;
-
-  CombineOperation combine = CombineOperation::Multiply;
-  float reflectivity = 1;
-  float refractionRatio = 0.98;
 
 protected:
-  MeshPhongMaterial(material::Resolver::Ptr resolver) : Material(resolver) {}
-  MeshPhongMaterial() : Material(material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+  MeshPhongMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver)
+  {}
+
+  MeshPhongMaterial() : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this))
+  {}
 
 public:
   using Ptr = std::shared_ptr<MeshPhongMaterial>;
-  static Ptr make() {
+
+  static Ptr make()
+  {
     return Ptr(new MeshPhongMaterial());
   }
 };

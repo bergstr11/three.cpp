@@ -44,24 +44,10 @@ namespace three {
  *  morphTargets: <bool>
  * }
  */
-struct MeshBasicMaterial : public Material
+struct MeshBasicMaterial : public MaterialT<
+   material::LightMap, material::AoMap, material::EnvMap, material::AlphaMap, material::SpecularMap>
 {
   Color color {0xffffff}; // emissive
-
-  Texture::Ptr map;
-
-  float lightMapIntensity = 1.0;
-
-  Texture::Ptr aoMap;
-  float aoMapIntensity = 1.0;
-
-  Texture::Ptr specularMap;
-
-  Texture::Ptr alphaMap;
-
-  CombineOperation combine = CombineOperation::Multiply;
-  float reflectivity = 1;
-  float refractionRatio = 0.98;
 
 private:
   MeshBasicMaterial(bool morphTargets, bool skinning)
@@ -70,7 +56,7 @@ private:
     this->skinning = skinning;
   }
 
-  MeshBasicMaterial() : Material(material::ResolverT<MeshBasicMaterial>::make(*this))
+  MeshBasicMaterial() : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this))
   {}
 
 public:

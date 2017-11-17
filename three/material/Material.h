@@ -17,6 +17,66 @@ namespace three {
 
 class Camera;
 
+namespace material {
+
+struct LightMap
+{
+  Texture::Ptr lightMap;
+  float lightMapIntensity = 1.0;
+};
+
+struct EmissiveMap
+{
+  Texture::Ptr emissiveMap;
+  Color emissive = 0x000000;
+  float emissiveIntensity = 1.0;
+};
+
+struct AoMap
+{
+  Texture::Ptr aoMap;
+  float aoMapIntensity = 1.0;
+};
+
+struct EnvMap
+{
+  Texture::Ptr envMap;
+  CombineOperation combine = CombineOperation::Multiply;
+  float reflectivity = 1;
+  float refractionRatio = 0.98;
+};
+
+struct AlphaMap
+{
+  Texture::Ptr alphaMap;
+};
+
+struct SpecularMap
+{
+  Texture::Ptr specularMap;
+};
+
+struct DisplacementMap
+{
+  Texture::Ptr displacementMap;
+  float displacementScale = 1;
+  float displacementBias = 0;
+};
+
+struct BumpMap
+{
+  Texture::Ptr bumpMap;
+  float bumpScale = 1;
+};
+
+struct NormalMap
+{
+  Texture::Ptr normalMap;
+  math::Vector2 normalScale {1, 1};
+};
+
+}
+
 struct Material
 {
   const sole::uuid uuid;
@@ -68,8 +128,6 @@ struct Material
   bool premultipliedAlpha = false;
 
   Texture::Ptr map;
-  Texture::Ptr envMap;
-  Texture::Ptr gradientMap;
 
   bool skinning = false;
   bool morphTargets = false;
@@ -92,11 +150,29 @@ protected:
   Material() : uuid(sole::uuid0()), resolver(material::ResolverT<Material>::make(*this)) {}
 
 public:
+  virtual ~Material() {}
+
   using Ptr = std::shared_ptr<Material>;
 
   virtual void setupPointLight(const math::Vector3 &position, float near, float far)
   {
   }
+};
+
+template <typename ... Maps>
+struct MaterialT;
+
+template<typename Map>
+struct MaterialT<Map> : public Map
+{
+};
+
+template<typename Map, typename ... Maps>
+struct MaterialT<Map, Maps...> : public Material, Map, Maps...
+{
+protected:
+  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
+  MaterialT() : Material() {}
 };
 
 }

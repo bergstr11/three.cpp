@@ -48,30 +48,17 @@ namespace three {
  * }
  */
 
-struct MeshLambertMaterial : public Material
+struct MeshLambertMaterial : public MaterialT<
+   material::AoMap,
+   material::LightMap,
+   material::EmissiveMap,
+   material::EnvMap,
+   material::SpecularMap,
+   material::AlphaMap>
 {
   Color color = 0xffffff; // diffuse
 
-
-  Texture::Ptr lightMap;
-  float lightMapIntensity = 1.0;
-
-  Texture::Ptr aoMap;
-  float aoMapIntensity = 1.0;
-
-  Texture::Ptr emissiveMap;
-  Color emissive = 0x000000;
-  float emissiveIntensity = 1.0;
-
-  Texture::Ptr specularMap;
-
-  Texture::Ptr alphaMap;
-
-  CombineOperation combine = CombineOperation::Multiply;
-  unsigned reflectivity = 1;
-  float refractionRatio = 0.98;
-
-  MeshLambertMaterial() : Material(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
+  MeshLambertMaterial() : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
 
 public:
   using Ptr = std::shared_ptr<MeshLambertMaterial>;

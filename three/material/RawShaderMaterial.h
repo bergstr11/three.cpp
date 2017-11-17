@@ -9,6 +9,9 @@
 
 namespace three {
 
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 class RawShaderMaterial : public ShaderMaterial
 {
   RawShaderMaterial(const gl::UniformValues &uniforms,

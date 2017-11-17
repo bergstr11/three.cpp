@@ -56,7 +56,6 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->outputEncoding = currentRenderTarget->texture() ? currentRenderTarget->texture()->encoding() : Encoding::Linear;
   parameters->map = (bool)material->map;
   parameters->mapEncoding = material->map ? material->map->encoding() : Encoding::Linear;
-  parameters->gradientMap = (bool)material->gradientMap;
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;
@@ -107,6 +106,9 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->emissiveMap = (bool)mat.emissiveMap;
     parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
     parameters->displacementMap = (bool)mat.displacementMap;
+  };
+  dispatch.func<MeshToonMaterial>() = [&parameters] (MeshToonMaterial &mat) {
+    parameters->gradientMap = (bool)mat.gradientMap;
   };
   dispatch.func<MeshStandardMaterial>() = [&parameters] (MeshStandardMaterial &mat) {
     parameters->aoMap = (bool)mat.aoMap;

@@ -61,7 +61,15 @@ namespace three {
  * }
  */
 
-struct MeshStandardMaterial : public Material
+struct MeshStandardMaterial : public MaterialT<
+   material::LightMap,
+   material::AoMap,
+   material::EmissiveMap,
+   material::BumpMap,
+   material::NormalMap,
+   material::DisplacementMap,
+   material::AlphaMap,
+   material::EnvMap>
 {
   std::unordered_map<std::string, std::string> defines {{ "STANDARD", "" }};
 
@@ -69,39 +77,13 @@ struct MeshStandardMaterial : public Material
   float roughness = 0.5;
   float metalness = 0.5;
 
-  Texture::Ptr lightMap;
-  float lightMapIntensity = 1.0;
-
-  Texture::Ptr aoMap;
-  float aoMapIntensity = 1.0;
-
-  Color emissive = 0x000000;
-  float emissiveIntensity = 1.0;
-  Texture::Ptr emissiveMap;
-
-  Texture::Ptr bumpMap;
-  float bumpScale = 1;
-
-  Texture::Ptr normalMap;
-  math::Vector2 normalScale { 1, 1 };
-
-  Texture::Ptr displacementMap;
-  float displacementScale = 1;
-  float displacementBias = 0;
-
   Texture::Ptr roughnessMap;
 
   Texture::Ptr metalnessMap;
 
-  Texture::Ptr alphaMap;
-
-  float envMapIntensity = 1.0;
-
-  float refractionRatio = 0.98;
-
 protected:
-  MeshStandardMaterial(material::Resolver::Ptr resolver) : Material(resolver) {}
-  MeshStandardMaterial() : Material(material::ResolverT<MeshStandardMaterial>::make(*this)) {}
+  MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
+  MeshStandardMaterial() : MaterialT(material::ResolverT<MeshStandardMaterial>::make(*this)) {}
 
 public:
   using Ptr = std::shared_ptr<MeshStandardMaterial>;

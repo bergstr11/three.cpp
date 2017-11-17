@@ -16,6 +16,8 @@
 #include <material/MeshToonMaterial.h>
 #include <material/MeshPhysicalMaterial.h>
 
+#include "refresh_uniforms.h"
+
 namespace three {
 
 using namespace std;
@@ -669,184 +671,6 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
   materialProperties.uniformsList = progUniforms->sequenceUniforms(uniforms);
 }
 
-void refreshUniformsCommon(const UniformValues &uniforms, Material &material)
-{
-#if 0
-  if ( material.map ) {
-
-    uniforms.map.value = material.map;
-
-  }
-
-  if ( material.alphaMap ) {
-
-    uniforms.alphaMap.value = material.alphaMap;
-
-  }
-
-  if ( material.specularMap ) {
-
-    uniforms.specularMap.value = material.specularMap;
-
-  }
-
-  if ( material.envMap ) {
-
-    uniforms.envMap.value = material.envMap;
-
-    // don't flip CubeTexture envMaps, flip everything else:
-    //  WebGLRenderTargetCube will be flipped for backwards compatibility
-    //  WebGLRenderTargetCube.texture will be flipped because it's a Texture and NOT a CubeTexture
-    // this check must be handled differently, or removed entirely, if WebGLRenderTargetCube uses a CubeTexture in the future
-    uniforms.flipEnvMap.value = ( ! ( material.envMap && material.envMap.isCubeTexture ) ) ? 1 : - 1;
-
-    uniforms.reflectivity.value = material.reflectivity;
-    uniforms.refractionRatio.value = material.refractionRatio;
-
-  }
-
-  if ( material.lightMap ) {
-
-    uniforms.lightMap.value = material.lightMap;
-    uniforms.lightMapIntensity.value = material.lightMapIntensity;
-
-  }
-
-  if ( material.aoMap ) {
-
-    uniforms.aoMap.value = material.aoMap;
-    uniforms.aoMapIntensity.value = material.aoMapIntensity;
-
-  }
-
-  // uv repeat and offset setting priorities
-  // 1. color map
-  // 2. specular map
-  // 3. normal map
-  // 4. bump map
-  // 5. alpha map
-  // 6. emissive map
-
-  var uvScaleMap;
-
-  if ( material.map ) {
-
-    uvScaleMap = material.map;
-
-  } else if ( material.specularMap ) {
-
-    uvScaleMap = material.specularMap;
-
-  } else if ( material.displacementMap ) {
-
-    uvScaleMap = material.displacementMap;
-
-  } else if ( material.normalMap ) {
-
-    uvScaleMap = material.normalMap;
-
-  } else if ( material.bumpMap ) {
-
-    uvScaleMap = material.bumpMap;
-
-  } else if ( material.roughnessMap ) {
-
-    uvScaleMap = material.roughnessMap;
-
-  } else if ( material.metalnessMap ) {
-
-    uvScaleMap = material.metalnessMap;
-
-  } else if ( material.alphaMap ) {
-
-    uvScaleMap = material.alphaMap;
-
-  } else if ( material.emissiveMap ) {
-
-    uvScaleMap = material.emissiveMap;
-
-  }
-
-  if ( uvScaleMap !== undefined ) {
-
-    // backwards compatibility
-    if ( uvScaleMap.isWebGLRenderTarget ) {
-
-      uvScaleMap = uvScaleMap.texture;
-
-    }
-
-    if ( uvScaleMap.matrixAutoUpdate === true ) {
-
-      var offset = uvScaleMap.offset;
-      var repeat = uvScaleMap.repeat;
-      var rotation = uvScaleMap.rotation;
-      var center = uvScaleMap.center;
-
-      uvScaleMap.matrix.setUvTransform( offset.x, offset.y, repeat.x, repeat.y, rotation, center.x, center.y );
-
-    }
-
-    uniforms.uvTransform.value.copy( uvScaleMap.matrix );
-
-  }
-#endif
-}
-
-void refreshUniforms(UniformValues &uniforms, MeshBasicMaterial &material)
-{
-  uniforms[UniformName::opacity] = material.opacity;
-
-  uniforms[UniformName::diffuse] = material.color;
-}
-
-void refreshUniforms(UniformValues &uniforms, MeshDepthMaterial &material)
-{
-  uniforms[UniformName::opacity] = material.opacity;
-
-}
-
-void refreshUniforms(UniformValues &uniforms, MeshDistanceMaterial &material)
-{
-  uniforms[UniformName::opacity] = material.opacity;
-
-}
-
-void refreshUniforms(UniformValues &uniforms, MeshStandardMaterial &material)
-{
-  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
-}
-void refreshUniforms(UniformValues &uniforms, MeshLambertMaterial &material )
-{
-  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
-}
-void refreshUniforms(UniformValues &uniforms, MeshPhongMaterial &material )
-{
-  uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
-}
-void refreshUniforms(UniformValues &uniforms, MeshToonMaterial &material )
-{
-
-}
-void refreshUniforms(UniformValues &uniforms, MeshPhysicalMaterial &material )
-{
-
-}
-void refreshUniforms(UniformValues &uniforms, MeshNormalMaterial &material )
-{
-
-}
-
-void refreshUniforms(UniformValues &uniforms, LineBasicMaterial &material)
-{
-  uniforms[UniformName::opacity] = material.opacity;
-  uniforms[UniformName::diffuse] = material.color;
-}
-
-void refreshUniforms(UniformValues &uniforms, LineDashedMaterial &material)
-{
-  refreshUniforms(uniforms, (LineBasicMaterial &)material);
-}
 
 void refreshUniforms(UniformValues &uniforms, Fog &fog)
 {
@@ -982,12 +806,12 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       }
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
+    dispatch.func<MeshLambertMaterial>() = assoc;
+    dispatch.func<MeshBasicMaterial>() = assoc;
     dispatch.func<MeshStandardMaterial>() = assoc;
     dispatch.func<ShaderMaterial>() = assoc;
 
-    if(!material->resolver->material::DispatchResolver::getValue(dispatch) && material->envMap) {
-      assoc(*material.get());
-    }
+    material->resolver->material::DispatchResolver::getValue(dispatch);
 
     assoc = [&] (Material &mat) {
 
@@ -1083,38 +907,37 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     material::Dispatch dispatch;
     dispatch.func<MeshBasicMaterial>() = [&](MeshBasicMaterial &material) {
-      refreshUniformsCommon( m_uniforms, material );
+      refresh( m_uniforms, material );
     };
     dispatch.func<MeshDepthMaterial>() = [&](MeshDepthMaterial &material) {
-      refreshUniforms( m_uniforms, material);
+      refresh( m_uniforms, material);
     };
     dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &material) {
-      refreshUniforms( m_uniforms, material);
+      refresh( m_uniforms, material);
     };
     dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &material) {
-      refreshUniforms( m_uniforms, material);
+      //refresh( m_uniforms, material);
     };
     dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &material) {
-      refreshUniforms( m_uniforms, (LineBasicMaterial &)material );
-      refreshUniforms( m_uniforms, material);
+      //refresh( m_uniforms, material );
     };
     dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
-      refreshUniforms( m_uniforms, material);
+      refresh( m_uniforms, material);
     };
     dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
-      refreshUniforms( m_uniforms, material);
+      refresh( m_uniforms, material);
     };
     dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
-      refreshUniforms( m_uniforms, material );
+      refresh( m_uniforms, material );
     };
     dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
-      refreshUniforms( m_uniforms, material );
+      refresh( m_uniforms, material );
     };
     dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
-      refreshUniforms( m_uniforms, material );
+      refresh( m_uniforms, material );
     };
     dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &material) {
-      refreshUniforms( m_uniforms, material );
+      refresh( m_uniforms, material );
     };
     /* TODO implement classes
     dispatch.func<PointsMaterial>() = [&] (PointsMaterial &pm) {

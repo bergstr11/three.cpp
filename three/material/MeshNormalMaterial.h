@@ -34,20 +34,11 @@ namespace three {
  *  morphNormals: <bool>
  * }
  */
-struct MeshNormalMaterial: public Material
+struct MeshNormalMaterial: public MaterialT<material::DisplacementMap, material::BumpMap, material::NormalMap>
 {
-  Texture::Ptr bumpMap;
-  float bumpScale = 1;
-
-  Texture::Ptr normalMap;
-  math::Vector2 normalScale {1, 1};
-
-  Texture::Ptr displacementMap;
-  float displacementScale = 1;
-  float displacementBias = 0;
 
 protected:
-  MeshNormalMaterial() : Material(material::ResolverT<MeshNormalMaterial>::make(*this))
+  MeshNormalMaterial() : MaterialT(material::ResolverT<MeshNormalMaterial>::make(*this))
   {
     wireframe = false;
     wireframeLineWidth = 1;
