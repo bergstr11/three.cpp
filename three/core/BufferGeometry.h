@@ -27,6 +27,7 @@ class BufferGeometry : public Geometry
   BufferAttributeT<float>::Ptr _color;
   BufferAttributeT<float>::Ptr _uv;
   BufferAttributeT<float>::Ptr _uv2;
+  BufferAttributeT<float>::Ptr _lineDistances;
 
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_position;
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_normal;

@@ -40,9 +40,9 @@ public:
 };
 
 struct Group {
-  const uint32_t start;
+  uint32_t start;
   uint32_t count;
-  const uint32_t materialIndex;
+  uint32_t materialIndex;
 
   Group(uint32_t start, uint32_t count, uint32_t materialIndex)
      : start(start), count(count), materialIndex(materialIndex) {}

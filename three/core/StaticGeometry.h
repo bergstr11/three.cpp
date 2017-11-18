@@ -38,8 +38,10 @@ struct MorphNormal {
 class StaticGeometry : public Geometry
 {
   friend class DirectGeometry;
+  friend class BufferGeometry;
 
   std::vector<Vertex> _vertices;
+  std::vector<Vertex> _normals;
   std::vector<Color> _colors; // one-to-one vertex colors, used in ParticleSystem, Line and Ribbon
 
   std::vector<Face3> _faces;

@@ -20,12 +20,15 @@ class Line;
 class Intersection;
 
 class BufferGeometry;
+class DirectGeometry;
 
 class Geometry
 {
   static size_t id_count;
 
 protected:
+  std::shared_ptr<DirectGeometry> _directGeometry;
+
   math::Box3 _boundingBox;
   math::Sphere _boundingSphere;
 
@@ -37,14 +40,6 @@ protected:
 
 public:
   const size_t id;
-
-  bool elementsNeedUpdate = false;
-  bool verticesNeedUpdate = false;
-  bool uvsNeedUpdate = false;
-  bool normalsNeedUpdate = false;
-  bool colorsNeedUpdate = false;
-  bool lineDistancesNeedUpdate = false;
-  bool groupsNeedUpdate = false;
 
   using OnDispose = Signal<void(Geometry *)>;
   OnDispose onDispose;
@@ -62,14 +57,14 @@ public:
 
   virtual void raycast(const Line &line,
                        const Raycaster &raycaster, const math::Ray &ray,
-                       std::vector<Intersection> &intersects) = 0;
+                       std::vector<Intersection> &intersects) {}
 
   virtual void raycast(const Mesh &mesh,
                        const Raycaster &raycaster,
                        const math::Ray &ray,
                        math::Vector3 &intersectionPoint,
                        math::Vector3 &intersectionPointWorld,
-                       std::vector<Intersection> &intersects) = 0;
+                       std::vector<Intersection> &intersects) {}
 
   virtual bool useMorphing() const = 0;
 

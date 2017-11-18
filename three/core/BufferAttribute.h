@@ -112,11 +112,26 @@ protected:
      _normalized(source._normalized), _dynamic(source._dynamic)
   {}
 
-  BufferAttributeT(const std::vector<Color> &colors)
+  BufferAttributeT(const std::vector<float> &values) : BufferAttributeT(values, 1)
   {
-    size_t offset = 0;
-    _array.resize(colors.size() * 3);
+  }
 
+  BufferAttributeT(const std::vector<UV> &uvs) : BufferAttributeT(2)
+  {
+    _array.resize(uvs.size() * _itemSize);
+
+    size_t offset = 0;
+    for(const UV &uv : uvs) {
+      _array[ offset ++ ] = uv.u();
+      _array[ offset ++ ] = uv.v();
+    }
+  }
+
+  BufferAttributeT(const std::vector<Color> &colors) : BufferAttributeT(3)
+  {
+    _array.resize(colors.size() * _itemSize);
+
+    size_t offset = 0;
     for(const Color &color : colors) {
       _array[ offset ++ ] = color.r;
       _array[ offset ++ ] = color.g;
@@ -124,11 +139,11 @@ protected:
     }
   }
 
-  BufferAttributeT(const std::vector<Index> &indices) : BufferAttributeT(3, false)
+  BufferAttributeT(const std::vector<Index> &indices) : BufferAttributeT(3)
   {
-    unsigned offset = 0;
-    _array.resize(indices.size() * 3);
+    _array.resize(indices.size() * _itemSize);
 
+    size_t offset = 0;
     for (size_t i = 0, l = _array.size(); i < l; i ++ ) {
 
       const Index &index = indices[ i ];
@@ -140,22 +155,22 @@ protected:
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector2> vectors)  : BufferAttributeT(2, false)
+  BufferAttributeT(std::vector<math::Vector2> vectors)  : BufferAttributeT(2)
   {
-    size_t offset = 0;
-    _array.resize(vectors.size() * 2);
+    _array.resize(vectors.size() * _itemSize);
 
+    size_t offset = 0;
     for(const math::Vector2 &vector : vectors) {
       _array[ offset ++ ] = vector.x();
       _array[ offset ++ ] = vector.y();
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector3> vectors) : BufferAttributeT(3, false)
+  BufferAttributeT(std::vector<math::Vector3> vectors) : BufferAttributeT(3)
   {
-    size_t offset = 0;
-    _array.resize(vectors.size() * 3);
+    _array.resize(vectors.size() * _itemSize);
 
+    size_t offset = 0;
     for(const math::Vector3 &vector : vectors) {
       _array[ offset ++ ] = vector.x();
       _array[ offset ++ ] = vector.y();
@@ -163,11 +178,11 @@ protected:
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector4> vectors) : BufferAttributeT(4, false)
+  BufferAttributeT(std::vector<math::Vector4> vectors) : BufferAttributeT(4)
   {
-    size_t offset = 0;
-    _array.resize(vectors.size() * 4);
+    _array.resize(vectors.size() * _itemSize);
 
+    size_t offset = 0;
     for(const math::Vector4 &vector : vectors) {
       _array[ offset ++ ] = vector.x();
       _array[ offset ++ ] = vector.y();
@@ -182,6 +197,16 @@ public:
   static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
   {
     return std::shared_ptr<BufferAttributeT<Type>>(new BufferAttributeT<Type>(array, itemSize, normalized));
+  }
+
+  static Ptr make(const std::vector<float> values)
+  {
+    return Ptr(new BufferAttributeT(values));
+  }
+
+  static Ptr make(const std::vector<UV> uvs)
+  {
+    return Ptr(new BufferAttributeT(uvs));
   }
 
   static Ptr make(const std::vector<Color> colors)

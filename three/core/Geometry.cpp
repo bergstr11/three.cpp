@@ -8,6 +8,7 @@
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 
+#include "DirectGeometry.h"
 #include "BufferGeometry.h"
 #include "impl/raycast.h"
 
@@ -280,122 +281,134 @@ void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
 
 BufferGeometry &BufferGeometry::update(std::shared_ptr<Object3D> object)
 {
-  Geometry::Ptr geometry = object->geometry();
-
-  if ( object.isMesh ) {
-
-    var direct = geometry.__directGeometry;
-
-    if ( geometry->elementsNeedUpdate === true ) {
-
-      direct = undefined;
-      geometry->elementsNeedUpdate = false;
-    }
-
-    if ( direct === undefined ) {
-
-      return this.fromGeometry( geometry );
-    }
-
-    direct.verticesNeedUpdate = geometry->verticesNeedUpdate;
-    direct.normalsNeedUpdate = geometry->normalsNeedUpdate;
-    direct.colorsNeedUpdate = geometry->colorsNeedUpdate;
-    direct.uvsNeedUpdate = geometry->uvsNeedUpdate;
-    direct.groupsNeedUpdate = geometry->groupsNeedUpdate;
-
-    geometry->verticesNeedUpdate = false;
-    geometry->normalsNeedUpdate = false;
-    geometry->colorsNeedUpdate = false;
-    geometry->uvsNeedUpdate = false;
-    geometry->groupsNeedUpdate = false;
-
-    geometry = direct;
+  StaticGeometry::Ptr objectGeometry = std::dynamic_pointer_cast<StaticGeometry>(object->geometry());
+  if(!objectGeometry) {
+    throw std::invalid_argument("not a static geometry. What are you doing here??");
   }
 
-  var attribute;
+  StaticGeometry::Ptr geometry = objectGeometry;
+  Mesh::Ptr mesh = std::dynamic_pointer_cast<Mesh>(object);
+  if ( mesh ) {
 
-  if ( geometry->verticesNeedUpdate === true ) {
+    DirectGeometry::Ptr direct = geometry->_directGeometry;
 
-    attribute = this.attributes.position;
+    if(geometry->_elementsNeedUpdate) {
 
-    if ( attribute !== undefined ) {
-
-      attribute.copyVector3sArray( geometry.vertices );
-      attribute.needsUpdate = true;
-
+      direct = nullptr;
+      geometry->_elementsNeedUpdate = false;
     }
 
-    geometry.verticesNeedUpdate = false;
+    if (!direct) {
 
-  }
-
-  if ( geometry.normalsNeedUpdate === true ) {
-
-    attribute = this.attributes.normal;
-
-    if ( attribute !== undefined ) {
-
-      attribute.copyVector3sArray( geometry.normals );
-      attribute.needsUpdate = true;
-
+      geometry->toBufferGeometry(*this);
+      return *this;
     }
 
-    geometry.normalsNeedUpdate = false;
+    direct->verticesNeedUpdate = geometry->_verticesNeedUpdate;
+    direct->normalsNeedUpdate = geometry->_normalsNeedUpdate;
+    direct->colorsNeedUpdate = geometry->_colorsNeedUpdate;
+    direct->uvsNeedUpdate = geometry->_uvsNeedUpdate;
+    direct->groupsNeedUpdate = geometry->_groupsNeedUpdate;
 
-  }
+    geometry->_verticesNeedUpdate = false;
+    geometry->_normalsNeedUpdate = false;
+    geometry->_colorsNeedUpdate = false;
+    geometry->_uvsNeedUpdate = false;
+    geometry->_groupsNeedUpdate = false;
 
-  if ( geometry.colorsNeedUpdate === true ) {
+    if ( direct->verticesNeedUpdate ) {
 
-    attribute = this.attributes.color;
+      if ( _position ) {
 
-    if ( attribute !== undefined ) {
+        _position = BufferAttributeT<float>::make(direct->vertices);
+        _position->needsUpdate();
+      }
 
-      attribute.copyColorsArray( geometry.colors );
-      attribute.needsUpdate = true;
-
+      direct->verticesNeedUpdate = false;
     }
 
-    geometry.colorsNeedUpdate = false;
+    if (direct->normalsNeedUpdate) {
 
-  }
+      if (_normal) {
 
-  if ( geometry.uvsNeedUpdate ) {
+        _normal = BufferAttributeT<float>::make(direct->normals);
+        _normal->needsUpdate();
+      }
 
-    attribute = this.attributes.uv;
-
-    if ( attribute !== undefined ) {
-
-      attribute.copyVector2sArray( geometry.uvs );
-      attribute.needsUpdate = true;
-
+      direct->normalsNeedUpdate = false;
     }
 
-    geometry.uvsNeedUpdate = false;
+    if (direct->colorsNeedUpdate ) {
 
+      if (_color) {
+
+        _color = BufferAttributeT<float>::make(direct->colors);
+        _color->needsUpdate();
+      }
+
+      direct->colorsNeedUpdate = false;
+    }
+    if (direct->uvsNeedUpdate) {
+
+      if (_uv) {
+
+        _uv = BufferAttributeT<float>::make(direct->uvs);
+        _uv->needsUpdate();
+      }
+
+      direct->uvsNeedUpdate = false;
+    }
+    if ( direct->groupsNeedUpdate && direct) {
+
+      direct->computeGroups( *objectGeometry );
+      _groups = direct->groups;
+
+      direct->groupsNeedUpdate = false;
+    }
   }
+  else {
+    if ( geometry->_verticesNeedUpdate ) {
 
-  if ( geometry.lineDistancesNeedUpdate ) {
+      if ( _position ) {
 
-    attribute = this.attributes.lineDistance;
+        _position = BufferAttributeT<float>::make(geometry->_vertices);
+        _position->needsUpdate();
+      }
 
-    if ( attribute !== undefined ) {
-
-      attribute.copyArray( geometry.lineDistances );
-      attribute.needsUpdate = true;
-
+      geometry->_verticesNeedUpdate = false;
     }
 
-    geometry.lineDistancesNeedUpdate = false;
+    if (geometry->_normalsNeedUpdate) {
 
-  }
+      if (_normal) {
 
-  if ( geometry.groupsNeedUpdate ) {
+        _normal = BufferAttributeT<float>::make(geometry->_normals);
+        _normal->needsUpdate();
+      }
 
-    geometry.computeGroups( object.geometry );
-    this.groups = geometry.groups;
+      geometry->_normalsNeedUpdate = false;
+    }
 
-    geometry.groupsNeedUpdate = false;
+    if (geometry->_colorsNeedUpdate ) {
 
+      if (_color) {
+
+        _color = BufferAttributeT<float>::make(geometry->_colors);
+        _color->needsUpdate();
+      }
+
+      geometry->_colorsNeedUpdate = false;
+    }
+    if (geometry->_lineDistancesNeedUpdate ) {
+
+      if (_lineDistances) {
+
+        _lineDistances = BufferAttributeT<float>::make(geometry->_lineDistances);
+        _lineDistances->needsUpdate();
+      }
+
+      geometry->_lineDistancesNeedUpdate = false;
+    }
   }
   return *this;
 }
