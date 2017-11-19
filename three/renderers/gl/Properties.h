@@ -22,12 +22,14 @@ class Property
   friend class Textures;
   friend class Renderer_impl;
 
-  enum Type {glu, glup, s, f, u} type;
+  enum Type {glu, glup, gli, s, f, b, undefined} type;
   union {
     GLuint gluint_value;
+    GLint glint_value;
     GLuint *gluintp_value;
     std::string string_value;
     float float_value;
+    bool bool_value;
   };
 
   void release()
@@ -35,7 +37,7 @@ class Property
     switch (type) {
       case glup:
         delete[] gluintp_value;
-        type = u;
+        type = undefined;
         break;
       default:
         break;
@@ -43,17 +45,22 @@ class Property
   }
 
 public:
-  explicit Property() : gluint_value(0L), type(u) {}
+  explicit Property() : gluint_value(0L), type(undefined) {}
+  explicit Property(GLint v) : glint_value(v), type(gli) {}
   explicit Property(GLuint v) : gluint_value(v), type(glu) {}
   explicit Property(GLuint *v) : gluintp_value(v), type(glup) {}
   explicit Property(std::string v) : string_value(v), type(s) {}
   explicit Property(float v) : float_value(v), type(f) {}
+  explicit Property(bool v) : bool_value(v), type(b) {}
 
   Property(const Property &prop) : type(prop.type) {
     type = prop.type;
     switch(prop.type) {
       case glu:
         gluint_value = prop.gluint_value;
+        break;
+      case gli:
+        glint_value = prop.glint_value;
         break;
       case glup:
         gluintp_value = prop.gluintp_value;
@@ -65,6 +72,8 @@ public:
       case f:
         float_value = prop.float_value;
         break;
+      case b:
+        bool_value = prop.bool_value;
       default:
         break;
     }
@@ -99,14 +108,33 @@ public:
     release();
     float_value = v; type = f;
   }
+  Property &operator =(bool v) {
+    release();
+    bool_value = v; type = b;
+  }
+  Property &operator =(GLint v) {
+    release();
+    glint_value = v; type = gli;
+  }
 
+  explicit operator GLint () const
+  {
+    switch(type) {
+      case gli:
+        return glint_value;
+      case b:
+        return bool_value ? 1 : 0;
+      default:
+        throw std::logic_error("conversion not supported");
+    }
+  }
   explicit operator GLuint *() const
   {
     switch(type) {
       case glup:
         return gluintp_value;
       default:
-        throw std::logic_error("pointer cannot be cast to ");
+        throw std::logic_error("conversion not supported");
     }
   }
   explicit operator GLuint() const
@@ -118,6 +146,10 @@ public:
         return (GLuint)std::stoul(string_value);
       case f:
         return (GLuint)float_value;
+      case b:
+        return bool_value ? 1 : 0;
+      default:
+        throw std::logic_error("conversion not supported");
     }
   }
   explicit operator std::string() const
@@ -129,6 +161,8 @@ public:
         return string_value;
       case f:
         return std::to_string(float_value);
+      default:
+        throw std::logic_error("conversion not supported");
     }
   }
   explicit operator float() const
@@ -140,6 +174,19 @@ public:
         return std::stof(string_value);
       case f:
         return float_value;
+      default:
+        throw std::logic_error("conversion not supported");
+    }
+  }
+  explicit operator bool() const
+  {
+    switch(type) {
+      case glu:
+        return (bool)gluint_value;
+      case b:
+        return bool_value;
+      default:
+        throw std::logic_error("conversion not supported");
     }
   }
 };
@@ -170,7 +217,9 @@ class Properties
   std::unordered_map<sole::uuid, MaterialProperties> materialProperties = {};
 
 public:
-  std::unordered_map<PropertyKey, Property> &get(const sole::uuid &uuid)
+  using Map = std::unordered_map<PropertyKey, Property>;
+
+  Map &get(const sole::uuid &uuid)
   {
     if(properties.find(uuid) == properties.end())
       properties.emplace(uuid, std::unordered_map<PropertyKey, Property>());

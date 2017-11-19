@@ -123,13 +123,13 @@ public:
     return _extensions[extension];
   }
 
-  GLenum extend(TextureType type)
+  TextureType extend(TextureType type)
   {
     switch(type) {
       case TextureType::HalfFloat:
-        return get(Extension::OES_texture_half_float) ? 0x8D61 /*GL_HALF_FLOAT_OES*/ : (GLenum)type;
+        return get(Extension::OES_texture_half_float) ? TextureType::HalfFloatOES : type;
       default:
-        return (GLenum)type;
+        return type;
     }
   }
 
@@ -145,16 +145,16 @@ public:
     }
   }
 
-  GLenum extend(TextureFormat format)
+  TextureFormat extend(TextureFormat format)
   {
     switch(format) {
       case TextureFormat::RGB_S3TC_DXT1:
       case TextureFormat::RGBA_S3TC_DXT1:
       case TextureFormat::RGBA_S3TC_DXT3:
       case TextureFormat::RGBA_S3TC_DXT5:
-        return get(Extension::EXT_texture_compression_s3tc) ? (GLenum)format : 0;
+        return get(Extension::EXT_texture_compression_s3tc) ? format : TextureFormat::Undefined;
       default:
-        return (GLenum)format;
+        return format;
     }
   }
 

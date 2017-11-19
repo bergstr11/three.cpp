@@ -30,6 +30,9 @@ class Textures
   MemoryInfo &_infoMemory;
   //bool paramThreeToGL;
 
+  void setTextureParameters(TextureTarget textureTarget, DefaultTexture::Ptr texture, bool isPowerOfTwoImage);
+  void uploadTexture(Properties::Map textureProperties, DefaultTexture::Ptr texture, unsigned slot );
+
 public:
   Textures(QOpenGLFunctions * fn, Extensions &extensions, State &state, Properties &properties,
      Capabilities &capabilities, MemoryInfo &infoMemory)
@@ -37,12 +40,14 @@ public:
     _infoMemory(infoMemory)
   {}
 
-  QImage clampToMaxSize(const QImage &image, int maxSize )
+  QImage clampToMaxSize(const QImage &image, int maxSize, bool flipY )
   {
-    if (image.width() > maxSize || image.height() > maxSize )
-      return image.width() > image.height() ? image.scaledToWidth(maxSize) : image.scaledToHeight(maxSize);
+    QImage img = flipY ? image.mirrored() : image;
 
-    return image;
+    if (img.width() > maxSize || img.height() > maxSize )
+      return img.width() > img.height() ? img.scaledToWidth(maxSize) : img.scaledToHeight(maxSize);
+
+    return img;
   }
 
   bool isPowerOfTwo(const QImage &image)
@@ -67,11 +72,11 @@ public:
 
   void deallocateTexture(Texture *texture);
   void deallocateRenderTarget(RenderTarget *renderTarget);
-  void setTexture2D(Texture::Ptr texture, unsigned slot);
+  void setTexture2D(DefaultTexture::Ptr texture, unsigned slot);
   void setTextureCube(CubeTexture::Ptr texture, unsigned slot);
   void updateRenderTargetMipmap(const Renderer::Target::Ptr &renderTarget);
+  void setupRenderTarget(RenderTarget &renderTarget);
 
-  void onTextureDispose(Texture *texture);
   void onRenderTargetDispose(RenderTarget *renderTarget);
 
 };

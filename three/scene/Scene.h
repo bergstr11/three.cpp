@@ -7,7 +7,7 @@
 
 #include <core/Object3D.h>
 #include <core/Color.h>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 #include "Fog.h"
 
 namespace three {

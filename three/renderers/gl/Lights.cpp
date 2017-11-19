@@ -28,8 +28,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
     float intensity = light->intensity();
     //var distance = light.distance;
 
-    Texture::Ptr shadowMap = ( light->shadow() && light->shadow()->map() ) ?
-                             light->shadow()->map()->texture() : nullptr;
+    Texture::Ptr shadowMap = light->shadow() && light->shadow()->map() ? light->shadow()->map()->texture() : nullptr;
 
     light::Dispatch dispatch;
 

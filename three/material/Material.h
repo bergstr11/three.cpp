@@ -11,7 +11,8 @@
 #include <helper/sole.h>
 #include <helper/simplesignal.h>
 #include <math/Plane.h>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
+#include <core/Color.h>
 
 namespace three {
 
@@ -26,26 +27,26 @@ struct Colored {
 
 struct LightMap
 {
-  Texture::Ptr lightMap;
+  DefaultTexture::Ptr lightMap;
   float lightMapIntensity = 1.0;
 };
 
 struct EmissiveMap
 {
-  Texture::Ptr emissiveMap;
+  DefaultTexture::Ptr emissiveMap;
   Color emissive = 0x000000;
   float emissiveIntensity = 1.0;
 };
 
 struct AoMap
 {
-  Texture::Ptr aoMap;
+  DefaultTexture::Ptr aoMap;
   float aoMapIntensity = 1.0;
 };
 
 struct EnvMap
 {
-  Texture::Ptr envMap;
+  DefaultTexture::Ptr envMap;
   CombineOperation combine = CombineOperation::Multiply;
   float reflectivity = 1;
   float refractionRatio = 0.98;
@@ -53,30 +54,30 @@ struct EnvMap
 
 struct AlphaMap
 {
-  Texture::Ptr alphaMap;
+  DefaultTexture::Ptr alphaMap;
 };
 
 struct SpecularMap
 {
-  Texture::Ptr specularMap;
+  DefaultTexture::Ptr specularMap;
 };
 
 struct DisplacementMap
 {
-  Texture::Ptr displacementMap;
+  DefaultTexture::Ptr displacementMap;
   float displacementScale = 1;
   float displacementBias = 0;
 };
 
 struct BumpMap
 {
-  Texture::Ptr bumpMap;
+  DefaultTexture::Ptr bumpMap;
   float bumpScale = 1;
 };
 
 struct NormalMap
 {
-  Texture::Ptr normalMap;
+  DefaultTexture::Ptr normalMap;
   math::Vector2 normalScale {1, 1};
 };
 
@@ -131,7 +132,7 @@ struct Material
   float alphaTest = 0;
   bool premultipliedAlpha = false;
 
-  Texture::Ptr map;
+  DefaultTexture::Ptr map;
 
   bool skinning = false;
   bool morphTargets = false;

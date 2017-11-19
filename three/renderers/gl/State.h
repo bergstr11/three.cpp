@@ -644,13 +644,64 @@ public:
     }
   }
 
-  void texImage2D(TextureTarget target, GLint level,
+  void texImage2D(TextureTarget target,
+                  unsigned index,
+                  GLint level,
                   TextureFormat internalFormat,
-                  GLsizei width, GLsizei height,
-                  TextureFormat format, TextureType type,
+                  GLsizei width,
+                  GLsizei height,
+                  TextureFormat format,
+                  TextureType type,
+                  const QImage &image)
+  {
+    glTexImage2D(((GLenum)target)+index, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
+    }
+  }
+
+  void texImage2D(TextureTarget target,
+                  GLint level,
+                  TextureFormat internalFormat,
+                  GLsizei width,
+                  GLsizei height,
+                  TextureFormat format,
+                  TextureType type,
                   const QImage &image)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
+    }
+  }
+
+  void texImage2D(TextureTarget target,
+                  GLint level,
+                  TextureFormat internalFormat,
+                  GLsizei width,
+                  GLsizei height,
+                  TextureFormat format,
+                  TextureType type,
+                  const void *pixels)
+  {
+    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
+    }
+  }
+
+  void texImage2D(TextureTarget target,
+                  GLint level,
+                  TextureFormat internalFormat,
+                  GLsizei width,
+                  GLsizei height,
+                  TextureFormat format,
+                  TextureType type)
+  {
+    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
     GLenum error = glGetError();
     if(error != GL_NO_ERROR) {
       throw new std::logic_error("GL error code "+error);

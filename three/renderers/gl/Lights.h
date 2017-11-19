@@ -14,7 +14,7 @@
 #include <light/LightShadow.h>
 #include <shadow.h>
 #include <unordered_map>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 #include "shader/UniformsLib.h"
 
 namespace three {

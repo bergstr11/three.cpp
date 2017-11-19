@@ -2,23 +2,31 @@
 // Created by byter on 06.08.17.
 //
 
-#include "Texture.h"
+#include "DepthTexture.h"
 
 namespace three {
 
-TextureBase::TextureBase(const Options &options)
-   : _mapping(options.mapping),
-     _wrapS(options.wrapS),
-     _wrapT(options.wrapT),
-     _magFilter(options.magFilter),
-     _minFilter(options.minFilter),
-     _anisotropy(options.anisotropy),
-     _format(options.format),
-     _type(options.type),
-     _encoding(options.encoding),
+Texture::Texture(texture::Resolver::Ptr resolver,
+                 const TextureOptions &options,
+                 bool generateMipMaps, bool flipY, unsigned unpackAlignment)
+   : TextureOptions(options),
+     resolver(resolver),
+     _generateMipmaps(generateMipMaps),
+     _flipY(flipY),
+     _unpackAlignment(unpackAlignment),
      uuid(sole::uuid0())
 {
 
+}
+
+DepthTexture::DepthTexture(const TextureOptions &options, size_t width, size_t height)
+   : Texture(texture::ResolverT<DepthTexture>::make(*this), options, false, false), width(width), height(height)
+{
+  if(options.format != TextureFormat::Depth && options.format != TextureFormat::DepthStencil )
+    throw std::invalid_argument("DepthTexture format must be either Depth or DepthStencil");
+
+  if(options.format == TextureFormat::DepthStencil)
+    TextureOptions::type = TextureType::UnsignedInt248;
 }
 
 #if 0

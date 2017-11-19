@@ -52,7 +52,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
     renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
   };
-  textures.func<Texture::Ptr>() = [&] (Texture::Ptr &tex) {
+  textures.func<DefaultTexture::Ptr>() = [&] (DefaultTexture::Ptr &tex) {
 
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );

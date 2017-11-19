@@ -238,7 +238,7 @@ public:
     add(ShaderID::equirect,
         LibShader(ShaderID::equirect,
                   {
-                     uniformslib::value<Texture::Ptr>(UniformName::equirect, nullptr)
+                     uniformslib::value<DefaultTexture::Ptr>(UniformName::equirect, nullptr)
                   },
                   ":chunk/equirect_vert.glsl",
                   ":chunk/equirect_frag.glsl"

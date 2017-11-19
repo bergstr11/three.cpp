@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <helper/simplesignal.h>
-#include <textures/Texture.h>
+#include <textures/DepthTexture.h>
 #include <helper/sole.h>
 #include "../Renderer.h"
 
@@ -17,11 +17,11 @@ namespace gl {
 class RenderTarget : public Renderer::Target
 {
 public:
-  struct Options : public Texture::Options
+  struct Options : public TextureOptions
   {
     bool depthBuffer = true;
     bool stencilBuffer = true;
-    Texture::Ptr depthTexture;
+    DepthTexture::Ptr depthTexture;
 
     Options() {
       minFilter = TextureFilter::Linear;
@@ -41,11 +41,16 @@ private:
 
   bool _depthBuffer;
   bool _stencilBuffer;
-  Texture::Ptr _depthTexture;
+  DepthTexture::Ptr _depthTexture;
+
+  static TextureOptions textureOptions()
+  {
+    TextureOptions ops = DefaultTexture::options();
+  }
 
 protected:
-  RenderTarget(float width, float height, const Options &options)
-     : Renderer::Target(Texture::make(options)),
+  RenderTarget(const Options &options, float width, float height)
+     : Renderer::Target(DefaultTexture::make(options)),
        _width(width), _height(height), _scissor(0, 0, width, height), _viewport(0, 0, width, height), uuid(sole::uuid0())
   {
     _depthBuffer = options.depthBuffer;
@@ -57,15 +62,15 @@ public:
   Signal<void(RenderTarget *)> onDispose;
 
   using Ptr = std::shared_ptr<RenderTarget>;
-  static Ptr make(float width, float height, const Options &options) {
-    return Ptr(new RenderTarget(width, height, options));
+  static Ptr make(const Options &options, float width, float height) {
+    return Ptr(new RenderTarget(options, width, height));
   }
 
   const math::Vector4 &scissor() const override {return _scissor;}
   bool scissorTest() const override {return _scissorTest;}
   const math::Vector4 &viewport() const override {return _viewport;}
 
-  Texture::Ptr depthTexture() {return _depthTexture;}
+  DepthTexture::Ptr depthTexture() {return _depthTexture;}
 
   RenderTarget &setSize(float width, float height )
   {

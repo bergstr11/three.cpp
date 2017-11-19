@@ -58,7 +58,7 @@ void initRectAreaLight()
   vector<float> ltc_mat = loadTexture("LTC_MAT");
   vector<float> ltc_mag = loadTexture("LTC_MAG");
 
-  DataTexture::Options options;
+  TextureOptions options = DataTexture::options();
   options.format = TextureFormat::RGBA;
   options.type = TextureType::Float;
   options.mapping = TextureMapping::UV;
@@ -68,10 +68,10 @@ void initRectAreaLight()
   options.minFilter = TextureFilter::Nearest;
   options.anisotropy = 1;
 
-  LTC_MAT_TEXTURE = DataTexture::make(ltc_mat, 64, 64, options);
+  LTC_MAT_TEXTURE = DataTexture::make(options, ltc_mat, 64, 64);
 
   options.format = TextureFormat::Alpha;
-  LTC_MAG_TEXTURE = DataTexture::make(ltc_mag, 64, 64, options);
+  LTC_MAG_TEXTURE = DataTexture::make(options, ltc_mag, 64, 64);
 
   LTC_MAT_TEXTURE->needsUpdate(true);
   LTC_MAG_TEXTURE->needsUpdate(true);
@@ -104,63 +104,63 @@ public:
         LibUniformValues({
                          value<Color>(UniformName::diffuse, Color(0xeeeeee)),
                          value<float>(UniformName::opacity, 1.0f),
-                         value<Texture::Ptr>(UniformName::map, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::map, nullptr),
                          value<math::Matrix3>(UniformName::uvTransform, math::Matrix3()),
-                         value<Texture::Ptr>(UniformName::alphaMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::alphaMap, nullptr)
                       }));
     add(UniformsID::specularmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::specularMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::specularMap, nullptr)
                       }));
     add(UniformsID::envmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::envMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::envMap, nullptr),
                          value<GLint>(UniformName::flipEnvMap, -1),
-                         value<Texture::Ptr>(UniformName::map, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::map, nullptr),
                          value<math::Matrix3>(UniformName::reflectivity, math::Matrix3()),
                          value<GLfloat>(UniformName::refractionRatio, 0.98f)
                       }));
     add(UniformsID::aomap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::aoMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::aoMap, nullptr),
                          value<GLfloat>(UniformName::aoMapIntensity, 1)
                       }));
     add(UniformsID::lightmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::lightMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::lightMap, nullptr),
                          value<GLfloat>(UniformName::lightMapIntensity, 1)
                       }));
     add(UniformsID::emissivemap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::emissiveMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::emissiveMap, nullptr)
                       }));
     add(UniformsID::bumpmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::bumpMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::bumpMap, nullptr),
                          value<GLfloat>(UniformName::bumpScale, 1)
                       }));
     add(UniformsID::normalmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::normalMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::normalMap, nullptr),
                          value<math::Vector2>(UniformName::normalScale, math::Vector2(1, 1))
                       }));
     add(UniformsID::displacementmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::displacementMap, nullptr),
+                         value<DefaultTexture::Ptr>(UniformName::displacementMap, nullptr),
                          value<GLfloat>(UniformName::displacementScale, 1.0f),
                          value<GLfloat>(UniformName::displacementBias, 1)
                       }));
     add(UniformsID::roughnessmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::roughnessMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::roughnessMap, nullptr)
                       }));
     add(UniformsID::metalnessmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::metalnessMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::metalnessMap, nullptr)
                       }));
     add(UniformsID::gradientmap,
         LibUniformValues({
-                         value<Texture::Ptr>(UniformName::gradientMap, nullptr)
+                         value<DefaultTexture::Ptr>(UniformName::gradientMap, nullptr)
                       }));
     add(UniformsID::fog,
         LibUniformValues({

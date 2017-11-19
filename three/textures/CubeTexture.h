@@ -10,27 +10,27 @@
 
 namespace three {
 
-class CubeTexture :public TextureBase
+class CubeTexture : public Texture
 {
-public:
-  struct Options : public TextureBase::Options {
-    Options() {
-      mapping = TextureMapping::CubeReflection;
-    }
-  };
-
 protected:
   const std::array<QImage, 6> _images;
 
-  CubeTexture(const std::array<QImage, 6> images, const Options &options) : TextureBase(options), _images(images)
+  CubeTexture(const TextureOptions &options, const std::array<QImage, 6> images)
+     : Texture(texture::ResolverT<CubeTexture>::make(*this), options), _images(images)
   {
-    _flipY = false;
   }
 
 public:
+  static TextureOptions options()
+  {
+    TextureOptions options = Texture::options();
+    options.mapping = TextureMapping::CubeReflection;
+    return options;
+  }
+
   using Ptr = std::shared_ptr<CubeTexture>;
-  static Ptr make(const std::array<QImage, 6> images, const Options &options) {
-    return Ptr(new CubeTexture(images, options));
+  static Ptr make(const TextureOptions &options, const std::array<QImage, 6> images) {
+    return Ptr(new CubeTexture(options, images));
   }
 
   const QImage &images(unsigned index)

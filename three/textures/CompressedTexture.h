@@ -9,33 +9,27 @@
 
 namespace three {
 
-class CompressedTexture : public TextureBase
+// no flipping for cube textures
+// (also flipping doesn't work for compressed textures )
+//
+// can't generate mipmaps for compressed textures
+// mips must be embedded in DDS files
+class CompressedTexture : public Texture
 {
 protected:
   unsigned _width, _height;
   bool _mipmaps;
 
-  CompressedTexture(bool mipmaps, unsigned width, unsigned height, const Options &options) : TextureBase(options)
+  CompressedTexture(const TextureOptions &options, bool mipmaps, unsigned width, unsigned height)
+     : Texture(texture::ResolverT<CompressedTexture>::make(*this), options, false, false),
+       _width(width), _height(height), _mipmaps(mipmaps)
   {
-    _width = width;
-    _height = height;
-    _mipmaps = mipmaps;
-
-    // no flipping for cube textures
-    // (also flipping doesn't work for compressed textures )
-
-    _flipY = false;
-
-    // can't generate mipmaps for compressed textures
-    // mips must be embedded in DDS files
-
-    _generateMipmaps = false;
   }
 
 public:
   using Ptr = std::shared_ptr<CompressedTexture>;
-  static Ptr make(bool mipmaps, unsigned width, unsigned height, const Options &options) {
-    return Ptr(new CompressedTexture(mipmaps, width, height, options));
+  static Ptr make(const TextureOptions &options, bool mipmaps, unsigned width, unsigned height) {
+    return Ptr(new CompressedTexture(options, mipmaps, width, height));
   }
 };
 

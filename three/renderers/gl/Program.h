@@ -41,7 +41,7 @@ public:
   Encoding outputEncoding = Encoding::Unknown;
   bool map;
   Encoding mapEncoding = Encoding::Unknown;
-  Texture::Ptr envMap;
+  DefaultTexture::Ptr envMap;
   Encoding envMapEncoding = Encoding::Unknown;
   TextureMapping envMapMode;
   bool envMapCubeUV;

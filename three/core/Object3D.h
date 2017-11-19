@@ -18,7 +18,7 @@
 #include <math/Quaternion.h>
 #include <math/Matrix4.h>
 #include <material/Material.h>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 #include "StaticGeometry.h"
 
 namespace three {

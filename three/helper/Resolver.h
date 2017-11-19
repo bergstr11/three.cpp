@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <stdexcept>
 
-#include "gl/shader/ShaderLib.h"
+#include <renderers/gl/shader/ShaderID.h>
 
 namespace resolver {
 
@@ -294,7 +294,7 @@ DEF_RESOLVER_1(Dispatch)
 }
 
 class CubeTexture;
-class Texture;
+class DefaultTexture;
 class Color;
 
 namespace scene {
@@ -302,11 +302,29 @@ namespace scene {
 DEF_FUNC_TABLE(BackgroundDispatch)
 PUT_FUNC_TABLE(BackgroundDispatch, nullptr_t)
 PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<CubeTexture>)
-PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<Texture>)
+PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<DefaultTexture>)
 PUT_FUNC_TABLE(BackgroundDispatch, Color)
 
 DEF_RESOLVER_1(BackgroundDispatch)
 
+}
+
+class Texture;
+class CompressedTexture;
+class DataTexture;
+class DepthTexture;
+
+namespace texture {
+
+DEF_FUNC_TABLE(Dispatch)
+PUT_FUNC_TABLE(Dispatch, Texture)
+PUT_FUNC_TABLE(Dispatch, DefaultTexture)
+PUT_FUNC_TABLE(Dispatch, CubeTexture)
+PUT_FUNC_TABLE(Dispatch, CompressedTexture)
+PUT_FUNC_TABLE(Dispatch, DataTexture)
+PUT_FUNC_TABLE(Dispatch, DepthTexture)
+
+DEF_RESOLVER_1(Dispatch)
 }
 
 class Light;

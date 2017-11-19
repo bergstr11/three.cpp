@@ -19,7 +19,7 @@
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 #include <math/Box3.h>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 
 namespace three {
 

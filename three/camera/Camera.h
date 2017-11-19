@@ -10,7 +10,7 @@
 #include <math/Quaternion.h>
 #include <math/Ray.h>
 #include <core/Object3D.h>
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 
 namespace three {
 

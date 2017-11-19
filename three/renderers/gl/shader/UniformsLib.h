@@ -186,7 +186,7 @@ UNIFORM_VALUE_T(int) {
 }
 UNIFORM_VALUE_T(unsigned) {
 }
-UNIFORM_VALUE_T(Texture::Ptr) {
+UNIFORM_VALUE_T(DefaultTexture::Ptr) {
 }
 UNIFORM_VALUE_T(CubeTexture::Ptr) {
 }

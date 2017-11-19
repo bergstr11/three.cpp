@@ -47,14 +47,17 @@ enum class TextureWrapping
 
 enum class TextureFormat
 {
+  Undefined = 0,
   Alpha = GL_ALPHA,
   RGB = GL_RGB,
   RGBA = GL_RGBA,
   Luminance = GL_LUMINANCE,
   LuminanceAlpha = GL_LUMINANCE4_ALPHA4,
   Depth = GL_DEPTH,
+  DepthComponent=GL_DEPTH_COMPONENT,
+  DepthComponent32 = GL_DEPTH_COMPONENT32F,
+  DepthComponent16 = GL_DEPTH_COMPONENT16,
   DepthStencil = GL_DEPTH_STENCIL,
-
   RGB_S3TC_DXT1 = GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
   RGBA_S3TC_DXT1 = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
   RGBA_S3TC_DXT3 = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
@@ -71,10 +74,12 @@ enum class TextureType
   UnsignedInt = GL_UNSIGNED_INT,
   Float = GL_FLOAT,
   HalfFloat = GL_HALF_FLOAT,
+  HalfFloatOES = 0x8D61, //GL_HALF_FLOAT_OES
   UnsignedShort4444 = GL_UNSIGNED_SHORT_4_4_4_4,
   UnsignedShort5551 = GL_UNSIGNED_SHORT_5_5_5_1,
   UnsignedShort565 = GL_UNSIGNED_SHORT_5_6_5,
-  UnsignedInt248 = GL_UNSIGNED_INT_24_8
+  UnsignedInt248 = GL_UNSIGNED_INT_24_8,
+  CubeMap = GL_TEXTURE_CUBE_MAP
 };
 
 enum class Encoding
@@ -218,8 +223,9 @@ enum class TextureTarget : GLenum
   twoD=GL_TEXTURE_2D, //A two-dimensional texture.
   cubeMap=GL_TEXTURE_CUBE_MAP, //Positive X face for a cube-mapped texture.
   cubeMapNegativeX=GL_TEXTURE_CUBE_MAP_NEGATIVE_X, //Negative X face for a cube-mapped texture.
-  cubeMapPositiveY = GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // Positive Y face for a cube-mapped texture.
   cubeMapNegativeY=GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, //Negative Y face for a cube-mapped texture.
+  cubeMapPositiveX = GL_TEXTURE_CUBE_MAP_POSITIVE_X, // Positive Y face for a cube-mapped texture.
+  cubeMapPositiveY = GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // Positive Y face for a cube-mapped texture.
   cubeMapPositiveZ=GL_TEXTURE_CUBE_MAP_POSITIVE_Z, //Positive Z face for a cube-mapped texture.
   cubeMapNegativeZ=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 };

@@ -3,7 +3,7 @@
 //
 
 #include "Renderer_impl.h"
-#include <renderers/Resolver.h>
+#include <helper/Resolver.h>
 #include <math/Math.h>
 #include <textures/DataTexture.h>
 #include <sstream>
@@ -196,7 +196,7 @@ unsigned Renderer_impl::allocTextureUnit()
   return textureUnit;
 }
 
-void setTexture2D(Texture::Ptr texture, unsigned slot )
+void setTexture2D(DefaultTexture::Ptr texture, unsigned slot )
 {
   //_textures.setTexture2D( texture, slot );
 }
@@ -861,8 +861,10 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
             m.skeleton()->boneMatrices().resize(size * size * 4); // 4 floats per RGBA pixel
 
-            DataTexture::Ptr boneTexture = DataTexture::make(m.skeleton()->boneMatrices(),
-                                                             size, size, TextureFormat::RGBA, TextureType::Float );
+            auto ops = DataTexture::options();
+            ops.format = TextureFormat::RGBA;
+            ops.type = TextureType::Float;
+            DataTexture::Ptr boneTexture = DataTexture::make(ops, m.skeleton()->boneMatrices(), size, size);
 
             m.skeleton()->setBoneTexture(boneTexture);
             m.skeleton()->setBoneTextureSize(size);

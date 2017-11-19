@@ -20,7 +20,7 @@ struct MeshToonMaterial : public MeshPhongMaterial
 {
   std::unordered_map<std::string, std::string> defines {{ "TOON", "" }};
 
-  Texture::Ptr gradientMap;
+  DefaultTexture::Ptr gradientMap;
 
 protected:
   MeshToonMaterial() : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}

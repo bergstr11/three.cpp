@@ -88,7 +88,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       pars.magFilter = TextureFilter::Nearest;
       pars.format = TextureFormat::RGBA;
 
-      shadow->map() = RenderTarget::make(_shadowMapSize.x(), _shadowMapSize.y(), pars);
+      shadow->map() = RenderTarget::make(pars, _shadowMapSize.x(), _shadowMapSize.y());
 
       shadowCamera->updateProjectionMatrix();
     }
