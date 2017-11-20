@@ -193,66 +193,53 @@ void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
 #endif
 }
 
-#if 0
-function setTextureCubeDynamic( texture, slot ) {
-
-  state.activeTexture( _gl.TEXTURE0 + slot );
-  state.bindTexture( _gl.TEXTURE_CUBE_MAP, properties.get( texture ).__webglTexture );
-
+void Textures::setTextureCubeDynamic( Texture::Ptr texture, unsigned slot )
+{
+  _state.activeTexture(GL_TEXTURE0 + slot);
+  _state.bindTexture(GL_TEXTURE_CUBE_MAP, (GLint)_properties.get( texture )[PropertyKey::__webglTexture] );
 }
 
-void Textures::setTextureParameters(TextureType textureType, Texture::Ptr texture, bool isPowerOfTwoImage)
+void Textures::setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture, bool isPowerOfTwoImage)
 {
-  var extension;
+  //var extension;
 
   if ( isPowerOfTwoImage ) {
 
-    _fn->glTexParameteri( textureType, _gl.TEXTURE_WRAP_S, paramThreeToGL( texture.wrapS ) );
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_WRAP_T, paramThreeToGL( texture.wrapT ) );
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, (GLint)texture->wrapS);
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, (GLint)texture->wrapT);
 
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_MAG_FILTER, paramThreeToGL( texture.magFilter ) );
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_MIN_FILTER, paramThreeToGL( texture.minFilter ) );
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, (GLint)texture->magFilter);
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, (GLint)texture->minFilter);
+  }
+  else {
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
-  } else {
-
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE );
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_WRAP_T, _gl.CLAMP_TO_EDGE );
-
-    if ( texture.wrapS !== ClampToEdgeWrapping || texture.wrapT !== ClampToEdgeWrapping ) {
-
-      console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to THREE.ClampToEdgeWrapping.', texture );
-
+    if ( texture->wrapS != TextureWrapping::ClampToEdge || texture->wrapT != TextureWrapping::ClampToEdge) {
+      //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to THREE.ClampToEdgeWrapping.', texture );
     }
 
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_MAG_FILTER, filterFallback( texture.magFilter ) );
-    _fn->gltexParameteri( textureType, _gl.TEXTURE_MIN_FILTER, filterFallback( texture.minFilter ) );
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, filterFallback( texture->magFilter ) );
+    _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, filterFallback( texture->minFilter ) );
 
-    if ( texture.minFilter !== NearestFilter && texture.minFilter !== LinearFilter ) {
-
-      console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
-
+    if ( texture->minFilter != TextureFilter::Nearest && texture->minFilter != TextureFilter::Linear) {
+      //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
     }
-
   }
 
-  extension = extensions.get( 'EXT_texture_filter_anisotropic' );
+  if (_extensions.get(Extension::EXT_texture_filter_anisotropic)) {
 
-  if ( extension ) {
+    if ( texture->type() == TextureType::Float && !_extensions.get(Extension::OES_texture_float_linear)) return;
+    if ( texture->type() == TextureType::HalfFloat && !_extensions.get(Extension::OES_texture_half_float_linear)) return;
 
-    if ( texture.type === FloatType && extensions.get( 'OES_texture_float_linear' ) === null ) return;
-    if ( texture.type === HalfFloatType && extensions.get( 'OES_texture_half_float_linear' ) === null ) return;
+    if ( texture->anisotropy > 1 || _properties.has( texture, PropertyKey::__currentAnisotropy)) {
 
-    if ( texture.anisotropy > 1 || properties.get( texture ).__currentAnisotropy ) {
-
-      _fn->gltexParameterf( textureType, extension.TEXTURE_MAX_ANISOTROPY_EXT, Math.min( texture.anisotropy, capabilities.getMaxAnisotropy() ) );
-      properties.get( texture ).__currentAnisotropy = texture.anisotropy;
-
+      _fn->glTexParameterf((GLenum)textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                           std::min(texture->anisotropy, (float)_capabilities.getMaxAnisotropy()));
+      _properties.get(texture)[PropertyKey::__currentAnisotropy] = texture->anisotropy;
     }
-
   }
-
 }
-#endif
 
 void Textures::uploadTexture(Properties::Map textureProperties, DefaultTexture::Ptr texture, unsigned slot )
 {

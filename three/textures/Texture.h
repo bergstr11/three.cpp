@@ -48,7 +48,7 @@ protected:
   TextureOptions() {}
 };
 
-class Texture : protected TextureOptions
+class Texture : public TextureOptions
 {
   friend class Textures;
 

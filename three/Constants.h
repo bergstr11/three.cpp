@@ -25,7 +25,7 @@ enum class TextureFilter
   LinearMipMapLinear = 1008
 };
 
-enum class TextureMapping
+enum class TextureMapping : GLenum
 {
   Unknown = 0,
   UV = 300,
@@ -38,14 +38,14 @@ enum class TextureMapping
   CubeUVRefraction = 307
 };
 
-enum class TextureWrapping
+enum class TextureWrapping : GLint
 {
-  Repeat = 1000,
-  ClampToEdge = 1001,
-  MirroredRepeat = 1002
+  Repeat = GL_REPEAT,
+  ClampToEdge = GL_CLAMP_TO_EDGE,
+  MirroredRepeat = GL_MIRRORED_REPEAT
 };
 
-enum class TextureFormat
+enum class TextureFormat : GLenum
 {
   Undefined = 0,
   Alpha = GL_ALPHA,
@@ -64,7 +64,7 @@ enum class TextureFormat
   RGBA_S3TC_DXT5 = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
 };
 
-enum class TextureType
+enum class TextureType : GLenum
 {
   UnsignedByte = GL_UNSIGNED_BYTE,
   Byte = GL_BYTE,

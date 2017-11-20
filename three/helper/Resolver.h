@@ -86,7 +86,7 @@ public:
   }
 
   ~Assoc() {
-    if(ft) delete ft;
+    clear();
   }
 };
 

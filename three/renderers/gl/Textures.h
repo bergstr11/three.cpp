@@ -30,7 +30,8 @@ class Textures
   MemoryInfo &_infoMemory;
   //bool paramThreeToGL;
 
-  void setTextureParameters(TextureTarget textureTarget, DefaultTexture::Ptr texture, bool isPowerOfTwoImage);
+  void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
+  void setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture, bool isPowerOfTwoImage);
   void uploadTexture(Properties::Map textureProperties, DefaultTexture::Ptr texture, unsigned slot );
 
 public:

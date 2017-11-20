@@ -193,7 +193,12 @@ public:
 
 enum PropertyKey
 {
-  __image__webglTextureCube, __webglInit, __webglTexture, __webglFramebuffer, __webglDepthbuffer,
+  __image__webglTextureCube,
+  __webglInit,
+  __webglTexture,
+  __webglFramebuffer,
+  __webglDepthbuffer,
+  __currentAnisotropy,
   __version
 };
 
