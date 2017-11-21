@@ -191,7 +191,7 @@ public:
   }
 };
 
-enum PropertyKey
+enum PropertyName
 {
   __image__webglTextureCube,
   __webglInit,
@@ -217,22 +217,22 @@ struct MaterialProperties
 
 class Properties
 {
-  std::unordered_map<sole::uuid, std::unordered_map<PropertyKey, Property>> properties = {};
+  std::unordered_map<sole::uuid, std::unordered_map<PropertyName, Property>> properties = {};
 
   std::unordered_map<sole::uuid, MaterialProperties> materialProperties = {};
 
 public:
-  using Map = std::unordered_map<PropertyKey, Property>;
+  using Map = std::unordered_map<PropertyName, Property>;
 
   Map &get(const sole::uuid &uuid)
   {
     if(properties.find(uuid) == properties.end())
-      properties.emplace(uuid, std::unordered_map<PropertyKey, Property>());
+      properties.emplace(uuid, std::unordered_map<PropertyName, Property>());
 
     return properties[uuid];
   }
 
-  bool has(const sole::uuid &uuid, PropertyKey key)
+  bool has(const sole::uuid &uuid, PropertyName key)
   {
     if(properties.find(uuid) != properties.end()) {
       auto &props = properties[uuid];
@@ -252,24 +252,24 @@ public:
   }
 
   template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
-  std::unordered_map<PropertyKey, Property> &get(const T *object)
+  std::unordered_map<PropertyName, Property> &get(const T *object)
   {
     return get(object->uuid);
   }
 
   template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
-  std::unordered_map<PropertyKey, Property> &get(const std::shared_ptr<T> object)
+  std::unordered_map<PropertyName, Property> &get(const std::shared_ptr<T> object)
   {
     return get(object->uuid);
   }
 
   template <typename T>
-  bool has(const T *object, PropertyKey key) {
+  bool has(const T *object, PropertyName key) {
     return has(object->uuid, key);
   }
 
   template <typename T>
-  bool has(const std::shared_ptr<T> object, PropertyKey key) {
+  bool has(const std::shared_ptr<T> object, PropertyName key) {
     return has(object->uuid, key);
   }
 

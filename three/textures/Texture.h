@@ -86,6 +86,7 @@ public:
 
   const sole::uuid uuid;
   Signal<void(Texture *)> onDispose;
+  Signal<void(Texture *)> onUpdate;
 
   const math::Vector2 &offset() const {return _offset;}
   const math::Vector2 &repeat() const {return _repeat;}
@@ -125,15 +126,17 @@ public:
 
   void needsUpdate(bool value) {_needsUpdate = value;}
 
+  virtual bool isPowerOfTwo() = 0;
+
   bool needsPowerOfTwo()
   {
     return TextureOptions::wrapS != TextureWrapping ::ClampToEdge || TextureOptions::wrapT != TextureWrapping ::ClampToEdge
            || (TextureOptions::minFilter != TextureFilter ::Nearest && TextureOptions::minFilter != TextureFilter ::Linear );
   }
 
-  bool needsGenerateMipmaps(bool isPowerOfTwo)
+  bool needsGenerateMipmaps()
   {
-    return _generateMipmaps && isPowerOfTwo && TextureOptions::minFilter != TextureFilter::Nearest
+    return _generateMipmaps && isPowerOfTwo() && TextureOptions::minFilter != TextureFilter::Nearest
            && TextureOptions::minFilter != TextureFilter ::Linear;
   }
 };
@@ -159,6 +162,10 @@ public:
   }
 
   QImage &image() {return _image;}
+
+  bool isPowerOfTwo() override {
+    return math::isPowerOfTwo(_image.width()) && math::isPowerOfTwo(_image.height());
+  }
 };
 
 }

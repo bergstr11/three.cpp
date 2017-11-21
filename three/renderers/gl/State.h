@@ -266,7 +266,7 @@ public:
   int currentTextureSlot = -1;
 
   struct BoundTexture {
-    GLenum type;
+    TextureTarget target;
     GLuint texture;
   };
   std::unordered_map<GLuint, BoundTexture> currentBoundTextures;
@@ -274,25 +274,28 @@ public:
   math::Vector4 currentScissor = {0, 0, 0, 0};
   math::Vector4 currentViewport = {0, 0, 0, 0};
 
-  GLuint createTexture(GLenum type, GLenum target, unsigned count)
+  GLuint createTexture(TextureTarget target)
   {
     uint8_t data[4]; // 4 is required to match default unpack alignment of 4.
     GLuint texture;
     glGenTextures(1, &texture);
 
-    glBindTexture(type, texture);
-    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture((GLenum)target, texture);
+    glTexParameteri((GLenum)target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri((GLenum)target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    for (unsigned i = 0; i < count; i++) {
-      glTexImage2D(target + i, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    if(target == TextureTarget::cubeMap) {
+      for(GLenum t=(GLenum)CubeFaceTarget::cubeMapPositiveX; t <=(GLenum)CubeFaceTarget::cubeMapNegativeZ; t++)
+        glTexImage2D(t, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
+    else
+      glTexImage2D((GLenum)target, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     return texture;
   }
 
   QOpenGLExtraFunctions * const _fn;
-  std::unordered_map<GLenum, GLuint> emptyTextures = {};
+  std::unordered_map<TextureTarget, GLuint> emptyTextures = {};
 
 public:
   // init
@@ -302,8 +305,8 @@ public:
 
   void init()
   {
-    emptyTextures[GL_TEXTURE_2D] = createTexture(GL_TEXTURE_2D, GL_TEXTURE_2D, 1);
-    emptyTextures[GL_TEXTURE_CUBE_MAP] = createTexture(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_POSITIVE_X, 6);
+    emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
+    emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
 
     colorBuffer.setClear(0, 0, 0, 1);
     depthBuffer.setClear(1);
@@ -613,7 +616,7 @@ public:
     }
   }
 
-  void bindTexture(GLenum webglType, GLint webglTexture=-1)
+  void bindTexture(TextureTarget target, GLint webglTexture=-1)
   {
     if(currentTextureSlot < 0)
       activeTexture();
@@ -626,11 +629,11 @@ public:
     else
       boundTexture = &find->second;
 
-    if(boundTexture->type != webglType || boundTexture->texture != webglTexture ) {
+    if(boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
-      glBindTexture( webglType, webglTexture >= 0 ? webglTexture : emptyTextures[webglType]);
+      glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
 
-      boundTexture->type = webglType;
+      boundTexture->target = target;
       boundTexture->texture = webglTexture;
     }
   }
@@ -645,23 +648,6 @@ public:
   }
 
   void texImage2D(TextureTarget target,
-                  unsigned index,
-                  GLint level,
-                  TextureFormat internalFormat,
-                  GLsizei width,
-                  GLsizei height,
-                  TextureFormat format,
-                  TextureType type,
-                  const QImage &image)
-  {
-    glTexImage2D(((GLenum)target)+index, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
-  }
-
-  void texImage2D(TextureTarget target,
                   GLint level,
                   TextureFormat internalFormat,
                   GLsizei width,
@@ -671,6 +657,21 @@ public:
                   const QImage &image)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
+    }
+  }
+
+  void texImage2D(TextureTarget target,
+                  GLint level,
+                  TextureFormat internalFormat,
+                  TextureFormat format,
+                  TextureType type,
+                  const QImage &image)
+  {
+    glTexImage2D((GLenum)target, level, (GLint)internalFormat, image.width(), image.height(), 0, (GLenum)format,
+                 (GLenum)type, image.bits());
     GLenum error = glGetError();
     if(error != GL_NO_ERROR) {
       throw new std::logic_error("GL error code "+error);
@@ -702,6 +703,21 @@ public:
                   TextureType type)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR) {
+      throw new std::logic_error("GL error code "+error);
+    }
+  }
+
+  void texImage2D(TextureTarget target,
+                  GLint level,
+                  TextureFormat internalFormat,
+                  TextureFormat format,
+                  TextureType type,
+                  const Mipmap &mipmap)
+  {
+    glTexImage2D((GLenum)target, level, (GLint)internalFormat,
+                 mipmap.width, mipmap.height, 0, (GLenum)format, (GLenum)type, mipmap.data.data());
     GLenum error = glGetError();
     if(error != GL_NO_ERROR) {
       throw new std::logic_error("GL error code "+error);

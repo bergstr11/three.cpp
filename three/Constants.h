@@ -222,12 +222,16 @@ enum class TextureTarget : GLenum
 {
   twoD=GL_TEXTURE_2D, //A two-dimensional texture.
   cubeMap=GL_TEXTURE_CUBE_MAP, //Positive X face for a cube-mapped texture.
+};
+
+enum class CubeFaceTarget : GLenum
+{
+  cubeMapPositiveX=GL_TEXTURE_CUBE_MAP_POSITIVE_X, // Positive Y face for a cube-mapped texture.
   cubeMapNegativeX=GL_TEXTURE_CUBE_MAP_NEGATIVE_X, //Negative X face for a cube-mapped texture.
+  cubeMapPositiveY=GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // Positive Y face for a cube-mapped texture.
   cubeMapNegativeY=GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, //Negative Y face for a cube-mapped texture.
-  cubeMapPositiveX = GL_TEXTURE_CUBE_MAP_POSITIVE_X, // Positive Y face for a cube-mapped texture.
-  cubeMapPositiveY = GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // Positive Y face for a cube-mapped texture.
   cubeMapPositiveZ=GL_TEXTURE_CUBE_MAP_POSITIVE_Z, //Positive Z face for a cube-mapped texture.
-  cubeMapNegativeZ=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+  cubeMapNegativeZ=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  //Negative Z face for a cube-mapped texture.
 };
 
 enum class ShadowMapType

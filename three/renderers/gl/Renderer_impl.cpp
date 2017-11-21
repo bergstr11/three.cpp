@@ -208,9 +208,9 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   auto renderTargetProperties = _properties.get( renderTarget );
 
   GLuint *__webglFramebuffer = nullptr;
-  if (renderTarget && renderTargetProperties.find(PropertyKey::__webglFramebuffer) != renderTargetProperties.end())
+  if (renderTarget && renderTargetProperties.find(PropertyName::__webglFramebuffer) != renderTargetProperties.end())
   {
-    __webglFramebuffer = renderTargetProperties[PropertyKey::__webglFramebuffer].gluintp_value;
+    __webglFramebuffer = renderTargetProperties[PropertyName::__webglFramebuffer].gluintp_value;
     //textures.setupRenderTarget( renderTarget );
   }
 
@@ -252,7 +252,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
 
   if ( isCube ) {
     auto textureProperties = _properties.get(renderTarget->texture());
-    GLenum textarget = textureProperties[PropertyKey::__webglTexture].gluint_value;
+    GLenum textarget = textureProperties[PropertyName::__webglTexture].gluint_value;
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTarget->activeCubeFace,
                            textarget, renderTarget->activeMipMapLevel );
   }

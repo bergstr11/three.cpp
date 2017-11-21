@@ -18,18 +18,21 @@ class CompressedTexture : public Texture
 {
 protected:
   unsigned _width, _height;
-  bool _mipmaps;
 
-  CompressedTexture(const TextureOptions &options, bool mipmaps, unsigned width, unsigned height)
+  CompressedTexture(const TextureOptions &options, unsigned width, unsigned height)
      : Texture(texture::ResolverT<CompressedTexture>::make(*this), options, false, false),
-       _width(width), _height(height), _mipmaps(mipmaps)
+       _width(width), _height(height)
   {
   }
 
 public:
   using Ptr = std::shared_ptr<CompressedTexture>;
-  static Ptr make(const TextureOptions &options, bool mipmaps, unsigned width, unsigned height) {
-    return Ptr(new CompressedTexture(options, mipmaps, width, height));
+  static Ptr make(const TextureOptions &options, unsigned width, unsigned height) {
+    return Ptr(new CompressedTexture(options, width, height));
+  }
+
+  bool isPowerOfTwo() override {
+    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
   }
 };
 

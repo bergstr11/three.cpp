@@ -3,6 +3,7 @@
 //
 
 #include "Textures.h"
+#include <textures/CompressedTexture.h>
 #include <helper/Resolver.h>
 
 namespace three {
@@ -19,17 +20,17 @@ void Textures::onRenderTargetDispose(RenderTarget *renderTarget)
 
 void Textures::deallocateTexture(Texture *texture)
 {
-  if (/*!texture->image().isNull() && */_properties.has(texture, PropertyKey::__image__webglTextureCube)) {
+  if (/*!texture->image().isNull() && */_properties.has(texture, PropertyName::__image__webglTextureCube)) {
 
     // cube texture
     auto textureProperties = _properties.get( texture );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyKey::__image__webglTextureCube].gluint_value);
+    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__image__webglTextureCube].gluint_value);
 
-  } else if(_properties.has(texture, PropertyKey::__webglInit)) {
+  } else if(_properties.has(texture, PropertyName::__webglInit)) {
 
     // 2D texture
     auto textureProperties = _properties.get( texture );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyKey::__webglInit].gluint_value);
+    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__webglInit].gluint_value);
   }
 
   // remove all webgl properties
@@ -40,10 +41,10 @@ void Textures::deallocateRenderTarget(RenderTarget *renderTarget)
 {
   if (!renderTarget) return;
 
-  if (_properties.has(renderTarget->texture(), PropertyKey::__webglTexture)) {
+  if (_properties.has(renderTarget->texture(), PropertyName::__webglTexture)) {
 
     auto textureProperties = _properties.get( renderTarget->texture().get() );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyKey::__webglTexture].gluint_value);
+    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__webglTexture].gluint_value);
   }
 
   if (renderTarget->depthTexture() ) {
@@ -54,11 +55,11 @@ void Textures::deallocateRenderTarget(RenderTarget *renderTarget)
   int bufcount = renderTarget->bufCount();
   auto renderTargetProperties = _properties.get( renderTarget );
 
-  GLuint *framebuffer = renderTargetProperties[PropertyKey::__webglFramebuffer].gluintp_value;
+  GLuint *framebuffer = renderTargetProperties[PropertyName::__webglFramebuffer].gluintp_value;
   _fn->glDeleteFramebuffers(bufcount, framebuffer);
 
-  if( renderTargetProperties.find(PropertyKey::__webglDepthbuffer) != renderTargetProperties.end()) {
-    GLuint *depthbuffer = renderTargetProperties[PropertyKey::__webglDepthbuffer].gluintp_value;
+  if( renderTargetProperties.find(PropertyName::__webglDepthbuffer) != renderTargetProperties.end()) {
+    GLuint *depthbuffer = renderTargetProperties[PropertyName::__webglDepthbuffer].gluintp_value;
     _fn->glDeleteRenderbuffers(bufcount, depthbuffer);
   }
 
@@ -71,7 +72,7 @@ void Textures::setTexture2D(DefaultTexture::Ptr texture, unsigned slot)
 {
   auto &textureProperties = _properties.get(texture->uuid);
 
-  if (texture->version() > 0 && textureProperties[PropertyKey::__version].gluint_value != texture->version() ) {
+  if (texture->version() > 0 && textureProperties[PropertyName::__version].gluint_value != texture->version() ) {
 
     if (texture->image().isNull()) {
       throw std::invalid_argument("Texture marked for update but image is undefined");
@@ -82,7 +83,7 @@ void Textures::setTexture2D(DefaultTexture::Ptr texture, unsigned slot)
     }
   }
   _state.activeTexture(GL_TEXTURE0 + slot );
-  _state.bindTexture(GL_TEXTURE_2D, textureProperties[PropertyKey::__webglTexture].gluint_value);
+  _state.bindTexture(TextureTarget::twoD, textureProperties[PropertyName::__webglTexture].gluint_value);
 }
 
 void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
@@ -196,14 +197,14 @@ void Textures::setTextureCube(CubeTexture::Ptr texture, unsigned slot)
 void Textures::setTextureCubeDynamic( Texture::Ptr texture, unsigned slot )
 {
   _state.activeTexture(GL_TEXTURE0 + slot);
-  _state.bindTexture(GL_TEXTURE_CUBE_MAP, (GLint)_properties.get( texture )[PropertyKey::__webglTexture] );
+  _state.bindTexture(TextureTarget::cubeMap, (GLint)_properties.get( texture )[PropertyName::__webglTexture] );
 }
 
-void Textures::setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture, bool isPowerOfTwoImage)
+void Textures::setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture)
 {
   //var extension;
 
-  if ( isPowerOfTwoImage ) {
+  if ( texture->isPowerOfTwo()) {
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, (GLint)texture->wrapS);
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, (GLint)texture->wrapT);
@@ -232,21 +233,21 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture::Ptr te
     if ( texture->type() == TextureType::Float && !_extensions.get(Extension::OES_texture_float_linear)) return;
     if ( texture->type() == TextureType::HalfFloat && !_extensions.get(Extension::OES_texture_half_float_linear)) return;
 
-    if ( texture->anisotropy > 1 || _properties.has( texture, PropertyKey::__currentAnisotropy)) {
+    if ( texture->anisotropy > 1 || _properties.has( texture, PropertyName::__currentAnisotropy)) {
 
       _fn->glTexParameterf((GLenum)textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
                            std::min(texture->anisotropy, (float)_capabilities.getMaxAnisotropy()));
-      _properties.get(texture)[PropertyKey::__currentAnisotropy] = texture->anisotropy;
+      _properties.get(texture)[PropertyName::__currentAnisotropy] = texture->anisotropy;
     }
   }
 }
 
-void Textures::uploadTexture(Properties::Map textureProperties, DefaultTexture::Ptr texture, unsigned slot )
+void Textures::uploadTexture(Properties::Map textureProperties, Texture::Ptr texture, unsigned slot )
 {
 
-  if ( textureProperties.find(PropertyKey::__webglInit) == textureProperties.end()) {
+  if ( textureProperties.find(PropertyName::__webglInit) == textureProperties.end()) {
 
-    textureProperties[PropertyKey::__webglInit] = true;
+    textureProperties[PropertyName::__webglInit] = true;
 
     texture->onDispose.connect([this](Texture *t) {
       deallocateTexture( t );
@@ -256,37 +257,19 @@ void Textures::uploadTexture(Properties::Map textureProperties, DefaultTexture::
 
     GLuint tex;
     _fn->glGenTextures(1, &tex);
-    textureProperties[PropertyKey::__webglTexture] = tex;
+    textureProperties[PropertyName::__webglTexture] = tex;
 
     _infoMemory.textures ++;
   }
 
   _state.activeTexture( GL_TEXTURE0 + slot );
-  _state.bindTexture( GL_TEXTURE_2D, (GLint)textureProperties[PropertyKey::__webglTexture]);
+  _state.bindTexture( TextureTarget::twoD, (GLint)textureProperties[PropertyName::__webglTexture]);
 
   _fn->glPixelStorei(GL_UNPACK_ALIGNMENT, texture->unpackAlignment() );
 
-  QImage image = clampToMaxSize( texture->image(), _capabilities.maxTextureSize, false);
-
-  if(texture->premultiplyAlpha()) {
-    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    _fn->glBlendEquation(GL_FUNC_ADD); //TODO ?
-    _fn->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); //TODO ?
-  }
-
-  if (!(texture->needsPowerOfTwo() && isPowerOfTwo(image))) {
-
-    image = makePowerOfTwo( image );
-  }
-
-  bool isPowerOfTwoImage = isPowerOfTwo( image );
-
-  setTextureParameters(TextureTarget::twoD, texture, isPowerOfTwoImage );
-
-  //var mipmap, mipmaps = texture.mipmaps;
+  setTextureParameters(TextureTarget::twoD, texture );
 
   texture::Dispatch dispatch;
-
   dispatch.func<DepthTexture>() = [&](DepthTexture &texture) {
 
     // populate depth texture with dummy data
@@ -333,14 +316,14 @@ void Textures::uploadTexture(Properties::Map textureProperties, DefaultTexture::
       }
     }
 
-    _state.texImage2D(TextureTarget::twoD, 0, internalFormat, image.width(), image.height(), texture.format(), texture.type());
+    _state.texImage2D(TextureTarget::twoD, 0, internalFormat, texture.width(), texture.height(), texture.format(), texture.type());
   };
   dispatch.func<DataTexture>() = [&](DataTexture &texture) {
     // use manually created mipmaps if available
     // if there are no manual mipmaps
     // set 0 level mipmap and then use GL to generate other mipmap levels
 
-    if ( texture.mipmaps().size() > 0 && isPowerOfTwoImage ) {
+    if ( texture.mipmaps().size() > 0 && texture.isPowerOfTwo()) {
 
       for ( size_t i = 0, il = texture.mipmaps().size(); i < il; i ++ ) {
 
@@ -353,69 +336,73 @@ void Textures::uploadTexture(Properties::Map textureProperties, DefaultTexture::
     }
     else {
       _state.texImage2D(TextureTarget::twoD, 0, texture.format(),
-                        image.width(), image.height(), texture.format(), texture.type(), image);
+                        texture.width(), texture.height(), texture.format(), texture.type(), texture.data());
     }
   };
   dispatch.func<CompressedTexture>() = [&](CompressedTexture &texture) {
-#if 0
-    for ( var i = 0, il = mipmaps.length; i < il; i ++ ) {
 
-      mipmap = mipmaps[ i ];
+    //var mipmap, mipmaps = texture.mipmaps;
+    for ( size_t i = 0, il = texture.mipmaps().size(); i < il; i ++ ) {
 
-      if ( texture.format !== RGBAFormat && texture.format !== RGBFormat ) {
+      const Mipmap &mipmap = texture.mipmaps()[ i ];
 
-        if ( state.getCompressedTextureFormats().indexOf( glFormat ) > - 1 ) {
+      if ( texture.format() != TextureFormat::RGBA && texture.format() != TextureFormat::RGB) {
 
-          state.compressedTexImage2D( _gl.TEXTURE_2D, i, glFormat, mipmap.width, mipmap.height, 0, mipmap.data );
+        const auto &formats = _state.getCompressedTextureFormats();
+        if (std::find(formats.cbegin(), formats.cend(), (GLint)texture.format()) != formats.cend()) {
 
-        } else {
-
-          console.warn( 'THREE.WebGLRenderer: Attempt to load unsupported compressed texture format in .uploadTexture()' );
-
+          _state.compressedTexImage2D(TextureTarget::twoD, i, texture.format(), mipmap.width, mipmap.height, 0, mipmap.data.data() );
+        }
+        else {
+          //console.warn( 'THREE.WebGLRenderer: Attempt to load unsupported compressed texture format in .uploadTexture()' );
         }
 
       } else {
-
-        state.texImage2D( _gl.TEXTURE_2D, i, glFormat, mipmap.width, mipmap.height, 0, glFormat, glType, mipmap.data );
-
+        _state.texImage2D(TextureTarget::twoD, i, texture.format(), mipmap.width, mipmap.height, texture.format(),
+                          texture.type(), mipmap.data.data() );
       }
     }
-#endif
   };
-  dispatch.func<Texture>() = [&](Texture &texture) {
+  dispatch.func<DefaultTexture>() = [&](DefaultTexture &texture) {
 
     // regular Texture (image, video, canvas)
+    QImage image = clampToMaxSize( texture.image(), _capabilities.maxTextureSize, false);
+
+    if(texture.premultiplyAlpha()) {
+      image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+      _fn->glBlendEquation(GL_FUNC_ADD); //TODO ?
+      _fn->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); //TODO ?
+    }
+
+    if (!(texture.needsPowerOfTwo() && texture.isPowerOfTwo())) {
+
+      image = makePowerOfTwo( image );
+    }
 
     // use manually created mipmaps if available
     // if there are no manual mipmaps
     // set 0 level mipmap and then use GL to generate other mipmap levels
-#if 0
-    if ( mipmaps.length > 0 && isPowerOfTwoImage ) {
+    if ( texture.mipmaps().size() > 0 && texture.isPowerOfTwo()) {
 
-      for ( var i = 0, il = mipmaps.length; i < il; i ++ ) {
+      for ( size_t i = 0, il = texture.mipmaps().size(); i < il; i ++ ) {
 
-        mipmap = mipmaps[ i ];
-        state.texImage2D( _gl.TEXTURE_2D, i, glFormat, glFormat, glType, mipmap );
-
+        const Mipmap &mipmap = texture.mipmaps()[ i ];
+        _state.texImage2D(TextureTarget::twoD, i, texture.format(), texture.format(), texture.type(), mipmap );
       }
 
-      texture.generateMipmaps = false;
-
-    } else {
-
-      state.texImage2D( _gl.TEXTURE_2D, 0, glFormat, glFormat, glType, image );
-
+      texture.generateMipmaps() = false;
     }
-#endif
+    else {
+      _state.texImage2D(TextureTarget::twoD, 0, texture.format(), texture.format(), texture.type(), image );
+    }
   };
   texture->resolver->texture::DispatchResolver::getValue(dispatch);
-#if 0
-  if ( textureNeedsGenerateMipmaps( texture, isPowerOfTwoImage ) ) _fn->glGenerateMipmap( _gl.TEXTURE_2D );
 
-  textureProperties.__version = texture.version;
+  if ( texture->needsGenerateMipmaps() ) _fn->glGenerateMipmap(GL_TEXTURE_2D );
 
-  if ( texture.onUpdate ) texture.onUpdate( texture );
-#endif
+  textureProperties[PropertyName::__version] = texture->version();
+
+  texture->onUpdate.emitSignal(texture.get());
 }
 
 #if 0

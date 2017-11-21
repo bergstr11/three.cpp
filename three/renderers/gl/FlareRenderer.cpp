@@ -76,14 +76,14 @@ void FlareRenderer::init()
   _fn->glGenTextures(1, &_tempTexture);
   _fn->glGenTextures(1, &_occlusionTexture);
 
-  _state.bindTexture( GL_TEXTURE_2D, _tempTexture );
+  _state.bindTexture( TextureTarget::twoD, _tempTexture );
   _fn->glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, 16, 16, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
-  _state.bindTexture( GL_TEXTURE_2D, _occlusionTexture );
+  _state.bindTexture( TextureTarget::twoD, _occlusionTexture );
   _fn->glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
   _fn->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -278,9 +278,9 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
       // save current RGB to temp texture
 
       _state.activeTexture( GL_TEXTURE0 );
-      _state.bindTexture( GL_TEXTURE_2D );
+      _state.bindTexture( TextureTarget::twoD );
       _state.activeTexture( GL_TEXTURE1 );
-      _state.bindTexture( GL_TEXTURE_2D, _tempTexture );
+      _state.bindTexture( TextureTarget::twoD, _tempTexture );
       _fn->glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, screenPositionPixels.x(), screenPositionPixels.y(), 16, 16, 0 );
 
 
@@ -299,7 +299,7 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
       // copy result to occlusionMap
 
       _state.activeTexture( GL_TEXTURE0 );
-      _state.bindTexture( GL_TEXTURE_2D, _occlusionTexture );
+      _state.bindTexture( TextureTarget::twoD, _occlusionTexture );
       _fn->glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, screenPositionPixels.x(), screenPositionPixels.y(), 16, 16, 0 );
 
 
@@ -309,7 +309,7 @@ void FlareRenderer::render(std::vector<LensFlare::Ptr> &flares,
       _state.disable( GL_DEPTH_TEST );
 
       _state.activeTexture( GL_TEXTURE1 );
-      _state.bindTexture( GL_TEXTURE_2D, _tempTexture );
+      _state.bindTexture( TextureTarget::twoD, _tempTexture );
       _fn->glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 
 

@@ -37,6 +37,10 @@ public:
   {
     return _images[index];
   }
+
+  bool isPowerOfTwo() override {
+    return math::isPowerOfTwo(_images[0].width()) && math::isPowerOfTwo(_images[0].height());
+  }
 };
 
 }

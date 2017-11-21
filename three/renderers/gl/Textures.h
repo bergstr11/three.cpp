@@ -28,11 +28,10 @@ class Textures
   Properties &_properties;
   Capabilities &_capabilities;
   MemoryInfo &_infoMemory;
-  //bool paramThreeToGL;
 
   void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
-  void setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture, bool isPowerOfTwoImage);
-  void uploadTexture(Properties::Map textureProperties, DefaultTexture::Ptr texture, unsigned slot );
+  void setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture);
+  void uploadTexture(Properties::Map textureProperties, Texture::Ptr texture, unsigned slot );
 
 public:
   Textures(QOpenGLFunctions * fn, Extensions &extensions, State &state, Properties &properties,
@@ -49,11 +48,6 @@ public:
       return img.width() > img.height() ? img.scaledToWidth(maxSize) : img.scaledToHeight(maxSize);
 
     return img;
-  }
-
-  bool isPowerOfTwo(const QImage &image)
-  {
-    return math::isPowerOfTwo(image.width()) && math::isPowerOfTwo(image.height());
   }
 
   QImage makePowerOfTwo(const QImage &image)
