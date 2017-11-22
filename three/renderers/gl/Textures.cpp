@@ -68,19 +68,14 @@ void Textures::deallocateRenderTarget(RenderTarget *renderTarget)
 
 }
 
-void Textures::setTexture2D(DefaultTexture::Ptr texture, unsigned slot)
+void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
 {
   auto &textureProperties = _properties.get(texture->uuid);
 
   if (texture->version() > 0 && textureProperties[PropertyName::__version].gluint_value != texture->version() ) {
 
-    if (texture->image().isNull()) {
-      throw std::invalid_argument("Texture marked for update but image is undefined");
-    }
-    else {
-      uploadTexture( textureProperties, texture, slot );
-      return;
-    }
+    uploadTexture( textureProperties, texture, slot );
+    return;
   }
   _state.activeTexture(GL_TEXTURE0 + slot );
   _state.bindTexture(TextureTarget::twoD, textureProperties[PropertyName::__webglTexture].gluint_value);
@@ -405,95 +400,84 @@ void Textures::uploadTexture(Properties::Map textureProperties, Texture::Ptr tex
   texture->onUpdate.emitSignal(texture.get());
 }
 
-#if 0
 // Render targets
 
 // Setup storage for target texture and bind it to correct framebuffer
-void setupFrameBufferTexture( framebuffer, renderTarget, attachment, textureTarget ) {
+void Textures::setupFrameBufferTexture(GLuint framebuffer, const RenderTarget &renderTarget, GLenum attachment, TextureTarget textureTarget)
+{
+  TextureFormat format = renderTarget.texture()->format();
+  TextureType type = renderTarget.texture()->type();
 
-  var glFormat = paramThreeToGL( renderTarget.texture.format );
-  var glType = paramThreeToGL( renderTarget.texture.type );
-  state.texImage2D( textureTarget, 0, glFormat, renderTarget.width, renderTarget.height, 0, glFormat, glType, null );
-  _fn->glbindFramebuffer( _gl.FRAMEBUFFER, framebuffer );
-  _fn->glframebufferTexture2D( _gl.FRAMEBUFFER, attachment, textureTarget, properties.get( renderTarget.texture ).__webglTexture, 0 );
-  _fn->glbindFramebuffer( _gl.FRAMEBUFFER, null );
+  _state.texImage2D( textureTarget, 0, format, renderTarget.width(), renderTarget.height(), format, type, nullptr );
+  _fn->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer );
+  _fn->glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, (GLenum)textureTarget,
+                              (GLuint)_properties.get(renderTarget.texture())[PropertyName::__webglTexture], 0 );
+  _fn->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
 // Setup storage for internal depth/stencil buffers and bind to correct framebuffer
-function setupRenderBufferStorage( renderbuffer, renderTarget ) {
+void Textures::setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget )
+{
+  _fn->glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer );
 
-  _fn->glbindRenderbuffer( _gl.RENDERBUFFER, renderbuffer );
+  if ( renderTarget.depthBuffer() && !renderTarget.stencilBuffer()) {
 
-  if ( renderTarget.depthBuffer && ! renderTarget.stencilBuffer ) {
+    _fn->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, renderTarget.width(), renderTarget.height() );
+    _fn->glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer );
 
-    _fn->glrenderbufferStorage( _gl.RENDERBUFFER, _gl.DEPTH_COMPONENT16, renderTarget.width, renderTarget.height );
-    _gl.framebufferRenderbuffer( _gl.FRAMEBUFFER, _gl.DEPTH_ATTACHMENT, _gl.RENDERBUFFER, renderbuffer );
+  } else if ( renderTarget.depthBuffer() && renderTarget.stencilBuffer() ) {
 
-  } else if ( renderTarget.depthBuffer && renderTarget.stencilBuffer ) {
-
-    _gl.renderbufferStorage( _gl.RENDERBUFFER, _gl.DEPTH_STENCIL, renderTarget.width, renderTarget.height );
-    _gl.framebufferRenderbuffer( _gl.FRAMEBUFFER, _gl.DEPTH_STENCIL_ATTACHMENT, _gl.RENDERBUFFER, renderbuffer );
+    _fn->glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_STENCIL, renderTarget.width(), renderTarget.height() );
+    _fn->glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer );
 
   } else {
-
     // FIXME: We don't support !depth !stencil
-    _gl.renderbufferStorage( _gl.RENDERBUFFER, _gl.RGBA4, renderTarget.width, renderTarget.height );
-
+    _fn->glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA4, renderTarget.width(), renderTarget.height() );
   }
 
-  _gl.bindRenderbuffer( _gl.RENDERBUFFER, null );
-
+  _fn->glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 }
 
 // Setup resources for a Depth Texture for a FBO (needs an extension)
-function setupDepthTexture( framebuffer, renderTarget ) {
+void Textures::setupDepthTexture(GLuint framebuffer, RenderTarget &renderTarget )
+{
+  //var isCube = ( renderTarget && renderTarget.isWebGLRenderTargetCube );
+  //if ( isCube ) throw new Error( 'Depth Texture with cube render targets is not supported' );
 
-  var isCube = ( renderTarget && renderTarget.isWebGLRenderTargetCube );
-  if ( isCube ) throw new Error( 'Depth Texture with cube render targets is not supported' );
+  _fn->glBindFramebuffer( GL_FRAMEBUFFER, framebuffer );
 
-  _gl.bindFramebuffer( _gl.FRAMEBUFFER, framebuffer );
-
-  if ( !( renderTarget.depthTexture && renderTarget.depthTexture.isDepthTexture ) ) {
-
-    throw new Error( 'renderTarget.depthTexture must be an instance of THREE.DepthTexture' );
-
-  }
+  GLuint webglDepthTexture = (GLuint)_properties.get(renderTarget.depthTexture())[PropertyName::__webglTexture];
 
   // upload an empty depth texture with framebuffer size
-  if ( !properties.get( renderTarget.depthTexture ).__webglTexture ||
-       renderTarget.depthTexture.image.width !== renderTarget.width ||
-                                                 renderTarget.depthTexture.image.height !== renderTarget.height ) {
-    renderTarget.depthTexture.image.width = renderTarget.width;
-    renderTarget.depthTexture.image.height = renderTarget.height;
-    renderTarget.depthTexture.needsUpdate = true;
+  if ( webglDepthTexture < 0
+       || renderTarget.depthTexture()->width() != renderTarget.width()
+       || renderTarget.depthTexture()->height() != renderTarget.height()) {
+
+    renderTarget.depthTexture()->width() = (size_t)renderTarget.width();
+    renderTarget.depthTexture()->height() = (size_t)renderTarget.height();
+    renderTarget.depthTexture()->needsUpdate();
   }
 
-  setTexture2D( renderTarget.depthTexture, 0 );
+  setTexture2D( renderTarget.depthTexture(), 0 );
 
-  var webglDepthTexture = properties.get( renderTarget.depthTexture ).__webglTexture;
-
-  if ( renderTarget.depthTexture.format === DepthFormat ) {
-
-    _gl.framebufferTexture2D( _gl.FRAMEBUFFER, _gl.DEPTH_ATTACHMENT, _gl.TEXTURE_2D, webglDepthTexture, 0 );
-
-  } else if ( renderTarget.depthTexture.format === DepthStencilFormat ) {
-
-    _gl.framebufferTexture2D( _gl.FRAMEBUFFER, _gl.DEPTH_STENCIL_ATTACHMENT, _gl.TEXTURE_2D, webglDepthTexture, 0 );
-
-  } else {
-
-    throw new Error( 'Unknown depthTexture format' );
-
+  switch(renderTarget.depthTexture()->format()) {
+    case TextureFormat::Depth:
+      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0 );
+      break;
+    case TextureFormat::DepthStencil:
+      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0 );
+      break;
+    default:
+      throw std::invalid_argument("unknown depth texture format");
   }
-
 }
 
 // Setup GL resources for a non-texture depth buffer
-function setupDepthRenderbuffer( renderTarget ) {
-
-  var renderTargetProperties = properties.get( renderTarget );
-
+void Textures::setupDepthRenderbuffer(RenderTarget &renderTarget)
+{
+  const auto &renderTargetProperties = _properties.get( renderTarget.uuid );
+#if 0
   var isCube = ( renderTarget.isWebGLRenderTargetCube === true );
 
   if ( renderTarget.depthTexture ) {
@@ -510,26 +494,25 @@ function setupDepthRenderbuffer( renderTarget ) {
 
       for ( var i = 0; i < 6; i ++ ) {
 
-        _gl.bindFramebuffer( _gl.FRAMEBUFFER, renderTargetProperties.__webglFramebuffer[ i ] );
-        renderTargetProperties.__webglDepthbuffer[ i ] = _gl.createRenderbuffer();
+        _fn->glbindFramebuffer( GL_FRAMEBUFFER, renderTargetProperties.__webglFramebuffer[ i ] );
+        renderTargetProperties.__webglDepthbuffer[ i ] = _fn->glcreateRenderbuffer();
         setupRenderBufferStorage( renderTargetProperties.__webglDepthbuffer[ i ], renderTarget );
 
       }
 
     } else {
 
-      _gl.bindFramebuffer( _gl.FRAMEBUFFER, renderTargetProperties.__webglFramebuffer );
-      renderTargetProperties.__webglDepthbuffer = _gl.createRenderbuffer();
+      _fn->glbindFramebuffer( GL_FRAMEBUFFER, renderTargetProperties.__webglFramebuffer );
+      renderTargetProperties.__webglDepthbuffer = _fn->glcreateRenderbuffer();
       setupRenderBufferStorage( renderTargetProperties.__webglDepthbuffer, renderTarget );
 
     }
 
   }
 
-  _gl.bindFramebuffer( _gl.FRAMEBUFFER, null );
-
-}
+  _fn->glbindFramebuffer( GL_FRAMEBUFFER, null );
 #endif
+}
 
 // Set up GL resources for the render target
 void Textures::setupRenderTarget(RenderTarget &renderTarget)

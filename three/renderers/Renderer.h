@@ -31,7 +31,7 @@ public:
 
     using Ptr = std::shared_ptr<Target>;
 
-    Texture::Ptr texture() {return _texture;}
+    const Texture::Ptr texture() const {return _texture;}
 
     virtual const math::Vector4 &scissor() const = 0;
     virtual bool scissorTest() const = 0;

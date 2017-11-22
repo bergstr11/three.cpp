@@ -32,6 +32,10 @@ class Textures
   void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
   void setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture);
   void uploadTexture(Properties::Map textureProperties, Texture::Ptr texture, unsigned slot );
+  void setupFrameBufferTexture(GLuint framebuffer, const RenderTarget &renderTarget, GLenum attachment, TextureTarget textureTarget);
+  void setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget );
+  void setupDepthTexture(GLuint framebuffer, RenderTarget &renderTarget);
+  void setupDepthRenderbuffer(RenderTarget &renderTarget);
 
 public:
   Textures(QOpenGLFunctions * fn, Extensions &extensions, State &state, Properties &properties,
@@ -67,7 +71,7 @@ public:
 
   void deallocateTexture(Texture *texture);
   void deallocateRenderTarget(RenderTarget *renderTarget);
-  void setTexture2D(DefaultTexture::Ptr texture, unsigned slot);
+  void setTexture2D(Texture::Ptr texture, unsigned slot);
   void setTextureCube(CubeTexture::Ptr texture, unsigned slot);
   void updateRenderTargetMipmap(const Renderer::Target::Ptr &renderTarget);
   void setupRenderTarget(RenderTarget &renderTarget);

@@ -14,7 +14,7 @@ class DepthTexture :public Texture
 {
   friend class Textures;
 private:
-  const size_t _width, _height;
+  size_t _width, _height;
 
 protected:
   DepthTexture(const TextureOptions &options, size_t width, size_t height);
@@ -37,6 +37,9 @@ public:
 
   size_t width() const {return _width;}
   size_t height() const {return _height;}
+
+  size_t &width() {return _width;}
+  size_t &height() {return _height;}
 
   bool isPowerOfTwo() override {
     return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);

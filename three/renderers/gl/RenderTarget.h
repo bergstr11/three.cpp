@@ -31,8 +31,8 @@ public:
   const sole::uuid uuid;
 
 private:
-  float _width;
-  float _height;
+  GLsizei _width;
+  GLsizei _height;
 
   math::Vector4 _scissor;
   bool _scissorTest = false;
@@ -49,7 +49,7 @@ private:
   }
 
 protected:
-  RenderTarget(const Options &options, float width, float height)
+  RenderTarget(const Options &options, GLsizei width, GLsizei height)
      : Renderer::Target(DefaultTexture::make(options)),
        _width(width), _height(height), _scissor(0, 0, width, height), _viewport(0, 0, width, height), uuid(sole::uuid0())
   {
@@ -62,7 +62,7 @@ public:
   Signal<void(RenderTarget *)> onDispose;
 
   using Ptr = std::shared_ptr<RenderTarget>;
-  static Ptr make(const Options &options, float width, float height) {
+  static Ptr make(const Options &options, GLsizei width, GLsizei height) {
     return Ptr(new RenderTarget(options, width, height));
   }
 
@@ -70,9 +70,15 @@ public:
   bool scissorTest() const override {return _scissorTest;}
   const math::Vector4 &viewport() const override {return _viewport;}
 
-  DepthTexture::Ptr depthTexture() {return _depthTexture;}
+  GLsizei width() const {return _width;}
+  GLsizei height() const {return _height;}
 
-  RenderTarget &setSize(float width, float height )
+  bool depthBuffer() const {return _depthBuffer;}
+  bool stencilBuffer() const {return _stencilBuffer;}
+
+  const DepthTexture::Ptr depthTexture() const {return _depthTexture;}
+
+  RenderTarget &setSize(GLsizei width, GLsizei height )
   {
     if ( _width != width || _height != height ) {
 
