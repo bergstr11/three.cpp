@@ -8,9 +8,58 @@
 #include <string>
 #include <vector>
 #include <array>
-#include "math/Vector3.h"
+#include <memory>
+#include <math/Vector2.h>
+#include <math/Vector3.h>
 
 namespace three {
+
+using byte = unsigned char;
+
+struct Mipmap {
+  std::vector<unsigned char> data;
+  int width, height;
+};
+
+class TextureData
+{
+protected:
+  std::vector<Mipmap> _mipmaps;
+
+  size_t _width = 0;
+  size_t _height = 0;
+
+  TextureData(size_t width, size_t height) : _width(width), _height(height) {}
+  TextureData() = default;
+
+public:
+  using Ptr = std::shared_ptr<TextureData>;
+
+  size_t width() const {return _width;}
+  size_t height() const {return _height;}
+
+  const std::vector<Mipmap> &mipmaps() const {return _mipmaps;}
+  const Mipmap &mipmap(unsigned index) const {return _mipmaps.at(index);}
+
+  virtual const byte *bytes() const = 0;
+};
+
+template <typename T>
+class TextureDataT : public TextureData
+{
+  std::vector<T> _data;
+
+  TextureDataT(const std::vector<T> &data, size_t width, size_t height)
+     : TextureData(width, height), _data(data) {}
+
+  TextureDataT() = default;
+public:
+  static Ptr make(const std::vector<T> &data, size_t width, size_t height) {
+    return Ptr(new TextureDataT(data, width, height));
+  }
+
+  const byte *bytes() const override {return (byte *)_data.data();}
+};
 
 class Layers
 {
@@ -50,38 +99,26 @@ struct Group {
   Group() : start(0), count(0), materialIndex(0) {}
 };
 
-class UV {
-  union {
-    struct { float _u, _v; };
-    float _elements[2];
-  };
-
+class UV : public math::Vector2
+{
 public:
 
-  UV(float u = 0, float v = 0) : _u( u ), _v( v ) { }
-  UV( const UV& uv ) : _u(uv._u), _v(uv._v) {}
-
-  UV& set( float uIn, float vIn )
-  {
-    _u = uIn;
-    _v = vIn;
-
-    return *this;
-  }
+  UV(float u = 0, float v = 0) : math::Vector2( u, v ) { }
+  UV( const UV& uv ) : math::Vector2(uv) {}
 
   UV& lerpSelf( const UV& uv, float alpha )
   {
-    _u += ( uv._u - _u ) * alpha;
-    _v += ( uv._v - _v ) * alpha;
+    _x += ( uv._x - _x ) * alpha;
+    _y += ( uv._y - _y ) * alpha;
 
     return *this;
   }
 
-  float &u() {return _u;}
-  float &v() {return _v;}
+  float &u() {return _x;}
+  float &v() {return _y;}
 
-  const float u() const {return _u;}
-  const float v() const {return _v;}
+  const float u() const {return _x;}
+  const float v() const {return _y;}
 };
 
 using UV_Array = std::array<UV, 3>;

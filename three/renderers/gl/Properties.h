@@ -9,6 +9,7 @@
 #include <string>
 #include <type_traits>
 #include <core/Object3D.h>
+#include <scene/Fog.h>
 #include <textures/Texture.h>
 #include "Program.h"
 #include "shader/ShaderLib.h"

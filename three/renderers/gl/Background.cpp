@@ -23,7 +23,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
     setClear( color, 1 );
     renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
   };
-  textures.func<CubeTexture::Ptr>() = [&](CubeTexture::Ptr &tex) {
+  textures.func<ImageCubeTexture::Ptr>() = [&](ImageCubeTexture::Ptr &tex) {
 
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
@@ -52,7 +52,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
     renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
   };
-  textures.func<DefaultTexture::Ptr>() = [&] (DefaultTexture::Ptr &tex) {
+  textures.func<ImageTexture::Ptr>() = [&] (ImageTexture::Ptr &tex) {
 
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );

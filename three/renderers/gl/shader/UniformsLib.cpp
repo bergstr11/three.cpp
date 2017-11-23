@@ -104,63 +104,63 @@ public:
         LibUniformValues({
                          value<Color>(UniformName::diffuse, Color(0xeeeeee)),
                          value<float>(UniformName::opacity, 1.0f),
-                         value<DefaultTexture::Ptr>(UniformName::map, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::map, nullptr),
                          value<math::Matrix3>(UniformName::uvTransform, math::Matrix3()),
-                         value<DefaultTexture::Ptr>(UniformName::alphaMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::alphaMap, nullptr)
                       }));
     add(UniformsID::specularmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::specularMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::specularMap, nullptr)
                       }));
     add(UniformsID::envmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::envMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::envMap, nullptr),
                          value<GLint>(UniformName::flipEnvMap, -1),
-                         value<DefaultTexture::Ptr>(UniformName::map, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::map, nullptr),
                          value<math::Matrix3>(UniformName::reflectivity, math::Matrix3()),
                          value<GLfloat>(UniformName::refractionRatio, 0.98f)
                       }));
     add(UniformsID::aomap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::aoMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::aoMap, nullptr),
                          value<GLfloat>(UniformName::aoMapIntensity, 1)
                       }));
     add(UniformsID::lightmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::lightMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::lightMap, nullptr),
                          value<GLfloat>(UniformName::lightMapIntensity, 1)
                       }));
     add(UniformsID::emissivemap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::emissiveMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::emissiveMap, nullptr)
                       }));
     add(UniformsID::bumpmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::bumpMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::bumpMap, nullptr),
                          value<GLfloat>(UniformName::bumpScale, 1)
                       }));
     add(UniformsID::normalmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::normalMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::normalMap, nullptr),
                          value<math::Vector2>(UniformName::normalScale, math::Vector2(1, 1))
                       }));
     add(UniformsID::displacementmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::displacementMap, nullptr),
+                         value<ImageTexture::Ptr>(UniformName::displacementMap, nullptr),
                          value<GLfloat>(UniformName::displacementScale, 1.0f),
                          value<GLfloat>(UniformName::displacementBias, 1)
                       }));
     add(UniformsID::roughnessmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::roughnessMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::roughnessMap, nullptr)
                       }));
     add(UniformsID::metalnessmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::metalnessMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::metalnessMap, nullptr)
                       }));
     add(UniformsID::gradientmap,
         LibUniformValues({
-                         value<DefaultTexture::Ptr>(UniformName::gradientMap, nullptr)
+                         value<ImageTexture::Ptr>(UniformName::gradientMap, nullptr)
                       }));
     add(UniformsID::fog,
         LibUniformValues({

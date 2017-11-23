@@ -228,7 +228,7 @@ public:
     add(ShaderID::cube,
         LibShader(ShaderID::cube,
                   {
-                     uniformslib::value<CubeTexture::Ptr>(UniformName::cube, nullptr),
+                     uniformslib::value<ImageCubeTexture::Ptr>(UniformName::cube, nullptr),
                      uniformslib::value<GLint>(UniformName::flip, -1),
                      uniformslib::value<float>(UniformName::opacity, 1.0f)
                   },
@@ -238,7 +238,7 @@ public:
     add(ShaderID::equirect,
         LibShader(ShaderID::equirect,
                   {
-                     uniformslib::value<DefaultTexture::Ptr>(UniformName::equirect, nullptr)
+                     uniformslib::value<ImageTexture::Ptr>(UniformName::equirect, nullptr)
                   },
                   ":chunk/equirect_vert.glsl",
                   ":chunk/equirect_frag.glsl"

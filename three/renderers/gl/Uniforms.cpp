@@ -93,5 +93,26 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   }
 }
 
+void Uniform::setValue(const Texture::Ptr &texture, Renderer_impl &renderer )
+{
+  unsigned unit = renderer.allocTextureUnit();
+  _fn->glUniform1i( _addr, unit );
+  renderer.setTexture2D(texture, unit );
+}
+
+void Uniform::setValue(const ImageCubeTexture::Ptr &texture, Renderer_impl &renderer )
+{
+  unsigned unit = renderer.allocTextureUnit();
+  _fn->glUniform1i( _addr, unit );
+  renderer.setTextureCube(texture, unit );
+}
+
+void Uniform::setValue(const DataCubeTexture::Ptr &texture, Renderer_impl &renderer )
+{
+  unsigned unit = renderer.allocTextureUnit();
+  _fn->glUniform1i( _addr, unit );
+  renderer.setTextureCube(texture, unit );
+}
+
 }
 }

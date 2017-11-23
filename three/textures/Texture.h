@@ -14,13 +14,9 @@
 #include <helper/simplesignal.h>
 #include <helper/sole.h>
 #include <helper/Resolver.h>
+#include <helper/Types.h>
 
 namespace three {
-
-struct Mipmap {
-  std::vector<unsigned char> data;
-  int width, height;
-};
 
 struct TextureOptions
 {
@@ -69,9 +65,16 @@ protected:
   bool _premultiplyAlpha = false;
 
 protected:
+  // can't generate mipmaps for compressed textures
+  // mips must be embedded in DDS files
   bool _generateMipmaps;
+
+  // no flipping for cube textures
+  // (also flipping doesn't work for compressed textures )
   const bool _flipY;
-  const unsigned _unpackAlignment = 4;	// valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+
+  // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+  const unsigned _unpackAlignment = 4;
 
   Texture(texture::Resolver::Ptr resolver,
           const TextureOptions &options,
@@ -85,8 +88,8 @@ public:
   texture::Resolver::Ptr resolver;
 
   const sole::uuid uuid;
-  Signal<void(Texture *)> onDispose;
-  Signal<void(Texture *)> onUpdate;
+  Signal<void(Texture &)> onDispose;
+  Signal<void(Texture &)> onUpdate;
 
   const math::Vector2 &offset() const {return _offset;}
   const math::Vector2 &repeat() const {return _repeat;}
@@ -115,12 +118,14 @@ public:
   unsigned unpackAlignment() const {return _unpackAlignment;}
 
   void dispose() {
-    onDispose.emitSignal(this);
+    onDispose.emitSignal(*this);
   }
 
   TextureMapping mapping() const {return TextureOptions::mapping;}
 
   Encoding encoding() const {return TextureOptions::encoding;}
+
+  void transformUv(UV &uv);
 
   bool needsUpdate() const {return _needsUpdate;}
 
@@ -138,33 +143,6 @@ public:
   {
     return _generateMipmaps && isPowerOfTwo() && TextureOptions::minFilter != TextureFilter::Nearest
            && TextureOptions::minFilter != TextureFilter ::Linear;
-  }
-};
-
-class DefaultTexture :public Texture
-{
-private:
-  QImage _image;
-
-protected:
-  DefaultTexture(const TextureOptions &options, const QImage &image)
-     : Texture(texture::ResolverT<DefaultTexture>::make(*this), options), _image(image) {}
-  DefaultTexture(const TextureOptions &options)
-     : Texture(texture::ResolverT<DefaultTexture>::make(*this), options) {}
-
-public:
-  using Ptr = std::shared_ptr<DefaultTexture>;
-  static Ptr make(const QImage &image, const TextureOptions &options) {
-    return Ptr(new DefaultTexture(options, image));
-  }
-  static Ptr make(const TextureOptions &options) {
-    return Ptr(new DefaultTexture(options));
-  }
-
-  QImage &image() {return _image;}
-
-  bool isPowerOfTwo() override {
-    return math::isPowerOfTwo(_image.width()) && math::isPowerOfTwo(_image.height());
   }
 };
 

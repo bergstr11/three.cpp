@@ -16,7 +16,6 @@ Texture::Texture(texture::Resolver::Ptr resolver,
      _unpackAlignment(unpackAlignment),
      uuid(sole::uuid0())
 {
-
 }
 
 DepthTexture::DepthTexture(const TextureOptions &options, size_t width, size_t height)
@@ -29,82 +28,67 @@ DepthTexture::DepthTexture(const TextureOptions &options, size_t width, size_t h
     TextureOptions::type = TextureType::UnsignedInt248;
 }
 
-#if 0
-Texture::transformUv(TextureMapping::UV uv)
+void Texture::transformUv(UV &uv)
 {
+  if (mapping() != TextureMapping::UV) return;
 
-  if ( this.mapping !== UVMapping ) return;
+  uv.apply( _matrix );
 
-  uv.multiply( this.repeat );
-  uv.add( this.offset );
+  if ( uv.x() < 0 || uv.x() > 1 ) {
 
-  if ( uv.x < 0 || uv.x > 1 ) {
+    switch ( wrapS ) {
 
-    switch ( this.wrapS ) {
-
-      case RepeatWrapping:
-
-        uv.x = uv.x - Math.floor( uv.x );
+      case TextureWrapping::Repeat:
+        uv.x() = uv.x() - std::floor( uv.x() );
         break;
 
-      case ClampToEdgeWrapping:
-
-        uv.x = uv.x < 0 ? 0 : 1;
+      case TextureWrapping::ClampToEdge:
+        uv.x() = uv.x() < 0 ? 0 : 1;
         break;
 
-      case MirroredRepeatWrapping:
+      case TextureWrapping::MirroredRepeat:
+        int abs = std::abs((int)std::floor( uv.x()) % 2);
+        if ( abs == 1 ) {
 
-        if ( Math.abs( Math.floor( uv.x ) % 2 ) === 1 ) {
-
-          uv.x = Math.ceil( uv.x ) - uv.x;
-
-        } else {
-
-          uv.x = uv.x - Math.floor( uv.x );
-
+          uv.x() = std::ceil( uv.x() ) - uv.x();
+        }
+        else {
+          uv.x() = uv.x() - std::floor( uv.x() );
         }
         break;
-
     }
-
   }
 
-  if ( uv.y < 0 || uv.y > 1 ) {
+  if ( uv.y() < 0 || uv.y() > 1 ) {
 
-    switch ( this.wrapT ) {
+    switch ( wrapT ) {
 
-      case RepeatWrapping:
+      case TextureWrapping::Repeat:
 
-        uv.y = uv.y - Math.floor( uv.y );
+        uv.y() = uv.y() - std::floor( uv.y() );
         break;
 
-      case ClampToEdgeWrapping:
+      case TextureWrapping::ClampToEdge:
 
-        uv.y = uv.y < 0 ? 0 : 1;
+        uv.y() = uv.y() < 0 ? 0 : 1;
         break;
 
-      case MirroredRepeatWrapping:
+      case TextureWrapping::MirroredRepeat:
+        int abs = std::abs((int)std::floor( uv.y() ) % 2);
+        if ( abs == 1 ) {
 
-        if ( Math.abs( Math.floor( uv.y ) % 2 ) === 1 ) {
-
-          uv.y = Math.ceil( uv.y ) - uv.y;
-
-        } else {
-
-          uv.y = uv.y - Math.floor( uv.y );
-
+          uv.y() = std::ceil( uv.y() ) - uv.y();
+        }
+        else {
+          uv.y() = uv.y() - std::floor( uv.y() );
         }
         break;
-
     }
-
   }
 
-  if ( this.flipY ) {
-
-    uv.y = 1 - uv.y;
-
+  if ( _flipY ) {
+    uv.y() = 1 - uv.y();
   }
 }
-#endif
+
 }

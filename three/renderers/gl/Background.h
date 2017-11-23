@@ -9,7 +9,6 @@
 #include <objects/Mesh.h>
 #include <scene/Scene.h>
 #include <camera/OrtographicCamera.h>
-#include <textures/CubeTexture.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 #include <material/ShaderMaterial.h>

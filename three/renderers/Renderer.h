@@ -18,24 +18,45 @@ public:
   class Target
   {
   protected:
-    Texture::Ptr _texture;
+    Target(GLsizei width, GLsizei height)
+       : uuid(sole::uuid0()), _width(width), _height(height), _viewport(0, 0, width, height), _scissor(0, 0, width,  height)
+    {}
 
-    Target(Texture::Ptr texture, bool isCube=false) : uuid(sole::uuid0()), _texture(texture), isCube(isCube) {}
+    GLsizei _width;
+    GLsizei _height;
+
+    math::Vector4 _scissor;
+    bool _scissorTest = false;
+
+    math::Vector4 _viewport;
 
   public:
     const sole::uuid uuid;
 
-    const bool isCube;
-    unsigned activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
-    unsigned activeMipMapLevel = 0;
-
     using Ptr = std::shared_ptr<Target>;
 
-    const Texture::Ptr texture() const {return _texture;}
+    const math::Vector4 &scissor() const {return _scissor;}
+    bool scissorTest() const {return _scissorTest;}
+    const math::Vector4 &viewport() const {return _viewport;}
 
-    virtual const math::Vector4 &scissor() const = 0;
-    virtual bool scissorTest() const = 0;
-    virtual const math::Vector4 &viewport() const = 0;
+    GLsizei width() const {return _width;}
+    GLsizei height() const {return _height;}
+
+    virtual Texture::Ptr texture() const = 0;
+
+    Target &setSize(GLsizei width, GLsizei height )
+    {
+      if ( _width != width || _height != height ) {
+
+        _width = width;
+        _height = height;
+
+        //onDispose.emitSignal(this);
+      }
+
+      _viewport.set( 0, 0, width, height );
+      _scissor.set( 0, 0, width, height );
+    }
   };
 
 protected:

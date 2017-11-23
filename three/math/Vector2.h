@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include <helper/Types.h>
-
 namespace three {
 
 template<typename T>
@@ -18,8 +16,11 @@ class BufferAttributeT;
 
 namespace math {
 
+class Matrix3;
+
 class Vector2
 {
+protected:
   union {
     struct {
       float _x, _y;
@@ -31,8 +32,6 @@ public:
   Vector2() : _x(0.0f), _y(0.0f) {}
 
   Vector2(float x, float y) : _x(x), _y(y) {}
-
-  Vector2(const UV &uv) : _x(uv.u()), _y(uv.v()) {}
 
   Vector2(const Vector2 &vector) : _x(vector._x), _y(vector._y) {}
 
@@ -257,6 +256,8 @@ public:
     _x = array[offset];
     _y = array[offset + 1];
   }
+
+  Vector2 &apply(const Matrix3 &matrix);
 
   void put(float *array, unsigned offset=0)
   {

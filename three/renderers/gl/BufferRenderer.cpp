@@ -51,7 +51,7 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
 
 void IndexedBufferRenderer::render(GLint start, GLsizei count)
 {
-  _fn->glDrawElements((GLenum)_mode, count, _type, (GLubyte *)(start * _bytesPerElement));
+  _fn->glDrawElements((GLenum)_mode, count, _type, (GLvoid *)(start * _bytesPerElement));
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count;
@@ -70,7 +70,7 @@ void IndexedBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
        "BufferRenderer: using InstancedBufferGeometry but hardware does not support ANGLE_instanced_arrays");
   }
 
-  _fx->glDrawElementsInstanced((GLenum)_mode, count, _type, (GLubyte *)(start * _bytesPerElement), geometry->maxInstancedCount() );
+  _fx->glDrawElementsInstanced((GLenum)_mode, count, _type, (const void *)(start * _bytesPerElement), geometry->maxInstancedCount() );
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count * geometry->maxInstancedCount();

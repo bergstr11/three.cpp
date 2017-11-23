@@ -7,6 +7,7 @@
 
 #include <GL/gl.h>
 #include <iostream>
+#include <assert.h>
 
 namespace three {
 
@@ -222,10 +223,7 @@ enum class TextureTarget : GLenum
 {
   twoD=GL_TEXTURE_2D, //A two-dimensional texture.
   cubeMap=GL_TEXTURE_CUBE_MAP, //Positive X face for a cube-mapped texture.
-};
 
-enum class CubeFaceTarget : GLenum
-{
   cubeMapPositiveX=GL_TEXTURE_CUBE_MAP_POSITIVE_X, // Positive Y face for a cube-mapped texture.
   cubeMapNegativeX=GL_TEXTURE_CUBE_MAP_NEGATIVE_X, //Negative X face for a cube-mapped texture.
   cubeMapPositiveY=GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // Positive Y face for a cube-mapped texture.
@@ -233,6 +231,11 @@ enum class CubeFaceTarget : GLenum
   cubeMapPositiveZ=GL_TEXTURE_CUBE_MAP_POSITIVE_Z, //Positive Z face for a cube-mapped texture.
   cubeMapNegativeZ=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  //Negative Z face for a cube-mapped texture.
 };
+
+inline TextureTarget operator +(const TextureTarget &value, unsigned dist) {
+  assert((GLenum)value >= GL_TEXTURE_CUBE_MAP_POSITIVE_X && GL_TEXTURE_CUBE_MAP_POSITIVE_X + dist <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+  return (TextureTarget)((GLenum)value + dist);
+}
 
 enum class ShadowMapType
 {

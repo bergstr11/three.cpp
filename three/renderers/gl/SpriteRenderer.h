@@ -36,7 +36,7 @@ class SpriteRenderer
   math::Quaternion _spriteRotation;
   math::Vector3 _spriteScale;
 
-  DefaultTexture::Ptr _texture;
+  ImageTexture::Ptr _texture;
 
   void init();
 

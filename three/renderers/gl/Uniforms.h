@@ -71,22 +71,12 @@ public:
     _fn->glUniformMatrix4fv( _addr, 16, GL_FALSE, v.elements());
   }
 
-// Single texture (2D / Cube)
-#if 0
-  void setValueT1(const QOpenGLTexture &texture, Renderer_impl &renderer )
-  {
-    unsigned unit = renderer.allocTextureUnit();
-    _fn->glUniform1i( _addr, unit );
-    renderer.setTexture2D(v, unit );
-  }
+  void setValue(const Texture::Ptr &texture, Renderer_impl &renderer );
 
-  void setValueT6(const QOpenGLTexture &texture, Renderer_impl &renderer )
-  {
-    unsigned unit = renderer.allocTextureUnit();
-    _fn->glUniform1i( _addr, unit );
-    renderer.setTextureCube(v, unit );
-  }
-#endif
+  void setValue(const ImageCubeTexture::Ptr &texture, Renderer_impl &renderer );
+
+  void setValue(const DataCubeTexture::Ptr &texture, Renderer_impl &renderer );
+
   template <unsigned Sz>
   void setValue(const std::array<GLint, Sz> &v) {
     _fn->glUniform2iv(_addr, Sz, v.data());

@@ -163,43 +163,43 @@ void refresh(UniformValues &uniforms, MaterialT<Maps...> &material)
   // 5. alpha map
   // 6. emissive map
 
-  DefaultTexture::Ptr uvScaleMap;
+  ImageTexture::Ptr uvScaleMap;
 
   if (uniforms.contains(UniformName::map)) {
 
-    uvScaleMap = uniforms[UniformName::map].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::map].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::specularMap)) {
 
-    uvScaleMap = uniforms[UniformName::specularMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::specularMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::displacementMap)) {
 
-    uvScaleMap = uniforms[UniformName::displacementMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::displacementMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::normalMap)) {
 
-    uvScaleMap = uniforms[UniformName::normalMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::normalMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::bumpMap)) {
 
-    uvScaleMap = uniforms[UniformName::bumpMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::bumpMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::roughnessMap)) {
 
-    uvScaleMap = uniforms[UniformName::roughnessMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::roughnessMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::metalnessMap)) {
 
-    uvScaleMap = uniforms[UniformName::metalnessMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::metalnessMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::alphaMap)) {
 
-    uvScaleMap = uniforms[UniformName::alphaMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::alphaMap].get<ImageTexture::Ptr>();
 
   } else if (uniforms.contains(UniformName::emissiveMap)) {
 
-    uvScaleMap = uniforms[UniformName::emissiveMap].get<DefaultTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::emissiveMap].get<ImageTexture::Ptr>();
 
   }
 

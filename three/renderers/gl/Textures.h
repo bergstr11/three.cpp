@@ -8,7 +8,6 @@
 #include <QOpenGLFunctions>
 #include <QImage>
 #include <math/Math.h>
-#include <textures/CubeTexture.h>
 #include "RenderTarget.h"
 #include "Extensions.h"
 #include "State.h"
@@ -30,12 +29,13 @@ class Textures
   MemoryInfo &_infoMemory;
 
   void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
-  void setTextureParameters(TextureTarget textureTarget, Texture::Ptr texture);
-  void uploadTexture(Properties::Map textureProperties, Texture::Ptr texture, unsigned slot );
-  void setupFrameBufferTexture(GLuint framebuffer, const RenderTarget &renderTarget, GLenum attachment, TextureTarget textureTarget);
+  void setTextureParameters(TextureTarget textureTarget, Texture &texture);
+  void uploadTexture(Properties::Map textureProperties, Texture &texture, unsigned slot );
+  void setupFrameBufferTexture(GLuint framebuffer, const Renderer::Target &renderTarget, GLenum attachment, TextureTarget textureTarget);
   void setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget );
-  void setupDepthTexture(GLuint framebuffer, RenderTarget &renderTarget);
-  void setupDepthRenderbuffer(RenderTarget &renderTarget);
+  void setupDepthTexture(GLuint framebuffer, RenderTargetDefault &renderTarget);
+  void setupDepthRenderbuffer(RenderTargetDefault &renderTarget);
+  void setupDepthRenderbuffer(RenderTargetCube &renderTarget);
 
 public:
   Textures(QOpenGLFunctions * fn, Extensions &extensions, State &state, Properties &properties,
@@ -69,15 +69,18 @@ public:
            || f == TextureFilter::NearestMipMapLinear ? GL_NEAREST : GL_LINEAR;
   }
 
-  void deallocateTexture(Texture *texture);
-  void deallocateRenderTarget(RenderTarget *renderTarget);
+  void deallocateTexture(Texture &texture);
+  void deallocateRenderTarget(RenderTargetDefault &renderTarget);
+  void deallocateRenderTarget(RenderTargetCube &renderTarget);
   void setTexture2D(Texture::Ptr texture, unsigned slot);
-  void setTextureCube(CubeTexture::Ptr texture, unsigned slot);
-  void updateRenderTargetMipmap(const Renderer::Target::Ptr &renderTarget);
-  void setupRenderTarget(RenderTarget &renderTarget);
+  void setTextureCube(Texture::Ptr texture, unsigned slot);
+  void updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget);
+  void setupRenderTarget(RenderTargetDefault &renderTarget);
+  void setupRenderTarget(RenderTargetCube &renderTarget);
 
-  void onRenderTargetDispose(RenderTarget *renderTarget);
-
+  void onRenderTargetDispose(RenderTargetDefault &renderTarget);
+  void onRenderTargetDispose(RenderTargetCube &renderTarget);
+  void onTextureDispose(Texture &texture);
 };
 }
 }

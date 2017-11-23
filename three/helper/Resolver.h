@@ -293,16 +293,16 @@ DEF_RESOLVER_1(Dispatch)
 
 }
 
-class CubeTexture;
-class DefaultTexture;
+class ImageCubeTexture;
+class ImageTexture;
 class Color;
 
 namespace scene {
 
 DEF_FUNC_TABLE(BackgroundDispatch)
 PUT_FUNC_TABLE(BackgroundDispatch, nullptr_t)
-PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<CubeTexture>)
-PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<DefaultTexture>)
+PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
+PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
 PUT_FUNC_TABLE(BackgroundDispatch, Color)
 
 DEF_RESOLVER_1(BackgroundDispatch)
@@ -310,18 +310,20 @@ DEF_RESOLVER_1(BackgroundDispatch)
 }
 
 class Texture;
-class CompressedTexture;
+class ImageTexture;
+class ImageCubeTexture;
 class DataTexture;
+class DataCubeTexture;
 class DepthTexture;
 
 namespace texture {
 
 DEF_FUNC_TABLE(Dispatch)
 PUT_FUNC_TABLE(Dispatch, Texture)
-PUT_FUNC_TABLE(Dispatch, DefaultTexture)
-PUT_FUNC_TABLE(Dispatch, CubeTexture)
-PUT_FUNC_TABLE(Dispatch, CompressedTexture)
+PUT_FUNC_TABLE(Dispatch, ImageTexture)
+PUT_FUNC_TABLE(Dispatch, ImageCubeTexture)
 PUT_FUNC_TABLE(Dispatch, DataTexture)
+PUT_FUNC_TABLE(Dispatch, DataCubeTexture)
 PUT_FUNC_TABLE(Dispatch, DepthTexture)
 
 DEF_RESOLVER_1(Dispatch)

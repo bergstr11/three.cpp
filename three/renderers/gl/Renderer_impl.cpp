@@ -88,6 +88,8 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 {
   if (_isContextLost) return;
 
+  RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
+
   // reset caching for this frame
 
   _currentGeometryProgram.clear();
@@ -145,7 +147,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.faces = 0;
   _infoRender.points = 0;
 
-  setRenderTarget(renderTarget);
+  setRenderTarget(target);
   //
   _background.render(_currentRenderList, scene, camera, forceClear);
 
@@ -167,8 +169,8 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   // Generate mipmap if we're using any kind of mipmap filtering
 
-  if (renderTarget) {
-    _textures.updateRenderTargetMipmap(renderTarget);
+  if (target) {
+    _textures.updateRenderTargetMipmap(target);
   }
 
   // Ensure depth buffer writing is enabled so it can be cleared on next render
@@ -196,7 +198,7 @@ unsigned Renderer_impl::allocTextureUnit()
   return textureUnit;
 }
 
-void setTexture2D(DefaultTexture::Ptr texture, unsigned slot )
+void setTexture2D(ImageTexture::Ptr texture, unsigned slot )
 {
   //_textures.setTexture2D( texture, slot );
 }
@@ -214,16 +216,14 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     //textures.setupRenderTarget( renderTarget );
   }
 
-  //var framebuffer = null;
-  bool isCube = false;
+  RenderTargetCube::Ptr renderTargetCube = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
   GLuint framebuffer = UINT_MAX;
 
   if (__webglFramebuffer) {
 
-    if (renderTarget->isCube) {
+    if (renderTargetCube) {
 
-      framebuffer = __webglFramebuffer[ renderTarget->activeCubeFace];
-      isCube = true;
+      framebuffer = __webglFramebuffer[renderTargetCube->activeCubeFace];
     }
     else {
       framebuffer = *__webglFramebuffer;
@@ -250,11 +250,11 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   _state.scissor( _currentScissor );
   _state.setScissorTest( _currentScissorTest );
 
-  if ( isCube ) {
+  if ( renderTargetCube ) {
     auto textureProperties = _properties.get(renderTarget->texture());
     GLenum textarget = textureProperties[PropertyName::__webglTexture].gluint_value;
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTarget->activeCubeFace,
-                           textarget, renderTarget->activeMipMapLevel );
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTargetCube->activeCubeFace,
+                           textarget, renderTargetCube->activeMipMapLevel );
   }
 }
 
@@ -864,7 +864,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
             auto ops = DataTexture::options();
             ops.format = TextureFormat::RGBA;
             ops.type = TextureType::Float;
-            DataTexture::Ptr boneTexture = DataTexture::make(ops, m.skeleton()->boneMatrices(), size, size);
+            DataTexture::Ptr boneTexture = nullptr;//DataTexture::make(ops, m.skeleton()->boneMatrices(), size, size);
 
             m.skeleton()->setBoneTexture(boneTexture);
             m.skeleton()->setBoneTextureSize(size);
@@ -985,6 +985,16 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   p_uniforms->get(UniformName::modelMatrix)->setValue(object->matrixWorld() );
 
   return program;
+}
+
+void Renderer_impl::setTexture2D(Texture::Ptr texture, GLuint slot)
+{
+  _textures.setTexture2D(texture, slot);
+}
+
+void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
+{
+  _textures.setTextureCube( texture, slot );
 }
 
 }

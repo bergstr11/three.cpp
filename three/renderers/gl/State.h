@@ -8,6 +8,7 @@
 #include <QOpenGLExtraFunctions>
 #include <math/Vector4.h>
 #include <material/Material.h>
+#include <helper/Types.h>
 #include <Constants.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -285,7 +286,7 @@ public:
     glTexParameteri((GLenum)target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     if(target == TextureTarget::cubeMap) {
-      for(GLenum t=(GLenum)CubeFaceTarget::cubeMapPositiveX; t <=(GLenum)CubeFaceTarget::cubeMapNegativeZ; t++)
+      for(GLenum t=(GLenum)TextureTarget::cubeMapPositiveX; t <=(GLenum)TextureTarget::cubeMapNegativeZ; t++)
         glTexImage2D(t, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
     else
@@ -404,6 +405,13 @@ public:
     }
 
     return compressedTextureFormats;
+  }
+
+  bool hasCompressedTextureFormat(TextureFormat format)
+  {
+    getCompressedTextureFormats();
+
+    return std::find(compressedTextureFormats.begin(), compressedTextureFormats.end(), (GLint)format) != compressedTextureFormats.end();
   }
 
   bool useProgram(GLuint program)
@@ -638,9 +646,10 @@ public:
     }
   }
 
-  void compressedTexImage2D(TextureTarget target, GLint level, TextureFormat internalFormat, GLsizei width, GLsizei height, GLsizei size, const void *data)
+  void compressedTexImage2D(TextureTarget target, GLint level, TextureFormat internalFormat,
+                            GLsizei width, GLsizei height, const std::vector<unsigned char> &data)
   {
-    glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, size, data);
+    glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, data.size(), data.data());
     GLenum error = glGetError();
     if(error != GL_NO_ERROR) {
       throw std::logic_error("glCompressedTexImage2D error: "+error);
@@ -685,7 +694,7 @@ public:
                   GLsizei height,
                   TextureFormat format,
                   TextureType type,
-                  const void *pixels)
+                  const unsigned char *pixels)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
     GLenum error = glGetError();

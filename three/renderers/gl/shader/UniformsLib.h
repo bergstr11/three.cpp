@@ -5,8 +5,8 @@
 #ifndef THREE_QT_UNIFORMSLIB_H
 #define THREE_QT_UNIFORMSLIB_H
 
+#include <textures/ImageTexture.h>
 #include <textures/DataTexture.h>
-#include <textures/CubeTexture.h>
 #include <core/Color.h>
 #include <math/Matrix3.h>
 #include <math/Vector3.h>
@@ -186,9 +186,9 @@ UNIFORM_VALUE_T(int) {
 }
 UNIFORM_VALUE_T(unsigned) {
 }
-UNIFORM_VALUE_T(DefaultTexture::Ptr) {
+UNIFORM_VALUE_T(ImageTexture::Ptr) {
 }
-UNIFORM_VALUE_T(CubeTexture::Ptr) {
+UNIFORM_VALUE_T(ImageCubeTexture::Ptr) {
 }
 UNIFORM_VALUE_T(math::Vector2) {
 }

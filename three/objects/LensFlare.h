@@ -15,7 +15,7 @@ class LensFlare : public Object3D
 {
 public:
   struct Flare {
-    DefaultTexture::Ptr texture; // THREE.Texture
+    ImageTexture::Ptr texture; // THREE.Texture
     size_t size;          // size in pixels (-1 = use texture.width)
     float distance;       // distance (0-1) from light source (0=at light source)
     float x, y, z;      // screen position (-1 => 1) z = 0 is in front z = 1 is back
@@ -25,7 +25,7 @@ public:
     const Color color;    // color
     Blending blending;    // blending
 
-    Flare(DefaultTexture::Ptr texture, size_t size, float distance, unsigned int x, unsigned int y,
+    Flare(ImageTexture::Ptr texture, size_t size, float distance, unsigned int x, unsigned int y,
           unsigned int z, float scale, float rotation, float opacity, const Color &color,
           Blending blending) : texture(texture), size(size), distance(distance), x(x), y(y), z(z), scale(scale),
                                rotation(rotation), opacity(opacity), color(color), blending(blending)
@@ -41,7 +41,7 @@ private:
 
 public:
   using Ptr = std::shared_ptr<LensFlare>;
-  static Ptr make(const DefaultTexture::Ptr texture, size_t size, float distance, Blending blending, const Color &color, float opacity)
+  static Ptr make(const ImageTexture::Ptr texture, size_t size, float distance, Blending blending, const Color &color, float opacity)
   {
     return Ptr(new LensFlare());
   }
@@ -50,7 +50,7 @@ public:
 
   const std::vector<LensFlare::Flare> flares() const {return _flares;}
 
-  LensFlare &add(DefaultTexture::Ptr texture, size_t size, float distance,
+  LensFlare &add(ImageTexture::Ptr texture, size_t size, float distance,
                  Blending blending=Blending::Normal, const Color &color=Color(0xffffff), float opacity=1.0f)
   {
     distance = std::min( distance, std::max( 0.0f, distance ) );

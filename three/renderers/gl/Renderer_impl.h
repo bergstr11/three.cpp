@@ -204,6 +204,9 @@ public:
                           Material::Ptr material,
                           Object3D::Ptr object,
                           const Group *group);
+
+  void setTexture2D(Texture::Ptr texture, GLuint slot);
+  void setTextureCube(Texture::Ptr texture, GLuint slot);
 };
 
 }

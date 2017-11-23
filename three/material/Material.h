@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <Constants.h>
-#include <textures/Texture.h>
+#include <textures/ImageTexture.h>
 #include <helper/sole.h>
 #include <helper/simplesignal.h>
 #include <math/Plane.h>
@@ -27,26 +27,26 @@ struct Colored {
 
 struct LightMap
 {
-  DefaultTexture::Ptr lightMap;
+  ImageTexture::Ptr lightMap;
   float lightMapIntensity = 1.0;
 };
 
 struct EmissiveMap
 {
-  DefaultTexture::Ptr emissiveMap;
+  ImageTexture::Ptr emissiveMap;
   Color emissive = 0x000000;
   float emissiveIntensity = 1.0;
 };
 
 struct AoMap
 {
-  DefaultTexture::Ptr aoMap;
+  ImageTexture::Ptr aoMap;
   float aoMapIntensity = 1.0;
 };
 
 struct EnvMap
 {
-  DefaultTexture::Ptr envMap;
+  ImageTexture::Ptr envMap;
   CombineOperation combine = CombineOperation::Multiply;
   float reflectivity = 1;
   float refractionRatio = 0.98;
@@ -54,30 +54,30 @@ struct EnvMap
 
 struct AlphaMap
 {
-  DefaultTexture::Ptr alphaMap;
+  ImageTexture::Ptr alphaMap;
 };
 
 struct SpecularMap
 {
-  DefaultTexture::Ptr specularMap;
+  ImageTexture::Ptr specularMap;
 };
 
 struct DisplacementMap
 {
-  DefaultTexture::Ptr displacementMap;
+  ImageTexture::Ptr displacementMap;
   float displacementScale = 1;
   float displacementBias = 0;
 };
 
 struct BumpMap
 {
-  DefaultTexture::Ptr bumpMap;
+  ImageTexture::Ptr bumpMap;
   float bumpScale = 1;
 };
 
 struct NormalMap
 {
-  DefaultTexture::Ptr normalMap;
+  ImageTexture::Ptr normalMap;
   math::Vector2 normalScale {1, 1};
 };
 
@@ -132,7 +132,7 @@ struct Material
   float alphaTest = 0;
   bool premultipliedAlpha = false;
 
-  DefaultTexture::Ptr map;
+  ImageTexture::Ptr map;
 
   bool skinning = false;
   bool morphTargets = false;

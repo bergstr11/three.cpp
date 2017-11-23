@@ -77,9 +77,9 @@ struct MeshStandardMaterial : public MaterialT<
   float roughness = 0.5;
   float metalness = 0.5;
 
-  DefaultTexture::Ptr roughnessMap;
+  ImageTexture::Ptr roughnessMap;
 
-  DefaultTexture::Ptr metalnessMap;
+  ImageTexture::Ptr metalnessMap;
 
 protected:
   MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
