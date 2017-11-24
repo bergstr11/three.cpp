@@ -39,20 +39,20 @@ public:
 };
 
 template <typename _Background>
-class SceneBase : public Scene
+class SceneT : public Scene
 {
   _Background _background;
 
 protected:
-  SceneBase(const _Background &background, const Fog::Ptr &fog)
+  SceneT(const _Background &background, const Fog::Ptr &fog)
      : Scene(fog, scene::ResolverT<_Background>::make(*this)), _background(background) {}
-  SceneBase()
+  SceneT()
      : Scene(scene::ResolverT<_Background>::make(*this)) {}
 
 public:
-  using Ptr = std::shared_ptr<SceneBase<_Background>>;
+  using Ptr = std::shared_ptr<SceneT<_Background>>;
   static Ptr make(const _Background &background, const Fog::Ptr &fog) {
-    return Ptr(new SceneBase(background, fog));
+    return Ptr(new SceneT(background, fog));
   }
 
   const _Background &background() const {return _background;}

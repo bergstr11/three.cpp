@@ -66,6 +66,8 @@ protected:
                         bool forceClear) = 0;
 
 public:
+  using Ptr = std::shared_ptr<Renderer>;
+
   void render(const Scene::Ptr scene,
               const Camera::Ptr camera,
               const Target::Ptr renderTarget=nullptr,
@@ -73,6 +75,10 @@ public:
   {
     doRender(scene, camera, renderTarget, forceClear);
   }
+
+  virtual Renderer &setClearColor(const Color &color, float alpha=1.0f) = 0;
+
+  virtual Renderer &setSize(size_t width, size_t height) = 0;
 };
 
 }

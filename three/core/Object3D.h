@@ -43,7 +43,7 @@ private:
   std::string _name;
   uint16_t _id;
 
-  Object3D *_parent;
+  Object3D *_parent = nullptr;
   std::vector<Ptr> _children;
 
 protected:

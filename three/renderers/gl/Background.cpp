@@ -10,6 +10,8 @@ namespace gl {
 
 void Background::render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
 {
+  if(!scene->backgroundResolver) return;
+
   scene::BackgroundDispatch textures;
   textures.func<nullptr_t>() = [&] (nullptr_t &) {
 

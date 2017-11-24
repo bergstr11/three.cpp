@@ -37,13 +37,13 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 
   three::Scene::Ptr _scene;
   three::PerspectiveCamera::Ptr _camera;
-  three::OpenGLRenderer::Ptr _renderer;
+  three::Renderer::Ptr _renderer;
 
   const ThreeDItem *const _item;
   QOpenGLFramebufferObject *_framebufferObject = nullptr;
 
 public:
-  FramebufferObjectRenderer(const ThreeDItem *item)
+  explicit FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
        _scene(Scene::make()),
        _camera(PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
@@ -59,13 +59,13 @@ public:
     planeMaterial->color = three::Color(0xcccccc);
 
     Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make(planeGeometry, planeMaterial);
-    plane->rotation().x() = -0.5f * M_PI;
+    plane->rotation().x() = -0.5f * (float)M_PI;
     plane->position().set(15, 0, 0);
 
     _scene->add(plane);
   }
 
-  ~FramebufferObjectRenderer() {
+  ~FramebufferObjectRenderer() override {
   }
 
 /*
@@ -84,7 +84,7 @@ public:
 
   void synchronize(QQuickFramebufferObject *_item) override
   {
-    ThreeDItem *item = static_cast<ThreeDItem *>(_item);
+    auto *item = static_cast<ThreeDItem *>(_item);
   }
 
   void render() override

@@ -108,8 +108,7 @@ protected:
   MemoryInfo _infoMemory;
   RenderInfo _infoRender;
 
-  //
-  ShadowMap::Ptr _shadowMap;
+  ShadowMap _shadowMap;
 
   Attributes _attributes;
 
@@ -123,8 +122,8 @@ protected:
 
   unsigned _usedTextureUnits = 0;
 
-  unsigned _width;
-  unsigned _height;
+  size_t _width;
+  size_t _height;
 
   float _pixelRatio = 1;
 
@@ -184,7 +183,7 @@ public:
   bool autoClearDepth = true;
   bool autoClearStencil = true;
 
-  Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha=true);
+  Renderer_impl(QOpenGLContext *context, size_t width, size_t height, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}
 
@@ -207,6 +206,14 @@ public:
 
   void setTexture2D(Texture::Ptr texture, GLuint slot);
   void setTextureCube(Texture::Ptr texture, GLuint slot);
+
+  Renderer_impl &setClearColor(const Color &color, float alpha=1.0f) override {
+    _background.setClearColor(color, alpha);
+  }
+
+  Renderer_impl &setSize(size_t width, size_t height) override;
+
+  Renderer_impl &setViewport(size_t x, size_t y, size_t width, size_t height);
 };
 
 }

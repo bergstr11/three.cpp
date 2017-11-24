@@ -23,14 +23,14 @@ namespace three {
 
 using namespace std;
 
-OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, float width, float height, const OpenGLRendererOptions &options)
+OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options)
 {
-  return shared_ptr<OpenGLRenderer>(new gl::Renderer_impl(context, width, height));
+  return Ptr(new gl::Renderer_impl(context, width, height));
 }
 
 namespace gl {
 
-Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned height, bool premultipliedAlpha)
+Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, bool premultipliedAlpha)
    : OpenGLRenderer(context), _state(this),
      _attributes(this),
      _objects(_geometries, _infoRender),
@@ -38,6 +38,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, unsigned width, unsigned h
      _extensions(context),
      _capabilities(this, _extensions, _parameters ),
      _morphTargets(this),
+     _shadowMap(*this, _objects, _capabilities.maxTextureSize),
      _programs(*this, _extensions, _capabilities),
      _background(*this, _state, _geometries, _premultipliedAlpha),
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
@@ -83,6 +84,22 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
+Renderer_impl &Renderer_impl::setSize(size_t width, size_t height)
+{
+  _width = width;
+  _height = height;
+
+  setViewport( 0, 0, width, height );
+  return *this;
+};
+
+Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
+{
+  _viewport.set( x, _height - y - height, width, height );
+  _currentViewport = _viewport * _pixelRatio;
+  _state.viewport( _currentViewport );
+};
+
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
@@ -91,7 +108,6 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
   // reset caching for this frame
-
   _currentGeometryProgram.clear();
   _currentMaterialId = -1;
   _currentCamera = nullptr;
@@ -100,15 +116,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   if (scene->autoUpdate()) scene->updateMatrixWorld(false);
 
   // update camera matrices and frustum
-
   if (!camera->parent()) camera->updateMatrixWorld(false);
-
-  //TODO VR
-  /*if ( vr.enabled ) {
-
-    camera = vr.getCamera( camera );
-
-  }*/
 
   _projScreenMatrix = camera->projectionMatrix() * camera->matrixWorldInverse();
   _frustum.set(_projScreenMatrix);
@@ -121,7 +129,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   _clippingEnabled = _clipping.init(_clippingPlanes, _localClippingEnabled, camera);
 
-  _currentRenderList = _renderLists.get(scene, camera);
+  _currentRenderList = new RenderList();//_renderLists.get(scene, camera);
   _currentRenderList->init();
 
   projectObject(scene, camera, _sortObjects);
@@ -130,16 +138,13 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
     _currentRenderList->sort();
   }
 
-  //
   if (_clippingEnabled) _clipping.beginShadows();
 
-  _shadowMap->render(_shadowsArray, scene, camera);
+  _shadowMap.render(_shadowsArray, scene, camera);
 
   _lights.setup(_lightsArray, camera);
 
   if (_clippingEnabled) _clipping.endShadows();
-
-  //
 
   _infoRender.frame++;
   _infoRender.calls = 0;
@@ -147,8 +152,8 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.faces = 0;
   _infoRender.points = 0;
 
-  setRenderTarget(target);
-  //
+  if(target) setRenderTarget(target);
+
   _background.render(_currentRenderList, scene, camera, forceClear);
 
   // render scene
@@ -169,20 +174,14 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   // Generate mipmap if we're using any kind of mipmap filtering
 
-  if (target) {
-    _textures.updateRenderTargetMipmap(target);
-  }
+  if (target)  _textures.updateRenderTargetMipmap(target);
 
   // Ensure depth buffer writing is enabled so it can be cleared on next render
   _state.depthBuffer.setTest(true);
   _state.depthBuffer.setMask(true);
   _state.colorBuffer.setMask(true);
 
-  //TODO VR
-  /*if (vr.enabled) {
-    vr.submitFrame();
-  }*/
-  // _gl.finish();
+  glFinish();
 }
 
 unsigned Renderer_impl::allocTextureUnit()
@@ -210,7 +209,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   auto renderTargetProperties = _properties.get( renderTarget );
 
   GLuint *__webglFramebuffer = nullptr;
-  if (renderTarget && renderTargetProperties.find(PropertyName::__webglFramebuffer) != renderTargetProperties.end())
+  if (renderTargetProperties.find(PropertyName::__webglFramebuffer) != renderTargetProperties.end())
   {
     __webglFramebuffer = renderTargetProperties[PropertyName::__webglFramebuffer].gluintp_value;
     //textures.setupRenderTarget( renderTarget );

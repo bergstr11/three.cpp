@@ -12,7 +12,6 @@ namespace gl {
 
 void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
 {
-
   if (!_enabled) return;
   if (!_autoUpdate && !_needsUpdate) return;
 

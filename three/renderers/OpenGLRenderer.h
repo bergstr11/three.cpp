@@ -33,15 +33,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<OpenGLRenderer>;
-  static Ptr make(QOpenGLContext *context, float width, float height, const OpenGLRendererOptions &options=OpenGLRendererOptions());
-
-  OpenGLRenderer &setClearColor(const Color &color) {
-    //_backg
-  }
-
-  OpenGLRenderer &setSize(unsigned width, unsigned height) {
-
-  }
+  static Ptr make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options=OpenGLRendererOptions());
 };
 
 }

@@ -70,26 +70,21 @@ class ShadowMap
   Objects &_objects;
   const size_t _maxTextureSize;
 
-  // init
+public:
   ShadowMap(Renderer_impl &renderer, Objects &objects, size_t maxTextureSize)
      : _renderer(renderer), _objects(objects), _maxTextureSize(maxTextureSize)
   {
+    _depthMaterials.resize(_NumberOfMaterialVariants);
+    _distanceMaterials.resize(_NumberOfMaterialVariants);
+
     for (size_t i = 0; i < _NumberOfMaterialVariants; ++ i ) {
 
       bool useMorphing = ( i & Flag::Morphing ) != 0;
       bool useSkinning = ( i & Flag::Skinning ) != 0;
 
       _depthMaterials[ i ] = MeshDepthMaterial::make(DepthPacking::RGBA, useMorphing, useSkinning);
-
       _distanceMaterials[ i ] = MeshDistanceMaterial::make(useMorphing, useSkinning);
     }
-  }
-
-public:
-  using Ptr = std::shared_ptr<ShadowMap>;
-  static Ptr make(Renderer_impl &renderer, Objects &objects, size_t maxTextureSize)
-  {
-    return std::shared_ptr<ShadowMap>(new ShadowMap(renderer, objects, maxTextureSize));
   }
 
   void render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );

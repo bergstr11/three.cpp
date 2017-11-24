@@ -79,6 +79,7 @@ class RenderList
       return a.id - b.id;
     }
   }
+
 public:
   class iterator
   {
@@ -162,7 +163,6 @@ public:
 
 class RenderLists
 {
-
   std::unordered_map<uint32_t, RenderList> _lists;
 
 public:

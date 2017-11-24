@@ -52,7 +52,7 @@ struct MeshDepthMaterial : public MaterialT<material::AlphaMap, material::Displa
 public:
   using Ptr = std::shared_ptr<MeshDepthMaterial>;
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {
-    return std::shared_ptr<MeshDepthMaterial>(new MeshDepthMaterial(packing, morphing, skinning));
+    return Ptr(new MeshDepthMaterial(packing, morphing, skinning));
   }
 };
 

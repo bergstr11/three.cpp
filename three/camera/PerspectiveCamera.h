@@ -38,7 +38,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<PerspectiveCamera>;
   static Ptr make(float fov, float aspect, float near, float far) {
-    return std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(fov, aspect, near, far));
+    return Ptr(new PerspectiveCamera(fov, aspect, near, far));
   }
 
   /**
