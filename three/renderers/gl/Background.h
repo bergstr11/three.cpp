@@ -43,8 +43,11 @@ class Background
 
 public:
   Background(Renderer_impl &renderer, State &state, Geometries &geometries, bool premultipiledAlpha)
-     : clearColor(0x000000), clearAlpha(0),
-       renderer(renderer), state(state), geometries(geometries),
+     : clearColor(0x000000),
+       clearAlpha(0),
+       renderer(renderer),
+       state(state),
+       geometries(geometries),
        premultipliedAlpha(premultipiledAlpha)
   {}
 

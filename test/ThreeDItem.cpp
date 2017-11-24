@@ -49,7 +49,7 @@ public:
        _camera(PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
        _renderer(OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
-    _renderer->setClearColor(Color(0xEEEEEE));
+    _renderer->setClearColor(Color(0xEEEEEE), 1.0f);
     _renderer->setSize(item->width(), item->height());
     AxisHelper::Ptr axes = AxisHelper::make(20);
     _scene->add(axes);

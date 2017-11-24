@@ -16,7 +16,6 @@
 #include <material/MeshToonMaterial.h>
 #include <material/MeshPhysicalMaterial.h>
 #include <material/PointsMaterial.h>
-
 #include "refresh_uniforms.h"
 
 namespace three {
@@ -25,13 +24,15 @@ using namespace std;
 
 OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options)
 {
-  return Ptr(new gl::Renderer_impl(context, width, height));
+  return gl::Renderer_impl::Ptr(new gl::Renderer_impl(context, width, height));
 }
 
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, bool premultipliedAlpha)
    : OpenGLRenderer(context), _state(this),
+     _width(width),
+     _height(height),
      _attributes(this),
      _objects(_geometries, _infoRender),
      _geometries(_attributes),
@@ -40,14 +41,15 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _morphTargets(this),
      _shadowMap(*this, _objects, _capabilities.maxTextureSize),
      _programs(*this, _extensions, _capabilities),
-     _background(*this, _state, _geometries, _premultipliedAlpha),
+     _premultipliedAlpha(premultipliedAlpha),
+     _background(*this, _state, _geometries, premultipliedAlpha),
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
      _bufferRenderer(this, this, _extensions, _infoRender),
      _indexedBufferRenderer(this, this, _extensions, _infoRender),
      _spriteRenderer(*this, _state, _textures, _capabilities),
      _flareRenderer(this, _state, _textures, _capabilities)
 {
-
+  initContext();
 }
 
 void Renderer_impl::initContext()
@@ -91,14 +93,14 @@ Renderer_impl &Renderer_impl::setSize(size_t width, size_t height)
 
   setViewport( 0, 0, width, height );
   return *this;
-};
+}
 
 Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
 {
   _viewport.set( x, _height - y - height, width, height );
   _currentViewport = _viewport * _pixelRatio;
   _state.viewport( _currentViewport );
-};
+}
 
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
@@ -129,7 +131,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   _clippingEnabled = _clipping.init(_clippingPlanes, _localClippingEnabled, camera);
 
-  _currentRenderList = new RenderList();//_renderLists.get(scene, camera);
+  _currentRenderList = _renderLists.get(scene, camera);
   _currentRenderList->init();
 
   projectObject(scene, camera, _sortObjects);
@@ -332,7 +334,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   if (!object->visible()) return;
 
   bool visible = object->layers().test(camera->layers());
-  if ( visible ) {
+  if (visible && object->objectResolver) {
 
     object::Dispatch dispatch;
 

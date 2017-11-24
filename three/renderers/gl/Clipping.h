@@ -14,15 +14,15 @@ namespace gl {
 
 class Clipping
 {
-  size_t _numGlobalPlanes, _numIntersection, _numPlanes;
-  bool _localClippingEnabled;
-  bool _renderingShadows;
+  size_t _numGlobalPlanes = 0, _numIntersection = 0, _numPlanes = 0;
+  bool _localClippingEnabled = false;
+  bool _renderingShadows = false;
   math::Matrix3 _viewNormalMatrix;
   math::Plane _plane;
 
   std::vector<float> _globalState;
   std::vector<float> _uniformValue;
-  bool _uniformChanged;
+  bool _uniformChanged = false;
 
 public:
 

@@ -63,28 +63,28 @@ public:
 
 class Layers
 {
-  unsigned int mask;
+  unsigned int mask = 1;
 
 public:
 
   void set(unsigned int channel) {
-    mask = 1 << channel | 0;
+    mask = (unsigned)1 << channel;
   }
 
   void enable(unsigned int channel) {
-    mask |= 1 << channel | 0;
+    mask |= 1 << channel;
   }
 
   void toggle(unsigned int channel) {
-    mask ^= 1 << channel | 0;
+    mask ^= 1 << channel;
   }
 
   void disable(unsigned int channel) {
-    mask &= ~ ( 1 << channel | 0 );
+    mask &= ~(1 << channel);
   }
 
   bool test(const Layers &layers) const {
-    return (mask & layers.mask ) != 0;
+    return (mask & layers.mask) != 0;
   }
 };
 

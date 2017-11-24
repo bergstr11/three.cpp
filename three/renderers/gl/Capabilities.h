@@ -99,14 +99,14 @@ struct Capabilities
 
   Precision getMaxPrecision(Precision precision)
   {
-    GLint r, p;
+    GLint r[2], p;
 
     if (precision == Precision::highp) {
 
-      _fn->glGetShaderPrecisionFormat(GL_VERTEX_SHADER, GL_HIGH_FLOAT, &r, &p);
+      _fn->glGetShaderPrecisionFormat(GL_VERTEX_SHADER, GL_HIGH_FLOAT, r, &p);
 
       if (p > 0) {
-        _fn->glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_HIGH_FLOAT, &r, &p);
+        _fn->glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_HIGH_FLOAT, r, &p);
 
         if(p > 0)
           return Precision::highp;
@@ -116,10 +116,10 @@ struct Capabilities
 
     if ( precision == Precision::mediump) {
 
-      _fn->glGetShaderPrecisionFormat(GL_VERTEX_SHADER, GL_MEDIUM_FLOAT, &r, &p);
+      _fn->glGetShaderPrecisionFormat(GL_VERTEX_SHADER, GL_MEDIUM_FLOAT, r, &p);
 
       if (p > 0) {
-        _fn->glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_MEDIUM_FLOAT, &r, &p);
+        _fn->glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_MEDIUM_FLOAT, r, &p);
         if(p > 0)
           return Precision::mediump;
       }

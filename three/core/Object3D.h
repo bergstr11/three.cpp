@@ -30,6 +30,8 @@ class Scene;
 using ScenePtr = std::shared_ptr<Scene>;
 using CameraPtr = std::shared_ptr<Camera>;
 
+static uint16_t __id_count = 0;
+
 /**
  * 3D object without geometry or material
  */
@@ -65,7 +67,7 @@ protected:
   int _renderOrder = -1;
 
 protected:
-  Object3D(const object::Resolver::Ptr resolver=object::NullResolver::make());
+  explicit Object3D(const object::Resolver::Ptr resolver=object::NullResolver::make());
 
 public:
   const object::Resolver::Ptr objectResolver;

@@ -60,6 +60,8 @@ public:
   };
 
 protected:
+  virtual ~Renderer() = default;
+
   virtual void doRender(const Scene::Ptr &scene,
                         const Camera::Ptr &camera,
                         const Target::Ptr &renderTarget,
@@ -76,7 +78,7 @@ public:
     doRender(scene, camera, renderTarget, forceClear);
   }
 
-  virtual Renderer &setClearColor(const Color &color, float alpha=1.0f) = 0;
+  virtual Renderer &setClearColor(const Color &color, float alpha) = 0;
 
   virtual Renderer &setSize(size_t width, size_t height) = 0;
 };

@@ -103,7 +103,7 @@ protected:
 
   Background _background;
 
-  bool _premultipliedAlpha;
+  bool _premultipliedAlpha = true;
 
   MemoryInfo _infoMemory;
   RenderInfo _infoRender;
@@ -177,6 +177,8 @@ protected:
   void releaseMaterialProgramReference(Material &material);
 
 public:
+  using Ptr = std::shared_ptr<Renderer_impl>;
+
   // clearing
   bool autoClear = true;
   bool autoClearColor = true;

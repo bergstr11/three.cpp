@@ -18,8 +18,10 @@ class Scene : public Object3D
   bool _autoUpdate;
 
 protected:
-  Scene(const Fog::Ptr fog, scene::Resolver::Ptr resolver=scene::NullResolver::make()) : _fog(fog), backgroundResolver(resolver) {}
-  Scene(scene::Resolver::Ptr resolver=scene::NullResolver::make()) : backgroundResolver(resolver) {}
+  Scene(const Fog::Ptr fog, scene::Resolver::Ptr resolver=scene::NullResolver::make())
+     : Object3D(nullptr), _fog(fog), _autoUpdate(true), backgroundResolver(resolver) {}
+  Scene(scene::Resolver::Ptr resolver=scene::NullResolver::make())
+     : Object3D(nullptr), _fog(nullptr), _autoUpdate(true), backgroundResolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Scene>;

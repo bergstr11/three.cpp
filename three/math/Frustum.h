@@ -21,12 +21,12 @@ namespace math {
 
 class Frustum
 {
-  std::array<Plane, 5> _planes;
+  std::array<Plane, 6> _planes;
 
 public:
   Frustum() {};
 
-  explicit Frustum(std::array<Plane, 5> planes) : _planes(std::move(planes))
+  explicit Frustum(std::array<Plane, 6> planes) : _planes(std::move(planes))
   {}
 
   Frustum &set(const Matrix4 &m)

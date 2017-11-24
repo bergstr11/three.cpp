@@ -11,7 +11,7 @@ namespace three {
 using namespace three::math;
 
 Object3D::Object3D(object::Resolver::Ptr resolver)
-   : objectResolver(resolver), uuid(sole::uuid0())
+   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
 {
 }
 
