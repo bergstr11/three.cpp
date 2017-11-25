@@ -8,7 +8,7 @@
 #include <textures/DataTexture.h>
 #include <sstream>
 #include <objects/Line.h>
-#include "shader/UniformsLib.h"
+#include <objects/Points.h>
 #include <material/MeshStandardMaterial.h>
 #include <material/MeshPhongMaterial.h>
 #include <material/MeshNormalMaterial.h>
@@ -300,6 +300,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     };
     camera->cameraResolver->getValue(dispatch);
+    renderIterator++;
   }
 }
 
@@ -319,12 +320,11 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
 
     _currentGeometryProgram.clear();
 
-    //TODO renderObjectImmediate( iro, program, material );
+    renderObjectImmediate( iro, program, material );
   };
-  dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
+  if(!object->objectResolver->getValue(dispatch)) {
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
-  };
-  object->objectResolver->getValue(dispatch);
+  }
 
   object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
 }
@@ -399,7 +399,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
     };
     dispatch.func<Mesh>() = assoc;
     dispatch.func<Line>() = assoc;
-    //dispatch.func<Points>() = assoc;
+    dispatch.func<Points>() = assoc;
 
     object->objectResolver->getValue(dispatch);
   }
@@ -408,6 +408,105 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
 
     projectObject( child, camera, sortObjects );
   }
+}
+
+void Renderer_impl::renderObjectImmediate(ImmediateRenderObject &object, Program::Ptr program, Material::Ptr material)
+{
+  renderBufferImmediate(object, program, material );
+}
+
+void Renderer_impl::renderBufferImmediate(ImmediateRenderObject &object, Program::Ptr program, Material::Ptr material)
+{
+  _state.initAttributes();
+#if 0
+  //var buffers = _properties.get( object );
+
+  if ( object->hasPositions && ! buffers.position ) buffers.position = _gl.createBuffer();
+  if ( object->hasNormals && ! buffers.normal ) buffers.normal = _gl.createBuffer();
+  if ( object->hasUvs && ! buffers.uv ) buffers.uv = _gl.createBuffer();
+  if ( object->hasColors && ! buffers.color ) buffers.color = _gl.createBuffer();
+
+  var programAttributes = program.getAttributes();
+
+  if ( object.hasPositions ) {
+
+    _gl.bindBuffer( _gl.ARRAY_BUFFER, buffers.position );
+    _gl.bufferData( _gl.ARRAY_BUFFER, object.positionArray, _gl.DYNAMIC_DRAW );
+
+    state.enableAttribute( programAttributes.position );
+    _gl.vertexAttribPointer( programAttributes.position, 3, _gl.FLOAT, false, 0, 0 );
+
+  }
+
+  if ( object.hasNormals ) {
+
+    _gl.bindBuffer( _gl.ARRAY_BUFFER, buffers.normal );
+
+    if ( ! material.isMeshPhongMaterial &&
+         ! material.isMeshStandardMaterial &&
+         ! material.isMeshNormalMaterial &&
+         material.flatShading === true ) {
+
+      for ( var i = 0, l = object.count * 3; i < l; i += 9 ) {
+
+        var array = object.normalArray;
+
+        var nx = ( array[ i + 0 ] + array[ i + 3 ] + array[ i + 6 ] ) / 3;
+        var ny = ( array[ i + 1 ] + array[ i + 4 ] + array[ i + 7 ] ) / 3;
+        var nz = ( array[ i + 2 ] + array[ i + 5 ] + array[ i + 8 ] ) / 3;
+
+        array[ i + 0 ] = nx;
+        array[ i + 1 ] = ny;
+        array[ i + 2 ] = nz;
+
+        array[ i + 3 ] = nx;
+        array[ i + 4 ] = ny;
+        array[ i + 5 ] = nz;
+
+        array[ i + 6 ] = nx;
+        array[ i + 7 ] = ny;
+        array[ i + 8 ] = nz;
+
+      }
+
+    }
+
+    _gl.bufferData( _gl.ARRAY_BUFFER, object.normalArray, _gl.DYNAMIC_DRAW );
+
+    state.enableAttribute( programAttributes.normal );
+
+    _gl.vertexAttribPointer( programAttributes.normal, 3, _gl.FLOAT, false, 0, 0 );
+
+  }
+
+  if ( object.hasUvs && material.map ) {
+
+    _gl.bindBuffer( _gl.ARRAY_BUFFER, buffers.uv );
+    _gl.bufferData( _gl.ARRAY_BUFFER, object.uvArray, _gl.DYNAMIC_DRAW );
+
+    state.enableAttribute( programAttributes.uv );
+
+    _gl.vertexAttribPointer( programAttributes.uv, 2, _gl.FLOAT, false, 0, 0 );
+
+  }
+
+  if ( object.hasColors && material.vertexColors !== NoColors ) {
+
+    _gl.bindBuffer( _gl.ARRAY_BUFFER, buffers.color );
+    _gl.bufferData( _gl.ARRAY_BUFFER, object.colorArray, _gl.DYNAMIC_DRAW );
+
+    state.enableAttribute( programAttributes.color );
+
+    _gl.vertexAttribPointer( programAttributes.color, 3, _gl.FLOAT, false, 0, 0 );
+
+  }
+
+  state.disableUnusedAttributes();
+
+  _gl.drawArrays( _gl.TRIANGLES, 0, object.count );
+
+  object.count = 0;
+#endif
 }
 
 void Renderer_impl::renderBufferDirect(Camera::Ptr camera,

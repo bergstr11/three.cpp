@@ -19,7 +19,7 @@ void Object3D::applyMatrix(const Matrix4 &matrix)
 {
   _matrix *= matrix;
   math::decompose(_matrix, _position, _quaternion, _scale );
-};
+}
 
 Quaternion Object3D::getWorldQuaternion() const
 {

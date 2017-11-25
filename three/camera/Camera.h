@@ -35,10 +35,10 @@ protected:
   math::Matrix4 _projectionMatrix;
 
   Camera(camera::Resolver::Ptr resolver)
-     : cameraResolver(resolver), _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
+    : Object3D(object::Resolver::makeNull()), cameraResolver(resolver), _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
 
   Camera()
-     : cameraResolver(camera::ResolverT<Camera>::make(*this)), _projectionMatrix(math::Matrix4::identity()),
+    : Object3D(object::Resolver::makeNull()), cameraResolver(camera::ResolverT<Camera>::make(*this)), _projectionMatrix(math::Matrix4::identity()),
        _matrixWorldInverse(_matrixWorld.inverse()) {}
 public:
   using Ptr = std::shared_ptr<Camera>;

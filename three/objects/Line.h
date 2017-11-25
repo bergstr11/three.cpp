@@ -18,7 +18,8 @@ class Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
 
 protected:
   Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
-     : Object3D_GM(geometry, object::ResolverT<Line>::make(*this), material), _steps(steps) {}
+     : Object3D(object::ResolverT<Line>::make(*this)),
+       Object3D_GM(geometry, nullptr, material), _steps(steps) {}
 
 public:
   using Ptr = std::shared_ptr<Line>;
@@ -34,7 +35,8 @@ public:
 class LineSegments : public Line
 {
 public:
-  LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 2) {}
+  LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
+     : Object3D(object::ResolverT<Line>::make(*this)), Line(geometry, material, 2) {}
 };
 
 }

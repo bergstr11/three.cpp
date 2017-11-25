@@ -36,11 +36,9 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
     count = att.count();
     _fx->glDrawArraysInstanced((GLenum)_mode, 0, count, geometry->maxInstancedCount());
   };
-  dispatch.func<nullptr_t>() = [&] (nullptr_t &) {
-    _fx->glDrawArraysInstanced((GLenum)_mode, start, count, geometry->maxInstancedCount() );
-  };
 
-  position->resolver->getValue(dispatch);
+  if(!position->resolver->getValue(dispatch))
+    _fx->glDrawArraysInstanced((GLenum)_mode, start, count, geometry->maxInstancedCount() );
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count * geometry->maxInstancedCount();

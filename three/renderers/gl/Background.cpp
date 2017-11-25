@@ -12,74 +12,75 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 {
   if(!scene->backgroundResolver) return;
 
-  scene::BackgroundDispatch textures;
-  textures.func<nullptr_t>() = [&] (nullptr_t &) {
+  if(scene->backgroundResolver) {
+    scene::BackgroundDispatch dispatch;
+    dispatch.func<Color>() = [this](Color &color) {
 
+      setClear( color, 1 );
+      renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+    };
+    dispatch.func<ImageCubeTexture::Ptr>() = [&](ImageCubeTexture::Ptr &tex) {
+
+      if ( renderer.autoClear || forceClear ) {
+        renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+      }
+      if (!boxMesh) {
+
+        geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(1, 1, 1);
+        ShaderInfo si = shaderlib::get(ShaderID::cube);
+        ShaderMaterial::Ptr sm = ShaderMaterial::make(
+           si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
+
+        boxMesh = Mesh_T<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
+
+        box->setNormal(nullptr);
+        box->setUV(nullptr);
+
+        /*boxMesh->onBeforeRender.connect([&] () {
+
+          boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
+        });*/
+
+        geometries.update(box);
+      }
+
+      uniformslib::UniformValue & uv = boxMesh->material<0>()->uniforms[UniformName::cube];// = tex;
+
+      renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
+    };
+    dispatch.func<ImageTexture::Ptr>() = [&] (ImageTexture::Ptr &tex) {
+
+      if ( renderer.autoClear || forceClear ) {
+        renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+      }
+      if (!planeCamera) {
+
+        planeCamera = OrtographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
+
+        MeshBasicMaterial::Ptr mat = MeshBasicMaterial::make();
+        mat->depthTest = false;
+        mat->depthWrite = false;
+        mat->fog = false;
+
+        auto planeGeom = geometry::buffer::Plane::make( 2, 2 );
+        planeMesh = Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
+
+        geometries.update(planeGeom);
+      }
+
+      planeMesh->material<0>()->map = tex;
+
+      // TODO Push this to renderList
+      renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry_t(), planeMesh->material(), planeMesh, nullptr);
+    };
+    scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getValue(dispatch);
+  }
+  else {
     setClear( clearColor, clearAlpha );
     if ( renderer.autoClear || forceClear ) {
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
     }
-  };
-  textures.func<Color>() = [this](Color &color) {
-
-    setClear( color, 1 );
-    renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-  };
-  textures.func<ImageCubeTexture::Ptr>() = [&](ImageCubeTexture::Ptr &tex) {
-
-    if ( renderer.autoClear || forceClear ) {
-      renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-    }
-    if (!boxMesh) {
-
-      geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(1, 1, 1);
-      ShaderInfo si = shaderlib::get(ShaderID::cube);
-      ShaderMaterial::Ptr sm = ShaderMaterial::make(
-         si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
-
-      boxMesh = Mesh_T<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
-
-      box->setNormal(nullptr);
-      box->setUV(nullptr);
-
-      boxMesh->onBeforeRender.connect([&] () {
-
-        boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
-      });
-
-      geometries.update(box);
-    }
-
-    uniformslib::UniformValue & uv = boxMesh->material<0>()->uniforms[UniformName::cube];// = tex;
-
-    renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
-  };
-  textures.func<ImageTexture::Ptr>() = [&] (ImageTexture::Ptr &tex) {
-
-    if ( renderer.autoClear || forceClear ) {
-      renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-    }
-    if (!planeCamera) {
-
-      planeCamera = OrtographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
-
-      MeshBasicMaterial::Ptr mat = MeshBasicMaterial::make();
-      mat->depthTest = false;
-      mat->depthWrite = false;
-      mat->fog = false;
-
-      auto planeGeom = geometry::buffer::Plane::make( 2, 2 );
-      planeMesh = Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
-
-      geometries.update(planeGeom);
-    }
-
-    planeMesh->material<0>()->map = tex;
-
-    // TODO Push this to renderList
-    renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry_t(), planeMesh->material(), planeMesh, nullptr);
-  };
-  scene->backgroundResolver->resolver::Resolve<scene::BackgroundDispatch>::getValue(textures);
+  }
 }
 
 }

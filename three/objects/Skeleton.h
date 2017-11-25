@@ -12,7 +12,7 @@ namespace three {
 
 class Bone : public Object3D_G<Geometry>
 {
-  Bone(Geometry::Ptr geometry) : Object3D_G(geometry, object::NullResolver::make()) {}
+  Bone(Geometry::Ptr geometry) : Object3D(object::Resolver::makeNull()), Object3D_G(geometry, nullptr) {}
 public:
   using Ptr = std::shared_ptr<Bone>;
   static Ptr make(Geometry::Ptr geometry) {

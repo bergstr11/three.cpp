@@ -176,6 +176,10 @@ protected:
 
   void releaseMaterialProgramReference(Material &material);
 
+  void renderObjectImmediate(ImmediateRenderObject &object, Program::Ptr program, Material::Ptr material);
+
+  void renderBufferImmediate(ImmediateRenderObject &object, Program::Ptr program, Material::Ptr material);
+
 public:
   using Ptr = std::shared_ptr<Renderer_impl>;
 

@@ -115,11 +115,14 @@ public:
     virtual typename Tmap::value_type getValue(const Tmap &t) const = 0;
   };
 
-  Callback *callback = nullptr;
+  Callback * const callback;
+
+  Resolve(Callback *callback) : callback(callback) {}
+  Resolve() : callback(nullptr) {}
 
   typename Tmap::value_type getValue(const Tmap &t) {
     if(callback) return callback->getValue(t);
-    throw std::logic_error("callback not set");
+    return Tmap::getNull();
   }
 };
 
@@ -152,6 +155,7 @@ class Resolvers<Tmap, Tmaps...> : public Resolvers<Tmaps...>, public virtual Res
 {
 public:
   using Ptr = std::shared_ptr<Resolvers>;
+  static Ptr makeNull() {return Ptr(new Resolvers());}
 };
 
 
@@ -188,9 +192,7 @@ class ResolversT<Base, Tmap, Tmaps...> : public ResolversT<Base, Tmaps...>, publ
   using Super = ResolversT<Base, Tmaps...>;
 
 public:
-  ResolversT(Base &b) : Super(b) {
-    Resolve<Tmap>::callback = this;
-  }
+  ResolversT(Base &b) : Super(b), Resolve<Tmap>(this) {}
 
   typename Tmap::value_type getValue(const Tmap &t) const override {
     return t.value(this->b);
@@ -198,7 +200,6 @@ public:
 
   using Ptr = std::shared_ptr<ResolversT>;
   static Ptr make(Base &b) {return Ptr(new ResolversT(b));}
-  static Ptr make() {return Ptr(resolver::null);}
 };
 
 } //namespace: resolver
@@ -206,6 +207,7 @@ public:
 #define DEF_VALUE_TABLE(Cls, Vtype, Dflt) \
 struct Cls { \
 using value_type = Vtype; \
+static value_type getNull() {throw std::logic_error("callback not set");} \
 template <typename T> Vtype value(T &t) const {return Dflt;}\
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
@@ -220,6 +222,7 @@ return sa(t); \
 #define DEF_STRING_TABLE(Cls, Dflt) \
 struct Cls { \
 using value_type = const char *; \
+static value_type getNull() {throw std::logic_error("callback not set");} \
 template <typename T> const char *value(T &t) const {return Dflt;} \
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
@@ -234,6 +237,7 @@ return sa(t); \
 #define DEF_FUNC_TABLE(Cls) \
 struct Cls { \
 using value_type = bool; \
+static value_type getNull() {return false;} \
 template <typename T> resolver::FuncAssoc<T> &func() const = delete; \
 template <typename T> bool value(T &t) const = delete; \
 }; \
@@ -249,25 +253,21 @@ template <> inline bool Cls::value(Type &t) const {return func<Type>()(t);}
 #define DEF_RESOLVER_1(Map) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map>; \
-using NullResolver = resolver::ResolversT<nullptr_t, Map>; \
 using Resolver = resolver::Resolvers<Map>;
 
 #define DEF_RESOLVER_2(Map1, Map2) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2>; \
-using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2>; \
 using Resolver = resolver::Resolvers<Map1, Map2>;
 
 #define DEF_RESOLVER_3(Map1, Map2, Map3) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2, Map3>; \
-using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2, Map3>; \
 using Resolver = resolver::Resolvers<Map1, Map2, Map3>;
 
 #define DEF_RESOLVER_4(Map1, Map2, Map3, Map4) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map1, Map2, Map3, Map4>; \
-using NullResolver = resolver::ResolversT<nullptr_t, Map1, Map2, Map3, Map4>; \
 using Resolver = resolver::Resolvers<Map1, Map2, Map3, Map4>;
 
 namespace three {
@@ -300,7 +300,6 @@ class Color;
 namespace scene {
 
 DEF_FUNC_TABLE(BackgroundDispatch)
-PUT_FUNC_TABLE(BackgroundDispatch, nullptr_t)
 PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
 PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
 PUT_FUNC_TABLE(BackgroundDispatch, Color)
@@ -341,7 +340,6 @@ class ImmediateRenderObject;
 namespace object {
 
 DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, nullptr_t)
 PUT_FUNC_TABLE(Dispatch, Light)
 PUT_FUNC_TABLE(Dispatch, Sprite)
 PUT_FUNC_TABLE(Dispatch, LensFlare)
@@ -360,7 +358,6 @@ class InterleavedBufferAttribute;
 namespace bufferattribute {
 
 DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, nullptr_t)
 PUT_FUNC_TABLE(Dispatch, InterleavedBufferAttribute)
 
 DEF_RESOLVER_1(Dispatch)

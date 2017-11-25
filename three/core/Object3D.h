@@ -67,13 +67,14 @@ protected:
   int _renderOrder = -1;
 
 protected:
-  explicit Object3D(const object::Resolver::Ptr resolver=object::NullResolver::make());
+  explicit Object3D(const object::Resolver::Ptr resolver);
 
 public:
   const object::Resolver::Ptr objectResolver;
 
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
               Material::Ptr material, const Group *group)> onBeforeRender;
+
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
               Material::Ptr material, const Group *group)> onAfterRender;
 
@@ -302,7 +303,7 @@ public:
  * @tparam Geom
  */
 template <typename Geom=BufferGeometry>
-class Object3D_G : public Object3D
+class Object3D_G : public virtual Object3D
 {
   using GeometryPtr = std::shared_ptr<Geom>;
 
@@ -341,6 +342,7 @@ protected:
   explicit Object3D_GM(const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
      : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
   {}
+
   explicit Object3D_GM(GeometryPtr geometry, const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
      : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(geometry)
   {}

@@ -10,7 +10,6 @@
 #include <scene/Scene.h>
 #include <camera/Camera.h>
 #include "Program.h"
-#include <iostream>
 
 namespace three {
 namespace gl {
@@ -167,11 +166,6 @@ class RenderLists
   std::unordered_map<uint32_t, RenderList> _lists;
 
 public:
-  RenderLists() {
-    if(_lists.count(1) == 0) {
-        std::cout << "NO 1" << std::endl;
-    }
-  }
   RenderList *get(Scene::Ptr scene, Camera::Ptr camera)
   {
     uint32_t key = (uint32_t)scene->id() << 16 | camera->id();

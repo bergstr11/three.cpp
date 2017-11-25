@@ -21,7 +21,8 @@ class AxisHelper : public Line {
     return geometry;
   }
 
-  AxisHelper(size_t size) : Line(createGeometry(size), LineBasicMaterial::make(size)) {}
+  AxisHelper(size_t size)
+     : Object3D(object::ResolverT<Line>::make(*this)), Line(createGeometry(size), LineBasicMaterial::make(size)) {}
 
 public:
   using Ptr = std::shared_ptr<AxisHelper>;
