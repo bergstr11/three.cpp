@@ -93,7 +93,7 @@ Box::Box(unsigned int width,
         vector[w] = depth > 0 ? 1 : -1;
 
         // now apply vector to normal buffer
-        vector_append(vertices, {vector.x(), vector.y(), vector.z()});
+        vector_append(normals, {vector.x(), vector.y(), vector.z()});
 
         // uvs
         uvs.push_back(ix / gridX);
