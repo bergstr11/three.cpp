@@ -180,6 +180,8 @@ protected:
 
   void renderBufferImmediate(ImmediateRenderObject &object, Program::Ptr program, Material::Ptr material);
 
+  void setupVertexAttributes(Material::Ptr material, Program::Ptr program, BufferGeometry::Ptr geometry, unsigned startIndex=0);
+
 public:
   using Ptr = std::shared_ptr<Renderer_impl>;
 

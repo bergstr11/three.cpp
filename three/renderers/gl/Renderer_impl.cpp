@@ -175,7 +175,6 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _flareRenderer.render(_flaresArray, scene, camera, _currentViewport);
 
   // Generate mipmap if we're using any kind of mipmap filtering
-
   if (target)  _textures.updateRenderTargetMipmap(target);
 
   // Ensure depth buffer writing is enabled so it can be cleared on next render
@@ -294,12 +293,11 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
         }
       }
     };
-    dispatch.func<Camera>() = [&] (Camera &cam) {
+    if(!camera->cameraResolver->getValue(dispatch)) {
       _currentArrayCamera = nullptr;
 
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
-    };
-    camera->cameraResolver->getValue(dispatch);
+    }
     renderIterator++;
   }
 }
@@ -552,8 +550,8 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     index = geometry->index();
   }
 
-  /*if ( updateBuffers )
-    setupVertexAttributes( material, program, geometry );*/
+  if ( updateBuffers )
+    setupVertexAttributes( material, program, geometry );
 
   if (geometry->index()) {
 
@@ -639,6 +637,135 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   } else {
     renderer->render( drawStart, drawCount );
   }
+}
+
+void Renderer_impl::setupVertexAttributes(Material::Ptr material,
+                                          Program::Ptr program,
+                                          BufferGeometry::Ptr geometry,
+                                          unsigned startIndex )
+{
+#if 0
+  if ( geometry && geometry.isInstancedBufferGeometry ) {
+    if ( extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
+      console.error( 'THREE.WebGLRenderer.setupVertexAttributes: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.' );
+      return;
+    }
+  }
+
+  _state.initAttributes();
+
+  var geometryAttributes = geometry->attributes();
+
+  var programAttributes = program.getAttributes();
+
+  var materialDefaultAttributeValues = material.defaultAttributeValues;
+
+  for ( var name in programAttributes ) {
+
+    var programAttribute = programAttributes[ name ];
+
+    if ( programAttribute >= 0 ) {
+
+      var geometryAttribute = geometryAttributes[ name ];
+
+      if ( geometryAttribute !== undefined ) {
+
+        var normalized = geometryAttribute.normalized;
+        var size = geometryAttribute.itemSize;
+
+        var attribute = attributes.get( geometryAttribute );
+
+        // TODO Attribute may not be available on context restore
+
+        if ( attribute === undefined ) continue;
+
+        var buffer = attribute.buffer;
+        var type = attribute.type;
+        var bytesPerElement = attribute.bytesPerElement;
+
+        if ( geometryAttribute.isInterleavedBufferAttribute ) {
+
+          var data = geometryAttribute.data;
+          var stride = data.stride;
+          var offset = geometryAttribute.offset;
+
+          if ( data && data.isInstancedInterleavedBuffer ) {
+
+            state.enableAttributeAndDivisor( programAttribute, data.meshPerAttribute );
+
+            if ( geometry.maxInstancedCount === undefined ) {
+
+              geometry.maxInstancedCount = data.meshPerAttribute * data.count;
+
+            }
+
+          } else {
+
+            state.enableAttribute( programAttribute );
+
+          }
+
+          _gl.bindBuffer( _gl.ARRAY_BUFFER, buffer );
+          _gl.vertexAttribPointer( programAttribute, size, type, normalized, stride * bytesPerElement, ( startIndex * stride + offset ) * bytesPerElement );
+
+        } else {
+
+          if ( geometryAttribute.isInstancedBufferAttribute ) {
+
+            state.enableAttributeAndDivisor( programAttribute, geometryAttribute.meshPerAttribute );
+
+            if ( geometry.maxInstancedCount === undefined ) {
+
+              geometry.maxInstancedCount = geometryAttribute.meshPerAttribute * geometryAttribute.count;
+
+            }
+
+          } else {
+
+            state.enableAttribute( programAttribute );
+
+          }
+
+          _gl.bindBuffer( _gl.ARRAY_BUFFER, buffer );
+          _gl.vertexAttribPointer( programAttribute, size, type, normalized, 0, startIndex * size * bytesPerElement );
+
+        }
+
+      } else if ( materialDefaultAttributeValues !== undefined ) {
+
+        var value = materialDefaultAttributeValues[ name ];
+
+        if ( value !== undefined ) {
+
+          switch ( value.length ) {
+
+            case 2:
+              _gl.vertexAttrib2fv( programAttribute, value );
+              break;
+
+            case 3:
+              _gl.vertexAttrib3fv( programAttribute, value );
+              break;
+
+            case 4:
+              _gl.vertexAttrib4fv( programAttribute, value );
+              break;
+
+            default:
+              _gl.vertexAttrib1fv( programAttribute, value );
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+  state.disableUnusedAttributes();
+#endif
 }
 
 void Renderer_impl::releaseMaterialProgramReference(Material &material)

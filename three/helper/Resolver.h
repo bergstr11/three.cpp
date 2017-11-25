@@ -59,6 +59,7 @@ template<typename T>
 class Assoc<T, Functor<T>>
 {
   Functor<T> * ft = nullptr;
+  bool clearAfter = true;
 
 public:
   template <typename F>
@@ -70,13 +71,20 @@ public:
 
   template <typename F>
   void operator =(F&& f) {
+    clear();
     ft = new FunctorT<T, F>(f);
   }
 
-  bool operator()(T &t) const {
-    if(ft) {(*ft)(t); return true;}
+  bool operator()(T &t) {
+    if(ft) {
+      (*ft)(t);
+      if(clearAfter) clear();
+      return true;
+    }
     return false;
   }
+
+  void keep(bool keep) {clearAfter = !keep;}
 
   void clear() {
     if(ft) {
@@ -384,7 +392,6 @@ class PerspectiveCamera;
 namespace camera {
 
 DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, Camera)
 PUT_FUNC_TABLE(Dispatch, ArrayCamera)
 PUT_FUNC_TABLE(Dispatch, PerspectiveCamera)
 
