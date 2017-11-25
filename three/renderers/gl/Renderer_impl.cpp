@@ -264,10 +264,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 
     const RenderItem &renderItem = *renderIterator;
 
-    //var object = renderItem.object;
-    //var geometry = renderItem.geometry;
-    Material::Ptr material = overrideMaterial ? renderItem.material : overrideMaterial;
-    //var group = renderItem.group;
+    Material::Ptr material = overrideMaterial ? overrideMaterial : renderItem.material;
 
     camera::Dispatch dispatch;
     dispatch.func<ArrayCamera>() = [&](ArrayCamera &acamera) {
@@ -279,7 +276,6 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 
         if ( renderItem.object->layers().test( camera2->layers() ) ) {
 
-          //TODO VR
           /*var bounds = camera2->bounds;
 
           var x = bounds.x * _width;
@@ -287,7 +283,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
           var width = bounds.z * _width;
           var height = bounds.w * _height;
 
-          _state.viewport( _currentViewport.set( x, y, width, height ).multiplyScalar( _pixelRatio ) );*/
+          state.viewport( _currentViewport.set( x, y, width, height ).multiplyScalar( _pixelRatio ) );*/
 
           renderObject( renderItem.object, scene, camera2, renderItem.geometry, material, renderItem.group );
         }
@@ -302,8 +298,8 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
   }
 }
 
-void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera, BufferGeometry::Ptr geometry,
-                  Material::Ptr material, const Group *group)
+void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera,
+                                 BufferGeometry::Ptr geometry, Material::Ptr material, const Group *group)
 {
   object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
 

@@ -144,6 +144,7 @@ public:
       _transparent.push_back(_renderItems.size() - 1);
     else
       _opaque.push_back(_renderItems.size() - 1);
+    return *this;
   }
 
   iterator opaque() const {return iterator(_opaque, _renderItems);}
@@ -158,6 +159,7 @@ public:
     if (!_transparent.empty())
       std::sort(_transparent.begin(), _transparent.end(),
                 [this](size_t a, size_t b) {return reversePainterSortStable(a, b);});
+    return *this;
   }
 };
 
