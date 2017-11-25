@@ -19,6 +19,7 @@
 #include <material/MeshBasicMaterial.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
+#include <geometry/Sphere.h>
 #include <helper/AxisHelper.h>
 #include "bak/modelloader.h"
 
@@ -56,13 +57,35 @@ public:
 
     Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
-    planeMaterial->color = three::Color(0xcccccc);
+    planeMaterial->color = Color(0xcccccc);
 
     Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make(planeGeometry, planeMaterial);
-    plane->rotation().x() = -0.5f * (float)M_PI;
+    plane->rotation().x() = -0.5f * (float) M_PI;
     plane->position().set(15, 0, 0);
 
     _scene->add(plane);
+
+    Box::Ptr cubeGeometry = Box::make(4, 4, 4);
+    MeshBasicMaterial::Ptr cubeMaterial = MeshBasicMaterial::make();
+    cubeMaterial->color = Color(0xff0000);
+    cubeMaterial->wireframe = true;
+
+    Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make(cubeGeometry, cubeMaterial);
+    cube->position().set(-4, 3, 0);
+
+    _scene->add(cube);
+
+    Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
+    MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();
+    sphereMaterial->color = Color(0x7777ff);
+    sphereMaterial->wireframe = true;
+    Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make(sphereGeometry, sphereMaterial);
+    sphere->position().set(20, 4, 2);
+
+    _scene->add(sphere);
+
+    _camera->position().set(-30, 40, 30);
+    _camera->lookAt(_scene->position());
   }
 
   ~FramebufferObjectRenderer() override {

@@ -39,7 +39,7 @@ public:
      : _center(center), _radius(computeRadius(points, center))
   {}
 
-  Sphere() {}
+  Sphere() : _radius(0.0f), _center({0.0f, 0.0f, 0.0f}){}
 
   Sphere &set(const std::vector<Vector3> &points)
   {

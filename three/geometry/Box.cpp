@@ -7,13 +7,26 @@
 
 namespace three {
 namespace geometry {
+
+Box::Box(unsigned width, unsigned height, unsigned depth,
+         unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
+   : _width(width), _height(height), _depth(depth),
+     _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
+{
+  set(buffer::Box(width, height, depth, widthSegments, heightSegments, depthSegments));
+}
+
 namespace buffer {
 
 using El = math::Vector3::Element;
 using BuildPlane = std::function<void(El, El, El, int, int, unsigned, unsigned, int, unsigned, unsigned, unsigned)>;
 
-Box::Box(unsigned int width, unsigned int height, unsigned int depth,
-                     unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
+Box::Box(unsigned int width,
+         unsigned int height,
+         unsigned int depth,
+         unsigned widthSegments,
+         unsigned heightSegments,
+         unsigned depthSegments)
    : _width(width), _height(height), _depth(depth),
      _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
 {
@@ -136,9 +149,9 @@ Box::Box(unsigned int width, unsigned int height, unsigned int depth,
   // build geometry
 
   setIndex(indices);
-  setPosition(BufferAttributeT<float>::make(vertices, 3));
-  setNormal(BufferAttributeT<float>::make(normals, 3));
-  setUV(BufferAttributeT<float>::make(uvs, 2));
+  setPosition(BufferAttributeT<float>::make(vertices));
+  setNormal(BufferAttributeT<float>::make(normals, true));
+  setUV(BufferAttributeT<float>::make(uvs));
 }
 
 }

@@ -297,6 +297,11 @@ public:
     return *this /= length();
   }
 
+  Vector3 normalized() const
+  {
+    return *this / length();
+  }
+
   Vector3 &setLength(float length)
   {
     return normalize() *= length;

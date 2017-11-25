@@ -2,8 +2,8 @@
 // Created by byter on 29.07.17.
 //
 
-#ifndef THREEQT_BOX
-#define THREEQT_BOX
+#ifndef THREEPP_GEOM_BOX_H
+#define THREEPP_GEOM_BOX_H
 
 #include <core/StaticGeometry.h>
 #include <core/BufferGeometry.h>
@@ -18,14 +18,14 @@ class Box : public StaticGeometry
 
 protected:
   Box(unsigned width, unsigned height, unsigned depth,
-      unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
-     : _width(width), _height(height), _depth(depth),
-       _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments) {}
+      unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
 
 public:
   using Ptr = std::shared_ptr<Box>;
-  static Ptr make(unsigned width, unsigned height, unsigned depth, unsigned widthSegments,
-                  unsigned heightSegments, unsigned depthSegments) {
+  static Ptr make(unsigned width, unsigned height, unsigned depth,
+                  unsigned widthSegments=1,
+                  unsigned heightSegments=1,
+                  unsigned depthSegments=1) {
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   }
 
@@ -36,6 +36,8 @@ namespace buffer {
 
 class Box : public BufferGeometry
 {
+  friend class three::geometry::Box;
+
   unsigned const _width, _height, _depth;
   unsigned _widthSegments, _heightSegments, _depthSegments;
 
@@ -57,4 +59,4 @@ public:
 }
 
 
-#endif //THREEQT_BOX
+#endif //THREEPP_GEOM_BOX_H

@@ -273,7 +273,7 @@ void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
 
   if (_lineDistances.size() == _vertices.size()) {
 
-    BufferAttributeT<float>::Ptr lineDistances = BufferAttributeT<float>::make(_lineDistances, 1);
+    BufferAttributeT<float>::Ptr lineDistances = BufferAttributeT<float>::make(_lineDistances);
 
     geometry.addAttribute(AttributeName::lineDistances, lineDistances);
   }

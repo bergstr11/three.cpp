@@ -103,11 +103,11 @@ class BufferAttributeT : public BufferAttribute
   UpdateRange _updateRange = {0, -1};
 
 protected:
-  BufferAttributeT(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
+  BufferAttributeT(const std::vector<Type> &array, unsigned itemSize, bool normalized)
      : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
   {}
 
-  explicit BufferAttributeT(unsigned itemSize, bool normalized=false)
+  BufferAttributeT(unsigned itemSize, bool normalized)
      : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
   {}
 
@@ -116,11 +116,13 @@ protected:
      _normalized(source._normalized), _dynamic(source._dynamic)
   {}
 
-  BufferAttributeT(const std::vector<float> &values) : BufferAttributeT(values, 1)
+  BufferAttributeT(const std::vector<float> &values, bool normalized)
+     : BufferAttributeT(values, 1, normalized)
   {
   }
 
-  BufferAttributeT(const std::vector<UV> &uvs) : BufferAttributeT(2)
+  BufferAttributeT(const std::vector<UV> &uvs, bool normalized)
+     : BufferAttributeT(2, normalized)
   {
     _array.resize(uvs.size() * _itemSize);
 
@@ -131,7 +133,8 @@ protected:
     }
   }
 
-  BufferAttributeT(const std::vector<Color> &colors) : BufferAttributeT(3)
+  BufferAttributeT(const std::vector<Color> &colors, bool normalized)
+     : BufferAttributeT(3, normalized)
   {
     _array.resize(colors.size() * _itemSize);
 
@@ -143,7 +146,8 @@ protected:
     }
   }
 
-  BufferAttributeT(const std::vector<Index> &indices) : BufferAttributeT(3)
+  BufferAttributeT(const std::vector<Index> &indices, bool normalized)
+     : BufferAttributeT(3, normalized)
   {
     _array.resize(indices.size() * _itemSize);
 
@@ -159,7 +163,8 @@ protected:
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector2> vectors)  : BufferAttributeT(2)
+  BufferAttributeT(std::vector<math::Vector2> vectors, bool normalized)
+     : BufferAttributeT(2, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -170,7 +175,8 @@ protected:
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector3> vectors) : BufferAttributeT(3)
+  BufferAttributeT(std::vector<math::Vector3> vectors, bool normalized)
+     : BufferAttributeT(3, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -182,7 +188,8 @@ protected:
     }
   }
 
-  BufferAttributeT(std::vector<math::Vector4> vectors) : BufferAttributeT(4)
+  BufferAttributeT(std::vector<math::Vector4> vectors, bool normalized)
+     : BufferAttributeT(4, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -203,39 +210,39 @@ public:
     return std::shared_ptr<BufferAttributeT<Type>>(new BufferAttributeT<Type>(array, itemSize, normalized));
   }
 
-  static Ptr make(const std::vector<float> values)
+  static Ptr make(const std::vector<float> values, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(values));
+    return Ptr(new BufferAttributeT(values, normalized));
   }
 
-  static Ptr make(const std::vector<UV> uvs)
+  static Ptr make(const std::vector<UV> uvs, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(uvs));
+    return Ptr(new BufferAttributeT(uvs, normalized));
   }
 
-  static Ptr make(const std::vector<Color> colors)
+  static Ptr make(const std::vector<Color> colors, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(colors));
+    return Ptr(new BufferAttributeT(colors, normalized));
   }
 
-  static Ptr make(const std::vector<Index> &indices)
+  static Ptr make(const std::vector<Index> &indices, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(indices));
+    return Ptr(new BufferAttributeT(indices, normalized));
   }
 
-  static Ptr make(const std::vector<math::Vector2> &vectors)
+  static Ptr make(const std::vector<math::Vector2> &vectors, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(vectors));
+    return Ptr(new BufferAttributeT(vectors, normalized));
   }
 
-  static Ptr make(const std::vector<math::Vector3> &vectors)
+  static Ptr make(const std::vector<math::Vector3> &vectors, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(vectors));
+    return Ptr(new BufferAttributeT(vectors, normalized));
   }
 
-  static Ptr make(const std::vector<math::Vector4> &vectors)
+  static Ptr make(const std::vector<math::Vector4> &vectors, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(vectors));
+    return Ptr(new BufferAttributeT(vectors, normalized));
   }
 
   Signal<void(const BufferAttributeT<Type> &)> onUpload;

@@ -83,9 +83,9 @@ public:
 
     // build geometry
     setIndex( indices );
-    setPosition(BufferAttributeT<float>::make(vertices, 3));
-    setNormal(BufferAttributeT<float>::make(normals, 3));
-    setUV(BufferAttributeT<float>::make(uvs, 2));
+    setPosition(BufferAttributeT<float>::make(vertices));
+    setNormal(BufferAttributeT<float>::make(normals, true));
+    setUV(BufferAttributeT<float>::make(uvs));
   }
 
   using Ptr = std::shared_ptr<Plane>;
