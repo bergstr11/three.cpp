@@ -212,57 +212,57 @@ string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr p
     }
   }
 
-  ss << parameters->precision
-     << parameters->supportsVertexTextures
-     << parameters->map
-     << parameters->mapEncoding
-     << parameters->envMap
-     << parameters->envMapMode
-     << parameters->envMapEncoding
-     << parameters->lightMap
-     << parameters->aoMap
-     << parameters->emissiveMap
-     << parameters->emissiveMapEncoding
-     << parameters->bumpMap
-     << parameters->normalMap
-     << parameters->displacementMap
-     << parameters->specularMap
-     << parameters->roughnessMap
-     << parameters->metalnessMap
-     << parameters->gradientMap
-     << parameters->alphaMap
-     << parameters->combine
-     << parameters->vertexColors
-     << parameters->fog
-     << parameters->useFog
-     << parameters->fogExp
-     << parameters->flatShading
-     << parameters->sizeAttenuation
-     << parameters->logarithmicDepthBuffer
-     << parameters->skinning
-     << parameters->maxBones
-     << parameters->useVertexTexture
-     << parameters->morphTargets
-     << parameters->morphNormals
-     << parameters->maxMorphTargets
-     << parameters->maxMorphNormals
-     << parameters->premultipliedAlpha
-     << parameters->numDirLights
-     << parameters->numPointLights
-     << parameters->numSpotLights
-     << parameters->numHemiLights
-     << parameters->numRectAreaLights
-     << parameters->shadowMapEnabled
-     << parameters->shadowMapType
-     << parameters->toneMapping
-     << parameters->physicallyCorrectLights
-     << parameters->alphaTest
-     << parameters->doubleSided
-     << parameters->flipSided
-     << parameters->numClippingPlanes
-     << parameters->numClipIntersection
-     << parameters->depthPacking
-     << parameters->dithering;
+  ss << " | " <<parameters->precision
+     << " | " <<parameters->supportsVertexTextures
+     << " | " <<parameters->map
+     << " | " <<parameters->mapEncoding
+     << " | " <<parameters->envMap
+     << " | " <<parameters->envMapMode
+     << " | " <<parameters->envMapEncoding
+     << " | " <<parameters->lightMap
+     << " | " <<parameters->aoMap
+     << " | " <<parameters->emissiveMap
+     << " | " <<parameters->emissiveMapEncoding
+     << " | " <<parameters->bumpMap
+     << " | " <<parameters->normalMap
+     << " | " <<parameters->displacementMap
+     << " | " <<parameters->specularMap
+     << " | " <<parameters->roughnessMap
+     << " | " <<parameters->metalnessMap
+     << " | " <<parameters->gradientMap
+     << " | " <<parameters->alphaMap
+     << " | " <<parameters->combine
+     << " | " <<parameters->vertexColors
+     << " | " <<parameters->fog
+     << " | " <<parameters->useFog
+     << " | " <<parameters->fogExp
+     << " | " <<parameters->flatShading
+     << " | " <<parameters->sizeAttenuation
+     << " | " <<parameters->logarithmicDepthBuffer
+     << " | " <<parameters->skinning
+     << " | " <<parameters->maxBones
+     << " | " <<parameters->useVertexTexture
+     << " | " <<parameters->morphTargets
+     << " | " <<parameters->morphNormals
+     << " | " <<parameters->maxMorphTargets
+     << " | " <<parameters->maxMorphNormals
+     << " | " <<parameters->premultipliedAlpha
+     << " | " <<parameters->numDirLights
+     << " | " <<parameters->numPointLights
+     << " | " <<parameters->numSpotLights
+     << " | " <<parameters->numHemiLights
+     << " | " <<parameters->numRectAreaLights
+     << " | " <<parameters->shadowMapEnabled
+     << " | " <<parameters->shadowMapType
+     << " | " <<parameters->toneMapping
+     << " | " <<parameters->physicallyCorrectLights
+     << " | " <<parameters->alphaTest
+     << " | " <<parameters->doubleSided
+     << " | " <<parameters->flipSided
+     << " | " <<parameters->numClippingPlanes
+     << " | " <<parameters->numClipIntersection
+     << " | " <<parameters->depthPacking
+     << " | " <<parameters->dithering;
 
   //ss << material.onBeforeCompile.toString();
 

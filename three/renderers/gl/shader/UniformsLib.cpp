@@ -119,7 +119,7 @@ public:
                          value<Texture::Ptr>(UniformName::envMap, nullptr),
                          value<GLint>(UniformName::flipEnvMap, -1),
                          value<Texture::Ptr>(UniformName::map, nullptr),
-                         value<math::Matrix3>(UniformName::reflectivity, math::Matrix3()),
+                         value<float>(UniformName::reflectivity, 1.0f),
                          value<GLfloat>(UniformName::refractionRatio, 0.98f)
                          }));
     add(UniformsID::aomap,

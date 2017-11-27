@@ -19,7 +19,7 @@ Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
 
 void Sphere::toBufferGeometry(BufferGeometry &geometry)
 {
-
+  return StaticGeometry::toBufferGeometry(geometry);
 }
 
 namespace buffer {

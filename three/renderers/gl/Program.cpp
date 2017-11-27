@@ -252,8 +252,8 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
 
   string info = getInfoLog(f, InfoObject::shader, shader);
 
-  cout << (type == GL_VERTEX_SHADER ? "!!vertex" : "!!fragment") << endl;
-  cerr << glsl << endl;
+  //cout << (type == GL_VERTEX_SHADER ? "!!vertex" : "!!fragment") << endl;
+  //cerr << glsl << endl;
 
   if(value != GL_TRUE) {
     cerr << glsl << endl;
@@ -607,11 +607,6 @@ Program::Program(Renderer_impl &renderer,
 
   string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
-  bool runnable = true;
-  bool haveDiagnostics = true;
-
-  _cachedAttributes = fetchAttributeLocations();
-
   // console.log( '**VERTEX**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glVertexShader ) );
   // console.log( '**FRAGMENT**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glFragmentShader ) );
 
@@ -619,7 +614,6 @@ Program::Program(Renderer_impl &renderer,
   _renderer.glGetProgramiv( _program, GL_LINK_STATUS, &value);
   if(value != GL_TRUE) {
 
-    runnable = false;
     GLint status;
     _renderer.glGetProgramiv(_program, GL_VALIDATE_STATUS, &status);
 
@@ -630,6 +624,8 @@ Program::Program(Renderer_impl &renderer,
     throw logic_error(err.str());
   }
   else if ( !programLog.empty()) cerr << programLog << endl;
+
+  _cachedAttributes = fetchAttributeLocations();
 
   // clean up
   _renderer.glDeleteShader( glVertexShader );

@@ -245,11 +245,6 @@ BufferGeometry::BufferGeometry(Object3D::Ptr object)
   object->geometry()->toBufferGeometry(*this);
 }
 
-void Geometry::toBufferGeometry(BufferGeometry &geometry)
-{
-
-}
-
 void three::geometry::Plane::toBufferGeometry(BufferGeometry &geometry)
 {
   StaticGeometry::toBufferGeometry(geometry);
@@ -265,8 +260,8 @@ void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
   BufferAttributeT<float>::Ptr positions = BufferAttributeT<float>::make(_vertices);
   BufferAttributeT<float>::Ptr colors = BufferAttributeT<float>::make(_colors);
 
-  geometry.addAttribute(AttributeName::position, positions);
-  geometry.addAttribute(AttributeName::color, colors);
+  geometry.setPosition(positions);
+  geometry.setColor(colors);
 
   geometry.boundingSphere() = _boundingSphere;
   geometry.boundingBox() = _boundingBox;
@@ -275,7 +270,7 @@ void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
 
     BufferAttributeT<float>::Ptr lineDistances = BufferAttributeT<float>::make(_lineDistances);
 
-    geometry.addAttribute(AttributeName::lineDistances, lineDistances);
+    geometry.setLineDistances(lineDistances);
   }
 }
 

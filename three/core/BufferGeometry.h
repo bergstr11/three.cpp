@@ -16,7 +16,7 @@ class Object3D;
 
 enum class AttributeName
 {
-  morphTarget, morphNormal, color, position, lineDistances
+  morphTarget, morphNormal//, color, position, lineDistances
 };
 
 class BufferGeometry : public Geometry
@@ -84,11 +84,33 @@ public:
     return Ptr(new BufferGeometry(object));
   }
 
+  BufferGeometry &operator =(const BufferGeometry &geom) {
+    _index = geom._index;
+    _position = geom._position;
+    _normal = geom._normal;
+    _color = geom._color;;
+    _uv = geom._uv;
+    _uv2 = geom._uv2;
+    _lineDistances = geom._lineDistances;
+
+    _morphAttributes_position = geom._morphAttributes_position;
+    _morphAttributes_normal = geom._morphAttributes_normal;
+
+    _indexedAttributes = geom._indexedAttributes;
+
+    _drawRange = geom._drawRange;
+  }
+
   BufferGeometry &update(std::shared_ptr<Object3D> object);
 
   bool useMorphing() const override
   {
     return !_morphAttributes_position.empty();
+  }
+
+  void toBufferGeometry(BufferGeometry &geometry) override
+  {
+    geometry = *this;
   }
 
   const UpdateRange &drawRange() const {return _drawRange;}
@@ -159,6 +181,12 @@ public:
   BufferGeometry &setUV2(const BufferAttributeT<float>::Ptr &uv2)
   {
     _uv2 = uv2;
+    return *this;
+  }
+
+  BufferGeometry &setLineDistances(const BufferAttributeT<float>::Ptr &lineDistances)
+  {
+    _lineDistances = lineDistances;
     return *this;
   }
 

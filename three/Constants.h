@@ -191,9 +191,10 @@ enum class DrawMode
 
 enum class CombineOperation
 {
-  Multiply = 0,
-  Mix = 1,
-  Add = 2
+  Unknown = 0,
+  Multiply = 1,
+  Mix = 2,
+  Add = 3
 };
 
 enum class LineCap
