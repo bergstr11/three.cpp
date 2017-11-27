@@ -17,6 +17,8 @@
 #include <math/Matrix3.h>
 #include <math/Matrix4.h>
 
+#include <textures/ImageTexture.h>
+
 #include <Constants.h>
 #include "shader/ShaderLib.h"
 #include "shader/UniformsLib.h"

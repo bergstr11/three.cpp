@@ -36,7 +36,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   static const material::ShaderIDs shaderIds;
 
   ProgramParameters::Ptr parameters = ProgramParameters::make();
-  parameters->shaderID = shaderIds.value(*material);
+  parameters->shaderID = material->resolver->material::ShaderIDsResolver::getValue(shaderIds);
 
   // heuristics to create shader parameters according to lights in the scene
   // (not to blow over maxLights budget)
@@ -147,6 +147,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = (bool)mat.lightMap;
   };
+  material->resolver->material::DispatchResolver::getValue(dispatch);
 
   parameters->fog = (bool)fog;
   parameters->useFog = material->fog;

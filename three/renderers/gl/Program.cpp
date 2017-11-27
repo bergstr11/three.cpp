@@ -128,17 +128,18 @@ struct AttribInfo
 
 unordered_map<string, GLint> Program::fetchAttributeLocations()
 {
-
   unordered_map<string, GLint> attributes;
 
   GLint numActive;
   _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
+  _renderer.check_gl_error();
 
   AttribInfo info;
   for (unsigned i = 0; i < numActive; i++) {
 
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
-    info.name[info.length] = 0;
+    _renderer.check_gl_error();
+
     string name(info.name);
 
     // console.log("THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:", name, i );
@@ -159,39 +160,49 @@ string replaceLightNums(string value, const ProgramParameters &parameters)
 
 string parseIncludes(string lookat)
 {
-  static regex rex("[ \r\n\t]*#include +<([\\w\\d.]+)>");
+  static regex rex("#include +<([\\w\\d.]+)>");
 
   sregex_iterator rex_it(lookat.begin(), lookat.end(), rex);
   sregex_iterator rex_end;
 
   while(rex_it != rex_end) {
-    ssub_match sub = (*rex_it)[1];
+    std::smatch match = *rex_it;
+    std::ssub_match sub = match[1];
     string r = getShaderChunk(sub.str());
     if(r.empty()) {
       stringstream ss;
       ss << "unable to resolve #include <" << sub.str() << ">";
       throw logic_error(ss.str());
     }
-    lookat.replace(sub.first, sub.second, r);
+    std::ssub_match all = match[0];
+    lookat.replace(all.first, all.second, r);
 
-    rex_it = sregex_iterator(sub.first+r.length(), lookat.end(), rex);
+    rex_it = sregex_iterator(lookat.begin() + match.position() + r.length(), lookat.end(), rex);
   }
   return lookat;
 }
 
-string unrollLoops(string loops)
+string unrollLoops(string glsl)
 {
   static regex rex(R"(for \( int i = (\d+)\; i < (\d+); i \+\+ \) \{[\r\n]?([\s\S]+?)(?=\})\})");
   static regex rex2(R"(\[ i \])");
 
   stringstream unroll;
-  sregex_iterator rex_it(loops.begin(), loops.end(), rex);
+  sregex_iterator rex_it(glsl.begin(), glsl.end(), rex);
   sregex_iterator rex_end;
 
+  auto it_start = glsl.begin();
+
   while(rex_it != rex_end) {
-    int start = stoi((*rex_it)[1].str());
-    int end = stoi((*rex_it)[2].str());
-    ssub_match snippet = (*rex_it)[3];
+
+    smatch match = *rex_it;
+
+    for(auto it_end = it_start + match.position(); it_start < it_end; it_start++) unroll << *it_start;
+    it_start += match.length();
+
+    int start = stoi(match[1].str());
+    int end = stoi(match[2].str());
+    ssub_match snippet = match[3];
 
     for(int i=start; i<end; i++) {
       stringstream ss2;
@@ -200,6 +211,7 @@ string unrollLoops(string loops)
     }
     rex_it++;
   }
+  for(;it_start < glsl.end(); it_start++) unroll << *it_start;
 
   return unroll.str();
 }
@@ -239,14 +251,19 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
   f->glGetShaderiv( shader, GL_COMPILE_STATUS, &value);
 
   string info = getInfoLog(f, InfoObject::shader, shader);
-  if(!info.empty()) {
-    cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info<< endl;
-  }
 
   if(value != GL_TRUE) {
+    cerr << glsl << endl;
+
+    if(!info.empty())
+      cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info << endl;
+
     throw logic_error("GLSL compile error");
   }
-
+  else {
+    if(!info.empty())
+      cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info << endl;
+  }
   // --enable-privileged-webgl-extension
   // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
 
@@ -254,13 +271,15 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
 
 }
 
+const std::string no_att("???");
+
 Program::Program(Renderer_impl &renderer,
                  Extensions &extensions,
                  const std::string code,
                  const Material::Ptr material,
                  Shader &shader,
                  const ProgramParameters &parameters )
-   : _renderer(renderer), _cachedAttributes(fetchAttributeLocations())
+   : _renderer(renderer), _cachedAttributes({make_pair(no_att, 0)})
 {
   using namespace string_out;
 
@@ -341,7 +360,7 @@ Program::Program(Renderer_impl &renderer,
 
   //
 
-  GLuint program = _renderer.glCreateProgram();
+  _program = _renderer.glCreateProgram();
 
   string prefixVertex, prefixFragment;
 
@@ -352,6 +371,9 @@ Program::Program(Renderer_impl &renderer,
 
   } else {
     stringstream ss;
+
+    //vertex prefix
+    //=============
     ss << "#ifdef GL_ES" << endl;
     ss << "precision " << parameters.precision << " float;" << endl;
     ss << "precision " << parameters.precision << " int;" << endl;
@@ -450,6 +472,9 @@ Program::Program(Renderer_impl &renderer,
     prefixVertex = ss.str();
 
     ss.seekp(stringstream::beg);
+
+    //fragment prefix
+    //===============
     ss << customExtensions;
 
     ss << "#ifdef GL_ES" << endl;
@@ -457,13 +482,13 @@ Program::Program(Renderer_impl &renderer,
     ss << "precision " << parameters.precision << " int;" << endl;
     ss << "#endif" << endl;
 
-    ss << "#define SHADER_NAME " << shader.name();
+    ss << "#define SHADER_NAME " << shader.name() << endl;
 
-    ss << customDefines;
+    ss << customDefines << endl;
 
     if(parameters.alphaTest) ss << "#define ALPHATEST " << parameters.alphaTest << endl;
 
-    ss << "#define GAMMA_FACTOR " << gammaFactorDefine;
+    ss << "#define GAMMA_FACTOR " << gammaFactorDefine << endl;
 
     if(( parameters.useFog && parameters.fog )) ss << "#define USE_FOG" << endl;
     if(( parameters.useFog && parameters.fogExp )) ss << "#define FOG_EXP2" << endl;
@@ -491,11 +516,11 @@ Program::Program(Renderer_impl &renderer,
     if(parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
     if(parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
 
-    ss << "#define NUM_CLIPPING_PLANES " + parameters.numClippingPlanes;
-    ss << "#define UNION_CLIPPING_PLANES " + ( parameters.numClippingPlanes - parameters.numClipIntersection );
+    ss << "#define NUM_CLIPPING_PLANES " << parameters.numClippingPlanes << endl;
+    ss << "#define UNION_CLIPPING_PLANES " << ( parameters.numClippingPlanes - parameters.numClipIntersection ) << endl;
 
     if(parameters.shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
-    if(parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine;
+    if(parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
 
     if(parameters.premultipliedAlpha) ss << "#define PREMULTIPLIED_ALPHA" << endl;
 
@@ -513,9 +538,9 @@ Program::Program(Renderer_impl &renderer,
       ss << "#define TONE_MAPPING" << endl;
 
       // this code is required here because it is used by the toneMapping() function defined below
-      ss << getShaderChunk(ShaderChunk::tonemapping_pars_fragment);
+      ss << getShaderChunk(ShaderChunk::tonemapping_pars_fragment) << endl;
 
-      ss << getToneMappingFunction( "toneMapping", parameters.toneMapping );
+      ss << getToneMappingFunction( "toneMapping", parameters.toneMapping ) << endl;
     }
 
     if(parameters.dithering) ss << "#define DITHERING" << endl;
@@ -525,25 +550,25 @@ Program::Program(Renderer_impl &renderer,
         || parameters.envMapEncoding  != Encoding::Unknown
         || parameters.emissiveMapEncoding  != Encoding::Unknown)
       // this code is required here because it is used by the various encoding/decoding function defined below
-      ss << getShaderChunk(ShaderChunk::encodings_pars_fragment);
+      ss << getShaderChunk(ShaderChunk::encodings_pars_fragment) << endl;
 
     if(parameters.mapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "mapTexelToLinear", parameters.mapEncoding );
+      ss << getTexelDecodingFunction( "mapTexelToLinear", parameters.mapEncoding ) << endl;
     if(parameters.envMapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "envMapTexelToLinear", parameters.envMapEncoding );
+      ss << getTexelDecodingFunction( "envMapTexelToLinear", parameters.envMapEncoding ) << endl;
     if(parameters.emissiveMapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", parameters.emissiveMapEncoding );
+      ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", parameters.emissiveMapEncoding ) << endl;
     if(parameters.outputEncoding != Encoding::Unknown)
-      ss << getTexelEncodingFunction( "linearToOutputTexel", parameters.outputEncoding );
+      ss << getTexelEncodingFunction( "linearToOutputTexel", parameters.outputEncoding ) << endl;
 
     if(parameters.depthPacking != DepthPacking::Unknown)
-      ss << "#define DEPTH_PACKING " << parameters.depthPacking;
+      ss << "#define DEPTH_PACKING " << parameters.depthPacking << endl;
 
     prefixFragment = ss.str();
   }
 
   string vertexShader = parseIncludes( shader.vertexShader() );
-  vertexShader = replaceLightNums( shader.vertexShader(), parameters );
+  vertexShader = replaceLightNums( vertexShader, parameters );
 
   string fragmentShader = parseIncludes( shader.fragmentShader() );
   fragmentShader = replaceLightNums( fragmentShader, parameters );
@@ -560,24 +585,24 @@ Program::Program(Renderer_impl &renderer,
   GLuint glVertexShader = createShader(&_renderer, GL_VERTEX_SHADER, vertexGlsl );
   GLuint glFragmentShader = createShader(&_renderer, GL_FRAGMENT_SHADER, fragmentGlsl );
 
-  _renderer.glAttachShader( program, glVertexShader );
-  _renderer.glAttachShader( program, glFragmentShader );
+  _renderer.glAttachShader( _program, glVertexShader );
+  _renderer.glAttachShader( _program, glFragmentShader );
 
   // Force a particular attribute to index 0.
 
   if (!parameters.index0AttributeName.empty()) {
 
-    _renderer.glBindAttribLocation( program, 0, parameters.index0AttributeName.data());
+    _renderer.glBindAttribLocation( _program, 0, parameters.index0AttributeName.data());
 
   } else if (parameters.morphTargets) {
 
     // programs with morphTargets displace position out of attribute 0
-    _renderer.glBindAttribLocation( program, 0, "position" );
+    _renderer.glBindAttribLocation( _program, 0, "position" );
   }
 
-  _renderer.glLinkProgram( program );
+  _renderer.glLinkProgram( _program );
 
-  string programLog = getInfoLog(&_renderer, InfoObject::program, program );
+  string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
   bool runnable = true;
   bool haveDiagnostics = true;
@@ -588,22 +613,21 @@ Program::Program(Renderer_impl &renderer,
   // console.log( '**FRAGMENT**', gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( glFragmentShader ) );
 
   GLint value;
-  _renderer.glGetProgramiv( program, GL_LINK_STATUS, &value);
+  _renderer.glGetProgramiv( _program, GL_LINK_STATUS, &value);
   if(value != GL_TRUE) {
 
     runnable = false;
     GLint status;
-    _renderer.glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+    _renderer.glGetProgramiv(_program, GL_VALIDATE_STATUS, &status);
 
-    cerr << "shader linkage failed: " << _renderer.glGetError() << endl << "VALIDATE_STATUS: " << status << endl;
+    if(!programLog.empty()) cerr << programLog << endl;
 
-    if(!programLog.empty())
-      cerr << "ProgramInfoLog: " << programLog << endl;
+    stringstream err;
+    err << "shader linkage failed: " << _renderer.glGetError() << " validate_status: " << status;
+    throw logic_error(err.str());
   }
-  else if ( !programLog.empty()) {
+  else if ( !programLog.empty()) cerr << programLog << endl;
 
-    cerr << "ProgramInfoLog: " << programLog << endl;
-  }
   // clean up
   _renderer.glDeleteShader( glVertexShader );
   _renderer.glDeleteShader( glFragmentShader );
@@ -618,8 +642,11 @@ Uniforms::Ptr Program::getUniforms()
   return _cachedUniforms;
 }
 
-const std::unordered_map<std::string, GLint> &Program::getAttributes() const
+const std::unordered_map<std::string, GLint> &Program::getAttributes()
 {
+  if(_cachedAttributes.count(no_att) == 1)
+    _cachedAttributes = fetchAttributeLocations();
+
   return _cachedAttributes;
 }
 

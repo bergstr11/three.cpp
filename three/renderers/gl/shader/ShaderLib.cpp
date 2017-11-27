@@ -5,6 +5,8 @@
 #include "ShaderLib.h"
 #include <core/Color.h>
 #include <math/Vector3.h>
+#include <QResource>
+#include <QFile>
 
 static void qInitResource()
 {
@@ -26,13 +28,11 @@ class LibShader
   ShaderID _id;
   uniformslib::LibUniformValues _uniforms;
 
-  QResource _vertex;
-  QByteArray _uncompressedVertex;
-  const char *_vertexShader = nullptr;
+  QFile _vertex;
+  QByteArray _vertexShader;
 
-  QResource _fragment;
-  QByteArray _uncompressedFragment;
-  const char *_fragmentShader = nullptr;
+  QFile _fragment;
+  QByteArray _fragmentShader;
 
 public:
   LibShader(ShaderID id, const uniformslib::LibUniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
@@ -40,7 +40,8 @@ public:
   {}
 
   LibShader(const LibShader &shader)
-     : _uniforms(shader._uniforms), _id(shader._id), _vertex(shader._vertexShader), _fragment(shader._fragmentShader)
+     : _id(shader._id), _uniforms(shader._uniforms), _vertex(shader._vertex.fileName()), _fragment(shader._fragment.fileName()),
+       _vertexShader(shader._vertexShader), _fragmentShader(shader._fragmentShader)
   {}
 
   const uniformslib::LibUniformValues &uniforms() const {
@@ -49,30 +50,30 @@ public:
 
   const char *vertexShader()
   {
-    if (_vertexShader) return _vertexShader;
+    if (!_vertexShader.isNull()) return _vertexShader.data();
 
-    if (_vertex.isCompressed()) {
-      _uncompressedVertex = qUncompress(_vertex.data(), _vertex.size());
-      _vertexShader = _uncompressedVertex.data();
+    if(_vertex.open(QIODevice::ReadOnly)) {
+      _vertexShader = _vertex.readAll();
+      _vertex.close();
     }
     else
-      _vertexShader = (const char *) _vertex.data();
+      throw std::logic_error("shader resource not available");
 
-    return _vertexShader;
+    return _vertexShader.data();
   }
 
   const char *fragmentShader()
   {
-    if (_fragmentShader) return _fragmentShader;
+    if (!_fragmentShader.isNull()) return _fragmentShader.data();
 
-    if (_fragment.isCompressed()) {
-      _uncompressedFragment = qUncompress(_fragment.data(), _fragment.size());
-      _fragmentShader = _uncompressedFragment.data();
+    if(_fragment.open(QIODevice::ReadOnly)) {
+      _fragmentShader = _fragment.readAll();
+      _fragment.close();
     }
     else
-      _fragmentShader = (const char *) _fragment.data();
+      throw std::logic_error("shader resource not available");
 
-    return _fragmentShader;
+    return _fragmentShader.data();
   }
 };
 
@@ -82,7 +83,7 @@ class ShaderLib
 
   void add(ShaderID id, const three::gl::LibShader &sh)
   {
-    _shaders.insert({id, sh});
+    _shaders.emplace(id, sh);
   }
 
 public:
@@ -102,8 +103,8 @@ public:
                         UniformsID::fog
                      }
                   ),
-                  ":chunk/cube_vert.glsl",
-                  ":chunk/cube_frag.glsl"
+                  ":shader/meshbasic_vert.glsl",
+                  ":shader/meshbasic_frag.glsl"
         ));
     add(ShaderID::lambert,
         LibShader(ShaderID::lambert,
@@ -121,8 +122,8 @@ public:
                   ).merge(UniformsID::lights, {
                      {UniformName::emissive, Color()}
                   }),
-                  ":chunk/meshlambert_vert.glsl",
-                  ":chunk/meshlambert_frag.glsl"
+                  ":shader/meshlambert_vert.glsl",
+                  ":shader/meshlambert_frag.glsl"
         ));
     add(ShaderID::phong,
         LibShader(ShaderID::phong,
@@ -146,8 +147,8 @@ public:
                      {UniformName::specular, Color(0x111111)},
                      {UniformName::emissive, 30}
                   }),
-                  ":chunk/meshphong_vert.glsl",
-                  ":chunk/meshphong_frag.glsl"
+                  ":shader/meshphong_vert.glsl",
+                  ":shader/meshphong_frag.glsl"
         ));
     add(ShaderID::standard,
         LibShader(ShaderID::standard,
@@ -171,8 +172,8 @@ public:
                      {UniformName::metalness,       0.5f},
                      {UniformName::envMapIntensity, 1}
                   }),
-                  ":chunk/meshphysical_vert.glsl",
-                  ":chunk/meshphysical_frag.glsl"
+                  ":shader/meshphysical_vert.glsl",
+                  ":shader/meshphysical_frag.glsl"
         ));
     add(ShaderID::points,
         LibShader(ShaderID::points,
@@ -182,8 +183,8 @@ public:
                         UniformsID::fog
                      }
                   ),
-                  ":chunk/points_vert.glsl",
-                  ":chunk/points_frag.glsl"
+                  ":shader/points_vert.glsl",
+                  ":shader/points_frag.glsl"
         ));
     add(ShaderID::dashed,
         LibShader(ShaderID::dashed,
@@ -196,8 +197,8 @@ public:
                      {UniformName::dashSize,  1},
                      {UniformName::totalSize, 2}
                   }),
-                  ":chunk/linedashed_vert.glsl",
-                  ":chunk/linedashed_frag.glsl"
+                  ":shader/linedashed_vert.glsl",
+                  ":shader/linedashed_frag.glsl"
         ));
     add(ShaderID::depth,
         LibShader(ShaderID::depth,
@@ -207,8 +208,8 @@ public:
                         UniformsID::displacementmap
                      }
                   ),
-                  ":chunk/depth_vert.glsl",
-                  ":chunk/depth_frag.glsl"
+                  ":shader/depth_vert.glsl",
+                  ":shader/depth_frag.glsl"
         ));
     add(ShaderID::normal,
         LibShader(ShaderID::normal,
@@ -222,26 +223,26 @@ public:
                   ).merge(UniformsID::displacementmap, {
                      {UniformName::opacity, 1.0f},
                   }),
-                  ":chunk/normal_vert.glsl",
-                  ":chunk/normal_frag.glsl"
+                  ":shader/normal_vert.glsl",
+                  ":shader/normal_frag.glsl"
         ));
     add(ShaderID::cube,
         LibShader(ShaderID::cube,
                   {
-                     uniformslib::value<ImageCubeTexture::Ptr>(UniformName::cube, nullptr),
+                     uniformslib::value<Texture::Ptr>(UniformName::cube, nullptr),
                      uniformslib::value<GLint>(UniformName::flip, -1),
                      uniformslib::value<float>(UniformName::opacity, 1.0f)
                   },
-                  ":chunk/cube_vert.glsl",
-                  ":chunk/cube_frag.glsl"
+                  ":shader/cube_vert.glsl",
+                  ":shader/cube_frag.glsl"
         ));
     add(ShaderID::equirect,
         LibShader(ShaderID::equirect,
                   {
-                     uniformslib::value<ImageTexture::Ptr>(UniformName::equirect, nullptr)
+                     uniformslib::value<Texture::Ptr>(UniformName::equirect, nullptr)
                   },
-                  ":chunk/equirect_vert.glsl",
-                  ":chunk/equirect_frag.glsl"
+                  ":shader/equirect_vert.glsl",
+                  ":shader/equirect_frag.glsl"
         ));
     add(ShaderID::distanceRGBA,
         LibShader(ShaderID::distanceRGBA,
@@ -255,8 +256,8 @@ public:
                      {UniformName::nearDistance,      1},
                      {UniformName::farDistance,       1},
                   }),
-                  ":chunk/distanceRGBA_vert.glsl",
-                  ":chunk/distanceRGBA_frag.glsl"
+                  ":shader/distanceRGBA_vert.glsl",
+                  ":shader/distanceRGBA_frag.glsl"
         ));
     add(ShaderID::shadow,
         LibShader(ShaderID::shadow,
@@ -269,8 +270,8 @@ public:
                      {UniformName::color,   Color(0x00000)},
                      {UniformName::opacity, 1.0f}
                   }),
-                  ":chunk/distanceRGBA_vert.glsl",
-                  ":chunk/distanceRGBA_frag.glsl"
+                  ":shader/distanceRGBA_vert.glsl",
+                  ":shader/distanceRGBA_frag.glsl"
         ));
   }
 

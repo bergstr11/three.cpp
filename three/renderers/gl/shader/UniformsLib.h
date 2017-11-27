@@ -5,8 +5,8 @@
 #ifndef THREE_QT_UNIFORMSLIB_H
 #define THREE_QT_UNIFORMSLIB_H
 
-#include <textures/ImageTexture.h>
 #include <textures/DataTexture.h>
+#include <light/Light.h>
 #include <core/Color.h>
 #include <math/Matrix3.h>
 #include <math/Vector3.h>
@@ -112,7 +112,12 @@ enum class UniformName
   spotShadowMap,
   spotShadowMatrix,
   pointShadowMap,
-  pointShadowMatrix
+  pointShadowMatrix,
+  distance,
+  position,
+  coneCos,
+  penumbraCos,
+  decay
 };
 
 enum class UniformsID {
@@ -139,14 +144,19 @@ namespace uniformslib {
 
 struct UniformValue
 {
+  using Ptr = std::shared_ptr<UniformValue>;
+  using UniformProperties = std::unordered_map<UniformName, UniformValue::Ptr>;
+
   const UniformName id;
 
   bool needsUpdate = false;
 
+  UniformProperties properties;
+
   virtual ~UniformValue() {}
 
-  using Ptr = std::shared_ptr<UniformValue>;
   explicit UniformValue(UniformName nm) : id(nm) {}
+  explicit UniformValue(UniformName nm, UniformProperties properties) : id(nm), properties(properties) {}
 
   template <typename T>
   UniformValue &operator = (T t);
@@ -166,8 +176,12 @@ template<> struct UniformValueT<Cls> : public UniformValue \
 { \
   Cls value; \
   explicit UniformValueT(UniformName nm, const Cls &value) : UniformValue(nm), value(value) {} \
+  explicit UniformValueT(UniformName nm, const Cls &value, UniformProperties properties) : UniformValue(nm, properties), value(value) {} \
   UniformValueT &operator = (const Cls &value) { \
     this->value = value; return *this; \
+  } \
+  static Ptr make(UniformName nm, const Cls &value) { \
+    return Ptr(new UniformValueT(nm, value)); \
   } \
   Ptr clone() const override { \
     return Ptr(new UniformValueT(id, value)); \
@@ -180,15 +194,15 @@ UNIFORM_VALUE_T(math::Matrix3) {
 }
 UNIFORM_VALUE_T(float) {
 }
+UNIFORM_VALUE_T(bool) {
+}
 UNIFORM_VALUE_T(Color) {
 }
 UNIFORM_VALUE_T(int) {
 }
 UNIFORM_VALUE_T(unsigned) {
 }
-UNIFORM_VALUE_T(ImageTexture::Ptr) {
-}
-UNIFORM_VALUE_T(ImageCubeTexture::Ptr) {
+UNIFORM_VALUE_T(Texture::Ptr) {
 }
 UNIFORM_VALUE_T(math::Vector2) {
 }
@@ -199,6 +213,8 @@ UNIFORM_VALUE_T(std::vector<float>) {
 UNIFORM_VALUE_T(math::Matrix4) {
 }
 UNIFORM_VALUE_T(std::vector<Texture::Ptr>) {
+}
+UNIFORM_VALUE_T(std::vector<Light::Ptr>) {
 }
 UNIFORM_VALUE_T(std::vector<math::Matrix4>) {
 }
@@ -267,6 +283,16 @@ inline UniformValue::Ptr value(UniformName id, T value) {
   return UniformValue::Ptr(new UniformValueT<T>(id, value));
 }
 
+template<typename T>
+inline UniformValue::Ptr value(UniformName id, T value, std::vector<UniformValue::Ptr> properties) {
+  UniformValue::UniformProperties props;
+
+  for(auto p : properties) {
+    props[p->id] = p;
+  }
+  return UniformValue::Ptr(new UniformValueT<T>(id, value, props));
+}
+
 struct UniformValueDelegate
 {
   UniformValue::Ptr value;
@@ -281,16 +307,14 @@ struct UniformValueDelegate
 
 struct UniformValuesDelegate
 {
-  LibUniformValues &values;
-
-  explicit UniformValuesDelegate(LibUniformValues &values) : values(values) {}
+  LibUniformValues values {};
 
   operator const LibUniformValues &() const {return values;}
 
   UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValueDelegate> add);
 };
 
-LibUniformValues &get(UniformsID id);
+const LibUniformValues &get(UniformsID id);
 
 UniformValuesDelegate merged(std::initializer_list<UniformsID> id);
 

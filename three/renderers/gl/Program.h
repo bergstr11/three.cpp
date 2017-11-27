@@ -41,7 +41,7 @@ public:
   Encoding outputEncoding = Encoding::Unknown;
   bool map;
   Encoding mapEncoding = Encoding::Unknown;
-  ImageTexture::Ptr envMap;
+  Texture::Ptr envMap;
   Encoding envMapEncoding = Encoding::Unknown;
   TextureMapping envMapMode;
   bool envMapCubeUV;
@@ -157,7 +157,7 @@ public:
 
   Uniforms::Ptr getUniforms();
 
-  const std::unordered_map<std::string, GLint> &getAttributes() const;
+  const std::unordered_map<std::string, GLint> &getAttributes();
 };
 
 }

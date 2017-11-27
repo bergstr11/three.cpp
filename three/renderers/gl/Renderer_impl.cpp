@@ -198,11 +198,6 @@ unsigned Renderer_impl::allocTextureUnit()
   return textureUnit;
 }
 
-void setTexture2D(ImageTexture::Ptr texture, unsigned slot )
-{
-  //_textures.setTexture2D( texture, slot );
-}
-
 Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr renderTarget)
 {
   _currentRenderTarget = renderTarget;
@@ -782,7 +777,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 {
   static const material::ShaderNames shaderNames;
 
-  auto &materialProperties = _properties.get( *material );
+  MaterialProperties &materialProperties = _properties.get( *material );
 
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
@@ -822,6 +817,9 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
     else if(parameters->shaderMaterial) {
       ShaderMaterial *sm = parameters->shaderMaterial;
       materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
+    }
+    else {
+      throw logic_error("unable to determine shader");
     }
 
     //material.onBeforeCompile( materialProperties.shader );

@@ -5,9 +5,6 @@
 #ifndef THREE_QT_SHADERLIB_H
 #define THREE_QT_SHADERLIB_H
 
-#include <QString>
-#include <QResource>
-
 #include "ShaderID.h"
 #include "UniformsLib.h"
 
@@ -27,7 +24,11 @@ public:
 
   template <typename V>
   UniformValues &set(UniformName name, const V &v) {
-    *values[name] = v;
+    if(values.count(name) > 0)
+      *values[name] = v;
+    else {
+      values[name] = uniformslib::UniformValueT<V>::make(name, v);
+    }
   }
 
   uniformslib::UniformValue &operator[] (UniformName name) {

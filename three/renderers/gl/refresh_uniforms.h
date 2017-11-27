@@ -163,43 +163,43 @@ void refresh(UniformValues &uniforms, MaterialT<Maps...> &material)
   // 5. alpha map
   // 6. emissive map
 
-  ImageTexture::Ptr uvScaleMap;
+  Texture::Ptr uvScaleMap;
 
   if (uniforms.contains(UniformName::map)) {
 
-    uvScaleMap = uniforms[UniformName::map].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::map].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::specularMap)) {
 
-    uvScaleMap = uniforms[UniformName::specularMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::specularMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::displacementMap)) {
 
-    uvScaleMap = uniforms[UniformName::displacementMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::displacementMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::normalMap)) {
 
-    uvScaleMap = uniforms[UniformName::normalMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::normalMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::bumpMap)) {
 
-    uvScaleMap = uniforms[UniformName::bumpMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::bumpMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::roughnessMap)) {
 
-    uvScaleMap = uniforms[UniformName::roughnessMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::roughnessMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::metalnessMap)) {
 
-    uvScaleMap = uniforms[UniformName::metalnessMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::metalnessMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::alphaMap)) {
 
-    uvScaleMap = uniforms[UniformName::alphaMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::alphaMap].get<Texture::Ptr>();
 
   } else if (uniforms.contains(UniformName::emissiveMap)) {
 
-    uvScaleMap = uniforms[UniformName::emissiveMap].get<ImageTexture::Ptr>();
+    uvScaleMap = uniforms[UniformName::emissiveMap].get<Texture::Ptr>();
 
   }
 
