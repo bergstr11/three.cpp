@@ -998,12 +998,12 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   if ( refreshProgram || camera != _currentCamera ) {
 
-    p_uniforms->get(UniformName::projectionMatrix)->setValue(camera->projectionMatrix());
+    p_uniforms->set(UniformName::projectionMatrix, camera->projectionMatrix());
 
     if (_capabilities.logarithmicDepthBuffer) {
       PerspectiveCamera::Ptr pcamera = dynamic_pointer_cast<PerspectiveCamera>(camera);
       if(pcamera)
-        p_uniforms->get(UniformName::logDepthBufFC)->setValue((GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
+        p_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
     }
 
     // Avoid unneeded uniform updates per ArrayCamera's sub-camera
@@ -1025,11 +1025,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     material::Dispatch dispatch;
     resolver::FuncAssoc<Material> assoc = [&] (Material &mat) {
 
-      Uniform *uCamPos = p_uniforms->get(UniformName::cameraPosition);
-
-      if(uCamPos) {
+      if(p_uniforms->get(UniformName::cameraPosition)) {
         _vector3 = camera->matrixWorld().getPosition();
-        uCamPos->setValue(_vector3);
+        p_uniforms->set(UniformName::cameraPosition, _vector3);
       }
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
@@ -1042,7 +1040,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     assoc = [&] (Material &mat) {
 
-      p_uniforms->get(UniformName::viewMatrix)->setValue(camera->matrixWorldInverse() );
+      p_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
     dispatch.func<MeshLambertMaterial>() = assoc;
@@ -1063,8 +1061,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     object::Dispatch dispatch;
     dispatch.func<SkinnedMesh>() = [&] (SkinnedMesh &m) {
-      p_uniforms->get(UniformName::bindMatrix)->setValue(m.bindMatrix());
-      p_uniforms->get(UniformName::bindMatrixInverse)->setValue(m.bindMatrixInverse());
+      p_uniforms->set(UniformName::bindMatrix, m.bindMatrix());
+      p_uniforms->set(UniformName::bindMatrixInverse, m.bindMatrixInverse());
 
       if (m.skeleton()) {
 
@@ -1102,7 +1100,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
         } else {
           if(!m.skeleton()->boneMatrices().empty())
-            p_uniforms->get(UniformName::boneMatrices)->setValue(m.skeleton()->boneMatrices().data());
+            p_uniforms->set(UniformName::boneMatrices, m.skeleton()->boneMatrices().data());
         }
       }
     };
@@ -1110,8 +1108,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   }
   if ( refreshMaterial ) {
 
-    p_uniforms->get(UniformName::toneMappingExposure)->setValue(_toneMappingExposure );
-    p_uniforms->get(UniformName::toneMappingWhitePoint)->setValue(_toneMappingWhitePoint );
+    p_uniforms->set(UniformName::toneMappingExposure, _toneMappingExposure );
+    p_uniforms->set(UniformName::toneMappingWhitePoint, _toneMappingWhitePoint );
 
     if ( material->lights ) {
 
@@ -1206,9 +1204,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   }
 
   // common matrices
-  p_uniforms->get(UniformName::modelViewMatrix)->setValue(object->modelViewMatrix );
-  p_uniforms->get(UniformName::normalMatrix)->setValue(object->normalMatrix );
-  p_uniforms->get(UniformName::modelMatrix)->setValue(object->matrixWorld() );
+  p_uniforms->set(UniformName::modelViewMatrix, object->modelViewMatrix );
+  p_uniforms->set(UniformName::normalMatrix, object->normalMatrix );
+  p_uniforms->set(UniformName::modelMatrix, object->matrixWorld() );
 
   return program;
 }

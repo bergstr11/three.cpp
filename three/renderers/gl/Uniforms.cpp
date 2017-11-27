@@ -142,8 +142,8 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
     if(!match[3].matched || match[3].second == name.end()) {
       // bare name or "pure" bottom-level array "[0]" suffix
       container->add(match[3].matched ?
-          Uniform::make(_fn, id, (UniformType)type, addr) :
-          ArrayUniform::make(_fn, id, (UniformType)type, addr));
+                     ArrayUniform::make(_fn, id, (UniformType)type, addr) :
+                     Uniform::make(_fn, id, (UniformType)type, addr));
     }
     else {
       // step into inner node / create it in case it doesn't exist

@@ -242,11 +242,19 @@ public:
     return Ptr(new Uniforms(fn, program));
   }
 
-  Uniform *get(UniformName name)
-  {
-    if(_map.find(name) != _map.end()) {
-      return _map[name]->asUniform();
+  template <typename T>
+  void set(UniformName name, T value) {
+    if(_map.count(name) > 0) {
+      _map[name]->setValue(value);
     }
+  }
+
+  const Uniform *get(UniformName name) const
+  {
+    if(_map.count(name) > 0) {
+      return _map.at(name)->asUniform();
+    }
+    return nullptr;
   }
 
   //seqWithValue

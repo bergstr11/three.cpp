@@ -252,6 +252,9 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
 
   string info = getInfoLog(f, InfoObject::shader, shader);
 
+  cout << (type == GL_VERTEX_SHADER ? "!!vertex" : "!!fragment") << endl;
+  cerr << glsl << endl;
+
   if(value != GL_TRUE) {
     cerr << glsl << endl;
 

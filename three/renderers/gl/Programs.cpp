@@ -67,6 +67,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   material::Dispatch dispatch;
   dispatch.func<MeshBasicMaterial>() = [parameters] (MeshBasicMaterial &mat) {
     parameters->aoMap = (bool)mat.aoMap;
+    parameters->envMap = mat.envMap;
     parameters->specularMap = (bool)mat.specularMap;
     parameters->combine = mat.combine;
   };
