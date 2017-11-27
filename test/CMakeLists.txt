@@ -21,4 +21,4 @@ set(SOURCE_FILES
 set(HEADER_FILES ThreeDItem.h)
 
 add_executable(three_test ${SOURCE_FILES} ${HEADER_FILES} ${UI_RESOURCES})
-target_link_libraries(three_test PUBLIC three_qt Qt5::Core Qt5::Gui Qt5::Quick assimp)
+target_link_libraries(three_test PUBLIC threepp Qt5::Core Qt5::Gui Qt5::Quick assimp)

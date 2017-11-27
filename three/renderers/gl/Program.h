@@ -27,7 +27,7 @@ namespace gl {
 class ProgramParameters
 {
   ProgramParameters()
-  {};
+  {}
 
 public:
   using Ptr = std::shared_ptr<ProgramParameters>;
@@ -89,11 +89,11 @@ public:
   float alphaTest;
   bool doubleSided;
   bool flipSided;
-  DepthPacking depthPacking;
+  DepthPacking depthPacking = DepthPacking::Unknown;
   std::unordered_map<std::string, std::string> defines;
   RawShaderMaterial *rawShaderMaterial = nullptr;
   ShaderMaterial *shaderMaterial = nullptr;
-  std::string index0AttributeName = nullptr;
+  std::string index0AttributeName;
 };
 
 std::vector<std::string> getEncodingComponents(Encoding encoding);

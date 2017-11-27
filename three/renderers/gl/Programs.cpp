@@ -19,6 +19,11 @@ namespace gl {
 
 using namespace std;
 
+Encoding getTextureEncoding(Texture::Ptr map)
+{
+  return map ? map->encoding() : Encoding::Linear;
+}
+
 ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                                Material::Ptr material,
                                                Lights::State &lights,
@@ -53,9 +58,10 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->supportsVertexTextures = _capabilities.vertexTextures;
 
   const Renderer::Target::Ptr currentRenderTarget = _renderer.getRenderTarget();
-  parameters->outputEncoding = currentRenderTarget->texture() ? currentRenderTarget->texture()->encoding() : Encoding::Linear;
+
+  parameters->outputEncoding = getTextureEncoding(currentRenderTarget ? currentRenderTarget->texture() : nullptr);
   parameters->map = (bool)material->map;
-  parameters->mapEncoding = material->map ? material->map->encoding() : Encoding::Linear;
+  parameters->mapEncoding = getTextureEncoding(material->map);
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;

@@ -52,11 +52,6 @@ protected:
   std::vector<math::Plane> _clippingPlanes;
   bool _localClippingEnabled = false;
 
-  // physically based shading
-  float _gammaFactor = 2.0;  // for backwards compatibility
-  bool _gammaInput = false;
-  bool _gammaOutput = false;
-
   // physical lights
   bool _physicallyCorrectLights = false;
 

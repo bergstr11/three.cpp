@@ -83,6 +83,8 @@ struct NormalMap
 
 }
 
+static uint16_t ___material_id_count;
+
 struct Material
 {
   const sole::uuid uuid;
@@ -151,8 +153,8 @@ struct Material
   Signal<void(Material *)> onDispose;
 
 protected:
-  Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), resolver(resolver) {}
-  Material() : uuid(sole::uuid0()), resolver(material::ResolverT<Material>::make(*this)) {}
+  Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver) {}
+  Material() : uuid(sole::uuid0()), id(___material_id_count++), resolver(material::ResolverT<Material>::make(*this)) {}
 
 public:
   virtual ~Material() {}

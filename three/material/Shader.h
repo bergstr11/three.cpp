@@ -25,7 +25,7 @@ protected:
 
 public:
   Shader()
-     : _name(nullptr), _uniforms({}), _vertexShader(nullptr), _fragmentShader(nullptr) {}
+     : _name(nullptr), _uniforms({}) {}
 
   Shader(const char *name, const gl::UniformValues &uniforms, const std::string &vertexShader, const std::string &fragmentShader)
      : _name(name), _uniforms(uniforms), _vertexShader(vertexShader), _fragmentShader(fragmentShader) {}

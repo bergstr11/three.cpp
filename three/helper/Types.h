@@ -16,6 +16,34 @@ namespace three {
 
 using byte = unsigned char;
 
+template <typename T>
+class optional {
+  T _t;
+  bool _isSet;
+
+public:
+  optional() : _isSet(false) {}
+
+  template <typename F>
+  optional(F&& f) : _t(f), _isSet(true) {}
+
+  template <typename F>
+  optional &operator =(F&& f) {
+    _t = f;
+    _isSet = true;
+  }
+
+  const T &get() const {
+    return _t;
+  }
+
+  operator const T &() const {
+    return _t;
+  }
+
+  bool isSet() {return _isSet;}
+};
+
 struct Mipmap {
   std::vector<unsigned char> data;
   int width, height;

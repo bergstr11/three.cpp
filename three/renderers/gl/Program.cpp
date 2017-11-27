@@ -333,7 +333,7 @@ Program::Program(Renderer_impl &renderer,
     }
   }
 
-  float gammaFactorDefine = renderer._gammaFactor > 0 ? renderer._gammaFactor : 1.0;
+  float gammaFactorDefine = /*renderer._gammaFactor > 0 ? renderer._gammaFactor : */1.0;
 
   string customExtensions = generateExtensions(extensions, parameters);
 
@@ -352,8 +352,10 @@ Program::Program(Renderer_impl &renderer,
 
   } else {
     stringstream ss;
+    ss << "#ifdef GL_ES" << endl;
     ss << "precision " << parameters.precision << " float;" << endl;
     ss << "precision " << parameters.precision << " int;" << endl;
+    ss << "#endif" << endl;
     ss << "#define SHADER_NAME " << shader.name() << endl;
     ss << customDefines;
     if(parameters.supportsVertexTextures) ss << "#define VERTEX_TEXTURES" << endl;
@@ -447,11 +449,13 @@ Program::Program(Renderer_impl &renderer,
 
     prefixVertex = ss.str();
 
-    ss.clear();
+    ss.seekp(stringstream::beg);
     ss << customExtensions;
 
+    ss << "#ifdef GL_ES" << endl;
     ss << "precision " << parameters.precision << " float;" << endl;
     ss << "precision " << parameters.precision << " int;" << endl;
+    ss << "#endif" << endl;
 
     ss << "#define SHADER_NAME " << shader.name();
 
@@ -591,13 +595,14 @@ Program::Program(Renderer_impl &renderer,
     GLint status;
     _renderer.glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 
-    cerr << "shader compilation failed: " << _renderer.glGetError() << endl << "VALIDATE_STATUS: " << status << endl
-         << "ProgramInfoLog: ", programLog;
+    cerr << "shader linkage failed: " << _renderer.glGetError() << endl << "VALIDATE_STATUS: " << status << endl;
+
+    if(!programLog.empty())
+      cerr << "ProgramInfoLog: " << programLog << endl;
   }
   else if ( !programLog.empty()) {
 
-    cerr << "ProgramInfoLog: " << programLog;
-
+    cerr << "ProgramInfoLog: " << programLog << endl;
   }
   // clean up
   _renderer.glDeleteShader( glVertexShader );

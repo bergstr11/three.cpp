@@ -154,7 +154,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _infoRender.faces = 0;
   _infoRender.points = 0;
 
-  if(target) setRenderTarget(target);
+  setRenderTarget(target);
 
   _background.render(_currentRenderList, scene, camera, forceClear);
 
@@ -207,26 +207,31 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
 {
   _currentRenderTarget = renderTarget;
 
-  auto renderTargetProperties = _properties.get( renderTarget );
+  RenderTargetCube::Ptr renderTargetCube;
+  RenderTargetDefault::Ptr renderTargetDefault;
 
-  GLuint *__webglFramebuffer = nullptr;
-  if (renderTargetProperties.find(PropertyName::__webglFramebuffer) != renderTargetProperties.end())
-  {
-    __webglFramebuffer = renderTargetProperties[PropertyName::__webglFramebuffer].gluintp_value;
-    //textures.setupRenderTarget( renderTarget );
-  }
-
-  RenderTargetCube::Ptr renderTargetCube = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
   GLuint framebuffer = UINT_MAX;
 
-  if (__webglFramebuffer) {
+  if(renderTarget) {
+    renderTargetCube = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
+
+    auto &renderTargetProperties = _properties.get( renderTarget );
+
+    if (renderTargetProperties.framebuffer.empty())
+    {
+      if(renderTargetCube)
+        _textures.setupRenderTarget( *renderTargetCube );
+      else if(renderTargetDefault)
+        _textures.setupRenderTarget( *renderTargetDefault );
+    }
 
     if (renderTargetCube) {
 
-      framebuffer = __webglFramebuffer[renderTargetCube->activeCubeFace];
+      framebuffer = renderTargetProperties.framebuffer[renderTargetCube->activeCubeFace];
     }
     else {
-      framebuffer = *__webglFramebuffer;
+
+      framebuffer = renderTargetProperties.framebuffer[0];
     }
 
     _currentViewport = renderTarget->viewport();
@@ -251,8 +256,8 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   _state.setScissorTest( _currentScissorTest );
 
   if ( renderTargetCube ) {
-    auto textureProperties = _properties.get(renderTarget->texture());
-    GLenum textarget = textureProperties[PropertyName::__webglTexture].gluint_value;
+    auto &textureProperties = _properties.get(renderTarget->texture());
+    GLenum textarget = textureProperties.texture;
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTargetCube->activeCubeFace,
                            textarget, renderTargetCube->activeMipMapLevel );
   }
@@ -777,7 +782,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 {
   static const material::ShaderNames shaderNames;
 
-  auto &materialProperties = _properties.get( material );
+  auto &materialProperties = _properties.get( *material );
 
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
@@ -791,7 +796,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
     // new material
     material->onDispose.connect([this](Material *material) {
       releaseMaterialProgramReference(*material);
-      _properties.remove(material);
+      _properties.remove(*material);
     });
   }
   else if(program->code != code) {

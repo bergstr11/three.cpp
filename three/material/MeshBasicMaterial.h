@@ -66,11 +66,11 @@ public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
 
   static Ptr make(bool morphTargets, bool skinning) {
-    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial(morphTargets, skinning));
+    return Ptr(new MeshBasicMaterial(morphTargets, skinning));
   }
 
   static Ptr make() {
-    return std::shared_ptr<MeshBasicMaterial>(new MeshBasicMaterial());
+    return Ptr(new MeshBasicMaterial());
   }
 };
 

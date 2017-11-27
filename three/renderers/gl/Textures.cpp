@@ -33,29 +33,31 @@ void Textures::onTextureDispose(Texture &texture)
 
 void Textures::deallocateTexture(Texture &texture)
 {
-  if (/*!texture->image().isNull() && */_properties.has(texture.uuid, PropertyName::__image__webglTextureCube)) {
+  if(_properties.has(texture)) {
 
-    // cube texture
-    auto textureProperties = _properties.get( texture.uuid );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__image__webglTextureCube].gluint_value);
+    auto &textureProperties = _properties.get( texture );
+    if(textureProperties.image_textureCube.isSet()) {
+      // cube texture
+      _fn->glDeleteTextures(1, &textureProperties.image_textureCube.get());
+    }
+    else if(textureProperties.webglInit) {
+      // 2D texture
+      _fn->glDeleteTextures(1, &textureProperties.texture.get());
+    }
+    else return;
 
-  } else if(_properties.has(texture.uuid, PropertyName::__webglInit)) {
-
-    // 2D texture
-    auto textureProperties = _properties.get( texture.uuid );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__webglInit].gluint_value);
+    // remove all webgl properties
+    _properties.remove( texture );
   }
-
-  // remove all webgl properties
-  _properties.remove( &texture );
 }
 
 void Textures::deallocateRenderTarget(RenderTargetDefault &renderTarget)
 {
-  if (_properties.has(renderTarget.texture(), PropertyName::__webglTexture)) {
+  if (_properties.has(*renderTarget.texture())) {
 
-    auto textureProperties = _properties.get( renderTarget.texture().get() );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__webglTexture].gluint_value);
+    auto &textureProperties = _properties.get( *renderTarget.texture() );
+    if(textureProperties.texture.isSet())
+      _fn->glDeleteTextures(1, &textureProperties.texture.get());
   }
 
   renderTarget.dispose();
@@ -64,15 +66,16 @@ void Textures::deallocateRenderTarget(RenderTargetDefault &renderTarget)
 
   _fn->glDeleteRenderbuffers(1, &renderTarget.renderBuffer);
 
-  _properties.remove(renderTarget.texture().get());
+  _properties.remove(*renderTarget.texture());
 }
 
 void Textures::deallocateRenderTarget(RenderTargetCube &renderTarget)
 {
-  if (_properties.has(renderTarget.texture(), PropertyName::__webglTexture)) {
+  if (_properties.has(*renderTarget.texture())) {
 
-    auto textureProperties = _properties.get( renderTarget.texture().get() );
-    _fn->glDeleteTextures(1, &textureProperties[PropertyName::__webglTexture].gluint_value);
+    auto &textureProperties = _properties.get( *renderTarget.texture() );
+    if(textureProperties.texture.isSet())
+      _fn->glDeleteTextures(1, &textureProperties.texture.get());
   }
 
   renderTarget.dispose();
@@ -81,27 +84,27 @@ void Textures::deallocateRenderTarget(RenderTargetCube &renderTarget)
 
   _fn->glDeleteRenderbuffers(1, renderTarget.renderBuffers.data());
 
-  _properties.remove(renderTarget.texture().get());
+  _properties.remove(*renderTarget.texture());
 }
 
 void Textures::setTexture2D(Texture::Ptr texture, unsigned slot)
 {
-  auto &textureProperties = _properties.get(texture->uuid);
+  auto &textureProperties = _properties.get(texture);
 
-  if (texture->version() > 0 && textureProperties[PropertyName::__version].gluint_value != texture->version() ) {
+  if (texture->version() > 0 && textureProperties.version != texture->version() ) {
 
     uploadTexture( textureProperties, *texture, slot );
     return;
   }
   _state.activeTexture(GL_TEXTURE0 + slot );
-  _state.bindTexture(TextureTarget::twoD, textureProperties[PropertyName::__webglTexture].gluint_value);
+  _state.bindTexture(TextureTarget::twoD, textureProperties.texture);
 }
 
 void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
 {
   auto &textureProperties = _properties.get(texture);
 
-  if ( texture->version() > 0 && (GLuint)textureProperties[PropertyName::__version] != texture->version() ) {
+  if ( texture->version() > 0 && textureProperties.version != texture->version() ) {
 
     texture::Dispatch dispatch;
 
@@ -111,16 +114,16 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
     dispatch.func<Texture>() = [&](Texture &texture) {
 
       GLuint webglTextureCube;
-      if ( textureProperties.find(PropertyName::__image__webglTextureCube) == textureProperties.end()) {
+      if (!textureProperties.image_textureCube.isSet()) {
 
         texture.onDispose.connect(this, &Textures::onTextureDispose);
 
         _fn->glGenTextures(1, &webglTextureCube);
-        textureProperties[PropertyName::__image__webglTextureCube] = webglTextureCube;
+        textureProperties.image_textureCube = webglTextureCube;
         _infoMemory.textures ++;
       }
       else
-        webglTextureCube = (GLuint)textureProperties[PropertyName::__image__webglTextureCube];
+        webglTextureCube = textureProperties.image_textureCube;
 
 
       _state.activeTexture(GL_TEXTURE0 + slot );
@@ -186,20 +189,20 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
       _fn->glGenerateMipmap( GL_TEXTURE_CUBE_MAP );
     }
 
-    textureProperties[PropertyName::__version] = texture->version();
+    textureProperties.version = texture->version();
 
     texture->onUpdate.emitSignal( *texture );
 
   } else {
     _state.activeTexture(GL_TEXTURE0 + slot );
-    _state.bindTexture(TextureTarget::cubeMap, (GLint)textureProperties[PropertyName::__image__webglTextureCube] );
+    _state.bindTexture(TextureTarget::cubeMap, textureProperties.image_textureCube);
   }
 }
 
 void Textures::setTextureCubeDynamic( Texture::Ptr texture, unsigned slot )
 {
   _state.activeTexture(GL_TEXTURE0 + slot);
-  _state.bindTexture(TextureTarget::cubeMap, (GLint)_properties.get( texture )[PropertyName::__webglTexture] );
+  _state.bindTexture(TextureTarget::cubeMap, _properties.get( texture ).texture);
 }
 
 void Textures::setTextureParameters(TextureTarget textureTarget, Texture &texture)
@@ -235,21 +238,22 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
     if ( texture.type() == TextureType::Float && !_extensions.get(Extension::OES_texture_float_linear)) return;
     if ( texture.type() == TextureType::HalfFloat && !_extensions.get(Extension::OES_texture_half_float_linear)) return;
 
-    if ( texture.anisotropy > 1 || _properties.has( texture.uuid, PropertyName::__currentAnisotropy)) {
+    if ( texture.anisotropy > 1 ||
+       (_properties.has(texture) && _properties.get(texture).currentAnisotropy.isSet())) {
 
       _fn->glTexParameterf((GLenum)textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
                            std::min(texture.anisotropy, (float)_capabilities.getMaxAnisotropy()));
-      _properties.get(texture.uuid)[PropertyName::__currentAnisotropy] = texture.anisotropy;
+      _properties.get(texture).currentAnisotropy = texture.anisotropy;
     }
   }
 }
 
-void Textures::uploadTexture(Properties::Map textureProperties, Texture &texture, unsigned slot )
+void Textures::uploadTexture(GlProperties &textureProperties, Texture &texture, unsigned slot )
 {
 
-  if ( textureProperties.find(PropertyName::__webglInit) == textureProperties.end()) {
+  if (!textureProperties.webglInit) {
 
-    textureProperties[PropertyName::__webglInit] = true;
+    textureProperties.webglInit = true;
 
     texture.onDispose.connect([this](Texture &t) {
       deallocateTexture( t );
@@ -259,13 +263,13 @@ void Textures::uploadTexture(Properties::Map textureProperties, Texture &texture
 
     GLuint tex;
     _fn->glGenTextures(1, &tex);
-    textureProperties[PropertyName::__webglTexture] = tex;
+    textureProperties.texture = tex;
 
     _infoMemory.textures ++;
   }
 
   _state.activeTexture( GL_TEXTURE0 + slot );
-  _state.bindTexture( TextureTarget::twoD, (GLint)textureProperties[PropertyName::__webglTexture]);
+  _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
 
   _fn->glPixelStorei(GL_UNPACK_ALIGNMENT, texture.unpackAlignment() );
 
@@ -402,7 +406,7 @@ void Textures::uploadTexture(Properties::Map textureProperties, Texture &texture
 
   if ( texture.needsGenerateMipmaps() ) _fn->glGenerateMipmap(GL_TEXTURE_2D );
 
-  textureProperties[PropertyName::__version] = texture.version();
+  textureProperties.version = texture.version();
 
   texture.onUpdate.emitSignal(texture);
 }
@@ -417,8 +421,7 @@ void Textures::setupFrameBufferTexture(GLuint framebuffer, const Renderer::Targe
 
   _state.texImage2D( textureTarget, 0, format, renderTarget.width(), renderTarget.height(), format, type, nullptr );
   _fn->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer );
-  _fn->glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, (GLenum)textureTarget,
-                              (GLuint)_properties.get(renderTarget.texture())[PropertyName::__webglTexture], 0 );
+  _fn->glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, (GLenum)textureTarget, _properties.get(renderTarget.texture()).texture, 0 );
   _fn->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -450,7 +453,7 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetDefault &render
 {
   _fn->glBindFramebuffer( GL_FRAMEBUFFER, framebuffer );
 
-  GLuint webglDepthTexture = (GLuint)_properties.get(renderTarget.depthTexture())[PropertyName::__webglTexture];
+  GLuint webglDepthTexture = _properties.get(renderTarget.depthTexture()).texture;
 
   // upload an empty depth texture with framebuffer size
   if ( webglDepthTexture < 0
@@ -513,7 +516,7 @@ void Textures::setupRenderTarget(RenderTargetDefault &renderTarget)
 
   GLuint tex;
   _fn->glGenTextures(1, &tex);
-  textureProperties[PropertyName::__webglTexture] = tex;
+  textureProperties.texture = tex;
 
   _infoMemory.textures ++;
 
@@ -521,8 +524,7 @@ void Textures::setupRenderTarget(RenderTargetDefault &renderTarget)
   _fn->glGenFramebuffers(1, &renderTarget.frameBuffer);
 
   // Setup color buffer
-
-  _state.bindTexture( TextureTarget::twoD, (GLint)textureProperties[PropertyName::__webglTexture]);
+  _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
   setupFrameBufferTexture( renderTarget.frameBuffer, renderTarget, GL_COLOR_ATTACHMENT0, renderTarget.textureTarget);
 
@@ -545,7 +547,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
 
   GLuint tex;
   _fn->glGenTextures(1, &tex);
-  textureProperties[PropertyName::__webglTexture] = tex;
+  textureProperties.texture = tex;
 
   _infoMemory.textures ++;
 
@@ -553,7 +555,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
   _fn->glGenFramebuffers(6, renderTarget.frameBuffers.data());
 
   // Setup color buffer
-  _state.bindTexture(renderTarget.textureTarget, (GLint)textureProperties[PropertyName::__webglTexture] );
+  _state.bindTexture(renderTarget.textureTarget, textureProperties.texture );
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
 
   for ( unsigned i = 0; i < 6; i ++ ) {
@@ -574,7 +576,7 @@ void Textures::updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget)
 {
   if (renderTarget->texture()->needsGenerateMipmaps()) {
 
-    GLuint webglTexture = (GLuint)_properties.get( renderTarget->texture().get() )[PropertyName::__webglTexture];
+    GLuint webglTexture = _properties.get(renderTarget->texture()).texture;
 
     _state.bindTexture( renderTarget->textureTarget, webglTexture );
     _fn->glGenerateMipmap((GLenum)renderTarget->textureTarget);

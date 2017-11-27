@@ -17,190 +17,15 @@
 namespace three {
 namespace gl {
 
-class Property
+struct GlProperties
 {
-  friend class Properties;
-  friend class Textures;
-  friend class Renderer_impl;
-
-  enum Type {glu, glup, gli, s, f, b, undefined} type;
-  union {
-    GLuint gluint_value;
-    GLint glint_value;
-    GLuint *gluintp_value;
-    std::string string_value;
-    float float_value;
-    bool bool_value;
-  };
-
-  void release()
-  {
-    switch (type) {
-      case glup:
-        delete[] gluintp_value;
-        type = undefined;
-        break;
-      default:
-        break;
-    }
-  }
-
-public:
-  explicit Property() : gluint_value(0L), type(undefined) {}
-  explicit Property(GLint v) : glint_value(v), type(gli) {}
-  explicit Property(GLuint v) : gluint_value(v), type(glu) {}
-  explicit Property(GLuint *v) : gluintp_value(v), type(glup) {}
-  explicit Property(std::string v) : string_value(v), type(s) {}
-  explicit Property(float v) : float_value(v), type(f) {}
-  explicit Property(bool v) : bool_value(v), type(b) {}
-
-  Property(const Property &prop) : type(prop.type) {
-    type = prop.type;
-    switch(prop.type) {
-      case glu:
-        gluint_value = prop.gluint_value;
-        break;
-      case gli:
-        glint_value = prop.glint_value;
-        break;
-      case glup:
-        gluintp_value = prop.gluintp_value;
-        break;
-      case s:
-        new (&string_value) std::string();
-        string_value = prop.string_value;
-        break;
-      case f:
-        float_value = prop.float_value;
-        break;
-      case b:
-        bool_value = prop.bool_value;
-      default:
-        break;
-    }
-  }
-
-  ~Property() {
-    switch(type) {
-      case glup:
-        delete [] gluintp_value;
-        break;
-      case s:
-        string_value.~basic_string();
-        break;
-      default:
-        break;
-    }
-  }
-
-  Property &operator =(GLuint v) {
-    release();
-    gluint_value = v; type = glu;
-  }
-  Property &operator =(GLuint *v) {
-    release();
-    gluintp_value = v; type = glup;
-  }
-  Property &operator =(std::string v) {
-    release();
-    string_value = v; type = s;
-  }
-  Property &operator =(float v) {
-    release();
-    float_value = v; type = f;
-  }
-  Property &operator =(bool v) {
-    release();
-    bool_value = v; type = b;
-  }
-  Property &operator =(GLint v) {
-    release();
-    glint_value = v; type = gli;
-  }
-
-  explicit operator GLint () const
-  {
-    switch(type) {
-      case gli:
-        return glint_value;
-      case b:
-        return bool_value ? 1 : 0;
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-  explicit operator GLuint *() const
-  {
-    switch(type) {
-      case glup:
-        return gluintp_value;
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-  explicit operator GLuint() const
-  {
-    switch(type) {
-      case glu:
-        return gluint_value;
-      case s:
-        return (GLuint)std::stoul(string_value);
-      case f:
-        return (GLuint)float_value;
-      case b:
-        return bool_value ? 1 : 0;
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-  explicit operator std::string() const
-  {
-    switch(type) {
-      case glu:
-        return std::to_string(gluint_value);
-      case s:
-        return string_value;
-      case f:
-        return std::to_string(float_value);
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-  explicit operator float() const
-  {
-    switch(type) {
-      case glu:
-        return gluint_value;
-      case s:
-        return std::stof(string_value);
-      case f:
-        return float_value;
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-  explicit operator bool() const
-  {
-    switch(type) {
-      case glu:
-        return (bool)gluint_value;
-      case b:
-        return bool_value;
-      default:
-        throw std::logic_error("conversion not supported");
-    }
-  }
-};
-
-enum PropertyName
-{
-  __image__webglTextureCube,
-  __webglInit,
-  __webglTexture,
-  __webglFramebuffer,
-  __webglDepthbuffer,
-  __currentAnisotropy,
-  __version
+  optional<GLuint> image_textureCube;
+  bool webglInit = false;
+  optional<GLuint> texture;
+  std::vector<GLuint> framebuffer;
+  optional<GLuint> depthbuffer;
+  optional<float> currentAnisotropy;
+  optional<GLuint> version;
 };
 
 struct MaterialProperties
@@ -209,8 +34,8 @@ struct MaterialProperties
   Fog::Ptr fog;
   std::vector<float> clippingState;
   std::string lightsHash;
-  size_t numClippingPlanes;
-  size_t numIntersection;
+  size_t numClippingPlanes = 0;
+  size_t numIntersection = 0;
   ShaderID shaderID = ShaderID::undefined;
   three::Shader shader;
   std::vector<Uniform::Ptr> uniformsList;
@@ -218,76 +43,72 @@ struct MaterialProperties
 
 class Properties
 {
-  std::unordered_map<sole::uuid, std::unordered_map<PropertyName, Property>> properties = {};
+  std::unordered_map<sole::uuid, GlProperties> glProperties;
 
-  std::unordered_map<sole::uuid, MaterialProperties> materialProperties = {};
+  std::unordered_map<sole::uuid, MaterialProperties> materialProperties;
 
 public:
-  using Map = std::unordered_map<PropertyName, Property>;
-
-  Map &get(const sole::uuid &uuid)
+  GlProperties &getGlProperties(const sole::uuid &uuid)
   {
-    if(properties.find(uuid) == properties.end())
-      properties.emplace(uuid, std::unordered_map<PropertyName, Property>());
-
-    return properties[uuid];
+    return glProperties[uuid];
   }
 
-  bool has(const sole::uuid &uuid, PropertyName key)
+  MaterialProperties &getMaterialProperties(const sole::uuid &uuid)
   {
-    if(properties.find(uuid) != properties.end()) {
-      auto &props = properties[uuid];
-      return props.find(key) != props.end();
-    }
-    return false;
+    return materialProperties[uuid];
   }
 
-  MaterialProperties &get(const Material::Ptr &material)
+  template<typename T, typename std::enable_if<!std::is_base_of<Material, T>{}, int>::type = 0>
+  GlProperties &get(const T &tee)
   {
-    return materialProperties[material->uuid];
+    return getGlProperties(tee.uuid);
   }
 
-  MaterialProperties &get(const Material &material)
+  template<typename T, typename std::enable_if<!std::is_base_of<Material, T>{}, int>::type = 0>
+  GlProperties &get(const std::shared_ptr<T> tee)
   {
-    return materialProperties[material.uuid];
+    return getGlProperties(tee->uuid);
   }
 
-  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
-  std::unordered_map<PropertyName, Property> &get(const T *object)
+  template<typename T, typename std::enable_if<!std::is_base_of<Material, T>{}, int>::type = 0>
+  void remove(const T &tee)
   {
-    return get(object->uuid);
+    glProperties.erase(tee.uuid);
   }
 
-  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
-  std::unordered_map<PropertyName, Property> &get(const std::shared_ptr<T> object)
+  template<typename T, typename std::enable_if<!std::is_base_of<Material, T>{}, int>::type = 0>
+  bool has(const T &tee)
   {
-    return get(object->uuid);
+    return glProperties.count(tee.uuid) > 0;
   }
 
-  template <typename T>
-  bool has(const T *object, PropertyName key) {
-    return has(object->uuid, key);
-  }
-
-  template <typename T>
-  bool has(const std::shared_ptr<T> object, PropertyName key) {
-    return has(object->uuid, key);
-  }
-
-  template <typename T, typename=std::enable_if<!std::is_same<T, Material>::value>>
-  void remove(const T *object)
+  template<typename T, typename std::enable_if<std::is_base_of<Material, T>{}, int>::type = 0>
+  MaterialProperties &get(const T &material)
   {
-    properties.erase(object->uuid);
+    return getMaterialProperties(material.uuid);
   }
 
-  void remove(const Material *material)
+  template<typename T, typename std::enable_if<std::is_base_of<Material, T>{}, int>::type = 0>
+  MaterialProperties &get(const std::shared_ptr<T> material)
   {
-    materialProperties.erase(material->uuid);
+    return getMaterialProperties(material->uuid);
+  }
+
+  template<typename T, typename std::enable_if<std::is_base_of<Material, T>{}, int>::type = 0>
+  void remove(const T &material)
+  {
+    materialProperties.erase(material.uuid);
+  }
+
+  template<typename T, typename std::enable_if<std::is_base_of<Material, T>{}, int>::type = 0>
+  bool has(const T &material)
+  {
+    return materialProperties.count(material.uuid) > 0;
   }
 
   void clear()
   {
-    properties.clear();
+    glProperties.clear();
   }
 };
 

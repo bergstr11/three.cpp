@@ -123,10 +123,7 @@ public:
     virtual typename Tmap::value_type getValue(const Tmap &t) const = 0;
   };
 
-  Callback * const callback;
-
-  Resolve(Callback *callback) : callback(callback) {}
-  Resolve() : callback(nullptr) {}
+  Callback * callback = nullptr;
 
   typename Tmap::value_type getValue(const Tmap &t) {
     if(callback) return callback->getValue(t);
@@ -200,7 +197,9 @@ class ResolversT<Base, Tmap, Tmaps...> : public ResolversT<Base, Tmaps...>, publ
   using Super = ResolversT<Base, Tmaps...>;
 
 public:
-  ResolversT(Base &b) : Super(b), Resolve<Tmap>(this) {}
+  ResolversT(Base &b) : Super(b) {
+    Resolve<Tmap>::callback = this;
+  }
 
   typename Tmap::value_type getValue(const Tmap &t) const override {
     return t.value(this->b);
