@@ -233,9 +233,9 @@ public:
   StencilBuffer stencilBuffer;
 
   GLint maxVertexAttributes;
-  std::vector<uint8_t> newAttributes;
-  std::vector<uint8_t> enabledAttributes;
-  std::vector<uint8_t> attributeDivisors;
+  std::vector<GLuint> newAttributes;
+  std::vector<GLuint> enabledAttributes;
+  std::vector<GLuint> attributeDivisors;
 
   std::unordered_set<GLenum> capabilities;
 
@@ -337,7 +337,7 @@ public:
     return *this;
   }
 
-  State &enableAttribute(uint8_t attribute)
+  State &enableAttribute(GLuint attribute)
   {
     newAttributes[attribute] = 1;
 

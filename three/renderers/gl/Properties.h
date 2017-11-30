@@ -22,8 +22,6 @@ struct GlProperties
   optional<GLuint> image_textureCube;
   bool webglInit = false;
   optional<GLuint> texture;
-  std::vector<GLuint> framebuffer;
-  optional<GLuint> depthbuffer;
   optional<float> currentAnisotropy;
   optional<GLuint> version;
 };

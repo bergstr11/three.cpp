@@ -14,6 +14,7 @@
 #include <material/Material.h>
 #include <material/ShaderMaterial.h>
 #include <material/RawShaderMaterial.h>
+#include <core/BufferGeometry.h>
 #include "shader/ShaderLib.h"
 #include "Helpers.h"
 #include "Extensions.h"
@@ -125,9 +126,11 @@ private:
 
   Uniforms::Ptr _cachedUniforms;
 
-  std::unordered_map<std::string, GLint> _cachedAttributes;
+  std::unordered_map<AttributeName, GLint> _cachedAttributes;
+  std::unordered_map<IndexedAttributeKey, GLint> _cachedIndexedAttributes;
 
-  std::unordered_map<std::string, GLint> fetchAttributeLocations();
+  void fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &attributes,
+                               std::unordered_map<IndexedAttributeKey, GLint> &indexedAttributes);
 
   Program(Renderer_impl &renderer,
           Extensions &extensions,
@@ -157,7 +160,9 @@ public:
 
   Uniforms::Ptr getUniforms();
 
-  const std::unordered_map<std::string, GLint> &getAttributes();
+  const std::unordered_map<AttributeName, GLint> &getAttributes();
+
+  const std::unordered_map<IndexedAttributeKey, GLint> &getIndexedAttributes();
 };
 
 }

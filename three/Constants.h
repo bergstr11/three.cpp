@@ -282,14 +282,6 @@ enum class UniformType
   SamplerCube=GL_SAMPLER_CUBE
 };
 
-struct UpdateRange
-{
-  uint32_t offset;
-  int32_t count;
-
-  UpdateRange(uint32_t offset, int32_t count) : offset(offset), count(count) {}
-};
-
 namespace numeric_out {
 
 template <typename Enumeration>

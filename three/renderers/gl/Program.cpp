@@ -126,13 +126,20 @@ struct AttribInfo
   GLchar name[101];
 };
 
-unordered_map<string, GLint> Program::fetchAttributeLocations()
+int findIndexed(const char *haystack, const char *needle)
 {
-  unordered_map<string, GLint> attributes;
+  const char *s = strstr(haystack, needle);
+  return s ? atoi(s+strlen(needle)) : -1;
+}
 
+void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &attributes,
+                                      std::unordered_map<IndexedAttributeKey, GLint> &indexedAttributes)
+{
   GLint numActive;
   _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
   _renderer.check_gl_error();
+
+  attributes.erase(AttributeName::unknown);
 
   AttribInfo info;
   for (unsigned i = 0; i < numActive; i++) {
@@ -140,13 +147,44 @@ unordered_map<string, GLint> Program::fetchAttributeLocations()
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
     _renderer.check_gl_error();
 
-    string name(info.name);
+    AttributeName attName;
+    GLint mnIndex = -1;
+    GLint mtIndex = findIndexed(info.name, "morphTarget");
+    if(mtIndex < 0) mnIndex = findIndexed(info.name, "morphNormal");
+
+    if(mtIndex >= 0) {
+      indexedAttributes[make_pair(IndexedAttributeName::morphTarget, mtIndex)] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(mnIndex >= 0) {
+      indexedAttributes[{IndexedAttributeName::morphNormal, mnIndex}] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "position", 100)) {
+      attributes[AttributeName::position] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "color", 100)) {
+      attributes[AttributeName::color] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "uv2", 100)) {
+      attributes[AttributeName::uv2] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "uv", 100)) {
+      attributes[AttributeName::uv] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "index", 100)) {
+      attributes[AttributeName::index] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "lineDistances", 100)) {
+      attributes[AttributeName::lineDistances] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else if(!strncmp(info.name, "normal", 100)) {
+      attributes[AttributeName::normal] = _renderer.glGetAttribLocation(_program, info.name);
+    }
+    else {
+      throw std::logic_error("unknown attribute");
+    }
 
     // console.log("THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:", name, i );
-    attributes[name] = _renderer.glGetAttribLocation(_program, info.name);
   }
-
-  return attributes;
 }
 
 string replaceLightNums(string value, const ProgramParameters &parameters)
@@ -274,15 +312,13 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
 
 }
 
-const std::string no_att("???");
-
 Program::Program(Renderer_impl &renderer,
                  Extensions &extensions,
                  const std::string code,
                  const Material::Ptr material,
                  Shader &shader,
                  const ProgramParameters &parameters )
-   : _renderer(renderer), _cachedAttributes({make_pair(no_att, 0)})
+   : _renderer(renderer), _cachedAttributes({make_pair(AttributeName::unknown, 0)})
 {
   using namespace string_out;
 
@@ -361,8 +397,7 @@ Program::Program(Renderer_impl &renderer,
 
   string customDefines = generateDefines( parameters.defines );
 
-  //
-
+  // create the program GL object
   _program = _renderer.glCreateProgram();
 
   string prefixVertex, prefixFragment;
@@ -625,7 +660,7 @@ Program::Program(Renderer_impl &renderer,
   }
   else if ( !programLog.empty()) cerr << programLog << endl;
 
-  _cachedAttributes = fetchAttributeLocations();
+  fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
 
   // clean up
   _renderer.glDeleteShader( glVertexShader );
@@ -641,12 +676,20 @@ Uniforms::Ptr Program::getUniforms()
   return _cachedUniforms;
 }
 
-const std::unordered_map<std::string, GLint> &Program::getAttributes()
+const std::unordered_map<AttributeName, GLint> &Program::getAttributes()
 {
-  if(_cachedAttributes.count(no_att) == 1)
-    _cachedAttributes = fetchAttributeLocations();
+  if(_cachedAttributes.count(AttributeName::unknown) == 1)
+    fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
 
   return _cachedAttributes;
+}
+
+const std::unordered_map<IndexedAttributeKey, GLint> &Program::getIndexedAttributes()
+{
+  if(_cachedAttributes.count(AttributeName::unknown) == 1)
+    fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
+
+  return _cachedIndexedAttributes;
 }
 
 Program::~Program() {

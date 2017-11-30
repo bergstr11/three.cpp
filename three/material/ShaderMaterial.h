@@ -43,12 +43,11 @@ public:
   std::string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
   std::string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
-private:
   // When rendered geometry doesn't include these attributes but the material does,
   // use these default values in WebGL. This avoids errors when buffer data is missing.
-  math::Vector3 default_color = {1, 1, 1};
-  math::Vector2 default_uv = {0.0f, 0.0f};
-  math::Vector2 default_uv2 = {0.0f, 0.0f};
+  const math::Vector3 default_color = {1, 1, 1};
+  const math::Vector2 default_uv = {0.0f, 0.0f};
+  const math::Vector2 default_uv2 = {0.0f, 0.0f};
 
 protected:
   ShaderMaterial(material::Resolver::Ptr resolver,

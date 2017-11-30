@@ -6,6 +6,7 @@
 #define THREE_QT_BUFFERGEOMETRY_H
 
 #include <unordered_map>
+#include <functional>
 #include <helper/utils.h>
 #include "Geometry.h"
 #include "BufferAttribute.h"
@@ -14,10 +15,16 @@ namespace three {
 
 class Object3D;
 
+enum class IndexedAttributeName
+{
+  morphTarget, morphNormal
+};
 enum class AttributeName
 {
-  morphTarget, morphNormal//, color, position, lineDistances
+  index, color, position, normal, uv, uv2, lineDistances, unknown
 };
+
+using IndexedAttributeKey = std::pair<IndexedAttributeName, size_t>;
 
 class BufferGeometry : public Geometry
 {
@@ -32,10 +39,9 @@ class BufferGeometry : public Geometry
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_position;
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_normal;
 
-  using IndexedAttributesKey = std::pair<AttributeName, size_t>;
-  std::unordered_map<IndexedAttributesKey, BufferAttributeT<float>::Ptr, pair_hash> _indexedAttributes;
+  std::unordered_map<IndexedAttributeKey, BufferAttributeT<float>::Ptr, pair_hash> _indexedAttributes;
 
-  UpdateRange _drawRange = {0, std::numeric_limits<int32_t>::infinity()};
+  UpdateRange _drawRange;
 
 protected:
   BufferGeometry &computeBoundingBox() override
@@ -133,18 +139,19 @@ public:
 
   const std::vector<BufferAttributeT<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
 
-  void addAttribute(AttributeName attribute, size_t index, BufferAttributeT<float>::Ptr value) {
-    IndexedAttributesKey key = {attribute, index};
+  void addAttribute(IndexedAttributeName attribute, size_t index, BufferAttributeT<float>::Ptr value) {
+    IndexedAttributeKey key = {attribute, index};
     _indexedAttributes[key] = value;
   }
 
-  void addAttribute(AttributeName attribute, BufferAttributeT<float>::Ptr value) {
-    IndexedAttributesKey key = {attribute, 0};
-    _indexedAttributes[key] = value;
-  }
-
-  void removeAttribute(AttributeName attribute, size_t index) {
+  void removeAttribute(IndexedAttributeName attribute, size_t index) {
     _indexedAttributes.erase({attribute, index});
+  }
+
+  void setDrawRange(size_t start, size_t count ) {
+
+    _drawRange.offset = start;
+    _drawRange.count = count;
   }
 
   void setIndex(const std::vector<uint32_t> &indices) {
@@ -188,6 +195,28 @@ public:
   {
     _lineDistances = lineDistances;
     return *this;
+  }
+
+  BufferAttribute::Ptr getAttribute(AttributeName name)
+  {
+    switch(name) {
+      case AttributeName::normal:
+        return _normal;
+      case AttributeName::lineDistances:
+        return _lineDistances;
+      case AttributeName::index:
+        return _index;
+      case AttributeName::uv:
+        return _uv;
+      case AttributeName::uv2:
+        return _uv2;
+      case AttributeName::color:
+        return _color;
+      case AttributeName::position:
+        return _position;
+      default:
+        return nullptr;
+    }
   }
 
   BufferGeometry &apply(const math::Matrix4 &matrix) override
@@ -243,6 +272,21 @@ public:
   unsigned maxInstancedCount() const {return _maxInstancedCount;}
 };
 
+}
+
+namespace std
+{
+template<> struct hash<three::IndexedAttributeKey>
+{
+  typedef three::IndexedAttributeKey argument_type;
+  typedef std::size_t result_type;
+  result_type operator()(argument_type const& s) const noexcept
+  {
+    result_type const h1 ( std::hash<three::IndexedAttributeName>{}(s.first) );
+    result_type const h2 ( std::hash<size_t>{}(s.second) );
+    return h1 ^ (h2 << 1);
+  }
+};
 }
 
 #endif //THREE_QT_BUFFERGEOMETRY_H

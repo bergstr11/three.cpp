@@ -7,6 +7,7 @@
 #include <math/Math.h>
 #include <textures/DataTexture.h>
 #include <sstream>
+#include <core/InterleavedBufferAttribute.h>
 #include <objects/Line.h>
 #include <objects/Points.h>
 #include <material/MeshStandardMaterial.h>
@@ -25,6 +26,11 @@ using namespace std;
 OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options)
 {
   return gl::Renderer_impl::Ptr(new gl::Renderer_impl(context, width, height));
+}
+
+Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height, bool depthBuffer, bool stencilBuffer)
+{
+  return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, depthBuffer, stencilBuffer);
 }
 
 namespace gl {
@@ -204,29 +210,30 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
 
   RenderTargetCube::Ptr renderTargetCube;
   RenderTargetDefault::Ptr renderTargetDefault;
+  RenderTargetExternal::Ptr renderTargetExternal;
 
   GLuint framebuffer = UINT_MAX;
 
   if(renderTarget) {
     renderTargetCube = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
-
-    auto &renderTargetProperties = _properties.get( renderTarget );
-
-    if (renderTargetProperties.framebuffer.empty())
-    {
-      if(renderTargetCube)
-        _textures.setupRenderTarget( *renderTargetCube );
-      else if(renderTargetDefault)
-        _textures.setupRenderTarget( *renderTargetDefault );
-    }
+    renderTargetDefault = dynamic_pointer_cast<RenderTargetDefault>(renderTarget);
+    renderTargetExternal = dynamic_pointer_cast<RenderTargetExternal>(renderTarget);
 
     if (renderTargetCube) {
-
-      framebuffer = renderTargetProperties.framebuffer[renderTargetCube->activeCubeFace];
+      if(renderTargetCube->frameBuffers.empty())
+        _textures.setupRenderTarget( *renderTargetCube );
+      framebuffer = renderTargetCube->frameBuffers[renderTargetCube->activeCubeFace];
     }
-    else {
+    else if(renderTargetDefault && !renderTargetDefault->frameBuffer) {
+      _textures.setupRenderTarget(*renderTargetDefault);
+      framebuffer = renderTargetDefault->frameBuffer;
+    }
+    else if(renderTargetExternal) {
+      framebuffer = renderTargetExternal->frameBuffer;
+      _currentFramebuffer = framebuffer;
 
-      framebuffer = renderTargetProperties.framebuffer[0];
+      auto &textureProperties = _properties.get( renderTargetExternal->texture() );
+      textureProperties.texture = renderTargetExternal->textureHandle();
     }
 
     _currentViewport = renderTarget->viewport();
@@ -576,10 +583,11 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   }
 
   size_t rangeStart = geometry->drawRange().offset * rangeFactor;
-  size_t rangeCount = geometry->drawRange().count * rangeFactor;
+  size_t rangeCount = geometry->drawRange().count > 0 ?
+                      geometry->drawRange().count * rangeFactor : std::numeric_limits<size_t>::max();
 
   size_t groupStart = group ? group->start * rangeFactor : 0;
-  size_t groupCount = group ? group->count * rangeFactor : numeric_limits<size_t>::infinity();
+  size_t groupCount = group ? group->count * rangeFactor : numeric_limits<size_t>::max();
 
   size_t drawStart = std::max( rangeStart, groupStart );
   size_t drawEnd = std::min( dataCount, std::min(rangeStart + rangeCount, groupStart + groupCount)) - 1;
@@ -624,6 +632,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
     renderer->setMode(DrawMode::Points);
   };
+  object->objectResolver->object::DispatchResolver::getValue(dispatch);
 
   InstancedBufferGeometry::Ptr ibg = dynamic_pointer_cast<InstancedBufferGeometry>(geometry);
   if (ibg) {
@@ -638,54 +647,52 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 void Renderer_impl::setupVertexAttributes(Material::Ptr material,
                                           Program::Ptr program,
                                           BufferGeometry::Ptr geometry,
-                                          unsigned startIndex )
+                                          unsigned startIndex)
 {
-#if 0
-  if ( geometry && geometry.isInstancedBufferGeometry ) {
+  /*if ( geometry && geometry.isInstancedBufferGeometry ) {
     if ( extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
       console.error( 'THREE.WebGLRenderer.setupVertexAttributes: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.' );
       return;
     }
-  }
+  }*/
 
   _state.initAttributes();
 
-  var geometryAttributes = geometry->attributes();
+  auto &programAttributes = program->getAttributes();
 
-  var programAttributes = program.getAttributes();
+  for (const auto &att : programAttributes) {
 
-  var materialDefaultAttributeValues = material.defaultAttributeValues;
+    AttributeName name = att.first;
+    GLuint programAttribute = att.second;
 
-  for ( var name in programAttributes ) {
+    if (programAttribute >= 0) {
 
-    var programAttribute = programAttributes[ name ];
+      const BufferAttribute::Ptr &geometryAttribute = geometry->getAttribute(name);
 
-    if ( programAttribute >= 0 ) {
+      if (geometryAttribute) {
 
-      var geometryAttribute = geometryAttributes[ name ];
-
-      if ( geometryAttribute !== undefined ) {
-
-        var normalized = geometryAttribute.normalized;
-        var size = geometryAttribute.itemSize;
-
-        var attribute = attributes.get( geometryAttribute );
+        GLboolean normalized = (GLboolean) geometryAttribute->normalized();
+        unsigned size = geometryAttribute->itemSize();
 
         // TODO Attribute may not be available on context restore
 
-        if ( attribute === undefined ) continue;
+        if (!_attributes.has(*geometryAttribute)) continue;
 
-        var buffer = attribute.buffer;
-        var type = attribute.type;
-        var bytesPerElement = attribute.bytesPerElement;
+        Buffer attribute = _attributes.get(*geometryAttribute);
 
-        if ( geometryAttribute.isInterleavedBufferAttribute ) {
+        GLuint buffer = attribute.buf;
+        GLenum type = attribute.type;
+        unsigned bytesPerElement = attribute.bytesPerElement;
 
-          var data = geometryAttribute.data;
-          var stride = data.stride;
-          var offset = geometryAttribute.offset;
+        bufferattribute::Dispatch dispatch;
 
-          if ( data && data.isInstancedInterleavedBuffer ) {
+        dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {
+
+          auto &data = att.data();
+          GLsizei stride = (GLsizei) data.stride();
+          GLsizei offset = (GLsizei) att.offset();
+
+          /*if ( data && data.isInstancedInterleavedBuffer ) {
 
             state.enableAttributeAndDivisor( programAttribute, data.meshPerAttribute );
 
@@ -695,18 +702,19 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
 
             }
 
-          } else {
+          } else {*/
 
-            state.enableAttribute( programAttribute );
+          _state.enableAttribute(programAttribute);
 
-          }
+          //}
 
-          _gl.bindBuffer( _gl.ARRAY_BUFFER, buffer );
-          _gl.vertexAttribPointer( programAttribute, size, type, normalized, stride * bytesPerElement, ( startIndex * stride + offset ) * bytesPerElement );
+          glBindBuffer(GL_ARRAY_BUFFER, buffer);
+          glVertexAttribPointer(programAttribute, size, type, normalized, stride * bytesPerElement,
+                                (void *) ((startIndex * stride + offset) * bytesPerElement));
+        };
 
-        } else {
-
-          if ( geometryAttribute.isInstancedBufferAttribute ) {
+        if (!geometryAttribute->resolver->bufferattribute::DispatchResolver::getValue(dispatch)) {
+          /*if ( geometryAttribute.isInstancedBufferAttribute ) {
 
             state.enableAttributeAndDivisor( programAttribute, geometryAttribute.meshPerAttribute );
 
@@ -716,52 +724,40 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
 
             }
 
-          } else {
+          } else {*/
 
-            state.enableAttribute( programAttribute );
+          _state.enableAttribute(programAttribute);
 
-          }
+          //}
 
-          _gl.bindBuffer( _gl.ARRAY_BUFFER, buffer );
-          _gl.vertexAttribPointer( programAttribute, size, type, normalized, 0, startIndex * size * bytesPerElement );
-
+          glBindBuffer(GL_ARRAY_BUFFER, buffer);
+          glVertexAttribPointer(programAttribute, size, type, normalized, 0, (void *) (startIndex * size * bytesPerElement));
         }
-
-      } else if ( materialDefaultAttributeValues !== undefined ) {
-
-        var value = materialDefaultAttributeValues[ name ];
-
-        if ( value !== undefined ) {
-
-          switch ( value.length ) {
-
-            case 2:
-              _gl.vertexAttrib2fv( programAttribute, value );
-              break;
-
-            case 3:
-              _gl.vertexAttrib3fv( programAttribute, value );
-              break;
-
-            case 4:
-              _gl.vertexAttrib4fv( programAttribute, value );
-              break;
-
-            default:
-              _gl.vertexAttrib1fv( programAttribute, value );
-
-          }
-
-        }
-
       }
+      else {
 
+        ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
+        if (shaderMat) {
+
+          switch (name) {
+
+            case AttributeName::color:
+              glVertexAttrib3fv(programAttribute, shaderMat->default_color.elements());
+              break;
+            case AttributeName::uv:
+              glVertexAttrib2fv(programAttribute, shaderMat->default_uv.elements());
+              break;
+            case AttributeName::uv2:
+              glVertexAttrib2fv(programAttribute, shaderMat->default_uv2.elements());
+              break;
+          }
+        }
+      }
     }
 
   }
 
-  state.disableUnusedAttributes();
-#endif
+  _state.disableUnusedAttributes();
 }
 
 void Renderer_impl::releaseMaterialProgramReference(Material &material)
@@ -829,17 +825,16 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
     materialProperties.program = program;
   }
 
-  auto programAttributes = program->getAttributes();
+  const auto &programAttributes = program->getIndexedAttributes();
 
   if ( material->morphTargets ) {
 
     material->numSupportedMorphTargets = 0;
 
-    for ( unsigned i = 0; i < _maxMorphTargets; i ++ ) {
+    for ( size_t i = 0; i < _maxMorphTargets; i ++ ) {
 
-      stringstream ss;
-      ss << "morphTarget" << i;
-      if ( programAttributes.find(ss.str()) != programAttributes.end()) {
+      IndexedAttributeKey key = make_pair(IndexedAttributeName::morphTarget, i);
+      if ( programAttributes.count(key) > 0) {
         material->numSupportedMorphTargets ++;
       }
     }
@@ -849,11 +844,10 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     material->numSupportedMorphNormals = 0;
 
-    for (unsigned i = 0; i < _maxMorphNormals; i ++ ) {
+    for (size_t i = 0; i < _maxMorphNormals; i ++ ) {
 
-      stringstream ss;
-      ss << "morphNormal" << i;
-      if ( programAttributes.find(ss.str()) != programAttributes.end()) {
+      IndexedAttributeKey key = make_pair(IndexedAttributeName::morphNormal, i);
+      if ( programAttributes.count(key) > 0) {
         material->numSupportedMorphNormals ++;
       }
     }

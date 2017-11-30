@@ -68,11 +68,20 @@ class BufferAttribute
 protected:
   unsigned _version = 0;
 
-  explicit BufferAttribute(bufferattribute::Resolver::Ptr resolver)
-     : uuid(sole::uuid0()), resolver(resolver) {}
+  unsigned _itemSize;
+  bool _normalized;
 
-  BufferAttribute()
-     : uuid(sole::uuid0()), resolver(bufferattribute::Resolver::makeNull()) {}
+  bool _dynamic = false;
+  UpdateRange _updateRange;
+
+  explicit BufferAttribute(bufferattribute::Resolver::Ptr resolver, unsigned itemSize, bool normalized)
+     : uuid(sole::uuid0()), resolver(resolver), _itemSize(itemSize), _normalized(normalized)
+  {}
+
+  BufferAttribute(unsigned itemSize, bool normalized, bool dynamic=false)
+     : uuid(sole::uuid0()), resolver(bufferattribute::Resolver::makeNull()), _itemSize(itemSize),
+       _normalized(normalized), _dynamic(dynamic)
+  {}
 
 public:
   using Ptr = std::shared_ptr<BufferAttribute>;
@@ -86,6 +95,16 @@ public:
 
   unsigned version() const {return _version;}
 
+  bool normalized() const {return _normalized;}
+
+  UpdateRange &updateRange() {return _updateRange;}
+
+  bool dynamic() const {return _dynamic;}
+
+  unsigned itemSize() const {return _itemSize;}
+
+  virtual size_t count() const = 0;
+
   virtual void apply(const math::Matrix4 &matrix) = 0;
 
   virtual void apply(const math::Matrix3 &matrix) = 0;
@@ -95,34 +114,28 @@ template <typename Type>
 class BufferAttributeT : public BufferAttribute
 {
   std::vector<Type> _array;
-  unsigned _itemSize;
   size_t _count;
-  bool _normalized;
-
-  bool _dynamic = false;
-  UpdateRange _updateRange = {0, -1};
 
 protected:
   BufferAttributeT(const std::vector<Type> &array, unsigned itemSize, bool normalized)
-     : _array(array), _itemSize(itemSize), _normalized(normalized), _count(array.size() / itemSize)
+     : BufferAttribute(itemSize, normalized), _array(array), _count(array.size() / _itemSize)
   {}
 
   BufferAttributeT(unsigned itemSize, bool normalized)
-     : _array(std::vector<Type>()), _itemSize(itemSize), _normalized(normalized), _count(0)
+     : BufferAttribute(itemSize, normalized), _array(std::vector<Type>()), _count(0)
   {}
 
   BufferAttributeT(const BufferAttributeT &source) :
-     _array(source._array), _itemSize(source._itemSize), _count(source._count),
-     _normalized(source._normalized), _dynamic(source._dynamic)
+     BufferAttribute(source._itemSize, source._normalized, source._dynamic), _array(source._array), _count(source._count)
   {}
 
   BufferAttributeT(const std::vector<float> &values, bool normalized)
-     : BufferAttributeT(values, 1, normalized)
+     : BufferAttribute(1, normalized), _array(values)
   {
   }
 
   BufferAttributeT(const std::vector<UV> &uvs, bool normalized)
-     : BufferAttributeT(2, normalized)
+     : BufferAttribute(2, normalized), _count(uvs.size() / _itemSize)
   {
     _array.resize(uvs.size() * _itemSize);
 
@@ -134,7 +147,7 @@ protected:
   }
 
   BufferAttributeT(const std::vector<Color> &colors, bool normalized)
-     : BufferAttributeT(3, normalized)
+     : BufferAttribute(3, normalized), _count(colors.size() / _itemSize)
   {
     _array.resize(colors.size() * _itemSize);
 
@@ -147,7 +160,7 @@ protected:
   }
 
   BufferAttributeT(const std::vector<Index> &indices, bool normalized)
-     : BufferAttributeT(3, normalized)
+     : BufferAttribute(3, normalized), _count(indices.size() / _itemSize)
   {
     _array.resize(indices.size() * _itemSize);
 
@@ -164,7 +177,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector2> vectors, bool normalized)
-     : BufferAttributeT(2, normalized)
+     : BufferAttribute(2, normalized), _count(vectors.size() / _itemSize)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -176,7 +189,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector3> vectors, bool normalized)
-     : BufferAttributeT(3, normalized)
+     : BufferAttribute(3, normalized), _count(vectors.size() / _itemSize)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -189,7 +202,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector4> vectors, bool normalized)
-     : BufferAttributeT(4, normalized)
+     : BufferAttribute(4, normalized), _count(vectors.size() / _itemSize)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -247,9 +260,9 @@ public:
 
   Signal<void(const BufferAttributeT<Type> &)> onUpload;
 
-  const size_t size() const {return _array.size();}
+  size_t count() const override {return _count;}
 
-  const size_t count() const {return _count;}
+  const size_t size() const {return _array.size();}
 
   const std::vector<Type> &array() const {return _array;}
 
@@ -265,13 +278,9 @@ public:
 
   unsigned bytesPerElement() const {return sizeof(Type);}
 
-  bool dynamic() const {return _dynamic;}
-
   const Type *data() const {return _array.data();}
 
   const Type *data(uint32_t offset) const {return _array.data()+offset;}
-
-  UpdateRange &updateRange() {return _updateRange;}
 
   BufferAttributeT &setDynamic(bool value)
   {

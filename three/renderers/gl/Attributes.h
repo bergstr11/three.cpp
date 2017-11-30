@@ -68,12 +68,16 @@ public:
     }
   }
 
-  template <typename T>
-  const Buffer &get(const BufferAttributeT<T> &attribute ) {
+  bool has(const BufferAttribute &attribute )
+  {
+    return _buffers.count(attribute.uuid) > 0;
+  }
+
+  const Buffer &get(const BufferAttribute &attribute ) const {
 
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 
-    return _buffers[ attribute.uuid ];
+    return _buffers.at(attribute.uuid);
   }
 
   template <typename T>

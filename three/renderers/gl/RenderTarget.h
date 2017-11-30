@@ -34,9 +34,54 @@ public:
   virtual void dispose() = 0;
 };
 
+class RenderTargetExternal : public RenderTarget
+{
+  friend class Renderer_impl;
+
+  class ExternalTexture : public Texture
+  {
+  public:
+    using Ptr = std::shared_ptr<ExternalTexture>;
+    const GLuint handle;
+
+    ExternalTexture(GLuint handle)
+       : Texture(texture::Resolver::makeNull(), Texture::options(), false, false), handle(handle)
+    {}
+
+    bool isPowerOfTwo() override {return true;}
+  };
+
+  const GLuint frameBuffer;
+  const ExternalTexture::Ptr _texture;
+
+protected:
+  RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
+     : RenderTarget(TextureTarget::twoD, width, height, depthBuffer, stencilBuffer),
+       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture))
+  {
+  }
+
+public:
+  Signal<void(RenderTargetExternal &)> onDispose;
+
+  using Ptr = std::shared_ptr<RenderTargetExternal>;
+  static Ptr make(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer=true, bool stencilBuffer=true) {
+    return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, depthBuffer, stencilBuffer));
+  }
+
+  Texture::Ptr texture() const override {return _texture;}
+  GLuint textureHandle() const {return _texture->handle;}
+
+  void dispose() override
+  {
+  }
+};
+
 class RenderTargetDefault : public RenderTarget
 {
   friend class Textures;
+  friend class Renderer_impl;
+
 public:
   struct Options : public TextureOptions
   {
@@ -97,8 +142,8 @@ class RenderTargetCube : public RenderTarget
   unsigned activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
   unsigned activeMipMapLevel = 0;
 
-  std::array<GLuint, 6> frameBuffers;
-  std::array<GLuint, 6> renderBuffers;
+  std::vector<GLuint> frameBuffers;
+  std::vector<GLuint> renderBuffers;
 
 protected:
   RenderTargetCube(GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)

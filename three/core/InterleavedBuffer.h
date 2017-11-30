@@ -15,22 +15,22 @@ class InterleavedBuffer
   friend class InterleavedBufferAttribute;
 
   std::vector<float> _array;
-  unsigned _stride, _count;
+  size_t _stride, _count;
   bool _dynamic = false;
   unsigned _version = 0;
 
-  UpdateRange _updateRange = {0, -1};
+  UpdateRange _updateRange;
 
 public:
-  InterleavedBuffer(const std::vector<float> &array, unsigned stride)
-     : _array(array), _stride(stride) {}
+  InterleavedBuffer(const std::vector<float> &array, size_t stride)
+     : _array(array), _stride(stride), _count(array.size() / stride) {}
 
   Signal<void()> onUpload;
 
   bool invalidate() {_version++;}
 
-  unsigned stride() const {return _stride;}
-  unsigned count() const {return _count;}
+  size_t stride() const {return _stride;}
+  size_t count() const {return _count;}
   const std::vector<float> &array() const {return _array;}
 
   InterleavedBuffer &setArray(const std::vector<float> &array)

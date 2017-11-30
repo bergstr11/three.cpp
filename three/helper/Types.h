@@ -151,6 +151,16 @@ public:
 
 using UV_Array = std::array<UV, 3>;
 
+struct UpdateRange
+{
+  size_t offset;
+  size_t count;
+
+  UpdateRange(size_t offset=0, size_t count=0) : offset(offset), count(count) {}
+
+  bool empty() const {return count == 0;}
+};
+
 } // namespace three
 
 #endif //THREE_QT_TYPES_H

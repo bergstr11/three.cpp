@@ -39,11 +39,13 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
   three::Scene::Ptr _scene;
   three::PerspectiveCamera::Ptr _camera;
   three::Renderer::Ptr _renderer;
+  three::Renderer::Target::Ptr _target;
 
   const ThreeDItem *const _item;
   QOpenGLFramebufferObject *_framebufferObject = nullptr;
 
 public:
+
   explicit FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
        _scene(Scene::make()),
@@ -112,7 +114,7 @@ public:
 
   void render() override
   {
-    _renderer->render(_scene, _camera);
+    _renderer->render(_scene, _camera, _target);
     _item->window()->resetOpenGLState();
   }
 
@@ -122,6 +124,8 @@ public:
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setSamples(12);
     _framebufferObject = new QOpenGLFramebufferObject(size, format);
+
+    _target = OpenGLRenderer::makeExternalTarget(_framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
 
     return _framebufferObject;
   }

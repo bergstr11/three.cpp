@@ -57,8 +57,8 @@ public:
       auto &influence = influences[ i ];
 
       if (influence.first != 0 ) {
-        if (morphTargets) geometry->removeAttribute(AttributeName::morphTarget, i);
-        if (morphNormals) geometry->removeAttribute(AttributeName::morphNormal, i);
+        if (morphTargets) geometry->removeAttribute(IndexedAttributeName::morphTarget, i);
+        if (morphNormals) geometry->removeAttribute(IndexedAttributeName::morphNormal, i);
       }
     }
 
@@ -84,8 +84,8 @@ public:
       auto value = influence.second;
 
       if(value > 0) {
-        if (morphTargets) geometry->addAttribute(AttributeName::morphTarget, i, geometry->morphPositions()[index]);
-        if (morphNormals) geometry->addAttribute(AttributeName::morphNormal, i, geometry->morphNormals()[index]);
+        if (morphTargets) geometry->addAttribute(IndexedAttributeName::morphTarget, i, geometry->morphPositions()[index]);
+        if (morphNormals) geometry->addAttribute(IndexedAttributeName::morphNormal, i, geometry->morphNormals()[index]);
 
         _morphInfluences[ i ] = value;
         continue;

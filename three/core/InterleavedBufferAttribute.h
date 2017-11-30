@@ -13,17 +13,18 @@ namespace three {
 class InterleavedBufferAttribute : public BufferAttribute
 {
   InterleavedBuffer &_data;
-  unsigned _itemSize;
-  unsigned _offset;
-
-  bool _normalized;
+  size_t _offset;
 
 public:
   InterleavedBufferAttribute(InterleavedBuffer &buffer, unsigned itemSize, unsigned offset, bool normalized=true)
-     : BufferAttribute(bufferattribute::ResolverT<InterleavedBufferAttribute>::make(*this)),
-       _data(buffer), _itemSize(itemSize), _offset(offset), _normalized(normalized) {}
+     : BufferAttribute(bufferattribute::ResolverT<InterleavedBufferAttribute>::make(*this), itemSize, normalized), _data(buffer)
+  {}
 
-  unsigned count() const {return _data.count();}
+  size_t count() const override {return _data.count();}
+
+  size_t offset() const {return _offset;}
+
+  const InterleavedBuffer &data() const {return _data;}
 
   const std::vector<float> &array() const {return _data.array();}
 

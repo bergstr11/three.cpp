@@ -82,7 +82,8 @@ void Textures::deallocateRenderTarget(RenderTargetCube &renderTarget)
 
   _fn->glDeleteFramebuffers(6, renderTarget.frameBuffers.data());
 
-  _fn->glDeleteRenderbuffers(1, renderTarget.renderBuffers.data());
+  if(!renderTarget.renderBuffers.empty())
+    _fn->glDeleteRenderbuffers(6, renderTarget.renderBuffers.data());
 
   _properties.remove(*renderTarget.texture());
 }
@@ -497,8 +498,9 @@ void Textures::setupDepthRenderbuffer(RenderTargetDefault &renderTarget)
 
 void Textures::setupDepthRenderbuffer(RenderTargetCube &renderTarget)
 {
-  for ( unsigned i = 0; i < 6; i ++ ) {
+  renderTarget.renderBuffers.resize(6);
 
+  for ( unsigned i = 0; i < 6; i ++ ) {
     _fn->glBindFramebuffer( GL_FRAMEBUFFER, renderTarget.frameBuffers[ i ] );
     _fn->glGenRenderbuffers(1, &renderTarget.renderBuffers[i]);
     setupRenderBufferStorage( renderTarget.renderBuffers[i], renderTarget );
@@ -552,6 +554,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
   _infoMemory.textures ++;
 
   // Setup framebuffer
+  renderTarget.frameBuffers.resize(6);
   _fn->glGenFramebuffers(6, renderTarget.frameBuffers.data());
 
   // Setup color buffer
