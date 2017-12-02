@@ -274,14 +274,8 @@ void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
   }
 }
 
-BufferGeometry &BufferGeometry::update(std::shared_ptr<Object3D> object)
+BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr geometry)
 {
-  StaticGeometry::Ptr objectGeometry = std::dynamic_pointer_cast<StaticGeometry>(object->geometry());
-  if(!objectGeometry) {
-    throw std::invalid_argument("not a static geometry. What are you doing here??");
-  }
-
-  StaticGeometry::Ptr geometry = objectGeometry;
   Mesh::Ptr mesh = std::dynamic_pointer_cast<Mesh>(object);
   if ( mesh ) {
 
@@ -355,7 +349,7 @@ BufferGeometry &BufferGeometry::update(std::shared_ptr<Object3D> object)
     }
     if ( direct->groupsNeedUpdate && direct) {
 
-      direct->computeGroups( *objectGeometry );
+      direct->computeGroups( *geometry );
       _groups = direct->groups;
 
       direct->groupsNeedUpdate = false;

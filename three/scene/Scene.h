@@ -28,6 +28,14 @@ public:
   static Ptr make() {
     return Ptr(new Scene(scene::Resolver::makeNull()));
   }
+  
+  static Ptr make(std::string name) {
+    Ptr p(new Scene(scene::Resolver::makeNull()));
+    p->_name = name;
+    return p;
+  }
+
+  virtual bool hasBackground() const {return false;}
 
   scene::Resolver::Ptr backgroundResolver;
 
@@ -47,15 +55,19 @@ class SceneT : public Scene
 
 protected:
   SceneT(const _Background &background, const Fog::Ptr &fog)
-     : Scene(fog, scene::ResolverT<_Background>::make(*this)), _background(background) {}
+     : Scene(fog, scene::ResolverT<_Background>::make(_background)), _background(background) {}
   SceneT()
-     : Scene(scene::ResolverT<_Background>::make(*this)) {}
+     : Scene(scene::ResolverT<_Background>::make(_background)) {}
 
 public:
   using Ptr = std::shared_ptr<SceneT<_Background>>;
-  static Ptr make(const _Background &background, const Fog::Ptr &fog) {
-    return Ptr(new SceneT(background, fog));
+  static Ptr make(std::string name, const _Background &background, const Fog::Ptr &fog=nullptr) {
+    Ptr p(new SceneT(background, fog));
+    p->_name = name;
+    return p;
   }
+
+  bool hasBackground() const override {return true;}
 
   const _Background &background() const {return _background;}
   _Background &background() {return _background;}

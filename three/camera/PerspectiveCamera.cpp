@@ -75,19 +75,17 @@ void PerspectiveCamera::clearViewOffset()
 
 void PerspectiveCamera::updateProjectionMatrix()
 {
-
   float near = _near;
-  double top = near * std::tan(math::DEG2RAD * 0.5 * _fov) / _zoom;
-  auto height = (unsigned)(2 * top);
-  auto width = (unsigned)(_aspect * height);
-  auto left = (unsigned)(-0.5 * width);
+  auto top = near * std::tan(math::DEG2RAD * 0.5 * _fov) / _zoom;
+  auto height = 2 * top;
+  auto width = _aspect * height;
+  auto left = -0.5 * width;
 
   if(!_view.isNull) {
     left += _view.offsetX * width / _view.fullWidth;
     top -= _view.offsetY * height / _view.fullHeight;
     width *= _view.width / _view.fullWidth;
     height *= _view.height / _view.fullHeight;
-
   }
 
   if(_filmOffset != 0)

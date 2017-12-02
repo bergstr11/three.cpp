@@ -26,6 +26,8 @@ enum class AttributeName
 
 using IndexedAttributeKey = std::pair<IndexedAttributeName, size_t>;
 
+class StaticGeometry;
+
 class BufferGeometry : public Geometry
 {
   BufferAttributeT<uint32_t>::Ptr _index;
@@ -107,7 +109,7 @@ public:
     _drawRange = geom._drawRange;
   }
 
-  BufferGeometry &update(std::shared_ptr<Object3D> object);
+  BufferGeometry &update(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry);
 
   bool useMorphing() const override
   {
@@ -158,7 +160,7 @@ public:
     if(_index)
       _index->set(indices);
     else
-      _index = BufferAttributeT<uint32_t>::make(indices, 3);
+      _index = BufferAttributeT<uint32_t>::make(indices, 3, true);
   }
 
   BufferGeometry &setPosition(const BufferAttributeT<float>::Ptr &position)

@@ -64,7 +64,7 @@ public:
   {
     // Note: will lead to a divide by zero if the plane is invalid.
 
-    float inverseNormalLength = 1.0 / _normal.length();
+    float inverseNormalLength = 1.0f / _normal.length();
     _normal *= inverseNormalLength;
     _constant *= inverseNormalLength;
 

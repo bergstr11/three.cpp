@@ -10,9 +10,7 @@ namespace gl {
 
 void Background::render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
 {
-  if(!scene->backgroundResolver) return;
-
-  if(scene->backgroundResolver) {
+  if(scene->hasBackground()) {
     scene::BackgroundDispatch dispatch;
     dispatch.func<Color>() = [this](Color &color) {
 

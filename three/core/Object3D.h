@@ -42,13 +42,14 @@ public:
   using Ptr = std::shared_ptr<Object3D>;
 
 private:
-  std::string _name;
   uint16_t _id;
 
   Object3D *_parent = nullptr;
   std::vector<Ptr> _children;
 
 protected:
+  std::string _name;
+
   math::Vector3 _up {0, 1, 0};
   math::Vector3 _position;
   math::Euler _rotation;
@@ -100,6 +101,8 @@ public:
   virtual bool skinned() {return false;}
 
   bool visible() const {return _visible;}
+
+  const std::string &name() const  {return _name;}
 
   const std::vector<Ptr> &children() const {return _children;}
 

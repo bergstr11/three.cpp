@@ -72,10 +72,18 @@ protected:
   }
 
 public:
-  using Ptr = std::shared_ptr<Mesh_T>;
+  using Ptr = std::shared_ptr<Mesh_T<Geom, Mat>>;
+
   static Ptr make(const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
   {
     return Ptr(new Mesh_T(geometry, material));
+  }
+
+  static Ptr make(std::string name, const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
+  {
+    Ptr p(new Mesh_T(geometry, material));
+    p->_name = name;
+    return p;
   }
 };
 

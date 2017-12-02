@@ -9,16 +9,34 @@
 #include <functional>
 #include <array>
 #include <string>
-#include <iostream>
-#include <typeinfo>
-#include <type_traits>
-#include <stdexcept>
+#include <set>
 
 #include <renderers/gl/shader/ShaderID.h>
 
 namespace resolver {
 
 static const nullptr_t null = nullptr;
+
+struct Clearable
+{
+  virtual void clear() = 0;
+};
+
+class Dispatcher {
+protected:
+  std::set<Clearable *> _clearables;
+
+public:
+  void clear() {
+    for(auto clearable : _clearables) clearable->clear();
+    _clearables.clear();
+  }
+
+protected:
+  ~Dispatcher() {
+    clear();
+  }
+};
 
 template<typename T>
 struct Functor
@@ -56,10 +74,9 @@ public:
 };
 
 template<typename T>
-class Assoc<T, Functor<T>>
+class Assoc<T, Functor<T>> : public Clearable
 {
   Functor<T> * ft = nullptr;
-  bool clearAfter = true;
 
 public:
   template <typename F>
@@ -78,15 +95,12 @@ public:
   bool operator()(T &t) {
     if(ft) {
       (*ft)(t);
-      if(clearAfter) clear();
       return true;
     }
     return false;
   }
 
-  void keep(bool keep) {clearAfter = !keep;}
-
-  void clear() {
+  void clear() override {
     if(ft) {
       delete ft;
       ft = nullptr;
@@ -120,12 +134,12 @@ class Resolve
 public:
   struct Callback
   {
-    virtual typename Tmap::value_type getValue(const Tmap &t) const = 0;
+    virtual typename Tmap::value_type getValue(Tmap &t) const = 0;
   };
 
   Callback * callback = nullptr;
 
-  typename Tmap::value_type getValue(const Tmap &t) {
+  typename Tmap::value_type getValue(Tmap &t) {
     if(callback) return callback->getValue(t);
     return Tmap::getNull();
   }
@@ -201,7 +215,7 @@ public:
     Resolve<Tmap>::callback = this;
   }
 
-  typename Tmap::value_type getValue(const Tmap &t) const override {
+  typename Tmap::value_type getValue(Tmap &t) const override {
     return t.value(this->b);
   }
 
@@ -211,7 +225,7 @@ public:
 
 } //namespace: resolver
 
-#define DEF_VALUE_TABLE(Cls, Vtype, Dflt) \
+#define DEF_VALUETABLE(Cls, Vtype, Dflt) \
 struct Cls { \
 using value_type = Vtype; \
 static value_type getNull() {throw std::logic_error("callback not set");} \
@@ -220,13 +234,13 @@ template <typename T> Vtype value(T &t) const {return Dflt;}\
 using Cls##Resolver = resolver::Resolve<Cls>;
 
 
-#define PUT_VALUE_TABLE(Cls, Mtype, Vtype, Val) \
+#define PUT_VALUETABLE(Cls, Mtype, Vtype, Val) \
 template <> inline Vtype Cls::value(Mtype &t) const { \
 static const resolver::Assoc<Mtype, Vtype> sa {Val}; \
 return sa(t); \
 }
 
-#define DEF_STRING_TABLE(Cls, Dflt) \
+#define DEF_STRINGTABLE(Cls, Dflt) \
 struct Cls { \
 using value_type = const char *; \
 static value_type getNull() {throw std::logic_error("callback not set");} \
@@ -235,27 +249,28 @@ template <typename T> const char *value(T &t) const {return Dflt;} \
 using Cls##Resolver = resolver::Resolve<Cls>;
 
 
-#define PUT_STRING_TABLE(Cls, Type, Val) \
+#define PUT_STRINGTABLE(Cls, Type, Val) \
 template <> inline const  char *Cls::value(Type &t) const { \
 static const resolver::Assoc<Type, const char *> sa {#Val}; \
 return sa(t); \
 }
 
-#define DEF_FUNC_TABLE(Cls) \
-struct Cls { \
+#define DEF_FUNCTABLE(Cls) \
+struct Cls : public resolver::Dispatcher { \
 using value_type = bool; \
 static value_type getNull() {return false;} \
-template <typename T> resolver::FuncAssoc<T> &func() const = delete; \
-template <typename T> bool value(T &t) const = delete; \
+template <typename T> resolver::FuncAssoc<T> &func() = delete; \
+template <typename T> bool value(T &t) = delete; \
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
 
-#define PUT_FUNC_TABLE(Cls, Type) \
-template <> inline resolver::FuncAssoc<Type> &Cls::func() const { \
+#define PUT_FUNCTABLE(Cls, Type) \
+template <> inline resolver::FuncAssoc<Type> &Cls::func() { \
 thread_local static resolver::FuncAssoc<Type> f; \
+_clearables.insert(&f); \
 return f; \
 } \
-template <> inline bool Cls::value(Type &t) const {return func<Type>()(t);}
+template <> inline bool Cls::value(Type &t) {return func<Type>()(t);}
 
 #define DEF_RESOLVER_1(Map) \
 template <typename Obj> \
@@ -288,13 +303,13 @@ class SpotLight;
 
 namespace light {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, AmbientLight)
-PUT_FUNC_TABLE(Dispatch, DirectionalLight)
-PUT_FUNC_TABLE(Dispatch, HemisphereLight)
-PUT_FUNC_TABLE(Dispatch, PointLight)
-PUT_FUNC_TABLE(Dispatch, RectAreaLight)
-PUT_FUNC_TABLE(Dispatch, SpotLight)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, AmbientLight)
+PUT_FUNCTABLE(Dispatch, DirectionalLight)
+PUT_FUNCTABLE(Dispatch, HemisphereLight)
+PUT_FUNCTABLE(Dispatch, PointLight)
+PUT_FUNCTABLE(Dispatch, RectAreaLight)
+PUT_FUNCTABLE(Dispatch, SpotLight)
 
 DEF_RESOLVER_1(Dispatch)
 
@@ -306,10 +321,10 @@ class Color;
 
 namespace scene {
 
-DEF_FUNC_TABLE(BackgroundDispatch)
-PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
-PUT_FUNC_TABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
-PUT_FUNC_TABLE(BackgroundDispatch, Color)
+DEF_FUNCTABLE(BackgroundDispatch)
+PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
+PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
+PUT_FUNCTABLE(BackgroundDispatch, Color)
 
 DEF_RESOLVER_1(BackgroundDispatch)
 
@@ -324,13 +339,13 @@ class DepthTexture;
 
 namespace texture {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, Texture)
-PUT_FUNC_TABLE(Dispatch, ImageTexture)
-PUT_FUNC_TABLE(Dispatch, ImageCubeTexture)
-PUT_FUNC_TABLE(Dispatch, DataTexture)
-PUT_FUNC_TABLE(Dispatch, DataCubeTexture)
-PUT_FUNC_TABLE(Dispatch, DepthTexture)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, Texture)
+PUT_FUNCTABLE(Dispatch, ImageTexture)
+PUT_FUNCTABLE(Dispatch, ImageCubeTexture)
+PUT_FUNCTABLE(Dispatch, DataTexture)
+PUT_FUNCTABLE(Dispatch, DataCubeTexture)
+PUT_FUNCTABLE(Dispatch, DepthTexture)
 
 DEF_RESOLVER_1(Dispatch)
 }
@@ -346,15 +361,15 @@ class ImmediateRenderObject;
 
 namespace object {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, Light)
-PUT_FUNC_TABLE(Dispatch, Sprite)
-PUT_FUNC_TABLE(Dispatch, LensFlare)
-PUT_FUNC_TABLE(Dispatch, Mesh)
-PUT_FUNC_TABLE(Dispatch, SkinnedMesh)
-PUT_FUNC_TABLE(Dispatch, Line)
-PUT_FUNC_TABLE(Dispatch, Points)
-PUT_FUNC_TABLE(Dispatch, ImmediateRenderObject)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, Light)
+PUT_FUNCTABLE(Dispatch, Sprite)
+PUT_FUNCTABLE(Dispatch, LensFlare)
+PUT_FUNCTABLE(Dispatch, Mesh)
+PUT_FUNCTABLE(Dispatch, SkinnedMesh)
+PUT_FUNCTABLE(Dispatch, Line)
+PUT_FUNCTABLE(Dispatch, Points)
+PUT_FUNCTABLE(Dispatch, ImmediateRenderObject)
 
 DEF_RESOLVER_1(Dispatch)
 
@@ -364,8 +379,8 @@ class InterleavedBufferAttribute;
 
 namespace bufferattribute {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, InterleavedBufferAttribute)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, InterleavedBufferAttribute)
 
 DEF_RESOLVER_1(Dispatch)
 
@@ -376,9 +391,9 @@ class FogExp2;
 
 namespace fog {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, DefaultFog)
-PUT_FUNC_TABLE(Dispatch, FogExp2)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, DefaultFog)
+PUT_FUNCTABLE(Dispatch, FogExp2)
 
 DEF_RESOLVER_1(Dispatch)
 
@@ -390,9 +405,9 @@ class PerspectiveCamera;
 
 namespace camera {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, ArrayCamera)
-PUT_FUNC_TABLE(Dispatch, PerspectiveCamera)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, ArrayCamera)
+PUT_FUNCTABLE(Dispatch, PerspectiveCamera)
 
 DEF_RESOLVER_1(Dispatch)
 
@@ -418,56 +433,56 @@ class SpriteMaterial;
 
 namespace material {
 
-DEF_FUNC_TABLE(Dispatch)
-PUT_FUNC_TABLE(Dispatch, Material)
-PUT_FUNC_TABLE(Dispatch, ShaderMaterial)
-PUT_FUNC_TABLE(Dispatch, RawShaderMaterial)
-PUT_FUNC_TABLE(Dispatch, LineBasicMaterial)
-PUT_FUNC_TABLE(Dispatch, LineDashedMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshPhongMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshDepthMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshDistanceMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshStandardMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshLambertMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshBasicMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshNormalMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshPhysicalMaterial)
-PUT_FUNC_TABLE(Dispatch, MeshToonMaterial)
-PUT_FUNC_TABLE(Dispatch, PointsMaterial)
-PUT_FUNC_TABLE(Dispatch, SpriteMaterial)
+DEF_FUNCTABLE(Dispatch)
+PUT_FUNCTABLE(Dispatch, Material)
+PUT_FUNCTABLE(Dispatch, ShaderMaterial)
+PUT_FUNCTABLE(Dispatch, RawShaderMaterial)
+PUT_FUNCTABLE(Dispatch, LineBasicMaterial)
+PUT_FUNCTABLE(Dispatch, LineDashedMaterial)
+PUT_FUNCTABLE(Dispatch, MeshPhongMaterial)
+PUT_FUNCTABLE(Dispatch, MeshDepthMaterial)
+PUT_FUNCTABLE(Dispatch, MeshDistanceMaterial)
+PUT_FUNCTABLE(Dispatch, MeshStandardMaterial)
+PUT_FUNCTABLE(Dispatch, MeshLambertMaterial)
+PUT_FUNCTABLE(Dispatch, MeshBasicMaterial)
+PUT_FUNCTABLE(Dispatch, MeshNormalMaterial)
+PUT_FUNCTABLE(Dispatch, MeshPhysicalMaterial)
+PUT_FUNCTABLE(Dispatch, MeshToonMaterial)
+PUT_FUNCTABLE(Dispatch, PointsMaterial)
+PUT_FUNCTABLE(Dispatch, SpriteMaterial)
 
-DEF_VALUE_TABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)
-PUT_VALUE_TABLE(ShaderIDs, MeshDepthMaterial, gl::ShaderID, gl::ShaderID::depth)
-PUT_VALUE_TABLE(ShaderIDs, MeshDistanceMaterial, gl::ShaderID, gl::ShaderID::distanceRGBA)
-PUT_VALUE_TABLE(ShaderIDs, MeshNormalMaterial, gl::ShaderID, gl::ShaderID::normal)
-PUT_VALUE_TABLE(ShaderIDs, MeshBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
-PUT_VALUE_TABLE(ShaderIDs, MeshLambertMaterial, gl::ShaderID, gl::ShaderID::lambert)
-PUT_VALUE_TABLE(ShaderIDs, MeshPhongMaterial, gl::ShaderID, gl::ShaderID::phong)
-PUT_VALUE_TABLE(ShaderIDs, MeshToonMaterial, gl::ShaderID, gl::ShaderID::phong)
-PUT_VALUE_TABLE(ShaderIDs, MeshStandardMaterial, gl::ShaderID, gl::ShaderID::physical)
-PUT_VALUE_TABLE(ShaderIDs, MeshPhysicalMaterial, gl::ShaderID, gl::ShaderID::physical)
-PUT_VALUE_TABLE(ShaderIDs, LineBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
-PUT_VALUE_TABLE(ShaderIDs, LineDashedMaterial, gl::ShaderID, gl::ShaderID::dashed)
-PUT_VALUE_TABLE(ShaderIDs, PointsMaterial, gl::ShaderID, gl::ShaderID::points)
-PUT_VALUE_TABLE(ShaderIDs, ShadowMaterial, gl::ShaderID, gl::ShaderID::shadow)
+DEF_VALUETABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)
+PUT_VALUETABLE(ShaderIDs, MeshDepthMaterial, gl::ShaderID, gl::ShaderID::depth)
+PUT_VALUETABLE(ShaderIDs, MeshDistanceMaterial, gl::ShaderID, gl::ShaderID::distanceRGBA)
+PUT_VALUETABLE(ShaderIDs, MeshNormalMaterial, gl::ShaderID, gl::ShaderID::normal)
+PUT_VALUETABLE(ShaderIDs, MeshBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
+PUT_VALUETABLE(ShaderIDs, MeshLambertMaterial, gl::ShaderID, gl::ShaderID::lambert)
+PUT_VALUETABLE(ShaderIDs, MeshPhongMaterial, gl::ShaderID, gl::ShaderID::phong)
+PUT_VALUETABLE(ShaderIDs, MeshToonMaterial, gl::ShaderID, gl::ShaderID::phong)
+PUT_VALUETABLE(ShaderIDs, MeshStandardMaterial, gl::ShaderID, gl::ShaderID::physical)
+PUT_VALUETABLE(ShaderIDs, MeshPhysicalMaterial, gl::ShaderID, gl::ShaderID::physical)
+PUT_VALUETABLE(ShaderIDs, LineBasicMaterial, gl::ShaderID, gl::ShaderID::basic)
+PUT_VALUETABLE(ShaderIDs, LineDashedMaterial, gl::ShaderID, gl::ShaderID::dashed)
+PUT_VALUETABLE(ShaderIDs, PointsMaterial, gl::ShaderID, gl::ShaderID::points)
+PUT_VALUETABLE(ShaderIDs, ShadowMaterial, gl::ShaderID, gl::ShaderID::shadow)
 
-DEF_STRING_TABLE(ShaderNames, "Material")
-PUT_STRING_TABLE(ShaderNames, MeshDepthMaterial, "")
-PUT_STRING_TABLE(ShaderNames, MeshDistanceMaterial, "MeshDepthMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshNormalMaterial, "MeshNormalMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshBasicMaterial, "MeshBasicMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshLambertMaterial, "MeshLambertMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshPhongMaterial, "MeshPhongMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshToonMaterial, "MeshToonMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshStandardMaterial, "MeshStandardMaterial")
-PUT_STRING_TABLE(ShaderNames, MeshPhysicalMaterial, "MeshPhysicalMaterial")
-PUT_STRING_TABLE(ShaderNames, LineBasicMaterial, "LineBasicMaterial")
-PUT_STRING_TABLE(ShaderNames, LineDashedMaterial, "LineDashedMaterial")
-PUT_STRING_TABLE(ShaderNames, PointsMaterial, "PointsMaterial")
-PUT_STRING_TABLE(ShaderNames, ShaderMaterial, "ShaderMaterial")
-PUT_STRING_TABLE(ShaderNames, RawShaderMaterial, "RawShaderMaterial")
-PUT_STRING_TABLE(ShaderNames, ShadowMaterial, "ShadowMaterial")
-PUT_STRING_TABLE(ShaderNames, SpriteMaterial, "SpriteMaterial")
+DEF_STRINGTABLE(ShaderNames, "Material")
+PUT_STRINGTABLE(ShaderNames, MeshDepthMaterial, "")
+PUT_STRINGTABLE(ShaderNames, MeshDistanceMaterial, "MeshDepthMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshNormalMaterial, "MeshNormalMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshBasicMaterial, "MeshBasicMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshLambertMaterial, "MeshLambertMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshPhongMaterial, "MeshPhongMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshToonMaterial, "MeshToonMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshStandardMaterial, "MeshStandardMaterial")
+PUT_STRINGTABLE(ShaderNames, MeshPhysicalMaterial, "MeshPhysicalMaterial")
+PUT_STRINGTABLE(ShaderNames, LineBasicMaterial, "LineBasicMaterial")
+PUT_STRINGTABLE(ShaderNames, LineDashedMaterial, "LineDashedMaterial")
+PUT_STRINGTABLE(ShaderNames, PointsMaterial, "PointsMaterial")
+PUT_STRINGTABLE(ShaderNames, ShaderMaterial, "ShaderMaterial")
+PUT_STRINGTABLE(ShaderNames, RawShaderMaterial, "RawShaderMaterial")
+PUT_STRINGTABLE(ShaderNames, ShadowMaterial, "ShadowMaterial")
+PUT_STRINGTABLE(ShaderNames, SpriteMaterial, "SpriteMaterial")
 
 DEF_RESOLVER_3(Dispatch, ShaderIDs, ShaderNames)
 

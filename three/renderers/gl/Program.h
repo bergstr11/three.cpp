@@ -116,8 +116,6 @@ public:
   using Ptr = std::shared_ptr<Program>;
 
 private:
-  friend class Programs;
-
   static unsigned programIdCount;
 
   GLuint _program;
@@ -139,6 +137,7 @@ private:
           Shader &shader,
           const ProgramParameters &parameters);
 
+public:
   static Ptr make(Renderer_impl &renderer,
                   Extensions &extensions,
                   const std::string code,
@@ -148,8 +147,6 @@ private:
   {
     return Ptr(new Program(renderer, extensions, code, material, shader, parameters));
   }
-
-public:
 
   ~Program();
 

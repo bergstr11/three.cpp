@@ -10,6 +10,7 @@
 #include "Plane.h"
 #include "Box3.h"
 #include "Sphere.h"
+#include <iostream>
 
 namespace three {
 
@@ -44,52 +45,21 @@ public:
     _planes[4].set(me3 - me2, me7 - me6, me11 - me10, me15 - me14).normalize();
     _planes[5].set(me3 + me2, me7 + me6, me11 + me10, me15 + me14).normalize();
 
+    std::cout << "matrix: " << m.elements()[0] << ":" << m.elements()[1] << ":" << m.elements()[2] << ":" << m.elements()[3] << std::endl;
+    for (const Plane &plane : _planes) {
+      std::cout << "frustum: " << plane.constant() << ":" << plane.normal().x() << ":" << plane.normal().y() << ":" << plane.normal().z() << std::endl;
+    }
+
     return *this;
   }
 
-  bool intersectsObject(std::shared_ptr<Object3D> object);
+  bool intersectsObject(const Object3D &object) const;
 
-  bool intersectsSprite(std::shared_ptr<Sprite> sprite);
+  bool intersectsSprite(const Sprite &sprite) const;
 
-  bool intersectsSphere(const Sphere &sphere)
-  {
-    float negRadius = -sphere.radius();
+  bool intersectsSphere(const Sphere &sphere) const;
 
-    for (const Plane &plane : _planes) {
-
-      float distance = plane.distanceToPoint(sphere.center());
-
-      if (distance < negRadius) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool intersectsBox(const Box3 &box)
-  {
-    for (const Plane &plane : _planes) {
-
-      Vector3 p1(plane.normal().x() > 0 ? box.min().x() : box.max().x(),
-                 plane.normal().y() > 0 ? box.min().y() : box.max().y(),
-                 plane.normal().z() > 0 ? box.min().z() : box.max().z());
-
-      Vector3 p2(plane.normal().x() > 0 ? box.max().x() : box.min().x(),
-                 plane.normal().y() > 0 ? box.max().y() : box.min().y(),
-                 plane.normal().z() > 0 ? box.max().z() : box.min().z());
-
-      float d1 = plane.distanceToPoint(p1);
-      float d2 = plane.distanceToPoint(p2);
-
-      // if both outside plane, no intersection
-      if (d1 < 0 && d2 < 0) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+  bool intersectsBox(const Box3 &box) const;
 
   bool containsPoint(const Vector3 &point)
   {

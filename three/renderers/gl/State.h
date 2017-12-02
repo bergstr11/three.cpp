@@ -54,7 +54,6 @@ public:
         glClearColor(r, g, b, a);
         currentColorClear = color;
       }
-
     }
 
     ColorBuffer &reset()
@@ -241,7 +240,7 @@ public:
 
   std::vector<GLint> compressedTextureFormats;
 
-  GLuint currentProgram;
+  GLuint currentProgram = 0;
 
   Blending currentBlending = Blending::None;
   BlendEq currentBlendEquation = BlendEq::None;
@@ -306,8 +305,8 @@ public:
 
   void init()
   {
-    emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
-    emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
+    //emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
+    //emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
 
     colorBuffer.setClear(0, 0, 0, 1);
     depthBuffer.setClear(1);

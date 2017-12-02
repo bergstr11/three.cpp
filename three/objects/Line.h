@@ -21,9 +21,10 @@ protected:
      : Object3D(object::ResolverT<Line>::make(*this)),
        Object3D_GM(geometry, nullptr, material), _steps(steps) {}
 
+  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 1) {}
+
 public:
   using Ptr = std::shared_ptr<Line>;
-  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 1) {}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 

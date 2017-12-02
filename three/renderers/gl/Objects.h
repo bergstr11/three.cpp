@@ -33,10 +33,11 @@ public:
     BufferGeometry::Ptr buffergeometry = _geometries.get( object, geometry );
 
     // Update once per frame
-    if (_updateList.find(buffergeometry->id) == _updateList.end() || _updateList[ buffergeometry->id] != frame ) {
+    if (_updateList.count(buffergeometry->id) == 0 || _updateList[ buffergeometry->id] != frame ) {
 
-      if (std::dynamic_pointer_cast<BufferGeometry::Ptr>(geometry) == nullptr) {
-        buffergeometry->update( object );
+      StaticGeometry::Ptr staticGeom = std::dynamic_pointer_cast<StaticGeometry>(geometry);
+      if (staticGeom) {
+        buffergeometry->update( object, staticGeom );
       }
       _geometries.update( buffergeometry );
 

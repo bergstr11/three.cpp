@@ -20,7 +20,7 @@
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 #include <geometry/Sphere.h>
-#include <helper/AxisHelper.h>
+#include <helper/AxesHelper.h>
 #include "bak/modelloader.h"
 
 namespace lo {
@@ -31,6 +31,8 @@ using namespace std;
 using namespace three;
 using namespace three::geometry;
 using namespace three::helper;
+
+#define CHECK(o) if(!o->objectResolver || !o->objectResolver->callback || o->name().empty()) throw std::logic_error(#o);
 
 class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
@@ -48,22 +50,25 @@ public:
 
   explicit FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
-       _scene(Scene::make()),
-       _camera(PerspectiveCamera::make(75, item->width() / item->height(), 0.1, 1000)),
+       _scene(SceneT<Color>::make("scene", Color(0.5f, 0.5f, 0.7f))),
+       _camera(PerspectiveCamera::make(45, item->width() / item->height(), 0.1, 1000)),
        _renderer(OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
-    _renderer->setClearColor(Color(0xEEEEEE), 1.0f);
+    //_renderer->setClearColor(Color(0.5f, 0.5f, 0.7f), 1.0f);
     _renderer->setSize(item->width(), item->height());
-    AxisHelper::Ptr axes = AxisHelper::make(20);
+    AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
+    axes->frustumCulled = false;
+
     _scene->add(axes);
 
     Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
     planeMaterial->color = Color(0xcccccc);
 
-    Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make(planeGeometry, planeMaterial);
+    Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make("plane", planeGeometry, planeMaterial);
     plane->rotation().x() = -0.5f * (float) M_PI;
     plane->position().set(15, 0, 0);
+    plane->frustumCulled = false;
 
     _scene->add(plane);
 
@@ -72,7 +77,7 @@ public:
     cubeMaterial->color = Color(0xff0000);
     cubeMaterial->wireframe = true;
 
-    Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make(cubeGeometry, cubeMaterial);
+    Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make("cube", cubeGeometry, cubeMaterial);
     cube->position().set(-4, 3, 0);
 
     _scene->add(cube);
@@ -81,10 +86,20 @@ public:
     MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();
     sphereMaterial->color = Color(0x7777ff);
     sphereMaterial->wireframe = true;
-    Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make(sphereGeometry, sphereMaterial);
+    Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make("sphere", sphereGeometry, sphereMaterial);
     sphere->position().set(20, 4, 2);
 
     _scene->add(sphere);
+
+    CHECK(axes)
+    CHECK(plane)
+    CHECK(cube)
+    CHECK(sphere)
+
+    CHECK(_scene->children()[0])
+    CHECK(_scene->children()[1])
+    CHECK(_scene->children()[2])
+    CHECK(_scene->children()[3])
 
     _camera->position().set(-30, 40, 30);
     _camera->lookAt(_scene->position());
@@ -122,7 +137,8 @@ public:
   {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    format.setSamples(12);
+    format.setMipmap(false);
+    format.setInternalTextureFormat(GL_RGBA);
     _framebufferObject = new QOpenGLFramebufferObject(size, format);
 
     _target = OpenGLRenderer::makeExternalTarget(_framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());

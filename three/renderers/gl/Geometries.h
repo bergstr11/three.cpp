@@ -155,7 +155,7 @@ public:
       }
     }
 
-    attribute = BufferAttributeT<uint32_t>::make(indices, 1);
+    attribute = BufferAttributeT<uint32_t>::make(indices, 1, false);
 
     _attributes.update(*attribute, BufferType::ElementArray);
 

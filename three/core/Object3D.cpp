@@ -17,7 +17,7 @@ Object3D::Object3D(object::Resolver::Ptr resolver)
 
 void Object3D::applyMatrix(const Matrix4 &matrix)
 {
-  _matrix *= matrix;
+  _matrix.multiply(matrix, _matrix);
   math::decompose(_matrix, _position, _quaternion, _scale );
 }
 
@@ -99,7 +99,7 @@ void Object3D::updateMatrixWorld(bool force)
   if (_matrixWorldNeedsUpdate || force ) {
 
     if (_parent) {
-      _matrixWorld = _parent->_matrixWorld * _matrix;
+      _matrixWorld.multiply(_parent->_matrixWorld, _matrix);
     } else {
       _matrixWorld = _matrix;
     }

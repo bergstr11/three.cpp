@@ -218,7 +218,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<BufferAttributeT<Type>>;
 
-  static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized=false)
+  static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized)
   {
     return std::shared_ptr<BufferAttributeT<Type>>(new BufferAttributeT<Type>(array, itemSize, normalized));
   }

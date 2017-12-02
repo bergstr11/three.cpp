@@ -218,15 +218,6 @@ public:
   Renderer_impl &setSize(size_t width, size_t height) override;
 
   Renderer_impl &setViewport(size_t x, size_t y, size_t width, size_t height);
-
-  void check_gl_error() {
-    GLenum err = glGetError();
-    if(err != GL_NO_ERROR) {
-      char buf[50];
-      snprintf(buf, 50, "GL error code: 0x%x", err);
-      throw std::logic_error(std::string(buf));
-    }
-  }
 };
 
 }

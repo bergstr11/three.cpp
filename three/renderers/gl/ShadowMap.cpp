@@ -154,7 +154,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       }
 
       // update camera matrices and frustum
-      _projScreenMatrix = shadowCamera->projectionMatrix() * shadowCamera->matrixWorldInverse();
+      _projScreenMatrix.multiply(shadowCamera->projectionMatrix(), shadowCamera->matrixWorldInverse());
       _frustum.set(_projScreenMatrix);
 
       // set object matrices & frustum culling
@@ -271,9 +271,9 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
 
   if ( visible && object->renderable()) {
 
-    if ( object->castShadow && ( ! object->frustumCulled || _frustum.intersectsObject( object ) ) ) {
+    if ( object->castShadow && ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) ) {
 
-      object->modelViewMatrix = shadowCamera->matrixWorldInverse() * object->matrixWorld();
+      object->modelViewMatrix.multiply(shadowCamera->matrixWorldInverse(), object->matrixWorld());
 
       BufferGeometry::Ptr geometry = _objects.update( object );
       if ( object->materialCount() > 1 ) {

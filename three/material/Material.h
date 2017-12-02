@@ -119,7 +119,7 @@ struct Material
   bool colorWrite = true;
 
   bool wireframe = false;
-  unsigned wireframeLineWidth;
+  unsigned wireframeLineWidth = 1;
   LineCap wireframeLineCap = LineCap::round;
   LineJoin wireframeLineJoin = LineJoin::round;
 

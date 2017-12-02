@@ -137,7 +137,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
 {
   GLint numActive;
   _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
-  _renderer.check_gl_error();
+  check_gl_error(&_renderer);
 
   attributes.erase(AttributeName::unknown);
 
@@ -145,7 +145,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
   for (unsigned i = 0; i < numActive; i++) {
 
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
-    _renderer.check_gl_error();
+    check_gl_error(&_renderer);
 
     AttributeName attName;
     GLint mnIndex = -1;

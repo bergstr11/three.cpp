@@ -273,7 +273,7 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
   for (const Sprite::Ptr sprite : sprites) {
 
-    sprite->modelViewMatrix = camera->matrixWorldInverse() * sprite->matrixWorld();
+    sprite->modelViewMatrix.multiply(camera->matrixWorldInverse(), sprite->matrixWorld());
     //sprite->z() = - sprite.modelViewMatrix.elements[ 14 ];
   }
 

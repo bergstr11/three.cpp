@@ -7,6 +7,7 @@
 #include <math/Math.h>
 #include <textures/DataTexture.h>
 #include <sstream>
+#include <iostream>
 #include <core/InterleavedBufferAttribute.h>
 #include <objects/Line.h>
 #include <objects/Points.h>
@@ -112,6 +113,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if (_isContextLost) return;
+cout << "doRender" << endl;
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -126,7 +128,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   // update camera matrices and frustum
   if (!camera->parent()) camera->updateMatrixWorld(false);
 
-  _projScreenMatrix = camera->projectionMatrix() * camera->matrixWorldInverse();
+  _projScreenMatrix.multiply(camera->projectionMatrix(), camera->matrixWorldInverse());
   _frustum.set(_projScreenMatrix);
 
   _lightsArray.clear();
@@ -188,6 +190,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _state.depthBuffer.setMask(true);
   _state.colorBuffer.setMask(true);
 
+  target->rendered(this);
   glFinish();
 }
 
@@ -270,7 +273,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
   while(renderIterator) {
 
     const RenderItem &renderItem = *renderIterator;
-
+cout << "renderItem: " << renderItem.object->name() << endl;
     Material::Ptr material = overrideMaterial ? overrideMaterial : renderItem.material;
 
     camera::Dispatch dispatch;
@@ -298,7 +301,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
     };
     if(!camera->cameraResolver->getValue(dispatch)) {
       _currentArrayCamera = nullptr;
-
+cout << "calling renderObject for " << renderItem.object->name() << endl;
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     }
     renderIterator++;
@@ -310,7 +313,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
 {
   object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
 
-  object->modelViewMatrix = camera->matrixWorldInverse() * object->matrixWorld();
+  object->modelViewMatrix.multiply(camera->matrixWorldInverse(), object->matrixWorld());
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
   object::Dispatch dispatch;
@@ -324,6 +327,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
     renderObjectImmediate( iro, program, material );
   };
   if(!object->objectResolver->getValue(dispatch)) {
+    cout << "renderBufferDirect " <<  object->name() << endl;
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   }
 
@@ -349,7 +353,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
     };
     dispatch.func<Sprite>() = [&](Sprite &sprite) {
       Sprite::Ptr sp = dynamic_pointer_cast<Sprite>(object);
-      if ( ! sprite.frustumCulled || _frustum.intersectsSprite(sp) ) {
+      if ( ! sprite.frustumCulled || _frustum.intersectsSprite(*sp) ) {
         _spritesArray.push_back( sp );
       }
     };
@@ -364,9 +368,10 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
       }
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
     };
-    resolver::FuncAssoc<Object3D> assoc = [&](Object3D &mesh) {
+    resolver::FuncAssoc<Object3D> assoc = [&](Object3D &obj) {
+cout << "rendering mesh or line " << object->name() << endl;
 
-      if ( ! object->frustumCulled || _frustum.intersectsObject( object ) ) {
+      if ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) {
 
         if ( sortObjects ) {
           _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
@@ -389,6 +394,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
           }
         } else {
           Material::Ptr material = object->material();
+          cout << "push_back ? " << material->visible << endl;
           if ( material->visible )
             _currentRenderList->push_back( object, geometry, material, _vector3.z(), nullptr);
         }
@@ -771,7 +777,7 @@ void Renderer_impl::releaseMaterialProgramReference(Material &material)
 
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
-  static const material::ShaderNames shaderNames;
+  static material::ShaderNames shaderNames;
 
   MaterialProperties &materialProperties = _properties.get( *material );
 
@@ -1213,6 +1219,11 @@ void Renderer_impl::setTexture2D(Texture::Ptr texture, GLuint slot)
 void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
 {
   _textures.setTextureCube( texture, slot );
+}
+
+void RenderTargetExternal::rendered(Renderer_impl *renderer)
+{
+  renderer->state().reset();
 }
 
 }

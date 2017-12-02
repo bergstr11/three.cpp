@@ -31,6 +31,8 @@ public:
   bool depthBuffer() const {return _depthBuffer;}
   bool stencilBuffer() const {return _stencilBuffer;}
 
+  virtual void rendered(Renderer_impl *renderer) {}
+
   virtual void dispose() = 0;
 };
 
@@ -71,6 +73,7 @@ public:
 
   Texture::Ptr texture() const override {return _texture;}
   GLuint textureHandle() const {return _texture->handle;}
+  void rendered(Renderer_impl *renderer) override;
 
   void dispose() override
   {

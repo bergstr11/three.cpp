@@ -22,6 +22,7 @@
 #include <Constants.h>
 #include "shader/ShaderLib.h"
 #include "shader/UniformsLib.h"
+#include "Helpers.h"
 
 namespace three {
 namespace gl {
@@ -54,23 +55,23 @@ public:
   void setValue(GLint v) { _fn->glUniform1i( _addr, v ); }
 
   void setValue(const math::Vector2 &v) {
-    _fn->glUniform2fv(_addr, 2, v.elements());
+    _fn->glUniform2fv(_addr, 1, v.elements());
   }
 
   void setValue(const math::Vector3 &v) {
-    _fn->glUniform3fv(_addr, 3, v.elements());
+    _fn->glUniform3fv(_addr, 1, v.elements());
   }
 
   void setValue(const math::Vector4 &v) {
-    _fn->glUniform4fv(_addr, 4, v.elements());
+    _fn->glUniform4fv(_addr, 1, v.elements());
   }
 
   void setValue(const math::Matrix3 &v) {
-    _fn->glUniformMatrix3fv( _addr, 9, GL_FALSE, v.elements());
+    _fn->glUniformMatrix3fv( _addr, 1, GL_FALSE, v.elements());
   }
 
   void setValue(const math::Matrix4 &v) {
-    _fn->glUniformMatrix4fv( _addr, 16, GL_FALSE, v.elements());
+    _fn->glUniformMatrix4fv( _addr, 1, GL_FALSE, v.elements());
   }
 
   void setValue(const Texture::Ptr &texture, Renderer_impl &renderer );
@@ -246,6 +247,7 @@ public:
   void set(UniformName name, T value) {
     if(_map.count(name) > 0) {
       _map[name]->setValue(value);
+      check_gl_error(_fn);
     }
   }
 

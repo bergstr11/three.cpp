@@ -12,14 +12,14 @@ Window {
 
     visible: true
 
-    Text {
+    /*Text {
         anchors.centerIn: parent
         font.pointSize: 50
         text: "Hello World"
         visible: false
         color: "white"
         z: 2
-    }
+    }*/
     ThreeDItem {
         anchors.fill: parent
         focus: true

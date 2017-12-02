@@ -33,7 +33,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                                size_t nClipIntersection,
                                                Object3D::Ptr object)
 {
-  static const material::ShaderIDs shaderIds;
+  static material::ShaderIDs shaderIds;
 
   ProgramParameters::Ptr parameters = ProgramParameters::make();
   parameters->shaderID = material->resolver->material::ShaderIDsResolver::getValue(shaderIds);

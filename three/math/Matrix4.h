@@ -477,9 +477,7 @@ public:
 
 inline Matrix4 operator *(const Matrix4 &m1, const Matrix4 &m2)
 {
-  Matrix4 result(m1);
-  result *= m2;
-  return result;
+  return Matrix4().multiply(m1, m2);
 }
 
 }
