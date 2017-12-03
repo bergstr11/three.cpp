@@ -48,7 +48,7 @@ class RenderList
     }
     else if (a.program != nullptr && b.program != nullptr && a.program != b.program) {
 
-      return a.program->id() - b.program->id();
+      return a.program->handle() - b.program->handle();
     }
     else if (a.material->id != b.material->id) {
       return a.material->id - b.material->id;

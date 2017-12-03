@@ -68,8 +68,6 @@ public:
                                        size_t nClipIntersection,
                                        Object3D::Ptr object);
 
-  std::string getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters);
-
   Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters, std::string code )
   {
     Program::Ptr program;

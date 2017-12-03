@@ -189,7 +189,7 @@ enum class DrawMode
   TriangleFan = GL_TRIANGLE_FAN
 };
 
-enum class CombineOperation
+enum class CombineOperation : GLenum
 {
   Unknown = 0,
   Multiply = 1,
@@ -217,7 +217,7 @@ enum class CullFace
 
 enum class FrontFaceDirection
 {
-  CW = GL_CW, CCW = GL_CCW
+  CW = GL_CW, CCW = GL_CCW, Undefined
 };
 
 enum class TextureTarget : GLenum
@@ -256,7 +256,7 @@ enum class ShaderType {
   Fragment=GL_FRAGMENT_SHADER
 };
 
-enum class Precision
+enum class Precision : int
 {
   lowp, mediump, highp, unknown
 };

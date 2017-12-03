@@ -32,8 +32,6 @@ using namespace three;
 using namespace three::geometry;
 using namespace three::helper;
 
-#define CHECK(o) if(!o->objectResolver || !o->objectResolver->callback || o->name().empty()) throw std::logic_error(#o);
-
 class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
   QColor m_background;
@@ -91,22 +89,11 @@ public:
 
     _scene->add(sphere);
 
-    CHECK(axes)
-    CHECK(plane)
-    CHECK(cube)
-    CHECK(sphere)
-
-    CHECK(_scene->children()[0])
-    CHECK(_scene->children()[1])
-    CHECK(_scene->children()[2])
-    CHECK(_scene->children()[3])
-
     _camera->position().set(-30, 40, 30);
     _camera->lookAt(_scene->position());
   }
 
-  ~FramebufferObjectRenderer() override {
-  }
+  ~FramebufferObjectRenderer() override = default;
 
 /*
   double viewportWidth() override {
@@ -135,12 +122,13 @@ public:
 
   QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override
   {
-    QOpenGLFramebufferObjectFormat format;
+    /*QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setMipmap(false);
     format.setInternalTextureFormat(GL_RGBA);
-    _framebufferObject = new QOpenGLFramebufferObject(size, format);
+    _framebufferObject = new QOpenGLFramebufferObject(size, format);*/
 
+    _framebufferObject = QQuickFramebufferObject::Renderer::createFramebufferObject(size);
     _target = OpenGLRenderer::makeExternalTarget(_framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
 
     return _framebufferObject;

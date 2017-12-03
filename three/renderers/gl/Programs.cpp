@@ -60,21 +60,21 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   const Renderer::Target::Ptr currentRenderTarget = _renderer.getRenderTarget();
 
   parameters->outputEncoding = getTextureEncoding(currentRenderTarget ? currentRenderTarget->texture() : nullptr);
-  parameters->map = (bool)material->map;
+  parameters->map = material->map;
   parameters->mapEncoding = getTextureEncoding(material->map);
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;
   dispatch.func<MeshBasicMaterial>() = [parameters] (MeshBasicMaterial &mat) {
-    parameters->aoMap = (bool)mat.aoMap;
+    parameters->aoMap = mat.aoMap;
     parameters->envMap = mat.envMap;
-    parameters->specularMap = (bool)mat.specularMap;
+    parameters->specularMap = mat.specularMap;
     parameters->combine = mat.combine;
   };
   dispatch.func<MeshDistanceMaterial>() = [parameters] (MeshDistanceMaterial &mat) {
   };
   dispatch.func<MeshDepthMaterial>() = [parameters] (MeshDepthMaterial &mat) {
-    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->alphaMap = mat.alphaMap;
     parameters->depthPacking = mat.depthPacking;
   };
   dispatch.func<ShaderMaterial>() = [parameters] (ShaderMaterial &mat) {
@@ -87,7 +87,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     if(mat.use_shaderTextureLOD)
       parameters->extensions.add(Extension::EXT_shader_texture_lod);
 
-    parameters->defines.insert(mat.defines.begin(), mat.defines.end());
+    parameters->defines = mat.defines;
     parameters->shaderMaterial = &mat;
     parameters->index0AttributeName = mat.index0AttributeName;
   };
@@ -99,54 +99,54 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
   };*/
   dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
-    parameters->aoMap = (bool)mat.aoMap;
-    parameters->bumpMap = (bool)mat.bumpMap;
-    parameters->normalMap = (bool)mat.normalMap;
-    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->aoMap = mat.aoMap;
+    parameters->bumpMap = mat.bumpMap;
+    parameters->normalMap = mat.normalMap;
+    parameters->alphaMap = mat.alphaMap;
     parameters->envMap = mat.envMap;
     parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat.envMap &&
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = (bool)mat.lightMap;
-    parameters->emissiveMap = (bool)mat.emissiveMap;
+    parameters->lightMap = mat.lightMap;
+    parameters->emissiveMap = mat.emissiveMap;
     parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
-    parameters->displacementMap = (bool)mat.displacementMap;
+    parameters->displacementMap = mat.displacementMap;
   };
   dispatch.func<MeshToonMaterial>() = [&parameters] (MeshToonMaterial &mat) {
-    parameters->gradientMap = (bool)mat.gradientMap;
+    parameters->gradientMap = mat.gradientMap;
   };
   dispatch.func<MeshStandardMaterial>() = [&parameters] (MeshStandardMaterial &mat) {
-    parameters->aoMap = (bool)mat.aoMap;
-    parameters->bumpMap = (bool)mat.bumpMap;
-    parameters->normalMap = (bool)mat.normalMap;
-    parameters->roughnessMap = (bool)mat.roughnessMap;
-    parameters->metalnessMap = (bool)mat.metalnessMap;
-    parameters->alphaMap = (bool)mat.alphaMap;
-    parameters->defines.insert(mat.defines.begin(), mat.defines.end());
+    parameters->aoMap = mat.aoMap;
+    parameters->bumpMap = mat.bumpMap;
+    parameters->normalMap = mat.normalMap;
+    parameters->roughnessMap = mat.roughnessMap;
+    parameters->metalnessMap = mat.metalnessMap;
+    parameters->alphaMap = mat.alphaMap;
+    parameters->defines = mat.defines;
     parameters->envMap = mat.envMap;
     parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat.envMap &&
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = (bool)mat.lightMap;
+    parameters->lightMap = mat.lightMap;
   };
   dispatch.func<MeshNormalMaterial>() = [&parameters] (MeshNormalMaterial &mat) {
-    parameters->bumpMap = (bool)mat.bumpMap;
-    parameters->normalMap = (bool)mat.normalMap;
+    parameters->bumpMap = mat.bumpMap;
+    parameters->normalMap = mat.normalMap;
   };
   dispatch.func<MeshLambertMaterial>() = [&parameters] (MeshLambertMaterial &mat) {
-    parameters->aoMap = (bool)mat.aoMap;
-    parameters->alphaMap = (bool)mat.alphaMap;
+    parameters->aoMap = mat.aoMap;
+    parameters->alphaMap = mat.alphaMap;
     parameters->envMap = mat.envMap;
     parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat.envMap &&
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = (bool)mat.lightMap;
+    parameters->lightMap = mat.lightMap;
   };
   material->resolver->material::DispatchResolver::getValue(dispatch);
 
@@ -190,85 +190,6 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->flipSided = material->side == Side::Back;
 
   return parameters;
-}
-
-string Programs::getProgramCode(Material::Ptr material, ProgramParameters::Ptr parameters)
-{
-  using namespace numeric_out;
-
-  ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
-
-  stringstream ss;
-  if (parameters->shaderID != ShaderID::undefined) {
-    ss << (int)parameters->shaderID;
-  }
-  else if(shaderMat) {
-    ss << shaderMat->fragmentShader << shaderMat->vertexShader << ',';
-  }
-
-  if (shaderMat ) {
-    for (auto define : shaderMat->defines ) {
-      ss << define.first << define.second;
-    }
-  }
-
-  ss << " | " <<parameters->precision
-     << " | " <<parameters->supportsVertexTextures
-     << " | " <<parameters->map
-     << " | " <<parameters->mapEncoding
-     << " | " <<parameters->envMap
-     << " | " <<parameters->envMapMode
-     << " | " <<parameters->envMapEncoding
-     << " | " <<parameters->lightMap
-     << " | " <<parameters->aoMap
-     << " | " <<parameters->emissiveMap
-     << " | " <<parameters->emissiveMapEncoding
-     << " | " <<parameters->bumpMap
-     << " | " <<parameters->normalMap
-     << " | " <<parameters->displacementMap
-     << " | " <<parameters->specularMap
-     << " | " <<parameters->roughnessMap
-     << " | " <<parameters->metalnessMap
-     << " | " <<parameters->gradientMap
-     << " | " <<parameters->alphaMap
-     << " | " <<parameters->combine
-     << " | " <<parameters->vertexColors
-     << " | " <<parameters->fog
-     << " | " <<parameters->useFog
-     << " | " <<parameters->fogExp
-     << " | " <<parameters->flatShading
-     << " | " <<parameters->sizeAttenuation
-     << " | " <<parameters->logarithmicDepthBuffer
-     << " | " <<parameters->skinning
-     << " | " <<parameters->maxBones
-     << " | " <<parameters->useVertexTexture
-     << " | " <<parameters->morphTargets
-     << " | " <<parameters->morphNormals
-     << " | " <<parameters->maxMorphTargets
-     << " | " <<parameters->maxMorphNormals
-     << " | " <<parameters->premultipliedAlpha
-     << " | " <<parameters->numDirLights
-     << " | " <<parameters->numPointLights
-     << " | " <<parameters->numSpotLights
-     << " | " <<parameters->numHemiLights
-     << " | " <<parameters->numRectAreaLights
-     << " | " <<parameters->shadowMapEnabled
-     << " | " <<parameters->shadowMapType
-     << " | " <<parameters->toneMapping
-     << " | " <<parameters->physicallyCorrectLights
-     << " | " <<parameters->alphaTest
-     << " | " <<parameters->doubleSided
-     << " | " <<parameters->flipSided
-     << " | " <<parameters->numClippingPlanes
-     << " | " <<parameters->numClipIntersection
-     << " | " <<parameters->depthPacking
-     << " | " <<parameters->dithering;
-
-  //ss << material.onBeforeCompile.toString();
-
-  //ss << _renderer.gammaOutput;
-
-  return ss.str();
 }
 
 }

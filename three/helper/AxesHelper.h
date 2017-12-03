@@ -12,7 +12,7 @@
 namespace three {
 namespace helper {
 
-class AxesHelper : public Line {
+class AxesHelper : public LineSegments {
 
   static BufferGeometry::Ptr createGeometry(float size)
   {
@@ -35,8 +35,8 @@ class AxesHelper : public Line {
   }
 
   AxesHelper(size_t size)
-     : Object3D(object::ResolverT<Line>::make(*this)),
-       Line(createGeometry(size), LineBasicMaterial::make(size)) {}
+     : Object3D(object::ResolverT<LineSegments>::make(*this)),
+       LineSegments(createGeometry(size), LineBasicMaterial::make(Colors::Vertex)) {}
 
 public:
   using Ptr = std::shared_ptr<AxesHelper>;

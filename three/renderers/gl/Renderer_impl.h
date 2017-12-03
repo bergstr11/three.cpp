@@ -29,6 +29,8 @@
 #include "Programs.h"
 #include "Background.h"
 
+#include <QOpenGLShaderProgram>
+
 namespace three {
 namespace gl {
 
@@ -36,6 +38,10 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
   friend class Programs;
   friend class Program;
+
+  QOpenGLShaderProgram testProgram;
+  GLuint testVao;
+  GLuint testVbo;
 
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -155,6 +161,7 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
+  bool doRender2();
   void doRender(const Scene::Ptr &scene,
                 const Camera::Ptr &camera,
                 const Renderer::Target::Ptr &renderTarget,

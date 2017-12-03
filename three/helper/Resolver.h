@@ -251,7 +251,7 @@ using Cls##Resolver = resolver::Resolve<Cls>;
 
 #define PUT_STRINGTABLE(Cls, Type, Val) \
 template <> inline const  char *Cls::value(Type &t) const { \
-static const resolver::Assoc<Type, const char *> sa {#Val}; \
+static const resolver::Assoc<Type, const char *> sa {Val}; \
 return sa(t); \
 }
 
@@ -356,6 +356,7 @@ class LensFlare;
 class Mesh;
 class SkinnedMesh;
 class Line;
+class LineSegments;
 class Points;
 class ImmediateRenderObject;
 
@@ -368,6 +369,7 @@ PUT_FUNCTABLE(Dispatch, LensFlare)
 PUT_FUNCTABLE(Dispatch, Mesh)
 PUT_FUNCTABLE(Dispatch, SkinnedMesh)
 PUT_FUNCTABLE(Dispatch, Line)
+PUT_FUNCTABLE(Dispatch, LineSegments)
 PUT_FUNCTABLE(Dispatch, Points)
 PUT_FUNCTABLE(Dispatch, ImmediateRenderObject)
 

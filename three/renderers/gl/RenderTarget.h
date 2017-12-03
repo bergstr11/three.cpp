@@ -31,13 +31,12 @@ public:
   bool depthBuffer() const {return _depthBuffer;}
   bool stencilBuffer() const {return _stencilBuffer;}
 
-  virtual void rendered(Renderer_impl *renderer) {}
-
   virtual void dispose() = 0;
 };
 
 class RenderTargetExternal : public RenderTarget
 {
+  friend class Textures;
   friend class Renderer_impl;
 
   class ExternalTexture : public Texture
@@ -45,12 +44,14 @@ class RenderTargetExternal : public RenderTarget
   public:
     using Ptr = std::shared_ptr<ExternalTexture>;
     const GLuint handle;
+    const GLsizei width, height;
 
-    ExternalTexture(GLuint handle)
-       : Texture(texture::Resolver::makeNull(), Texture::options(), false, false), handle(handle)
+    ExternalTexture(GLuint handle, GLsizei width, GLsizei height)
+       : Texture(texture::Resolver::makeNull(), Texture::options(), false, false),
+         handle(handle), width(width), height(height)
     {}
 
-    bool isPowerOfTwo() override {return true;}
+    bool isPowerOfTwo() override {return math::isPowerOfTwo(width) && math::isPowerOfTwo(height);}
   };
 
   const GLuint frameBuffer;
@@ -59,7 +60,7 @@ class RenderTargetExternal : public RenderTarget
 protected:
   RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
      : RenderTarget(TextureTarget::twoD, width, height, depthBuffer, stencilBuffer),
-       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture))
+       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture, width, height))
   {
   }
 
@@ -71,9 +72,10 @@ public:
     return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, depthBuffer, stencilBuffer));
   }
 
-  Texture::Ptr texture() const override {return _texture;}
+  Texture::Ptr texture() const override {
+    return _texture;
+  }
   GLuint textureHandle() const {return _texture->handle;}
-  void rendered(Renderer_impl *renderer) override;
 
   void dispose() override
   {

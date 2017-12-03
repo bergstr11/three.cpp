@@ -57,6 +57,29 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _flareRenderer(this, _state, _textures, _capabilities)
 {
   initContext();
+
+  testProgram.addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, "#version 150 core\n"
+     "    in vec2 position;\n"
+     "    in vec3 color;\n"
+     "    out vec3 Color;\n"
+     "    void main()\n"
+     "    {\n"
+     "        Color = color;\n"
+     "        gl_Position = vec4(position, 0.0, 1.0);\n"
+     "    }");
+  testProgram.addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, "#version 150 core\n"
+     "    in vec3 Color;\n"
+     "    out vec4 outColor;\n"
+     "    void main()\n"
+     "    {\n"
+     "        outColor = vec4(Color, 1.0);\n"
+     "    }");
+
+  // Create Vertex Array Object
+  glGenVertexArrays(1, &testVao);
+
+  // Create a Vertex Buffer Object and copy the vertex data to it
+  glGenBuffers(1, &testVbo);
 }
 
 void Renderer_impl::initContext()
@@ -75,7 +98,6 @@ void Renderer_impl::initContext()
 
   _capabilities.init();
 
-  _state.init();
   _currentScissor = _scissor * _pixelRatio;
   _currentViewport = _viewport * _pixelRatio;
   _state.scissor(_currentScissor);
@@ -109,11 +131,66 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
   _state.viewport( _currentViewport );
 }
 
+bool Renderer_impl::doRender2()
+{
+  glBindVertexArray(testVao);
+  glBindBuffer(GL_ARRAY_BUFFER, testVbo);
+
+  GLfloat vertices[] = {
+     0.0f,  0.5f, 1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+     -0.5f, -0.5f, 0.0f, 0.0f, 1.0f
+  };
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  testProgram.bind();
+
+  // Specify the layout of the vertex data
+  GLint posAttrib = testProgram.attributeLocation("position");
+  testProgram.enableAttributeArray(posAttrib);
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+
+  GLint colAttrib = testProgram.attributeLocation("color");
+  testProgram.enableAttributeArray(colAttrib);
+  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+
+  glClearColor(0.1f, 0.3f, 0.0f, 0.8f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  //glFrontFace(GL_CW);
+  //glCullFace(GL_BACK);
+  //glEnable(GL_CULL_FACE);
+  //glEnable(GL_DEPTH_TEST);
+
+  // Draw a triangle from the 3 vertices
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  //glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_CULL_FACE);
+
+  testProgram.disableAttributeArray(posAttrib);
+  testProgram.disableAttributeArray(colAttrib);
+
+  testProgram.release();
+
+  return true;
+}
+
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if (_isContextLost) return;
 cout << "doRender" << endl;
+
+  _state.init();
+
+#if 0
+  if(doRender2()) {
+    state().reset();
+    glFinish();
+    return;
+  }
+#endif
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -190,7 +267,8 @@ cout << "doRender" << endl;
   _state.depthBuffer.setMask(true);
   _state.colorBuffer.setMask(true);
 
-  target->rendered(this);
+  state().reset();
+
   glFinish();
 }
 
@@ -235,8 +313,9 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
       framebuffer = renderTargetExternal->frameBuffer;
       _currentFramebuffer = framebuffer;
 
-      auto &textureProperties = _properties.get( renderTargetExternal->texture() );
-      textureProperties.texture = renderTargetExternal->textureHandle();
+      _textures.setupRenderTarget(*renderTargetExternal);
+      //auto &textureProperties = _properties.get( renderTargetExternal->texture() );
+      //textureProperties.texture = renderTargetExternal->textureHandle();
     }
 
     _currentViewport = renderTarget->viewport();
@@ -406,6 +485,7 @@ cout << "rendering mesh or line " << object->name() << endl;
     };
     dispatch.func<Mesh>() = assoc;
     dispatch.func<Line>() = assoc;
+    dispatch.func<LineSegments>() = assoc;
     dispatch.func<Points>() = assoc;
 
     object->objectResolver->getValue(dispatch);
@@ -528,7 +608,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   Program::Ptr program = setProgram( camera, fog, material, object );
   
   stringstream ss;
-  ss << geometry->id << '_' << program->id() << '_' << material->wireframe;
+  ss << geometry->id << '_' << program->handle() << '_' << material->wireframe;
   string geometryProgram = ss.str();
 
   bool updateBuffers = false;
@@ -624,15 +704,17 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     renderer->setMode(DrawMode::LineStrip);
 
     //TODO implement classes
-    /*if ( line.isLineSegments ) {
-
-      renderer.setMode( _gl.LINES );
-
-    } else if ( object.isLineLoop ) {
+    /*if ( object.isLineLoop ) {
 
       renderer.setMode( _gl.LINE_LOOP );
 
     }*/
+  };
+  dispatch.func<LineSegments>() = [&] (LineSegments &line) {
+
+    _state.setLineWidth( line.material<0>()->linewidth * getTargetPixelRatio() );
+
+    renderer->setMode(DrawMode::Lines);
   };
   dispatch.func<Points>() = [&](Points &points) {
 
@@ -646,6 +728,20 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       renderer->renderInstances( ibg, drawStart, drawCount );
     }
   } else {
+
+    glValidateProgram(program->handle());
+    GLint status;
+    glGetProgramiv(program->handle(), GL_VALIDATE_STATUS, &status);
+    if(status != GL_TRUE) {
+      char buf[500];
+      int len;
+      glGetProgramInfoLog(program->handle(), 500, &len, buf);
+      cout << buf << endl;
+    }
+    else {
+      cout << "VALIDATE OK" << endl;
+    }
+
     renderer->render( drawStart, drawCount );
   }
 }
@@ -784,7 +880,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
-  string code = _programs.getProgramCode( material, parameters );
+  string code = parameters->getProgramCode();
 
   auto program = materialProperties.program;
   bool programChange = true;
@@ -812,9 +908,9 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
   if(programChange) {
 
     const char *name = material->resolver->material::ShaderNamesResolver::getValue(shaderNames);
-    if(parameters->shaderID != ShaderID::undefined) {
+    if(*parameters->shaderID != ShaderID::undefined) {
 
-      materialProperties.shader = Shader(name, shaderlib::get(parameters->shaderID));
+      materialProperties.shader = Shader(name, shaderlib::get(*parameters->shaderID));
     }
     else if(parameters->shaderMaterial) {
       ShaderMaterial *sm = parameters->shaderMaterial;
@@ -982,7 +1078,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   Uniforms::Ptr p_uniforms = program->getUniforms();
   UniformValues &m_uniforms = materialProperties.shader.uniforms();
 
-  if (_state.useProgram(program->id()) ) {
+  if (_state.useProgram(program->handle()) ) {
 
     refreshProgram = true;
     refreshMaterial = true;
@@ -1219,11 +1315,6 @@ void Renderer_impl::setTexture2D(Texture::Ptr texture, GLuint slot)
 void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
 {
   _textures.setTextureCube( texture, slot );
-}
-
-void RenderTargetExternal::rendered(Renderer_impl *renderer)
-{
-  renderer->state().reset();
 }
 
 }

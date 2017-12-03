@@ -35,9 +35,9 @@ public:
 
 class LineSegments : public Line
 {
-public:
+protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
-     : Object3D(object::ResolverT<Line>::make(*this)), Line(geometry, material, 2) {}
+     : Object3D(object::ResolverT<LineSegments>::make(*this)), Line(geometry, material, 2) {}
 };
 
 }

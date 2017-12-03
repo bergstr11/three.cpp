@@ -11,7 +11,6 @@
 #include <helper/Types.h>
 #include <Constants.h>
 #include <unordered_map>
-#include <unordered_set>
 
 namespace three {
 namespace gl {
@@ -236,7 +235,7 @@ public:
   std::vector<GLuint> enabledAttributes;
   std::vector<GLuint> attributeDivisors;
 
-  std::unordered_set<GLenum> capabilities;
+  std::unordered_map<GLenum, bool> capabilities;
 
   std::vector<GLint> compressedTextureFormats;
 
@@ -251,7 +250,7 @@ public:
   BlendFunc currentBlendDstAlpha = BlendFunc::None;
   bool currentPremultipledAlpha = false;
 
-  FrontFaceDirection currentFlipSided = FrontFaceDirection::CW;
+  FrontFaceDirection currentFlipSided = FrontFaceDirection::Undefined;
   CullFace currentCullFace = CullFace::None;
 
   GLfloat currentLineWidth = 0;
@@ -324,7 +323,6 @@ public:
 
     setFlipSided(FrontFaceDirection::CW);
     setCullFace(CullFace::Back);
-    enable(GL_CULL_FACE);
 
     enable(GL_BLEND);
     setBlending(Blending::Normal);
@@ -380,17 +378,17 @@ public:
 
   void enable(GLenum id)
   {
-    if (capabilities.find(id) == capabilities.end()) {
+    if (capabilities.count(id) == 0 || !capabilities[id]) {
       glEnable(id);
-      capabilities.insert(id);
+      capabilities[id] = true;
     }
   }
 
   void disable(GLenum id)
   {
-    if (capabilities.find(id) != capabilities.end()) {
+    if (capabilities.count(id) == 0 || capabilities[id]) {
       glDisable(id);
-      capabilities.erase(id);
+      capabilities[id] = false;
     }
   }
 
@@ -757,12 +755,17 @@ public:
       }
     }
 
+    for(auto &cap : capabilities) {
+      if(cap.second) glDisable(cap.first);
+    }
     capabilities.clear();
 
     compressedTextureFormats.clear();
 
     currentTextureSlot = -1;
     currentBoundTextures.clear();
+
+    currentViewport.set(0, 0, 0, 0);
 
     currentProgram = 0;
 

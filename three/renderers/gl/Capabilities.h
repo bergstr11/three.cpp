@@ -16,7 +16,7 @@ struct Capabilities
 {
   struct Parameters {
     bool logarithmicDepthBuffer = true;
-    Precision precision = Precision::mediump;
+    Precision precision = Precision::highp;
   };
 
   Extensions &_extensions;
@@ -60,7 +60,7 @@ struct Capabilities
     _fn->glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &maxFragmentUniforms);
 
     vertexTextures = maxVertexTextures > 0;
-    floatFragmentTextures = _extensions.get(Extension::OES_texture_float);
+    floatFragmentTextures = !_extensions.get(Extension::OES_texture_float);
     floatVertexTextures = vertexTextures && floatFragmentTextures;
 
     precision = _parameters.precision;

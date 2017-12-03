@@ -76,6 +76,7 @@ public:
   void setTextureCube(Texture::Ptr texture, unsigned slot);
   void updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget);
   void setupRenderTarget(RenderTargetDefault &renderTarget);
+  void setupRenderTarget(RenderTargetExternal &renderTarget);
   void setupRenderTarget(RenderTargetCube &renderTarget);
 
   void onRenderTargetDispose(RenderTargetDefault &renderTarget);
