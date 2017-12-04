@@ -76,7 +76,10 @@ public:
     geometry->onDispose.connect(*this, &Geometries::onGeometryDispose);
 
     BufferGeometry::Ptr buffergeometry = std::dynamic_pointer_cast<BufferGeometry>(geometry);
-    if (!buffergeometry) buffergeometry = BufferGeometry::make(object);
+    if (!buffergeometry) {
+      StaticGeometry::Ptr staticgeometry = std::dynamic_pointer_cast<StaticGeometry>(geometry);
+      buffergeometry = BufferGeometry::make(object, staticgeometry);
+    }
 
     gi.geometry = buffergeometry;
 

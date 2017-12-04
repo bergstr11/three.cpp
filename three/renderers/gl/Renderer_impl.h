@@ -31,6 +31,8 @@
 
 #include <QOpenGLShaderProgram>
 
+//#define DEMO2
+
 namespace three {
 namespace gl {
 
@@ -39,9 +41,11 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
   friend class Programs;
   friend class Program;
 
+#ifdef DEMO2
   QOpenGLShaderProgram testProgram;
   GLuint testVao;
   GLuint testVbo;
+#endif
 
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -70,8 +74,6 @@ protected:
   // morphs
   unsigned _maxMorphTargets = 8;
   unsigned _maxMorphNormals = 4;
-
-  bool _isContextLost = false;
 
   // internal state cache
   Renderer::Target::Ptr _currentRenderTarget = nullptr;
@@ -161,7 +163,9 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
+#ifdef DEMO2
   bool doRender2();
+#endif
   void doRender(const Scene::Ptr &scene,
                 const Camera::Ptr &camera,
                 const Renderer::Target::Ptr &renderTarget,

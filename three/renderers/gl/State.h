@@ -265,8 +265,11 @@ public:
   int currentTextureSlot = -1;
 
   struct BoundTexture {
-    TextureTarget target;
-    GLuint texture;
+    const TextureTarget target;
+    const GLuint texture;
+
+    BoundTexture(TextureTarget target, GLuint texture) : target(target), texture(texture) {}
+    BoundTexture() : target(TextureTarget::twoD), texture(0) {}
   };
   std::unordered_map<GLuint, BoundTexture> currentBoundTextures;
 
@@ -304,8 +307,8 @@ public:
 
   void init()
   {
-    //emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
-    //emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
+    emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
+    emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
 
     colorBuffer.setClear(0, 0, 0, 1);
     depthBuffer.setClear(1);
@@ -626,20 +629,14 @@ public:
     if(currentTextureSlot < 0)
       activeTexture();
 
-    BoundTexture *boundTexture;
-    auto find = currentBoundTextures.find(currentTextureSlot);
-    if (find == currentBoundTextures.end()) {
-      boundTexture = &currentBoundTextures[currentTextureSlot];
-    }
-    else
-      boundTexture = &find->second;
+    BoundTexture *boundTexture = currentBoundTextures.count(currentTextureSlot) ?
+                                 &currentBoundTextures[currentTextureSlot] : nullptr;
 
-    if(boundTexture->target != target || boundTexture->texture != webglTexture ) {
+    if(!boundTexture || boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
       glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
 
-      boundTexture->target = target;
-      boundTexture->texture = webglTexture;
+      currentBoundTextures.emplace(currentTextureSlot, BoundTexture(target, webglTexture));
     }
   }
 

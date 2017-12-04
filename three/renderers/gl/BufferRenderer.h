@@ -61,10 +61,10 @@ public:
   {
   }
 
-  void setIndex(const Buffer &value )
+  void setIndex(GLenum type, GLsizei bytes)
   {
-    _type = value.type;
-    _bytesPerElement = value.bytesPerElement;
+    _type = type;
+    _bytesPerElement = bytes;
   }
 
   void render(GLint start, GLsizei count) override;

@@ -28,7 +28,7 @@ struct RenderInfo
 
 struct Buffer
 {
-  GLuint buf;
+  GLuint handle;
   GLenum type;
   unsigned bytesPerElement;
   unsigned version;

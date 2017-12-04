@@ -17,11 +17,6 @@ Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
   set(buffer::Sphere(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength));
 }
 
-void Sphere::toBufferGeometry(BufferGeometry &geometry)
-{
-  return StaticGeometry::toBufferGeometry(geometry);
-}
-
 namespace buffer {
 
 Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,

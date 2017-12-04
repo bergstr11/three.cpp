@@ -79,8 +79,6 @@ protected:
 public:
   using Ptr = std::shared_ptr<StaticGeometry>;
 
-  void toBufferGeometry(BufferGeometry &geometry) override;
-
   bool useMorphing() const override
   {
     return !_morphTargets.empty();

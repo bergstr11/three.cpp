@@ -341,7 +341,7 @@ Program::Program(Renderer_impl &renderer,
   const char *envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
 
   if ( *parameters.envMap ) {
-    switch ( (*parameters.envMap)->mapping() ) {
+    switch (*parameters.envMapMode) {
 
       case TextureMapping::CubeReflection:
       case TextureMapping::CubeRefraction:
@@ -407,6 +407,8 @@ Program::Program(Renderer_impl &renderer,
 
   } else {
     stringstream ss;
+
+    cout << "generating shaders for " << shader.name() << endl;
 
     //vertex prefix
     //=============

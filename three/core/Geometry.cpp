@@ -5,6 +5,7 @@
 #include <vector>
 #include <objects/Mesh.h>
 #include <objects/Line.h>
+#include <objects/Points.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 
@@ -240,38 +241,86 @@ void BufferGeometry::raycast(const Line &line,
   }
 }
 
-BufferGeometry::BufferGeometry(Object3D::Ptr object)
+BufferGeometry::BufferGeometry(Object3D::Ptr object, StaticGeometry::Ptr geometry)
 {
-  object->geometry()->toBufferGeometry(*this);
+  object::Dispatch dispatch;
+
+  dispatch.func<Line>() = [this, geometry](Line &line) {
+    setFromLinearGeometry(geometry);
+  };
+  dispatch.func<LineSegments>() = [this, geometry](LineSegments &lineSegments) {
+    setFromLinearGeometry(geometry);
+  };
+  dispatch.func<Points>() = [this, geometry](Points &points) {
+    setFromLinearGeometry(geometry);
+  };
+  dispatch.func<Mesh>() = [this, geometry](Mesh &mesh) {
+    setFromMeshGeometry(geometry);
+  };
+  object->objectResolver->object::DispatchResolver::getValue(dispatch);
 }
 
-void three::geometry::Plane::toBufferGeometry(BufferGeometry &geometry)
+void BufferGeometry::setFromLinearGeometry(StaticGeometry::Ptr geometry)
 {
-  StaticGeometry::toBufferGeometry(geometry);
-}
+  _position = BufferAttributeT<float>::make(geometry->_vertices);
+  _color = BufferAttributeT<float>::make(geometry->_colors);
 
-void three::geometry::Box::toBufferGeometry(BufferGeometry &geometry)
-{
-  StaticGeometry::toBufferGeometry(geometry);
-}
+  _boundingSphere = geometry->_boundingSphere;
+  _boundingBox = geometry->_boundingBox;
 
-void three::StaticGeometry::toBufferGeometry(BufferGeometry &geometry)
-{
-  BufferAttributeT<float>::Ptr positions = BufferAttributeT<float>::make(_vertices);
-  BufferAttributeT<float>::Ptr colors = BufferAttributeT<float>::make(_colors);
+  if (geometry->_lineDistances.size() == geometry->_vertices.size()) {
 
-  geometry.setPosition(positions);
-  geometry.setColor(colors);
-
-  geometry.boundingSphere() = _boundingSphere;
-  geometry.boundingBox() = _boundingBox;
-
-  if (_lineDistances.size() == _vertices.size()) {
-
-    BufferAttributeT<float>::Ptr lineDistances = BufferAttributeT<float>::make(_lineDistances);
-
-    geometry.setLineDistances(lineDistances);
+    _lineDistances = BufferAttributeT<float>::make(geometry->_lineDistances);
   }
+}
+
+void BufferGeometry::setFromMeshGeometry(StaticGeometry::Ptr geometry)
+{
+  geometry->_directGeometry = DirectGeometry::make(*geometry);
+
+  setFromDirectGeometry( geometry->_directGeometry );
+
+}
+
+void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
+{
+  _position = BufferAttributeT<float>::make( geometry->vertices);
+
+  if (!geometry->normals.empty())
+    _normal = BufferAttributeT<float>::make(geometry->normals);
+
+  if (!geometry->colors.empty())
+    _color = BufferAttributeT<float>::make(geometry->colors);
+
+  if (!geometry->uvs.empty())
+    _uv = BufferAttributeT<float>::make(geometry->uvs);
+
+  if (!geometry->uv2s.empty())
+    _uv2 = BufferAttributeT<float>::make(geometry->uv2s);
+
+  if (!geometry->indices.empty())
+    _index = BufferAttributeT<uint32_t>::make(geometry->indices);
+
+  // groups
+  _groups = geometry->groups;
+
+  // morphs
+  for(const auto &morphTargets : geometry->morphTargetsPosition)
+    _morphAttributes_position.push_back(BufferAttributeT<float>::make(morphTargets));
+
+  for(const auto &morphTargets : geometry->morphTargetsNormal)
+    _morphAttributes_normal.push_back(BufferAttributeT<float>::make(morphTargets));
+
+  // skinning
+  if (!geometry->skinIndices.empty())
+    _skinIndices = BufferAttributeT<float>::make(geometry->skinIndices);
+
+  if (!geometry->skinWeights.empty())
+    _skinWeight = BufferAttributeT<float>::make(geometry->skinWeights);
+
+  _boundingSphere = geometry->boundingSphere();
+
+  _boundingBox = geometry->boundingBox();
 }
 
 BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr geometry)
@@ -289,7 +338,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
     if (!direct) {
 
-      geometry->toBufferGeometry(*this);
+      setFromMeshGeometry(geometry);
       return *this;
     }
 

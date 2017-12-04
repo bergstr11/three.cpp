@@ -111,7 +111,6 @@ public:
   {
     return Ptr(new Plane(width, height, widthSegments, heightSegments));
   }
-  void toBufferGeometry(BufferGeometry &geometry) override;
 };
 
 }

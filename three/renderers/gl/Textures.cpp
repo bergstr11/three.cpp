@@ -548,24 +548,13 @@ void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
 
   _infoMemory.textures ++;
 
-  // Setup framebuffer
-  //_fn->glGenFramebuffers(1, &renderTarget.frameBuffer);
+  _state.currentTextureSlot = GL_TEXTURE0;
+  _state.currentBoundTextures.emplace(GL_TEXTURE0,  State::BoundTexture(TextureTarget::twoD, textureProperties.texture));
 
-  // Setup color buffer
   _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
-  //setupFrameBufferTexture( renderTarget.frameBuffer, renderTarget, GL_COLOR_ATTACHMENT0, renderTarget.textureTarget);
 
-  if (renderTarget.texture()->needsGenerateMipmaps())
-    _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
-
-  _state.bindTexture(renderTarget.textureTarget, 0 );
-
-  // Setup depth and stencil buffers
-  /*if ( renderTarget.depthBuffer() ) {
-
-    setupDepthRenderbuffer( renderTarget );
-  }*/
+  if (renderTarget.texture()->needsGenerateMipmaps()) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
 }
 
 // Set up GL resources for the render target

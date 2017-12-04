@@ -25,8 +25,10 @@ struct RenderItem
   unsigned z;
   const Group *group;
 
-  RenderItem(Object3D::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group, Program::Ptr program=nullptr)
-     : object(object), geometry(geometry), material(material), program(program), renderOrder(object->renderOrder()), z(z), group(group)
+  RenderItem(Object3D::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group,
+             Program::Ptr program=nullptr)
+     : object(object), geometry(geometry), material(material), program(program), renderOrder(object->renderOrder()),
+       z(z), group(group)
   {}
 };
 

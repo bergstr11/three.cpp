@@ -21,18 +21,16 @@ class Attributes
   template <typename T>
   void createBuffer(Buffer &buffer, const BufferAttributeT<T> &attribute, BufferType bufferType)
   {
-    const std::vector<T> &array = attribute.array();
     GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
-    _fn->glGenBuffers(1, &buffer.buf);
+    _fn->glGenBuffers(1, &buffer.handle);
 
-    _fn->glBindBuffer((GLenum)bufferType, buffer.buf);
-    _fn->glBufferData((GLenum)bufferType, array.size(), array.data(), usage);
+    _fn->glBindBuffer((GLenum)bufferType, buffer.handle);
+    _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(), usage);
 
     const_cast<BufferAttributeT<T> &>(attribute).onUpload.emitSignal(attribute);
 
     buffer.type = attribute.glType();
-
     buffer.bytesPerElement = attribute.bytesPerElement();
     buffer.version = attribute.version();
   }
@@ -45,14 +43,14 @@ public:
   {
     UpdateRange &updateRange = attribute.updateRange();
 
-    _fn->glBindBuffer((GLenum)bufferType, buffer.buf);
+    _fn->glBindBuffer((GLenum)bufferType, buffer.handle);
 
     if(!attribute.dynamic()) {
-      _fn->glBufferData((GLenum)bufferType, buffer.bytesPerElement * attribute.size(), attribute.data(), GL_STATIC_DRAW );
+      _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(), GL_STATIC_DRAW );
     }
     else if(updateRange.count == -1) {
       // Not using update ranges
-      _fn->glBufferSubData((GLenum)bufferType, 0, buffer.bytesPerElement * attribute.size(), attribute.data());
+      _fn->glBufferSubData((GLenum)bufferType, 0, attribute.byteCount(), attribute.data());
     }
     else if(updateRange.count == 0 ) {
 
@@ -89,7 +87,7 @@ public:
 
       const Buffer &data = _buffers[ attribute.uuid ];
 
-      _fn->glDeleteBuffers(1, &data.buf);
+      _fn->glDeleteBuffers(1, &data.handle);
 
       _buffers.erase(attribute.uuid);
     }

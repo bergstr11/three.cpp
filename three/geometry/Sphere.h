@@ -35,8 +35,6 @@ public:
                           std::max(heightSegments, 2u),
                           phiStart, phiLength, thetaStart, thetaLength));
   }
-
-  void toBufferGeometry(BufferGeometry &geometry) override;
 };
 
 namespace buffer {

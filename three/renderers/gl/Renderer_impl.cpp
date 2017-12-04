@@ -58,6 +58,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
 {
   initContext();
 
+#ifdef DEMO2
   testProgram.addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, "#version 150 core\n"
      "    in vec2 position;\n"
      "    in vec3 color;\n"
@@ -80,6 +81,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
 
   // Create a Vertex Buffer Object and copy the vertex data to it
   glGenBuffers(1, &testVbo);
+#endif
 }
 
 void Renderer_impl::initContext()
@@ -131,6 +133,7 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
   _state.viewport( _currentViewport );
 }
 
+#ifdef DEMO2
 bool Renderer_impl::doRender2()
 {
   glBindVertexArray(testVao);
@@ -175,16 +178,16 @@ bool Renderer_impl::doRender2()
 
   return true;
 }
+#endif
 
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
-  if (_isContextLost) return;
 cout << "doRender" << endl;
 
   _state.init();
 
-#if 0
+#ifdef DEMO2
   if(doRender2()) {
     state().reset();
     glFinish();
@@ -314,8 +317,6 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
       _currentFramebuffer = framebuffer;
 
       _textures.setupRenderTarget(*renderTargetExternal);
-      //auto &textureProperties = _properties.get( renderTargetExternal->texture() );
-      //textureProperties.texture = renderTargetExternal->textureHandle();
     }
 
     _currentViewport = renderTarget->viewport();
@@ -647,9 +648,9 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     const Buffer &attribute = _attributes.get( *geometry->index() );
 
     if ( updateBuffers )
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, attribute.buf);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, attribute.handle);
 
-    _indexedBufferRenderer.setIndex( attribute );
+    _indexedBufferRenderer.setIndex(geometry->index()->glType(), geometry->index()->bytesPerElement());
     renderer = &_indexedBufferRenderer;
   }
   else {
@@ -738,9 +739,6 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       glGetProgramInfoLog(program->handle(), 500, &len, buf);
       cout << buf << endl;
     }
-    else {
-      cout << "VALIDATE OK" << endl;
-    }
 
     renderer->render( drawStart, drawCount );
   }
@@ -782,7 +780,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
 
         Buffer attribute = _attributes.get(*geometryAttribute);
 
-        GLuint buffer = attribute.buf;
+        GLuint buffer = attribute.handle;
         GLenum type = attribute.type;
         unsigned bytesPerElement = attribute.bytesPerElement;
 

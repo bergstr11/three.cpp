@@ -38,7 +38,7 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
 
   three::Scene::Ptr _scene;
   three::PerspectiveCamera::Ptr _camera;
-  three::Renderer::Ptr _renderer;
+  three::OpenGLRenderer::Ptr _renderer;
   three::Renderer::Target::Ptr _target;
 
   const ThreeDItem *const _item;
@@ -52,7 +52,6 @@ public:
        _camera(PerspectiveCamera::make(45, item->width() / item->height(), 0.1, 1000)),
        _renderer(OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
   {
-    //_renderer->setClearColor(Color(0.5f, 0.5f, 0.7f), 1.0f);
     _renderer->setSize(item->width(), item->height());
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
     axes->frustumCulled = false;
@@ -95,20 +94,6 @@ public:
 
   ~FramebufferObjectRenderer() override = default;
 
-/*
-  double viewportWidth() override {
-    return m_item->width();
-  }
-
-  double viewportHeight() override {
-    return m_item->height();
-  }
-
-  QMatrix4x4 &viewModelMatrix() override {
-    return m_model;
-  }
-*/
-
   void synchronize(QQuickFramebufferObject *_item) override
   {
     auto *item = static_cast<ThreeDItem *>(_item);
@@ -122,13 +107,13 @@ public:
 
   QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override
   {
-    /*QOpenGLFramebufferObjectFormat format;
+    QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setMipmap(false);
     format.setInternalTextureFormat(GL_RGBA);
-    _framebufferObject = new QOpenGLFramebufferObject(size, format);*/
 
-    _framebufferObject = QQuickFramebufferObject::Renderer::createFramebufferObject(size);
+    _framebufferObject = new QOpenGLFramebufferObject(size, format);
+
     _target = OpenGLRenderer::makeExternalTarget(_framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
 
     return _framebufferObject;

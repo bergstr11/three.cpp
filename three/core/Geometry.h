@@ -24,6 +24,8 @@ class DirectGeometry;
 
 class Geometry
 {
+  friend class BufferGeometry;
+
   static size_t id_count;
 
 protected:
@@ -123,8 +125,6 @@ public:
 
     apply(math::Matrix4::rotation(q));
   }
-
-  virtual void toBufferGeometry(BufferGeometry &geometry) = 0;
 
   virtual void dispose() {
     onDispose.emitSignal(this);

@@ -264,6 +264,8 @@ public:
 
   const size_t size() const {return _array.size();}
 
+  const size_t byteCount() const {return _array.size() * sizeof(Type);}
+
   const std::vector<Type> &array() const {return _array;}
 
   const Type operator [] (size_t index) {return _array[index];}

@@ -41,9 +41,16 @@ class BufferGeometry : public Geometry
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_position;
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_normal;
 
+  BufferAttributeT<float>::Ptr _skinIndices;
+  BufferAttributeT<float>::Ptr _skinWeight;
+
   std::unordered_map<IndexedAttributeKey, BufferAttributeT<float>::Ptr, pair_hash> _indexedAttributes;
 
   UpdateRange _drawRange;
+
+  void setFromLinearGeometry(std::shared_ptr<StaticGeometry> geometry);
+  void setFromMeshGeometry(std::shared_ptr<StaticGeometry> geometry);
+  void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
 protected:
   BufferGeometry &computeBoundingBox() override
@@ -79,7 +86,7 @@ protected:
   }
 
   explicit BufferGeometry() {}
-  explicit BufferGeometry(std::shared_ptr<Object3D> object);
+  explicit BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry);
 
 public:
   static size_t MaxIndex;
@@ -88,8 +95,8 @@ public:
   static Ptr make() {
     return Ptr(new BufferGeometry());
   }
-  static Ptr make(std::shared_ptr<Object3D> object) {
-    return Ptr(new BufferGeometry(object));
+  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry) {
+    return Ptr(new BufferGeometry(object, geometry));
   }
 
   BufferGeometry &operator =(const BufferGeometry &geom) {
@@ -114,11 +121,6 @@ public:
   bool useMorphing() const override
   {
     return !_morphAttributes_position.empty();
-  }
-
-  void toBufferGeometry(BufferGeometry &geometry) override
-  {
-    geometry = *this;
   }
 
   const UpdateRange &drawRange() const {return _drawRange;}
@@ -260,15 +262,17 @@ class InstancedBufferGeometry : public BufferGeometry
 
 protected:
   explicit InstancedBufferGeometry() : BufferGeometry() {}
-  explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object) : BufferGeometry(object) {}
+  explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object,
+                                   std::shared_ptr<StaticGeometry> geometry)
+     : BufferGeometry(object, geometry) {}
 
 public:
   using Ptr = std::shared_ptr<InstancedBufferGeometry>;
   static Ptr make() {
     return Ptr(new InstancedBufferGeometry());
   }
-  static Ptr make(std::shared_ptr<Object3D> object) {
-    return Ptr(new InstancedBufferGeometry(object));
+  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry) {
+    return Ptr(new InstancedBufferGeometry(object, geometry));
   }
 
   unsigned maxInstancedCount() const {return _maxInstancedCount;}

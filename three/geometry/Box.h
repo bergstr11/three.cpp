@@ -28,8 +28,6 @@ public:
                   unsigned depthSegments=1) {
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   }
-
-  void toBufferGeometry(BufferGeometry &geometry) override;
 };
 
 namespace buffer {
