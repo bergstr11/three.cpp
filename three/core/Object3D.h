@@ -221,9 +221,9 @@ public:
     return vector * _matrixWorld.inverse();
   }
 
+  // This method does not support objects with rotated and/or translated parent(s)
   virtual void lookAt(const math::Vector3 &vector)
   {
-    // This method does not support objects with rotated and/or translated parent(s)
     math::Matrix4 m1( vector, _position, _up );
 
     _quaternion.set(m1);

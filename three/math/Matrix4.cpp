@@ -33,18 +33,10 @@ Matrix4 &Matrix4::scale(const Vector3 &v)
   float *te = _elements;
   float x = v.x(), y = v.y(), z = v.z();
 
-  te[0] *= x;
-  te[4] *= y;
-  te[8] *= z;
-  te[1] *= x;
-  te[5] *= y;
-  te[9] *= z;
-  te[2] *= x;
-  te[6] *= y;
-  te[10] *= z;
-  te[3] *= x;
-  te[7] *= y;
-  te[11] *= z;
+  te[ 0 ] *= x; te[ 4 ] *= y; te[ 8 ] *= z;
+  te[ 1 ] *= x; te[ 5 ] *= y; te[ 9 ] *= z;
+  te[ 2 ] *= x; te[ 6 ] *= y; te[ 10 ] *= z;
+  te[ 3 ] *= x; te[ 7 ] *= y; te[ 11 ] *= z;
 
   return *this;
 }

@@ -33,8 +33,12 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<OpenGLRenderer>;
-  static Ptr make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options=OpenGLRendererOptions());
-  static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height, bool depthBuffer=true, bool stencilBuffer=true);
+
+  static Ptr make(QOpenGLContext *context, size_t width, size_t height, float pixelRatio,
+                  const OpenGLRendererOptions &options=OpenGLRendererOptions());
+
+  static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
+                                        bool depthBuffer=true, bool stencilBuffer=true);
 };
 
 }

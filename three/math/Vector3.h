@@ -82,6 +82,7 @@ public:
 
   Vector3 &set(float x, float y, float z) {
     _x = x; _y = y; _z = z;
+    return *this;
   }
 
   float &x() {return _x;}

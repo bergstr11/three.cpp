@@ -8,6 +8,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QQuickWindow>
 #include <QThread>
+#include <QScreen>
 
 #include "ThreeDItem.h"
 #include "ThreeDInteractor.h"
@@ -50,11 +51,13 @@ public:
      : _item(item),
        _scene(SceneT<Color>::make("scene", Color(0.5f, 0.5f, 0.7f))),
        _camera(PerspectiveCamera::make(45, item->width() / item->height(), 0.1, 1000)),
-       _renderer(OpenGLRenderer::make(QOpenGLContext::currentContext(), item->width(), item->height()))
+       _renderer(OpenGLRenderer::make(
+          QOpenGLContext::currentContext(),
+          item->width(), item->height(),
+          item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
-    axes->frustumCulled = false;
 
     _scene->add(axes);
 
@@ -65,7 +68,6 @@ public:
     Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make("plane", planeGeometry, planeMaterial);
     plane->rotation().x() = -0.5f * (float) M_PI;
     plane->position().set(15, 0, 0);
-    plane->frustumCulled = false;
 
     _scene->add(plane);
 
@@ -114,7 +116,8 @@ public:
 
     _framebufferObject = new QOpenGLFramebufferObject(size, format);
 
-    _target = OpenGLRenderer::makeExternalTarget(_framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
+    _target = OpenGLRenderer::makeExternalTarget(
+       _framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
 
     return _framebufferObject;
   }

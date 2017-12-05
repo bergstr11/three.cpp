@@ -31,7 +31,7 @@
 
 #include <QOpenGLShaderProgram>
 
-//#define DEMO2
+#define DEMO2x
 
 namespace three {
 namespace gl {
@@ -198,7 +198,7 @@ public:
   bool autoClearDepth = true;
   bool autoClearStencil = true;
 
-  Renderer_impl(QOpenGLContext *context, size_t width, size_t height, bool premultipliedAlpha=true);
+  Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}
 

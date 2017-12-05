@@ -64,6 +64,13 @@ public:
     _matrixWorldInverse = _matrixWorld.inverse();
   }
 
+  void lookAt(const math::Vector3 &vector) override
+  {
+    math::Matrix4 m1( _position, vector, _up );
+
+    _quaternion.set(m1);
+  }
+
   virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;
 
   virtual void updateProjectionMatrix() = 0;

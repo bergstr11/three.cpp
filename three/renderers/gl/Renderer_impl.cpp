@@ -24,19 +24,23 @@ namespace three {
 
 using namespace std;
 
-OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, const OpenGLRendererOptions &options)
+OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, float pixelRatio,
+                                         const OpenGLRendererOptions &options)
 {
-  return gl::Renderer_impl::Ptr(new gl::Renderer_impl(context, width, height));
+  gl::Renderer_impl::Ptr p(new gl::Renderer_impl(context, width, height, pixelRatio));
+
+  return p;
 }
 
-Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height, bool depthBuffer, bool stencilBuffer)
+Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
+                                                         bool depthBuffer, bool stencilBuffer)
 {
   return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, depthBuffer, stencilBuffer);
 }
 
 namespace gl {
 
-Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, bool premultipliedAlpha)
+Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
    : OpenGLRenderer(context), _state(this),
      _width(width),
      _height(height),
@@ -54,7 +58,8 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _bufferRenderer(this, this, _extensions, _infoRender),
      _indexedBufferRenderer(this, this, _extensions, _infoRender),
      _spriteRenderer(*this, _state, _textures, _capabilities),
-     _flareRenderer(this, _state, _textures, _capabilities)
+     _flareRenderer(this, _state, _textures, _capabilities),
+     _pixelRatio(pixelRatio)
 {
   initContext();
 
