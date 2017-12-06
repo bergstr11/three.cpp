@@ -300,7 +300,8 @@ public:
 
   Vector3 normalized() const
   {
-    return *this / length();
+    float len = length();
+    return *this / (len > 0 ? len : 1.0f);
   }
 
   Vector3 &setLength(float length)
@@ -420,7 +421,7 @@ inline Vector3 operator *(const Vector3 &left, const Vector3 &right)
 
 inline Vector3 operator *(const Vector3 &vector, float scalar)
 {
-  return Vector3(vector.x()) *= scalar, vector.y() * scalar, vector.z() * scalar;
+  return Vector3(vector.x() * scalar, vector.y() * scalar, vector.z() * scalar);
 }
 
 inline Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix)
@@ -438,7 +439,7 @@ inline Vector3 operator / (const Vector3&v1, const Vector3 &v2)
 
 inline Vector3 operator / (const Vector3 &vector, float scalar)
 {
-  return vector * ( 1 / scalar );
+  return vector * ( 1.0f / scalar );
 }
 
 inline Vector3 cross(const Vector3 &a, const Vector3 &b)

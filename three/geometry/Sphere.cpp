@@ -19,7 +19,7 @@ Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
 
 namespace buffer {
 
-Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
+Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
        float phiStart, float phiLength, float thetaStart, float thetaLength)
    : _radius(radius), _widthSegments(widthSegments), _heightSegments(heightSegments),
      _phiStart(phiStart), _phiLength(phiLength), _thetaStart(thetaStart), _thetaLength(thetaLength)
@@ -41,14 +41,13 @@ Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
 
     vector<unsigned> verticesRow;
 
-    float v = (float)iy / (float)heightSegments;
+    float v = (float)iy / heightSegments;
 
     for (unsigned ix = 0; ix <= widthSegments; ix ++ ) {
 
-      float u = (float)ix / (float)widthSegments;
+      float u = (float)ix / widthSegments;
 
       // vertex
-
       float x = - radius * std::cos( phiStart + u * phiLength ) * std::sin( thetaStart + v * thetaLength );
       float y = radius * std::cos( thetaStart + v * thetaLength );
       float z = radius * std::sin( phiStart + u * phiLength ) * std::sin( thetaStart + v * thetaLength );

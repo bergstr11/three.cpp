@@ -43,16 +43,16 @@ class Sphere : public BufferGeometry
 {
 friend class three::geometry::Sphere;
 
-  unsigned const _radius, _widthSegments, _heightSegments;
-  float _phiStart, _phiLength, _thetaStart, _thetaLength;
+  const unsigned  _widthSegments, _heightSegments;
+  const float _radius, _phiStart, _phiLength, _thetaStart, _thetaLength;
 
 protected:
-  Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
+  Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
          float phiStart, float phiLength, float thetaStart, float thetaLength);
 
 public:
   using Ptr = std::shared_ptr<Sphere>;
-  static Ptr make(unsigned radius=50,
+  static Ptr make(float radius=50,
                   unsigned widthSegments=8,
                   unsigned heightSegments=6,
                   float phiStart=0,
