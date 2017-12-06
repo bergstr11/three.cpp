@@ -279,7 +279,6 @@ void BufferGeometry::setFromMeshGeometry(StaticGeometry::Ptr geometry)
   geometry->_directGeometry = DirectGeometry::make(*geometry);
 
   setFromDirectGeometry( geometry->_directGeometry );
-
 }
 
 void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)

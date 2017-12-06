@@ -56,7 +56,7 @@ public:
           item->width(), item->height(),
           item->window()->screen()->devicePixelRatio()))
   {
-    _renderer->setSize(item->width(), item->height());
+    /*_renderer->setSize(item->width(), item->height());
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
 
     _scene->add(axes);
@@ -79,7 +79,7 @@ public:
     Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make("cube", cubeGeometry, cubeMaterial);
     cube->position().set(-4, 3, 0);
 
-    _scene->add(cube);
+    _scene->add(cube);*/
 
     Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
     MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();

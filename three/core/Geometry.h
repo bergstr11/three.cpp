@@ -39,6 +39,7 @@ protected:
   virtual Geometry &apply(const math::Matrix4 &matrix) = 0;
 
   Geometry() : id(id_count++) {}
+  virtual ~Geometry() {}
 
 public:
   const size_t id;

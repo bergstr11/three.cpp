@@ -28,7 +28,7 @@ class Quaternion
 public:
   Quaternion(float x, float y, float z, float w) : _x(x), _y(y), _z(z), _w(w) {}
 
-  Quaternion() : _x(0.0f), _y(0.0f), _z(0.0f), _w(0.0f) {}
+  Quaternion() : _x(0.0f), _y(0.0f), _z(0.0f), _w(1.0f) {}
 
   Quaternion(float scalar) : _x(scalar), _y(scalar), _z(scalar), _w(scalar) {}
 

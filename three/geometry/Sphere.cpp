@@ -9,7 +9,7 @@ namespace geometry {
 
 using namespace std;
 
-Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
+Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
        float phiStart, float phiLength, float thetaStart, float thetaLength)
    : _radius(radius), _widthSegments(widthSegments), _heightSegments(heightSegments),
      _phiStart(phiStart), _phiLength(phiLength), _thetaStart(thetaStart), _thetaLength(thetaLength)
@@ -41,11 +41,11 @@ Sphere::Sphere(unsigned radius, unsigned widthSegments, unsigned heightSegments,
 
     vector<unsigned> verticesRow;
 
-    float v = iy / heightSegments;
+    float v = (float)iy / (float)heightSegments;
 
     for (unsigned ix = 0; ix <= widthSegments; ix ++ ) {
 
-      float u = ix / widthSegments;
+      float u = (float)ix / (float)widthSegments;
 
       // vertex
 
