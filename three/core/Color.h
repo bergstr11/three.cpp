@@ -87,10 +87,7 @@ struct Color
   Color(unsigned hex) : r((hex >> 16 & 255 ) / 255), g((hex >> 8 & 255 ) / 255), b((hex & 255 ) / 255)
   {}
 
-  Color() :
-     r(std::numeric_limits<float>::infinity()),
-     g(std::numeric_limits<float>::infinity()),
-     b(std::numeric_limits<float>::infinity()) {}
+  Color() : r(1), g(1), b(1) {}
 
   static Color fromName(NamedColor name)
   {

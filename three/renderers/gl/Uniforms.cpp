@@ -3,6 +3,7 @@
 //
 
 #include "Uniforms.h"
+#include "shader/UniformsLib.h"
 #include "Renderer_impl.h"
 #include <regex>
 
@@ -10,6 +11,16 @@ namespace three {
 namespace gl {
 
 using namespace std;
+
+Uniforms::Uniforms(Renderer_impl &renderer, GLuint program) : _renderer(renderer)
+{
+  GLint numUniforms;
+  renderer.glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+  for (unsigned i = 0; i < numUniforms; ++i) {
+    parseUniform(program, i, this);
+  }
+}
 
 std::vector<int32_t> &Uniforms::allocTexUnits(Renderer_impl &renderer, size_t n)
 {
@@ -23,6 +34,18 @@ std::vector<int32_t> &Uniforms::allocTexUnits(Renderer_impl &renderer, size_t n)
     r[i] = renderer.allocTextureUnit();
 
   return r;
+}
+
+std::vector<Uniform::Ptr> Uniforms::sequenceUniforms(const UniformValues &values)
+{
+  std::vector<Uniform::Ptr> result;
+  for(auto name : _sequence) {
+
+    if(values.contains(name)) {
+      result.push_back(_map[name]);
+    }
+  }
+  return result;
 }
 
 #define MATCH_NAME(nm) if(name == #nm) return UniformName::nm;
@@ -125,8 +148,8 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   GLint size;
   GLenum type;
 
-  _fn->glGetActiveUniform( program, index, 100, &length, &size, &type, uname);
-  GLint addr = _fn->glGetUniformLocation(program, uname);
+  _renderer.glGetActiveUniform( program, index, 100, &length, &size, &type, uname);
+  GLint addr = _renderer.glGetUniformLocation(program, uname);
 
   string name(uname);
   sregex_iterator rex_it(name.cbegin(), name.cend(), rex);
@@ -142,13 +165,13 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
     if(!match[3].matched || match[3].second == name.end()) {
       // bare name or "pure" bottom-level array "[0]" suffix
       container->add(match[3].matched ?
-                     ArrayUniform::make(_fn, id, (UniformType)type, addr) :
-                     Uniform::make(_fn, id, (UniformType)type, addr));
+                     ArrayUniform::make(_renderer, id, (UniformType)type, addr) :
+                     Uniform::make(_renderer, id, (UniformType)type, addr));
     }
     else {
       // step into inner node / create it in case it doesn't exist
       if(container->_map.find(id) == container->_map.end()) {
-        StructuredUniform::Ptr next = StructuredUniform::make(_fn, id, (UniformType)type, addr);
+        StructuredUniform::Ptr next = StructuredUniform::make(_renderer, id, (UniformType)type, addr);
         container->add(next);
       }
       container = container->_map[id]->asContainer();
@@ -158,25 +181,79 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   }
 }
 
-void Uniform::setValue(const Texture::Ptr &texture, Renderer_impl &renderer )
-{
-  unsigned unit = renderer.allocTextureUnit();
-  _fn->glUniform1i( _addr, unit );
-  renderer.setTexture2D(texture, unit );
+void Uniform::setValue(GLfloat v) { _renderer.glUniform1f( _addr, v ); }
+
+void Uniform::setValue(GLint v) { _renderer.glUniform1i( _addr, v ); }
+
+void Uniform::setValue(GLuint v) { _renderer.glUniform1i( _addr, v ); }
+
+void Uniform::setValue(const three::Color &c) {
+  _renderer.glUniform3fv(_addr, 1, c.elements);
 }
 
-void Uniform::setValue(const ImageCubeTexture::Ptr &texture, Renderer_impl &renderer )
-{
-  unsigned unit = renderer.allocTextureUnit();
-  _fn->glUniform1i( _addr, unit );
-  renderer.setTextureCube(texture, unit );
+void Uniform::setValue(const math::Vector2 &v) {
+  _renderer.glUniform2fv(_addr, 1, v.elements());
 }
 
-void Uniform::setValue(const DataCubeTexture::Ptr &texture, Renderer_impl &renderer )
+void Uniform::setValue(const math::Vector3 &v) {
+  _renderer.glUniform3fv(_addr, 1, v.elements());
+}
+
+void Uniform::setValue(const math::Vector4 &v) {
+  _renderer.glUniform4fv(_addr, 1, v.elements());
+}
+
+void Uniform::setValue(const math::Matrix3 &v) {
+  _renderer.glUniformMatrix3fv( _addr, 1, GL_FALSE, v.elements());
+}
+
+void Uniform::setValue(const math::Matrix4 &v) {
+  _renderer.glUniformMatrix4fv( _addr, 1, GL_FALSE, v.elements());
+}
+
+void Uniform::setValue(const GLint * array, size_t size) {
+  _renderer.glUniform2iv(_addr, size, array);
+}
+
+void Uniform::setValue(const std::vector<math::Matrix4> &matrices) {
+  //TODO
+}
+
+void Uniform::setValue(const std::vector<float> &vector) {
+  //TODO
+}
+
+void Uniform::setValue(const Light::Ptr &light) {
+  //TODO
+}
+
+void Uniform::setValue(const std::vector<Texture::Ptr> &textures) {
+  //TODO
+}
+
+void Uniform::setValue(const std::vector<Light::Ptr> &lights) {
+  //TODO
+}
+
+void Uniform::setValue(const Texture::Ptr &texture)
 {
-  unsigned unit = renderer.allocTextureUnit();
-  _fn->glUniform1i( _addr, unit );
-  renderer.setTextureCube(texture, unit );
+  unsigned unit = _renderer.allocTextureUnit();
+  _renderer.glUniform1i( _addr, unit );
+  _renderer.setTexture2D(texture, unit );
+}
+
+void Uniform::setValue(const ImageCubeTexture::Ptr &texture)
+{
+  unsigned unit = _renderer.allocTextureUnit();
+  _renderer.glUniform1i( _addr, unit );
+  _renderer.setTextureCube(texture, unit );
+}
+
+void Uniform::setValue(const DataCubeTexture::Ptr &texture)
+{
+  unsigned unit = _renderer.allocTextureUnit();
+  _renderer.glUniform1i( _addr, unit );
+  _renderer.setTextureCube(texture, unit );
 }
 
 }

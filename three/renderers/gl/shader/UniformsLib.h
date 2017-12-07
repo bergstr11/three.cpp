@@ -10,6 +10,7 @@
 #include <core/Color.h>
 #include <math/Matrix3.h>
 #include <math/Vector3.h>
+#include "../Uniforms.h"
 
 namespace three {
 namespace gl {
@@ -32,93 +33,6 @@ extern DataTexture::Ptr LTC_MAG_TEXTURE;
  * TODO: validate the RectAreaLight BRDF and shaders
  */
 void initRectAreaLight();
-
-enum class UniformName
-{
-  cube,
-  equirect,
-  flip,
-  opacity,
-  diffuse,
-  emissive,
-  specular,
-  shininess,
-  projectionMatrix,
-  viewMatrix,
-  modelViewMatrix,
-  normalMatrix,
-  modelMatrix,
-  logDepthBufFC,
-  boneMatrices,
-  bindMatrix,
-  bindMatrixInverse,
-  toneMappingExposure,
-  toneMappingWhitePoint,
-  cameraPosition,
-  map,
-  uvTransform,
-  alphaMap,
-  specularMap,
-  envMap,
-  flipEnvMap,
-  reflectivity,
-  refractionRatio,
-  aoMap,
-  aoMapIntensity,
-  lightMap,
-  lightMapIntensity,
-  emissiveMap,
-  bumpMap,
-  bumpScale,
-  normalMap,
-  normalScale,
-  displacementMap,
-  displacementScale,
-  displacementBias,
-  roughnessMap,
-  metalnessMap,
-  gradientMap,
-  roughness,
-  metalness,
-  clearCoat,
-  clearCoatRoughness,
-  envMapIntensity,
-  fogDensity,
-  fogNear,
-  fogFar,
-  fogColor,
-  ambientLightColor,
-  direction,
-  color,
-  shadow,
-  shadowBias,
-  shadowRadius,
-  shadowMapSize,
-  size,
-  scale,
-  dashSize,
-  totalSize,
-  referencePosition,
-  nearDistance,
-  farDistance,
-  clippingPlanes,
-  directionalLights,
-  spotLights,
-  rectAreaLights,
-  pointLights,
-  hemisphereLights,
-  directionalShadowMap,
-  directionalShadowMatrix,
-  spotShadowMap,
-  spotShadowMatrix,
-  pointShadowMap,
-  pointShadowMatrix,
-  distance,
-  position,
-  coneCos,
-  penumbraCos,
-  decay
-};
 
 enum class UniformsID {
   common,
@@ -186,38 +100,26 @@ template<> struct UniformValueT<Cls> : public UniformValue \
   Ptr clone() const override { \
     return Ptr(new UniformValueT(id, value)); \
   } \
-  void applyValue(std::shared_ptr<Uniform> uniform) override; \
-}; \
-inline void UniformValueT<Cls>::applyValue(std::shared_ptr<Uniform> uniform)
+  void applyValue(std::shared_ptr<Uniform> uniform) override { \
+    uniform->setValue(value); \
+  } \
+};
 
-UNIFORM_VALUE_T(math::Matrix3) {
-}
-UNIFORM_VALUE_T(float) {
-}
-UNIFORM_VALUE_T(bool) {
-}
-UNIFORM_VALUE_T(Color) {
-}
-UNIFORM_VALUE_T(int) {
-}
-UNIFORM_VALUE_T(unsigned) {
-}
-UNIFORM_VALUE_T(Texture::Ptr) {
-}
-UNIFORM_VALUE_T(math::Vector2) {
-}
-UNIFORM_VALUE_T(math::Vector3) {
-}
-UNIFORM_VALUE_T(std::vector<float>) {
-}
-UNIFORM_VALUE_T(math::Matrix4) {
-}
-UNIFORM_VALUE_T(std::vector<Texture::Ptr>) {
-}
-UNIFORM_VALUE_T(std::vector<Light::Ptr>) {
-}
-UNIFORM_VALUE_T(std::vector<math::Matrix4>) {
-}
+UNIFORM_VALUE_T(math::Matrix3)
+UNIFORM_VALUE_T(float)
+UNIFORM_VALUE_T(bool)
+UNIFORM_VALUE_T(Color)
+UNIFORM_VALUE_T(int)
+UNIFORM_VALUE_T(unsigned)
+UNIFORM_VALUE_T(math::Vector2)
+UNIFORM_VALUE_T(math::Vector3)
+UNIFORM_VALUE_T(std::vector<float>)
+UNIFORM_VALUE_T(math::Matrix4)
+UNIFORM_VALUE_T(Texture::Ptr)
+UNIFORM_VALUE_T(Light::Ptr)
+UNIFORM_VALUE_T(std::vector<Texture::Ptr>)
+UNIFORM_VALUE_T(std::vector<Light::Ptr>)
+UNIFORM_VALUE_T(std::vector<math::Matrix4>)
 
 class LibUniformValues
 {

@@ -11,79 +11,167 @@
 #include <memory>
 #include <unordered_map>
 
+#include <core/Color.h>
 #include <math/Vector2.h>
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 #include <math/Matrix3.h>
 #include <math/Matrix4.h>
 
+#include <light/Light.h>
 #include <textures/ImageTexture.h>
-
+#include <textures/DataTexture.h>
 #include <Constants.h>
-#include "shader/ShaderLib.h"
-#include "shader/UniformsLib.h"
 #include "Helpers.h"
 
 namespace three {
 namespace gl {
 
+enum class UniformName
+{
+  cube,
+  equirect,
+  flip,
+  opacity,
+  diffuse,
+  emissive,
+  specular,
+  shininess,
+  projectionMatrix,
+  viewMatrix,
+  modelViewMatrix,
+  normalMatrix,
+  modelMatrix,
+  logDepthBufFC,
+  boneMatrices,
+  bindMatrix,
+  bindMatrixInverse,
+  toneMappingExposure,
+  toneMappingWhitePoint,
+  cameraPosition,
+  map,
+  uvTransform,
+  alphaMap,
+  specularMap,
+  envMap,
+  flipEnvMap,
+  reflectivity,
+  refractionRatio,
+  aoMap,
+  aoMapIntensity,
+  lightMap,
+  lightMapIntensity,
+  emissiveMap,
+  bumpMap,
+  bumpScale,
+  normalMap,
+  normalScale,
+  displacementMap,
+  displacementScale,
+  displacementBias,
+  roughnessMap,
+  metalnessMap,
+  gradientMap,
+  roughness,
+  metalness,
+  clearCoat,
+  clearCoatRoughness,
+  envMapIntensity,
+  fogDensity,
+  fogNear,
+  fogFar,
+  fogColor,
+  ambientLightColor,
+  direction,
+  color,
+  shadow,
+  shadowBias,
+  shadowRadius,
+  shadowMapSize,
+  size,
+  scale,
+  dashSize,
+  totalSize,
+  referencePosition,
+  nearDistance,
+  farDistance,
+  clippingPlanes,
+  directionalLights,
+  spotLights,
+  rectAreaLights,
+  pointLights,
+  hemisphereLights,
+  directionalShadowMap,
+  directionalShadowMatrix,
+  spotShadowMap,
+  spotShadowMatrix,
+  pointShadowMap,
+  pointShadowMatrix,
+  distance,
+  position,
+  coneCos,
+  penumbraCos,
+  decay
+};
+
 class UniformContainer;
 class Renderer_impl;
+class UniformValues;
 
 class Uniform
 {
   const UniformName _id;
   const GLint _addr;
   const UniformType _type;
-  QOpenGLFunctions * const _fn;
+  Renderer_impl &_renderer;
 
 protected:
-  Uniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
-     : _id(id), _addr(addr), _type(type), _fn(fn) {}
+  Uniform(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr)
+     : _id(id), _addr(addr), _type(type), _renderer(renderer) {}
 
 public:
   using Ptr = std::shared_ptr<Uniform>;
-  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
-    return Ptr(new Uniform(fn, id, type, addr));
+  static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
+    return Ptr(new Uniform(renderer, id, type, addr));
   }
 
   const UniformName &id() const {return _id;}
 
-  // Single scalar
-  void setValue(GLfloat v) { _fn->glUniform1f( _addr, v ); }
+  void setValue(GLfloat v);
 
-  void setValue(GLint v) { _fn->glUniform1i( _addr, v ); }
+  void setValue(GLint v);
 
-  void setValue(const math::Vector2 &v) {
-    _fn->glUniform2fv(_addr, 1, v.elements());
-  }
+  void setValue(GLuint v);
 
-  void setValue(const math::Vector3 &v) {
-    _fn->glUniform3fv(_addr, 1, v.elements());
-  }
+  void setValue(const three::Color &c);
 
-  void setValue(const math::Vector4 &v) {
-    _fn->glUniform4fv(_addr, 1, v.elements());
-  }
+  void setValue(const math::Vector2 &v);
 
-  void setValue(const math::Matrix3 &v) {
-    _fn->glUniformMatrix3fv( _addr, 1, GL_FALSE, v.elements());
-  }
+  void setValue(const math::Vector3 &v);
 
-  void setValue(const math::Matrix4 &v) {
-    _fn->glUniformMatrix4fv( _addr, 1, GL_FALSE, v.elements());
-  }
+  void setValue(const math::Vector4 &v);
 
-  void setValue(const Texture::Ptr &texture, Renderer_impl &renderer );
+  void setValue(const math::Matrix3 &v);
 
-  void setValue(const ImageCubeTexture::Ptr &texture, Renderer_impl &renderer );
+  void setValue(const math::Matrix4 &v);
 
-  void setValue(const DataCubeTexture::Ptr &texture, Renderer_impl &renderer );
+  void setValue(const std::vector<float> &vector);
 
-  template <unsigned Sz>
-  void setValue(const std::array<GLint, Sz> &v) {
-    _fn->glUniform2iv(_addr, Sz, v.data());
-  }
+  void setValue(const GLint * array, size_t size);
+
+  void setValue(const Texture::Ptr &texture);
+
+  void setValue(const Light::Ptr &light);
+
+  void setValue(const std::vector<math::Matrix4> &matrices);
+
+  void setValue(const std::vector<Texture::Ptr> &textures);
+
+  void setValue(const std::vector<Light::Ptr> &lights);
+
+  void setValue(const ImageCubeTexture::Ptr &texture);
+
+  void setValue(const DataCubeTexture::Ptr &texture);
 
   virtual Uniform *asUniform() {return this;}
   virtual UniformContainer *asContainer() {return nullptr;}
@@ -94,13 +182,13 @@ class ArrayUniform : public Uniform
   const GLint _index;
 
 protected:
-  ArrayUniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
-  : Uniform(fn, id, type, addr), _index(0) {}
+  ArrayUniform(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr)
+  : Uniform(renderer, id, type, addr), _index(0) {}
 
 public:
   using Ptr = std::shared_ptr<ArrayUniform>;
-  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
-    return Ptr(new ArrayUniform(fn, id, type, addr));
+  static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
+    return Ptr(new ArrayUniform(renderer, id, type, addr));
   }
 };
 
@@ -124,13 +212,13 @@ public:
 class StructuredUniform : public Uniform, public UniformContainer
 {
 protected:
-  StructuredUniform(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr)
-  : Uniform(fn, id, type, addr) {}
+  StructuredUniform(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr)
+  : Uniform(renderer, id, type, addr) {}
 
 public:
   using Ptr = std::shared_ptr<StructuredUniform>;
-  static Ptr make(QOpenGLFunctions * fn, UniformName id, UniformType type, const GLint addr) {
-    return Ptr(new StructuredUniform(fn, id, type, addr));
+  static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
+    return Ptr(new StructuredUniform(renderer, id, type, addr));
   }
 
   Uniform *asUniform() override {return nullptr;}
@@ -188,7 +276,7 @@ public:
 class Uniforms : public UniformContainer
 {
   // --- Utilities ---
-  QOpenGLFunctions * const _fn;
+  Renderer_impl & _renderer;
 
   // Array Caches (provide typed arrays for temporary by size)
   std::unordered_map<size_t, std::vector<float>> arrayCacheF32;
@@ -225,29 +313,21 @@ class Uniforms : public UniformContainer
 
   void parseUniform(GLuint program, unsigned index, UniformContainer *container);
 
-  Uniforms(QOpenGLFunctions * fn, GLuint program) : _fn(fn)
-  {
-    GLint numUniforms;
-    fn->glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-    for (unsigned i = 0; i < numUniforms; ++ i) {
-      parseUniform(program, i, this);
-    }
-  }
+  Uniforms(Renderer_impl & renderer, GLuint program);
 
   const std::string _id = "uniforms";
 
 public:
   using Ptr = std::shared_ptr<Uniforms>;
-  static Ptr make(QOpenGLFunctions * fn, GLuint program) {
-    return Ptr(new Uniforms(fn, program));
+  static Ptr make(Renderer_impl & renderer, GLuint program) {
+    return Ptr(new Uniforms(renderer, program));
   }
 
   template <typename T>
   void set(UniformName name, T value) {
     if(_map.count(name) > 0) {
       _map[name]->setValue(value);
-      check_gl_error(_fn);
+      //check_gl_error(_renderer);
     }
   }
 
@@ -260,17 +340,7 @@ public:
   }
 
   //seqWithValue
-  std::vector<Uniform::Ptr> sequenceUniforms(const UniformValues &values)
-  {
-    std::vector<Uniform::Ptr> result;
-    for(auto name : _sequence) {
-
-      if(values.contains(name)) {
-        result.push_back(_map[name]);
-      }
-    }
-    return result;
-  }
+  std::vector<Uniform::Ptr> sequenceUniforms(const UniformValues &values);
 };
 
 }

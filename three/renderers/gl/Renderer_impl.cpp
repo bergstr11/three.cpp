@@ -978,11 +978,11 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
     // wire up the material to this renderer's lighting state
 
     uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
-    uniforms.set(UniformName::directionalLights, _lights.state.directional);
+    /*uniforms.set(UniformName::directionalLights, _lights.state.directional);
     uniforms.set(UniformName::spotLights, _lights.state.spot);
     uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
     uniforms.set(UniformName::pointLights, _lights.state.point);
-    uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
+    uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);*/
 
     uniforms.set(UniformName::directionalShadowMap, _lights.state.directionalShadowMap);
     uniforms.set(UniformName::directionalShadowMatrix, _lights.state.directionalShadowMatrix);

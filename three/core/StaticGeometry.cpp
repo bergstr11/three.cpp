@@ -309,10 +309,10 @@ StaticGeometry &StaticGeometry::set(const BufferGeometry &geometry )
 
   auto addFace = [&](const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex)
   {
-    std::array<Vertex, 3> vertexNormals;
+    std::vector<Vertex> vertexNormals;
     if(normals) vertexNormals = {tempNormals[a], tempNormals[b], tempNormals[c]};
 
-    std::array<Color, 3> vertexColors;
+    std::vector<Color> vertexColors;
     if(colors) vertexColors = {_colors[a], _colors[b], _colors[c]};
 
     Face3 face(a, b, c, vertexNormals, vertexColors, materialIndex);

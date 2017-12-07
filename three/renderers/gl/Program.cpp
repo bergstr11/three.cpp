@@ -673,7 +673,7 @@ Program::Program(Renderer_impl &renderer,
 Uniforms::Ptr Program::getUniforms()
 {
   if (_cachedUniforms == nullptr) {
-    _cachedUniforms = Uniforms::make(&_renderer, _program);
+    _cachedUniforms = Uniforms::make(_renderer, _program);
   }
 
   return _cachedUniforms;

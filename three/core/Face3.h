@@ -36,7 +36,7 @@ struct Face3
   }
 
   Face3(unsigned a, unsigned b, unsigned c,
-        const std::array<Vertex, 3> normal, const std::array<Color, 3> color, unsigned materialIndex=0) :
+        const std::vector<Vertex> &normal, const std::vector<Color> &color, unsigned materialIndex=0) :
      a(a), b(b), c(c), materialIndex(materialIndex)
   {
     vertexNormals.insert(vertexNormals.begin(), normal.cbegin(), normal.cend());
