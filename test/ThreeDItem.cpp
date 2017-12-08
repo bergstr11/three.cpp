@@ -56,10 +56,10 @@ public:
           item->width(), item->height(),
           item->window()->screen()->devicePixelRatio()))
   {
-    /*_renderer->setSize(item->width(), item->height());
+    _renderer->setSize(item->width(), item->height());
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
 
-    _scene->add(axes);*/
+    _scene->add(axes);
 
     Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
@@ -81,7 +81,7 @@ public:
 
     _scene->add(cube);
 
-    /*Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
+    Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
     MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();
     sphereMaterial->color = Color(0x7777ff);
     sphereMaterial->wireframe = true;
@@ -89,7 +89,7 @@ public:
     Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make("sphere", sphereGeometry, sphereMaterial);
     sphere->position().set(20, 4, 2);
 
-    _scene->add(sphere);*/
+    _scene->add(sphere);
 
     _camera->position().set(-30, 40, 30);
     _camera->lookAt(_scene->position());

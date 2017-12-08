@@ -6,6 +6,16 @@
 
 namespace three {
 
+struct array_hash {
+  std::size_t operator () (const std::array<float, 3> &a) const {
+    auto h = std::hash<float>{}(a[0]);
+    hash_combine(h, a[1]);
+    hash_combine(h, a[2]);
+
+    return h;
+  }
+};
+
 StaticGeometry &StaticGeometry::computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
 {
   for (Face3 & face : faces) {
@@ -158,25 +168,22 @@ StaticGeometry &StaticGeometry::merge(const StaticGeometry &geometry,
  */
 size_t StaticGeometry::mergeVertices()
 {
-  unsigned precisionPoints = 4; // number of decimal points, e.g. 4 for epsilon of 0.0001
-  double precision = std::pow( 10, precisionPoints );
+  float precisionPoints = 4; // number of decimal points, e.g. 4 for epsilon of 0.0001
+  float precision = std::pow( 10.0f, precisionPoints );
 
-  std::unordered_map<std::string, unsigned> verticesMap;
+  std::unordered_map<std::array<float, 3>, size_t, array_hash> verticesMap;
   std::vector<Vertex> unique;
-  std::unordered_map<unsigned, unsigned> changes;
+  std::unordered_map<size_t, unsigned> changes;
 
-  for (unsigned i = 0, il = _vertices.size(); i < il; i ++ ) {
+  for (size_t i = 0, il = _vertices.size(); i < il; i ++ ) {
     const Vertex v = _vertices[ i ];
 
+    std::array<float, 3> key {std::round( v.x() * precision ), std::round( v.y() * precision ), std::round( v.z() * precision)};
 
-    std::stringstream ss;
-    ss<< std::round( v.x() * precision ) << '_' << std::round( v.y() * precision ) << '_' << std::round( v.z() * precision );
-    std::string key = ss.str();
-
-    if (verticesMap.find(key) == verticesMap.end()) {
+    if (verticesMap.count(key) == 0) {
       verticesMap[key] = i;
       unique.push_back( _vertices[i] );
-      changes[i] = unique.size() - 1;
+      changes[i] = (unsigned)unique.size() - 1;
     }
     else {
       //console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
@@ -188,9 +195,7 @@ size_t StaticGeometry::mergeVertices()
   // have to remove them from the geometry.
   std::vector<unsigned> faceIndicesToRemove;
 
-  std::array<int, 3> indices;
-
-  for (unsigned i = 0, il = _faces.size(); i < il; i ++ ) {
+  for (size_t i = 0, il = _faces.size(); i < il; i ++ ) {
 
     Face3 &face = _faces[i];
 
@@ -198,7 +203,7 @@ size_t StaticGeometry::mergeVertices()
     face.b = changes[ face.b ];
     face.c = changes[ face.c ];
 
-    indices = {face.a, face.b, face.c};
+    std::array<unsigned, 3> indices {face.a, face.b, face.c};
 
     // if any duplicate vertices are found in a Face3
     // we have to remove the face as nothing can be saved
@@ -211,9 +216,9 @@ size_t StaticGeometry::mergeVertices()
     }
   }
 
-  for (unsigned i = faceIndicesToRemove.size() - 1; i >= 0; i--) {
+  for (auto i = faceIndicesToRemove.size(); i > 0; i--) {
 
-    unsigned idx = faceIndicesToRemove[i];
+    unsigned idx = faceIndicesToRemove[i - 1];
 
     _faces.erase(_faces.begin()+idx);
 

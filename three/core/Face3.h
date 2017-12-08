@@ -16,8 +16,8 @@ using Vertex = math::Vector3;
 struct Face3
 {
   union {
-    struct { int a, b, c, d; };
-    int elements[4];
+    struct { unsigned a, b, c, d; };
+    unsigned elements[4];
   };
 
   Vertex normal;
