@@ -16,9 +16,11 @@ Euler & Euler::operator = (const Euler &euler)
   _y = euler._y;
   _z = euler._z;
   _order = euler._order;
+
+  onChange.emitSignal(*this);
 }
 
-void Euler::set(const Matrix4 &m, RotationOrder order)
+void Euler::set(const Matrix4 &m, RotationOrder order, bool emitSignal)
 {
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
 
@@ -26,6 +28,8 @@ void Euler::set(const Matrix4 &m, RotationOrder order)
   float m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ];
   float m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ];
   float m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
+
+  if(order == RotationOrder::Default) order = _order;
 
   switch(order) {
     case XYZ: {
@@ -108,26 +112,30 @@ void Euler::set(const Matrix4 &m, RotationOrder order)
     }
   }
   _order = order;
+
+  if(emitSignal) onChange.emitSignal(*this);
 }
 
-void Euler::set(float x, float y, float z, RotationOrder order)
+void Euler::set(float x, float y, float z, RotationOrder order, bool emitSignal)
 {
   _x = x;
   _y = y;
   _z = z;
   _order = order;
+
+  if(emitSignal) onChange.emitSignal(*this);
 }
 
-void Euler::set(const Quaternion &q, RotationOrder order)
+void Euler::set(const Quaternion &q, RotationOrder order, bool emitSignal)
 {
   Matrix4 matrix = Matrix4::rotation( q );
 
-  set(matrix, order);
+  set(matrix, order, emitSignal);
 }
 
-void Euler::set(const Vector3 &v, RotationOrder order)
+void Euler::set(const Vector3 &v, RotationOrder order, bool emitSignal)
 {
-  set( v.x(), v.y(), v.z(), order );
+  set( v.x(), v.y(), v.z(), order, emitSignal);
 }
 
 Quaternion Euler::toQuaternion() const

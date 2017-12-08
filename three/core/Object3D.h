@@ -67,7 +67,9 @@ protected:
 
   int _renderOrder = -1;
 
-protected:
+  void onRotationChange(const math::Euler &rotation);
+  void onQuaternionChange(const math::Quaternion &quaternion);
+
   explicit Object3D(const object::Resolver::Ptr resolver);
 
 public:

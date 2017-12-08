@@ -14,6 +14,7 @@ Box::Box(unsigned width, unsigned height, unsigned depth,
      _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
 {
   set(buffer::Box(width, height, depth, widthSegments, heightSegments, depthSegments));
+  mergeVertices();
 }
 
 namespace buffer {
@@ -52,12 +53,12 @@ Box::Box(unsigned int width,
   BuildPlane buildPlane = [&](El u, El v, El w, int udir, int vdir, unsigned width, unsigned height, int depth,
                               unsigned gridX, unsigned gridY, unsigned materialIndex) {
 
-    float segmentWidth = width / gridX;
-    float segmentHeight = height / gridY;
+    float segmentWidth = (float)width / gridX;
+    float segmentHeight = (float)height / gridY;
 
-    float widthHalf = width / 2;
-    float heightHalf = height / 2;
-    float depthHalf = depth / 2;
+    float widthHalf = (float)width / 2;
+    float heightHalf = (float)height / 2;
+    float depthHalf = (float)depth / 2;
 
     unsigned gridX1 = gridX + 1;
     unsigned gridY1 = gridY + 1;
@@ -65,19 +66,17 @@ Box::Box(unsigned int width,
     unsigned vertexCounter = 0;
     unsigned groupCount = 0;
 
-    //unsigned ix, iy;
-
     math::Vector3 vector;
 
     // generate vertices, normals and uvs
 
     for (unsigned iy = 0; iy < gridY1; iy++) {
 
-      unsigned y = iy * segmentHeight - heightHalf;
+      float y = iy * segmentHeight - heightHalf;
 
       for (unsigned ix = 0; ix < gridX1; ix++) {
 
-        unsigned x = ix * segmentWidth - widthHalf;
+        float x = ix * segmentWidth - widthHalf;
 
         // set values to correct vector component
         vector[u] = x * udir;
@@ -96,8 +95,8 @@ Box::Box(unsigned int width,
         vector_append(normals, {vector.x(), vector.y(), vector.z()});
 
         // uvs
-        uvs.push_back(ix / gridX);
-        uvs.push_back(1 - (iy / gridY));
+        uvs.push_back((float)ix / gridX);
+        uvs.push_back((float)1 - ((float)iy / gridY));
 
         // counters
         vertexCounter += 1;

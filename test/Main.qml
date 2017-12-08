@@ -23,7 +23,7 @@ Window {
         anchors.centerIn: parent
         font.pointSize: 50
         text: "Hello ThreePePe"
-        visible: true
+        visible: false
         color: "yellow"
         opacity: 0.5
         z: 2

@@ -10,7 +10,7 @@
 namespace three {
 namespace math {
 
-Quaternion::Quaternion(const Euler &euler)
+Quaternion &Quaternion::set(const Euler &euler, bool emitSignal)
 {
   float x = euler.x(), y = euler.y(), z = euler.z();
   Euler::RotationOrder order = euler.order();
@@ -64,6 +64,9 @@ Quaternion::Quaternion(const Euler &euler)
       _z = c1 * c2 * s3 + s1 * s2 * c3;
       _w = c1 * c2 * c3 + s1 * s2 * s3;
   }
+
+  if(emitSignal) onChange.emitSignal(*this);
+  return *this;
 }
 
 Quaternion::Quaternion(const Vector3 &axis, float angle )
@@ -87,7 +90,7 @@ Quaternion::Quaternion(const Matrix4 &m) {
   set(m);
 }
 
-Quaternion &Quaternion::set(const Matrix4 &m)
+Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
 {
   const float *te = m.elements(),
 
@@ -137,6 +140,7 @@ Quaternion &Quaternion::set(const Matrix4 &m)
     _y = (m23 + m32) / s;
     _z = 0.25f * s;
   }
+  if(emitSignal) onChange.emitSignal(*this);
   return *this;
 }
 

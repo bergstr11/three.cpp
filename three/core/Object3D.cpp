@@ -10,9 +10,21 @@ namespace three {
 
 using namespace three::math;
 
+void Object3D::onRotationChange(const math::Euler &rotation)
+{
+  _quaternion.set(_rotation, false);
+}
+
+void Object3D::onQuaternionChange(const math::Quaternion &quaternion)
+{
+  _rotation.set(_quaternion, Euler::RotationOrder::Default, false);
+}
+
 Object3D::Object3D(object::Resolver::Ptr resolver)
    : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
 {
+  _rotation.onChange.connect(*this, &Object3D::onRotationChange);
+  _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
 }
 
 void Object3D::applyMatrix(const Matrix4 &matrix)

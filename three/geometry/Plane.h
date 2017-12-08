@@ -36,8 +36,8 @@ public:
     float width_half = width / 2;
     float height_half = height / 2;
 
-    unsigned gridX = (unsigned)std::floor(widthSegments > 0 ? widthSegments : 1);
-    unsigned gridY = (unsigned)std::floor(heightSegments > 0 ? heightSegments : 1);
+    unsigned gridX = std::max((unsigned)std::floor(widthSegments), 1u);
+    unsigned gridY = std::max((unsigned)std::floor(heightSegments), 1u);
 
     unsigned gridX1 = gridX + 1;
     unsigned gridY1 = gridY + 1;
@@ -47,23 +47,27 @@ public:
 
     // buffers
     std::vector<uint32_t> indices(gridX1 * gridY1 * 6);
+    indices.clear();
     std::vector<float> vertices(gridX1 * gridY1 * 3);
+    vertices.clear();
     std::vector<float> normals(gridX1 * gridY1 * 3);
+    normals.clear();
     std::vector<float> uvs(gridX1 * gridY1 * 2);
+    uvs.clear();
 
     // generate vertices, normals and uvs
     for (unsigned iy = 0; iy < gridY1; iy ++) {
-      float y = iy * segment_height - height_half;
+      float y = (float)iy * segment_height - height_half;
 
       for (unsigned ix = 0; ix < gridX1; ix ++ ) {
-        float x = ix * segment_width - width_half;
+        float x = (float)ix * segment_width - width_half;
 
         vertices.insert(vertices.end(), {x, - y, 0});
 
         normals.insert(normals.end(), {0, 0, 1});
 
-        uvs.push_back( ix / gridX );
-        uvs.push_back( 1 - ( iy / gridY ) );
+        uvs.push_back( (float)ix / gridX );
+        uvs.push_back( 1 - ( (float)iy / gridY ) );
       }
     }
 
@@ -103,6 +107,7 @@ protected:
      : PlaneParameters(width, height, widthSegments, heightSegments)
   {
     set(buffer::Plane(width, height, widthSegments, heightSegments));
+    mergeVertices();
   }
 
 public:

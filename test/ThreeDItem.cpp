@@ -49,7 +49,7 @@ public:
 
   explicit FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
-       _scene(SceneT<Color>::make("scene", Color(0.5f, 0.5f, 0.7f))),
+       _scene(SceneT<Color>::make("scene", Color(0.8f, 0.8f, 0.6f))),
        _camera(PerspectiveCamera::make(45, item->width() / item->height(), 0.1, 1000)),
        _renderer(OpenGLRenderer::make(
           QOpenGLContext::currentContext(),
@@ -59,14 +59,14 @@ public:
     /*_renderer->setSize(item->width(), item->height());
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
 
-    _scene->add(axes);
+    _scene->add(axes);*/
 
     Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
     planeMaterial->color = Color(0xcccccc);
 
     Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make("plane", planeGeometry, planeMaterial);
-    plane->rotation().x() = -0.5f * (float) M_PI;
+    plane->rotation().setX(-0.5f * (float) M_PI);
     plane->position().set(15, 0, 0);
 
     _scene->add(plane);
@@ -79,16 +79,17 @@ public:
     Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make("cube", cubeGeometry, cubeMaterial);
     cube->position().set(-4, 3, 0);
 
-    _scene->add(cube);*/
+    _scene->add(cube);
 
-    Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
+    /*Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
     MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();
     sphereMaterial->color = Color(0x7777ff);
     sphereMaterial->wireframe = true;
+
     Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make("sphere", sphereGeometry, sphereMaterial);
     sphere->position().set(20, 4, 2);
 
-    _scene->add(sphere);
+    _scene->add(sphere);*/
 
     _camera->position().set(-30, 40, 30);
     _camera->lookAt(_scene->position());

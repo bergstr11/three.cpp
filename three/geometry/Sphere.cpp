@@ -15,6 +15,7 @@ Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
      _phiStart(phiStart), _phiLength(phiLength), _thetaStart(thetaStart), _thetaLength(thetaLength)
 {
   set(buffer::Sphere(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength));
+  mergeVertices();
 }
 
 namespace buffer {

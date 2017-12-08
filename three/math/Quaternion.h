@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include "helper/simplesignal.h"
 
 namespace three {
 namespace math {
@@ -25,6 +26,11 @@ class Quaternion
     float _elements[4];
   };
 
+  Quaternion &set(const Quaternion &q, bool emitSignal) {
+    _x = q._x; _y = q._y; _z = q._z; _w = q._w;
+    if(emitSignal) onChange.emitSignal(*this);
+  }
+
 public:
   Quaternion(float x, float y, float z, float w) : _x(x), _y(y), _z(z), _w(w) {}
 
@@ -34,7 +40,11 @@ public:
 
   Quaternion(const Quaternion &q) : _x(q._x), _y(q._y), _z(q._z), _w(q._w) {}
 
-  Quaternion(const Euler &euler);
+  Quaternion &operator =(const Quaternion &q) {
+    set(q, true);
+  }
+
+  Signal<void(const Quaternion &)> onChange;
 
   const float x() const {
     return _x;
@@ -124,9 +134,12 @@ public:
 
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-  Quaternion(const Matrix4 &m);
+  explicit Quaternion(const Matrix4 &m);
 
-  Quaternion& set(const Matrix4 &m);
+  Quaternion& set(const Matrix4 &m, bool emitSignal=true);
+
+  Quaternion &set(const Euler &euler, bool emitSignal=true);
+
 
   // assumes direction vectors vFrom and vTo are normalized
   Quaternion(const Vector3 &vFrom, const Vector3 &vTo);
@@ -141,20 +154,22 @@ public:
     _x *= -1;
     _y *= -1;
     _z *= -1;
+
+    onChange.emitSignal(*this);
     return *this;
   }
 
-  float dot(const Quaternion &v)
+  float dot(const Quaternion &v) const
   {
     return _x * v._x + _y * v._y + _z * v._z + _w * v._w;
   }
 
-  float lengthSq()
+  float lengthSq() const
   {
     return _x * _x + _y * _y + _z * _z + _w * _w;
   }
 
-  float length()
+  float length() const
   {
     return std::sqrt( _x * _x + _y * _y + _z * _z + _w * _w );
   }
@@ -189,13 +204,14 @@ public:
     _z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
     _w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
 
+    onChange.emitSignal(*this);
     return *this;
   }
 
-  Quaternion& slerp( const Quaternion& qb, float t )
+  Quaternion& slerp( const Quaternion& qb, float t, bool emitSignal=true )
   {
     if(t == 0) return *this;
-    if(t == 1) return *this = qb;
+    if(t == 1) return set(qb, emitSignal);
 
     float x = _x, y = _y, z = _z, w = _w;
 
@@ -242,10 +258,11 @@ public:
     _y = ( y * ratioA + _y * ratioB );
     _z = ( z * ratioA + _z * ratioB );
 
+    onChange.emitSignal(*this);
     return *this;
   }
 
-  bool operator ==(const Quaternion &quaternion)
+  bool operator ==(const Quaternion &quaternion) const
   {
     return quaternion._x == _x && quaternion._y == _y && quaternion._z == _z && quaternion._w == _w;
   }
@@ -258,7 +275,7 @@ public:
                       array[ offset + 3 ]);
   }
 
-  void writeTo(float *array, unsigned offset=0)
+  void writeTo(float *array, unsigned offset=0) const
   {
     array[ offset ] = _x;
     array[ offset + 1 ] = _y;
