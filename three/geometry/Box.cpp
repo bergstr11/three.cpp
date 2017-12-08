@@ -20,7 +20,6 @@ Box::Box(unsigned width, unsigned height, unsigned depth,
 namespace buffer {
 
 using El = math::Vector3::Element;
-using BuildPlane = std::function<void(El, El, El, int, int, unsigned, unsigned, int, unsigned, unsigned, unsigned)>;
 
 Box::Box(unsigned int width,
          unsigned int height,
@@ -41,16 +40,17 @@ Box::Box(unsigned int width,
   // buffers
 
   std::vector<uint32_t> indices;
-  std::vector<float> vertices;
-  std::vector<float> normals;
-  std::vector<float> uvs;
+  std::vector<Vertex> vertices;
+  std::vector<Vertex> normals;
+  std::vector<UV> uvs;
 
   // helper variables
 
   unsigned numberOfVertices = 0;
   unsigned groupStart = 0;
 
-  BuildPlane buildPlane = [&](El u, El v, El w, int udir, int vdir, unsigned width, unsigned height, int depth,
+  auto buildPlane = [&](El u, El v, El w, int udir, int vdir,
+                              unsigned width, unsigned height, int depth,
                               unsigned gridX, unsigned gridY, unsigned materialIndex) {
 
     float segmentWidth = (float)width / gridX;
@@ -66,8 +66,6 @@ Box::Box(unsigned int width,
     unsigned vertexCounter = 0;
     unsigned groupCount = 0;
 
-    math::Vector3 vector;
-
     // generate vertices, normals and uvs
 
     for (unsigned iy = 0; iy < gridY1; iy++) {
@@ -79,12 +77,13 @@ Box::Box(unsigned int width,
         float x = ix * segmentWidth - widthHalf;
 
         // set values to correct vector component
+        math::Vector3 vector;
         vector[u] = x * udir;
         vector[v] = y * vdir;
         vector[w] = depthHalf;
 
         // now apply vector to vertex buffer
-        vector_append(vertices, {vector.x(), vector.y(), vector.z()});
+        vertices.push_back(vector);
 
         // set values to correct vector component
         vector[u] = 0;
@@ -92,11 +91,10 @@ Box::Box(unsigned int width,
         vector[w] = depth > 0 ? 1 : -1;
 
         // now apply vector to normal buffer
-        vector_append(normals, {vector.x(), vector.y(), vector.z()});
+        normals.push_back(vector);
 
         // uvs
-        uvs.push_back((float)ix / gridX);
-        uvs.push_back((float)1 - ((float)iy / gridY));
+        uvs.emplace_back((float)ix / gridX, (float)1 - ((float)iy / gridY));
 
         // counters
         vertexCounter += 1;
@@ -119,8 +117,8 @@ Box::Box(unsigned int width,
         uint32_t d = numberOfVertices + (ix + 1) + gridX1 * iy;
 
         // faces
-        vector_append(indices, {a, b, d});
-        vector_append(indices, {b, c, d});
+        indices += {a, b, d};
+        indices += {b, c, d};
 
         // increase counter
         groupCount += 6;

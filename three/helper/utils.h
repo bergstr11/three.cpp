@@ -12,7 +12,7 @@
 namespace three {
 
 template <typename Value>
-static void vector_append(std::vector<Value> &container, std::initializer_list<Value> args) {
+static void operator +=(std::vector<Value> &container, const std::initializer_list<Value> &args) {
   container.insert(container.end(), std::begin(args), std::end(args));
 }
 
