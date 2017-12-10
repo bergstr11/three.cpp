@@ -114,28 +114,18 @@ template <typename Type>
 class BufferAttributeT : public BufferAttribute
 {
   std::vector<Type> _array;
-  size_t _count;
 
 protected:
   BufferAttributeT(const std::vector<Type> &array, unsigned itemSize, bool normalized)
-     : BufferAttribute(itemSize, normalized), _array(array), _count(array.size() / _itemSize)
-  {}
-
-  BufferAttributeT(unsigned itemSize, bool normalized)
-     : BufferAttribute(itemSize, normalized), _array(std::vector<Type>()), _count(0)
+     : BufferAttribute(itemSize, normalized), _array(array)
   {}
 
   BufferAttributeT(const BufferAttributeT &source) :
-     BufferAttribute(source._itemSize, source._normalized, source._dynamic), _array(source._array), _count(source._count)
+     BufferAttribute(source._itemSize, source._normalized, source._dynamic), _array(source._array)
   {}
 
-  BufferAttributeT(const std::vector<float> &values, bool normalized)
-     : BufferAttribute(1, normalized), _array(values)
-  {
-  }
-
   BufferAttributeT(const std::vector<UV> &uvs, bool normalized)
-     : BufferAttribute(2, normalized), _count(uvs.size() / _itemSize)
+     : BufferAttribute(2, normalized)
   {
     _array.resize(uvs.size() * _itemSize);
 
@@ -147,7 +137,7 @@ protected:
   }
 
   BufferAttributeT(const std::vector<Color> &colors, bool normalized)
-     : BufferAttribute(3, normalized), _count(colors.size() / _itemSize)
+     : BufferAttribute(3, normalized)
   {
     _array.resize(colors.size() * _itemSize);
 
@@ -160,7 +150,7 @@ protected:
   }
 
   BufferAttributeT(const std::vector<Index> &indices, bool normalized)
-     : BufferAttribute(3, normalized), _count(indices.size() / _itemSize)
+     : BufferAttribute(3, normalized)
   {
     _array.resize(indices.size() * _itemSize);
 
@@ -177,7 +167,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector2> vectors, bool normalized)
-     : BufferAttribute(2, normalized), _count(vectors.size() / _itemSize)
+     : BufferAttribute(2, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -189,7 +179,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector3> vectors, bool normalized)
-     : BufferAttribute(3, normalized), _count(vectors.size() / _itemSize)
+     : BufferAttribute(3, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -202,7 +192,7 @@ protected:
   }
 
   BufferAttributeT(std::vector<math::Vector4> vectors, bool normalized)
-     : BufferAttribute(4, normalized), _count(vectors.size() / _itemSize)
+     : BufferAttribute(4, normalized)
   {
     _array.resize(vectors.size() * _itemSize);
 
@@ -225,7 +215,7 @@ public:
 
   static Ptr make(const std::vector<float> values, bool normalized=false)
   {
-    return Ptr(new BufferAttributeT(values, normalized));
+    return Ptr(new BufferAttributeT(values, 1, normalized));
   }
 
   static Ptr make(const std::vector<UV> uvs, bool normalized=false)
@@ -260,7 +250,7 @@ public:
 
   Signal<void(const BufferAttributeT<Type> &)> onUpload;
 
-  size_t count() const override {return _count;}
+  size_t count() const override {return _array.size() / _itemSize;}
 
   const size_t size() const {return _array.size();}
 
@@ -272,7 +262,6 @@ public:
 
   void set(const std::vector<Type> &array)
   {
-    _count = array.size() / _itemSize;
     _array = array;
   }
 
@@ -404,7 +393,7 @@ public:
     Type maxY = - std::numeric_limits<Type>::infinity();
     Type maxZ = - std::numeric_limits<Type>::infinity();
 
-    for(size_t i = 0; i < _count; i++) {
+    for(size_t i = 0, cnt = count(); i < cnt; i++) {
       Type x = get_x(i);
       Type y = get_y(i);
       Type z = get_z(i);
@@ -423,7 +412,7 @@ public:
 
   void apply(const math::Matrix4 &matrix) override
   {
-    for(size_t i = 0; i < _count; i ++ ) {
+    for(size_t i = 0, cnt = count(); i < cnt; i ++ ) {
       math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
 
       v1.apply(matrix);
@@ -434,7 +423,7 @@ public:
 
   void apply(const math::Matrix3 &matrix) override
   {
-    for(size_t i = 0; i < _count; i ++ ) {
+    for(size_t i = 0, cnt = count(); i < cnt; i ++ ) {
       math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
 
       v1.apply(matrix);

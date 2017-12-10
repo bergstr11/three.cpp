@@ -48,11 +48,11 @@ public:
     // buffers
     std::vector<uint32_t> indices(gridX1 * gridY1 * 6);
     indices.clear();
-    std::vector<float> vertices(gridX1 * gridY1 * 3);
+    std::vector<Vertex> vertices(gridX1 * gridY1 * 3);
     vertices.clear();
-    std::vector<float> normals(gridX1 * gridY1 * 3);
+    std::vector<Vertex> normals(gridX1 * gridY1 * 3);
     normals.clear();
-    std::vector<float> uvs(gridX1 * gridY1 * 2);
+    std::vector<UV> uvs(gridX1 * gridY1 * 2);
     uvs.clear();
 
     // generate vertices, normals and uvs
@@ -62,12 +62,11 @@ public:
       for (unsigned ix = 0; ix < gridX1; ix ++ ) {
         float x = (float)ix * segment_width - width_half;
 
-        vertices.insert(vertices.end(), {x, - y, 0});
+        vertices.emplace_back(x, - y, 0);
 
-        normals.insert(normals.end(), {0, 0, 1});
+        normals.emplace_back(0, 0, 1);
 
-        uvs.push_back( (float)ix / gridX );
-        uvs.push_back( 1 - ( (float)iy / gridY ) );
+        uvs.emplace_back( (float)ix / gridX, 1 - ( (float)iy / gridY ) );
       }
     }
 

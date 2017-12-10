@@ -84,7 +84,7 @@ struct Color
   Color(const Color &color) : r(color.r), g(color.g), b(color.b)
   {}
 
-  Color(unsigned hex) : r((hex >> 16 & 255 ) / 255), g((hex >> 8 & 255 ) / 255), b((hex & 255 ) / 255)
+  Color(unsigned hex) : r((hex >> 16 & 255) / 255.0f), g((hex >> 8 & 255) / 255.0f), b((hex & 255) / 255.0f)
   {}
 
   Color() : r(1), g(1), b(1) {}
@@ -93,15 +93,23 @@ struct Color
   {
     auto hex = (std::uint32_t)name;
 
-    float r = ( hex >> 16 & 255 ) / 255;
-    float g = ( hex >> 8 & 255 ) / 255;
-    float b = ( hex & 255 ) / 255;
+    float r = ( hex >> 16 & 255 ) / 255.0f;
+    float g = ( hex >> 8 & 255 ) / 255.0f;
+    float b = ( hex & 255 ) / 255.0f;
 
     return Color(r, g, b);
   }
 
   bool isNull() const {
     return r == g && g == b && b == std::numeric_limits<float>::infinity();
+  }
+
+  Color &operator = (const Color &color) {
+    r = color.r;
+    g = color.g;
+    b = color.b;
+
+    return *this;
   }
 
   Color &operator *=(const Color &color)
