@@ -648,14 +648,14 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   if ( updateBuffers )
     setupVertexAttributes( material, program, geometry );
 
-  if (geometry->index()) {
+  if (index) {
 
-    const Buffer &attribute = _attributes.get( *geometry->index() );
+    const Buffer &attribute = _attributes.get( *index );
 
     if ( updateBuffers )
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, attribute.handle);
 
-    _indexedBufferRenderer.setIndex(geometry->index()->glType(), geometry->index()->bytesPerElement());
+    _indexedBufferRenderer.setIndex(attribute.type, attribute.bytesPerElement);
     renderer = &_indexedBufferRenderer;
   }
   else {

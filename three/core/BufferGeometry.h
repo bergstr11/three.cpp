@@ -162,7 +162,7 @@ public:
     if(_index)
       _index->set(indices);
     else
-      _index = BufferAttributeT<uint32_t>::make(indices, 3, true);
+      _index = BufferAttributeT<uint32_t>::make(indices, 1, true);
   }
 
   BufferGeometry &setPosition(const BufferAttributeT<float>::Ptr &position)
