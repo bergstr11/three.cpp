@@ -133,6 +133,8 @@ ThreeDItem::ThreeDItem(QQuickItem *parent)
   setFlag(QQuickItem::ItemIsFocusScope);
   setFlag(QQuickItem::ItemAcceptsInputMethod);
 
+  setMirrorVertically(true);
+
   //m_loader = new ModelLoader();
   //connect(m_loader, &ModelLoader::modelLoaded, this, &ThreeDItem::modelLoaded, Qt::QueuedConnection);
 }
