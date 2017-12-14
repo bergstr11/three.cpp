@@ -65,8 +65,6 @@ public:
     MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
     planeMaterial->color = Color(0xcccccc);
 
-    Color c = planeMaterial->color;
-
     Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make("plane", planeGeometry, planeMaterial);
     plane->rotation().setX(-0.5f * (float) M_PI);
     plane->position().set(15, 0, 0);

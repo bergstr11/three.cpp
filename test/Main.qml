@@ -3,7 +3,7 @@ import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 
-import com.lightningobjects.ui 1.0
+import three.quick 1.0
 
 Window {
     id: mainWindow
@@ -12,20 +12,62 @@ Window {
 
     visible: true
 
-    ThreeDItem {
+    Scene {
+        id: scene
         z: 1
         anchors.fill: parent
         focus: true
-        background: "yellow"
-        data: "/home/byter/work/git/vtk_qml/data/Mercedes_GLE6/gle63amg_lowpoly.3DS"
-    }
-    Text {
-        anchors.centerIn: parent
-        font.pointSize: 50
-        text: "Hello ThreePePe"
-        visible: false
-        color: "yellow"
-        opacity: 0.5
-        z: 2
+        background: Qt.rgba(0.4,0.4,0.6)
+
+        Axes {
+            size: 20
+        }
+
+        Plane {
+            width: 60
+            height: 20
+
+            position: "15,0,0"
+            rotation: -0.5 * Math.PI
+
+            material: MeshBasicMaterial {
+                color: "#cccccc"
+            }
+        }
+
+        Box {
+            width: 4
+            height: 4
+            depth: 4
+
+            position: "-4,3,0"
+
+            material: MeshBasicMaterial {
+                color: "#ff0000"
+            }
+        }
+
+        Sphere {
+            radius: 4
+            widthSegments: 20
+            heightSegments: 20
+
+            position: "20,4,2"
+
+            material: MeshBasicMaterial {
+                color: "#7777ff"
+            }
+        }
+
+        camera: PerspectiveCamera {
+            fov: 45
+            aspect: scene.width / scene.height
+            near: 0.1
+            far: 1000
+
+            position: "-30,40,30"
+
+            lookAt: scene
+        }
     }
 }
