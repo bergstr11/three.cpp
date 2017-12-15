@@ -5,7 +5,7 @@
 #ifndef THREEPP_QUICK_PLANE_H
 #define THREEPP_QUICK_PLANE_H
 
-#include "ThreeDScene.h"
+#include "quick/ThreeDScene.h"
 #include <geometry/Plane.h>
 #include <material/MeshBasicMaterial.h>
 #include <objects/Mesh.h>
@@ -20,6 +20,8 @@ class Plane : public ThreeDObject
   Q_PROPERTY(unsigned height READ height WRITE setHeight NOTIFY heightChanged)
 
   unsigned _width=1, _height=1;
+
+  three::Mesh::Ptr _plane;
 
 public:
 
@@ -39,19 +41,20 @@ public:
     }
   }
 
-  void addTo(three::Scene::Ptr scene) override
+  three::Object3D::Ptr create() override
   {
     geometry::Plane::Ptr planeGeometry = geometry::Plane::make(_width, _height, 1, 1);
     three::Material::Ptr mat = material()->create();
 
     three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
     if(mbm) {
-      three::Mesh::Ptr plane = Mesh_T<geometry::Plane, three::MeshBasicMaterial>::make("plane", planeGeometry, mbm);
-      plane->rotation().setX(_rotation.x());
-      plane->position().set(_position.x(), _position.y(), _position.z());
+      _plane = Mesh_T<geometry::Plane, three::MeshBasicMaterial>::make("plane", planeGeometry, mbm);
+      _plane->rotation().setX(_rotation.x());
+      _plane->position().set(_position.x(), _position.y(), _position.z());
 
-      scene->add(plane);
+      return _plane;
     }
+    return nullptr;
   }
 
 signals:

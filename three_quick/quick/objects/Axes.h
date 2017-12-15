@@ -5,7 +5,7 @@
 #ifndef THREEPP_AXES_H
 #define THREEPP_AXES_H
 
-#include "ThreeDScene.h"
+#include "quick/ThreeDScene.h"
 #include <helper/AxesHelper.h>
 
 namespace three {
@@ -18,12 +18,14 @@ class Axes : public ThreeDObject
 
   size_t _size = 1;
 
-public:
-  void addTo(three::Scene::Ptr scene) override
-  {
-    helper::AxesHelper::Ptr axes = helper::AxesHelper::make("axis", _size);
+  helper::AxesHelper::Ptr _axes;
 
-    scene->add(axes);
+public:
+  three::Object3D::Ptr create() override
+  {
+    _axes = helper::AxesHelper::make("axes", _size);
+
+    return _axes;
   }
 
   size_t size() {return _size;}

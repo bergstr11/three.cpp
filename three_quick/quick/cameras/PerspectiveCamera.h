@@ -21,9 +21,12 @@ Q_OBJECT
 
   qreal _fov=50, _aspect=1, _near=0.1f, _far=2000;
 
+  three::PerspectiveCamera::Ptr _perspectiveCamera;
+
 protected:
   three::Camera::Ptr _create() override {
-    return three::PerspectiveCamera::make(_fov, _aspect, _near, _far);
+    _perspectiveCamera = three::PerspectiveCamera::make(_fov, _aspect, _near, _far);
+    return _perspectiveCamera;
   }
 
 public:
@@ -42,6 +45,9 @@ public:
   void setAspect(qreal aspect) {
     if(_aspect != aspect) {
       _aspect = aspect;
+      if(_perspectiveCamera) {
+        _perspectiveCamera->setAspect(_aspect);
+      }
       emit aspectChanged();
     }
   }
@@ -49,6 +55,9 @@ public:
   void setNear(qreal near) {
     if(_near != near) {
       _near = near;
+      if(_perspectiveCamera) {
+        _perspectiveCamera->setNear(_near);
+      }
       emit nearChanged();
     }
   }
@@ -56,6 +65,9 @@ public:
   void setFar(qreal far) {
     if(_far != far) {
       _far = far;
+      if(_perspectiveCamera) {
+        _perspectiveCamera->setFar(_far);
+      }
       emit farChanged();
     }
   }

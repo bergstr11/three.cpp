@@ -2,7 +2,7 @@
 // Created by byter on 12/14/17.
 //
 
-#include <ThreeDScene.h>
+#include <quick/ThreeDScene.h>
 
 namespace three {
 namespace quick {
@@ -10,6 +10,8 @@ namespace quick {
 three::Camera::Ptr Camera::create()
 {
   _camera = _create();
+
+  _camera->position().set(_position.x(), _position.y(), _position.z());
 
   auto *scene = dynamic_cast<ThreeDScene *>(_lookAt);
   if(scene) {

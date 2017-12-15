@@ -5,7 +5,7 @@
 #ifndef THREEPP_QUICK_BOX_H
 #define THREEPP_QUICK_BOX_H
 
-#include "ThreeDScene.h"
+#include "quick/ThreeDScene.h"
 #include <geometry/Box.h>
 #include <material/MeshBasicMaterial.h>
 #include <objects/Mesh.h>
@@ -18,7 +18,7 @@ class Box : public ThreeDObject
   Q_OBJECT
   Q_PROPERTY(unsigned width READ width WRITE setWidth NOTIFY widthChanged)
   Q_PROPERTY(unsigned height READ height WRITE setHeight NOTIFY heightChanged)
-  Q_PROPERTY(unsigned depth READ height WRITE setHeight NOTIFY heightChanged)
+  Q_PROPERTY(unsigned depth READ depth WRITE setDepth NOTIFY depthChanged)
 
   unsigned _width=0, _height=0, _depth=0;
 
@@ -49,19 +49,20 @@ public:
     }
   }
 
-  void addTo(three::Scene::Ptr scene) override
+  three::Object3D::Ptr create() override
   {
     geometry::Box::Ptr geometry = geometry::Box::make(_width, _height, _depth);
     three::Material::Ptr mat = material()->create();
 
     three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
     if(mbm) {
-      three::Mesh::Ptr plane = Mesh_T<geometry::Box, three::MeshBasicMaterial>::make("box", geometry, mbm);
-      plane->rotation().setX(_rotation.x());
-      plane->position().set(_position.x(), _position.y(), _position.z());
+      three::Mesh::Ptr cube = Mesh_T<geometry::Box, three::MeshBasicMaterial>::make("box", geometry, mbm);
+      cube->rotation().setX(_rotation.x());
+      cube->position().set(_position.x(), _position.y(), _position.z());
 
-      scene->add(plane);
+      return cube;
     }
+    return nullptr;
   }
 
 signals:

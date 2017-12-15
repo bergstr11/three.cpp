@@ -28,7 +28,7 @@ Window {
             height: 20
 
             position: "15,0,0"
-            rotation: -0.5 * Math.PI
+            rotation.x: -0.5 * Math.PI
 
             material: MeshBasicMaterial {
                 color: "#cccccc"
@@ -44,6 +44,7 @@ Window {
 
             material: MeshBasicMaterial {
                 color: "#ff0000"
+                wireframe: true
             }
         }
 
@@ -56,6 +57,7 @@ Window {
 
             material: MeshBasicMaterial {
                 color: "#7777ff"
+                wireframe: true
             }
         }
 

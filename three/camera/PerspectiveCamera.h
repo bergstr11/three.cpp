@@ -113,6 +113,23 @@ public:
 
   float aspect() const {return _aspect;}
 
+  void setFov(float fov) {
+    _fov = fov;
+  }
+
+  void setAspect(float aspect) {
+    _aspect = aspect;
+    updateProjectionMatrix();
+  }
+
+  void setNear(float near) {
+    _near = near;
+  }
+
+  void setFar(float far) {
+    _far = far;
+  }
+
   void set(float fov, float aspect, float far) {
     _fov = fov;
     _aspect = aspect;

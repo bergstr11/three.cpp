@@ -3,13 +3,15 @@
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QDebug>
-#include <ThreeDScene.h>
+#include <quick/ThreeDScene.h>
+#include "ThreeDItem.h"
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
   QQmlEngine qmlEngine;
   QQmlContext *mainQmlContext = new QQmlContext(&qmlEngine);
 
+  //qmlRegisterType<lo::ui::quick::ThreeDItem>("three.quick", 1, 0, "ThreeDItem");
   three::quick::ThreeDScene::init();
 
   QQmlComponent maincomponent(&qmlEngine);

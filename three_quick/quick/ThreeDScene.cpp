@@ -223,10 +223,11 @@ void ThreeDScene::componentComplete()
                                Color(_background.redF(), _background.greenF(), _background.blueF()));
 
   for(auto &object :_objects) {
-    object->addTo(_scene);
+    auto obj = object->create();
+    if(obj) _scene->add(obj);
   }
   _camera = _quickCamera->create();
-
 }
+
 }
 }

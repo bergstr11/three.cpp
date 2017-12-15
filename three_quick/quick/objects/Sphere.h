@@ -5,7 +5,7 @@
 #ifndef THREEPP_QUICK_SPHERE_H
 #define THREEPP_QUICK_SPHERE_H
 
-#include "ThreeDScene.h"
+#include "quick/ThreeDScene.h"
 #include <geometry/Sphere.h>
 #include <material/MeshBasicMaterial.h>
 #include <objects/Mesh.h>
@@ -22,6 +22,8 @@ class Sphere : public ThreeDObject
 
   qreal _radius = 1;
   unsigned _widthSegments=1, _heightSegments=1;
+
+  three::Mesh::Ptr _sphere;
 
 public:
 
@@ -48,19 +50,20 @@ public:
     }
   }
 
-  void addTo(three::Scene::Ptr scene) override
+  three::Object3D::Ptr create() override
   {
     geometry::Sphere::Ptr geometry = geometry::Sphere::make(_radius, _widthSegments, _heightSegments);
     three::Material::Ptr mat = material()->create();
 
     three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
     if(mbm) {
-      three::Mesh::Ptr sphere = Mesh_T<geometry::Sphere, three::MeshBasicMaterial>::make("sphere", geometry, mbm);
-      sphere->rotation().setX(_rotation.x());
-      sphere->position().set(_position.x(), _position.y(), _position.z());
+      _sphere = Mesh_T<geometry::Sphere, three::MeshBasicMaterial>::make("sphere", geometry, mbm);
+      _sphere->rotation().setX(_rotation.x());
+      _sphere->position().set(_position.x(), _position.y(), _position.z());
 
-      scene->add(sphere);
+      return _sphere;
     }
+    return nullptr;
   }
 
 signals:

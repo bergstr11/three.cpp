@@ -17,13 +17,13 @@ namespace quick {
 class ThreeDObject : public QObject
 {
 Q_OBJECT
-  Q_PROPERTY(QVector4D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
+  Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
 
 protected:
-  QVector3D _position;
-  QVector4D _rotation;
+  QVector3D _position {0.0, 0.0, 0.0};
+  QVector3D _rotation {0.0, 0.0, 0.0};
 
   Material *_material = nullptr;
 
@@ -31,7 +31,7 @@ protected:
 
 public:
   QVector3D position() {return _position;}
-  QVector4D rotation() {return _rotation;}
+  QVector3D rotation() {return _rotation;}
 
   void setPosition(const QVector3D &position) {
     if(position != _position) {
@@ -40,7 +40,7 @@ public:
     }
   }
 
-  void setRotation(const QVector4D &rotation) {
+  void setRotation(const QVector3D &rotation) {
     if(rotation != _rotation) {
       _rotation = rotation;
       emit rotationChanged();
@@ -58,7 +58,7 @@ public:
 
   three::Object3D::Ptr object() const {return _object;}
 
-  virtual void addTo(three::Scene::Ptr scene) = 0;
+  virtual three::Object3D::Ptr create() = 0;
 
 signals:
   void positionChanged();
