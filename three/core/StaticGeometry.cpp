@@ -223,7 +223,8 @@ size_t StaticGeometry::mergeVertices()
     _faces.erase(_faces.begin()+idx);
 
     for (unsigned j = 0, jl = _faceVertexUvs.size(); j < jl; j ++ ) {
-      _faceVertexUvs[j].erase(_faceVertexUvs[j].begin()+idx);
+      if(idx < _faceVertexUvs[j].size())
+        _faceVertexUvs[j].erase(_faceVertexUvs[j].begin()+idx);
     }
   }
 
