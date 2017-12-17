@@ -20,9 +20,9 @@ class SpotLight : public TargetLight
             const Color &color,
             float intensity,
             float distance,
-            float angle=(float)M_PI / 3.0f,
-            float penumbra=0,
-            float decay=1) // for physically correct lights, should be 2.
+            float angle,
+            float penumbra,
+            float decay) // for physically correct lights, should be 2.
      : TargetLight(light::ResolverT<SpotLight>::make(*this),
                    target, color, intensity, distance, angle), _penumbra(penumbra), _decay(decay)
   {
@@ -34,7 +34,14 @@ class SpotLight : public TargetLight
 
 public:
   using Ptr = std::shared_ptr<SpotLight>;
-  static Ptr make(Object3D::Ptr target, const Color &color, float intensity, float distance, float angle, float penumbra, float decay) {
+  static Ptr make(Object3D::Ptr target,
+                  const Color &color,
+                  float intensity=1,
+                  float distance=0,
+                  float angle=(float)M_PI / 3,
+                  float penumbra=0,
+                  float decay=1)
+  {
     return Ptr(new SpotLight(target, color, intensity, distance, angle, penumbra, decay));
   }
 

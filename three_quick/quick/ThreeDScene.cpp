@@ -17,7 +17,9 @@
 #include <quick/objects/Box.h>
 #include <quick/objects/Sphere.h>
 #include <quick/objects/Axes.h>
+#include <quick/objects/SpotLight.h>
 #include <quick/materials/MeshBasicMaterial.h>
+#include <quick/materials/MeshLambertMaterial.h>
 #include <quick/cameras/PerspectiveCamera.h>
 
 namespace three {
@@ -49,6 +51,7 @@ public:
           item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
+    _renderer->setShadowsEnabled(item->_enableShadows);
 
     _camera->lookAt(_scene->position());
   }
@@ -125,6 +128,13 @@ void ThreeDScene::setCamera(Camera *camera)
   }
 }
 
+void ThreeDScene::setEnableShadows(bool enable) {
+  if(_enableShadows != enable) {
+    _enableShadows = enable;
+    emit enableShadowsChanged();
+  }
+}
+
 void ThreeDScene::append_object(QQmlListProperty<ThreeDObject> *list, ThreeDObject *obj)
 {
   ThreeDScene *scene = qobject_cast<ThreeDScene *>(list->object);
@@ -165,7 +175,9 @@ void ThreeDScene::init()
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
+  qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
+  qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
 }
 
@@ -223,7 +235,7 @@ void ThreeDScene::componentComplete()
                                Color(_background.redF(), _background.greenF(), _background.blueF()));
 
   for(auto &object :_objects) {
-    auto obj = object->create();
+    auto obj = object->create(this);
     if(obj) _scene->add(obj);
   }
   _camera = _quickCamera->create();

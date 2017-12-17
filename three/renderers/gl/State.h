@@ -262,7 +262,7 @@ public:
 
   GLuint maxTextures;
 
-  int currentTextureSlot = -1;
+  int initialTextureSlot, currentTextureSlot;
 
   struct BoundTexture {
     const TextureTarget target;
@@ -301,9 +301,14 @@ public:
 
 public:
   // init
-  State(QOpenGLExtraFunctions *fn) :
-     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this), _fn(fn)
+  State(QOpenGLExtraFunctions *fn, int initialTextureSlot=-1) :
+     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this), _fn(fn),
+     initialTextureSlot(initialTextureSlot), currentTextureSlot(initialTextureSlot)
   {}
+
+  void setInitialTextureSlot(GLenum slot) {
+    initialTextureSlot = currentTextureSlot = slot;
+  }
 
   void init()
   {
@@ -759,7 +764,7 @@ public:
 
     compressedTextureFormats.clear();
 
-    currentTextureSlot = -1;
+    currentTextureSlot = initialTextureSlot;
     currentBoundTextures.clear();
 
     currentViewport.set(0, 0, 0, 0);

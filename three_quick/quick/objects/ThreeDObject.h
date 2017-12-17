@@ -14,20 +14,28 @@
 namespace three {
 namespace quick {
 
+class ThreeDScene;
+
 class ThreeDObject : public QObject
 {
 Q_OBJECT
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
+  Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
+  Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
 
 protected:
   QVector3D _position {0.0, 0.0, 0.0};
   QVector3D _rotation {0.0, 0.0, 0.0};
 
+  bool _castShadow = false, _receiveShadow = false;
+
   Material *_material = nullptr;
 
   three::Object3D::Ptr _object;
+
+  virtual three::Object3D::Ptr _create(ThreeDScene *scene) = 0;
 
 public:
   QVector3D position() {return _position;}
@@ -56,14 +64,44 @@ public:
     }
   }
 
+  bool castShadow() const {return _castShadow;}
+
+  void setCastShadow(bool castShadow) {
+    if(_castShadow != castShadow) {
+      _castShadow = castShadow;
+      emit castShadowChanged();
+    }
+  }
+
+  bool receiveShadow() const {return _receiveShadow;}
+
+  void setReceiveShadow(bool receiveShadow) {
+    if(_receiveShadow != receiveShadow) {
+      _receiveShadow = receiveShadow;
+      emit receiveShadowChanged();
+    }
+  }
+
   three::Object3D::Ptr object() const {return _object;}
 
-  virtual three::Object3D::Ptr create() = 0;
+  three::Object3D::Ptr create(ThreeDScene *scene) {
+    three::Object3D::Ptr obj = _create(scene);
+    if(obj) {
+      obj->rotation().setX(_rotation.x());
+      obj->position().set(_position.x(), _position.y(), _position.z());
+
+      obj->castShadow = _castShadow;
+      obj->receiveShadow = _receiveShadow;
+    }
+    return obj;
+  }
 
 signals:
   void positionChanged();
   void rotationChanged();
   void materialChanged();
+  void castShadowChanged();
+  void receiveShadowChanged();
 };
 
 }

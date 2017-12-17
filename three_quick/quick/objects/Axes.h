@@ -20,14 +20,15 @@ class Axes : public ThreeDObject
 
   helper::AxesHelper::Ptr _axes;
 
-public:
-  three::Object3D::Ptr create() override
+protected:
+  three::Object3D::Ptr _create(ThreeDScene *scene) override
   {
     _axes = helper::AxesHelper::make("axes", _size);
 
     return _axes;
   }
 
+public:
   size_t size() {return _size;}
 
   void setSize(size_t size) {

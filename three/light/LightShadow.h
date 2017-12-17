@@ -5,7 +5,7 @@
 #ifndef THREE_QT_LIGHTSHADOW_H
 #define THREE_QT_LIGHTSHADOW_H
 
-#include <camera/Camera.h>
+#include <camera/PerspectiveCamera.h>
 #include <math/Vector2.h>
 #include <textures/Texture.h>
 #include <type_traits>
@@ -27,8 +27,16 @@ protected:
   Renderer::Target::Ptr _map;
   math::Matrix4 _matrix;
 
+  PerspectiveCamera::Ptr _camera;
+
+protected:
+  explicit LightShadow(PerspectiveCamera::Ptr camera) : _camera(camera) {}
+
 public:
   using Ptr = std::shared_ptr<LightShadow>;
+  static Ptr make(PerspectiveCamera::Ptr camera) {
+    return Ptr(new LightShadow(camera));
+  }
 
   virtual void update(std::shared_ptr<Light> light) {}
 
@@ -37,34 +45,12 @@ public:
   const math::Vector2 &mapSize() const {return _mapSize;}
 
   const Renderer::Target::Ptr &map() const {return _map;}
-  Renderer::Target::Ptr &map() {return _map;}
+  void setMap(const Renderer::Target::Ptr &map) {_map = map;}
 
   math::Matrix4 &matrix() {return _matrix;}
   math::Matrix4 cmatrix() const {return _matrix;}
 
-  virtual const Camera::Ptr camera() const {return nullptr;}
-};
-
-
-template <typename C=Camera>
-class CameraShadow : public LightShadow
-{
-  static_assert(std::is_base_of<Camera, C>::value, "template parameter must be derived from three::Camera");
-
-protected:
-  std::shared_ptr<C> _camera;
-
-  explicit CameraShadow(std::shared_ptr<C> camera) : _camera(camera) {}
-
-public:
-  using Ptr = std::shared_ptr<CameraShadow<C>>;
-  static Ptr make(std::shared_ptr<C> camera) {
-    return Ptr(new CameraShadow(camera));
-  }
-
-  const typename std::shared_ptr<C> specificCamera() const {return _camera;}
-
-  const Camera::Ptr camera() const override {return _camera;}
+  virtual const PerspectiveCamera::Ptr camera() const {return _camera;}
 };
 
 }

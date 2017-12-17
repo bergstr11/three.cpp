@@ -8,6 +8,7 @@
 #include "quick/ThreeDScene.h"
 #include <geometry/Plane.h>
 #include <material/MeshBasicMaterial.h>
+#include <material/MeshLambertMaterial.h>
 #include <objects/Mesh.h>
 
 namespace three {
@@ -22,6 +23,21 @@ class Plane : public ThreeDObject
   unsigned _width=1, _height=1;
 
   three::Mesh::Ptr _plane;
+
+protected:
+  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  {
+    geometry::Plane::Ptr geometry = geometry::Plane::make(_width, _height, 1, 1);
+    three::Material::Ptr mat = material()->create();
+
+    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
+    if(mbm) return Mesh_T<geometry::Plane, three::MeshBasicMaterial>::make("plane", geometry, mbm);
+
+    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
+    if(mlm) return Mesh_T<geometry::Plane, three::MeshLambertMaterial>::make("plane", geometry, mlm);
+
+    return nullptr;
+  }
 
 public:
 
@@ -39,22 +55,6 @@ public:
       _height = height;
       emit heightChanged();
     }
-  }
-
-  three::Object3D::Ptr create() override
-  {
-    geometry::Plane::Ptr planeGeometry = geometry::Plane::make(_width, _height, 1, 1);
-    three::Material::Ptr mat = material()->create();
-
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) {
-      _plane = Mesh_T<geometry::Plane, three::MeshBasicMaterial>::make("plane", planeGeometry, mbm);
-      _plane->rotation().setX(_rotation.x());
-      _plane->position().set(_position.x(), _position.y(), _position.z());
-
-      return _plane;
-    }
-    return nullptr;
   }
 
 signals:

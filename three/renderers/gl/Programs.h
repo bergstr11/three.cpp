@@ -73,7 +73,7 @@ public:
     Program::Ptr program;
 
     // Check if code has been already compiled
-    if(_programs.find(code) != _programs.end()) {
+    if(_programs.count(code) > 0) {
       return _programs[code];
     }
     program = Program::make( _renderer, _extensions, code, material, shader, *parameters );

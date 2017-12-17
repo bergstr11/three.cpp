@@ -8,6 +8,7 @@
 #include "quick/ThreeDScene.h"
 #include <geometry/Box.h>
 #include <material/MeshBasicMaterial.h>
+#include <material/MeshLambertMaterial.h>
 #include <objects/Mesh.h>
 
 namespace three {
@@ -21,6 +22,23 @@ class Box : public ThreeDObject
   Q_PROPERTY(unsigned depth READ depth WRITE setDepth NOTIFY depthChanged)
 
   unsigned _width=0, _height=0, _depth=0;
+
+  three::Mesh::Ptr _cube;
+
+protected:
+  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  {
+    geometry::Box::Ptr geometry = geometry::Box::make(_width, _height, _depth);
+    three::Material::Ptr mat = material()->create();
+
+    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
+    if(mbm) return Mesh_T<geometry::Box, three::MeshBasicMaterial>::make("box", geometry, mbm);
+
+    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
+    if(mlm) return Mesh_T<geometry::Box, three::MeshLambertMaterial>::make("box", geometry, mlm);
+
+    return nullptr;
+  }
 
 public:
 
@@ -47,22 +65,6 @@ public:
       _depth = depth;
       emit depthChanged();
     }
-  }
-
-  three::Object3D::Ptr create() override
-  {
-    geometry::Box::Ptr geometry = geometry::Box::make(_width, _height, _depth);
-    three::Material::Ptr mat = material()->create();
-
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) {
-      three::Mesh::Ptr cube = Mesh_T<geometry::Box, three::MeshBasicMaterial>::make("box", geometry, mbm);
-      cube->rotation().setX(_rotation.x());
-      cube->position().set(_position.x(), _position.y(), _position.z());
-
-      return cube;
-    }
-    return nullptr;
   }
 
 signals:

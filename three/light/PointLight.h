@@ -19,7 +19,7 @@ protected:
   PointLight(const Color &color, float intensity, float distance, float angle)
      : Light(light::ResolverT<PointLight>::make(*this), color, intensity, distance, angle)
   {
-    _shadow = CameraShadow<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
+    _shadow = LightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
 public:
@@ -29,14 +29,9 @@ public:
     return Ptr(new PointLight(color, intensity, distance, angle));
   }
 
-  CameraShadow<PerspectiveCamera>::Ptr shadow()
+  LightShadow::Ptr shadow()
   {
-    return std::dynamic_pointer_cast<CameraShadow<PerspectiveCamera>>(_shadow);
-  }
-
-  bool castShadow() override
-  {
-    return true;
+    return _shadow;
   }
 
   float decay() const {return _decay;}

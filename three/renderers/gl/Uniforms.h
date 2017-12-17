@@ -18,17 +18,33 @@
 #include <math/Matrix3.h>
 #include <math/Matrix4.h>
 
-#include <light/Light.h>
 #include <textures/ImageTexture.h>
 #include <textures/DataTexture.h>
 #include <Constants.h>
 #include "Helpers.h"
+#include "Lights.h"
 
 namespace three {
 namespace gl {
 
-enum class UniformName
+enum class UniformName : unsigned
 {
+  index_0=0,
+  index_1=1,
+  index_2=2,
+  index_3=3,
+  index_4=4,
+  index_5=5,
+  index_6=6,
+  index_7=7,
+  index_8=8,
+  index_9=9,
+  index_10=10,
+  index_11=11,
+  index_12=12,
+  index_13=13,
+  index_14=14,
+  index_15=15,
   cube,
   equirect,
   flip,
@@ -135,6 +151,8 @@ public:
     return Ptr(new Uniform(renderer, id, type, addr));
   }
 
+  virtual ~Uniform() {}
+
   const UniformName &id() const {return _id;}
 
   void setValue(GLfloat v);
@@ -161,13 +179,9 @@ public:
 
   void setValue(const Texture::Ptr &texture);
 
-  void setValue(const Light::Ptr &light);
-
   void setValue(const std::vector<math::Matrix4> &matrices);
 
   void setValue(const std::vector<Texture::Ptr> &textures);
-
-  void setValue(const std::vector<Light::Ptr> &lights);
 
   void setValue(const ImageCubeTexture::Ptr &texture);
 
@@ -201,12 +215,47 @@ protected:
   std::unordered_map<UniformName, Uniform::Ptr> _map;
 
 public:
+  virtual ~UniformContainer() {}
+
   void add(Uniform::Ptr uniform) {
     _sequence.push_back(uniform->id());
     _map[uniform->id()] = uniform;
   }
 
   const std::vector<UniformName> &sequence() {return _sequence;}
+
+  template <typename T>
+  void set(UniformName name, const T &value) {
+    if(_map.count(name)) _map.at(name)->setValue(value);
+  }
+
+  Uniform::Ptr get(UniformName name) {
+    return _map.count(name) ? _map.at(name) : nullptr;
+  }
+
+  Uniform::Ptr get(size_t index)
+  {
+    switch(index) {
+      case 0: return get(UniformName::index_0);
+      case 1: return get(UniformName::index_1);
+      case 2: return get(UniformName::index_2);
+      case 3: return get(UniformName::index_3);
+      case 4: return get(UniformName::index_4);
+      case 5: return get(UniformName::index_5);
+      case 6: return get(UniformName::index_6);
+      case 7: return get(UniformName::index_7);
+      case 8: return get(UniformName::index_8);
+      case 9: return get(UniformName::index_9);
+      case 10: return get(UniformName::index_10);
+      case 11: return get(UniformName::index_11);
+      case 12: return get(UniformName::index_12);
+      case 13: return get(UniformName::index_13);
+      case 14: return get(UniformName::index_14);
+      case 15: return get(UniformName::index_15);
+      default:
+        throw std::logic_error("unsupported index");
+    }
+  }
 };
 
 class StructuredUniform : public Uniform, public UniformContainer

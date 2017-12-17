@@ -28,13 +28,15 @@ class Textures
   Capabilities &_capabilities;
   MemoryInfo &_infoMemory;
 
+  GLuint _defaultFBO = 0;
+
   void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
   void setTextureParameters(TextureTarget textureTarget, Texture &texture);
   void uploadTexture(GlProperties &textureProperties, Texture &texture, unsigned slot );
   void setupFrameBufferTexture(GLuint framebuffer, const Renderer::Target &renderTarget, GLenum attachment, TextureTarget textureTarget);
   void setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget );
-  void setupDepthTexture(GLuint framebuffer, RenderTargetDefault &renderTarget);
-  void setupDepthRenderbuffer(RenderTargetDefault &renderTarget);
+  void setupDepthTexture(GLuint framebuffer, RenderTargetInternal &renderTarget);
+  void setupDepthRenderbuffer(RenderTargetInternal &renderTarget);
   void setupDepthRenderbuffer(RenderTargetCube &renderTarget);
 
 public:
@@ -70,18 +72,22 @@ public:
   }
 
   void deallocateTexture(Texture &texture);
-  void deallocateRenderTarget(RenderTargetDefault &renderTarget);
+  void deallocateRenderTarget(RenderTargetInternal &renderTarget);
   void deallocateRenderTarget(RenderTargetCube &renderTarget);
   void setTexture2D(Texture::Ptr texture, unsigned slot);
   void setTextureCube(Texture::Ptr texture, unsigned slot);
   void updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget);
-  void setupRenderTarget(RenderTargetDefault &renderTarget);
+  void setupRenderTarget(RenderTargetInternal &renderTarget);
   void setupRenderTarget(RenderTargetExternal &renderTarget);
   void setupRenderTarget(RenderTargetCube &renderTarget);
 
-  void onRenderTargetDispose(RenderTargetDefault &renderTarget);
+  void onRenderTargetDispose(RenderTargetInternal &renderTarget);
   void onRenderTargetDispose(RenderTargetCube &renderTarget);
   void onTextureDispose(Texture &texture);
+
+  void setDefaultFramebuffer(GLuint fbo) {
+    _defaultFBO = fbo;
+  }
 };
 }
 }

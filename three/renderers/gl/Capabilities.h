@@ -6,14 +6,19 @@
 #define THREE_QT_CAPABILITIES_H
 
 #include <QOpenGLFunctions>
+#include <helper/simplesignal.h>
 #include "Extensions.h"
 #include "Helpers.h"
 
 namespace three {
 namespace gl {
 
-struct Capabilities
+class Capabilities
 {
+  bool complete = false;
+  Signal<void()> onComplete;
+
+public:
   struct Parameters {
     bool logarithmicDepthBuffer = true;
     Precision precision = Precision::highp;
@@ -70,6 +75,16 @@ struct Capabilities
       //warn( 'THREE.WebGLRenderer:', precision, 'not supported, using', maxPrecision, 'instead.' );
       precision = maxPrecision;
     }
+
+    complete = true;
+    onComplete.emitSignal();
+    onComplete.disconnectAll();
+  }
+
+  void whenComplete(void (*fn)())
+  {
+    if(complete) fn();
+    else onComplete.connect(fn);
   }
 
   std::string precisionS()

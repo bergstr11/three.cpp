@@ -19,11 +19,6 @@ protected:
 public:
   using Ptr = std::shared_ptr<DirectionalLight>;
 
-  bool castShadow() override
-  {
-    return false;
-  }
-
   static Ptr make(const Ptr &target, const Color &color, float intensity, float distance, float angle) {
     return Ptr(new DirectionalLight(target, color, intensity, distance, angle));
   }

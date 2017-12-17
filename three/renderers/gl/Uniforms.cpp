@@ -50,8 +50,15 @@ std::vector<Uniform::Ptr> Uniforms::sequenceUniforms(const UniformValues &values
 
 #define MATCH_NAME(nm) if(name == #nm) return UniformName::nm;
 
-UniformName toUniformName(string name)
+UniformName toUniformName(string name, bool isIndex=false)
 {
+  if(isIndex) {
+    unsigned index = stoi(name);
+    if((unsigned)UniformName::index_15 >= index) {
+      return (UniformName)((unsigned)UniformName::index_0 + index);
+    }
+    throw std::invalid_argument(std::string("unsupported index ")+name);
+  }
   MATCH_NAME(cube)
   MATCH_NAME(equirect)
   MATCH_NAME(flip)
@@ -158,11 +165,12 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   while(rex_it != rex_end) {
     smatch match = *rex_it;
 
-    UniformName id = toUniformName(match[1]);
     bool isIndex = match[2] == "]";
     string subscript = match[3];
 
-    if(!match[3].matched || match[3].second == name.end()) {
+    UniformName id = toUniformName(match[1], isIndex);
+
+    if(!match[3].matched || subscript == "[" && match[3].second == name.end()) {
       // bare name or "pure" bottom-level array "[0]" suffix
       container->add(match[3].matched ?
                      ArrayUniform::make(_renderer, id, (UniformType)type, addr) :
@@ -170,7 +178,7 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
     }
     else {
       // step into inner node / create it in case it doesn't exist
-      if(container->_map.find(id) == container->_map.end()) {
+      if(container->_map.count(id) == 0) {
         StructuredUniform::Ptr next = StructuredUniform::make(_renderer, id, (UniformType)type, addr);
         container->add(next);
       }
@@ -223,15 +231,7 @@ void Uniform::setValue(const std::vector<float> &vector) {
   //TODO
 }
 
-void Uniform::setValue(const Light::Ptr &light) {
-  //TODO
-}
-
 void Uniform::setValue(const std::vector<Texture::Ptr> &textures) {
-  //TODO
-}
-
-void Uniform::setValue(const std::vector<Light::Ptr> &lights) {
   //TODO
 }
 

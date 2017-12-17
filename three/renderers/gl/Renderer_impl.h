@@ -31,8 +31,6 @@
 
 #include <QOpenGLShaderProgram>
 
-#define DEMO2x
-
 namespace three {
 namespace gl {
 
@@ -40,12 +38,6 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
   friend class Programs;
   friend class Program;
-
-#ifdef DEMO2
-  QOpenGLShaderProgram testProgram;
-  GLuint testVao;
-  GLuint testVbo;
-#endif
 
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -163,9 +155,6 @@ protected:
 
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
-#ifdef DEMO2
-  bool doRender2();
-#endif
   void doRender(const Scene::Ptr &scene,
                 const Camera::Ptr &camera,
                 const Renderer::Target::Ptr &renderTarget,
@@ -221,6 +210,22 @@ public:
 
   void setTexture2D(Texture::Ptr texture, GLuint slot);
   void setTextureCube(Texture::Ptr texture, GLuint slot);
+
+  ShadowMap &shadowMap() {return _shadowMap;}
+
+  const Renderer::Target::Ptr &currentRenderTarget() {
+    return _currentRenderTarget;
+  }
+
+  void setShadowsEnabled(bool enabled) override {
+    _shadowMap.setEnabled(enabled);
+  }
+
+  void setExternalDefaults(GLuint fbo, GLenum textureSlot) override {
+    _textures.setDefaultFramebuffer(fbo);
+    _currentFramebuffer = fbo;
+    _state.setInitialTextureSlot(textureSlot);
+  }
 
   Renderer_impl &setClearColor(const Color &color, float alpha=1.0f) override {
     _background.setClearColor(color, alpha);

@@ -45,12 +45,15 @@ public:
     _planes[4].set(me3 - me2, me7 - me6, me11 - me10, me15 - me14).normalize();
     _planes[5].set(me3 + me2, me7 + me6, me11 + me10, me15 + me14).normalize();
 
+    return *this;
+  }
+
+  void print(const Matrix4 &m) {
+
     std::cout << "matrix: " << m.elements()[0] << ":" << m.elements()[1] << ":" << m.elements()[2] << ":" << m.elements()[3] << std::endl;
     for (const Plane &plane : _planes) {
       std::cout << "frustum: " << plane.constant() << ":" << plane.normal().x() << ":" << plane.normal().y() << ":" << plane.normal().z() << std::endl;
     }
-
-    return *this;
   }
 
   bool intersectsObject(const Object3D &object) const;

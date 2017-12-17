@@ -140,7 +140,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
 {
   GLint numActive;
   _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
-  check_gl_error(&_renderer);
+  check_glerror(&_renderer, __FILE__, __LINE__);
 
   attributes.erase(AttributeName::unknown);
 
@@ -148,7 +148,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
   for (unsigned i = 0; i < numActive; i++) {
 
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
-    check_gl_error(&_renderer);
+    check_glerror(&_renderer, __FILE__, __LINE__);
 
     AttributeName attName;
     GLint mnIndex = -1;
@@ -185,8 +185,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
     else {
       throw std::logic_error("unknown attribute");
     }
-
-    // console.log("THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:", name, i );
+    check_glerror(&_renderer, __FILE__, __LINE__);
   }
 }
 
@@ -238,7 +237,7 @@ string unrollLoops(string glsl)
 
     smatch match = *rex_it;
 
-    for(auto it_end = it_start + match.position(); it_start < it_end; it_start++) unroll << *it_start;
+    for(auto it_end = it_start + match.position(); it_start != it_end; it_start++) unroll << *it_start;
     it_start += match.length();
 
     int start = stoi(match[1].str());
@@ -641,10 +640,10 @@ Program::Program(Renderer_impl &renderer,
 
 #if 0
   GLsizei len;
-  char buf[20000];
-  _renderer.glGetShaderSource(glVertexShader, 20000, &len, buf);
+  char buf[50000];
+  _renderer.glGetShaderSource(glVertexShader, 50000, &len, buf);
   cout << "VERTEX shader:" << endl << buf;
-  _renderer.glGetShaderSource(glFragmentShader, 20000, &len, buf);
+  _renderer.glGetShaderSource(glFragmentShader, 50000, &len, buf);
   cout << "FRAGMENT shader:" << endl << buf;
 #endif
 
@@ -662,6 +661,8 @@ Program::Program(Renderer_impl &renderer,
     throw logic_error(err.str());
   }
   else if ( !programLog.empty()) cerr << programLog << endl;
+
+  check_glerror(&_renderer, __FILE__, __LINE__);
 
   fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
 

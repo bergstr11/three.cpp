@@ -15,15 +15,15 @@
 #include <shadow.h>
 #include <unordered_map>
 #include <helper/Resolver.h>
-#include "shader/UniformsLib.h"
 
 namespace three {
 namespace gl {
-namespace uniforms_cache {
+namespace lights {
 
 struct EntryBase
 {
   virtual void apply() {}
+  virtual ~EntryBase() {}
   using Ptr = std::shared_ptr<EntryBase>;
 };
 
@@ -104,30 +104,30 @@ struct Entry<RectAreaLight> : public EntryBase
 class UniformsCache
 {
 public:
-  std::unordered_map<unsigned, uniforms_cache::EntryBase::Ptr> lights;
+  std::unordered_map<unsigned, lights::EntryBase::Ptr> lights;
 
 public:
 
   template <typename L>
-  const std::shared_ptr<uniforms_cache::Entry<L>> get(L *light)
+  const std::shared_ptr<lights::Entry<L>> get(L *light)
   {
     if (lights.find(light->id()) != lights.end()) {
 
-      return std::dynamic_pointer_cast<uniforms_cache::Entry<L>>(lights[ light->id() ]);
+      return std::dynamic_pointer_cast<lights::Entry<L>>(lights[ light->id() ]);
     }
 
-    std::shared_ptr<uniforms_cache::Entry<L>> u = std::make_shared<uniforms_cache::Entry<L>>();
+    std::shared_ptr<lights::Entry<L>> u = std::make_shared<lights::Entry<L>>();
     lights[light->id()] = u;
 
     return u;
   }
 };
 
-using CachedDirectionalLights = std::vector<uniforms_cache::Entry<DirectionalLight>::Ptr>;
-using CachedSpotLights = std::vector<uniforms_cache::Entry<SpotLight>::Ptr>;
-using CachedRectareaLights = std::vector<uniforms_cache::Entry<RectAreaLight>::Ptr>;
-using CachedPointLights = std::vector<uniforms_cache::Entry<PointLight>::Ptr>;
-using CachedHemisphereLights = std::vector<uniforms_cache::Entry<HemisphereLight>::Ptr>;
+using CachedDirectionalLights = std::vector<lights::Entry<DirectionalLight>::Ptr>;
+using CachedSpotLights = std::vector<lights::Entry<SpotLight>::Ptr>;
+using CachedRectareaLights = std::vector<lights::Entry<RectAreaLight>::Ptr>;
+using CachedPointLights = std::vector<lights::Entry<PointLight>::Ptr>;
+using CachedHemisphereLights = std::vector<lights::Entry<HemisphereLight>::Ptr>;
 
 struct Lights
 {

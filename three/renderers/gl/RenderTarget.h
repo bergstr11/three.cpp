@@ -81,7 +81,7 @@ public:
   }
 };
 
-class RenderTargetDefault : public RenderTarget
+class RenderTargetInternal : public RenderTarget
 {
   friend class Textures;
   friend class Renderer_impl;
@@ -101,7 +101,7 @@ public:
 private:
   ImageTexture::Ptr _texture;
 
-  GLuint renderBuffer, frameBuffer;
+  GLuint renderBuffer=0, frameBuffer=0;
 
   DepthTexture::Ptr _depthTexture;
 
@@ -111,20 +111,19 @@ private:
   }
 
 protected:
-  RenderTargetDefault(const Options &options, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
-     : RenderTarget(TextureTarget::twoD, width, height, depthBuffer, stencilBuffer), _texture(ImageTexture::make(options))
+  RenderTargetInternal(const Options &options, GLsizei width, GLsizei height)
+     : RenderTarget(TextureTarget::twoD, width, height, options.depthBuffer, options.stencilBuffer),
+       _texture(ImageTexture::make(options))
   {
-    _depthBuffer = options.depthBuffer;
-    _stencilBuffer = options.stencilBuffer;
     _depthTexture = options.depthTexture;
   }
 
 public:
-  Signal<void(RenderTargetDefault &)> onDispose;
+  Signal<void(RenderTargetInternal &)> onDispose;
 
-  using Ptr = std::shared_ptr<RenderTargetDefault>;
-  static Ptr make(const Options &options, GLsizei width, GLsizei height, bool depthBuffer=true, bool stencilBuffer=true) {
-    return Ptr(new RenderTargetDefault(options, width, height, depthBuffer, stencilBuffer));
+  using Ptr = std::shared_ptr<RenderTargetInternal>;
+  static Ptr make(const Options &options, GLsizei width, GLsizei height) {
+    return Ptr(new RenderTargetInternal(options, width, height));
   }
 
   Texture::Ptr texture() const override {return _texture;}

@@ -6,11 +6,11 @@
 #define THREE_QT_UNIFORMSLIB_H
 
 #include <textures/DataTexture.h>
-#include <light/Light.h>
 #include <core/Color.h>
 #include <math/Matrix3.h>
 #include <math/Vector3.h>
 #include "../Uniforms.h"
+#include "../Lights.h"
 
 namespace three {
 namespace gl {
@@ -116,10 +116,82 @@ UNIFORM_VALUE_T(math::Vector3)
 UNIFORM_VALUE_T(std::vector<float>)
 UNIFORM_VALUE_T(math::Matrix4)
 UNIFORM_VALUE_T(Texture::Ptr)
-UNIFORM_VALUE_T(Light::Ptr)
 UNIFORM_VALUE_T(std::vector<Texture::Ptr>)
-UNIFORM_VALUE_T(std::vector<Light::Ptr>)
 UNIFORM_VALUE_T(std::vector<math::Matrix4>)
+
+
+template<> struct UniformValueT<CachedSpotLights> : public UniformValue
+{
+  CachedSpotLights value;
+
+  explicit UniformValueT(UniformName nm, const CachedSpotLights &value)
+     : UniformValue(nm), value(value) {}
+  explicit UniformValueT(UniformName nm, const CachedSpotLights &value, UniformProperties properties)
+     : UniformValue(nm, properties), value(value) {}
+
+  UniformValueT &operator = (const CachedSpotLights &value) {
+    this->value = value; return *this;
+  }
+  static Ptr make(UniformName nm, const CachedSpotLights &value) {
+    return Ptr(new UniformValueT(nm, value));
+  }
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+  void applyValue(Uniform::Ptr uniform) override
+  {
+    UniformContainer *container = uniform->asContainer();
+    size_t index = 0;
+    for(const auto &entry : value) {
+      UniformContainer *container2 = container->get(index)->asContainer();
+      container2->set(UniformName::position, entry->position);
+      container2->set(UniformName::direction, entry->direction);
+      container2->set(UniformName::color, entry->color);
+      container2->set(UniformName::distance, entry->distance);
+      container2->set(UniformName::coneCos, entry->coneCos);
+      container2->set(UniformName::penumbraCos, entry->penumbraCos);
+      container2->set(UniformName::decay, entry->decay);
+      container2->set(UniformName::shadow, entry->shadow);
+      container2->set(UniformName::shadowBias, entry->shadowBias);
+      container2->set(UniformName::shadowRadius, entry->shadowRadius);
+      container2->set(UniformName::shadowMapSize, entry->shadowMapSize);
+    }
+  }
+};
+
+template<> struct UniformValueT<CachedDirectionalLights> : public UniformValue
+{
+  CachedDirectionalLights value;
+
+  explicit UniformValueT(UniformName nm, const CachedDirectionalLights &value)
+     : UniformValue(nm), value(value) {}
+  explicit UniformValueT(UniformName nm, const CachedDirectionalLights &value, UniformProperties properties)
+     : UniformValue(nm, properties), value(value) {}
+
+  UniformValueT &operator = (const CachedDirectionalLights &value) {
+    this->value = value; return *this;
+  }
+  static Ptr make(UniformName nm, const CachedDirectionalLights &value) {
+    return Ptr(new UniformValueT(nm, value));
+  }
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+  void applyValue(Uniform::Ptr uniform) override
+  {
+    UniformContainer *container = uniform->asContainer();
+    size_t index = 0;
+    for(const auto &entry : value) {
+      UniformContainer *container2 = container->get(index)->asContainer();
+      container2->set(UniformName::direction, entry->direction);
+      container2->set(UniformName::color, entry->color);
+      container2->set(UniformName::shadow, entry->shadow);
+      container2->set(UniformName::shadowBias, entry->shadowBias);
+      container2->set(UniformName::shadowRadius, entry->shadowRadius);
+      container2->set(UniformName::shadowMapSize, entry->shadowMapSize);
+    }
+  }
+};
 
 class LibUniformValues
 {

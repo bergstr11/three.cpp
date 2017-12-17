@@ -66,6 +66,7 @@ struct Refresh<material::EmissiveMap>
     mixin(uniforms, material);
   }
   static void mixin(UniformValues &uniforms, material::EmissiveMap &material) {
+    uniforms[UniformName::emissiveMap] = material.emissiveMap;
     uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
   }
 };

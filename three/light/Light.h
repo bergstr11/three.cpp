@@ -20,7 +20,7 @@ protected:
   float _angle;
   LightShadow::Ptr _shadow;
 
-  Light(light::Resolver::Ptr resolver, const Color &color, float intensity, float distance=0, float angle=0)
+  Light(light::Resolver::Ptr resolver, const Color &color, float intensity, float distance, float angle)
      : Object3D(object::ResolverT<Light>::make(*this)),
        lightResolver(resolver),
        _color(color),
@@ -39,8 +39,6 @@ public:
   float angle() const {return _angle;}
   float distance() const {return _distance;}
   const LightShadow::Ptr shadow() const {return _shadow;};
-
-  virtual bool castShadow() {return false;};
 };
 
 }

@@ -17,12 +17,12 @@
 #include <objects/Mesh.h>
 #include <scene/Scene.h>
 #include <camera/PerspectiveCamera.h>
-#include <material/MeshBasicMaterial.h>
+#include <material/MeshLambertMaterial.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 #include <geometry/Sphere.h>
 #include <helper/AxesHelper.h>
-#include "bak/modelloader.h"
+#include <light/SpotLight.h>
 
 namespace lo {
 namespace ui {
@@ -43,7 +43,6 @@ class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, prot
   three::Renderer::Target::Ptr _target;
 
   const ThreeDItem *const _item;
-  QOpenGLFramebufferObject *_framebufferObject = nullptr;
 
 public:
 
@@ -57,39 +56,53 @@ public:
           item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
+    _renderer->setShadowsEnabled(true);
+
+#if 1
+    //Axes
     AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
 
     _scene->add(axes);
 
+    //Plane
     Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
-    MeshBasicMaterial::Ptr planeMaterial = MeshBasicMaterial::make();
+    MeshLambertMaterial::Ptr planeMaterial = MeshLambertMaterial::make();
     planeMaterial->color = Color(0xcccccc);
 
-    Mesh::Ptr plane = Mesh_T<Plane, MeshBasicMaterial>::make("plane", planeGeometry, planeMaterial);
+    Mesh::Ptr plane = Mesh_T<Plane, MeshLambertMaterial>::make("plane", planeGeometry, planeMaterial);
     plane->rotation().setX(-0.5f * (float) M_PI);
     plane->position().set(15, 0, 0);
+    plane->receiveShadow = true;
 
     _scene->add(plane);
 
+    //Cube
     Box::Ptr cubeGeometry = Box::make(4, 4, 4);
-    MeshBasicMaterial::Ptr cubeMaterial = MeshBasicMaterial::make();
+    MeshLambertMaterial::Ptr cubeMaterial = MeshLambertMaterial::make();
     cubeMaterial->color = Color(0xff0000);
-    cubeMaterial->wireframe = true;
 
-    Mesh::Ptr cube = Mesh_T<Box, MeshBasicMaterial>::make("cube", cubeGeometry, cubeMaterial);
+    Mesh::Ptr cube = Mesh_T<Box, MeshLambertMaterial>::make("cube", cubeGeometry, cubeMaterial);
     cube->position().set(-4, 3, 0);
+    cube->castShadow = true;
 
     _scene->add(cube);
-
+#endif
+    //Sphere
     Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
-    MeshBasicMaterial::Ptr sphereMaterial = MeshBasicMaterial::make();
+    MeshLambertMaterial::Ptr sphereMaterial = MeshLambertMaterial::make();
     sphereMaterial->color = Color(0x7777ff);
-    sphereMaterial->wireframe = true;
 
-    Mesh::Ptr sphere = Mesh_T<Sphere, MeshBasicMaterial>::make("sphere", sphereGeometry, sphereMaterial);
+    Mesh::Ptr sphere = Mesh_T<Sphere, MeshLambertMaterial>::make("sphere", sphereGeometry, sphereMaterial);
     sphere->position().set(20, 4, 2);
+    cube->castShadow = true;
 
     _scene->add(sphere);
+
+    //Light
+    SpotLight::Ptr spotLight = SpotLight::make(_scene, Color(0xffffff));
+    spotLight->position().set(-40, 60, -10);
+    spotLight->castShadow = true;
+    _scene->add(spotLight);
 
     _camera->position().set(-30, 40, 30);
     _camera->lookAt(_scene->position());
@@ -115,12 +128,13 @@ public:
     format.setMipmap(false);
     format.setInternalTextureFormat(GL_RGBA);
 
-    _framebufferObject = new QOpenGLFramebufferObject(size, format);
+    QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size, format);
 
+    _renderer->setExternalDefaults(fbo->handle(), GL_TEXTURE0);
     _target = OpenGLRenderer::makeExternalTarget(
-       _framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
+       fbo->handle(), fbo->texture(), _item->width(), _item->height());
 
-    return _framebufferObject;
+    return fbo;
   }
 };
 

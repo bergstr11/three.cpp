@@ -39,6 +39,9 @@ public:
 
   static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
                                         bool depthBuffer=true, bool stencilBuffer=true);
+
+  virtual void setExternalDefaults(GLuint fbo, GLenum textureSlot) = 0;
+  virtual void setShadowsEnabled(bool enabled) = 0;
 };
 
 }

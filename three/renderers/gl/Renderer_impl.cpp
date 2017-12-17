@@ -41,7 +41,8 @@ Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLu
 namespace gl {
 
 Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
-   : OpenGLRenderer(context), _state(this),
+   : OpenGLRenderer(context),
+     _state(this),
      _width(width),
      _height(height),
      _attributes(this),
@@ -50,7 +51,7 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _extensions(context),
      _capabilities(this, _extensions, _parameters ),
      _morphTargets(this),
-     _shadowMap(*this, _objects, _capabilities.maxTextureSize),
+     _shadowMap(*this, _objects, _capabilities),
      _programs(*this, _extensions, _capabilities),
      _premultipliedAlpha(premultipliedAlpha),
      _background(*this, _state, _geometries, premultipliedAlpha),
@@ -62,31 +63,6 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _pixelRatio(pixelRatio)
 {
   initContext();
-
-#ifdef DEMO2
-  testProgram.addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, "#version 150 core\n"
-     "    in vec2 position;\n"
-     "    in vec3 color;\n"
-     "    out vec3 Color;\n"
-     "    void main()\n"
-     "    {\n"
-     "        Color = color;\n"
-     "        gl_Position = vec4(position, 0.0, 1.0);\n"
-     "    }");
-  testProgram.addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, "#version 150 core\n"
-     "    in vec3 Color;\n"
-     "    out vec4 outColor;\n"
-     "    void main()\n"
-     "    {\n"
-     "        outColor = vec4(Color, 1.0);\n"
-     "    }");
-
-  // Create Vertex Array Object
-  glGenVertexArrays(1, &testVao);
-
-  // Create a Vertex Buffer Object and copy the vertex data to it
-  glGenBuffers(1, &testVbo);
-#endif
 }
 
 void Renderer_impl::initContext()
@@ -138,53 +114,6 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
   _state.viewport( _currentViewport );
 }
 
-#ifdef DEMO2
-bool Renderer_impl::doRender2()
-{
-  glBindVertexArray(testVao);
-  glBindBuffer(GL_ARRAY_BUFFER, testVbo);
-
-  GLfloat vertices[] = {
-     0.0f,  0.5f, 1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-     -0.5f, -0.5f, 0.0f, 0.0f, 1.0f
-  };
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  testProgram.bind();
-
-  // Specify the layout of the vertex data
-  GLint posAttrib = testProgram.attributeLocation("position");
-  testProgram.enableAttributeArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
-
-  GLint colAttrib = testProgram.attributeLocation("color");
-  testProgram.enableAttributeArray(colAttrib);
-  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
-  glClearColor(0.1f, 0.3f, 0.0f, 0.8f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  //glFrontFace(GL_CW);
-  //glCullFace(GL_BACK);
-  //glEnable(GL_CULL_FACE);
-  //glEnable(GL_DEPTH_TEST);
-
-  // Draw a triangle from the 3 vertices
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-
-  //glDisable(GL_DEPTH_TEST);
-  //glDisable(GL_CULL_FACE);
-
-  testProgram.disableAttributeArray(posAttrib);
-  testProgram.disableAttributeArray(colAttrib);
-
-  testProgram.release();
-
-  return true;
-}
-#endif
-
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
@@ -192,20 +121,15 @@ cout << "doRender" << endl;
 
   _state.init();
 
-#ifdef DEMO2
-  if(doRender2()) {
-    state().reset();
-    glFinish();
-    return;
-  }
-#endif
-
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
   // reset caching for this frame
   _currentGeometryProgram.clear();
   _currentMaterialId = -1;
   _currentCamera = nullptr;
+
+  check_glerror(this, __FILE__, __LINE__);
+  check_framebuffer(this, __FILE__, __LINE__);
 
   // update scene graph
   if (scene->autoUpdate()) scene->updateMatrixWorld(false);
@@ -215,6 +139,7 @@ cout << "doRender" << endl;
 
   _projScreenMatrix.multiply(camera->projectionMatrix(), camera->matrixWorldInverse());
   _frustum.set(_projScreenMatrix);
+  //_frustum.print(_projScreenMatrix);
 
   _lightsArray.clear();
   _shadowsArray.clear();
@@ -297,32 +222,30 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
 {
   _currentRenderTarget = renderTarget;
 
-  RenderTargetCube::Ptr renderTargetCube;
-  RenderTargetDefault::Ptr renderTargetDefault;
-  RenderTargetExternal::Ptr renderTargetExternal;
+  RenderTargetCube::Ptr cubeTarget;
+  RenderTargetInternal::Ptr internalTarget;
+  RenderTargetExternal::Ptr externalTarget;
 
   GLuint framebuffer = UINT_MAX;
 
   if(renderTarget) {
-    renderTargetCube = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
-    renderTargetDefault = dynamic_pointer_cast<RenderTargetDefault>(renderTarget);
-    renderTargetExternal = dynamic_pointer_cast<RenderTargetExternal>(renderTarget);
+    cubeTarget = dynamic_pointer_cast<RenderTargetCube>(renderTarget);
+    internalTarget = dynamic_pointer_cast<RenderTargetInternal>(renderTarget);
+    externalTarget = dynamic_pointer_cast<RenderTargetExternal>(renderTarget);
 
-    if (renderTargetCube) {
-      if(renderTargetCube->frameBuffers.empty())
-        _textures.setupRenderTarget( *renderTargetCube );
-      framebuffer = renderTargetCube->frameBuffers[renderTargetCube->activeCubeFace];
+    if (cubeTarget) {
+      if(cubeTarget->frameBuffers.empty())
+        _textures.setupRenderTarget( *cubeTarget );
+      framebuffer = cubeTarget->frameBuffers[cubeTarget->activeCubeFace];
     }
-    else if(renderTargetDefault && !renderTargetDefault->frameBuffer) {
-      _textures.setupRenderTarget(*renderTargetDefault);
-      framebuffer = renderTargetDefault->frameBuffer;
+    else if(internalTarget) {
+      if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
+      framebuffer = internalTarget->frameBuffer;
     }
-    else if(renderTargetExternal) {
-      framebuffer = renderTargetExternal->frameBuffer;
-      _currentFramebuffer = framebuffer;
-
-      _textures.setupRenderTarget(*renderTargetExternal);
+    else if(externalTarget) {
+      framebuffer = externalTarget->frameBuffer;
     }
+    check_glerror(this, __FILE__, __LINE__);
 
     _currentViewport = renderTarget->viewport();
     _currentScissor = renderTarget->scissor();
@@ -345,11 +268,12 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   _state.scissor( _currentScissor );
   _state.setScissorTest( _currentScissorTest );
 
-  if ( renderTargetCube ) {
+  if ( cubeTarget ) {
     auto &textureProperties = _properties.get(renderTarget->texture());
     GLenum textarget = textureProperties.texture;
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + renderTargetCube->activeCubeFace,
-                           textarget, renderTargetCube->activeMipMapLevel );
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubeTarget->activeCubeFace,
+                           textarget, cubeTarget->activeMipMapLevel );
+    check_glerror(this, __FILE__, __LINE__);
   }
 }
 
@@ -432,7 +356,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
       Light::Ptr lp = dynamic_pointer_cast<Light>(object);
       _lightsArray.push_back(lp);
 
-      if ( light.castShadow() ) {
+      if ( light.castShadow ) {
         _shadowsArray.push_back( lp );
       }
     };
@@ -977,9 +901,9 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // wire up the material to this renderer's lighting state
 
+    uniforms.set(UniformName::spotLights, _lights.state.spot);
     uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
     /*uniforms.set(UniformName::directionalLights, _lights.state.directional);
-    uniforms.set(UniformName::spotLights, _lights.state.spot);
     uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
     uniforms.set(UniformName::pointLights, _lights.state.point);
     uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);*/

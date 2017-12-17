@@ -17,16 +17,14 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
   if (lights.empty()) return;
 
-  // TODO Clean up (needed in case of contextlost)
-  //var _gl = _renderer.context;
-  //var _state = _renderer.state;
-
   // Set GL state for depth map.
   gl::State &state = _renderer.state();
   state.disable(GL_BLEND);
   state.colorBuffer.setClear(1, 1, 1, 1);
   state.depthBuffer.setTest(true);
   state.setScissorTest(false);
+
+  check_glerror(&_renderer, __FILE__, __LINE__);
 
   // render depth map
   unsigned faceCount;
@@ -40,15 +38,16 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       continue;
     }
 
-    const Camera::Ptr shadowCamera = shadow->camera();
+    const PerspectiveCamera::Ptr shadowCamera = shadow->camera();
 
-    _shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
+    math::Vector2 maxShadowMapSize {_capabilities.maxTextureSize, _capabilities.maxTextureSize};
+    math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
 
     PointLight::Ptr pointLight = std::dynamic_pointer_cast<PointLight>(light);
     if (pointLight) {
 
-      float vpWidth = _shadowMapSize.x();
-      float vpHeight = _shadowMapSize.y();
+      float vpWidth = shadowMapSize.x();
+      float vpHeight = shadowMapSize.y();
 
       // These viewports map a cube-map onto a 2D texture with the
       // following orientation:
@@ -76,26 +75,26 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       // negative Y
       _cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
 
-      _shadowMapSize.x() *= 4.0;
-      _shadowMapSize.y() *= 2.0;
+      shadowMapSize.x() *= 4.0;
+      shadowMapSize.y() *= 2.0;
+
+      check_glerror(&_renderer, __FILE__, __LINE__);
     }
 
     if (!shadow->map()) {
 
-      RenderTargetDefault::Options pars;
-      pars.minFilter = TextureFilter::Nearest;
-      pars.magFilter = TextureFilter::Nearest;
-      pars.format = TextureFormat::RGBA;
-
-      shadow->map() = RenderTargetDefault::make(pars, _shadowMapSize.x(), _shadowMapSize.y());
+      RenderTargetInternal::Options options;
+      options.minFilter = TextureFilter::Nearest;
+      options.magFilter = TextureFilter::Nearest;
+      options.format = TextureFormat::RGBA;
+      shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
 
       shadowCamera->updateProjectionMatrix();
+      check_glerror(&_renderer, __FILE__, __LINE__);
     }
 
     shadow->update(light);
-
-    //var shadowMap = shadow.map;
-    //var shadowMatrix = shadow.matrix;
+    check_glerror(&_renderer, __FILE__, __LINE__);
 
     _lightPositionWorld = math::Vector3::fromMatrixPosition(light->matrixWorld());
     shadowCamera->position() = _lightPositionWorld;
@@ -134,6 +133,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     _renderer.setRenderTarget(shadow->map());
     _renderer.clear();
+    check_glerror(&_renderer, __FILE__, __LINE__);
 
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
@@ -150,7 +150,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
         math::Vector4 &vpDimensions = _cube2DViewPorts[face];
         _renderer.state().viewport(vpDimensions);
-
       }
 
       // update camera matrices and frustum
@@ -159,10 +158,8 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
       // set object matrices & frustum culling
 
-      if (pointLight)
-        renderObject(scene, camera, pointLight->shadow()->specificCamera());
-      else
-        renderObject(scene, camera, nullptr);
+      renderObject(scene, camera, shadowCamera, (bool)pointLight);
+      check_glerror(&_renderer, __FILE__, __LINE__);
     }
   }
 
@@ -215,13 +212,13 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     const sole::uuid &keyA = result->uuid;
     const sole::uuid &keyB = material->uuid;
 
-    if (_materialCache.find(keyA) == _materialCache.end()) {
+    if (!_materialCache.count(keyA)) {
 
       _materialCache.emplace(keyA, std::unordered_map<sole::uuid, Material::Ptr>());
     }
     auto & materialsForVariant = _materialCache[ keyA ];
 
-    if (materialsForVariant.find(keyB) == materialsForVariant.end()) {
+    if (!materialsForVariant.count(keyB)) {
 
       materialsForVariant.emplace(keyB, result);
     }
@@ -261,11 +258,9 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   return result;
 }
 
-void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera)
+void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera, bool isPointLight)
 {
   if (!object->visible()) return;
-
-  bool isPointLight = (bool)shadowCamera;
 
   bool visible = object->layers().test( camera->layers() );
 
@@ -276,6 +271,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
       object->modelViewMatrix.multiply(shadowCamera->matrixWorldInverse(), object->matrixWorld());
 
       BufferGeometry::Ptr geometry = _objects.update( object );
+
       if ( object->materialCount() > 1 ) {
 
         const std::vector<Group> &groups = geometry->groups();
@@ -289,12 +285,10 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
             Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld,
                                                  shadowCamera->near(), shadowCamera->far() );
             _renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, &group );
-
           }
-
         }
-
-      } else {
+      }
+      else {
         Material::Ptr material = object->material();
         if (material->visible) {
 
@@ -303,14 +297,13 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
         }
       }
     }
-
   }
 
   std::vector<Object3D::Ptr> children = object->children();
 
   for (auto child : object->children()) {
 
-    renderObject( child, camera, shadowCamera );
+    renderObject( child, camera, shadowCamera, isPointLight);
   }
 }
 

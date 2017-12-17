@@ -11,9 +11,9 @@
 
 namespace three {
 
-class SpotLightShadow : public CameraShadow<PerspectiveCamera>
+class SpotLightShadow : public LightShadow
 {
-  SpotLightShadow() : CameraShadow(PerspectiveCamera::make( 50, 1, 0.5, 500 )) {}
+  SpotLightShadow() : LightShadow(PerspectiveCamera::make( 50, 1, 0.5, 500 )) {}
 
 public:
   using Ptr = std::shared_ptr<SpotLightShadow>;
@@ -21,7 +21,7 @@ public:
 
   void update(Light::Ptr light) override
   {
-    float fov = math::RAD2DEG * 2 * light->angle();
+    float fov = (float)math::RAD2DEG * 2 * light->angle();
     float aspect = _mapSize.width() / _mapSize.height();
     float far = light->distance() || _camera->far();
 

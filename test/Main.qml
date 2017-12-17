@@ -12,12 +12,20 @@ Window {
 
     visible: true
 
+    /*ThreeDItem {
+        z: 1
+        anchors.fill: parent
+        focus: true
+        background: Qt.rgba(0.4,0.4,0.6)
+    }*/
+
     Scene {
         id: scene
         z: 1
         anchors.fill: parent
         focus: true
         background: Qt.rgba(0.4,0.4,0.6)
+        enableShadows: true
 
         Axes {
             size: 20
@@ -30,9 +38,10 @@ Window {
             position: "15,0,0"
             rotation.x: -0.5 * Math.PI
 
-            material: MeshBasicMaterial {
+            material: MeshLambertMaterial {
                 color: "#cccccc"
             }
+            receiveShadow: true
         }
 
         Box {
@@ -42,10 +51,10 @@ Window {
 
             position: "-4,3,0"
 
-            material: MeshBasicMaterial {
+            material: MeshLambertMaterial {
                 color: "#ff0000"
-                wireframe: true
             }
+            castShadow: true
         }
 
         Sphere {
@@ -55,10 +64,16 @@ Window {
 
             position: "20,4,2"
 
-            material: MeshBasicMaterial {
+            material: MeshLambertMaterial {
                 color: "#7777ff"
-                wireframe: true
             }
+            castShadow: true
+        }
+
+        SpotLight {
+            color: "#ffffff"
+            position: "-40,60,-10"
+            castShadow: true
         }
 
         camera: PerspectiveCamera {

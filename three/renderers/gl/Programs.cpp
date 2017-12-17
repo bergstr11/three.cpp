@@ -146,6 +146,8 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->envMapCubeUV = mat.envMap &&
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->specularMap = mat.specularMap;
+    parameters->combine = mat.combine;
     parameters->lightMap = mat.lightMap;
   };
   material->resolver->material::DispatchResolver::getValue(dispatch);

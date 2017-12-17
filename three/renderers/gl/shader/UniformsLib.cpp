@@ -174,7 +174,7 @@ public:
     add(UniformsID::lights,
         LibUniformValues({
                          value<Color>(UniformName::ambientLightColor, Color()),
-                         value<std::vector<Light::Ptr>>(UniformName::directionalLights, std::vector<Light::Ptr>(), {
+                         value<CachedDirectionalLights>(UniformName::directionalLights, CachedDirectionalLights(), {
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
                             value<Color>(UniformName::color, Color()),
                             value<bool>(UniformName::shadow, false),
@@ -186,7 +186,7 @@ public:
                          value<std::vector<Texture::Ptr>>(UniformName::directionalShadowMap, std::vector<Texture::Ptr>()),
                          value<std::vector<math::Matrix4>>(UniformName::directionalShadowMatrix, std::vector<math::Matrix4>()),
 
-                         value<std::vector<Light::Ptr>>(UniformName::spotLights, std::vector<Light::Ptr>(), {
+                         value<CachedSpotLights>(UniformName::spotLights, CachedSpotLights(), {
                             value<Color>(UniformName::color, Color()),
                             value<math::Vector3>(UniformName::position, math::Vector3()),
                             value<math::Vector3>(UniformName::direction, math::Vector3()),

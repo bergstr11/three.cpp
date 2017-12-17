@@ -21,12 +21,15 @@ class ThreeDScene : public QQuickFramebufferObject
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
+  Q_PROPERTY(bool enableShadows READ enableShadows WRITE setEnableShadows NOTIFY enableShadowsChanged)
   Q_PROPERTY(Camera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeDObject> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
   QString _name;
   QColor _background;
+  bool _enableShadows = false;
+
   QList<ThreeDObject *> _objects;
 
   Camera *_quickCamera = nullptr;
@@ -64,6 +67,10 @@ public:
 
   three::Scene::Ptr scene() {return _scene;}
 
+  bool enableShadows() const {return _enableShadows;}
+
+  void setEnableShadows(bool enable);
+
 protected:
   void componentComplete() override;
 
@@ -99,6 +106,7 @@ signals:
   void backgroundChanged();
   void nameChanged();
   void cameraChanged();
+  void enableShadowsChanged();
 };
 
 }

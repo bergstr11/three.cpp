@@ -8,6 +8,7 @@
 #include "quick/ThreeDScene.h"
 #include <geometry/Sphere.h>
 #include <material/MeshBasicMaterial.h>
+#include <material/MeshLambertMaterial.h>
 #include <objects/Mesh.h>
 
 namespace three {
@@ -24,6 +25,21 @@ class Sphere : public ThreeDObject
   unsigned _widthSegments=1, _heightSegments=1;
 
   three::Mesh::Ptr _sphere;
+
+protected:
+  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  {
+    geometry::Sphere::Ptr geometry = geometry::Sphere::make(_radius, _widthSegments, _heightSegments);
+    three::Material::Ptr mat = material()->create();
+
+    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
+    if(mbm) return Mesh_T<geometry::Sphere, three::MeshBasicMaterial>::make("sphere", geometry, mbm);
+
+    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
+    if(mlm) return Mesh_T<geometry::Sphere, three::MeshLambertMaterial>::make("sphere", geometry, mlm);
+
+    return nullptr;
+  }
 
 public:
 
@@ -48,22 +64,6 @@ public:
       _heightSegments = heightSegments;
       emit heightSegmentsChanged();
     }
-  }
-
-  three::Object3D::Ptr create() override
-  {
-    geometry::Sphere::Ptr geometry = geometry::Sphere::make(_radius, _widthSegments, _heightSegments);
-    three::Material::Ptr mat = material()->create();
-
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) {
-      _sphere = Mesh_T<geometry::Sphere, three::MeshBasicMaterial>::make("sphere", geometry, mbm);
-      _sphere->rotation().setX(_rotation.x());
-      _sphere->position().set(_position.x(), _position.y(), _position.z());
-
-      return _sphere;
-    }
-    return nullptr;
   }
 
 signals:

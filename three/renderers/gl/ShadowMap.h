@@ -18,6 +18,7 @@
 
 #include "Objects.h"
 #include "RenderTarget.h"
+#include "Capabilities.h"
 
 namespace three {
 namespace gl {
@@ -28,9 +29,6 @@ class ShadowMap
 {
   math::Frustum _frustum;
   math::Matrix4 _projScreenMatrix;
-
-  math::Vector2 _shadowMapSize;
-  math::Vector2 _maxShadowMapSize;// = new Vector2( maxTextureSize, maxTextureSize ),
 
   math::Vector3 _lookTarget;
   math::Vector3 _lightPositionWorld;
@@ -68,11 +66,12 @@ class ShadowMap
 
   Renderer_impl &_renderer;
   Objects &_objects;
-  const size_t _maxTextureSize;
+
+  const Capabilities &_capabilities;
 
 public:
-  ShadowMap(Renderer_impl &renderer, Objects &objects, size_t maxTextureSize)
-     : _renderer(renderer), _objects(objects), _maxTextureSize(maxTextureSize)
+  ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities)
+     : _renderer(renderer), _objects(objects), _capabilities(capabilities)
   {
     _depthMaterials.resize(_NumberOfMaterialVariants);
     _distanceMaterials.resize(_NumberOfMaterialVariants);
@@ -96,9 +95,11 @@ public:
                             float shadowCameraNear,
                             float shadowCameraFar );
 
-  void renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera);
+  void renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera, bool isPointLight);
 
   bool enabled() const {return _enabled;}
+
+  void setEnabled(bool enabled) {_enabled = enabled;}
 
   ShadowMapType type() const {return _type;}
 };

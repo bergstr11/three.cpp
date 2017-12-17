@@ -10,7 +10,7 @@
 namespace three {
 namespace gl {
 
-void Textures::onRenderTargetDispose(RenderTargetDefault &renderTarget)
+void Textures::onRenderTargetDispose(RenderTargetInternal &renderTarget)
 {
   deallocateRenderTarget( renderTarget );
 
@@ -51,7 +51,7 @@ void Textures::deallocateTexture(Texture &texture)
   }
 }
 
-void Textures::deallocateRenderTarget(RenderTargetDefault &renderTarget)
+void Textures::deallocateRenderTarget(RenderTargetInternal &renderTarget)
 {
   if (_properties.has(*renderTarget.texture())) {
 
@@ -423,12 +423,15 @@ void Textures::setupFrameBufferTexture(GLuint framebuffer, const Renderer::Targe
   _state.texImage2D( textureTarget, 0, format, renderTarget.width(), renderTarget.height(), format, type, nullptr );
   _fn->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer );
   _fn->glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, (GLenum)textureTarget, _properties.get(renderTarget.texture()).texture, 0 );
-  _fn->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  _fn->glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO);
 }
 
 // Setup storage for internal depth/stencil buffers and bind to correct framebuffer
 void Textures::setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget )
 {
+  GLint oldRB;
+  _fn->glGetIntegerv(GL_RENDERBUFFER_BINDING, &oldRB);
+
   _fn->glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer );
 
   if ( renderTarget.depthBuffer() && !renderTarget.stencilBuffer()) {
@@ -446,11 +449,11 @@ void Textures::setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget 
     _fn->glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA4, renderTarget.width(), renderTarget.height() );
   }
 
-  _fn->glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  _fn->glBindRenderbuffer( GL_RENDERBUFFER, oldRB );
 }
 
 // Setup resources for a Depth Texture for a FBO (needs an extension)
-void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetDefault &renderTarget )
+void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetInternal &renderTarget )
 {
   _fn->glBindFramebuffer( GL_FRAMEBUFFER, framebuffer );
 
@@ -467,21 +470,23 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetDefault &render
   }
 
   setTexture2D( renderTarget.depthTexture(), 0 );
+  check_glerror(_fn, __FILE__, __LINE__);
 
   switch(renderTarget.depthTexture()->format()) {
     case TextureFormat::Depth:
-      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0 );
+      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0);
       break;
     case TextureFormat::DepthStencil:
-      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0 );
+      _fn->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, webglDepthTexture, 0);
       break;
     default:
       throw std::invalid_argument("unknown depth texture format");
   }
+  check_glerror(_fn, __FILE__, __LINE__);
 }
 
 // Setup GL resources for a non-texture depth buffer
-void Textures::setupDepthRenderbuffer(RenderTargetDefault &renderTarget)
+void Textures::setupDepthRenderbuffer(RenderTargetInternal &renderTarget)
 {
   if ( renderTarget.depthTexture() ) {
 
@@ -491,9 +496,10 @@ void Textures::setupDepthRenderbuffer(RenderTargetDefault &renderTarget)
     _fn->glBindFramebuffer( GL_FRAMEBUFFER, renderTarget.frameBuffer);
     _fn->glGenRenderbuffers(1, &renderTarget.renderBuffer);
     setupRenderBufferStorage(renderTarget.renderBuffer, renderTarget);
+    check_glerror(_fn, __FILE__, __LINE__);
   }
 
-  _fn->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  _fn->glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO);
 }
 
 void Textures::setupDepthRenderbuffer(RenderTargetCube &renderTarget)
@@ -506,11 +512,11 @@ void Textures::setupDepthRenderbuffer(RenderTargetCube &renderTarget)
     setupRenderBufferStorage( renderTarget.renderBuffers[i], renderTarget );
   }
 
-  _fn->glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  _fn->glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
 }
 
 // Set up GL resources for the render target
-void Textures::setupRenderTarget(RenderTargetDefault &renderTarget)
+void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
 {
   auto &textureProperties = _properties.get( renderTarget.texture() );
 
@@ -533,11 +539,13 @@ void Textures::setupRenderTarget(RenderTargetDefault &renderTarget)
   if (renderTarget.texture()->needsGenerateMipmaps()) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
   _state.bindTexture(renderTarget.textureTarget, 0 );
 
+
   // Setup depth and stencil buffers
   if ( renderTarget.depthBuffer() ) {
 
     setupDepthRenderbuffer( renderTarget );
   }
+  check_framebuffer(_fn, __FILE__, __LINE__);
 }
 
 void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
@@ -548,8 +556,8 @@ void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
 
   _infoMemory.textures ++;
 
-  _state.currentTextureSlot = GL_TEXTURE0;
-  _state.currentBoundTextures.emplace(GL_TEXTURE0,  State::BoundTexture(TextureTarget::twoD, textureProperties.texture));
+  _state.currentBoundTextures.emplace(_state.currentTextureSlot,
+                                      State::BoundTexture(TextureTarget::twoD, textureProperties.texture));
 
   _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());

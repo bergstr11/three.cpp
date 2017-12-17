@@ -10,12 +10,10 @@ namespace gl {
 
 void DefaultBufferRenderer::render(GLint start, GLsizei count)
 {
+  check_framebuffer(_fn, __FILE__, __LINE__);
+
   _fn->glDrawArrays((GLenum)_mode, start, count);
-  GLenum err = _fn->glGetError();
-  if(err != GL_NO_ERROR) {
-    GLenum status = _fn->glCheckFramebufferStatus((GLenum)TextureTarget::twoD);
-    std::cout << std::setbase(16) << "error " << err << "; framebuffer status " << status << std::endl;
-  }
+  check_glerror(_fn, __FILE__, __LINE__);
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count;
