@@ -58,7 +58,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       }
 
       state.directionalShadowMap.push_back(shadowMap);
-      state.directionalShadowMatrix.push_back(light->shadow()->cmatrix());
+      state.directionalShadowMatrix.push_back(light->shadow()->matrix());
       state.directional.push_back(uniforms);
     };
     dispatch.func<SpotLight>() = [&](SpotLight &spot)
@@ -88,11 +88,10 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
         uniforms->shadowBias = shadow->bias();
         uniforms->shadowRadius = shadow->radius();
         uniforms->shadowMapSize = shadow->mapSize();
-
       }
 
       state.spotShadowMap.push_back(shadowMap);
-      state.spotShadowMatrix.push_back(light->shadow()->cmatrix());
+      state.spotShadowMatrix.push_back(light->shadow()->matrix());
       state.spot.push_back(uniforms);
     };
     dispatch.func<RectAreaLight>() = [&](RectAreaLight &area)
@@ -149,7 +148,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       }
 
       state.pointShadowMap.push_back(shadowMap);
-      state.pointShadowMatrix.push_back(point.shadow()->cmatrix());
+      state.pointShadowMatrix.push_back(point.shadow()->matrix());
       state.point.push_back(uniforms);
     };
     dispatch.func<HemisphereLight>() = [&](HemisphereLight &hemisphere)

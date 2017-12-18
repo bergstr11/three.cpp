@@ -223,16 +223,35 @@ void Uniform::setValue(const GLint * array, size_t size) {
   _renderer.glUniform2iv(_addr, size, array);
 }
 
-void Uniform::setValue(const std::vector<math::Matrix4> &matrices) {
-  //TODO
+void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
+{
+  float *data = new float[matrices.size() * sizeof(math::Matrix4)];
+
+  unsigned offset = 0;
+  for(const auto &mat : matrices) {
+    mat.writeTo(data, offset);
+    offset += sizeof(math::Matrix4);
+  }
+  _renderer.glUniformMatrix4fv( _addr, matrices.size(), GL_FALSE, data);
+  delete[] data;
+  check_glerror(&_renderer, __FILE__, __LINE__);
 }
 
 void Uniform::setValue(const std::vector<float> &vector) {
-  //TODO
+  throw std::logic_error("not implemented");
 }
 
-void Uniform::setValue(const std::vector<Texture::Ptr> &textures) {
-  //TODO
+void Uniform::setValue(const std::vector<Texture::Ptr> &textures)
+{
+  vector<GLint> units = _renderer.allocTextureUnits(textures.size());
+
+  _renderer.glUniform1iv(_addr, textures.size(), units.data());
+
+  for (size_t i = 0; i < textures.size(); ++ i ) {
+
+    _renderer.setTexture2D( textures[i], units[ i ] );
+  }
+  check_glerror(&_renderer, __FILE__, __LINE__);
 }
 
 void Uniform::setValue(const Texture::Ptr &texture)

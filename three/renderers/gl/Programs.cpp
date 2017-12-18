@@ -147,6 +147,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->specularMap = mat.specularMap;
+    parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
     parameters->combine = mat.combine;
     parameters->lightMap = mat.lightMap;
   };

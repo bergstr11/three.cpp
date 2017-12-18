@@ -218,6 +218,17 @@ unsigned Renderer_impl::allocTextureUnit()
   return textureUnit;
 }
 
+std::vector<GLint> Renderer_impl::allocTextureUnits(size_t count)
+{
+  std::vector<GLint> units(count);
+  units.clear();
+
+  for (size_t i = 0; i < count; ++i)
+    units.push_back(allocTextureUnit());
+
+  return units;
+}
+
 Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr renderTarget)
 {
   _currentRenderTarget = renderTarget;
@@ -840,6 +851,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
       materialProperties.shader = Shader(name, shaderlib::get(*parameters->shaderID));
     }
     else if(parameters->shaderMaterial) {
+
       ShaderMaterial *sm = parameters->shaderMaterial;
       materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
     }

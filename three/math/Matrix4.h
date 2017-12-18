@@ -457,7 +457,7 @@ public:
     std::memcpy(_elements, array+offset, sizeof(_elements));
   }
 
-  void writeTo(float *array, unsigned offset)
+  void writeTo(float *array, unsigned offset) const
   {
     std::memcpy(array+offset, _elements, sizeof(_elements));
   }

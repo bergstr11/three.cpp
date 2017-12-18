@@ -201,6 +201,8 @@ public:
 
   unsigned allocTextureUnit();
 
+  std::vector<GLint> allocTextureUnits(size_t count);
+
   void renderBufferDirect(Camera::Ptr camera,
                           Fog::Ptr fog,
                           BufferGeometry::Ptr geometry,

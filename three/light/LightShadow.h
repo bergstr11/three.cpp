@@ -48,7 +48,7 @@ public:
   void setMap(const Renderer::Target::Ptr &map) {_map = map;}
 
   math::Matrix4 &matrix() {return _matrix;}
-  math::Matrix4 cmatrix() const {return _matrix;}
+  const math::Matrix4 &matrix() const {return _matrix;}
 
   virtual const PerspectiveCamera::Ptr camera() const {return _camera;}
 };

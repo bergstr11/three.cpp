@@ -233,25 +233,25 @@ string unrollLoops(string glsl)
 
   auto it_start = glsl.begin();
 
-  while(rex_it != rex_end) {
+  while (rex_it != rex_end) {
 
     smatch match = *rex_it;
 
-    for(auto it_end = it_start + match.position(); it_start != it_end; it_start++) unroll << *it_start;
-    it_start += match.length();
+    for (auto it_end = glsl.begin() + match.position(); it_start != it_end; it_start++) unroll << *it_start;
 
     int start = stoi(match[1].str());
     int end = stoi(match[2].str());
     ssub_match snippet = match[3];
 
-    for(int i=start; i<end; i++) {
+    for (int i = start; i < end; i++) {
       stringstream ss2;
       ss2 << "[ " << i << " ]";
       unroll << regex_replace(snippet.str(), rex2, ss2.str());
     }
     rex_it++;
+    it_start = glsl.begin() + match.position() + match.length();
   }
-  for(;it_start < glsl.end(); it_start++) unroll << *it_start;
+  for (; it_start < glsl.end(); it_start++) unroll << *it_start;
 
   return unroll.str();
 }
