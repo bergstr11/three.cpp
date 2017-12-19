@@ -10,6 +10,12 @@
 namespace three {
 namespace gl {
 
+bool needsGenerateMipmaps(const Texture &texture)
+{
+  return texture.generateMipmaps() && texture.isPowerOfTwo() && texture.minFilter != TextureFilter::Nearest
+         && texture.minFilter != TextureFilter ::Linear;
+}
+
 void Textures::onRenderTargetDispose(RenderTargetInternal &renderTarget)
 {
   deallocateRenderTarget( renderTarget );
@@ -112,7 +118,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
     TextureFormat extFormat = _extensions.extend(texture->format());
     TextureType extType = _extensions.extend(texture->type());
 
-    dispatch.func<Texture>() = [&](Texture &texture) {
+    auto baseFunc = [&](Texture &texture) {
 
       GLuint webglTextureCube;
       if (!textureProperties.image_textureCube.isSet()) {
@@ -134,7 +140,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
     };
     dispatch.func<DataCubeTexture>() = [&](DataCubeTexture &texture) {
 
-      texture::ResolverT<Texture>(texture).getValue(dispatch);
+      baseFunc(texture);
 
       for (unsigned i = 0; i < 6; i ++) {
 
@@ -171,7 +177,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
     };
     dispatch.func<ImageCubeTexture>() = [&](ImageCubeTexture &texture) {
 
-      texture::ResolverT<Texture>(texture).getValue(dispatch);
+      baseFunc(texture);
 
       QImage cubeImages[6];
 
@@ -185,7 +191,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
     };
     texture->resolver->texture::DispatchResolver::getValue(dispatch);
 
-    if ( texture->needsGenerateMipmaps() ) {
+    if ( needsGenerateMipmaps(*texture) ) {
 
       _fn->glGenerateMipmap( GL_TEXTURE_CUBE_MAP );
     }
@@ -208,8 +214,6 @@ void Textures::setTextureCubeDynamic( Texture::Ptr texture, unsigned slot )
 
 void Textures::setTextureParameters(TextureTarget textureTarget, Texture &texture)
 {
-  //var extension;
-
   if ( texture.isPowerOfTwo()) {
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, (GLint)texture.wrapS);
@@ -251,7 +255,6 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
 void Textures::uploadTexture(GlProperties &textureProperties, Texture &texture, unsigned slot )
 {
-
   if (!textureProperties.webglInit) {
 
     textureProperties.webglInit = true;
@@ -362,7 +365,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture &texture, 
                             mipmap.width, mipmap.height, texture.format(), texture.type(), mipmap.data.data() );
         }
 
-        texture.generateMipmaps() = false;
+        texture.setGenerateMipmaps(false);
       }
       else {
         _state.texImage2D(TextureTarget::twoD, 0, texture.format(),
@@ -397,7 +400,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture &texture, 
         _state.texImage2D(TextureTarget::twoD, i, texture.format(), texture.format(), texture.type(), mipmap );
       }
 
-      texture.generateMipmaps() = false;
+      texture.setGenerateMipmaps(false);
     }
     else {
       _state.texImage2D(TextureTarget::twoD, 0, texture.format(), texture.format(), texture.type(), image );
@@ -405,7 +408,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture &texture, 
   };
   texture.resolver->texture::DispatchResolver::getValue(dispatch);
 
-  if ( texture.needsGenerateMipmaps() ) _fn->glGenerateMipmap(GL_TEXTURE_2D );
+  if ( needsGenerateMipmaps(texture) ) _fn->glGenerateMipmap(GL_TEXTURE_2D );
 
   textureProperties.version = texture.version();
 
@@ -536,7 +539,7 @@ void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
   setupFrameBufferTexture( renderTarget.frameBuffer, renderTarget, GL_COLOR_ATTACHMENT0, renderTarget.textureTarget);
 
-  if (renderTarget.texture()->needsGenerateMipmaps()) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
+  if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
   _state.bindTexture(renderTarget.textureTarget, 0 );
 
 
@@ -562,7 +565,7 @@ void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
   _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
 
-  if (renderTarget.texture()->needsGenerateMipmaps()) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
+  if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
 }
 
 // Set up GL resources for the render target
@@ -590,7 +593,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
     setupFrameBufferTexture( renderTarget.frameBuffers[ i ], renderTarget, GL_COLOR_ATTACHMENT0, TextureTarget::cubeMapPositiveX + i);
   }
 
-  if ( renderTarget.texture()->needsGenerateMipmaps() ) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
+  if ( needsGenerateMipmaps(*renderTarget.texture()) ) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
   _state.bindTexture(renderTarget.textureTarget, 0 );
 
   // Setup depth and stencil buffers
@@ -602,7 +605,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
 
 void Textures::updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget)
 {
-  if (renderTarget->texture()->needsGenerateMipmaps()) {
+  if (needsGenerateMipmaps(*renderTarget->texture())) {
 
     GLuint webglTexture = _properties.get(renderTarget->texture()).texture;
 

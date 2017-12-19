@@ -23,7 +23,7 @@ protected:
      : Texture(resolver, options), _images(images) {}
 
 public:
-  bool isPowerOfTwo() override {
+  bool isPowerOfTwo() const override {
     return math::isPowerOfTwo(_images[0].width()) && math::isPowerOfTwo(_images[0].height());
   }
 };
@@ -89,7 +89,7 @@ public:
     _images[index] = image;
   }
 
-  bool isPowerOfTwo() override {
+  bool isPowerOfTwo() const override {
     return math::isPowerOfTwo(_images[0].width()) && math::isPowerOfTwo(_images[0].height());
   }
 };

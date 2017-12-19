@@ -45,7 +45,7 @@ public:
   const float *data() const {return _datas[0]->data();}
   const byte *bytes() const {return _datas[0]->bytes();}
 
-  bool isPowerOfTwo() override {
+  bool isPowerOfTwo() const override {
     return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
   }
 };

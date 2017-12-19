@@ -23,7 +23,7 @@ public:
   {
     float fov = (float)math::RAD2DEG * 2 * light->angle();
     float aspect = _mapSize.width() / _mapSize.height();
-    float far = light->distance() || _camera->far();
+    float far = light->distance() > 0 ? light->distance() : _camera->far();
 
     if ( fov != _camera->fov() || aspect != _camera->aspect() || far != _camera->far() ) {
 

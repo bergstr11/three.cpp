@@ -63,7 +63,7 @@ struct UniformValue
 
   const UniformName id;
 
-  bool needsUpdate = false;
+  bool needsUpdate = true;
 
   UniformProperties properties;
 

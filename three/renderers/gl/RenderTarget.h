@@ -50,7 +50,9 @@ class RenderTargetExternal : public RenderTarget
        : Texture(texture::Resolver::makeNull(), Texture::options(), false, false), handle(handle), width(width), height(height)
     {}
 
-    bool isPowerOfTwo() override {return math::isPowerOfTwo(width) && math::isPowerOfTwo(height);}
+    bool isPowerOfTwo() const override {
+      return math::isPowerOfTwo(width) && math::isPowerOfTwo(height);
+    }
   };
 
   const GLuint frameBuffer;

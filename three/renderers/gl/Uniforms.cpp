@@ -225,7 +225,7 @@ void Uniform::setValue(const GLint * array, size_t size) {
 
 void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
 {
-  float *data = new float[matrices.size() * sizeof(math::Matrix4)];
+  auto *data = new float[matrices.size() * sizeof(math::Matrix4)];
 
   unsigned offset = 0;
   for(const auto &mat : matrices) {
@@ -237,8 +237,9 @@ void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
   check_glerror(&_renderer, __FILE__, __LINE__);
 }
 
-void Uniform::setValue(const std::vector<float> &vector) {
-  throw std::logic_error("not implemented");
+void Uniform::setValue(const std::vector<float> &vector)
+{
+  _renderer.glUniform1fv(_addr, vector.size(), vector.data());
 }
 
 void Uniform::setValue(const std::vector<Texture::Ptr> &textures)

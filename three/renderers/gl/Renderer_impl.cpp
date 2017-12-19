@@ -18,6 +18,7 @@
 #include <material/MeshToonMaterial.h>
 #include <material/MeshPhysicalMaterial.h>
 #include <material/PointsMaterial.h>
+#include <material/ShadowMaterial.h>
 #include "refresh_uniforms.h"
 
 namespace three {
@@ -952,7 +953,7 @@ void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues
 
     UniformValue &v = values[up->id()];
 
-    if ( !v.needsUpdate ) {
+    if ( v.needsUpdate ) {
 
       // note: always updating when .needsUpdate is undefined
       v.applyValue(up);
@@ -1222,11 +1223,10 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       m_uniforms[UniformName::size] = material.size * _pixelRatio;
       m_uniforms[UniformName::scale] = _height * 0.5f;
     };
-    /* TODO implement classes
-    dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &sm) {
-      m_uniforms->color.value = material.color;
-      m_uniforms->opacity.value = material.opacity;
-    };*/
+    dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &material) {
+      m_uniforms[UniformName::color] = material.color;
+      m_uniforms[UniformName::opacity] = material.opacity;
+    };
     material->resolver->material::DispatchResolver::getValue(dispatch);
 
     // RectAreaLight Texture

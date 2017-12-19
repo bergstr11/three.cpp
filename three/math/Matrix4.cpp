@@ -229,17 +229,17 @@ Matrix4 Matrix4::rotation(const Quaternion &q)
   float yy = y * y2, yz = y * z2, zz = z * z2;
   float wx = w * x2, wy = w * y2, wz = w * z2;
 
-  te[0] = 1 - (yy + zz);
+  te[0] = 1.0f - (yy + zz);
   te[4] = xy - wz;
   te[8] = xz + wy;
 
   te[1] = xy + wz;
-  te[5] = 1 - (xx + zz);
+  te[5] = 1.0f - (xx + zz);
   te[9] = yz - wx;
 
   te[2] = xz - wy;
   te[6] = yz + wx;
-  te[10] = 1 - (xx + yy);
+  te[10] = 1.0f - (xx + yy);
 
   // last column
   te[3] = 0;

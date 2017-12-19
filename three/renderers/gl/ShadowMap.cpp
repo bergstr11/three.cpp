@@ -40,7 +40,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     const PerspectiveCamera::Ptr shadowCamera = shadow->camera();
 
-    math::Vector2 maxShadowMapSize {_capabilities.maxTextureSize, _capabilities.maxTextureSize};
+    math::Vector2 maxShadowMapSize {(float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize};
     math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
 
     PointLight::Ptr pointLight = std::dynamic_pointer_cast<PointLight>(light);
@@ -88,7 +88,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       options.magFilter = TextureFilter::Nearest;
       options.format = TextureFormat::RGBA;
       shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
-      //shadow->map()->texture().appendName("shadowMap");
 
       shadowCamera->updateProjectionMatrix();
       check_glerror(&_renderer, __FILE__, __LINE__);

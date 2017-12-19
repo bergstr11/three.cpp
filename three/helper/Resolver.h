@@ -451,6 +451,7 @@ PUT_FUNCTABLE(Dispatch, MeshNormalMaterial)
 PUT_FUNCTABLE(Dispatch, MeshPhysicalMaterial)
 PUT_FUNCTABLE(Dispatch, MeshToonMaterial)
 PUT_FUNCTABLE(Dispatch, PointsMaterial)
+PUT_FUNCTABLE(Dispatch, ShadowMaterial)
 PUT_FUNCTABLE(Dispatch, SpriteMaterial)
 
 DEF_VALUETABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)

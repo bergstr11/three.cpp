@@ -110,7 +110,9 @@ public:
 
   const std::vector<Mipmap> &mipmaps() const {return _mipmaps;}
 
-  bool &generateMipmaps() {return _generateMipmaps;}
+  bool generateMipmaps() const {return _generateMipmaps;}
+
+  void setGenerateMipmaps(bool generate) {_generateMipmaps = generate;}
 
   bool flipY() {return _flipY;}
 
@@ -131,18 +133,12 @@ public:
 
   void needsUpdate(bool value) {_needsUpdate = value;}
 
-  virtual bool isPowerOfTwo() = 0;
+  virtual bool isPowerOfTwo() const = 0;
 
   bool needsPowerOfTwo()
   {
     return TextureOptions::wrapS != TextureWrapping ::ClampToEdge || TextureOptions::wrapT != TextureWrapping ::ClampToEdge
            || (TextureOptions::minFilter != TextureFilter ::Nearest && TextureOptions::minFilter != TextureFilter ::Linear );
-  }
-
-  bool needsGenerateMipmaps()
-  {
-    return _generateMipmaps && isPowerOfTwo() && TextureOptions::minFilter != TextureFilter::Nearest
-           && TextureOptions::minFilter != TextureFilter ::Linear;
   }
 };
 

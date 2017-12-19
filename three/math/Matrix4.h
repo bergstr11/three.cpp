@@ -276,10 +276,10 @@ public:
     float det = n11 * t11 + n21 * t12 + n31 * t13 + n41 * t14;
 
     if (det == 0) {
-      throw new std::invalid_argument("THREE.Matrix4: inverse() can't invert matrix, determinant is 0");
+      throw new std::invalid_argument("Matrix4: cannnot invert, determinant is 0");
     }
 
-    float detInv = 1 / det;
+    float detInv = 1.0f / det;
 
     te[0] = t11 * detInv;
     te[1] = (n24 * n33 * n41 - n23 * n34 * n41 - n24 * n31 * n43 + n21 * n34 * n43 + n23 * n31 * n44 - n21 * n33 * n44) * detInv;

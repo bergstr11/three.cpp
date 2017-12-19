@@ -41,7 +41,7 @@ public:
   size_t &width() {return _width;}
   size_t &height() {return _height;}
 
-  bool isPowerOfTwo() override {
+  bool isPowerOfTwo() const override {
     return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
   }
 };
