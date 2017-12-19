@@ -52,8 +52,6 @@ public:
   {
     _renderer->setSize(item->width(), item->height());
     _renderer->setShadowsEnabled(item->_enableShadows);
-
-    _camera->lookAt(_scene->position());
   }
 
   ~FramebufferObjectRenderer() override = default;

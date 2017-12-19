@@ -16,14 +16,14 @@ enum class ToneMapping
   None = 0, Linear = 1, Reinhard = 2, Uncharted2 = 3, Cineon = 4
 };
 
-enum class TextureFilter
+enum class TextureFilter : GLint
 {
-  Nearest = 1003,
-  NearestMipMapNearest = 1004,
-  NearestMipMapLinear = 1005,
-  Linear = 1006,
-  LinearMipMapNearest = 1007,
-  LinearMipMapLinear = 1008
+  Nearest = GL_NEAREST,
+  NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,
+  NearestMipMapLinear = GL_NEAREST_MIPMAP_LINEAR,
+  Linear = GL_LINEAR,
+  LinearMipMapNearest = GL_LINEAR_MIPMAP_NEAREST,
+  LinearMipMapLinear = GL_LINEAR_MIPMAP_LINEAR
 };
 
 enum class TextureMapping : GLenum

@@ -101,21 +101,16 @@ public:
   };
 
 private:
-  ImageTexture::Ptr _texture;
+  DataTexture::Ptr _texture;
 
   GLuint renderBuffer=0, frameBuffer=0;
 
   DepthTexture::Ptr _depthTexture;
 
-  static TextureOptions textureOptions()
-  {
-    TextureOptions ops = ImageTexture::options();
-  }
-
 protected:
   RenderTargetInternal(const Options &options, GLsizei width, GLsizei height)
      : RenderTarget(TextureTarget::twoD, width, height, options.depthBuffer, options.stencilBuffer),
-       _texture(ImageTexture::make(options))
+       _texture(DataTexture::make(options, width, height))
   {
     _depthTexture = options.depthTexture;
   }

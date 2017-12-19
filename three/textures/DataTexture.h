@@ -80,9 +80,17 @@ public:
     return Ptr(new DataTexture(options, TextureDataT<float>::make(data, width, height), width, height));
   }
 
-  static Ptr make(const TextureData::Ptr data, unsigned width, unsigned height)
+  static Ptr make(const TextureOptions &options, unsigned width, unsigned height)
   {
-    return Ptr(new DataTexture(DataTextureT::options(), data, width, height));
+    switch(options.type) {
+      case TextureType::Byte:
+      case TextureType::UnsignedByte:
+        return Ptr(new DataTexture(options, TextureDataT<uint8_t>::make(width, height), width, height));
+      case TextureType::Float:
+        return Ptr(new DataTexture(options, TextureDataT<float>::make(width, height), width, height));
+      default:
+        throw std::invalid_argument("type not currently implemented");
+    }
   }
 };
 

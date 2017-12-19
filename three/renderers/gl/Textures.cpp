@@ -215,16 +215,17 @@ void Textures::setTextureCubeDynamic( Texture::Ptr texture, unsigned slot )
 void Textures::setTextureParameters(TextureTarget textureTarget, Texture &texture)
 {
   if ( texture.isPowerOfTwo()) {
-
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, (GLint)texture.wrapS);
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, (GLint)texture.wrapT);
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, (GLint)texture.magFilter);
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, (GLint)texture.minFilter);
+    check_glerror(_fn, __FILE__, __LINE__);
   }
   else {
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    check_glerror(_fn, __FILE__, __LINE__);
 
     if ( texture.wrapS != TextureWrapping::ClampToEdge || texture.wrapT != TextureWrapping::ClampToEdge) {
       //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to THREE.ClampToEdgeWrapping.', texture );
@@ -232,6 +233,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, filterFallback( texture.magFilter ) );
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, filterFallback( texture.minFilter ) );
+    check_glerror(_fn, __FILE__, __LINE__);
 
     if ( texture.minFilter != TextureFilter::Nearest && texture.minFilter != TextureFilter::Linear) {
       //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
@@ -248,6 +250,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
       _fn->glTexParameterf((GLenum)textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
                            std::min(texture.anisotropy, (float)_capabilities.getMaxAnisotropy()));
+      check_glerror(_fn, __FILE__, __LINE__);
       _properties.get(texture).currentAnisotropy = texture.anisotropy;
     }
   }

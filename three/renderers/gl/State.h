@@ -11,6 +11,7 @@
 #include <helper/Types.h>
 #include <Constants.h>
 #include <unordered_map>
+#include "Helpers.h"
 
 namespace three {
 namespace gl {
@@ -25,14 +26,16 @@ public:
     GLboolean currentColorMask = 0;
     math::Vector4 currentColorClear = {0, 0, 0, 0};
 
-    ColorBuffer(QOpenGLExtraFunctions *fn)
+    QOpenGLExtraFunctions * const _f;
+
+    ColorBuffer(QOpenGLExtraFunctions *fn) : _f(fn)
     {}
 
     ColorBuffer &setMask(bool _colorMask)
     {
       GLboolean colorMask = _colorMask ?  1 : 0;
       if (currentColorMask != colorMask && !locked) {
-        glColorMask(colorMask, colorMask, colorMask, colorMask);
+        _f->glColorMask(colorMask, colorMask, colorMask, colorMask);
         currentColorMask = colorMask;
       }
     }
@@ -50,7 +53,7 @@ public:
       color.set(r, g, b, a);
 
       if (currentColorClear != color) {
-        glClearColor(r, g, b, a);
+        _f->glClearColor(r, g, b, a);
         currentColorClear = color;
       }
     }
@@ -74,6 +77,8 @@ public:
     Func currentDepthFunc = Func::LessEqual;
     double currentDepthClear = 0;
 
+    QOpenGLExtraFunctions * const _f;
+
     DepthBuffer &setTest(bool depthTest)
     {
       if (depthTest) {
@@ -85,13 +90,13 @@ public:
       return *this;
     }
 
-    DepthBuffer(State *state) : glState(state)
+    DepthBuffer(State *state, QOpenGLExtraFunctions * f) : glState(state), _f(f)
     {}
 
     DepthBuffer &setMask(bool depthMask)
     {
       if (currentDepthMask != depthMask && !locked) {
-        glDepthMask(depthMask);
+        _f->glDepthMask(depthMask);
         currentDepthMask = depthMask;
       }
       return *this;
@@ -101,7 +106,7 @@ public:
     {
 
       if (currentDepthFunc != depthFunc) {
-        glDepthFunc((GLenum) depthFunc);
+        _f->glDepthFunc((GLenum) depthFunc);
         currentDepthFunc = depthFunc;
       }
       return *this;
@@ -148,7 +153,9 @@ public:
     Op currentStencilZPass = Op::Zero;
     GLint currentStencilClear = 0;
 
-    StencilBuffer(QOpenGLExtraFunctions *fn, State *state) : glState(state)
+    QOpenGLExtraFunctions * const _f;
+
+    StencilBuffer(QOpenGLExtraFunctions *fn, State *state) : glState(state), _f(fn)
     {}
 
     StencilBuffer &setTest(bool stencilTest)
@@ -165,7 +172,7 @@ public:
     StencilBuffer &setMask(GLuint stencilMask)
     {
       if (currentStencilMask != stencilMask && !locked) {
-        glStencilMask(stencilMask);
+        _f->glStencilMask(stencilMask);
         currentStencilMask = stencilMask;
       }
       return *this;
@@ -174,7 +181,7 @@ public:
     StencilBuffer &setFunc(Func stencilFunc, GLint stencilRef, GLuint stencilMask)
     {
       if (currentStencilFunc != stencilFunc || currentStencilRef != stencilRef || currentStencilFuncMask != stencilMask) {
-        glStencilFunc((GLenum) stencilFunc, stencilRef, stencilMask);
+        _f->glStencilFunc((GLenum) stencilFunc, stencilRef, stencilMask);
 
         currentStencilFunc = stencilFunc;
         currentStencilRef = stencilRef;
@@ -187,7 +194,7 @@ public:
     {
 
       if (currentStencilFail != stencilFail || currentStencilZFail != stencilZFail || currentStencilZPass != stencilZPass) {
-        glStencilOp((GLenum) stencilFail, (GLenum) stencilZFail, (GLenum) stencilZPass);
+        _f->glStencilOp((GLenum) stencilFail, (GLenum) stencilZFail, (GLenum) stencilZPass);
 
         currentStencilFail = stencilFail;
         currentStencilZFail = stencilZFail;
@@ -205,7 +212,7 @@ public:
     StencilBuffer &setClear(GLint stencil)
     {
       if (currentStencilClear != stencil) {
-        glClearStencil(stencil);
+        _f->glClearStencil(stencil);
         currentStencilClear = stencil;
       }
       return *this;
@@ -280,29 +287,29 @@ public:
   {
     uint8_t data[4]; // 4 is required to match default unpack alignment of 4.
     GLuint texture;
-    glGenTextures(1, &texture);
+    _f->glGenTextures(1, &texture);
 
-    glBindTexture((GLenum)target, texture);
-    glTexParameteri((GLenum)target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri((GLenum)target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _f->glBindTexture((GLenum)target, texture);
+    _f->glTexParameteri((GLenum)target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _f->glTexParameteri((GLenum)target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     if(target == TextureTarget::cubeMap) {
       for(GLenum t=(GLenum)TextureTarget::cubeMapPositiveX; t <=(GLenum)TextureTarget::cubeMapNegativeZ; t++)
-        glTexImage2D(t, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        _f->glTexImage2D(t, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
     else
-      glTexImage2D((GLenum)target, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+      _f->glTexImage2D((GLenum)target, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     return texture;
   }
 
-  QOpenGLExtraFunctions * const _fn;
+  QOpenGLExtraFunctions * const _f;
   std::unordered_map<TextureTarget, GLuint> emptyTextures = {};
 
 public:
   // init
   State(QOpenGLExtraFunctions *fn, int initialTextureSlot=-1) :
-     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this), _fn(fn),
+     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this, fn), _f(fn),
      initialTextureSlot(initialTextureSlot), currentTextureSlot(initialTextureSlot)
   {}
 
@@ -319,9 +326,9 @@ public:
     depthBuffer.setClear(1);
     stencilBuffer.setClear(0);
 
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)&maxTextures);
+    _f->glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)&maxTextures);
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
+    _f->glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     newAttributes.resize(maxVertexAttributes);
     enabledAttributes.resize(maxVertexAttributes);
     attributeDivisors.resize(maxVertexAttributes);
@@ -347,12 +354,12 @@ public:
     newAttributes[attribute] = 1;
 
     if (enabledAttributes[attribute] == 0) {
-      _fn->glEnableVertexAttribArray(attribute);
+      _f->glEnableVertexAttribArray(attribute);
       enabledAttributes[attribute] = 1;
     }
 
     if (attributeDivisors[attribute] != 0) {
-      _fn->glVertexAttribDivisor(attribute, 0);
+      _f->glVertexAttribDivisor(attribute, 0);
       attributeDivisors[attribute] = 0;
     }
     return *this;
@@ -363,12 +370,12 @@ public:
     newAttributes[attribute] = 1;
 
     if (enabledAttributes[attribute] == 0) {
-      _fn->glEnableVertexAttribArray(attribute);
+      _f->glEnableVertexAttribArray(attribute);
       enabledAttributes[attribute] = 1;
     }
 
     if (attributeDivisors[attribute] != meshPerAttribute) {
-      _fn->glVertexAttribDivisor(attribute, meshPerAttribute);
+      _f->glVertexAttribDivisor(attribute, meshPerAttribute);
       attributeDivisors[attribute] = meshPerAttribute;
     }
     return *this;
@@ -378,7 +385,7 @@ public:
   {
     for (size_t i = 0, l = enabledAttributes.size(); i != l; ++i) {
       if (enabledAttributes[i] != newAttributes[i]) {
-        _fn->glDisableVertexAttribArray(i);
+        _f->glDisableVertexAttribArray(i);
         enabledAttributes[i] = 0;
       }
     }
@@ -387,7 +394,7 @@ public:
   void enable(GLenum id)
   {
     if (capabilities.count(id) == 0 || !capabilities[id]) {
-      glEnable(id);
+      _f->glEnable(id);
       capabilities[id] = true;
     }
   }
@@ -395,7 +402,7 @@ public:
   void disable(GLenum id)
   {
     if (capabilities.count(id) == 0 || capabilities[id]) {
-      glDisable(id);
+      _f->glDisable(id);
       capabilities[id] = false;
     }
   }
@@ -404,9 +411,9 @@ public:
   {
     if (compressedTextureFormats.empty()) {
       GLint numFormats;
-      glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+      _f->glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
       compressedTextureFormats.resize(numFormats);
-      glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, compressedTextureFormats.data());
+      _f->glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, compressedTextureFormats.data());
     }
 
     return compressedTextureFormats;
@@ -423,7 +430,7 @@ public:
   {
     if (currentProgram != program) {
 
-      _fn->glUseProgram(program);
+      _f->glUseProgram(program);
       currentProgram = program;
       return true;
     }
@@ -449,45 +456,45 @@ public:
         switch (blending) {
           case Blending::Additive:
             if (premultipliedAlpha) {
-              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              _fn->glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+              _f->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _f->glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
             }
             else {
-              _fn->glBlendEquation(GL_FUNC_ADD);
-              _fn->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+              _f->glBlendEquation(GL_FUNC_ADD);
+              _f->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             }
             break;
 
           case Blending::Subtractive:
             if (premultipliedAlpha) {
-              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              _fn->glBlendFuncSeparate(GL_ZERO, GL_ZERO, GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+              _f->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _f->glBlendFuncSeparate(GL_ZERO, GL_ZERO, GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
             }
             else {
-              _fn->glBlendEquation(GL_FUNC_ADD);
-              _fn->glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+              _f->glBlendEquation(GL_FUNC_ADD);
+              _f->glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
             }
             break;
 
           case Blending::Multiply:
             if (premultipliedAlpha) {
-              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              _fn->glBlendFuncSeparate(GL_ZERO, GL_SRC_COLOR, GL_ZERO, GL_SRC_ALPHA);
+              _f->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _f->glBlendFuncSeparate(GL_ZERO, GL_SRC_COLOR, GL_ZERO, GL_SRC_ALPHA);
             }
             else {
-              _fn->glBlendEquation(GL_FUNC_ADD);
-              _fn->glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+              _f->glBlendEquation(GL_FUNC_ADD);
+              _f->glBlendFunc(GL_ZERO, GL_SRC_COLOR);
             }
             break;
 
           default:
             if (premultipliedAlpha) {
-              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              _fn->glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+              _f->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _f->glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
             }
             else {
-              _fn->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-              _fn->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+              _f->glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+              _f->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
             }
         }
       }
@@ -506,7 +513,7 @@ public:
 
       if (blendEquation != currentBlendEquation || blendEquationAlpha != currentBlendEquationAlpha) {
 
-        _fn->glBlendEquationSeparate((GLenum) blendEquation, (GLenum) blendEquationAlpha);
+        _f->glBlendEquationSeparate((GLenum) blendEquation, (GLenum) blendEquationAlpha);
 
         currentBlendEquation = blendEquation;
         currentBlendEquationAlpha = blendEquationAlpha;
@@ -515,7 +522,7 @@ public:
       if (blendSrc != currentBlendSrc || blendDst != currentBlendDst || blendSrcAlpha != currentBlendSrcAlpha ||
           blendDstAlpha != currentBlendDstAlpha) {
 
-        _fn->glBlendFuncSeparate((GLenum) blendSrc, (GLenum) blendDst, (GLenum) blendSrcAlpha, (GLenum) blendDstAlpha);
+        _f->glBlendFuncSeparate((GLenum) blendSrc, (GLenum) blendDst, (GLenum) blendSrcAlpha, (GLenum) blendDstAlpha);
 
         currentBlendSrc = blendSrc;
         currentBlendDst = blendDst;
@@ -553,7 +560,7 @@ public:
   State &setFlipSided(FrontFaceDirection flipSided)
   {
     if (currentFlipSided != flipSided) {
-      glFrontFace((GLenum) flipSided);
+      _f->glFrontFace((GLenum) flipSided);
 
       currentFlipSided = flipSided;
     }
@@ -565,7 +572,7 @@ public:
       enable(GL_CULL_FACE);
 
       if (cullFace != currentCullFace) {
-        glCullFace((GLenum) cullFace);
+        _f->glCullFace((GLenum) cullFace);
       }
 
     }
@@ -579,7 +586,7 @@ public:
   State &setLineWidth(GLfloat width)
   {
     if (width != currentLineWidth) {
-      glLineWidth(width);
+      _f->glLineWidth(width);
       currentLineWidth = width;
     }
   }
@@ -591,7 +598,7 @@ public:
 
       if (currentPolygonOffsetFactor != factor || currentPolygonOffsetUnits != units) {
 
-        glPolygonOffset(factor, units);
+        _f->glPolygonOffset(factor, units);
 
         currentPolygonOffsetFactor = factor;
         currentPolygonOffsetUnits = units;
@@ -624,7 +631,7 @@ public:
     if(glSlot == 0) glSlot = GL_TEXTURE0 + maxTextures - 1;
 
     if ( currentTextureSlot != glSlot ) {
-      glActiveTexture( glSlot );
+      _f->glActiveTexture( glSlot );
       currentTextureSlot = glSlot;
     }
   }
@@ -639,7 +646,7 @@ public:
 
     if(!boundTexture || boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
-      glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
+      _f->glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
 
       currentBoundTextures.emplace(currentTextureSlot, BoundTexture(target, webglTexture));
     }
@@ -648,11 +655,8 @@ public:
   void compressedTexImage2D(TextureTarget target, GLint level, TextureFormat internalFormat,
                             GLsizei width, GLsizei height, const std::vector<unsigned char> &data)
   {
-    glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, data.size(), data.data());
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw std::logic_error("glCompressedTexImage2D error: "+error);
-    }
+    _f->glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, data.size(), data.data());
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void texImage2D(TextureTarget target,
@@ -664,11 +668,8 @@ public:
                   TextureType type,
                   const QImage &image)
   {
-    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
+    _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void texImage2D(TextureTarget target,
@@ -678,12 +679,9 @@ public:
                   TextureType type,
                   const QImage &image)
   {
-    glTexImage2D((GLenum)target, level, (GLint)internalFormat, image.width(), image.height(), 0, (GLenum)format,
+    _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, image.width(), image.height(), 0, (GLenum)format,
                  (GLenum)type, image.bits());
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void texImage2D(TextureTarget target,
@@ -696,10 +694,7 @@ public:
                   const unsigned char *pixels)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void texImage2D(TextureTarget target,
@@ -711,10 +706,7 @@ public:
                   TextureType type)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void texImage2D(TextureTarget target,
@@ -724,18 +716,15 @@ public:
                   TextureType type,
                   const Mipmap &mipmap)
   {
-    glTexImage2D((GLenum)target, level, (GLint)internalFormat,
+    _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat,
                  mipmap.width, mipmap.height, 0, (GLenum)format, (GLenum)type, mipmap.data.data());
-    GLenum error = glGetError();
-    if(error != GL_NO_ERROR) {
-      throw new std::logic_error("GL error code "+error);
-    }
+    check_glerror(_f, __FILE__, __LINE__);
   }
 
   void scissor(const math::Vector4 &scissor)
   {
     if(currentScissor != scissor) {
-      glScissor( scissor.x(), scissor.y(), scissor.z(), scissor.w() );
+      _f->glScissor( scissor.x(), scissor.y(), scissor.z(), scissor.w() );
       currentScissor = scissor;
     }
   }
@@ -743,7 +732,7 @@ public:
   void viewport(const math::Vector4 &viewport)
   {
     if(currentViewport != viewport) {
-      glViewport( viewport.x(), viewport.y(), viewport.z(), viewport.w());
+      _f->glViewport( viewport.x(), viewport.y(), viewport.z(), viewport.w());
       currentViewport = viewport;
     }
   }
@@ -752,13 +741,13 @@ public:
   {
     for(size_t i=0; i < enabledAttributes.size(); i ++ ) {
       if (enabledAttributes[ i ] == 1) {
-        _fn->glDisableVertexAttribArray( i );
+        _f->glDisableVertexAttribArray( i );
         enabledAttributes[ i ] = 0;
       }
     }
 
     for(auto &cap : capabilities) {
-      if(cap.second) glDisable(cap.first);
+      if(cap.second) _f->glDisable(cap.first);
     }
     capabilities.clear();
 

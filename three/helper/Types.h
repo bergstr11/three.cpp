@@ -80,10 +80,19 @@ class TextureDataT : public TextureData
   TextureDataT(const std::vector<T> &data, size_t width, size_t height)
      : TextureData(width, height), _data(data) {}
 
+  TextureDataT(size_t width, size_t height)
+     : TextureData(width, height) {
+    _data.resize(width * height);
+  }
+
   TextureDataT() = default;
 public:
   static Ptr make(const std::vector<T> &data, size_t width, size_t height) {
     return Ptr(new TextureDataT(data, width, height));
+  }
+
+  static Ptr make(size_t width, size_t height) {
+    return Ptr(new TextureDataT(width, height));
   }
 
   const byte *bytes() const override {return (byte *)_data.data();}
