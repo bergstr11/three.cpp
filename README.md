@@ -7,4 +7,4 @@ Currently in early alpha state. Code has largely been ported, and a first simple
 
 Contributors welcome anytime
 
-![example 1](doc/example1.png "simple example")
+![example 1](doc/example1.png "first example")
