@@ -26,6 +26,7 @@ Window {
         focus: true
         background: Qt.rgba(0.4,0.4,0.6)
         shadowType: Scene.PCFSoft
+        fog: Fog {color: "#ffffff"; near: 0.015; far: 100 }
 
         Axes {
             size: 20
@@ -76,7 +77,7 @@ Window {
             castShadow: true
 
             shadow.mapSize: "1024x1024"
-            shadow.radius: 1.3
+            shadow.radius: 1.2
         }
 
         camera: PerspectiveCamera {

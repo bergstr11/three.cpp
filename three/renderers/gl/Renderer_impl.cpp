@@ -938,12 +938,29 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
 void refreshUniforms(UniformValues &uniforms, Fog &fog)
 {
+  uniforms.set(UniformName::fogColor, fog.color());
 
+  fog::Dispatch dispatch;
+
+  dispatch.func<DefaultFog>() = [&] (DefaultFog &fog) {
+    uniforms.set(UniformName::fogNear, fog.near());
+    uniforms.set(UniformName::fogFar, fog.far());
+  };
+  dispatch.func<FogExp2>() = [&] (FogExp2 &fog) {
+    uniforms.set(UniformName::fogDensity, fog.density());
+  };
+  fog.resolver->fog::DispatchResolver::getValue(dispatch);
 }
 
 void markUniformsLightsNeedsUpdate(const UniformValues &uniforms, bool refreshLights )
 {
+  /*uniforms.ambientLightColor.needsUpdate = value;
 
+  uniforms.directionalLights.needsUpdate = value;
+  uniforms.pointLights.needsUpdate = value;
+  uniforms.spotLights.needsUpdate = value;
+  uniforms.rectAreaLights.needsUpdate = value;
+  uniforms.hemisphereLights.needsUpdate = value;*/
 }
 
 void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues &values )

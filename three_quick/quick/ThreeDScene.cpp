@@ -21,7 +21,7 @@
 #include <quick/materials/MeshBasicMaterial.h>
 #include <quick/materials/MeshLambertMaterial.h>
 #include <quick/cameras/PerspectiveCamera.h>
-#include <quick/shadows/LightShadow.h>
+#include <quick/elements/LightShadow.h>
 
 namespace three {
 namespace quick {
@@ -136,6 +136,17 @@ void ThreeDScene::setCamera(Camera *camera)
   }
 }
 
+void ThreeDScene::setFog(FogBase *fog)
+{
+  if(_fog != fog) {
+    if(_fog) {
+      _fog->deleteLater();
+    }
+    _fog = fog;
+    emit fogChanged();
+  }
+}
+
 void ThreeDScene::setShadowType(ShadowType type) {
   if(_shadowType != type) {
     _shadowType = type;
@@ -180,6 +191,9 @@ void ThreeDScene::init()
   qmlRegisterUncreatableType<three::quick::Material>("three.quick", 1, 0, "Material", "abstract class");
   qmlRegisterUncreatableType<three::quick::Camera>("three.quick", 1, 0, "Camera", "abstract class");
   qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
+  qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
+  qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
+  qmlRegisterType<three::quick::FogExp2>("three.quick", 1, 0, "FogExp2");
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
@@ -247,6 +261,7 @@ void ThreeDScene::componentComplete()
     auto obj = object->create(this);
     if(obj) _scene->add(obj);
   }
+  if(_fog) _scene->fog() = _fog->create();
   _camera = _quickCamera->create();
 }
 

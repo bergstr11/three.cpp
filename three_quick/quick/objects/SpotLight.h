@@ -6,7 +6,7 @@
 #define THREEPP_SPOTLIGHT_H
 
 #include <light/SpotLight.h>
-#include <quick/shadows/LightShadow.h>
+#include <quick/elements/LightShadow.h>
 #include "ThreeDObject.h"
 
 namespace three {

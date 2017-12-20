@@ -12,6 +12,7 @@
 #include <camera/Camera.h>
 #include "quick/objects/ThreeDObject.h"
 #include "quick/cameras/Camera.h"
+#include "quick/elements/Fog.h"
 
 namespace three {
 namespace quick {
@@ -28,6 +29,7 @@ private:
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
   Q_PROPERTY(ShadowType shadowType READ shadowType WRITE setShadowType NOTIFY shadowTypeChanged)
   Q_PROPERTY(Camera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
+  Q_PROPERTY(FogBase * fog READ fog WRITE setFog NOTIFY fogChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeDObject> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -38,6 +40,7 @@ private:
   QList<ThreeDObject *> _objects;
 
   Camera *_quickCamera = nullptr;
+  FogBase * _fog = nullptr;
 
   three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
@@ -69,6 +72,10 @@ public:
   Camera *camera() {return _quickCamera;}
 
   void setCamera(Camera *camera);
+
+  FogBase *fog() {return _fog;}
+
+  void setFog(FogBase *fog);
 
   three::Scene::Ptr scene() {return _scene;}
 
@@ -112,6 +119,7 @@ signals:
   void nameChanged();
   void cameraChanged();
   void shadowTypeChanged();
+  void fogChanged();
 };
 
 }

@@ -43,7 +43,7 @@ public:
 
   const Fog::Ptr fog() const {return _fog;}
 
-  Fog::Ptr fog() {return _fog;}
+  Fog::Ptr &fog() {return _fog;}
 
   bool autoUpdate() const {return _autoUpdate;}
 };

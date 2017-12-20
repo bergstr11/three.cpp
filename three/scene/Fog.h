@@ -52,9 +52,14 @@ class FogExp2 : public Fog
 {
   float _density;
 
-public:
   FogExp2(const Color &color, float density)
      : Fog(color, fog::ResolverT<FogExp2>::make(*this)), _density(density) {}
+
+public:
+  using Ptr = std::shared_ptr<FogExp2>;
+  static Ptr make(const Color &color, float density) {
+    return Ptr(new FogExp2(color, density));
+  }
 
   const float density() const {return _density;}
   float &density() {return _density;}
