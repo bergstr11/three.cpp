@@ -59,7 +59,7 @@ class ShadowMap
   bool _autoUpdate = true;
   bool _needsUpdate = false;
 
-  ShadowMapType _type = ShadowMapType::PCF;
+  ShadowMapType _type = ShadowMapType::PCFSoft;
 
   bool _renderReverseSided = true;
   bool _renderSingleSided = true;
@@ -99,6 +99,8 @@ public:
   void setEnabled(bool enabled) {_enabled = enabled;}
 
   ShadowMapType type() const {return _type;}
+
+  void setType(ShadowMapType type) {_type = type;}
 };
 
 }

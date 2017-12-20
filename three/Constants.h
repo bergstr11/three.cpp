@@ -240,7 +240,7 @@ inline TextureTarget operator +(const TextureTarget &value, unsigned dist) {
 
 enum class ShadowMapType
 {
-  Basic=0, PCF=1, PCFSoft=2
+  Basic=0, PCF=1, PCFSoft=2, NoShadow=3
 };
 
 enum class DepthPacking {

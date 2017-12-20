@@ -42,7 +42,12 @@ public:
 
   float bias() const {return _bias;}
   float radius() const {return _radius;}
+
+  float &bias() {return _bias;}
+  float &radius() {return _radius;}
+
   const math::Vector2 &mapSize() const {return _mapSize;}
+  math::Vector2 &mapSize() {return _mapSize;}
 
   const Renderer::Target::Ptr &map() const {return _map;}
   void setMap(const Renderer::Target::Ptr &map) {_map = map;}

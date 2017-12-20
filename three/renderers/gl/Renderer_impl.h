@@ -221,8 +221,9 @@ public:
     return _currentRenderTarget;
   }
 
-  void setShadowsEnabled(bool enabled) override {
-    _shadowMap.setEnabled(enabled);
+  void setShadowMapType(three::ShadowMapType type) override {
+    _shadowMap.setEnabled(type != three::ShadowMapType::NoShadow);
+    _shadowMap.setType(type);
   }
 
   Renderer_impl &setClearColor(const Color &color, float alpha=1.0f) override {

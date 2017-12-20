@@ -56,7 +56,7 @@ public:
           item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
-    _renderer->setShadowsEnabled(true);
+    _renderer->setShadowMapType(three::ShadowMapType::PCF);
 
 #if 1
     //Axes

@@ -6,6 +6,7 @@
 #define THREEPP_SPOTLIGHT_H
 
 #include <light/SpotLight.h>
+#include <quick/shadows/LightShadow.h>
 #include "ThreeDObject.h"
 
 namespace three {
@@ -15,13 +16,19 @@ class SpotLight : public ThreeDObject
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(LightShadow * shadow READ shadow CONSTANT)
 
   QColor _color;
+  LightShadow _shadow;
 
 protected:
   Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    return three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
+    auto spot = three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
+    spot->shadow()->mapSize().x() = _shadow.mapSize().width();
+    spot->shadow()->mapSize().y() = _shadow.mapSize().height();
+    spot->shadow()->radius() = _shadow.radius();
+    return spot;
   }
 
 public:
@@ -33,6 +40,8 @@ public:
       emit colorChanged();
     }
   }
+
+  LightShadow *shadow() {return &_shadow;}
 
 signals:
   void colorChanged();

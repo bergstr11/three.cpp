@@ -19,16 +19,21 @@ namespace quick {
 class ThreeDScene : public QQuickFramebufferObject
 {
 Q_OBJECT
+public:
+  enum ShadowType {None, Basic, PCF, PCFSoft};
+  Q_ENUM(ShadowType);
+
+private:
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
-  Q_PROPERTY(bool enableShadows READ enableShadows WRITE setEnableShadows NOTIFY enableShadowsChanged)
+  Q_PROPERTY(ShadowType shadowType READ shadowType WRITE setShadowType NOTIFY shadowTypeChanged)
   Q_PROPERTY(Camera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeDObject> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
   QString _name;
   QColor _background;
-  bool _enableShadows = false;
+  ShadowType _shadowType = None;
 
   QList<ThreeDObject *> _objects;
 
@@ -67,9 +72,9 @@ public:
 
   three::Scene::Ptr scene() {return _scene;}
 
-  bool enableShadows() const {return _enableShadows;}
+  ShadowType shadowType() const {return _shadowType;}
 
-  void setEnableShadows(bool enable);
+  void setShadowType(ShadowType type);
 
 protected:
   void componentComplete() override;
@@ -106,7 +111,7 @@ signals:
   void backgroundChanged();
   void nameChanged();
   void cameraChanged();
-  void enableShadowsChanged();
+  void shadowTypeChanged();
 };
 
 }

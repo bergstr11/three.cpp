@@ -21,6 +21,7 @@
 #include <quick/materials/MeshBasicMaterial.h>
 #include <quick/materials/MeshLambertMaterial.h>
 #include <quick/cameras/PerspectiveCamera.h>
+#include <quick/shadows/LightShadow.h>
 
 namespace three {
 namespace quick {
@@ -51,7 +52,16 @@ public:
           item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
-    _renderer->setShadowsEnabled(item->_enableShadows);
+    switch(item->shadowType()) {
+      case ThreeDScene::PCF:
+        _renderer->setShadowMapType(three::ShadowMapType::PCF);
+        break;
+      case ThreeDScene::PCFSoft:
+        _renderer->setShadowMapType(three::ShadowMapType::PCFSoft);
+        break;
+      default:
+        _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
+    }
   }
 
   ~FramebufferObjectRenderer() override = default;
@@ -126,10 +136,10 @@ void ThreeDScene::setCamera(Camera *camera)
   }
 }
 
-void ThreeDScene::setEnableShadows(bool enable) {
-  if(_enableShadows != enable) {
-    _enableShadows = enable;
-    emit enableShadowsChanged();
+void ThreeDScene::setShadowType(ShadowType type) {
+  if(_shadowType != type) {
+    _shadowType = type;
+    emit shadowTypeChanged();
   }
 }
 
@@ -169,6 +179,7 @@ void ThreeDScene::init()
   qmlRegisterUncreatableType<three::quick::ThreeDObject>("three.quick", 1, 0, "ThreeDObject", "abstract class");
   qmlRegisterUncreatableType<three::quick::Material>("three.quick", 1, 0, "Material", "abstract class");
   qmlRegisterUncreatableType<three::quick::Camera>("three.quick", 1, 0, "Camera", "abstract class");
+  qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");

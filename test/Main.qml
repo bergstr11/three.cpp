@@ -25,7 +25,7 @@ Window {
         anchors.fill: parent
         focus: true
         background: Qt.rgba(0.4,0.4,0.6)
-        enableShadows: true
+        shadowType: Scene.PCFSoft
 
         Axes {
             size: 20
@@ -74,6 +74,9 @@ Window {
             color: "#ffffff"
             position: "-40,60,-10"
             castShadow: true
+
+            shadow.mapSize: "1024x1024"
+            shadow.radius: 1.3
         }
 
         camera: PerspectiveCamera {

@@ -40,7 +40,7 @@ public:
   static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
                                         bool depthBuffer=true, bool stencilBuffer=true);
 
-  virtual void setShadowsEnabled(bool enabled) = 0;
+  virtual void setShadowMapType(three::ShadowMapType type) = 0;
 };
 
 }
