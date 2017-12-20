@@ -37,8 +37,8 @@ class ShadowMap
 
   uint16_t _NumberOfMaterialVariants = (Flag::Morphing | Flag::Skinning) + 1;
 
-  std::vector<Material::Ptr> _depthMaterials;// = new Array( _NumberOfMaterialVariants ),
-  std::vector<Material::Ptr> _distanceMaterials;// = new Array( _NumberOfMaterialVariants ),
+  std::vector<Material::Ptr> _depthMaterials;
+  std::vector<Material::Ptr> _distanceMaterials;
 
   std::unordered_map<sole::uuid, std::unordered_map<sole::uuid, Material::Ptr>> _materialCache;
 
@@ -73,16 +73,13 @@ public:
   ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities)
      : _renderer(renderer), _objects(objects), _capabilities(capabilities)
   {
-    _depthMaterials.resize(_NumberOfMaterialVariants);
-    _distanceMaterials.resize(_NumberOfMaterialVariants);
-
     for (size_t i = 0; i < _NumberOfMaterialVariants; ++ i ) {
 
       bool useMorphing = ( i & Flag::Morphing ) != 0;
       bool useSkinning = ( i & Flag::Skinning ) != 0;
 
-      _depthMaterials[ i ] = MeshDepthMaterial::make(DepthPacking::RGBA, useMorphing, useSkinning);
-      _distanceMaterials[ i ] = MeshDistanceMaterial::make(useMorphing, useSkinning);
+      _depthMaterials.push_back(MeshDepthMaterial::make(DepthPacking::RGBA, useMorphing, useSkinning));
+      _distanceMaterials.push_back(MeshDistanceMaterial::make(useMorphing, useSkinning));
     }
   }
 

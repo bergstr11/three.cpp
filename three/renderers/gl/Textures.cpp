@@ -220,12 +220,12 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, (GLint)texture.magFilter);
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, (GLint)texture.minFilter);
-    check_glerror(_fn, __FILE__, __LINE__);
+    check_glerror(_fn);
   }
   else {
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-    check_glerror(_fn, __FILE__, __LINE__);
+    check_glerror(_fn);
 
     if ( texture.wrapS != TextureWrapping::ClampToEdge || texture.wrapT != TextureWrapping::ClampToEdge) {
       //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to THREE.ClampToEdgeWrapping.', texture );
@@ -233,7 +233,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, filterFallback( texture.magFilter ) );
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MIN_FILTER, filterFallback( texture.minFilter ) );
-    check_glerror(_fn, __FILE__, __LINE__);
+    check_glerror(_fn);
 
     if ( texture.minFilter != TextureFilter::Nearest && texture.minFilter != TextureFilter::Linear) {
       //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
@@ -250,7 +250,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
 
       _fn->glTexParameterf((GLenum)textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
                            std::min(texture.anisotropy, (float)_capabilities.getMaxAnisotropy()));
-      check_glerror(_fn, __FILE__, __LINE__);
+      check_glerror(_fn);
       _properties.get(texture).currentAnisotropy = texture.anisotropy;
     }
   }
@@ -476,7 +476,7 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetInternal &rende
   }
 
   setTexture2D( renderTarget.depthTexture(), 0 );
-  check_glerror(_fn, __FILE__, __LINE__);
+  check_glerror(_fn);
 
   switch(renderTarget.depthTexture()->format()) {
     case TextureFormat::Depth:
@@ -488,7 +488,7 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetInternal &rende
     default:
       throw std::invalid_argument("unknown depth texture format");
   }
-  check_glerror(_fn, __FILE__, __LINE__);
+  check_glerror(_fn);
 }
 
 // Setup GL resources for a non-texture depth buffer
@@ -502,7 +502,7 @@ void Textures::setupDepthRenderbuffer(RenderTargetInternal &renderTarget)
     _fn->glBindFramebuffer( GL_FRAMEBUFFER, renderTarget.frameBuffer);
     _fn->glGenRenderbuffers(1, &renderTarget.renderBuffer);
     setupRenderBufferStorage(renderTarget.renderBuffer, renderTarget);
-    check_glerror(_fn, __FILE__, __LINE__);
+    check_glerror(_fn);
   }
 
   _fn->glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO);
@@ -545,13 +545,12 @@ void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
   if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
   _state.bindTexture(renderTarget.textureTarget, 0 );
 
-
   // Setup depth and stencil buffers
   if ( renderTarget.depthBuffer() ) {
 
     setupDepthRenderbuffer( renderTarget );
   }
-  check_framebuffer(_fn, __FILE__, __LINE__);
+  check_framebuffer(_fn);
 }
 
 void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)

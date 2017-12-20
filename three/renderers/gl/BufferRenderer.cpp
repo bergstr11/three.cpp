@@ -10,10 +10,10 @@ namespace gl {
 
 void DefaultBufferRenderer::render(GLint start, GLsizei count)
 {
-  check_framebuffer(_fn, __FILE__, __LINE__);
+  check_framebuffer(_fn);
 
   _fn->glDrawArrays((GLenum)_mode, start, count);
-  check_glerror(_fn, __FILE__, __LINE__);
+  check_glerror(_fn);
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count;

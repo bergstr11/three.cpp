@@ -71,7 +71,9 @@ protected:
   Renderer::Target::Ptr _currentRenderTarget = nullptr;
   GLuint _currentFramebuffer = UINT_MAX;
   int _currentMaterialId = -1;
-  std::string _currentGeometryProgram;
+
+  static const std::tuple<size_t, GLuint, bool> no_program;
+  std::tuple<size_t, GLuint, bool> _currentGeometryProgram = no_program;
 
   Camera::Ptr _currentCamera;
   ArrayCamera::Ptr _currentArrayCamera;
@@ -221,12 +223,6 @@ public:
 
   void setShadowsEnabled(bool enabled) override {
     _shadowMap.setEnabled(enabled);
-  }
-
-  void setExternalDefaults(GLuint fbo, GLenum textureSlot) override {
-    _textures.setDefaultFramebuffer(fbo);
-    _currentFramebuffer = fbo;
-    _state.setInitialTextureSlot(textureSlot);
   }
 
   Renderer_impl &setClearColor(const Color &color, float alpha=1.0f) override {

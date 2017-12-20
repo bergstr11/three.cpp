@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <regex>
 #include <helper/utils.h>
@@ -140,7 +141,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
 {
   GLint numActive;
   _renderer.glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &numActive);
-  check_glerror(&_renderer, __FILE__, __LINE__);
+  check_glerror(&_renderer);
 
   attributes.erase(AttributeName::unknown);
 
@@ -148,7 +149,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
   for (unsigned i = 0; i < numActive; i++) {
 
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
-    check_glerror(&_renderer, __FILE__, __LINE__);
+    check_glerror(&_renderer);
 
     AttributeName attName;
     GLint mnIndex = -1;
@@ -185,7 +186,7 @@ void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &
     else {
       throw std::logic_error("unknown attribute");
     }
-    check_glerror(&_renderer, __FILE__, __LINE__);
+    check_glerror(&_renderer);
   }
 }
 
@@ -596,7 +597,7 @@ Program::Program(Renderer_impl &renderer,
       ss << getTexelEncodingFunction( "linearToOutputTexel", *parameters.outputEncoding ) << endl;
 
     if(*parameters.depthPacking != DepthPacking::Unknown)
-      ss << "#define DEPTH_PACKING " << *parameters.depthPacking << endl;
+      ss << "#define DEPTH_PACKING " << (int)*parameters.depthPacking << endl;
 
     prefixFragment = ss.str();
   }
@@ -639,12 +640,16 @@ Program::Program(Renderer_impl &renderer,
   string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
 #if 0
+  {
   GLsizei len;
-  char buf[50000];
-  _renderer.glGetShaderSource(glVertexShader, 50000, &len, buf);
-  cout << "VERTEX shader:" << endl << buf;
-  _renderer.glGetShaderSource(glFragmentShader, 50000, &len, buf);
-  cout << "FRAGMENT shader:" << endl << buf;
+  char buf[100000];
+  ofstream of1("vertex.glsl", ios_base::app);
+  _renderer.glGetShaderSource(glVertexShader, 100000, &len, buf);
+  of1 << buf;
+  ofstream of2("fragment.glsl", ios_base::app);
+  _renderer.glGetShaderSource(glFragmentShader, 100000, &len, buf);
+  of2 << buf;
+  }
 #endif
 
   GLint value;
@@ -662,7 +667,7 @@ Program::Program(Renderer_impl &renderer,
   }
   else if ( !programLog.empty()) cerr << programLog << endl;
 
-  check_glerror(&_renderer, __FILE__, __LINE__);
+  check_glerror(&_renderer);
 
   fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
 

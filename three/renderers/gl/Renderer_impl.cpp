@@ -41,6 +41,8 @@ Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLu
 
 namespace gl {
 
+const std::tuple<size_t, GLuint, bool> Renderer_impl::no_program {0, 0, false};
+
 Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
    : OpenGLRenderer(context),
      _state(this),
@@ -125,12 +127,12 @@ cout << "doRender" << endl;
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
   // reset caching for this frame
-  _currentGeometryProgram.clear();
+  _currentGeometryProgram = no_program;
   _currentMaterialId = -1;
   _currentCamera = nullptr;
 
-  check_glerror(this, __FILE__, __LINE__);
-  check_framebuffer(this, __FILE__, __LINE__);
+  check_glerror(this);
+  check_framebuffer(this);
 
   // update scene graph
   if (scene->autoUpdate()) scene->updateMatrixWorld(false);
@@ -256,8 +258,9 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     }
     else if(externalTarget) {
       framebuffer = externalTarget->frameBuffer;
+      _textures.setDefaultFramebuffer(framebuffer);
     }
-    check_glerror(this, __FILE__, __LINE__);
+    check_glerror(this);
 
     _currentViewport = renderTarget->viewport();
     _currentScissor = renderTarget->scissor();
@@ -285,7 +288,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     GLenum textarget = textureProperties.texture;
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubeTarget->activeCubeFace,
                            textarget, cubeTarget->activeMipMapLevel );
-    check_glerror(this, __FILE__, __LINE__);
+    check_glerror(this);
   }
 }
 
@@ -343,7 +346,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
 
     Program::Ptr program = setProgram( camera, scene->fog(), material, object );
 
-    _currentGeometryProgram.clear();
+    _currentGeometryProgram = no_program;
 
     renderObjectImmediate( iro, program, material );
   };
@@ -548,10 +551,8 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   _state.setMaterial( material );
 
   Program::Ptr program = setProgram( camera, fog, material, object );
-  
-  stringstream ss;
-  ss << geometry->id << '_' << program->handle() << '_' << material->wireframe;
-  string geometryProgram = ss.str();
+
+  tuple<size_t, GLuint, bool> geometryProgram {geometry->id, program->handle(), material->wireframe};
 
   bool updateBuffers = false;
 

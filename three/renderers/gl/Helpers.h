@@ -34,7 +34,7 @@ struct Buffer
   unsigned version;
 };
 
-inline void check_glerror(QOpenGLFunctions *f, const char *file, int line)
+inline void _check_glerror(QOpenGLFunctions *f, const char *file, int line)
 {
   GLenum err = f->glGetError();
   if(err != GL_NO_ERROR) {
@@ -47,8 +47,9 @@ inline void check_glerror(QOpenGLFunctions *f, const char *file, int line)
     throw std::logic_error(ss.str());
   }
 }
+#define check_glerror(f) _check_glerror(f, __FILE__, __LINE__)
 
-inline void check_framebuffer(QOpenGLFunctions *f, const char *file, int line)
+inline void _check_framebuffer(QOpenGLFunctions *f, const char *file, int line)
 {
   GLenum status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if(status != GL_FRAMEBUFFER_COMPLETE) {
@@ -86,6 +87,7 @@ inline void check_framebuffer(QOpenGLFunctions *f, const char *file, int line)
     throw std::logic_error(ss.str());
   }
 }
+#define check_framebuffer(f) _check_framebuffer(f, __FILE__, __LINE__)
 
 }
 }

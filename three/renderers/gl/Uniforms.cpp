@@ -234,7 +234,7 @@ void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
   }
   _renderer.glUniformMatrix4fv( _addr, matrices.size(), GL_FALSE, data);
   delete[] data;
-  check_glerror(&_renderer, __FILE__, __LINE__);
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const std::vector<float> &vector)
@@ -252,7 +252,7 @@ void Uniform::setValue(const std::vector<Texture::Ptr> &textures)
 
     _renderer.setTexture2D( textures[i], units[ i ] );
   }
-  check_glerror(&_renderer, __FILE__, __LINE__);
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const Texture::Ptr &texture)

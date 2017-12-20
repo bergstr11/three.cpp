@@ -130,7 +130,6 @@ public:
 
     QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size, format);
 
-    _renderer->setExternalDefaults(fbo->handle(), GL_TEXTURE0);
     _target = OpenGLRenderer::makeExternalTarget(
        fbo->handle(), fbo->texture(), _item->width(), _item->height());
 

@@ -319,8 +319,10 @@ public:
 
   void init()
   {
-    emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
-    emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
+    if(!emptyTextures.count(TextureTarget::twoD))
+      emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
+    if(!emptyTextures.count(TextureTarget::cubeMap))
+      emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
 
     colorBuffer.setClear(0, 0, 0, 1);
     depthBuffer.setClear(1);
@@ -656,7 +658,7 @@ public:
                             GLsizei width, GLsizei height, const std::vector<unsigned char> &data)
   {
     _f->glCompressedTexImage2D((GLenum)target, level, (GLenum)internalFormat, width, height, 0, data.size(), data.data());
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void texImage2D(TextureTarget target,
@@ -669,7 +671,7 @@ public:
                   const QImage &image)
   {
     _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, image.bits());
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void texImage2D(TextureTarget target,
@@ -681,7 +683,7 @@ public:
   {
     _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, image.width(), image.height(), 0, (GLenum)format,
                  (GLenum)type, image.bits());
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void texImage2D(TextureTarget target,
@@ -694,7 +696,7 @@ public:
                   const unsigned char *pixels)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void texImage2D(TextureTarget target,
@@ -706,7 +708,7 @@ public:
                   TextureType type)
   {
     glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void texImage2D(TextureTarget target,
@@ -718,7 +720,7 @@ public:
   {
     _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat,
                  mipmap.width, mipmap.height, 0, (GLenum)format, (GLenum)type, mipmap.data.data());
-    check_glerror(_f, __FILE__, __LINE__);
+    check_glerror(_f);
   }
 
   void scissor(const math::Vector4 &scissor)

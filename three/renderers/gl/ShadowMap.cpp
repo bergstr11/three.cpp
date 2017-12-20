@@ -24,7 +24,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
   state.depthBuffer.setTest(true);
   state.setScissorTest(false);
 
-  check_glerror(&_renderer, __FILE__, __LINE__);
+  check_glerror(&_renderer);
 
   // render depth map
   unsigned faceCount;
@@ -78,7 +78,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       shadowMapSize.x() *= 4.0;
       shadowMapSize.y() *= 2.0;
 
-      check_glerror(&_renderer, __FILE__, __LINE__);
+      check_glerror(&_renderer);
     }
 
     if (!shadow->map()) {
@@ -90,11 +90,11 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
 
       shadowCamera->updateProjectionMatrix();
-      check_glerror(&_renderer, __FILE__, __LINE__);
+      check_glerror(&_renderer);
     }
 
     shadow->update(light);
-    check_glerror(&_renderer, __FILE__, __LINE__);
+    check_glerror(&_renderer);
 
     _lightPositionWorld = math::Vector3::fromMatrixPosition(light->matrixWorld());
     shadowCamera->position() = _lightPositionWorld;
@@ -133,7 +133,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     _renderer.setRenderTarget(shadow->map());
     _renderer.clear();
-    check_glerror(&_renderer, __FILE__, __LINE__);
+    check_glerror(&_renderer);
 
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
@@ -159,7 +159,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       // set object matrices & frustum culling
 
       renderObject(scene, camera, shadowCamera, (bool)pointLight);
-      check_glerror(&_renderer, __FILE__, __LINE__);
+      check_glerror(&_renderer);
     }
   }
 
@@ -176,16 +176,10 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   auto geometry = object->geometry();
   Material::Ptr result;
 
-  std::vector<Material::Ptr> &materialVariants = _depthMaterials;
-  Material::Ptr customMaterial = object->customDepthMaterial;
+  std::vector<Material::Ptr> &materialVariants = isPointLight ? _distanceMaterials : _depthMaterials;
+  Material::Ptr customMaterial = isPointLight ? object->customDistanceMaterial : object->customDepthMaterial;
 
-  if ( isPointLight ) {
-
-    materialVariants = _distanceMaterials;
-    customMaterial = object->customDistanceMaterial;
-  }
-
-  if ( ! customMaterial ) {
+  if (!customMaterial) {
 
     bool useMorphing = material->morphTargets ? geometry->useMorphing() : false;
 
