@@ -32,7 +32,6 @@ Q_OBJECT
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
 
   std::shared_ptr<lo::threed::Model> m_model;
-  ThreeDInteractor * const m_interactor;
   QString m_data;
   QColor m_background;
   //bool m_pendingModel = false;

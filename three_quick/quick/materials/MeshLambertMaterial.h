@@ -30,12 +30,12 @@ public:
     }
   }
 
-  three::Material::Ptr create() override
+  void identify(MeshCreator *creator) override
   {
     three::MeshLambertMaterial::Ptr material = three::MeshLambertMaterial::make();
     material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
     material->wireframe = _wireframe;
-    return material;
+    creator->material(material);
   }
 
 signals:

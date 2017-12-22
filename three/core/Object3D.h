@@ -310,11 +310,10 @@ public:
 template <typename Geom=BufferGeometry>
 class Object3D_G : public virtual Object3D
 {
+protected:
   using GeometryPtr = std::shared_ptr<Geom>;
-
   GeometryPtr _geometry;
 
-protected:
   Object3D_G(const object::Resolver::Ptr &resolver) : Object3D(resolver), _geometry(Geom::make())
   {}
   Object3D_G(GeometryPtr geometry, const object::Resolver::Ptr &resolver)

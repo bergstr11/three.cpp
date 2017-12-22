@@ -23,12 +23,13 @@ struct MeshToonMaterial : public MeshPhongMaterial
   ImageTexture::Ptr gradientMap;
 
 protected:
-  MeshToonMaterial() : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}
+  MeshToonMaterial(const Color &color, bool dithering)
+     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this), color, dithering) {}
 
 public:
   using Ptr = std::shared_ptr<MeshToonMaterial>;
-  static Ptr make() {
-    return Ptr(new MeshToonMaterial());
+  static Ptr make(const Color &color, bool dithering) {
+    return Ptr(new MeshToonMaterial(color, dithering));
   }
 };
 

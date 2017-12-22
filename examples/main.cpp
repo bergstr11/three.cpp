@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   three::quick::ThreeDScene::init();
 
   QQmlComponent maincomponent(&qmlEngine);
-  maincomponent.loadUrl(QUrl("qrc:///Main.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///Example1.qml"));
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
     return -1;

@@ -15,18 +15,14 @@ class Light : public Object3D
 {
 protected:
   Color _color;
-  float _intensity;
-  float _distance;
-  float _angle;
+  float _intensity = 1;
   LightShadow::Ptr _shadow;
 
-  Light(light::Resolver::Ptr resolver, const Color &color, float intensity, float distance, float angle)
+  Light(light::Resolver::Ptr resolver, const Color &color, float intensity)
      : Object3D(object::ResolverT<Light>::make(*this)),
        lightResolver(resolver),
        _color(color),
-       _intensity(intensity),
-       _angle(angle),
-       _distance(distance)
+       _intensity(intensity)
   {}
 
 public:
@@ -36,8 +32,6 @@ public:
 
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}
-  float angle() const {return _angle;}
-  float distance() const {return _distance;}
   const LightShadow::Ptr shadow() const {return _shadow;};
 };
 

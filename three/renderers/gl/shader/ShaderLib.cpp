@@ -145,7 +145,7 @@ public:
                   ).merge(UniformsID::lights, {
                      {UniformName::emissive, Color(0x000000)},
                      {UniformName::specular, Color(0x111111)},
-                     {UniformName::emissive, 30}
+                     {UniformName::shininess, 30.0f}
                   }),
                   ":shader/meshphong_vert.glsl",
                   ":shader/meshphong_frag.glsl"

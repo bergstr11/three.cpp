@@ -6,8 +6,8 @@
 #define THREE_QT_LINE_H
 
 #include <core/Object3D.h>
-#include <material/Material.h>
 #include <core/Raycaster.h>
+#include <material/Material.h>
 #include <material/LineMaterial.h>
 
 namespace three {
@@ -38,6 +38,12 @@ class LineSegments : public Line
 protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
      : Object3D(object::ResolverT<LineSegments>::make(*this)), Line(geometry, material, 2) {}
+
+public:
+  using Ptr = std::shared_ptr<LineSegments>;
+  static Ptr make(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
+    return Ptr(new LineSegments(geometry, material));
+  }
 };
 
 }

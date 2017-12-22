@@ -12,13 +12,6 @@ Window {
 
     visible: true
 
-    /*ThreeDItem {
-        z: 1
-        anchors.fill: parent
-        focus: true
-        background: Qt.rgba(0.4,0.4,0.6)
-    }*/
-
     Scene {
         id: scene
         z: 1
@@ -26,7 +19,6 @@ Window {
         focus: true
         background: Qt.rgba(0.4,0.4,0.6)
         shadowType: Scene.PCFSoft
-        fog: Fog {color: "#ffffff"; near: 0.015; far: 100 }
 
         Axes {
             size: 20
@@ -39,8 +31,9 @@ Window {
             position: "15,0,0"
             rotation.x: -0.5 * Math.PI
 
-            material: MeshLambertMaterial {
-                color: "#cccccc"
+            material: MeshPhongMaterial {
+                color: "#919191"
+                dithering: true
             }
             receiveShadow: true
         }
@@ -71,13 +64,17 @@ Window {
             castShadow: true
         }
 
+        AmbientLight {
+            color: "#ffffff"
+            intensity: 0.35
+        }
+
         SpotLight {
             color: "#ffffff"
             position: "-40,60,-10"
             castShadow: true
 
-            shadow.mapSize: "1024x1024"
-            shadow.radius: 1.2
+            shadow.mapSize: "2048x2048"
         }
 
         camera: PerspectiveCamera {

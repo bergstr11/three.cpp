@@ -3,4 +3,4 @@ project(threepp)
 
 add_subdirectory(three)
 add_subdirectory(three_quick)
-add_subdirectory(test)
+add_subdirectory(examples)

@@ -11,18 +11,19 @@
 #include <QScreen>
 
 #include "ThreeDItem.h"
-#include "ThreeDInteractor.h"
 
 #include <renderers/OpenGLRenderer.h>
 #include <objects/Mesh.h>
 #include <scene/Scene.h>
 #include <camera/PerspectiveCamera.h>
 #include <material/MeshLambertMaterial.h>
+#include <material/MeshPhongMaterial.h>
 #include <geometry/Box.h>
 #include <geometry/Plane.h>
 #include <geometry/Sphere.h>
-#include <helper/AxesHelper.h>
-#include <light/SpotLight.h>
+#include <helper/Axes.h>
+#include <helper/SpotLight.h>
+#include <light/AmbientLight.h>
 
 namespace lo {
 namespace ui {
@@ -31,16 +32,16 @@ namespace quick {
 using namespace std;
 using namespace three;
 using namespace three::geometry;
-using namespace three::helper;
 
 class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
   QColor m_background;
 
-  three::Scene::Ptr _scene;
-  three::PerspectiveCamera::Ptr _camera;
-  three::OpenGLRenderer::Ptr _renderer;
+  Scene::Ptr _scene;
+  PerspectiveCamera::Ptr _camera;
+  OpenGLRenderer::Ptr _renderer;
   three::Renderer::Target::Ptr _target;
+  helper::SpotLight::Ptr _lightHelper;
 
   const ThreeDItem *const _item;
 
@@ -49,63 +50,52 @@ public:
   explicit FramebufferObjectRenderer(const ThreeDItem *item)
      : _item(item),
        _scene(SceneT<Color>::make("scene", Color(0.4f, 0.4f, 0.6f))),
-       _camera(PerspectiveCamera::make(45, item->width() / item->height(), 0.1, 1000)),
+       _camera(PerspectiveCamera::make(35, item->width() / item->height(), 1, 1000)),
        _renderer(OpenGLRenderer::make(
           QOpenGLContext::currentContext(),
           item->width(), item->height(),
           item->window()->screen()->devicePixelRatio()))
   {
     _renderer->setSize(item->width(), item->height());
-    _renderer->setShadowMapType(three::ShadowMapType::PCF);
+    _renderer->setShadowMapType(ShadowMapType::PCFSoft);
 
-#if 1
-    //Axes
-    AxesHelper::Ptr axes = AxesHelper::make("axis", 20);
-
-    _scene->add(axes);
-
-    //Plane
-    Plane::Ptr planeGeometry = Plane::make(60, 20, 1, 1);
-    MeshLambertMaterial::Ptr planeMaterial = MeshLambertMaterial::make();
-    planeMaterial->color = Color(0xcccccc);
-
-    Mesh::Ptr plane = Mesh_T<Plane, MeshLambertMaterial>::make("plane", planeGeometry, planeMaterial);
-    plane->rotation().setX(-0.5f * (float) M_PI);
-    plane->position().set(15, 0, 0);
-    plane->receiveShadow = true;
-
-    _scene->add(plane);
-
-    //Cube
-    Box::Ptr cubeGeometry = Box::make(4, 4, 4);
-    MeshLambertMaterial::Ptr cubeMaterial = MeshLambertMaterial::make();
-    cubeMaterial->color = Color(0xff0000);
-
-    Mesh::Ptr cube = Mesh_T<Box, MeshLambertMaterial>::make("cube", cubeGeometry, cubeMaterial);
-    cube->position().set(-4, 3, 0);
-    cube->castShadow = true;
-
-    _scene->add(cube);
-#endif
-    //Sphere
-    Sphere::Ptr sphereGeometry = Sphere::make(4, 20, 20);
-    MeshLambertMaterial::Ptr sphereMaterial = MeshLambertMaterial::make();
-    sphereMaterial->color = Color(0x7777ff);
-
-    Mesh::Ptr sphere = Mesh_T<Sphere, MeshLambertMaterial>::make("sphere", sphereGeometry, sphereMaterial);
-    sphere->position().set(20, 4, 2);
-    cube->castShadow = true;
-
-    _scene->add(sphere);
-
-    //Light
-    SpotLight::Ptr spotLight = SpotLight::make(_scene, Color(0xffffff));
-    spotLight->position().set(-40, 60, -10);
-    spotLight->castShadow = true;
-    _scene->add(spotLight);
-
-    _camera->position().set(-30, 40, 30);
+    _camera->position().set( 65, 8, - 10 );
     _camera->lookAt(_scene->position());
+
+    auto ambient = AmbientLight::make( 0xffffff, 0.1 );
+    _scene->add( ambient );
+
+    auto spotLight = SpotLight::make(_scene, 0xffffff, 1, 200, M_PI/4, 0.05, 2);
+    spotLight->position().set( 15, 40, 35 );
+
+    spotLight->castShadow = true;
+    spotLight->shadow()->mapSize().set(1024, 1024);
+    spotLight->shadow()->camera()->setNearFar(10, 200);
+    _scene->add( spotLight );
+
+    _lightHelper = helper::SpotLight::make("spottracker", spotLight );
+    _scene->add( _lightHelper );
+
+    //shadowCameraHelper = new THREE.CameraHelper( spotLight.shadow.camera );
+    //scene.add( shadowCameraHelper );
+
+    _scene->add( helper::Axes::make("axes", 10));
+
+    auto material = MeshPhongMaterial::make(0x808080, true);
+    auto geometry = Box::make( 2000, 1, 2000 );
+
+    auto mesh = MeshT<Box, MeshPhongMaterial>::make( geometry, material );
+    mesh->position().set( 0, - 1, 0 );
+    mesh->receiveShadow = true;
+    _scene->add( mesh );
+
+    material = MeshPhongMaterial::make(0x4080ff, true);
+    geometry = geometry::Box::make( 3, 1, 2 );
+
+    mesh = MeshT<Box, MeshPhongMaterial>::make( geometry, material );
+    mesh->position().set( 40, 2, 0 );
+    mesh->castShadow = true;
+    _scene->add( mesh );
   }
 
   ~FramebufferObjectRenderer() override = default;
@@ -117,6 +107,7 @@ public:
 
   void render() override
   {
+    _lightHelper->update();
     _renderer->render(_scene, _camera, _target);
     _item->window()->resetOpenGLState();
   }
@@ -138,7 +129,7 @@ public:
 };
 
 ThreeDItem::ThreeDItem(QQuickItem *parent)
-   : QQuickFramebufferObject(parent), m_model(nullptr), m_interactor(new ThreeDInteractor())
+   : QQuickFramebufferObject(parent), m_model(nullptr)
 {
   setAcceptedMouseButtons(Qt::AllButtons);
   setFlag(QQuickItem::ItemIsFocusScope);
@@ -152,7 +143,6 @@ ThreeDItem::ThreeDItem(QQuickItem *parent)
 
 ThreeDItem::~ThreeDItem()
 {
-  delete m_interactor;
   //delete m_loader;
 }
 
@@ -200,48 +190,39 @@ void ThreeDItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeo
 }
 
 void ThreeDItem::mouseMoveEvent(QMouseEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::mousePressEvent(QMouseEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::mouseReleaseEvent(QMouseEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::wheelEvent(QWheelEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 
 void ThreeDItem::keyPressEvent(QKeyEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::keyReleaseEvent(QKeyEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 
 void ThreeDItem::focusInEvent(QFocusEvent *event) {
-  m_interactor->SetEvent(event);
   forceActiveFocus();
 }
 
 void ThreeDItem::focusOutEvent(QFocusEvent *event) {
-  m_interactor->SetEvent(event);
   update();
 }
 

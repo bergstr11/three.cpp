@@ -130,10 +130,14 @@ public:
     _far = far;
   }
 
-  void set(float fov, float aspect, float far) {
+  void setNearFar(float near, float far) {
+    _near = near;
+    _far = far;
+  }
+
+  void setFovAspect(float fov, float aspect) {
     _fov = fov;
     _aspect = aspect;
-    _far = far;
   }
 };
 

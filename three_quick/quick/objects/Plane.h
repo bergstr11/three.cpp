@@ -10,6 +10,7 @@
 #include <material/MeshBasicMaterial.h>
 #include <material/MeshLambertMaterial.h>
 #include <objects/Mesh.h>
+#include "MeshCreator.h"
 
 namespace three {
 namespace quick {
@@ -27,16 +28,13 @@ class Plane : public ThreeDObject
 protected:
   three::Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    geometry::Plane::Ptr geometry = geometry::Plane::make(_width, _height, 1, 1);
-    three::Material::Ptr mat = material()->create();
+    auto *creator = new MeshCreatorG<geometry::Plane>("plane", geometry::Plane::make(_width, _height, 1, 1));
+    material()->identify(creator);
 
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) return Mesh_T<geometry::Plane, three::MeshBasicMaterial>::make("plane", geometry, mbm);
+    three::Mesh::Ptr mesh = creator->mesh;
+    delete creator;
 
-    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
-    if(mlm) return Mesh_T<geometry::Plane, three::MeshLambertMaterial>::make("plane", geometry, mlm);
-
-    return nullptr;
+    return mesh;
   }
 
 public:

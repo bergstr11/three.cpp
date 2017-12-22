@@ -38,8 +38,6 @@ public:
     return Ptr(new LightShadow(camera));
   }
 
-  virtual void update(std::shared_ptr<Light> light) {}
-
   float bias() const {return _bias;}
   float radius() const {return _radius;}
 
@@ -56,6 +54,8 @@ public:
   const math::Matrix4 &matrix() const {return _matrix;}
 
   virtual const PerspectiveCamera::Ptr camera() const {return _camera;}
+
+  virtual void update() {}
 };
 
 }

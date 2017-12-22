@@ -51,7 +51,7 @@ public:
  * @tparam Mat
  */
 template <typename Geom, typename Mat>
-class Mesh_T : public Mesh, public Object3D_GM<Geom, Mat>
+class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
 {
   using GeometryPtr = std::shared_ptr<Geom>;
 
@@ -59,29 +59,29 @@ class Mesh_T : public Mesh, public Object3D_GM<Geom, Mat>
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  Mesh_T(const GeometryPtr &geometry, object::Resolver::Ptr resolver, std::shared_ptr<Mat> material)
+  MeshT(const GeometryPtr &geometry, object::Resolver::Ptr resolver, std::shared_ptr<Mat> material)
      : Object3D(resolver), Object3D_GM<Geom, Mat>(geometry, resolver, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
-  Mesh_T(const GeometryPtr &geometry, std::shared_ptr<Mat> material)
+  MeshT(const GeometryPtr &geometry, std::shared_ptr<Mat> material)
      : Object3D(object::ResolverT<Mesh>::make(*this)), Object3D_GM<Geom, Mat>(geometry, nullptr, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
 public:
-  using Ptr = std::shared_ptr<Mesh_T<Geom, Mat>>;
+  using Ptr = std::shared_ptr<MeshT<Geom, Mat>>;
 
   static Ptr make(const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
   {
-    return Ptr(new Mesh_T(geometry, material));
+    return Ptr(new MeshT(geometry, material));
   }
 
   static Ptr make(std::string name, const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
   {
-    Ptr p(new Mesh_T(geometry, material));
+    Ptr p(new MeshT(geometry, material));
     p->_name = name;
     return p;
   }

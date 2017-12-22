@@ -13,11 +13,12 @@ namespace three {
 class PointLight : public Light
 {
   float _distance = 0;
+  float _angle;
   float _decay = 1;	// for physically correct lights, should be 2.
 
 protected:
   PointLight(const Color &color, float intensity, float distance, float angle)
-     : Light(light::ResolverT<PointLight>::make(*this), color, intensity, distance, angle)
+     : Light(light::ResolverT<PointLight>::make(*this), color, intensity), _distance(distance), _angle(angle)
   {
     _shadow = LightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
@@ -33,6 +34,8 @@ public:
   {
     return _shadow;
   }
+
+  float distance() const {return _distance;}
 
   float decay() const {return _decay;}
 

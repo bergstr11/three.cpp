@@ -29,7 +29,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
         ShaderMaterial::Ptr sm = ShaderMaterial::make(
            si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
 
-        boxMesh = Mesh_T<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
+        boxMesh = MeshT<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
 
         box->setNormal(nullptr);
         box->setUV(nullptr);
@@ -61,7 +61,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
         mat->fog = false;
 
         auto planeGeom = geometry::buffer::Plane::make( 2, 2 );
-        planeMesh = Mesh_T<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
+        planeMesh = MeshT<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
 
         geometries.update(planeGeom);
       }

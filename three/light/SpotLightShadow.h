@@ -7,30 +7,23 @@
 
 #include "LightShadow.h"
 #include <camera/PerspectiveCamera.h>
-#include <light/Light.h>
 
 namespace three {
 
+class SpotLight;
+
 class SpotLightShadow : public LightShadow
 {
-  SpotLightShadow() : LightShadow(PerspectiveCamera::make( 50, 1, 0.5, 500 )) {}
+  SpotLightShadow(SpotLight &light)
+     : LightShadow(PerspectiveCamera::make( 50, 1, 0.5, 500 )), light(light) {}
+
+  SpotLight &light;
 
 public:
   using Ptr = std::shared_ptr<SpotLightShadow>;
-  static Ptr make() {return Ptr(new SpotLightShadow());}
+  static Ptr make(SpotLight &light) {return Ptr(new SpotLightShadow(light));}
 
-  void update(Light::Ptr light) override
-  {
-    float fov = (float)math::RAD2DEG * 2 * light->angle();
-    float aspect = _mapSize.width() / _mapSize.height();
-    float far = light->distance() > 0 ? light->distance() : _camera->far();
-
-    if ( fov != _camera->fov() || aspect != _camera->aspect() || far != _camera->far() ) {
-
-      _camera->set(fov, aspect, far);
-      _camera->updateProjectionMatrix();
-    }
-  }
+  void update() override;
 };
 
 }

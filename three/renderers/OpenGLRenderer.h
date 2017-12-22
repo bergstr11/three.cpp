@@ -28,7 +28,7 @@ class OpenGLRenderer : public Renderer, private OpenGLRendererOptions
 protected:
   QOpenGLContext *_context;
 
-  OpenGLRenderer(QOpenGLContext *context, const OpenGLRendererOptions &options=OpenGLRendererOptions())
+  explicit OpenGLRenderer(QOpenGLContext *context, const OpenGLRendererOptions &options=OpenGLRendererOptions())
     : _context(context), OpenGLRendererOptions(options) { }
 
 public:

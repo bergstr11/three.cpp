@@ -69,15 +69,15 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = color * intensity;
-      uniforms->distance = light->distance();
+      uniforms->distance = spot.distance();
 
       uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
       uniforms->direction -= math::Vector3::fromMatrixPosition( spot.target()->matrixWorld());
       uniforms->direction.transformDirection( viewMatrix );
 
-      uniforms->coneCos = cos( light->angle() );
-      uniforms->penumbraCos = cos( light->angle() * ( 1 - spot.penumbra() ) );
-      uniforms->decay = ( light->distance() == 0 ) ? 0.0f : spot.decay();
+      uniforms->coneCos = cos( spot.angle() );
+      uniforms->penumbraCos = cos( spot.angle() * ( 1 - spot.penumbra() ) );
+      uniforms->decay = ( spot.distance() == 0 ) ? 0.0f : spot.decay();
 
       uniforms->shadow = light->castShadow;
 
@@ -131,8 +131,8 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = light->color() * light->intensity();
-      uniforms->distance = light->distance();
-      uniforms->decay = (light->distance() == 0) ? 0.0f : point.decay();
+      uniforms->distance = point.distance();
+      uniforms->decay = (point.distance() == 0) ? 0.0f : point.decay();
 
       uniforms->shadow = light->castShadow;
 

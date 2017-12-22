@@ -11,10 +11,16 @@ namespace three {
 
 class AmbientLight : public Light
 {
-public:
-  AmbientLight(const Color &color, float intensity, float distance, float angle)
-     : Light(light::ResolverT<AmbientLight>::make(*this), color, intensity, distance, angle)
+protected:
+  AmbientLight(const Color &color, float intensity)
+     : Light(light::ResolverT<AmbientLight>::make(*this), color, intensity)
   {}
+
+public:
+  using Ptr = std::shared_ptr<AmbientLight>;
+  static Ptr make(const Color &color, float intensity=1) {
+    return Ptr(new AmbientLight(color, intensity));
+  }
 };
 
 }

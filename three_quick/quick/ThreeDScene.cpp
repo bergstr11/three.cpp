@@ -17,11 +17,12 @@
 #include <quick/objects/Box.h>
 #include <quick/objects/Sphere.h>
 #include <quick/objects/Axes.h>
+#include <quick/objects/AmbientLight.h>
 #include <quick/objects/SpotLight.h>
 #include <quick/materials/MeshBasicMaterial.h>
 #include <quick/materials/MeshLambertMaterial.h>
+#include <quick/materials/MeshPhongMaterial.h>
 #include <quick/cameras/PerspectiveCamera.h>
-#include <quick/elements/LightShadow.h>
 
 namespace three {
 namespace quick {
@@ -198,9 +199,11 @@ void ThreeDScene::init()
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
+  qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
   qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
+  qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
 }
 

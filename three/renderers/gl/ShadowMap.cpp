@@ -93,7 +93,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       check_glerror(&_renderer);
     }
 
-    shadow->update(light);
+    shadow->update();
     check_glerror(&_renderer);
 
     _lightPositionWorld = math::Vector3::fromMatrixPosition(light->matrixWorld());

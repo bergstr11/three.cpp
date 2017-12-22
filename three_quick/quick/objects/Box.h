@@ -28,16 +28,13 @@ class Box : public ThreeDObject
 protected:
   three::Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    geometry::Box::Ptr geometry = geometry::Box::make(_width, _height, _depth);
-    three::Material::Ptr mat = material()->create();
+    auto *creator = new MeshCreatorG<geometry::Box>("box", geometry::Box::make(_width, _height, _depth));
+    material()->identify(creator);
 
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) return Mesh_T<geometry::Box, three::MeshBasicMaterial>::make("box", geometry, mbm);
+    three::Mesh::Ptr mesh = creator->mesh;
+    delete creator;
 
-    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
-    if(mlm) return Mesh_T<geometry::Box, three::MeshLambertMaterial>::make("box", geometry, mlm);
-
-    return nullptr;
+    return mesh;
   }
 
 public:

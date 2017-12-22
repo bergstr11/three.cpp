@@ -6,6 +6,7 @@
 #define THREEPP_MATERIAL_H
 
 #include <QObject>
+#include <quick/objects/MeshCreator.h>
 
 namespace three {
 namespace quick {
@@ -28,7 +29,7 @@ public:
     }
   }
 
-  virtual three::Material::Ptr create() = 0;
+  virtual void identify(MeshCreator *creator) = 0;
 
 signals:
   void wireframeChanged();

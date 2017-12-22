@@ -2,8 +2,8 @@
 // Created by byter on 12/17/17.
 //
 
-#ifndef THREEPP_SPOTLIGHT_H
-#define THREEPP_SPOTLIGHT_H
+#ifndef THREEQUICK_SPOTLIGHT_H
+#define THREEQUICK_SPOTLIGHT_H
 
 #include <light/SpotLight.h>
 #include <quick/elements/LightShadow.h>
@@ -50,4 +50,4 @@ signals:
 }
 }
 
-#endif //THREEPP_SPOTLIGHT_H
+#endif //THREEQUICK_SPOTLIGHT_H

@@ -14,8 +14,8 @@ class HemisphereLight : public Light
   Color _groundColor;
 
 protected:
-  HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity, float distance, float angle)
-     : Light(light::ResolverT<HemisphereLight>::make(*this), skyColor, intensity, distance, angle),
+  HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity)
+     : Light(light::ResolverT<HemisphereLight>::make(*this), skyColor, intensity),
        _groundColor(groundColor)
   {
     updateMatrix();
@@ -27,11 +27,9 @@ public:
   using Ptr = std::shared_ptr<HemisphereLight>;
   static Ptr make(const Color &skyColor,
                   const Color &groundColor,
-                  float intensity = 1,
-                  float distance = 0,
-                  float angle = (float)M_PI / 3)
+                  float intensity = 1)
   {
-    return Ptr(new HemisphereLight(skyColor, groundColor, intensity, distance, angle));
+    return Ptr(new HemisphereLight(skyColor, groundColor, intensity));
   }
 
   const Color &skyColor() {return color();}

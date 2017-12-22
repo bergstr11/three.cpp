@@ -6,7 +6,7 @@
 #define THREEPP_AXES_H
 
 #include "quick/ThreeDScene.h"
-#include <helper/AxesHelper.h>
+#include <helper/Axes.h>
 
 namespace three {
 namespace quick {
@@ -18,12 +18,12 @@ class Axes : public ThreeDObject
 
   size_t _size = 1;
 
-  helper::AxesHelper::Ptr _axes;
+  helper::Axes::Ptr _axes;
 
 protected:
   three::Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    _axes = helper::AxesHelper::make("axes", _size);
+    _axes = helper::Axes::make("axes", _size);
 
     return _axes;
   }

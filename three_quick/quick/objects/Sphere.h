@@ -29,16 +29,14 @@ class Sphere : public ThreeDObject
 protected:
   three::Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    geometry::Sphere::Ptr geometry = geometry::Sphere::make(_radius, _widthSegments, _heightSegments);
-    three::Material::Ptr mat = material()->create();
+    auto *creator = new MeshCreatorG<geometry::Sphere>("sphere",
+                                                       geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
+    material()->identify(creator);
 
-    three::MeshBasicMaterial::Ptr mbm = std::dynamic_pointer_cast<three::MeshBasicMaterial>(mat);
-    if(mbm) return Mesh_T<geometry::Sphere, three::MeshBasicMaterial>::make("sphere", geometry, mbm);
+    three::Mesh::Ptr mesh = creator->mesh;
+    delete creator;
 
-    three::MeshLambertMaterial::Ptr mlm = std::dynamic_pointer_cast<three::MeshLambertMaterial>(mat);
-    if(mlm) return Mesh_T<geometry::Sphere, three::MeshLambertMaterial>::make("sphere", geometry, mlm);
-
-    return nullptr;
+    return mesh;
   }
 
 public:
