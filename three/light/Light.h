@@ -32,6 +32,7 @@ public:
 
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}
+  float &intensity() {return _intensity;}
   const LightShadow::Ptr shadow() const {return _shadow;};
 };
 

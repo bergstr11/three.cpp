@@ -71,6 +71,8 @@ public:
     _quaternion.set(m1);
   }
 
+  virtual void setAspect(float aspect) {}
+
   virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;
 
   virtual void updateProjectionMatrix() = 0;

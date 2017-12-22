@@ -117,7 +117,7 @@ public:
     _fov = fov;
   }
 
-  void setAspect(float aspect) {
+  void setAspect(float aspect) override {
     _aspect = aspect;
     updateProjectionMatrix();
   }

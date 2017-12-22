@@ -48,12 +48,16 @@ public:
   }
 
   float distance() const {return _distance;}
+  float &distance() {return _distance;}
 
-  float angle() {return _angle;}
+  float angle() const {return _angle;}
+  float &angle() {return _angle;}
 
   float penumbra() const {return _penumbra;}
+  float &penumbra() {return _penumbra;}
 
   float decay() const {return _decay;}
+  float &decay() {return _decay;}
 
   double power() {return _intensity * M_PI; }
 

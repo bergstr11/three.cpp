@@ -19,6 +19,8 @@ namespace quick {
 
 class ThreeDScene : public QQuickFramebufferObject
 {
+  friend class FramebufferObjectRenderer;
+
 Q_OBJECT
 public:
   enum ShadowType {None, Basic, PCF, PCFSoft};
@@ -44,6 +46,8 @@ private:
 
   three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
+
+  QObject *_fboRenderer = nullptr;
 
   static void append_object(QQmlListProperty<ThreeDObject> *list, ThreeDObject *obj);
   static int count_objects(QQmlListProperty<ThreeDObject> *);
@@ -120,6 +124,8 @@ signals:
   void cameraChanged();
   void shadowTypeChanged();
   void fogChanged();
+
+  void sceneGeometryChanged();
 };
 
 }

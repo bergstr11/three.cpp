@@ -21,68 +21,62 @@ Window {
         shadowType: Scene.PCFSoft
 
         Axes {
-            size: 20
+            size: 10
         }
 
-        Plane {
-            width: 60
-            height: 20
+        Box {
+            width: 2000
+            height: 1
+            depth: 2000
 
-            position: "15,0,0"
-            rotation.x: -0.5 * Math.PI
+            position: "0,-1,0"
 
-            material: MeshLambertMaterial {
-                color: "#cccccc"
+            material: MeshPhongMaterial {
+                color: "#808080"
+                dithering: true
             }
             receiveShadow: true
         }
 
         Box {
-            width: 4
-            height: 4
-            depth: 4
+            width: 3
+            height: 1
+            depth: 2
 
-            position: "-4,3,0"
+            position: "40,2,0"
 
-            material: MeshLambertMaterial {
-                color: "#ff0000"
-            }
-            castShadow: true
-        }
-
-        Sphere {
-            radius: 4
-            widthSegments: 20
-            heightSegments: 20
-
-            position: "20,4,2"
-
-            material: MeshLambertMaterial {
-                color: "#7777ff"
+            material: MeshPhongMaterial {
+                color: "#4080ff"
+                dithering: true
             }
             castShadow: true
         }
 
         AmbientLight {
             color: "#ffffff"
-            intensity: 0.5
+            intensity: 0.1
         }
 
         SpotLight {
             color: "#ffffff"
             position: "-40,60,-10"
+            intensity: 1
+            distance: 200
+            angle: Math.PI / 4
+            penumbra: 0.05
+            decay: 2
             castShadow: true
 
-            shadow.mapSize: "2048x2048"
+            shadow.mapSize: "1024x1024"
         }
 
         camera: PerspectiveCamera {
-            fov: 45
+            fov: 35
             aspect: scene.width / scene.height
-            near: 0.1
+            near: 1
             far: 1000
 
-            position: "-30,40,30"
+            position: "65,8,-10"
 
             lookAt: scene
         }

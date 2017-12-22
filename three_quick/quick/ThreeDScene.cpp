@@ -29,8 +29,10 @@ namespace quick {
 
 using namespace std;
 
-class FramebufferObjectRenderer : public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
+class FramebufferObjectRenderer : public QObject, public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
+  Q_OBJECT
+
   QColor m_background;
 
   three::Scene::Ptr _scene;
@@ -69,7 +71,13 @@ public:
 
   void synchronize(QQuickFramebufferObject *_item) override
   {
-    auto *item = static_cast<ThreeDScene *>(_item);
+    ThreeDScene *scene = static_cast<ThreeDScene *>(_item);
+    if(!scene->_fboRenderer) {
+      scene->_fboRenderer = this;
+      QObject::connect(scene, &ThreeDScene::sceneGeometryChanged,
+                       this, &FramebufferObjectRenderer::sceneGeometryChanged,
+                       Qt::QueuedConnection);
+    }
   }
 
   void render() override
@@ -92,6 +100,13 @@ public:
 
     return _framebufferObject;
   }
+
+public slots:
+  void sceneGeometryChanged()
+  {
+    _camera->setAspect(_item->width() / _item->height());
+    _renderer->setSize(_item->width(), _item->height());
+  };
 };
 
 ThreeDScene::ThreeDScene(QQuickItem *parent) : QQuickFramebufferObject(parent)
@@ -210,6 +225,7 @@ void ThreeDScene::init()
 void ThreeDScene::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
   QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
+  sceneGeometryChanged();
 }
 
 void ThreeDScene::mouseMoveEvent(QMouseEvent *event) {
@@ -270,3 +286,4 @@ void ThreeDScene::componentComplete()
 
 }
 }
+#include "ThreeDScene.moc"
