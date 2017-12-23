@@ -125,12 +125,12 @@ protected:
 
   float _pixelRatio = 1;
 
-  math::Vector4 _viewport;// = new Vector4( 0, 0, _width, _height ),
-  math::Vector4 _scissor; // = new Vector4( 0, 0, _width, _height ),
+  math::Vector4 _viewport;
+  math::Vector4 _scissor;
   bool _scissorTest = false;
 
   // frustum
-  //Frustum _frustum = new Frustum(),
+  math::Frustum _frustum;
 
   // clipping
   Clipping _clipping;
@@ -138,7 +138,6 @@ protected:
 
   // camera matrices cache
   math::Matrix4 _projScreenMatrix;
-  math::Frustum _frustum;
   math::Vector3 _vector3;
 
   RenderLists _renderLists;

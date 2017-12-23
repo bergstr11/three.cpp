@@ -26,7 +26,6 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 
     const Color &color = light->color();
     float intensity = light->intensity();
-    //var distance = light.distance;
 
     Texture::Ptr shadowMap = light->shadow() && light->shadow()->map() ? light->shadow()->map()->texture() : nullptr;
 
@@ -168,7 +167,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
     light->lightResolver->getValue(dispatch);
   }
 
-  state.ambient = Color(r, g, b);
+  state.ambient = {r, g, b};
 
   // TODO (sam-g-steel) why aren't we using join
   stringstream ss;

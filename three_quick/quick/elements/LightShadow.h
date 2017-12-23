@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QSize>
+#include <quick/cameras/PerspectiveCamera.h>
 
 namespace three {
 namespace quick {
@@ -16,11 +17,18 @@ class LightShadow : public QObject
 Q_OBJECT
   Q_PROPERTY(QSize mapSize READ mapSize WRITE setMapSize NOTIFY mapSizeChanged)
   Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
+  Q_PROPERTY(PerspectiveCamera * camera READ camera CONSTANT)
 
   QSize _mapSize {512, 512};
   qreal _radius = 1;
 
+  PerspectiveCamera _camera;
+
 public:
+  PerspectiveCamera *camera() {
+    return &_camera;
+  }
+
   QSize mapSize() {return _mapSize;}
 
   void setMapSize(QSize size) {

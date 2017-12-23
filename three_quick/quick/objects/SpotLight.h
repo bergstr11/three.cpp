@@ -26,19 +26,23 @@ Q_OBJECT
   QColor _color;
   LightShadow _shadow;
 
+  three::SpotLight::Ptr _spot;
+
 protected:
   Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    auto spot = three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
-    spot->shadow()->mapSize().x() = _shadow.mapSize().width();
-    spot->shadow()->mapSize().y() = _shadow.mapSize().height();
-    spot->shadow()->radius() = _shadow.radius();
-    spot->intensity() = _intensity;
-    spot->distance() = _distance;
-    spot->angle() = _angle;
-    spot->penumbra() = _penumbra;
-    spot->decay() = _decay;
-    return spot;
+    _spot = three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
+    _spot->shadow()->mapSize().x() = _shadow.mapSize().width();
+    _spot->shadow()->mapSize().y() = _shadow.mapSize().height();
+    _spot->shadow()->radius() = _shadow.radius();
+    _spot->intensity() = _intensity;
+    _spot->distance() = _distance;
+    _spot->angle() = _angle;
+    _spot->penumbra() = _penumbra;
+    _spot->decay() = _decay;
+    _spot->shadow()->camera()->setNearFar(_shadow.camera()->near(), _shadow.camera()->far());
+    _spot->shadow()->camera()->setFovAspect(_shadow.camera()->fov(), _shadow.camera()->aspect());
+    return _spot;
   }
 
   float _intensity=1, _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;
@@ -58,6 +62,7 @@ public:
   void setIntensity(qreal intensity) {
     if(_intensity != intensity) {
       _intensity = intensity;
+      if(_spot) _spot->intensity() = _intensity;
       emit intensityChanged();
     }
   }
@@ -66,6 +71,7 @@ public:
   void setDistance(qreal distance) {
     if(_distance != distance) {
       _distance = distance;
+      if(_spot) _spot->distance() = _distance;
       emit distanceChanged();
     }
   }
@@ -74,6 +80,7 @@ public:
   void setAngle(qreal angle) {
     if(_angle != angle) {
       _angle = angle;
+      if(_spot) _spot->angle() = _angle;
       emit angleChanged();
     }
   }
@@ -82,6 +89,7 @@ public:
   void setPenumbra(qreal penumbra) {
     if(_penumbra != penumbra) {
       _penumbra = penumbra;
+      if(_spot) _spot->penumbra() = _penumbra;
       emit penumbraChanged();
     }
   }
@@ -90,6 +98,7 @@ public:
   void setDecay(qreal decay) {
     if(_decay != decay) {
       _decay = decay;
+      if(_spot) _spot->decay() = _decay;
       emit decayChanged();
     }
   }

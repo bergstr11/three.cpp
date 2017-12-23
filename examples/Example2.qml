@@ -12,6 +12,87 @@ Window {
 
     visible: true
 
+    Rectangle {
+        anchors.top: mainWindow.top
+        anchors.right: mainWindow.right
+        Layout.margins: 10
+        width: 350
+        height: 200
+        color: darkgray
+        z: 2
+        
+        Slider {
+            id: intensity
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            from: 0
+            to: 2
+            value: spotLight.intensity
+
+            onValueChanged: {
+                spotLight.intensity = value
+                scene.update()
+            }
+        }
+        Slider {
+            id: distance
+            anchors.top: intensity.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            from: 50
+            to: 200
+            value: spotLight.distance
+
+            onValueChanged: {
+                spotLight.distance = value
+                scene.update()
+            }
+        }
+        Slider {
+            id: angle
+            anchors.top: distance.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            from: 0
+            to: Math.PI / 3
+            value: spotLight.angle
+
+            onValueChanged: {
+                spotLight.angle = value
+                scene.update()
+            }
+        }
+        Slider {
+            id: penumbra
+            anchors.top: angle.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            from: 0
+            to: 1
+            value: spotLight.penumbra
+
+            onValueChanged: {
+                spotLight.penumbra = value
+                scene.update()
+            }
+        }
+        Slider {
+            id: decay
+            anchors.top: penumbra.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            from: 1
+            to: 2
+            value: spotLight.decay
+
+            onValueChanged: {
+                spotLight.decay = value
+                scene.update()
+            }
+        }
+    }
+
     Scene {
         id: scene
         z: 1
@@ -19,6 +100,28 @@ Window {
         focus: true
         background: Qt.rgba(0.4,0.4,0.6)
         shadowType: Scene.PCFSoft
+
+        AmbientLight {
+            id: ambientLight
+            color: "#ffffff"
+            intensity: 0.4
+        }
+
+        SpotLight {
+            id: spotLight
+            color: "#ffffff"
+            position: "15,40,35"
+            intensity: 1
+            distance: 200
+            angle: Math.PI / 4
+            penumbra: 0.05
+            decay: 2
+            castShadow: true
+
+            shadow.mapSize: "1024x1024"
+            shadow.camera.near: 10
+            shadow.camera.far: 200
+        }
 
         Axes {
             size: 10
@@ -50,24 +153,6 @@ Window {
                 dithering: true
             }
             castShadow: true
-        }
-
-        AmbientLight {
-            color: "#ffffff"
-            intensity: 0.1
-        }
-
-        SpotLight {
-            color: "#ffffff"
-            position: "-40,60,-10"
-            intensity: 1
-            distance: 200
-            angle: Math.PI / 4
-            penumbra: 0.05
-            decay: 2
-            castShadow: true
-
-            shadow.mapSize: "1024x1024"
         }
 
         camera: PerspectiveCamera {
