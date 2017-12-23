@@ -29,13 +29,14 @@ protected:
   QVector3D _position {0.0, 0.0, 0.0};
   QVector3D _rotation {0.0, 0.0, 0.0};
 
-  bool _castShadow = false, _receiveShadow = false;
+  bool _castShadow = false, _receiveShadow = false, _helper = false;
 
   Material *_material = nullptr;
 
   three::Object3D::Ptr _object;
 
   virtual three::Object3D::Ptr _create(ThreeDScene *scene) = 0;
+  virtual void _post_create(ThreeDScene *scene) {}
 
 public:
   QVector3D position() {return _position;}
@@ -84,7 +85,8 @@ public:
 
   three::Object3D::Ptr object() const {return _object;}
 
-  three::Object3D::Ptr create(ThreeDScene *scene) {
+  three::Object3D::Ptr create(ThreeDScene *scene)
+  {
     three::Object3D::Ptr obj = _create(scene);
     if(obj) {
       obj->rotation().setX(_rotation.x());
@@ -93,6 +95,7 @@ public:
       obj->castShadow = _castShadow;
       obj->receiveShadow = _receiveShadow;
     }
+    _post_create(scene);
     return obj;
   }
 

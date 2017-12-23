@@ -6,6 +6,7 @@
 #define THREEQUICK_SPOTLIGHT_H
 
 #include <light/SpotLight.h>
+#include <helper/SpotLight.h>
 #include <quick/elements/LightShadow.h>
 #include "ThreeDObject.h"
 
@@ -22,6 +23,7 @@ Q_OBJECT
   Q_PROPERTY(qreal angle READ angle WRITE setAngle NOTIFY angleChanged)
   Q_PROPERTY(qreal penumbra READ penumbra WRITE setPenumbra NOTIFY penumbraChanged)
   Q_PROPERTY(qreal decay READ decay WRITE setDecay NOTIFY decayChanged)
+  Q_PROPERTY(bool addHelper READ helper WRITE setHelper NOTIFY helperChanged)
 
   QColor _color;
   LightShadow _shadow;
@@ -42,10 +44,20 @@ protected:
     _spot->decay() = _decay;
     _spot->shadow()->camera()->setNearFar(_shadow.camera()->near(), _shadow.camera()->far());
     _spot->shadow()->camera()->setFovAspect(_shadow.camera()->fov(), _shadow.camera()->aspect());
+
     return _spot;
   }
 
+  void _post_create(ThreeDScene *scene) override
+  {
+    if(_helper) {
+      scene->scene()->add(helper::SpotLight::make("spotlight_helper", _spot));
+    }
+  }
+
   float _intensity=1, _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;
+
+  bool _helper;
 
 public:
   QColor color() const {return _color;}
@@ -103,6 +115,14 @@ public:
     }
   }
 
+  bool helper() const {return _helper;}
+  void setHelper(bool helper) {
+    if(_helper != helper) {
+      _helper = helper;
+      emit helperChanged();
+    }
+  }
+
 signals:
   void colorChanged();
   void intensityChanged();
@@ -110,6 +130,7 @@ signals:
   void angleChanged();
   void penumbraChanged();
   void decayChanged();
+  void helperChanged();
 };
 
 }

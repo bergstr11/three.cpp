@@ -97,6 +97,8 @@ Window {
             shadow.mapSize: "1024x1024"
             shadow.camera.near: 10
             shadow.camera.far: 200
+
+            addHelper: true
         }
 
         Axes {

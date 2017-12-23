@@ -13,7 +13,7 @@
 namespace three {
 namespace helper {
 
-class SpotLight : public Object3D_G<BufferGeometry>
+class SpotLight : public Object3D
 {
   three::SpotLight::Ptr _light;
   LineBasicMaterial::Ptr _coneMaterial;
@@ -22,11 +22,11 @@ class SpotLight : public Object3D_G<BufferGeometry>
 
 protected:
   SpotLight(const three::SpotLight::Ptr &light, const Color &color)
-     : Object3D(object::Resolver::makeNull()),
-       Object3D_G(BufferGeometry::make(), object::Resolver::makeNull()), _light(light), _color(color)
+     : Object3D(object::Resolver::makeNull()), _light(light), _color(color)
   {
-    _light->updateMatrix();
+    _light->updateMatrixWorld(true);
     _matrix = _light->matrixWorld();
+    _matrixAutoUpdate = false;
 
     std::vector<Vertex> positions {
        {0, 0, 0}, {0, 0, 1},
@@ -38,18 +38,19 @@ protected:
 
     for (unsigned i = 0, j = 1, l = 32; i < l; i ++, j ++ ) {
 
-      float p1 = ( i / l ) * (float)M_PI * 2;
-      float p2 = ( j / l ) * (float)M_PI * 2;
+      double p1 = ( (double)i / l ) * M_PI * 2;
+      double p2 = ( (double)j / l ) * M_PI * 2;
 
       positions.emplace_back(std::cos( p1 ), std::sin( p1 ), 1);
       positions.emplace_back(std::cos( p2 ), std::sin( p2 ), 1);
     }
 
-    _geometry->setPosition(BufferAttributeT<float>::make(positions));
+    auto geometry = BufferGeometry::make();
+    geometry->setPosition(BufferAttributeT<float>::make(positions));
 
     _coneMaterial = LineBasicMaterial::make();
 
-    _cone = LineSegments::make( _geometry, _coneMaterial );
+    _cone = LineSegments::make(geometry, _coneMaterial);
     add( _cone );
 
     update();
