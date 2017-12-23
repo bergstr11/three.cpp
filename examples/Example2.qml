@@ -12,84 +12,60 @@ Window {
 
     visible: true
 
-    Rectangle {
-        anchors.top: mainWindow.top
-        anchors.right: mainWindow.right
-        Layout.margins: 10
+    ValueControls {
+        title: "spotlight"
+        anchors.top: parent.top
+        anchors.right: parent.right
         width: 350
-        height: 200
-        color: darkgray
+        color: "transparent"
         z: 2
-        
-        Slider {
-            id: intensity
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+        scene: scene
+
+        FloatValue {
+            name: "intensity"
+            target: spotLight
             from: 0
             to: 2
-            value: spotLight.intensity
-
-            onValueChanged: {
-                spotLight.intensity = value
-                scene.update()
-            }
         }
-        Slider {
-            id: distance
-            anchors.top: intensity.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
+        FloatValue {
+            name: "distance"
+            target: spotLight
             from: 50
             to: 200
-            value: spotLight.distance
-
-            onValueChanged: {
-                spotLight.distance = value
-                scene.update()
-            }
         }
-        Slider {
-            id: angle
-            anchors.top: distance.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
+        FloatValue {
+            name: "angle"
+            target: spotLight
             from: 0
             to: Math.PI / 3
-            value: spotLight.angle
-
-            onValueChanged: {
-                spotLight.angle = value
-                scene.update()
-            }
         }
-        Slider {
-            id: penumbra
-            anchors.top: angle.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
+        FloatValue {
+            name: "penumbra"
+            target: spotLight
             from: 0
             to: 1
-            value: spotLight.penumbra
-
-            onValueChanged: {
-                spotLight.penumbra = value
-                scene.update()
-            }
         }
-        Slider {
-            id: decay
-            anchors.top: penumbra.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
+        FloatValue {
+            name: "decay"
+            target: spotLight
             from: 1
             to: 2
-            value: spotLight.decay
+        }
+    }
+    ValueControls {
+        title: "ambientlight"
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: 350
+        color: "transparent"
+        z: 2
+        scene: scene
 
-            onValueChanged: {
-                spotLight.decay = value
-                scene.update()
-            }
+        FloatValue {
+            name: "intensity"
+            target: ambientLight
+            from: 0
+            to: 2
         }
     }
 
@@ -104,7 +80,7 @@ Window {
         AmbientLight {
             id: ambientLight
             color: "#ffffff"
-            intensity: 0.4
+            intensity: 0.1
         }
 
         SpotLight {

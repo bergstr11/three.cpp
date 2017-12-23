@@ -10,6 +10,17 @@ namespace three {
 
 using namespace three::math;
 
+void Object3D::updateMaterials()
+{
+  for(unsigned i=0, l=materialCount(); i<l; i++) {
+    if(material(i)->lights)
+      material(i)->needsUpdate = true;
+  }
+  for(auto &child : _children) {
+    child->updateMaterials();
+  }
+}
+
 void Object3D::onRotationChange(const math::Euler &rotation)
 {
   _quaternion.set(_rotation, false);

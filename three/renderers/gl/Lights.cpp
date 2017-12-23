@@ -14,11 +14,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 {
   float r = 0, g = 0, b = 0;
 
-  state.directional.clear();
-  state.point.clear();
-  state.spot.clear();
-  state.rectArea.clear();
-  state.hemi.clear();
+  state.clear();
 
   const math::Matrix4 &viewMatrix = camera->matrixWorldInverse();
 

@@ -147,6 +147,20 @@ struct Lights
     CachedHemisphereLights hemi;
     Color ambient {0, 0, 0};
     std::string hash;
+
+    void clear() {
+      directional.clear();
+      point.clear();
+      spot.clear();
+      rectArea.clear();
+      hemi.clear();
+      directionalShadowMap.clear();
+      directionalShadowMatrix.clear();
+      spotShadowMap.clear();
+      spotShadowMatrix.clear();
+      pointShadowMap.clear();
+      pointShadowMatrix.clear();
+    }
   } state;
 
 public:

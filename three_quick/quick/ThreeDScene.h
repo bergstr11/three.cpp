@@ -6,6 +6,7 @@
 #define THREEPP_QUICK_SCENE_H
 
 #include <QQuickFramebufferObject>
+#include <QMetaObject>
 #include <QColor>
 #include <memory>
 #include <scene/Scene.h>
@@ -47,7 +48,7 @@ private:
   three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
 
-  QObject *_fboRenderer = nullptr;
+  QMetaObject::Connection _geometryUpdate;
 
   static void append_object(QQmlListProperty<ThreeDObject> *list, ThreeDObject *obj);
   static int count_objects(QQmlListProperty<ThreeDObject> *);

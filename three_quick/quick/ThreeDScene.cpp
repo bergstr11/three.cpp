@@ -72,8 +72,7 @@ public:
   void synchronize(QQuickFramebufferObject *_item) override
   {
     ThreeDScene *scene = static_cast<ThreeDScene *>(_item);
-    if(!scene->_fboRenderer) {
-      scene->_fboRenderer = this;
+    if(!scene->_geometryUpdate) {
       QObject::connect(scene, &ThreeDScene::sceneGeometryChanged,
                        this, &FramebufferObjectRenderer::sceneGeometryChanged,
                        Qt::QueuedConnection);

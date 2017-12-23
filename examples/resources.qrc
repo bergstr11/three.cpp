@@ -3,6 +3,8 @@
         <file>Test.qml</file>
         <file>Example1.qml</file>
         <file>Example2.qml</file>
+        <file alias="ValueControls.qml">helper/ValueControls.qml</file>
+        <file alias="FloatValue.qml">helper/FloatValue.qml</file>
         <file>data/wall.jpg</file>
         <file>data/container.jpg</file>
         <file>data/awesomeface.png</file>

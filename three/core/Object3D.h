@@ -281,6 +281,8 @@ public:
     return math::Vector3::fromMatrixPosition(_matrixWorld);
   }
 
+  void updateMaterials();
+
   math::Quaternion getWorldQuaternion() const;
 
   math::Euler getWorldRotation() const;

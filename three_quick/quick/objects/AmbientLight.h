@@ -21,10 +21,15 @@ Q_OBJECT
   QColor _color;
   qreal _intensity = 1.0f;
 
+  three::AmbientLight::Ptr _ambient;
+  ThreeDScene *_scene = nullptr;
+
 protected:
   Object3D::Ptr _create(ThreeDScene *scene) override
   {
-    return three::AmbientLight::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity);
+    _scene = scene;
+    _ambient = three::AmbientLight::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity);
+    return _ambient;
   }
 
 public:
@@ -42,6 +47,10 @@ public:
   void setIntensity(float intensity) {
     if(_intensity != intensity) {
       _intensity = intensity;
+      if(_ambient) {
+        _ambient->intensity() = intensity;
+        _scene->scene()->updateMaterials();
+      }
       emit intensityChanged();
     }
   }
