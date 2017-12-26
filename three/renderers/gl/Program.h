@@ -131,17 +131,28 @@ struct Code<std::unordered_map<std::string, std::string>> {
 };
 
 
-
-template <typename T>
 class ProgramParameter
 {
-  T t {Code<T>::init};
-  std::stringstream &codestream;
 public:
-  explicit ProgramParameter(std::stringstream &codestream) : codestream(codestream) {}
+  explicit ProgramParameter(std::vector<ProgramParameter *> &all) {
+    all.push_back(this);
+  }
+  virtual void append(std::stringstream &codestream) = 0;
+};
 
-  ProgramParameter &operator =(const T &t) {
+template <typename T>
+class ProgramParameterT : public ProgramParameter
+{
+  T t {Code<T>::init};
+
+public:
+  explicit ProgramParameterT(std::vector<ProgramParameter *> &all) : ProgramParameter(all) {}
+
+  ProgramParameterT &operator =(const T &t) {
     this->t = t;
+  }
+
+  void append(std::stringstream &codestream) override {
     if(codestream.tellp() > 0) codestream << '.';
     Code<T>::append(t, codestream);
   }
@@ -156,80 +167,86 @@ class ProgramParameters
   ProgramParameters()
   {}
 
-  std::stringstream code;
+  std::vector<ProgramParameter *> all;
+
 public:
   using Ptr = std::shared_ptr<ProgramParameters>;
 
   static Ptr make()
   { return Ptr(new ProgramParameters()); }
 
-  ProgramParameter<ShaderID>        shaderID {code};
-  ProgramParameter<Precision>       precision {code};
-  ProgramParameter<bool>            supportsVertexTextures {code};
-  ProgramParameter<Encoding>        outputEncoding {code};
-  ProgramParameter<Texture::Ptr>    map {code};
-  ProgramParameter<Encoding>        mapEncoding {code};
-  ProgramParameter<Texture::Ptr>    envMap {code};
-  ProgramParameter<Encoding>        envMapEncoding {code};
-  ProgramParameter<TextureMapping>  envMapMode {code};
-  ProgramParameter<bool>            envMapCubeUV {code};
-  ProgramParameter<Texture::Ptr>    lightMap {code};
-  ProgramParameter<Texture::Ptr>    aoMap {code};
-  ProgramParameter<Texture::Ptr>    emissiveMap {code};
-  ProgramParameter<Encoding>        emissiveMapEncoding {code};
-  ProgramParameter<Texture::Ptr>    bumpMap {code};
-  ProgramParameter<Texture::Ptr>    normalMap {code};
-  ProgramParameter<Texture::Ptr>    displacementMap {code};
-  ProgramParameter<Texture::Ptr>    roughnessMap {code};
-  ProgramParameter<Texture::Ptr>    metalnessMap {code};
-  ProgramParameter<Texture::Ptr>    specularMap {code};
-  ProgramParameter<Texture::Ptr>    alphaMap {code};
-  ProgramParameter<Texture::Ptr>    gradientMap {code};
-  ProgramParameter<CombineOperation> combine {code};
-  ProgramParameter<Colors>          vertexColors {code};
-  ProgramParameter<bool>            fog {code};
-  ProgramParameter<bool>            useFog {code};
-  ProgramParameter<bool>            fogExp {code};
-  ProgramParameter<bool>            flatShading {code};
-  ProgramParameter<bool>            logarithmicDepthBuffer {code};
-  ProgramParameter<bool>            sizeAttenuation {code};
-  ProgramParameter<bool>            skinning {code};
-  ProgramParameter<size_t>          maxBones {code};
-  ProgramParameter<bool>            useVertexTexture {code};
-  ProgramParameter<bool>            morphTargets {code};
-  ProgramParameter<bool>            morphNormals {code};
-  ProgramParameter<size_t>          maxMorphTargets {code};
-  ProgramParameter<size_t>          maxMorphNormals {code};
-  ProgramParameter<size_t>          numDirLights {code};
-  ProgramParameter<size_t>          numPointLights {code};
-  ProgramParameter<size_t>          numSpotLights {code};
-  ProgramParameter<size_t>          numRectAreaLights {code};
-  ProgramParameter<size_t>          numHemiLights {code};
-  ProgramParameter<size_t>          numClippingPlanes {code};
-  ProgramParameter<size_t>          numClipIntersection {code};
-  ProgramParameter<bool>            dithering {code};
-  ProgramParameter<bool>            shadowMapEnabled {code};
-  ProgramParameter<ShadowMapType>   shadowMapType {code};
-  ProgramParameter<ToneMapping>     toneMapping {code};
-  ProgramParameter<bool>            physicallyCorrectLights {code};
-  ProgramParameter<bool>            premultipliedAlpha {code};
-  ProgramParameter<float>           alphaTest {code};
-  ProgramParameter<bool>            doubleSided {code};
-  ProgramParameter<bool>            flipSided {code};
-  ProgramParameter<DepthPacking>  depthPacking {code};
-  ProgramParameter<std::unordered_map<std::string, std::string>> defines {code};
+  ProgramParameterT<ShaderID>        shaderID {all};
+  ProgramParameterT<Precision>       precision {all};
+  ProgramParameterT<bool>            supportsVertexTextures {all};
+  ProgramParameterT<Encoding>        outputEncoding {all};
+  ProgramParameterT<Texture::Ptr>    map {all};
+  ProgramParameterT<Encoding>        mapEncoding {all};
+  ProgramParameterT<Texture::Ptr>    envMap {all};
+  ProgramParameterT<Encoding>        envMapEncoding {all};
+  ProgramParameterT<TextureMapping>  envMapMode {all};
+  ProgramParameterT<bool>            envMapCubeUV {all};
+  ProgramParameterT<Texture::Ptr>    lightMap {all};
+  ProgramParameterT<Texture::Ptr>    aoMap {all};
+  ProgramParameterT<Texture::Ptr>    emissiveMap {all};
+  ProgramParameterT<Encoding>        emissiveMapEncoding {all};
+  ProgramParameterT<Texture::Ptr>    bumpMap {all};
+  ProgramParameterT<Texture::Ptr>    normalMap {all};
+  ProgramParameterT<Texture::Ptr>    displacementMap {all};
+  ProgramParameterT<Texture::Ptr>    roughnessMap {all};
+  ProgramParameterT<Texture::Ptr>    metalnessMap {all};
+  ProgramParameterT<Texture::Ptr>    specularMap {all};
+  ProgramParameterT<Texture::Ptr>    alphaMap {all};
+  ProgramParameterT<Texture::Ptr>    gradientMap {all};
+  ProgramParameterT<CombineOperation> combine {all};
+  ProgramParameterT<Colors>          vertexColors {all};
+  ProgramParameterT<bool>            fog {all};
+  ProgramParameterT<bool>            useFog {all};
+  ProgramParameterT<bool>            fogExp {all};
+  ProgramParameterT<bool>            flatShading {all};
+  ProgramParameterT<bool>            logarithmicDepthBuffer {all};
+  ProgramParameterT<bool>            sizeAttenuation {all};
+  ProgramParameterT<bool>            skinning {all};
+  ProgramParameterT<size_t>          maxBones {all};
+  ProgramParameterT<bool>            useVertexTexture {all};
+  ProgramParameterT<bool>            morphTargets {all};
+  ProgramParameterT<bool>            morphNormals {all};
+  ProgramParameterT<size_t>          maxMorphTargets {all};
+  ProgramParameterT<size_t>          maxMorphNormals {all};
+  ProgramParameterT<size_t>          numDirLights {all};
+  ProgramParameterT<size_t>          numPointLights {all};
+  ProgramParameterT<size_t>          numSpotLights {all};
+  ProgramParameterT<size_t>          numRectAreaLights {all};
+  ProgramParameterT<size_t>          numHemiLights {all};
+  ProgramParameterT<size_t>          numClippingPlanes {all};
+  ProgramParameterT<size_t>          numClipIntersection {all};
+  ProgramParameterT<bool>            dithering {all};
+  ProgramParameterT<bool>            shadowMapEnabled {all};
+  ProgramParameterT<ShadowMapType>   shadowMapType {all};
+  ProgramParameterT<ToneMapping>     toneMapping {all};
+  ProgramParameterT<bool>            physicallyCorrectLights {all};
+  ProgramParameterT<bool>            premultipliedAlpha {all};
+  ProgramParameterT<float>           alphaTest {all};
+  ProgramParameterT<bool>            doubleSided {all};
+  ProgramParameterT<bool>            flipSided {all};
+  ProgramParameterT<DepthPacking>  depthPacking {all};
+  ProgramParameterT<std::unordered_map<std::string, std::string>> defines {all};
 
   RawShaderMaterial *rawShaderMaterial = nullptr;
   ShaderMaterial *shaderMaterial = nullptr;
   std::string index0AttributeName;
   UseExtension extensions;
 
-  std::string getProgramCode() {
+  std::string getProgramCode()
+  {
+    std::stringstream code;
     if(rawShaderMaterial)
       code << '.' << rawShaderMaterial->vertexShader << rawShaderMaterial->fragmentShader;
-    if(shaderMaterial)
+    else if(shaderMaterial)
       code << '.' << shaderMaterial->vertexShader << shaderMaterial->fragmentShader;
 
+    for(auto p : all) {
+      p->append(code);
+    }
     return code.str();
   }
 };

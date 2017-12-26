@@ -11,8 +11,8 @@
 #include <material/MeshToonMaterial.h>
 #include <material/MeshLambertMaterial.h>
 #include <material/MeshNormalMaterial.h>
-#include <material/MeshStandardMaterial.h>
-
+#include <material/MeshPhysicalMaterial.h>
+#include <material/PointsMaterial.h>
 
 namespace three {
 namespace gl {
@@ -95,9 +95,9 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     dispatch.func<ShaderMaterial>()(mat);
     parameters->rawShaderMaterial = &mat;
   };
-  /*dispatch.func<PointsMaterial>() = [parameters] (MeshDepthMaterial &mat) {
+  dispatch.func<PointsMaterial>() = [parameters] (PointsMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
-  };*/
+  };
   dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
     parameters->aoMap = mat.aoMap;
     parameters->bumpMap = mat.bumpMap;
@@ -116,6 +116,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   };
   dispatch.func<MeshToonMaterial>() = [&parameters] (MeshToonMaterial &mat) {
     parameters->gradientMap = mat.gradientMap;
+    parameters->defines = mat.defines;
   };
   dispatch.func<MeshStandardMaterial>() = [&parameters] (MeshStandardMaterial &mat) {
     parameters->aoMap = mat.aoMap;
@@ -132,6 +133,10 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = mat.lightMap;
+  };
+  dispatch.func<MeshPhysicalMaterial>() = [&] (MeshPhysicalMaterial &mat) {
+    dispatch.func<MeshStandardMaterial>()(mat);
+    parameters->defines = mat.defines;
   };
   dispatch.func<MeshNormalMaterial>() = [&parameters] (MeshNormalMaterial &mat) {
     parameters->bumpMap = mat.bumpMap;

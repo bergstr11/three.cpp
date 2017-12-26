@@ -49,7 +49,7 @@ protected:
     geometry->setPosition(BufferAttributeT<float>::make(positions));
 
     _coneMaterial = LineBasicMaterial::make();
-    _cone = LineSegments::make(geometry, _coneMaterial);
+    _cone = LineSegments::make("spothelper", geometry, _coneMaterial);
     add(_cone);
 
     update();

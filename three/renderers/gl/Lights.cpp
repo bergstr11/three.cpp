@@ -14,8 +14,6 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 {
   float r = 0, g = 0, b = 0;
 
-  state.clear();
-
   const math::Matrix4 &viewMatrix = camera->matrixWorldInverse();
 
   for (Light::Ptr light : lights) {

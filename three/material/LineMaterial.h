@@ -37,7 +37,7 @@ public:
   bool lights = false;
 
   using Ptr = std::shared_ptr<LineBasicMaterial>;
-  static Ptr make(Colors colors=Colors::Vertex) {
+  static Ptr make(Colors colors=Colors::None) {
     Ptr p(new LineBasicMaterial());
     p->vertexColors = colors;
     return p;

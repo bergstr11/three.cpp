@@ -44,6 +44,11 @@ public:
   static Ptr make(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
     return Ptr(new LineSegments(geometry, material));
   }
+  static Ptr make(const char *name, BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
+    Ptr p(new LineSegments(geometry, material));
+    p->_name = name;
+    return p;
+  }
 };
 
 }

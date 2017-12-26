@@ -639,8 +639,8 @@ Program::Program(Renderer_impl &renderer,
 
   string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
-#if 0
-  {
+#if 1
+  if(shader.name() == "LineBasicMaterial") {
   GLsizei len;
   char buf[100000];
   ofstream of1("vertex.glsl", ios_base::app);

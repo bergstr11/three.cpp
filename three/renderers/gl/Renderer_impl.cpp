@@ -123,6 +123,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 cout << "doRender" << endl;
 
   _state.init();
+  _lights.state.clear();
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -393,7 +394,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
     };
     resolver::FuncAssoc<Object3D> assoc = [&](Object3D &obj) {
-cout << "rendering mesh or line " << object->name() << endl;
+cout << "projecting mesh or line " << object->name() << endl;
 
       if ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) {
 
