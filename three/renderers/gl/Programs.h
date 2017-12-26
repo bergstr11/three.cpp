@@ -18,7 +18,7 @@ class Renderer_impl;
 
 class Programs
 {
-  std::unordered_map<std::string ,Program::Ptr> _programs;
+  std::unordered_map<ProgramParameters::Ptr, Program::Ptr> _programs;
 
   Renderer_impl &_renderer;
   Extensions &_extensions;
@@ -68,16 +68,16 @@ public:
                                        size_t nClipIntersection,
                                        Object3D::Ptr object);
 
-  Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters, std::string code )
+  Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters)
   {
     Program::Ptr program;
 
     // Check if code has been already compiled
-    if(_programs.count(code) > 0) {
-      return _programs[code];
+    if(_programs.count(parameters) > 0) {
+      return _programs[parameters];
     }
-    program = Program::make( _renderer, _extensions, code, material, shader, *parameters );
-    _programs[code] = program;
+    program = Program::make( _renderer, _extensions, material, shader, parameters );
+    _programs[parameters] = program;
 
     return program;
   }
@@ -87,7 +87,7 @@ public:
     if (program.use_count() == 2) {
 
       //should call the program destructor
-      _programs.erase(program->code);
+      _programs.erase(program->parameters);
     }
 
   }

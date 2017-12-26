@@ -314,17 +314,16 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
 
 Program::Program(Renderer_impl &renderer,
                  Extensions &extensions,
-                 const std::string &code,
                  const Material::Ptr &material,
                  Shader &shader,
-                 const ProgramParameters &parameters )
-   : code(code), _renderer(renderer), _cachedAttributes({make_pair(AttributeName::unknown, 0)})
+                 ProgramParameters::Ptr parameters )
+   : parameters(parameters), _renderer(renderer), _cachedAttributes({make_pair(AttributeName::unknown, 0)})
 {
   using namespace string_out;
 
   const char *shadowMapTypeDefine;
 
-  switch(*parameters.shadowMapType) {
+  switch(*parameters->shadowMapType) {
     case ShadowMapType::PCF:
       shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF";
       break;
@@ -340,8 +339,8 @@ Program::Program(Renderer_impl &renderer,
   const char *envMapModeDefine = "ENVMAP_MODE_REFLECTION";
   const char *envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
 
-  if ( *parameters.envMap ) {
-    switch (*parameters.envMapMode) {
+  if ( *parameters->envMap ) {
+    switch (*parameters->envMapMode) {
 
       case TextureMapping::CubeReflection:
       case TextureMapping::CubeRefraction:
@@ -365,7 +364,7 @@ Program::Program(Renderer_impl &renderer,
       default: break;
     }
 
-    switch( (*parameters.envMap)->mapping() ) {
+    switch( (*parameters->envMap)->mapping() ) {
 
       case TextureMapping::CubeRefraction:
       case TextureMapping::EquirectangularRefraction:
@@ -375,7 +374,7 @@ Program::Program(Renderer_impl &renderer,
       default: break;
     }
 
-    switch ( *parameters.combine ) {
+    switch ( *parameters->combine ) {
 
       case CombineOperation::Multiply:
         envMapBlendingDefine = "ENVMAP_BLENDING_MULTIPLY";
@@ -391,16 +390,16 @@ Program::Program(Renderer_impl &renderer,
     }
   }
 
-  string customExtensions = generateExtensions(extensions, parameters);
+  string customExtensions = generateExtensions(extensions, *parameters);
 
-  string customDefines = generateDefines( *parameters.defines );
+  string customDefines = generateDefines( *parameters->defines );
 
   // create the program GL object
   _program = _renderer.glCreateProgram();
 
   string prefixVertex, prefixFragment;
 
-  if(parameters.rawShaderMaterial) {
+  if(parameters->rawShaderMaterial) {
 
     prefixVertex =  customDefines;
     prefixFragment = customExtensions + customDefines;
@@ -413,49 +412,49 @@ Program::Program(Renderer_impl &renderer,
     //vertex prefix
     //=============
     ss << "#ifdef GL_ES" << endl;
-    ss << "precision " << *parameters.precision << " float;" << endl;
-    ss << "precision " << *parameters.precision << " int;" << endl;
+    ss << "precision " << *parameters->precision << " float;" << endl;
+    ss << "precision " << *parameters->precision << " int;" << endl;
     ss << "#endif" << endl;
     ss << "#define SHADER_NAME " << shader.name() << endl;
     ss << customDefines;
-    if(*parameters.supportsVertexTextures) ss << "#define VERTEX_TEXTURES" << endl;
-    ss << "#define MAX_BONES " << *parameters.maxBones << endl;
-    if(*parameters.useFog && *parameters.fog ) ss << "#define USE_FOG" << endl;
-    if(*parameters.useFog && *parameters.fogExp ) ss << "#define FOG_EXP2" << endl;
-    if(*parameters.map) ss << "#define USE_MAP" << endl;
-    if(*parameters.envMap) ss << "#define USE_ENVMAP" << endl;
-    if(*parameters.envMap) ss << "#define " << envMapModeDefine << endl;
-    if(*parameters.lightMap) ss << "#define USE_LIGHTMAP" << endl;
-    if(*parameters.aoMap) ss << "#define USE_AOMAP" << endl;
-    if(*parameters.emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
-    if(*parameters.bumpMap) ss << "#define USE_BUMPMAP" << endl;
-    if(*parameters.normalMap) ss << "#define USE_NORMALMAP" << endl;
-    if(*parameters.displacementMap && *parameters.supportsVertexTextures) ss << "#define USE_DISPLACEMENTMAP" << endl;
-    if(*parameters.specularMap) ss << "#define USE_SPECULARMAP" << endl;
-    if(*parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
-    if(*parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
-    if(*parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
-    if(*parameters.vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
+    if(*parameters->supportsVertexTextures) ss << "#define VERTEX_TEXTURES" << endl;
+    ss << "#define MAX_BONES " << *parameters->maxBones << endl;
+    if(*parameters->useFog && *parameters->fog ) ss << "#define USE_FOG" << endl;
+    if(*parameters->useFog && *parameters->fogExp ) ss << "#define FOG_EXP2" << endl;
+    if(*parameters->map) ss << "#define USE_MAP" << endl;
+    if(*parameters->envMap) ss << "#define USE_ENVMAP" << endl;
+    if(*parameters->envMap) ss << "#define " << envMapModeDefine << endl;
+    if(*parameters->lightMap) ss << "#define USE_LIGHTMAP" << endl;
+    if(*parameters->aoMap) ss << "#define USE_AOMAP" << endl;
+    if(*parameters->emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
+    if(*parameters->bumpMap) ss << "#define USE_BUMPMAP" << endl;
+    if(*parameters->normalMap) ss << "#define USE_NORMALMAP" << endl;
+    if(*parameters->displacementMap && *parameters->supportsVertexTextures) ss << "#define USE_DISPLACEMENTMAP" << endl;
+    if(*parameters->specularMap) ss << "#define USE_SPECULARMAP" << endl;
+    if(*parameters->roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
+    if(*parameters->metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
+    if(*parameters->alphaMap) ss << "#define USE_ALPHAMAP" << endl;
+    if(*parameters->vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
 
-    if(*parameters.flatShading) ss << "#define FLAT_SHADED" << endl;
+    if(*parameters->flatShading) ss << "#define FLAT_SHADED" << endl;
 
-    if(*parameters.skinning) ss << "#define USE_SKINNING" << endl;
-    if(*parameters.useVertexTexture) ss << "#define BONE_TEXTURE" << endl;
+    if(*parameters->skinning) ss << "#define USE_SKINNING" << endl;
+    if(*parameters->useVertexTexture) ss << "#define BONE_TEXTURE" << endl;
 
-    if(*parameters.morphTargets) ss << "#define USE_MORPHTARGETS" << endl;
-    if(*parameters.morphNormals && !*parameters.flatShading) ss << "#define USE_MORPHNORMALS" << endl;
-    if(*parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
-    if(*parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
+    if(*parameters->morphTargets) ss << "#define USE_MORPHTARGETS" << endl;
+    if(*parameters->morphNormals && !*parameters->flatShading) ss << "#define USE_MORPHNORMALS" << endl;
+    if(*parameters->doubleSided) ss << "#define DOUBLE_SIDED" << endl;
+    if(*parameters->flipSided) ss << "#define FLIP_SIDED" << endl;
 
-    ss << "#define NUM_CLIPPING_PLANES " << *parameters.numClippingPlanes << endl;
+    ss << "#define NUM_CLIPPING_PLANES " << *parameters->numClippingPlanes << endl;
 
-    if(*parameters.shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
-    if(*parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
+    if(*parameters->shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
+    if(*parameters->shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
 
-    if(*parameters.sizeAttenuation) ss << "#define USE_SIZEATTENUATION" << endl;
+    if(*parameters->sizeAttenuation) ss << "#define USE_SIZEATTENUATION" << endl;
 
-    if(*parameters.logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
-    if(*parameters.logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
+    if(*parameters->logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
+    if(*parameters->logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
 
     ss << "uniform mat4 modelMatrix;" << endl;
     ss << "uniform mat4 modelViewMatrix;" << endl;
@@ -515,100 +514,100 @@ Program::Program(Renderer_impl &renderer,
     ss << customExtensions;
 
     ss << "#ifdef GL_ES" << endl;
-    ss << "precision " << *parameters.precision << " float;" << endl;
-    ss << "precision " << *parameters.precision << " int;" << endl;
+    ss << "precision " << *parameters->precision << " float;" << endl;
+    ss << "precision " << *parameters->precision << " int;" << endl;
     ss << "#endif" << endl;
 
     ss << "#define SHADER_NAME " << shader.name() << endl;
 
     ss << customDefines << endl;
 
-    if(*parameters.alphaTest) ss << "#define ALPHATEST " << *parameters.alphaTest << endl;
+    if(*parameters->alphaTest) ss << "#define ALPHATEST " << *parameters->alphaTest << endl;
 
-    if(( *parameters.useFog && *parameters.fog )) ss << "#define USE_FOG" << endl;
-    if(( *parameters.useFog && *parameters.fogExp )) ss << "#define FOG_EXP2" << endl;
+    if(( *parameters->useFog && *parameters->fog )) ss << "#define USE_FOG" << endl;
+    if(( *parameters->useFog && *parameters->fogExp )) ss << "#define FOG_EXP2" << endl;
 
-    if(*parameters.map) ss << "#define USE_MAP" << endl;
-    if(*parameters.envMap) ss << "#define USE_ENVMAP" << endl;
-    if(*parameters.envMap) ss << "#define " << envMapTypeDefine << endl;
-    if(*parameters.envMap) ss << "#define " << envMapModeDefine << endl;
-    if(*parameters.envMap) ss << "#define " << envMapBlendingDefine << endl;
-    if(*parameters.lightMap) ss << "#define USE_LIGHTMAP" << endl;
-    if(*parameters.aoMap) ss << "#define USE_AOMAP" << endl;
-    if(*parameters.emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
-    if(*parameters.bumpMap) ss << "#define USE_BUMPMAP" << endl;
-    if(*parameters.normalMap) ss << "#define USE_NORMALMAP" << endl;
-    if(*parameters.specularMap) ss << "#define USE_SPECULARMAP" << endl;
-    if(*parameters.roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
-    if(*parameters.metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
-    if(*parameters.alphaMap) ss << "#define USE_ALPHAMAP" << endl;
-    if(*parameters.vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
+    if(*parameters->map) ss << "#define USE_MAP" << endl;
+    if(*parameters->envMap) ss << "#define USE_ENVMAP" << endl;
+    if(*parameters->envMap) ss << "#define " << envMapTypeDefine << endl;
+    if(*parameters->envMap) ss << "#define " << envMapModeDefine << endl;
+    if(*parameters->envMap) ss << "#define " << envMapBlendingDefine << endl;
+    if(*parameters->lightMap) ss << "#define USE_LIGHTMAP" << endl;
+    if(*parameters->aoMap) ss << "#define USE_AOMAP" << endl;
+    if(*parameters->emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
+    if(*parameters->bumpMap) ss << "#define USE_BUMPMAP" << endl;
+    if(*parameters->normalMap) ss << "#define USE_NORMALMAP" << endl;
+    if(*parameters->specularMap) ss << "#define USE_SPECULARMAP" << endl;
+    if(*parameters->roughnessMap) ss << "#define USE_ROUGHNESSMAP" << endl;
+    if(*parameters->metalnessMap) ss << "#define USE_METALNESSMAP" << endl;
+    if(*parameters->alphaMap) ss << "#define USE_ALPHAMAP" << endl;
+    if(*parameters->vertexColors != Colors::None) ss << "#define USE_COLOR" << endl;
 
-    if(*parameters.gradientMap) ss << "#define USE_GRADIENTMAP" << endl;
+    if(*parameters->gradientMap) ss << "#define USE_GRADIENTMAP" << endl;
 
-    if(*parameters.flatShading) ss << "#define FLAT_SHADED" << endl;
+    if(*parameters->flatShading) ss << "#define FLAT_SHADED" << endl;
 
-    if(*parameters.doubleSided) ss << "#define DOUBLE_SIDED" << endl;
-    if(*parameters.flipSided) ss << "#define FLIP_SIDED" << endl;
+    if(*parameters->doubleSided) ss << "#define DOUBLE_SIDED" << endl;
+    if(*parameters->flipSided) ss << "#define FLIP_SIDED" << endl;
 
-    ss << "#define NUM_CLIPPING_PLANES " << *parameters.numClippingPlanes << endl;
-    ss << "#define UNION_CLIPPING_PLANES " << ( *parameters.numClippingPlanes - *parameters.numClipIntersection ) << endl;
+    ss << "#define NUM_CLIPPING_PLANES " << *parameters->numClippingPlanes << endl;
+    ss << "#define UNION_CLIPPING_PLANES " << ( *parameters->numClippingPlanes - *parameters->numClipIntersection ) << endl;
 
-    if(*parameters.shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
-    if(*parameters.shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
+    if(*parameters->shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
+    if(*parameters->shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
 
-    if(*parameters.premultipliedAlpha) ss << "#define PREMULTIPLIED_ALPHA" << endl;
+    if(*parameters->premultipliedAlpha) ss << "#define PREMULTIPLIED_ALPHA" << endl;
 
-    if(*parameters.physicallyCorrectLights) ss << "#define PHYSICALLY_CORRECT_LIGHTS" << endl;
+    if(*parameters->physicallyCorrectLights) ss << "#define PHYSICALLY_CORRECT_LIGHTS" << endl;
 
-    if(*parameters.logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
-    if(*parameters.logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
+    if(*parameters->logarithmicDepthBuffer) ss << "#define USE_LOGDEPTHBUF" << endl;
+    if(*parameters->logarithmicDepthBuffer && extensions.get(Extension::EXT_frag_depth)) ss << "#define USE_LOGDEPTHBUF_EXT" << endl;
 
-    if(*parameters.envMap && extensions.get(Extension::EXT_shader_texture_lod)) ss << "#define TEXTURE_LOD_EXT" << endl;
+    if(*parameters->envMap && extensions.get(Extension::EXT_shader_texture_lod)) ss << "#define TEXTURE_LOD_EXT" << endl;
 
     ss << "uniform mat4 viewMatrix;" << endl;
     ss << "uniform vec3 cameraPosition;" << endl;
 
-    if(( *parameters.toneMapping != ToneMapping::None)) {
+    if(( *parameters->toneMapping != ToneMapping::None)) {
       ss << "#define TONE_MAPPING" << endl;
 
       // this code is required here because it is used by the toneMapping() function defined below
       ss << getShaderChunk(ShaderChunk::tonemapping_pars_fragment) << endl;
 
-      ss << getToneMappingFunction( "toneMapping", *parameters.toneMapping ) << endl;
+      ss << getToneMappingFunction( "toneMapping", *parameters->toneMapping ) << endl;
     }
 
-    if(*parameters.dithering) ss << "#define DITHERING" << endl;
+    if(*parameters->dithering) ss << "#define DITHERING" << endl;
 
-    if( *parameters.outputEncoding != Encoding::Unknown
-        || *parameters.mapEncoding  != Encoding::Unknown
-        || *parameters.envMapEncoding  != Encoding::Unknown
-        || *parameters.emissiveMapEncoding  != Encoding::Unknown)
+    if( *parameters->outputEncoding != Encoding::Unknown
+        || *parameters->mapEncoding  != Encoding::Unknown
+        || *parameters->envMapEncoding  != Encoding::Unknown
+        || *parameters->emissiveMapEncoding  != Encoding::Unknown)
       // this code is required here because it is used by the various encoding/decoding function defined below
       ss << getShaderChunk(ShaderChunk::encodings_pars_fragment) << endl;
 
-    if(*parameters.mapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "mapTexelToLinear", *parameters.mapEncoding ) << endl;
-    if(*parameters.envMapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "envMapTexelToLinear", *parameters.envMapEncoding ) << endl;
-    if(*parameters.emissiveMapEncoding != Encoding::Unknown)
-      ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", *parameters.emissiveMapEncoding ) << endl;
-    if(*parameters.outputEncoding != Encoding::Unknown)
-      ss << getTexelEncodingFunction( "linearToOutputTexel", *parameters.outputEncoding ) << endl;
+    if(*parameters->mapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "mapTexelToLinear", *parameters->mapEncoding ) << endl;
+    if(*parameters->envMapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "envMapTexelToLinear", *parameters->envMapEncoding ) << endl;
+    if(*parameters->emissiveMapEncoding != Encoding::Unknown)
+      ss << getTexelDecodingFunction( "emissiveMapTexelToLinear", *parameters->emissiveMapEncoding ) << endl;
+    if(*parameters->outputEncoding != Encoding::Unknown)
+      ss << getTexelEncodingFunction( "linearToOutputTexel", *parameters->outputEncoding ) << endl;
 
-    if(*parameters.depthPacking != DepthPacking::Unknown)
-      ss << "#define DEPTH_PACKING " << (int)*parameters.depthPacking << endl;
+    if(*parameters->depthPacking != DepthPacking::Unknown)
+      ss << "#define DEPTH_PACKING " << (int)*parameters->depthPacking << endl;
 
     prefixFragment = ss.str();
   }
 
   string vertexShader = parseIncludes( shader.vertexShader() );
-  vertexShader = replaceLightNums( vertexShader, parameters );
+  vertexShader = replaceLightNums( vertexShader, *parameters );
 
   string fragmentShader = parseIncludes( shader.fragmentShader() );
-  fragmentShader = replaceLightNums( fragmentShader, parameters );
+  fragmentShader = replaceLightNums( fragmentShader, *parameters );
 
-  if ( ! parameters.shaderMaterial ) {
+  if ( ! parameters->shaderMaterial ) {
 
     vertexShader = unrollLoops( vertexShader );
     fragmentShader = unrollLoops( fragmentShader );
@@ -625,11 +624,11 @@ Program::Program(Renderer_impl &renderer,
 
   // Force a particular attribute to index 0.
 
-  if (!parameters.index0AttributeName.empty()) {
+  if (!parameters->index0AttributeName.empty()) {
 
-    _renderer.glBindAttribLocation( _program, 0, parameters.index0AttributeName.data());
+    _renderer.glBindAttribLocation( _program, 0, parameters->index0AttributeName.data());
 
-  } else if (*parameters.morphTargets) {
+  } else if (*parameters->morphTargets) {
 
     // programs with morphTargets displace position out of attribute 0
     _renderer.glBindAttribLocation( _program, 0, "position" );

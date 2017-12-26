@@ -821,7 +821,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
-  string code = parameters->getProgramCode();
+  //string code = parameters->getProgramCode();
 
   auto program = materialProperties.program;
   bool programChange = true;
@@ -833,7 +833,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
       _properties.remove(*material);
     });
   }
-  else if(program->code != code) {
+  else if(*program->parameters != *parameters) {
     // changed glsl or parameters
     releaseMaterialProgramReference(*material );
   }
@@ -864,7 +864,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     //material.onBeforeCompile( materialProperties.shader );
 
-    program = _programs.acquireProgram( material, materialProperties.shader, parameters, code );
+    program = _programs.acquireProgram( material, materialProperties.shader, parameters);
 
     materialProperties.program = program;
   }

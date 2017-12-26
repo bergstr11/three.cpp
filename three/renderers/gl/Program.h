@@ -32,101 +32,99 @@ struct Code;
 template <>
 struct Code<ShaderID> {
   static constexpr ShaderID init = ShaderID::undefined;
-  static void append(ShaderID value, std::stringstream &sstream) {
-    sstream << (int)value;
+  static void hash_combine(size_t &hash, ShaderID value) {
+    three::hash_combine(hash, (unsigned)value);
   }
 };
 template <>
 struct Code<Precision> {
   static constexpr Precision init = Precision::unknown;
-  static void append(Precision value, std::stringstream &sstream) {
-    sstream << (int)value;
+  static void hash_combine(size_t &hash, Precision value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<bool> {
   static constexpr bool init = false;
-  static void append(bool value, std::stringstream &sstream) {
-    sstream << (int)value;
+  static void hash_combine(size_t &hash, bool value) {
+    three::hash_combine(hash, (unsigned)value);
   }
 };
 template <>
 struct Code<Encoding> {
   static constexpr Encoding init = Encoding::Unknown;
-  static void append(Encoding value, std::stringstream &sstream) {
-    sstream << (int)value;
+  static void hash_combine(size_t &hash, Encoding value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<Texture::Ptr> {
   static const Texture::Ptr init;
-  static void append(Texture::Ptr value, std::stringstream &sstream) {
-    sstream << value ? 1 : 0;
+  static void hash_combine(size_t &hash, Texture::Ptr value) {
+    three::hash_combine(hash, value ? 1 : 0);
   }
 };
 template <>
 struct Code<size_t> {
   static constexpr size_t init = 0;
-  static void append(size_t value, std::stringstream &sstream) {
-    sstream << value;
+  static void hash_combine(size_t &hash, bool value) {
+    three::hash_combine(hash, value);
   }
 };
 template <>
 struct Code<TextureMapping> {
   static constexpr TextureMapping init = TextureMapping::Unknown;
-  static void append(TextureMapping value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, TextureMapping value) {
+    three::hash_combine(hash, (unsigned)value);
   }
 };
 template <>
 struct Code<CombineOperation> {
   static constexpr CombineOperation init = CombineOperation::Unknown;
-  static void append(CombineOperation value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, CombineOperation value) {
+    three::hash_combine(hash, (unsigned)value);
   }
 };
 template <>
 struct Code<Colors> {
   static constexpr Colors init = Colors::None;
-  static void append(Colors value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, Colors value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<ShadowMapType> {
   static constexpr ShadowMapType init = ShadowMapType::Basic;
-  static void append(ShadowMapType value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, ShadowMapType value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<ToneMapping> {
   static constexpr ToneMapping init = ToneMapping::None;
-  static void append(ToneMapping value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, ToneMapping value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<float> {
   static constexpr float init = 0.0;
-  static void append(float value, std::stringstream &sstream) {
-    sstream << value;
+  static void hash_combine(size_t &hash, float value) {
+    three::hash_combine(hash, (unsigned)value);
   }
 };
 template <>
 struct Code<DepthPacking> {
   static constexpr DepthPacking init = DepthPacking::Unknown;
-  static void append(DepthPacking value, std::stringstream &sstream) {
-    sstream << (GLenum)value;
+  static void hash_combine(size_t &hash, DepthPacking value) {
+    three::hash_combine(hash, (int)value);
   }
 };
 template <>
 struct Code<std::unordered_map<std::string, std::string>> {
   static const std::unordered_map<std::string, std::string> init;
-  static void append(const std::unordered_map<std::string, std::string> &value, std::stringstream &sstream) {
-    for(auto &val : value) {
-      sstream << val.first << '=' << val.second;
-    }
+  static void hash_combine(size_t &hash, std::unordered_map<std::string, std::string> value) {
+    //three::hash_combine(hash, (unsigned)value);
   }
 };
 
@@ -137,7 +135,7 @@ public:
   explicit ProgramParameter(std::vector<ProgramParameter *> &all) {
     all.push_back(this);
   }
-  virtual void append(std::stringstream &codestream) = 0;
+  virtual void hash_combine(size_t &hash) = 0;
 };
 
 template <typename T>
@@ -152,9 +150,10 @@ public:
     this->t = t;
   }
 
-  void append(std::stringstream &codestream) override {
-    if(codestream.tellp() > 0) codestream << '.';
-    Code<T>::append(t, codestream);
+  operator T &() const {return t;}
+
+  void hash_combine(size_t &hash) override {
+    Code<T>::hash_combine(hash, t);
   }
 
   const T &operator *() const {
@@ -167,9 +166,9 @@ class ProgramParameters
   ProgramParameters()
   {}
 
+public:
   std::vector<ProgramParameter *> all;
 
-public:
   using Ptr = std::shared_ptr<ProgramParameters>;
 
   static Ptr make()
@@ -236,18 +235,47 @@ public:
   std::string index0AttributeName;
   UseExtension extensions;
 
-  std::string getProgramCode()
-  {
-    std::stringstream code;
-    if(rawShaderMaterial)
-      code << '.' << rawShaderMaterial->vertexShader << rawShaderMaterial->fragmentShader;
-    else if(shaderMaterial)
-      code << '.' << shaderMaterial->vertexShader << shaderMaterial->fragmentShader;
+  bool eqShaderMaterial(ShaderMaterial *left, ShaderMaterial *right) {
+    if(left && right)
+      return left->fragmentShader != right->fragmentShader || left->vertexShader != right->vertexShader;
+    else
+      return left != right;
+  }
 
-    for(auto p : all) {
-      p->append(code);
+  bool operator == (const ProgramParameters &parameters)
+  {
+    if(!eqShaderMaterial(rawShaderMaterial, parameters.rawShaderMaterial)) return false;
+    if(!eqShaderMaterial(shaderMaterial, parameters.shaderMaterial)) return false;
+
+    auto it1=all.begin();
+    auto it2=parameters.all.begin();
+    for(; it1 != all.end() && it2 != parameters.all.end(); it1++, it2++) {
+      if(*it1 != *it2) return false;
     }
-    return code.str();
+    return it1 == all.end() && it2 == parameters.all.end();
+  }
+  bool operator != (const ProgramParameters &parameters)
+  {
+    return !(*this == parameters);
+  }
+};
+
+struct parameters_hash {
+  std::size_t operator () (const ProgramParameters &params) const
+  {
+    std::size_t h;
+    if(params.rawShaderMaterial) {
+      h = std::hash<std::string>{}(params.rawShaderMaterial->fragmentShader);
+      hash_combine(h, params.rawShaderMaterial->vertexShader);
+    }
+    else if(params.shaderMaterial) {
+      h = std::hash<std::string>{}(params.shaderMaterial->fragmentShader);
+      hash_combine(h, params.shaderMaterial->vertexShader);
+    }
+    for(auto p : params.all) {
+      p->hash_combine(h);
+    }
+    return h;
   }
 };
 
@@ -286,20 +314,18 @@ private:
 
   Program(Renderer_impl &renderer,
           Extensions &extensions,
-          const std::string &code,
           const Material::Ptr &material,
           Shader &shader,
-          const ProgramParameters &parameters);
+          ProgramParameters::Ptr parameters);
 
 public:
   static Ptr make(Renderer_impl &renderer,
                   Extensions &extensions,
-                  const std::string code,
                   const Material::Ptr material,
                   Shader &shader,
-                  const ProgramParameters &parameters)
+                  const ProgramParameters::Ptr parameters)
   {
-    return Ptr(new Program(renderer, extensions, code, material, shader, parameters));
+    return Ptr(new Program(renderer, extensions, material, shader, parameters));
   }
 
   ~Program();
@@ -307,7 +333,7 @@ public:
   GLuint handle() const
   { return _program; }
 
-  const std::string code;
+  const ProgramParameters::Ptr parameters;
 
   Uniforms::Ptr getUniforms();
 

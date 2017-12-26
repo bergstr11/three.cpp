@@ -41,6 +41,9 @@ protected:
   Camera()
     : Object3D(object::Resolver::makeNull()), cameraResolver(camera::Resolver::makeNull()),
       _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
+
+  virtual ~Camera() {}
+
 public:
   using Ptr = std::shared_ptr<Camera>;
 
