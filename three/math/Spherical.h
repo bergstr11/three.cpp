@@ -21,10 +21,13 @@ public:
   Spherical(const Spherical &spherical) : _radius(spherical._radius), _phi(spherical._phi), _theta(spherical._theta) {}
 
   float phi() const {return _phi;}
+  float &phi() {return _phi;}
 
   float theta() const {return _theta;}
+  float &theta() {return _theta;}
 
   float radius() const {return _radius;}
+  float &radius() {return _radius;}
 
   // restrict phi to be betwee EPS and PI-EPS
   Spherical &makeSafe()
@@ -47,6 +50,15 @@ public:
       _theta = std::atan2(vec3.x(), vec3.z()); // equator angle around y-up axis
       _phi = std::acos(math::clamp( vec3.y() / _radius, -1.0f, 1.0f) ); // polar angle
     }
+
+    return *this;
+  }
+
+  Spherical &set(float radius, float phi, float theta)
+  {
+    _radius = radius;
+    _phi = phi;
+    _theta = theta;
 
     return *this;
   }

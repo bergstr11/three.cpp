@@ -11,7 +11,7 @@ namespace three {
 
 class OrtographicCamera : public Camera
 {
-  unsigned _zoom = 1;
+  float _zoom = 1;
   Viewport _view;
 
   float _left;
@@ -38,6 +38,15 @@ public:
   void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
 
   void updateProjectionMatrix() override;
+
+  float left() const {return _left;}
+  float right() const {return _right;}
+  float top() const {return _top;}
+  float bottom() const {return _bottom;}
+  float near() const {return _near;}
+  float far() const {return _far;}
+  float zoom() const override {return _zoom;}
+  float &zoom() {return _zoom;}
 };
 
 }

@@ -142,6 +142,12 @@ Window {
             position: "65,8,-10"
 
             lookAt: scene
+
+            controller: OrbitController {
+                minDistance: 20
+                maxDistance: 500
+                enablePan: false
+            }
         }
     }
 }

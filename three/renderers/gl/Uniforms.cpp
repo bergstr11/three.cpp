@@ -196,7 +196,7 @@ void Uniform::setValue(GLint v) { _renderer.glUniform1i( _addr, v ); }
 void Uniform::setValue(GLuint v) { _renderer.glUniform1i( _addr, v ); }
 
 void Uniform::setValue(const three::Color &c) {
-  _renderer.glUniform3fv(_addr, 1, c.elements);
+  _renderer.glUniform3f(_addr, c.r, c.g, c.b);
 }
 
 void Uniform::setValue(const math::Vector2 &v) {

@@ -113,6 +113,8 @@ public:
 
   float aspect() const {return _aspect;}
 
+  float zoom() const override {return _zoom;}
+
   void setFov(float fov) {
     _fov = fov;
   }
@@ -128,6 +130,10 @@ public:
 
   void setFar(float far) {
     _far = far;
+  }
+
+  void setZoom(float zoom) {
+    _zoom = zoom;
   }
 
   void setNearFar(float near, float far) {

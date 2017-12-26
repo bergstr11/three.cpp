@@ -14,6 +14,7 @@
 #include "quick/objects/ThreeDObject.h"
 #include "quick/cameras/Camera.h"
 #include "quick/elements/Fog.h"
+#include "quick/interact/Controller.h"
 
 namespace three {
 namespace quick {
@@ -47,6 +48,8 @@ private:
 
   three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
+
+  std::vector<Controller *> _controllers;
 
   QMetaObject::Connection _geometryUpdate;
 
@@ -88,10 +91,18 @@ public:
 
   void setShadowType(ShadowType type);
 
+  void addController(Controller *controller) {
+    _controllers.push_back(controller);
+  }
+
+  void removeController(Controller *controller) {
+    auto found = std::find(_controllers.begin(), _controllers.end(), controller);
+    if(found != _controllers.end()) _controllers.erase(found);
+  }
+
 protected:
   void componentComplete() override;
 
-protected:
   friend class FramebufferObjectRenderer;
 
   friend class RenderDelegate;
@@ -114,7 +125,6 @@ protected:
 
   void focusOutEvent(QFocusEvent *event) override;
 
-protected:
   void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
   void releaseResources() override;

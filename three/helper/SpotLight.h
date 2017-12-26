@@ -49,9 +49,8 @@ protected:
     geometry->setPosition(BufferAttributeT<float>::make(positions));
 
     _coneMaterial = LineBasicMaterial::make();
-
     _cone = LineSegments::make(geometry, _coneMaterial);
-    add( _cone );
+    add(_cone);
 
     update();
   }

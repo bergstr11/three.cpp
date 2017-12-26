@@ -23,6 +23,8 @@
 #include <quick/materials/MeshLambertMaterial.h>
 #include <quick/materials/MeshPhongMaterial.h>
 #include <quick/cameras/PerspectiveCamera.h>
+#include <quick/interact/OrbitController.h>
+
 
 namespace three {
 namespace quick {
@@ -219,6 +221,8 @@ void ThreeDScene::init()
   qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
+  qmlRegisterUncreatableType<three::quick::Controller>("three.quick", 1, 0, "Controller", "abstract class");
+  qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");
 }
 
 void ThreeDScene::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -227,16 +231,33 @@ void ThreeDScene::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
   sceneGeometryChanged();
 }
 
-void ThreeDScene::mouseMoveEvent(QMouseEvent *event) {
-  update();
+void ThreeDScene::mouseMoveEvent(QMouseEvent *event)
+{
+  for (auto contrl : _controllers) {
+    if (contrl->handleMouseMoved(event)) {
+      update();
+      return;
+    }
+  }
 }
 
-void ThreeDScene::mousePressEvent(QMouseEvent *event) {
-  update();
+void ThreeDScene::mousePressEvent(QMouseEvent *event)
+{
+  for (auto contrl : _controllers) {
+    if (contrl->handleMousePressed(event)) {
+      update();
+      return;
+    }
+  }
 }
 
 void ThreeDScene::mouseReleaseEvent(QMouseEvent *event) {
-  update();
+  for (auto contrl : _controllers) {
+    if (contrl->handleMouseReleased(event)) {
+      update();
+      return;
+    }
+  }
 }
 
 void ThreeDScene::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -244,7 +265,12 @@ void ThreeDScene::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void ThreeDScene::wheelEvent(QWheelEvent *event) {
-  update();
+  for (auto contrl : _controllers) {
+    if (contrl->handleMouseWheel(event)) {
+      update();
+      return;
+    }
+  }
 }
 
 
@@ -266,6 +292,7 @@ void ThreeDScene::focusOutEvent(QFocusEvent *event) {
 
 void ThreeDScene::releaseResources() {
   QQuickFramebufferObject::releaseResources();
+  _scene = nullptr;
 }
 
 void ThreeDScene::componentComplete()
@@ -275,14 +302,21 @@ void ThreeDScene::componentComplete()
   _scene = SceneT<Color>::make(_name.toStdString(),
                                Color(_background.redF(), _background.greenF(), _background.blueF()));
 
+  if(_fog) _scene->fog() = _fog->create();
+  _camera = _quickCamera->create();
+
+  if(_quickCamera->controller()) {
+    _quickCamera->controller()->start(this, _camera);
+    _controllers.push_back(_quickCamera->controller());
+  }
   for(auto &object :_objects) {
     auto obj = object->create(this);
     if(obj) _scene->add(obj);
   }
-  if(_fog) _scene->fog() = _fog->create();
-  _camera = _quickCamera->create();
 }
 
 }
 }
+
+
 #include "ThreeDScene.moc"

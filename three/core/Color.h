@@ -20,7 +20,7 @@ struct ColorKey
   {}
 };
 
-enum class NamedColor : std::uint32_t
+enum class ColorName : std::uint32_t
 {
   aliceblue = 0xF0F8FF, antiquewhite = 0xFAEBD7, aqua = 0x00FFFF, aquamarine = 0x7FFFD4, azure = 0xF0FFFF,
   beige = 0xF5F5DC, bisque = 0xFFE4C4, black = 0x000000, blanchedalmond = 0xFFEBCD, blue = 0x0000FF,
@@ -87,21 +87,12 @@ struct Color
   Color(unsigned hex) : r((hex >> 16 & 255) / 255.0f), g((hex >> 8 & 255) / 255.0f), b((hex & 255) / 255.0f)
   {}
 
+  Color(ColorName name) : Color((unsigned)name) {}
+
   Color() :
      r(std::numeric_limits<float>::infinity()),
      g(std::numeric_limits<float>::infinity()),
      b(std::numeric_limits<float>::infinity()) {}
-
-  static Color fromName(NamedColor name)
-  {
-    auto hex = (std::uint32_t)name;
-
-    float r = ( hex >> 16 & 255 ) / 255.0f;
-    float g = ( hex >> 8 & 255 ) / 255.0f;
-    float b = ( hex & 255 ) / 255.0f;
-
-    return Color(r, g, b);
-  }
 
   bool isNull() const {
     return r == g && g == b && b == std::numeric_limits<float>::infinity();
@@ -111,6 +102,16 @@ struct Color
     r = color.r;
     g = color.g;
     b = color.b;
+
+    return *this;
+  }
+
+  Color &operator = (const ColorName &name)
+  {
+    unsigned hex = (unsigned)name;
+    r = (hex >> 16 & 255) / 255.0f;
+    g = (hex >> 8 & 255) / 255.0f;
+    b = (hex & 255) / 255.0f;
 
     return *this;
   }

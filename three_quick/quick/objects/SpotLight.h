@@ -57,7 +57,7 @@ protected:
 
   float _intensity=1, _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;
 
-  bool _helper;
+  bool _helper = false;
 
 public:
   QColor color() const {return _color;}

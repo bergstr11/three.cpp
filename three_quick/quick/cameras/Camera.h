@@ -8,6 +8,7 @@
 #include <QObject>
 #include <core/Object3D.h>
 #include <camera/Camera.h>
+#include <quick/interact/Controller.h>
 
 namespace three {
 namespace quick {
@@ -17,9 +18,11 @@ class Camera : public QObject
   Q_OBJECT
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(QObject * lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
+  Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
 
   QObject *_lookAt = nullptr;
   QVector3D _position;
+  Controller *_controller = nullptr;
 
   three::Camera::Ptr _camera;
 
@@ -45,11 +48,24 @@ public:
     }
   }
 
+  Controller *controller() const {return _controller;}
+
+  void setController(Controller *controller)
+  {
+    if(_controller != controller) {
+      _controller = controller;
+      emit controllerChanged();
+    }
+  }
+
   three::Camera::Ptr create();
+
+  three::Camera::Ptr camera() {return _camera;}
 
 signals:
   void lookAtChanged();
   void positionChanged();
+  void controllerChanged();
 };
 
 }

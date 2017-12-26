@@ -2,8 +2,8 @@
 // Created by byter on 30.07.17.
 //
 
-#ifndef THREEQT_HELPER_H
-#define THREEQT_HELPER_H
+#ifndef THREEPP_MATH_H
+#define THREEPP_MATH_H
 
 #include <cmath>
 #include <algorithm>
@@ -16,6 +16,8 @@ class Matrix4;
 class Vector3;
 class Quaternion;
 class Vector3;
+
+static const float EPS = 0.000001f;
 
 static const double DEG2RAD = M_PI / 180;
 static const double RAD2DEG = 180 / M_PI;
@@ -132,4 +134,4 @@ void decompose(const Matrix4 &matrix, Vector3 &position, Quaternion &quaternion,
 
 }
 }
-#endif //THREEQT_HELPER_H
+#endif //THREEPP_MATH_H

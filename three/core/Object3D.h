@@ -73,6 +73,8 @@ protected:
   explicit Object3D(const object::Resolver::Ptr resolver);
 
 public:
+  virtual ~Object3D() {}
+
   const object::Resolver::Ptr objectResolver;
 
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,

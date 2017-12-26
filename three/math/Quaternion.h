@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include "Math.h"
 #include "helper/simplesignal.h"
 
 namespace three {
@@ -32,6 +33,8 @@ class Quaternion
   }
 
 public:
+  static Quaternion fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo);
+
   Quaternion(float x, float y, float z, float w) : _x(x), _y(y), _z(z), _w(w) {}
 
   Quaternion() : _x(0.0f), _y(0.0f), _z(0.0f), _w(1.0f) {}

@@ -144,32 +144,28 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
   return *this;
 }
 
-Quaternion::Quaternion(const Vector3 &vFrom, const Vector3 &vTo)
+Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
 {
-  static const float EPS = 0.000001;
+  // assumes direction vectors vFrom and vTo are normalized
+  Vector3 v1;
 
-  float r = vFrom.dot(vTo) + 1;
+  float r = vFrom.dot( vTo ) + 1;
 
-  Vector3 v(0);
-  if (r < EPS) {
+  if ( r < EPS ) {
     r = 0;
-    if (std::abs(vFrom.x()) > std::abs(vFrom.z())) {
-      v = Vector3(-vFrom.y(), vFrom.x(), 0);
+
+    if (std::abs( vFrom.x() ) > std::abs( vFrom.z() ) ) {
+      v1.set( - vFrom.y(), vFrom.x(), 0 );
     }
     else {
-      v = Vector3(0, -vFrom.z(), vFrom.y());
+      v1.set( 0, - vFrom.z(), vFrom.y() );
     }
   }
   else {
-    v = cross(vFrom, vTo);
+    v1 = cross( vFrom, vTo );
   }
 
-  _x = v.x();
-  _y = v.y();
-  _z = v.z();
-  _w = r;
-
-  normalize();
+  return Quaternion(v1.x(), v1.y(), v1.z(), r).normalize();
 }
 
 }

@@ -2,8 +2,8 @@
 // Created by byter on 12.08.17.
 //
 
-#ifndef THREE_QT_VECTOR3_H
-#define THREE_QT_VECTOR3_H
+#ifndef THREEPP_VECTOR3_H
+#define THREEPP_VECTOR3_H
 
 #include <cassert>
 #include <algorithm>
@@ -447,13 +447,11 @@ inline Vector3 cross(const Vector3 &a, const Vector3 &b)
   float ax = a.x(), ay = a.y(), az = a.z();
   float bx = b.x(), by = b.y(), bz = b.z();
 
-  float x = ay * bz - az * by;
-  float y = az * bx - ax * bz;
-  float z = ax * by - ay * bx;
-
-  return Vector3(x, y, z);
+  return Vector3(ay * bz - az * by,
+                 az * bx - ax * bz,
+                 ax * by - ay * bx);
 }
 
 }
 }
-#endif //THREE_QT_VECTOR3_H
+#endif //THREEPP_VECTOR3_H
