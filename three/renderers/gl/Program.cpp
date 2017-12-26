@@ -399,7 +399,7 @@ Program::Program(Renderer_impl &renderer,
 
   string prefixVertex, prefixFragment;
 
-  if(parameters->rawShaderMaterial) {
+  if(parameters->shaderMaterial == ShaderMaterialKind::raw) {
 
     prefixVertex =  customDefines;
     prefixFragment = customExtensions + customDefines;
@@ -607,7 +607,7 @@ Program::Program(Renderer_impl &renderer,
   string fragmentShader = parseIncludes( shader.fragmentShader() );
   fragmentShader = replaceLightNums( fragmentShader, *parameters );
 
-  if ( ! parameters->shaderMaterial ) {
+  if (parameters->shaderMaterial == ShaderMaterialKind::none) {
 
     vertexShader = unrollLoops( vertexShader );
     fragmentShader = unrollLoops( fragmentShader );

@@ -123,8 +123,11 @@ struct Code<DepthPacking> {
 template <>
 struct Code<std::unordered_map<std::string, std::string>> {
   static const std::unordered_map<std::string, std::string> init;
-  static void hash_combine(size_t &hash, std::unordered_map<std::string, std::string> value) {
-    //three::hash_combine(hash, (unsigned)value);
+  static void hash_combine(size_t &hash, const std::unordered_map<std::string, std::string> &value) {
+    for(const auto &entry : value) {
+      three::hash_combine(hash, entry.first);
+      three::hash_combine(hash, entry.second);
+    }
   }
 };
 
@@ -136,6 +139,12 @@ public:
     all.push_back(this);
   }
   virtual void hash_combine(size_t &hash) = 0;
+
+  virtual bool operator == (const ProgramParameter &parameter) = 0;
+
+  bool operator != (const ProgramParameter &parameter) {
+    return !(*this == parameter);
+  }
 };
 
 template <typename T>
@@ -152,6 +161,11 @@ public:
 
   operator T &() const {return t;}
 
+  bool operator == (const ProgramParameter &parameter) {
+    const ProgramParameterT &pt = dynamic_cast<const ProgramParameterT &>(parameter);
+    return t == pt.t;
+  }
+
   void hash_combine(size_t &hash) override {
     Code<T>::hash_combine(hash, t);
   }
@@ -160,6 +174,8 @@ public:
     return t;
   }
 };
+
+enum class ShaderMaterialKind {none, shader, raw};
 
 class ProgramParameters
 {
@@ -230,27 +246,24 @@ public:
   ProgramParameterT<DepthPacking>  depthPacking {all};
   ProgramParameterT<std::unordered_map<std::string, std::string>> defines {all};
 
-  RawShaderMaterial *rawShaderMaterial = nullptr;
-  ShaderMaterial *shaderMaterial = nullptr;
+  ShaderMaterialKind shaderMaterial = ShaderMaterialKind::none;
+  bool shaderMaterialClipping = false;
+  std::string vertexShader;
+  std::string fragmentShader;
   std::string index0AttributeName;
   UseExtension extensions;
 
-  bool eqShaderMaterial(ShaderMaterial *left, ShaderMaterial *right) {
-    if(left && right)
-      return left->fragmentShader != right->fragmentShader || left->vertexShader != right->vertexShader;
-    else
-      return left != right;
-  }
-
   bool operator == (const ProgramParameters &parameters)
   {
-    if(!eqShaderMaterial(rawShaderMaterial, parameters.rawShaderMaterial)) return false;
-    if(!eqShaderMaterial(shaderMaterial, parameters.shaderMaterial)) return false;
+    if(vertexShader != parameters.vertexShader) return false;
+    if(fragmentShader != parameters.fragmentShader) return false;
 
     auto it1=all.begin();
     auto it2=parameters.all.begin();
     for(; it1 != all.end() && it2 != parameters.all.end(); it1++, it2++) {
-      if(*it1 != *it2) return false;
+      ProgramParameter *p1 = *it1;
+      ProgramParameter *p2 = *it2;
+      if(*p1 != *p2) return false;
     }
     return it1 == all.end() && it2 == parameters.all.end();
   }
@@ -261,18 +274,12 @@ public:
 };
 
 struct parameters_hash {
-  std::size_t operator () (const ProgramParameters &params) const
+  std::size_t operator () (const ProgramParameters::Ptr &params) const
   {
-    std::size_t h;
-    if(params.rawShaderMaterial) {
-      h = std::hash<std::string>{}(params.rawShaderMaterial->fragmentShader);
-      hash_combine(h, params.rawShaderMaterial->vertexShader);
-    }
-    else if(params.shaderMaterial) {
-      h = std::hash<std::string>{}(params.shaderMaterial->fragmentShader);
-      hash_combine(h, params.shaderMaterial->vertexShader);
-    }
-    for(auto p : params.all) {
+    std::size_t h = std::hash<std::string>{}(params->fragmentShader);
+    hash_combine(h, params->vertexShader);
+
+    for(auto p : params->all) {
       p->hash_combine(h);
     }
     return h;

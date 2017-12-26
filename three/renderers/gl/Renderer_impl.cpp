@@ -853,13 +853,12 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
       materialProperties.shader = Shader(name, shaderlib::get(*parameters->shaderID));
     }
-    else if(parameters->shaderMaterial) {
-
-      ShaderMaterial *sm = parameters->shaderMaterial;
-      materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
-    }
     else {
-      throw logic_error("unable to determine shader");
+      ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
+      if(sm)
+        materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
+      else
+        throw logic_error("unable to determine shader");
     }
 
     //material.onBeforeCompile( materialProperties.shader );
@@ -899,7 +898,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
   UniformValues &uniforms = materialProperties.shader.uniforms();
 
-  if( !parameters->shaderMaterial && !parameters->rawShaderMaterial || parameters->shaderMaterial->clipping) {
+  if( parameters->vertexShader.empty() && parameters->fragmentShader.empty() || parameters->shaderMaterialClipping) {
 
     materialProperties.numClippingPlanes = _clipping.numPlanes();
     materialProperties.numIntersection = _clipping.numIntersection();

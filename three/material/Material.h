@@ -161,9 +161,7 @@ public:
 
   using Ptr = std::shared_ptr<Material>;
 
-  virtual void setupPointLight(const math::Vector3 &position, float near, float far)
-  {
-  }
+  virtual void setupPointLight(const math::Vector3 &position, float near, float far) {}
 };
 
 template <typename ... Maps>

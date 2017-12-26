@@ -18,7 +18,7 @@ class Renderer_impl;
 
 class Programs
 {
-  std::unordered_map<ProgramParameters::Ptr, Program::Ptr> _programs;
+  std::unordered_map<ProgramParameters::Ptr, Program::Ptr, parameters_hash> _programs;
 
   Renderer_impl &_renderer;
   Extensions &_extensions;

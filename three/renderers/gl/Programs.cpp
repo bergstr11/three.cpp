@@ -65,19 +65,19 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;
-  dispatch.func<MeshBasicMaterial>() = [parameters] (MeshBasicMaterial &mat) {
+  dispatch.func<MeshBasicMaterial>() = [&parameters] (MeshBasicMaterial &mat) {
     parameters->aoMap = mat.aoMap;
     parameters->envMap = mat.envMap;
     parameters->specularMap = mat.specularMap;
     parameters->combine = mat.combine;
   };
-  dispatch.func<MeshDistanceMaterial>() = [parameters] (MeshDistanceMaterial &mat) {
+  dispatch.func<MeshDistanceMaterial>() = [&parameters] (MeshDistanceMaterial &mat) {
   };
-  dispatch.func<MeshDepthMaterial>() = [parameters] (MeshDepthMaterial &mat) {
+  dispatch.func<MeshDepthMaterial>() = [&parameters] (MeshDepthMaterial &mat) {
     parameters->alphaMap = mat.alphaMap;
     parameters->depthPacking = mat.depthPacking;
   };
-  dispatch.func<ShaderMaterial>() = [parameters] (ShaderMaterial &mat) {
+  dispatch.func<ShaderMaterial>() = [&parameters] (ShaderMaterial &mat) {
     if(mat.use_derivatives)
       parameters->extensions.add(Extension::OES_standard_derivatives);
     if(mat.use_drawBuffers)
@@ -88,14 +88,19 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
       parameters->extensions.add(Extension::EXT_shader_texture_lod);
 
     parameters->defines = mat.defines;
-    parameters->shaderMaterial = &mat;
+    parameters->shaderMaterial = ShaderMaterialKind::shader;
+    parameters->fragmentShader = mat.fragmentShader;
+    parameters->vertexShader = mat.vertexShader;
+    parameters->shaderMaterialClipping = mat.clipping;
     parameters->index0AttributeName = mat.index0AttributeName;
   };
   dispatch.func<RawShaderMaterial>() = [&] (RawShaderMaterial &mat) {
     dispatch.func<ShaderMaterial>()(mat);
-    parameters->rawShaderMaterial = &mat;
+    parameters->shaderMaterial = ShaderMaterialKind::raw;
+    parameters->fragmentShader = mat.fragmentShader;
+    parameters->vertexShader = mat.vertexShader;
   };
-  dispatch.func<PointsMaterial>() = [parameters] (PointsMaterial &mat) {
+  dispatch.func<PointsMaterial>() = [&parameters] (PointsMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
   };
   dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
