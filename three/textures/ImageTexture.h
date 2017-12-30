@@ -11,59 +11,47 @@ namespace three {
 
 /**
  * template
- * @tparam imageCount
  */
-template <unsigned imageCount>
-class ImageTextureT : public Texture
+class ImageTexture : public Texture
 {
 protected:
-  std::array<QImage, imageCount> _images;
+  QImage _image;
 
-  explicit ImageTextureT(texture::Resolver::Ptr resolver, const TextureOptions &options, const std::array<QImage, imageCount> images)
-     : Texture(resolver, options), _images(images) {}
-
-public:
-  bool isPowerOfTwo() const override {
-    return math::isPowerOfTwo(_images[0].width()) && math::isPowerOfTwo(_images[0].height());
-  }
-};
-
-/**
- * class
- */
-class ImageTexture : public ImageTextureT<1>
-{
-protected:
-  explicit ImageTexture(const TextureOptions &options, QImage image=QImage())
-     : ImageTextureT(texture::ResolverT<ImageTexture>::make(*this), options, {image})
-  {
-  }
+  ImageTexture(const TextureOptions &options, const QImage image)
+     : Texture(texture::ResolverT<ImageTexture>::make(*this), options), _image(image) {}
 
 public:
   using Ptr = std::shared_ptr<ImageTexture>;
-  static Ptr make(const TextureOptions &options, const QImage &image) {
-    return Ptr(new ImageTexture(options, image));
-  }
-  static Ptr make(const TextureOptions &options) {
-    return Ptr(new ImageTexture(options));
+
+  static Ptr make(const TextureOptions &options, const QImage &image=QImage()) {
+    Ptr p(new ImageTexture(options, image));
+    p->needsUpdate(!image.isNull());
+    return p;
   }
 
-  const QImage &image() const {return _images[0];}
+  const QImage &image() const {return _image;}
 
   void setImage(const QImage &image) {
-    _images[0] = image;
+    _image = image;
+  }
+
+  bool isPowerOfTwo() const override {
+    return math::isPowerOfTwo(_image.width()) && math::isPowerOfTwo(_image.height());
   }
 };
+
 
 /**
  * class
  */
-class ImageCubeTexture : public ImageTextureT<6>
+class ImageCubeTexture : public CubeTexture
 {
+  std::array<QImage, CubeTexture::num_faces> _images;
+
 protected:
 
-  ImageCubeTexture(const TextureOptions &options, const std::array<QImage, 6> images)
-     : ImageTextureT(texture::ResolverT<ImageCubeTexture>::make(*this), options, images)
+  ImageCubeTexture(const TextureOptions &options, const std::array<QImage, CubeTexture::num_faces> &images)
+     : CubeTexture(texture::ResolverT<ImageCubeTexture>::make(*this), options), _images(images)
   {
   }
 
@@ -76,8 +64,11 @@ public:
   }
 
   using Ptr = std::shared_ptr<ImageCubeTexture>;
-  static Ptr make(const TextureOptions &options, const std::array<QImage, 6> images) {
-    return Ptr(new ImageCubeTexture(options, images));
+
+  static Ptr make(const TextureOptions &options, const std::array<QImage, 6> &images) {
+    Ptr p(new ImageCubeTexture(options, images));
+    p->needsUpdate(true);
+    return p;
   }
 
   const QImage &image(unsigned index)
@@ -88,6 +79,8 @@ public:
   void setImage(const QImage &image, unsigned index) {
     _images[index] = image;
   }
+
+  bool dontFlip() const override {return true;}
 
   bool isPowerOfTwo() const override {
     return math::isPowerOfTwo(_images[0].width()) && math::isPowerOfTwo(_images[0].height());

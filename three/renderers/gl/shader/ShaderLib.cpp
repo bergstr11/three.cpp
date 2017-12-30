@@ -229,8 +229,8 @@ public:
     add(ShaderID::cube,
         LibShader(ShaderID::cube,
                   {
-                     uniformslib::value<Texture::Ptr>(UniformName::cube, nullptr),
-                     uniformslib::value<GLint>(UniformName::flip, -1),
+                     uniformslib::value<CubeTexture::Ptr>(UniformName::tCube, nullptr),
+                     uniformslib::value<float>(UniformName::tFlip, -1.0f),
                      uniformslib::value<float>(UniformName::opacity, 1.0f)
                   },
                   ":shader/cube_vert.glsl",
@@ -239,7 +239,7 @@ public:
     add(ShaderID::equirect,
         LibShader(ShaderID::equirect,
                   {
-                     uniformslib::value<Texture::Ptr>(UniformName::equirect, nullptr)
+                     uniformslib::value<Texture::Ptr>(UniformName::tEquirect, nullptr)
                   },
                   ":shader/equirect_vert.glsl",
                   ":shader/equirect_frag.glsl"
@@ -301,6 +301,33 @@ three::gl::ShaderInfo get(ShaderID id)
 ShaderInfo::ShaderInfo(const uniformslib::LibUniformValues &uniforms, const char * vertexShader, const char * fragmentShader)
    : uniforms(uniforms), vertexShader(vertexShader), fragmentShader(fragmentShader)
 {}
+
+#define MATCH_NAME(nm) {#nm, ShaderID::nm}
+
+ShaderID toShaderID(std::string name)
+{
+  static std::unordered_map<std::string, ShaderID> string_to_id {
+     MATCH_NAME(basic),
+     MATCH_NAME(lambert),
+     MATCH_NAME(phong),
+     MATCH_NAME(standard),
+     MATCH_NAME(normal),
+     MATCH_NAME(points),
+     MATCH_NAME(dashed),
+     MATCH_NAME(depth),
+     MATCH_NAME(cube),
+     MATCH_NAME(equirect),
+     MATCH_NAME(distanceRGBA),
+     MATCH_NAME(shadow),
+     MATCH_NAME(physical)
+  };
+  try {
+    return string_to_id.at(name);
+  }
+  catch(const std::out_of_range &r) {
+    throw std::invalid_argument(std::string("unknown variable ")+name);
+  }
+}
 
 }
 }

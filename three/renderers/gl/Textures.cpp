@@ -179,14 +179,11 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
 
       baseFunc(texture);
 
-      QImage cubeImages[6];
+      for (unsigned i = 0; i < CubeTexture::num_faces; i ++ ) {
+        QImage cubeImage = clampToMaxSize( texture.image(i), _capabilities.maxCubemapSize, texture.flipY );
 
-      for (unsigned i = 0; i < 6; i ++ ) {
-        cubeImages[ i ] = clampToMaxSize( texture.image(i), _capabilities.maxCubemapSize, texture.flipY() );
-      }
-      for (unsigned i = 0; i < 6; i ++) {
         _state.texImage2D(TextureTarget::cubeMapPositiveX+i, 0, extFormat,
-                          cubeImages[ i ].width(), cubeImages[ i ].height(), extFormat, extType, cubeImages[ i ] );
+                          cubeImage.width(), cubeImage.height(), extFormat, extType, cubeImage);
       }
     };
     texture->resolver->texture::DispatchResolver::getValue(dispatch);
@@ -472,7 +469,7 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetInternal &rende
 
     renderTarget.depthTexture()->width() = (size_t)renderTarget.width();
     renderTarget.depthTexture()->height() = (size_t)renderTarget.height();
-    renderTarget.depthTexture()->needsUpdate();
+    renderTarget.depthTexture()->needsUpdate(true);
   }
 
   setTexture2D( renderTarget.depthTexture(), 0 );
@@ -555,12 +552,14 @@ void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
 
 void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
 {
+  _fn->glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.frameBuffer);
+
   auto &textureProperties = _properties.get( renderTarget.texture() );
 
   textureProperties.texture = renderTarget.textureHandle();
 
-  _infoMemory.textures ++;
-
+  //_infoMemory.textures ++;
+  _state.currentTextureSlot = 0;
   _state.currentBoundTextures.emplace(_state.currentTextureSlot,
                                       State::BoundTexture(TextureTarget::twoD, textureProperties.texture));
 
@@ -568,6 +567,10 @@ void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
 
   if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
+}
+
+GLuint Textures::defaultFramebuffer() {
+  return _defaultFBO;
 }
 
 // Set up GL resources for the render target
@@ -586,6 +589,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
   // Setup framebuffer
   renderTarget.frameBuffers.resize(6);
   _fn->glGenFramebuffers(6, renderTarget.frameBuffers.data());
+  check_glerror(_fn);
 
   // Setup color buffer
   _state.bindTexture(renderTarget.textureTarget, textureProperties.texture );

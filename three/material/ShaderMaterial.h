@@ -120,9 +120,10 @@ public:
                   const char *vertexShader,
                   const char *fragmentShader,
                   Side side,
-                  bool depthTest,
-                  bool depthWrite,
-                  bool fog) {
+                  bool depthTest = true,
+                  bool depthWrite = true,
+                  bool fog = true)
+  {
     return Ptr(new ShaderMaterial(uniforms, vertexShader, fragmentShader, side, depthTest, depthWrite, fog));
   }
 };

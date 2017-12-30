@@ -30,6 +30,10 @@ struct TextureOptions
 
   float anisotropy = 1;
 
+  // no flipping for cube textures
+  // (also flipping doesn't work for compressed textures )
+  bool flipY = true;
+
   TextureFormat format = TextureFormat::RGBA;
   TextureType type = TextureType::UnsignedByte;
 
@@ -50,7 +54,6 @@ class Texture : public TextureOptions
 
 protected:
   unsigned _version = 0;
-  bool _needsUpdate;
 
   std::vector<Mipmap> _mipmaps;
 
@@ -69,16 +72,12 @@ protected:
   // mips must be embedded in DDS files
   bool _generateMipmaps;
 
-  // no flipping for cube textures
-  // (also flipping doesn't work for compressed textures )
-  const bool _flipY;
-
   // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
   const unsigned _unpackAlignment = 4;
 
   Texture(texture::Resolver::Ptr resolver,
           const TextureOptions &options,
-          bool generateMipMaps=true, bool flipY=true, unsigned unpackAlignment=4);
+          bool generateMipMaps=true, unsigned unpackAlignment=4);
 
 public:
   static TextureOptions options() {return TextureOptions();}
@@ -114,8 +113,6 @@ public:
 
   void setGenerateMipmaps(bool generate) {_generateMipmaps = generate;}
 
-  bool flipY() {return _flipY;}
-
   bool premultiplyAlpha() const {return _premultiplyAlpha;}
   unsigned unpackAlignment() const {return _unpackAlignment;}
 
@@ -129,17 +126,30 @@ public:
 
   void transformUv(UV &uv);
 
-  bool needsUpdate() const {return _needsUpdate;}
-
-  void needsUpdate(bool value) {_needsUpdate = value;}
+  void needsUpdate(bool value) {_version ++;}
 
   virtual bool isPowerOfTwo() const = 0;
+
+  virtual bool dontFlip() const {return false;}
 
   bool needsPowerOfTwo()
   {
     return TextureOptions::wrapS != TextureWrapping ::ClampToEdge || TextureOptions::wrapT != TextureWrapping ::ClampToEdge
            || (TextureOptions::minFilter != TextureFilter ::Nearest && TextureOptions::minFilter != TextureFilter ::Linear );
   }
+};
+
+class CubeTexture : public Texture
+{
+protected:
+  CubeTexture(texture::Resolver::Ptr resolver, const TextureOptions &options, bool generateMipMaps=true,
+              unsigned unpackAlignment=4)
+     : Texture(resolver, options, generateMipMaps, unpackAlignment) {}
+
+public:
+  static constexpr unsigned num_faces = 6;
+
+  using Ptr = std::shared_ptr<CubeTexture>;
 };
 
 }

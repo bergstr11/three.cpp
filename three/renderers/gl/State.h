@@ -257,7 +257,7 @@ public:
   BlendFunc currentBlendDstAlpha = BlendFunc::None;
   bool currentPremultipledAlpha = false;
 
-  FrontFaceDirection currentFlipSided = FrontFaceDirection::Undefined;
+  FrontFaceDirection currentFaceDirection = FrontFaceDirection::Undefined;
   CullFace currentCullFace = CullFace::None;
 
   GLfloat currentLineWidth = 0;
@@ -307,7 +307,6 @@ public:
   std::unordered_map<TextureTarget, GLuint> emptyTextures = {};
 
 public:
-  // init
   State(QOpenGLExtraFunctions *fn, int initialTextureSlot=-1) :
      colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this, fn), _f(fn),
      initialTextureSlot(initialTextureSlot), currentTextureSlot(initialTextureSlot)
@@ -338,11 +337,12 @@ public:
     enable(GL_DEPTH_TEST);
     depthBuffer.setFunc(Func::LessEqual);
 
-    setFlipSided(FrontFaceDirection::CW);
+    setFaceDirection(FrontFaceDirection::CW);
     setCullFace(CullFace::Back);
 
     enable(GL_BLEND);
     setBlending(Blending::Normal);
+    check_glerror(_f);
   }
 
   State &initAttributes()
@@ -364,6 +364,7 @@ public:
       _f->glVertexAttribDivisor(attribute, 0);
       attributeDivisors[attribute] = 0;
     }
+    check_glerror(_f);
     return *this;
   }
 
@@ -380,6 +381,7 @@ public:
       _f->glVertexAttribDivisor(attribute, meshPerAttribute);
       attributeDivisors[attribute] = meshPerAttribute;
     }
+    check_glerror(_f);
     return *this;
   }
 
@@ -537,11 +539,15 @@ public:
     currentPremultipledAlpha = premultipliedAlpha;
   }
 
-  State &setMaterial(const Material::Ptr material)
+  State &setMaterial(const Material::Ptr material, bool frontFaceCW)
   {
     material->side == Side::Double ? disable(GL_CULL_FACE) : enable(GL_CULL_FACE);
 
-    setFlipSided(material->side == Side::Back ? FrontFaceDirection::CW : FrontFaceDirection::CCW);
+    FrontFaceDirection dir = material->side == Side::Back ?
+                             (frontFaceCW ? FrontFaceDirection::CCW : FrontFaceDirection::CW) :
+                             (frontFaceCW ? FrontFaceDirection::CW : FrontFaceDirection::CCW);
+
+    setFaceDirection(dir);
 
     if (material->transparent)
       setBlending(material->blending, material->blendEquation, material->blendSrc, material->blendDst,
@@ -559,12 +565,13 @@ public:
 
   //
 
-  State &setFlipSided(FrontFaceDirection flipSided)
+  //setFlipSided
+  State &setFaceDirection(FrontFaceDirection faceDirection)
   {
-    if (currentFlipSided != flipSided) {
-      _f->glFrontFace((GLenum) flipSided);
+    if (currentFaceDirection != faceDirection) {
+      _f->glFrontFace((GLenum) faceDirection);
 
-      currentFlipSided = flipSided;
+      currentFaceDirection = faceDirection;
     }
   }
 
@@ -618,7 +625,6 @@ public:
 
   State &setScissorTest(bool scissorTest)
   {
-
     currentScissorTest = scissorTest;
 
     if (scissorTest)
@@ -649,6 +655,7 @@ public:
     if(!boundTexture || boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
       _f->glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
+      check_glerror(_f);
 
       currentBoundTextures.emplace(currentTextureSlot, BoundTexture(target, webglTexture));
     }
@@ -748,10 +755,10 @@ public:
       }
     }
 
-    for(auto &cap : capabilities) {
+    /*for(auto &cap : capabilities) {
       if(cap.second) _f->glDisable(cap.first);
-    }
-    capabilities.clear();
+    }*/
+    //capabilities.clear();
 
     compressedTextureFormats.clear();
 
@@ -764,7 +771,7 @@ public:
 
     currentBlending = Blending::None;
 
-    currentFlipSided = FrontFaceDirection::CW;
+    currentFaceDirection = FrontFaceDirection::CW;
     currentCullFace = CullFace::None;
 
     colorBuffer.reset();

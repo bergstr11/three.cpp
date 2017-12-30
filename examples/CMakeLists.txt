@@ -15,9 +15,9 @@ qt5_add_resources(UI_RESOURCES resources.qrc)
 
 set(SOURCE_FILES
         main.cpp
-        ThreeDItem.cpp)
+        ThreeDTestItem.cpp)
 
-set(HEADER_FILES ThreeDItem.h)
+set(HEADER_FILES ThreeDTestItem.h)
 
 add_executable(three_test ${SOURCE_FILES} ${HEADER_FILES} ${UI_RESOURCES})
 target_link_libraries(three_test PUBLIC threepp three_quick Qt5::Core Qt5::Gui Qt5::Quick assimp)

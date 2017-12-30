@@ -19,9 +19,14 @@ namespace gl {
 
 using namespace std;
 
-Encoding getTextureEncoding(Texture::Ptr map)
+Encoding getTextureEncoding(Texture::Ptr map, bool gammaOverrideLinear)
 {
-  return map ? map->encoding() : Encoding::Linear;
+  Encoding enc = map ? map->encoding() : Encoding::Linear;
+
+  if (enc == Encoding::Linear && gammaOverrideLinear ) {
+
+    enc = Encoding::Gamma;
+  }
 }
 
 ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
@@ -59,9 +64,10 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   const Renderer::Target::Ptr currentRenderTarget = _renderer.getRenderTarget();
 
-  parameters->outputEncoding = getTextureEncoding(currentRenderTarget ? currentRenderTarget->texture() : nullptr);
+  parameters->outputEncoding = getTextureEncoding(
+     currentRenderTarget ? currentRenderTarget->texture() : nullptr, _renderer.gammaOutput);
   parameters->map = material->map;
-  parameters->mapEncoding = getTextureEncoding(material->map);
+  parameters->mapEncoding = getTextureEncoding(material->map, _renderer.gammaInput);
   parameters->vertexColors = material->vertexColors;
 
   material::Dispatch dispatch;
@@ -103,20 +109,20 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   dispatch.func<PointsMaterial>() = [&parameters] (PointsMaterial &mat) {
     parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
   };
-  dispatch.func<MeshPhongMaterial>() = [&parameters] (MeshPhongMaterial &mat) {
+  dispatch.func<MeshPhongMaterial>() = [&parameters, this] (MeshPhongMaterial &mat) {
     parameters->aoMap = mat.aoMap;
     parameters->bumpMap = mat.bumpMap;
     parameters->normalMap = mat.normalMap;
     parameters->alphaMap = mat.alphaMap;
     parameters->envMap = mat.envMap;
-    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
+    parameters->envMapEncoding = getTextureEncoding(mat.envMap, _renderer.gammaInput);
     parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat.envMap &&
                                (mat.envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = mat.lightMap;
     parameters->emissiveMap = mat.emissiveMap;
-    parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
+    parameters->emissiveMapEncoding = getTextureEncoding(mat.emissiveMap, _renderer.gammaInput);
     parameters->displacementMap = mat.displacementMap;
   };
   dispatch.func<MeshToonMaterial>() = [&parameters] (MeshToonMaterial &mat) {

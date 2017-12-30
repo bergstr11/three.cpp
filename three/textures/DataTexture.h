@@ -11,21 +11,19 @@ namespace three {
 
 /**
  * template
- * @tparam dataCount
  */
-template <unsigned dataCount>
-class DataTextureT : public Texture
+class DataTexture : public Texture
 {
   friend class Textures;
 
 protected:
-  std::array<TextureData::Ptr, dataCount> _datas;
+  TextureData::Ptr _data;
 
   size_t const _width, _height;
   bool _compressed;
 
-  DataTextureT(texture::Resolver::Ptr resolver, const TextureOptions &options, size_t width, size_t height, bool compressed=false)
-     : Texture(resolver, options, false, false, 1),
+  DataTexture(const TextureOptions &options, const TextureData::Ptr data, size_t width, size_t height, bool compressed=false)
+     : Texture(texture::ResolverT<DataTexture>::make(*this), options, false, 1),
        _width(width), _height(height), _compressed(compressed)
   {
   }
@@ -39,29 +37,6 @@ public:
     return options;
   }
 
-  bool compressed() const {_compressed;}
-  size_t width() const {return _width;}
-  size_t height() const {return _height;}
-  const float *data() const {return _datas[0]->data();}
-  const byte *bytes() const {return _datas[0]->bytes();}
-
-  bool isPowerOfTwo() const override {
-    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
-  }
-};
-
-/**
- * class
- */
-class DataTexture : public DataTextureT<1>
-{
-  DataTexture(const TextureOptions &options, const TextureData::Ptr data, size_t width, size_t height, bool compressed=false)
-     : DataTextureT(texture::ResolverT<DataTexture>::make(*this), options, width, height, compressed)
-  {
-    _datas[0] = data;
-  }
-
-public:
   using Ptr = std::shared_ptr<DataTexture>;
 
   static Ptr make(const TextureOptions &options,
@@ -92,21 +67,34 @@ public:
         throw std::invalid_argument("type not currently implemented");
     }
   }
+
+  bool compressed() const {_compressed;}
+  size_t width() const {return _width;}
+  size_t height() const {return _height;}
+  const byte *bytes() const {return _data->bytes();}
+
+  bool isPowerOfTwo() const override {
+    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
+  }
 };
 
 /**
  * class
  */
-class DataCubeTexture : public DataTextureT<6>
+class DataCubeTexture : public CubeTexture
 {
-protected:
+  std::array<TextureData::Ptr, CubeTexture::num_faces> _datas;
 
-  DataCubeTexture(const TextureOptions &options, const std::array<TextureData::Ptr, 6> datas, size_t width, size_t height,
-                  bool compressed)
-     : DataTextureT(texture::ResolverT<DataCubeTexture>::make(*this), options, width, height, compressed)
+protected:
+  DataCubeTexture(const TextureOptions &options, const std::array<TextureData::Ptr, CubeTexture::num_faces> &datas,
+                  size_t width, size_t height, bool compressed)
+     : CubeTexture(texture::ResolverT<DataCubeTexture>::make(*this), options, false, 1),
+       _datas(datas), _width(width), _height(height), _compressed(compressed)
   {
-    _datas = datas;
   }
+
+  size_t const _width, _height;
+  bool _compressed;
 
 public:
   static TextureOptions options()
@@ -117,9 +105,16 @@ public:
   }
 
   using Ptr = std::shared_ptr<DataCubeTexture>;
-  static Ptr make(const TextureOptions &options, const std::array<TextureData::Ptr, 6> datas, size_t width, size_t height,
+  static Ptr make(const TextureOptions &options, const std::array<TextureData::Ptr, 6> &datas, size_t width, size_t height,
                   bool compressed=false) {
     return Ptr(new DataCubeTexture(options, datas, width, height, compressed));
+  }
+
+  bool dontFlip() const override {return true;}
+
+  bool isPowerOfTwo() const override
+  {
+    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
   }
 
   const TextureData &data(unsigned index)
@@ -127,9 +122,13 @@ public:
     return *_datas[index];
   }
 
-  void setData(const TextureData::Ptr &data, unsigned index) {
+  void setData(TextureData::Ptr data, unsigned index) {
     _datas[index] = data;
   }
+
+  bool compressed() const {_compressed;}
+  size_t width() const {return _width;}
+  size_t height() const {return _height;}
 };
 
 }

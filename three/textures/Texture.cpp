@@ -8,11 +8,10 @@ namespace three {
 
 Texture::Texture(texture::Resolver::Ptr resolver,
                  const TextureOptions &options,
-                 bool generateMipMaps, bool flipY, unsigned unpackAlignment)
+                 bool generateMipMaps, unsigned unpackAlignment)
    : TextureOptions(options),
      resolver(resolver),
      _generateMipmaps(generateMipMaps),
-     _flipY(flipY),
      _unpackAlignment(unpackAlignment),
      uuid(sole::uuid0())
 {
@@ -86,7 +85,7 @@ void Texture::transformUv(UV &uv)
     }
   }
 
-  if ( _flipY ) {
+  if ( flipY ) {
     uv.y() = 1 - uv.y();
   }
 }

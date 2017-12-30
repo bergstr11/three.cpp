@@ -42,6 +42,8 @@ public:
     GLsizei width() const {return _width;}
     GLsizei height() const {return _height;}
 
+    virtual void init(Renderer *renderer) {}
+    virtual void setReuse(bool reuse) {}
     virtual Texture::Ptr texture() const = 0;
 
     Target &setSize(GLsizei width, GLsizei height )
@@ -73,7 +75,7 @@ public:
   void render(const Scene::Ptr scene,
               const Camera::Ptr camera,
               const Target::Ptr renderTarget=nullptr,
-              bool forceClear=true)
+              bool forceClear=false)
   {
     doRender(scene, camera, renderTarget, forceClear);
   }

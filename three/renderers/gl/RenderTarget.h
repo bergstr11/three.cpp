@@ -57,6 +57,7 @@ class RenderTargetExternal : public RenderTarget
 
   const GLuint frameBuffer;
   const ExternalTexture::Ptr _texture;
+  bool _reuse = false;
 
 protected:
   RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
@@ -72,6 +73,12 @@ public:
   static Ptr make(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer=true, bool stencilBuffer=true) {
     return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, depthBuffer, stencilBuffer));
   }
+
+  bool reuse() const {return _reuse;}
+
+  void setReuse(bool reuse) override {_reuse = reuse;}
+
+  void init(Renderer *renderer) override;
 
   Texture::Ptr texture() const override {
     return _texture;

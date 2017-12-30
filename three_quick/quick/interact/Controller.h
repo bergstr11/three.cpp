@@ -11,14 +11,14 @@
 namespace three {
 namespace quick {
 
-class ThreeDScene;
+class ThreeDItem;
 
 class Controller : public QObject
 {
 Q_OBJECT
 
 public:
-  virtual void start(ThreeDScene *scene, Camera::Ptr camera) = 0;
+  virtual void start(ThreeDItem *item, Camera::Ptr camera) = 0;
 
   virtual bool handleMousePressed(QMouseEvent *event) = 0;
 

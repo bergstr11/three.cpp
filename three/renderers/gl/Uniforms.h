@@ -45,9 +45,9 @@ enum class UniformName : unsigned
   index_13=13,
   index_14=14,
   index_15=15,
-  cube,
-  equirect,
-  flip,
+  tCube,
+  tEquirect,
+  tFlip,
   opacity,
   diffuse,
   emissive,
@@ -130,6 +130,8 @@ enum class UniformName : unsigned
   decay
 };
 
+UniformName toUniformName(std::string name, bool isIndex=false);
+
 class UniformContainer;
 class Renderer_impl;
 class UniformValues;
@@ -179,13 +181,11 @@ public:
 
   void setValue(const Texture::Ptr &texture);
 
+  void setValue(const CubeTexture::Ptr &texture);
+
   void setValue(const std::vector<math::Matrix4> &matrices);
 
   void setValue(const std::vector<Texture::Ptr> &textures);
-
-  void setValue(const ImageCubeTexture::Ptr &texture);
-
-  void setValue(const DataCubeTexture::Ptr &texture);
 
   virtual Uniform *asUniform() {return this;}
   virtual UniformContainer *asContainer() {return nullptr;}

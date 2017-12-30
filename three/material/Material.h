@@ -46,7 +46,7 @@ struct AoMap
 
 struct EnvMap
 {
-  Texture::Ptr envMap;
+  CubeTexture::Ptr envMap;
   CombineOperation combine = CombineOperation::Multiply;
   float reflectivity = 1;
   float refractionRatio = 0.98;

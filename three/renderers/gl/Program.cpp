@@ -390,6 +390,8 @@ Program::Program(Renderer_impl &renderer,
     }
   }
 
+  float gammaFactorDefine = _renderer.gammaFactor > 0 ? renderer.gammaFactor : 1.0f;
+
   string customExtensions = generateExtensions(extensions, *parameters);
 
   string customDefines = generateDefines( *parameters->defines );
@@ -417,10 +419,15 @@ Program::Program(Renderer_impl &renderer,
     ss << "#endif" << endl;
     ss << "#define SHADER_NAME " << shader.name() << endl;
     ss << customDefines;
+
     if(*parameters->supportsVertexTextures) ss << "#define VERTEX_TEXTURES" << endl;
+
+    ss << "#define GAMMA_FACTOR " << gammaFactorDefine << endl;
+
     ss << "#define MAX_BONES " << *parameters->maxBones << endl;
     if(*parameters->useFog && *parameters->fog ) ss << "#define USE_FOG" << endl;
     if(*parameters->useFog && *parameters->fogExp ) ss << "#define FOG_EXP2" << endl;
+
     if(*parameters->map) ss << "#define USE_MAP" << endl;
     if(*parameters->envMap) ss << "#define USE_ENVMAP" << endl;
     if(*parameters->envMap) ss << "#define " << envMapModeDefine << endl;
@@ -524,6 +531,8 @@ Program::Program(Renderer_impl &renderer,
 
     if(*parameters->alphaTest) ss << "#define ALPHATEST " << *parameters->alphaTest << endl;
 
+    ss << "#define GAMMA_FACTOR " << gammaFactorDefine << endl;
+
     if(( *parameters->useFog && *parameters->fog )) ss << "#define USE_FOG" << endl;
     if(( *parameters->useFog && *parameters->fogExp )) ss << "#define FOG_EXP2" << endl;
 
@@ -621,18 +630,20 @@ Program::Program(Renderer_impl &renderer,
 
   _renderer.glAttachShader( _program, glVertexShader );
   _renderer.glAttachShader( _program, glFragmentShader );
+  check_glerror(&_renderer);
 
   // Force a particular attribute to index 0.
 
   if (!parameters->index0AttributeName.empty()) {
 
     _renderer.glBindAttribLocation( _program, 0, parameters->index0AttributeName.data());
-
-  } else if (*parameters->morphTargets) {
+  }
+  else if (*parameters->morphTargets) {
 
     // programs with morphTargets displace position out of attribute 0
     _renderer.glBindAttribLocation( _program, 0, "position" );
   }
+  check_glerror(&_renderer);
 
   _renderer.glLinkProgram( _program );
 
@@ -666,9 +677,8 @@ Program::Program(Renderer_impl &renderer,
   }
   else if ( !programLog.empty()) cerr << programLog << endl;
 
-  check_glerror(&_renderer);
-
   fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
+  check_glerror(&_renderer);
 
   // clean up
   _renderer.glDeleteShader( glVertexShader );

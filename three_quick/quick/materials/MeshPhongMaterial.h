@@ -41,6 +41,13 @@ public:
     }
   }
 
+  void addTo(ObjectRootContainer *container) override
+  {
+    auto material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
+    material->wireframe = _wireframe;
+    container->addMaterial(material);
+  }
+
   void identify(MeshCreator *creator) override
   {
     auto material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);

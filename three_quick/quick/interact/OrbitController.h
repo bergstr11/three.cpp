@@ -6,8 +6,7 @@
 #define THREEPP_ORBITCONTROLLERITEM_H
 
 #include <QObject>
-#include <scene/Scene.h>
-#include <quick/ThreeDScene.h>
+#include <quick/Three.h>
 #include "Controller.h"
 #include "OrbitControls.h"
 
@@ -58,9 +57,9 @@ protected:
   }
 
 public:
-  void start(ThreeDScene *scene, three::Camera::Ptr camera) override
+  void start(ThreeDItem *item, three::Camera::Ptr camera) override
   {
-    _controls = OrbitControls::make(scene, camera);
+    _controls = OrbitControls::make(item, camera);
   }
 
   bool handleMousePressed(QMouseEvent *event) override

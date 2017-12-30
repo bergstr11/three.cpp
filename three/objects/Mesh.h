@@ -37,6 +37,11 @@ public:
 
   bool renderable() const override {return true;}
 
+  bool frontFaceCW() const override
+  {
+    return _matrixWorld.determinant() < 0;
+  }
+
   const std::vector<float> &morphTargetInfluences() const {return _morphTargetInfluences;}
 
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}

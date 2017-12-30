@@ -6,6 +6,7 @@
 #define THREEPP_QUICK_CAMERA_H
 
 #include <QObject>
+#include <QVector3D>
 #include <core/Object3D.h>
 #include <camera/Camera.h>
 #include <quick/interact/Controller.h>

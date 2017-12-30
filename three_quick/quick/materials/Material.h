@@ -5,13 +5,13 @@
 #ifndef THREEPP_MATERIAL_H
 #define THREEPP_MATERIAL_H
 
-#include <QObject>
+#include <quick/ThreeQObjectRoot.h>
 #include <quick/objects/MeshCreator.h>
 
 namespace three {
 namespace quick {
 
-class Material : public QObject
+class Material : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(bool wireframe READ wireframe WRITE setWireframe NOTIFY wireframeChanged)

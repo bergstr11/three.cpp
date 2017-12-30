@@ -3,19 +3,22 @@
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QDebug>
-#include <quick/ThreeDScene.h>
-#include "ThreeDItem.h"
+#include <quick/Three.h>
+#include "ThreeDTestItem.h"
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
   QQmlEngine qmlEngine;
   QQmlContext *mainQmlContext = new QQmlContext(&qmlEngine);
 
-  qmlRegisterType<lo::ui::quick::ThreeDItem>("three.quick", 1, 0, "ThreeDItem");
-  three::quick::ThreeDScene::init();
+  qmlRegisterType<three::quick::ThreeDTestItem>("three.quick", 1, 0, "ThreeDItem");
+  three::quick::init();
 
   QQmlComponent maincomponent(&qmlEngine);
-  maincomponent.loadUrl(QUrl("qrc:///Example2.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///Test.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///spotlight.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
     return -1;

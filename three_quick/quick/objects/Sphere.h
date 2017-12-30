@@ -5,7 +5,7 @@
 #ifndef THREEPP_QUICK_SPHERE_H
 #define THREEPP_QUICK_SPHERE_H
 
-#include "quick/ThreeDScene.h"
+#include "quick/scene/Scene.h"
 #include <geometry/Sphere.h>
 #include <material/MeshBasicMaterial.h>
 #include <material/MeshLambertMaterial.h>
@@ -14,7 +14,7 @@
 namespace three {
 namespace quick {
 
-class Sphere : public ThreeDObject
+class Sphere : public ThreeQObject
 {
   Q_OBJECT
   Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
@@ -27,7 +27,7 @@ class Sphere : public ThreeDObject
   three::Mesh::Ptr _sphere;
 
 protected:
-  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  three::Object3D::Ptr _create(Scene *scene) override
   {
     auto *creator = new MeshCreatorG<geometry::Sphere>("sphere",
                                                        geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
@@ -40,6 +40,12 @@ protected:
   }
 
 public:
+  Sphere(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
+  void addTo(ObjectContainer *container) override
+  {
+
+  }
 
   qreal radius() {return _radius;}
   unsigned widthSegments() const {return _widthSegments;}

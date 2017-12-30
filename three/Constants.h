@@ -51,7 +51,9 @@ enum class TextureFormat : GLenum
   Undefined = 0,
   Alpha = GL_ALPHA,
   RGB = GL_RGB,
+  BGR = GL_BGR,
   RGBA = GL_RGBA,
+  BGRA = GL_BGRA,
   Luminance = GL_LUMINANCE,
   LuminanceAlpha = GL_LUMINANCE4_ALPHA4,
   Depth = GL_DEPTH,
@@ -80,7 +82,6 @@ enum class TextureType : GLenum
   UnsignedShort5551 = GL_UNSIGNED_SHORT_5_5_5_1,
   UnsignedShort565 = GL_UNSIGNED_SHORT_5_6_5,
   UnsignedInt248 = GL_UNSIGNED_INT_24_8,
-  CubeMap = GL_TEXTURE_CUBE_MAP
 };
 
 enum class Encoding

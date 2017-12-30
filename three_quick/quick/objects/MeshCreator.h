@@ -9,6 +9,7 @@
 #include <material/MeshBasicMaterial.h>
 #include <material/MeshLambertMaterial.h>
 #include <material/MeshPhongMaterial.h>
+#include <material/ShaderMaterial.h>
 
 namespace three {
 namespace quick {
@@ -18,6 +19,7 @@ struct MeshCreator
   virtual void material(MeshBasicMaterial::Ptr material) = 0;
   virtual void material(MeshLambertMaterial::Ptr material) = 0;
   virtual void material(MeshPhongMaterial::Ptr material) = 0;
+  virtual void material(ShaderMaterial::Ptr material) = 0;
 };
 
 template <typename Geometry>
@@ -39,6 +41,9 @@ struct MeshCreatorG : public MeshCreator
   }
   void material(MeshPhongMaterial::Ptr material) override {
     mesh = MeshT<Geometry, MeshPhongMaterial>::make(name, geometry, material);
+  }
+  void material(ShaderMaterial::Ptr material) override {
+    mesh = MeshT<Geometry, ShaderMaterial>::make(name, geometry, material);
   }
 };
 

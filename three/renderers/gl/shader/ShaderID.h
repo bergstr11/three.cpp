@@ -5,6 +5,8 @@
 #ifndef THREE_QT_SHADERID_H
 #define THREE_QT_SHADERID_H
 
+#include <string>
+
 namespace three {
 namespace gl {
 
@@ -26,6 +28,8 @@ enum class ShaderID : unsigned
 
   undefined=999
 };
+
+ShaderID toShaderID(std::string name);
 
 }
 }

@@ -8,12 +8,12 @@
 #include <light/SpotLight.h>
 #include <helper/SpotLight.h>
 #include <quick/elements/LightShadow.h>
-#include "ThreeDObject.h"
+#include "ThreeQObject.h"
 
 namespace three {
 namespace quick {
 
-class SpotLight : public ThreeDObject
+class SpotLight : public ThreeQObject
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
@@ -31,7 +31,7 @@ Q_OBJECT
   three::SpotLight::Ptr _spot;
 
 protected:
-  Object3D::Ptr _create(ThreeDScene *scene) override
+  Object3D::Ptr _create(Scene *scene) override
   {
     _spot = three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
     _spot->shadow()->mapSize().x() = _shadow.mapSize().width();
@@ -48,7 +48,7 @@ protected:
     return _spot;
   }
 
-  void _post_create(ThreeDScene *scene) override
+  void _post_create(Scene *scene) override
   {
     if(_helper) {
       scene->scene()->add(helper::SpotLight::make("spotlight_helper", _spot));
@@ -60,6 +60,13 @@ protected:
   bool _helper = false;
 
 public:
+  SpotLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
+  void addTo(ObjectContainer *container) override
+  {
+
+  }
+
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
     if(_color != color) {

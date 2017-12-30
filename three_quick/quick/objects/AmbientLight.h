@@ -6,13 +6,14 @@
 #define THREEQUICK_AMBIENTLIGHT_H
 
 #include <light/AmbientLight.h>
+#include <quick/scene/Scene.h>
 #include <quick/elements/LightShadow.h>
-#include "ThreeDObject.h"
+#include "ThreeQObject.h"
 
 namespace three {
 namespace quick {
 
-class AmbientLight : public ThreeDObject
+class AmbientLight : public ThreeQObject
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
@@ -22,10 +23,10 @@ Q_OBJECT
   qreal _intensity = 1.0f;
 
   three::AmbientLight::Ptr _ambient;
-  ThreeDScene *_scene = nullptr;
+  Scene *_scene = nullptr;
 
 protected:
-  Object3D::Ptr _create(ThreeDScene *scene) override
+  Object3D::Ptr _create(Scene *scene) override
   {
     _scene = scene;
     _ambient = three::AmbientLight::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity);
@@ -33,6 +34,13 @@ protected:
   }
 
 public:
+  AmbientLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
+  void addTo(ObjectContainer *container) override
+  {
+
+  }
+
   QColor color() const {return _color;}
 
   void setColor(const QColor &color) {

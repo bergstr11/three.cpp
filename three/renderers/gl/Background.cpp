@@ -29,22 +29,24 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
         ShaderMaterial::Ptr sm = ShaderMaterial::make(
            si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
 
-        boxMesh = MeshT<geometry::buffer::Box, ShaderMaterial>::make(box, sm);
+        boxMesh = MeshT<geometry::buffer::Box, ShaderMaterial>::make("background", box, sm);
 
         box->setNormal(nullptr);
         box->setUV(nullptr);
 
-        /*boxMesh->onBeforeRender.connect([&] () {
-
+        boxMesh->onBeforeRender.connect([&] (Renderer &renderer, ScenePtr scene, CameraPtr camera,
+                                             Geometry::Ptr geometry, Material::Ptr material,
+                                             const Group *group) {
           boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
-        });*/
+        });
 
         geometries.update(box);
       }
 
-      uniformslib::UniformValue & uv = boxMesh->material<0>()->uniforms[UniformName::cube];// = tex;
+      CubeTexture::Ptr ct = std::dynamic_pointer_cast<CubeTexture>(tex);
+      boxMesh->material<0>()->uniforms.set(UniformName::tCube, ct);
 
-      renderList->push_back(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
+      renderList->push_front(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
     };
     dispatch.func<ImageTexture::Ptr>() = [&] (ImageTexture::Ptr &tex) {
 

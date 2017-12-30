@@ -9,54 +9,37 @@
 #include <QColor>
 #include <memory>
 #include <scene/Scene.h>
+#include <quick/interact/OrbitControls.h>
 
 class QOpenGLShaderProgram;
 
-namespace lo {
-namespace threed {
-class Model;
-class ModelLoader;
-}
-}
-
-namespace lo {
-namespace ui {
+namespace three {
 namespace quick {
 
-class ThreeDInteractor;
-
-class ThreeDItem : public QQuickFramebufferObject
+class ThreeDTestItem : public QQuickFramebufferObject
 {
 Q_OBJECT
-  Q_PROPERTY(QString data READ data WRITE setData NOTIFY dataChanged)
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
 
-  std::shared_ptr<lo::threed::Model> m_model;
-  QString m_data;
   QColor m_background;
-  //bool m_pendingModel = false;
-  //lo::threed::ModelLoader *m_loader;
+  OrbitControls::Ptr _controls;
 
 public:
-  ThreeDItem(QQuickItem *parent = 0);
+  explicit ThreeDTestItem(QQuickItem *parent = 0);
 
-  ~ThreeDItem();
+  ~ThreeDTestItem() override;
 
-  Renderer *createRenderer() const;
-
-  QString data() { return m_data; }
-
-  void setData(QString data);
+  Renderer *createRenderer() const override;
 
   QColor background() { return m_background; }
 
   void setBackground(QColor background);
 
-  const std::shared_ptr<three::Scene> pendingModel();
+  QMetaObject::Connection _geometryUpdate;
 
-private slots:
-
-  void modelLoaded();
+  void setControls(OrbitControls::Ptr controls) {
+    _controls = controls;
+  }
 
 protected:
   friend class FramebufferObjectRenderer;
@@ -88,12 +71,11 @@ protected:
 
 signals:
 
-  void dataChanged();
-
   void backgroundChanged();
+
+  void sceneGeometryChanged();
 };
 
-}
 }
 }
 

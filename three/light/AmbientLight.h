@@ -18,7 +18,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<AmbientLight>;
-  static Ptr make(const Color &color, float intensity=1) {
+  static Ptr make(const Color &color, float intensity=1.0f) {
     return Ptr(new AmbientLight(color, intensity));
   }
 };

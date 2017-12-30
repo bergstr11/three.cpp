@@ -5,7 +5,7 @@
 #ifndef THREEPP_QUICK_BOX_H
 #define THREEPP_QUICK_BOX_H
 
-#include "quick/ThreeDScene.h"
+#include "quick/scene/Scene.h"
 #include <geometry/Box.h>
 #include <material/MeshBasicMaterial.h>
 #include <material/MeshLambertMaterial.h>
@@ -14,7 +14,7 @@
 namespace three {
 namespace quick {
 
-class Box : public ThreeDObject
+class Box : public ThreeQObject
 {
   Q_OBJECT
   Q_PROPERTY(unsigned width READ width WRITE setWidth NOTIFY widthChanged)
@@ -26,7 +26,7 @@ class Box : public ThreeDObject
   three::Mesh::Ptr _cube;
 
 protected:
-  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  three::Object3D::Ptr _create(Scene *scene) override
   {
     auto *creator = new MeshCreatorG<geometry::Box>("box", geometry::Box::make(_width, _height, _depth));
     material()->identify(creator);
@@ -38,6 +38,10 @@ protected:
   }
 
 public:
+  void addTo(ObjectContainer *container) override
+  {
+
+  }
 
   unsigned width() const {return _width;}
   unsigned height() const {return _height;}

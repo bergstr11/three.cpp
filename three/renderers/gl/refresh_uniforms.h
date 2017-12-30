@@ -94,7 +94,7 @@ struct Refresh<material::EnvMap>
     //  WebGLRenderTargetCube will be flipped for backwards compatibility
     //  WebGLRenderTargetCube.texture will be flipped because it's a Texture and NOT a CubeTexture
     // this check must be handled differently, or removed entirely, if WebGLRenderTargetCube uses a CubeTexture in the future
-    //TODO uniforms[UniformName::flipEnvMap] = ( ! ( material.envMap && material.envMap.isCubeTexture ) ) ? 1 : - 1;
+    uniforms[UniformName::flipEnvMap] = ( ! ( material.envMap && material.envMap->dontFlip() ) ) ? 1.0f : - 1.0f;
 
     uniforms[UniformName::reflectivity] = material.reflectivity;
     uniforms[UniformName::refractionRatio] = material.refractionRatio;

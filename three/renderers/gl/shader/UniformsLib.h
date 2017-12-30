@@ -6,6 +6,7 @@
 #define THREE_QT_UNIFORMSLIB_H
 
 #include <textures/DataTexture.h>
+#include <textures/ImageTexture.h>
 #include <core/Color.h>
 #include <math/Matrix3.h>
 #include <math/Vector3.h>
@@ -116,6 +117,7 @@ UNIFORM_VALUE_T(math::Vector3)
 UNIFORM_VALUE_T(std::vector<float>)
 UNIFORM_VALUE_T(math::Matrix4)
 UNIFORM_VALUE_T(Texture::Ptr)
+UNIFORM_VALUE_T(CubeTexture::Ptr)
 UNIFORM_VALUE_T(std::vector<Texture::Ptr>)
 UNIFORM_VALUE_T(std::vector<math::Matrix4>)
 

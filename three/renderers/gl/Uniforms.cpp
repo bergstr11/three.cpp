@@ -48,10 +48,95 @@ std::vector<Uniform::Ptr> Uniforms::sequenceUniforms(const UniformValues &values
   return result;
 }
 
-#define MATCH_NAME(nm) if(name == #nm) return UniformName::nm;
+#define MATCH_NAME(nm) {#nm, UniformName::nm}
 
-UniformName toUniformName(string name, bool isIndex=false)
+UniformName toUniformName(string name, bool isIndex)
 {
+  static std::unordered_map<string, UniformName> string_to_name {
+     MATCH_NAME(tCube),
+     MATCH_NAME(tEquirect),
+     MATCH_NAME(tFlip),
+     MATCH_NAME(opacity),
+     MATCH_NAME(diffuse),
+     MATCH_NAME(emissive),
+     MATCH_NAME(specular),
+     MATCH_NAME(shininess),
+     MATCH_NAME(projectionMatrix),
+     MATCH_NAME(viewMatrix),
+     MATCH_NAME(modelViewMatrix),
+     MATCH_NAME(normalMatrix),
+     MATCH_NAME(modelMatrix),
+     MATCH_NAME(logDepthBufFC),
+     MATCH_NAME(boneMatrices),
+     MATCH_NAME(bindMatrix),
+     MATCH_NAME(bindMatrixInverse),
+     MATCH_NAME(toneMappingExposure),
+     MATCH_NAME(toneMappingWhitePoint),
+     MATCH_NAME(cameraPosition),
+     MATCH_NAME(map),
+     MATCH_NAME(uvTransform),
+     MATCH_NAME(alphaMap),
+     MATCH_NAME(specularMap),
+     MATCH_NAME(envMap),
+     MATCH_NAME(flipEnvMap),
+     MATCH_NAME(reflectivity),
+     MATCH_NAME(refractionRatio),
+     MATCH_NAME(aoMap),
+     MATCH_NAME(aoMapIntensity),
+     MATCH_NAME(lightMap),
+     MATCH_NAME(lightMapIntensity),
+     MATCH_NAME(emissiveMap),
+     MATCH_NAME(bumpMap),
+     MATCH_NAME(bumpScale),
+     MATCH_NAME(normalMap),
+     MATCH_NAME(normalScale),
+     MATCH_NAME(displacementMap),
+     MATCH_NAME(displacementScale),
+     MATCH_NAME(displacementBias),
+     MATCH_NAME(roughnessMap),
+     MATCH_NAME(metalnessMap),
+     MATCH_NAME(gradientMap),
+     MATCH_NAME(roughness),
+     MATCH_NAME(metalness),
+     MATCH_NAME(clearCoat),
+     MATCH_NAME(clearCoatRoughness),
+     MATCH_NAME(envMapIntensity),
+     MATCH_NAME(fogDensity),
+     MATCH_NAME(fogNear),
+     MATCH_NAME(fogFar),
+     MATCH_NAME(fogColor),
+     MATCH_NAME(ambientLightColor),
+     MATCH_NAME(direction),
+     MATCH_NAME(color),
+     MATCH_NAME(shadow),
+     MATCH_NAME(shadowBias),
+     MATCH_NAME(shadowRadius),
+     MATCH_NAME(shadowMapSize),
+     MATCH_NAME(size),
+     MATCH_NAME(scale),
+     MATCH_NAME(dashSize),
+     MATCH_NAME(totalSize),
+     MATCH_NAME(referencePosition),
+     MATCH_NAME(nearDistance),
+     MATCH_NAME(farDistance),
+     MATCH_NAME(clippingPlanes),
+     MATCH_NAME(directionalLights),
+     MATCH_NAME(spotLights),
+     MATCH_NAME(rectAreaLights),
+     MATCH_NAME(pointLights),
+     MATCH_NAME(hemisphereLights),
+     MATCH_NAME(directionalShadowMap),
+     MATCH_NAME(directionalShadowMatrix),
+     MATCH_NAME(spotShadowMap),
+     MATCH_NAME(spotShadowMatrix),
+     MATCH_NAME(pointShadowMap),
+     MATCH_NAME(pointShadowMatrix),
+     MATCH_NAME(distance),
+     MATCH_NAME(position),
+     MATCH_NAME(coneCos),
+     MATCH_NAME(penumbraCos),
+     MATCH_NAME(decay)
+  };
   if(isIndex) {
     unsigned index = stoi(name);
     if((unsigned)UniformName::index_15 >= index) {
@@ -59,91 +144,12 @@ UniformName toUniformName(string name, bool isIndex=false)
     }
     throw std::invalid_argument(std::string("unsupported index ")+name);
   }
-  MATCH_NAME(cube)
-  MATCH_NAME(equirect)
-  MATCH_NAME(flip)
-  MATCH_NAME(opacity)
-  MATCH_NAME(diffuse)
-  MATCH_NAME(emissive)
-  MATCH_NAME(specular)
-  MATCH_NAME(shininess)
-  MATCH_NAME(projectionMatrix)
-  MATCH_NAME(viewMatrix)
-  MATCH_NAME(modelViewMatrix)
-  MATCH_NAME(normalMatrix)
-  MATCH_NAME(modelMatrix)
-  MATCH_NAME(logDepthBufFC)
-  MATCH_NAME(boneMatrices)
-  MATCH_NAME(bindMatrix)
-  MATCH_NAME(bindMatrixInverse)
-  MATCH_NAME(toneMappingExposure)
-  MATCH_NAME(toneMappingWhitePoint)
-  MATCH_NAME(cameraPosition)
-  MATCH_NAME(map)
-  MATCH_NAME(uvTransform)
-  MATCH_NAME(alphaMap)
-  MATCH_NAME(specularMap)
-  MATCH_NAME(envMap)
-  MATCH_NAME(flipEnvMap)
-  MATCH_NAME(reflectivity)
-  MATCH_NAME(refractionRatio)
-  MATCH_NAME(aoMap)
-  MATCH_NAME(aoMapIntensity)
-  MATCH_NAME(lightMap)
-  MATCH_NAME(lightMapIntensity)
-  MATCH_NAME(emissiveMap)
-  MATCH_NAME(bumpMap)
-  MATCH_NAME(bumpScale)
-  MATCH_NAME(normalMap)
-  MATCH_NAME(normalScale)
-  MATCH_NAME(displacementMap)
-  MATCH_NAME(displacementScale)
-  MATCH_NAME(displacementBias)
-  MATCH_NAME(roughnessMap)
-  MATCH_NAME(metalnessMap)
-  MATCH_NAME(gradientMap)
-  MATCH_NAME(roughness)
-  MATCH_NAME(metalness)
-  MATCH_NAME(clearCoat)
-  MATCH_NAME(clearCoatRoughness)
-  MATCH_NAME(envMapIntensity)
-  MATCH_NAME(fogDensity)
-  MATCH_NAME(fogNear)
-  MATCH_NAME(fogFar)
-  MATCH_NAME(fogColor)
-  MATCH_NAME(ambientLightColor)
-  MATCH_NAME(direction)
-  MATCH_NAME(color)
-  MATCH_NAME(shadow)
-  MATCH_NAME(shadowBias)
-  MATCH_NAME(shadowRadius)
-  MATCH_NAME(shadowMapSize)
-  MATCH_NAME(size)
-  MATCH_NAME(scale)
-  MATCH_NAME(dashSize)
-  MATCH_NAME(totalSize)
-  MATCH_NAME(referencePosition)
-  MATCH_NAME(nearDistance)
-  MATCH_NAME(farDistance)
-  MATCH_NAME(clippingPlanes)
-  MATCH_NAME(directionalLights)
-  MATCH_NAME(spotLights)
-  MATCH_NAME(rectAreaLights)
-  MATCH_NAME(pointLights)
-  MATCH_NAME(hemisphereLights)
-  MATCH_NAME(directionalShadowMap)
-  MATCH_NAME(directionalShadowMatrix)
-  MATCH_NAME(spotShadowMap)
-  MATCH_NAME(spotShadowMatrix)
-  MATCH_NAME(pointShadowMap)
-  MATCH_NAME(pointShadowMatrix)
-  MATCH_NAME(distance)
-  MATCH_NAME(position)
-  MATCH_NAME(coneCos)
-  MATCH_NAME(penumbraCos)
-  MATCH_NAME(decay)
-
-  throw std::invalid_argument(std::string("unknown variable ")+name);
+  try {
+    return string_to_name.at(name);
+  }
+  catch(const out_of_range &r) {
+    throw std::invalid_argument(std::string("unknown variable ")+name);
+  }
 }
 
 void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *container)
@@ -189,38 +195,54 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   }
 }
 
-void Uniform::setValue(GLfloat v) { _renderer.glUniform1f( _addr, v ); }
+void Uniform::setValue(GLfloat v) {
+  _renderer.glUniform1f( _addr, v );
+  check_glerror(&_renderer);
+}
 
-void Uniform::setValue(GLint v) { _renderer.glUniform1i( _addr, v ); }
+void Uniform::setValue(GLint v) {
+  _renderer.glUniform1i( _addr, v );
+  check_glerror(&_renderer);
+}
 
-void Uniform::setValue(GLuint v) { _renderer.glUniform1i( _addr, v ); }
+void Uniform::setValue(GLuint v) {
+  _renderer.glUniform1i( _addr, v );
+  check_glerror(&_renderer);
+}
 
 void Uniform::setValue(const three::Color &c) {
   _renderer.glUniform3f(_addr, c.r, c.g, c.b);
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const math::Vector2 &v) {
   _renderer.glUniform2fv(_addr, 1, v.elements());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const math::Vector3 &v) {
   _renderer.glUniform3fv(_addr, 1, v.elements());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const math::Vector4 &v) {
   _renderer.glUniform4fv(_addr, 1, v.elements());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const math::Matrix3 &v) {
   _renderer.glUniformMatrix3fv( _addr, 1, GL_FALSE, v.elements());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const math::Matrix4 &v) {
   _renderer.glUniformMatrix4fv( _addr, 1, GL_FALSE, v.elements());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const GLint * array, size_t size) {
   _renderer.glUniform2iv(_addr, size, array);
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
@@ -240,6 +262,7 @@ void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
 void Uniform::setValue(const std::vector<float> &vector)
 {
   _renderer.glUniform1fv(_addr, vector.size(), vector.data());
+  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const std::vector<Texture::Ptr> &textures)
@@ -260,20 +283,15 @@ void Uniform::setValue(const Texture::Ptr &texture)
   unsigned unit = _renderer.allocTextureUnit();
   _renderer.glUniform1i( _addr, unit );
   _renderer.setTexture2D(texture, unit );
+  check_glerror(&_renderer);
 }
 
-void Uniform::setValue(const ImageCubeTexture::Ptr &texture)
+void Uniform::setValue(const CubeTexture::Ptr &texture)
 {
   unsigned unit = _renderer.allocTextureUnit();
   _renderer.glUniform1i( _addr, unit );
   _renderer.setTextureCube(texture, unit );
-}
-
-void Uniform::setValue(const DataCubeTexture::Ptr &texture)
-{
-  unsigned unit = _renderer.allocTextureUnit();
-  _renderer.glUniform1i( _addr, unit );
-  _renderer.setTextureCube(texture, unit );
+  check_glerror(&_renderer);
 }
 
 }

@@ -1,0 +1,102 @@
+//
+// Created by cse on 5/12/17.
+//
+
+#include <functional>
+
+#include <QOpenGLExtraFunctions>
+#include <QQuickWindow>
+#include <QThread>
+#include <QScreen>
+
+#include "Scene.h"
+#include "../Three.h"
+
+namespace three {
+namespace quick {
+
+void Scene::setName(const QString &name) {
+  if (_name != name) {
+    _name = name;
+    emit nameChanged();
+  }
+}
+
+void Scene::setCamera(Camera *camera)
+{
+  if(_quickCamera != camera) {
+    if(_quickCamera) {
+      _quickCamera->deleteLater();
+    }
+    _quickCamera = camera;
+    emit cameraChanged();
+  }
+}
+
+void Scene::setFog(FogBase *fog)
+{
+  if(_fog != fog) {
+    if(_fog) {
+      _fog->deleteLater();
+    }
+    _fog = fog;
+    emit fogChanged();
+  }
+}
+
+void Scene::setBackground(const QColor &background) {
+  if (_background != background) {
+    _background = background;
+    emit backgroundChanged();
+  }
+}
+
+void Scene::append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj)
+{
+  Scene *item = qobject_cast<Scene *>(list->object);
+  if (item) item->_objects.append(obj);
+}
+int Scene::count_objects(QQmlListProperty<ThreeQObject> *list)
+{
+  Scene *item = qobject_cast<Scene *>(list->object);
+  return item ? item->_objects.size() : 0;
+}
+ThreeQObject *Scene::object_at(QQmlListProperty<ThreeQObject> *list, int index)
+{
+  Scene *item = qobject_cast<Scene *>(list->object);
+  return item ? item->_objects.at(index) : nullptr;
+}
+void Scene::clear_objects(QQmlListProperty<ThreeQObject> *list)
+{
+  Scene *item = qobject_cast<Scene *>(list->object);
+  if(item) item->_objects.clear();
+}
+
+QQmlListProperty<ThreeQObject> Scene::objects()
+{
+  return QQmlListProperty<ThreeQObject>(this, nullptr,
+                                        &Scene::append_object,
+                                        &Scene::count_objects,
+                                        &Scene::object_at,
+                                        &Scene::clear_objects);
+}
+
+void Scene::addTo(ObjectRootContainer *container)
+{
+  _scene = three::Scene::make(_name.toStdString());
+
+  if(_fog) _scene->fog() = _fog->create();
+  _camera = _quickCamera->create();
+
+  if(_quickCamera->controller()) {
+    container->addController(_quickCamera->controller(), _camera);
+  }
+  for(auto &object :_objects) {
+    auto obj = object->create(this);
+    if(obj) _scene->add(obj);
+  }
+  container->addScene(_scene, _camera);
+}
+
+}
+}

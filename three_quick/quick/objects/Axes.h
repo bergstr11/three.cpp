@@ -5,13 +5,13 @@
 #ifndef THREEPP_AXES_H
 #define THREEPP_AXES_H
 
-#include "quick/ThreeDScene.h"
+#include "quick/scene/Scene.h"
 #include <helper/Axes.h>
 
 namespace three {
 namespace quick {
 
-class Axes : public ThreeDObject
+class Axes : public ThreeQObject
 {
   Q_OBJECT
   Q_PROPERTY(int size READ size WRITE setSize NOTIFY sizeChanged)
@@ -21,7 +21,7 @@ class Axes : public ThreeDObject
   helper::Axes::Ptr _axes;
 
 protected:
-  three::Object3D::Ptr _create(ThreeDScene *scene) override
+  three::Object3D::Ptr _create(Scene *scene) override
   {
     _axes = helper::Axes::make("axes", _size);
 
@@ -29,6 +29,13 @@ protected:
   }
 
 public:
+  Axes(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
+  void addTo(ObjectContainer *container) override
+  {
+
+  }
+
   size_t size() {return _size;}
 
   void setSize(size_t size) {

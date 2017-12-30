@@ -32,6 +32,12 @@ protected:
     : _context(context), OpenGLRendererOptions(options) { }
 
 public:
+  // clearing
+  bool autoClear = true;
+  bool autoClearColor = true;
+  bool autoClearDepth = true;
+  bool autoClearStencil = true;
+
   using Ptr = std::shared_ptr<OpenGLRenderer>;
 
   static Ptr make(QOpenGLContext *context, size_t width, size_t height, float pixelRatio,
@@ -40,7 +46,11 @@ public:
   static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
                                         bool depthBuffer=true, bool stencilBuffer=true);
 
+  static Target::Ptr makeInternalTarget(size_t width, size_t height, bool depthBuffer=true, bool stencilBuffer=true);
+
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
+
+  virtual void setFaceCulling(CullFace cullFace, FrontFaceDirection frontFaceDirection ) = 0;
 };
 
 }

@@ -14,15 +14,15 @@ namespace quick {
 
 class OrbitControls : public three::OrbitControls
 {
-  QQuickItem * const _item;
+  const QQuickItem * const _item;
 
 protected:
-  explicit OrbitControls(QQuickItem *item, three::Camera::Ptr camera)
+  explicit OrbitControls(const QQuickItem *item, three::Camera::Ptr camera)
      : three::OrbitControls(camera), _item(item) {}
 
 public:
   using Ptr = std::shared_ptr<OrbitControls>;
-  static Ptr make(QQuickItem *item, three::Camera::Ptr camera) {
+  static Ptr make(const QQuickItem *item, three::Camera::Ptr camera) {
     return Ptr(new OrbitControls(item, camera));
   }
 

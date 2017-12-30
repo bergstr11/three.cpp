@@ -20,9 +20,6 @@ bool Frustum::intersectsObject(const Object3D &object) const
   Sphere sphere = object.geometry()->boundingSphere();
   sphere.apply(object.matrixWorld());
 
-  cout << "intersects? " << object.name()
-       << " : " << sphere.center().x() << "." << sphere.center().y() << "." << sphere.center().z()<< endl;
-
   return intersectsSphere( sphere );
 }
 

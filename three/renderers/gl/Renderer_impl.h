@@ -38,6 +38,7 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
   friend class Programs;
   friend class Program;
+  friend class RenderTargetExternal;
 
 protected:
   std::vector<Light::Ptr> _lightsArray;
@@ -54,6 +55,11 @@ protected:
   // user-defined clipping
   std::vector<math::Plane> _clippingPlanes;
   bool _localClippingEnabled = false;
+
+  // physically based shading
+  float gammaFactor = 2.0f;	// for backwards compatibility
+  bool gammaInput = false;
+  bool gammaOutput = false;
 
   // physical lights
   bool _physicallyCorrectLights = false;
@@ -182,12 +188,6 @@ protected:
 public:
   using Ptr = std::shared_ptr<Renderer_impl>;
 
-  // clearing
-  bool autoClear = true;
-  bool autoClearColor = true;
-  bool autoClearDepth = true;
-  bool autoClearStencil = true;
-
   Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}
@@ -225,7 +225,13 @@ public:
     _shadowMap.setType(type);
   }
 
-  Renderer_impl &setClearColor(const Color &color, float alpha=1.0f) override {
+  void setFaceCulling(CullFace cullFace, FrontFaceDirection frontFaceDirection ) override
+  {
+    _state.setCullFace(cullFace);
+    _state.setFaceDirection(frontFaceDirection);
+  };
+
+  Renderer_impl &setClearColor(const Color &color, float alpha) override {
     _background.setClearColor(color, alpha);
   }
 

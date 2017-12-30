@@ -14,9 +14,10 @@
 namespace three {
 namespace quick {
 
-class ThreeDScene;
+class Scene;
+class ObjectContainer;
 
-class ThreeDObject : public QObject
+class ThreeQObject : public QObject
 {
 Q_OBJECT
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
@@ -35,8 +36,10 @@ protected:
 
   three::Object3D::Ptr _object;
 
-  virtual three::Object3D::Ptr _create(ThreeDScene *scene) = 0;
-  virtual void _post_create(ThreeDScene *scene) {}
+  virtual three::Object3D::Ptr _create(Scene *scene) = 0;
+  virtual void _post_create(Scene *scene) {}
+
+  ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
 
 public:
   QVector3D position() {return _position;}
@@ -85,7 +88,9 @@ public:
 
   three::Object3D::Ptr object() const {return _object;}
 
-  three::Object3D::Ptr create(ThreeDScene *scene)
+  virtual void addTo(ObjectContainer * container) = 0;
+
+  three::Object3D::Ptr create(Scene *scene)
   {
     three::Object3D::Ptr obj = _create(scene);
     if(obj) {

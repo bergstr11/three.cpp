@@ -39,6 +39,12 @@ Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLu
   return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, depthBuffer, stencilBuffer);
 }
 
+Renderer::Target::Ptr OpenGLRenderer::makeInternalTarget(
+   size_t width, size_t height, bool depthBuffer, bool stencilBuffer)
+{
+  return gl::RenderTargetInternal::make(gl::RenderTargetInternal::Options(), width, height);
+}
+
 namespace gl {
 
 const std::tuple<size_t, GLuint, bool> Renderer_impl::no_program {0, 0, false};
@@ -72,6 +78,7 @@ void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
 
+  _state.init();
   _extensions.get({Extension::ARB_depth_texture, Extension::OES_texture_float,
                    Extension::OES_texture_float_linear, Extension::OES_texture_half_float,
                    Extension::OES_texture_half_float_linear, Extension::OES_standard_derivatives,
@@ -122,8 +129,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 {
 cout << "doRender" << endl;
 
-  _state.init();
-  _lights.state.clear();
+  if(renderTarget) renderTarget->init(this);
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -131,9 +137,6 @@ cout << "doRender" << endl;
   _currentGeometryProgram = no_program;
   _currentMaterialId = -1;
   _currentCamera = nullptr;
-
-  check_glerror(this);
-  check_framebuffer(this);
 
   // update scene graph
   if (scene->autoUpdate()) scene->updateMatrixWorld(false);
@@ -143,7 +146,6 @@ cout << "doRender" << endl;
 
   _projScreenMatrix.multiply(camera->projectionMatrix(), camera->matrixWorldInverse());
   _frustum.set(_projScreenMatrix);
-  //_frustum.print(_projScreenMatrix);
 
   _lightsArray.clear();
   _shadowsArray.clear();
@@ -206,7 +208,7 @@ cout << "doRender" << endl;
 
   state().reset();
 
-  glFinish();
+  //glFinish();
 }
 
 unsigned Renderer_impl::allocTextureUnit()
@@ -255,11 +257,17 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     }
     else if(internalTarget) {
       if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
-      framebuffer = internalTarget->frameBuffer;
+      _currentFramebuffer = framebuffer = internalTarget->frameBuffer;
     }
     else if(externalTarget) {
-      framebuffer = externalTarget->frameBuffer;
-      _textures.setDefaultFramebuffer(framebuffer);
+      if(externalTarget->reuse()) {
+        //_textures.setupRenderTarget(*externalTarget);
+        framebuffer = externalTarget->frameBuffer;
+      }
+      else {
+        framebuffer = externalTarget->frameBuffer;
+        _textures.setDefaultFramebuffer(framebuffer);
+      }
     }
     check_glerror(this);
 
@@ -275,9 +283,9 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   }
 
   if (_currentFramebuffer != framebuffer ) {
-
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer );
     _currentFramebuffer = framebuffer;
+    check_glerror(this);
   }
 
   _state.viewport( _currentViewport );
@@ -326,7 +334,7 @@ cout << "renderItem: " << renderItem.object->name() << endl;
     };
     if(!camera->cameraResolver->getValue(dispatch)) {
       _currentArrayCamera = nullptr;
-cout << "calling renderObject for " << renderItem.object->name() << endl;
+cout << "renderObject: " << renderItem.object->name() << endl;
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     }
     renderIterator++;
@@ -343,7 +351,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
 
   object::Dispatch dispatch;
   dispatch.func<ImmediateRenderObject>() = [&] (ImmediateRenderObject &iro) {
-    _state.setMaterial( material );
+    _state.setMaterial( material, object->frontFaceCW() );
 
     Program::Ptr program = setProgram( camera, scene->fog(), material, object );
 
@@ -394,7 +402,6 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
     };
     resolver::FuncAssoc<Object3D> assoc = [&](Object3D &obj) {
-cout << "projecting mesh or line " << object->name() << endl;
 
       if ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) {
 
@@ -419,7 +426,6 @@ cout << "projecting mesh or line " << object->name() << endl;
           }
         } else {
           Material::Ptr material = object->material();
-          cout << "push_back ? " << material->visible << endl;
           if ( material->visible )
             _currentRenderList->push_back( object, geometry, material, _vector3.z(), nullptr);
         }
@@ -549,7 +555,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
                                        Object3D::Ptr object,
                                        const Group *group)
 {
-  _state.setMaterial( material );
+  _state.setMaterial( material, object->frontFaceCW());
 
   Program::Ptr program = setProgram( camera, fog, material, object );
 
@@ -754,6 +760,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
           glBindBuffer(GL_ARRAY_BUFFER, buffer);
           glVertexAttribPointer(programAttribute, size, type, normalized, stride * bytesPerElement,
                                 (void *) ((startIndex * stride + offset) * bytesPerElement));
+          check_glerror(this);
         };
 
         if (!geometryAttribute->resolver->bufferattribute::DispatchResolver::getValue(dispatch)) {
@@ -775,6 +782,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
 
           glBindBuffer(GL_ARRAY_BUFFER, buffer);
           glVertexAttribPointer(programAttribute, size, type, normalized, 0, (void *) (startIndex * size * bytesPerElement));
+          check_glerror(this);
         }
       }
       else {
@@ -794,6 +802,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
               glVertexAttrib2fv(programAttribute, shaderMat->default_uv2.elements());
               break;
           }
+          check_glerror(this);
         }
       }
     }
@@ -820,8 +829,6 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
-
-  //string code = parameters->getProgramCode();
 
   auto program = materialProperties.program;
   bool programChange = true;
@@ -1058,6 +1065,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       PerspectiveCamera::Ptr pcamera = dynamic_pointer_cast<PerspectiveCamera>(camera);
       if(pcamera)
         p_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
+      check_glerror(this);
     }
 
     // Avoid unneeded uniform updates per ArrayCamera's sub-camera
@@ -1082,6 +1090,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       if(p_uniforms->get(UniformName::cameraPosition)) {
         _vector3 = camera->matrixWorld().getPosition();
         p_uniforms->set(UniformName::cameraPosition, _vector3);
+        check_glerror(this);
       }
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
@@ -1095,6 +1104,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     assoc = [&] (Material &mat) {
 
       p_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
+      check_glerror(this);
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
     dispatch.func<MeshLambertMaterial>() = assoc;
@@ -1246,6 +1256,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       m_uniforms[UniformName::opacity] = material.opacity;
     };
     material->resolver->material::DispatchResolver::getValue(dispatch);
+    check_glerror(this);
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation
@@ -1261,6 +1272,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   p_uniforms->set(UniformName::normalMatrix, object->normalMatrix );
   p_uniforms->set(UniformName::modelMatrix, object->matrixWorld() );
 
+  check_glerror(this);
   return program;
 }
 
@@ -1272,6 +1284,15 @@ void Renderer_impl::setTexture2D(Texture::Ptr texture, GLuint slot)
 void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
 {
   _textures.setTextureCube( texture, slot );
+}
+
+void RenderTargetExternal::init(Renderer *renderer)
+{
+  if(!_reuse) {
+    Renderer_impl *rimpl = static_cast<Renderer_impl *>(renderer);
+    rimpl->_state.init();
+    rimpl->_lights.state.clear();
+  }
 }
 
 }

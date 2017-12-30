@@ -149,6 +149,17 @@ public:
     return *this;
   }
 
+  RenderList &push_front(Object3D::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group)
+  {
+    _renderItems.emplace_back(object, geometry, material, z, group);
+
+    if(material->transparent)
+      _transparent.insert(_transparent.begin(), _renderItems.size() - 1);
+    else
+      _opaque.insert(_opaque.begin(), _renderItems.size() - 1);
+    return *this;
+  }
+
   iterator opaque() const {return iterator(_opaque, _renderItems);}
 
   iterator transparent() const {return iterator(_transparent, _renderItems);}
