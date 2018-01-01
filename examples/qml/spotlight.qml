@@ -19,7 +19,7 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        scene: scene
+        threeD: threeD
 
         FloatValue {
             name: "intensity"
@@ -59,7 +59,7 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        scene: scene
+        threeD: threeD
 
         FloatValue {
             name: "intensity"
@@ -69,84 +69,87 @@ Window {
         }
     }
 
-    Scene {
-        id: scene
-        z: 1
+    ThreeD {
+        id: threeD
         anchors.fill: parent
         focus: true
-        background: Qt.rgba(0.4,0.4,0.6)
-        shadowType: Scene.PCFSoft
+        z: 1
+        shadowType: Three.PCFSoft
+        Scene {
+            id: scene
+            background: Qt.rgba(0.4,0.4,0.6)
 
-        AmbientLight {
-            id: ambientLight
-            color: "#ffffff"
-            intensity: 0.1
-        }
-
-        SpotLight {
-            id: spotLight
-            color: "#ffffff"
-            position: "15,40,35"
-            intensity: 1
-            distance: 200
-            angle: Math.PI / 4
-            penumbra: 0.05
-            decay: 2
-            castShadow: true
-
-            shadow.mapSize: "1024x1024"
-            shadow.camera.near: 10
-            shadow.camera.far: 200
-
-            addHelper: true
-        }
-
-        Axes {
-            size: 10
-        }
-
-        Box {
-            width: 2000
-            height: 1
-            depth: 2000
-
-            position: "0,-1,0"
-
-            material: MeshPhongMaterial {
-                color: "#808080"
-                dithering: true
+            AmbientLight {
+                id: ambientLight
+                color: "#ffffff"
+                intensity: 0.1
             }
-            receiveShadow: true
-        }
 
-        Box {
-            width: 3
-            height: 1
-            depth: 2
+            SpotLight {
+                id: spotLight
+                color: "#ffffff"
+                position: "15,40,35"
+                intensity: 1
+                distance: 200
+                angle: Math.PI / 4
+                penumbra: 0.05
+                decay: 2
+                castShadow: true
 
-            position: "40,2,0"
+                shadow.mapSize: "1024x1024"
+                shadow.camera.near: 10
+                shadow.camera.far: 200
 
-            material: MeshPhongMaterial {
-                color: "#4080ff"
-                dithering: true
+                addHelper: true
             }
-            castShadow: true
-        }
 
-        camera: PerspectiveCamera {
-            fov: 35
-            aspect: scene.width / scene.height
-            near: 1
-            far: 1000
+            Axes {
+                size: 10
+            }
 
-            position: "65,8,-10"
+            Box {
+                width: 2000
+                height: 1
+                depth: 2000
 
-            lookAt: scene
+                position: "0,-1,0"
 
-            controller: OrbitController {
-                minDistance: 20
-                maxDistance: 500
-                enablePan: false
+                material: MeshPhongMaterial {
+                    color: "#808080"
+                    dithering: true
+                }
+                receiveShadow: true
+            }
+
+            Box {
+                width: 3
+                height: 1
+                depth: 2
+
+                position: "40,2,0"
+
+                material: MeshPhongMaterial {
+                    color: "#4080ff"
+                    dithering: true
+                }
+                castShadow: true
+            }
+
+            camera: PerspectiveCamera {
+                fov: 35
+                aspect: scene.width / scene.height
+                near: 1
+                far: 1000
+
+                position: "65,8,-10"
+
+                lookAt: scene.position
+
+                controller: OrbitController {
+                    minDistance: 20
+                    maxDistance: 500
+                    enablePan: false
+                }
             }
         }
     }

@@ -10,6 +10,7 @@
 #include <core/Object3D.h>
 #include <camera/Camera.h>
 #include <quick/interact/Controller.h>
+#include <quick/Math.h>
 
 namespace three {
 namespace quick {
@@ -18,11 +19,16 @@ class Camera : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
-  Q_PROPERTY(QObject * lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
+  Q_PROPERTY(three::math::Euler rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
+  Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
 
-  QObject *_lookAt = nullptr;
+  QVector3D _lookAt {std::numeric_limits<float>::infinity(),
+                     std::numeric_limits<float>::infinity(),
+                     std::numeric_limits<float>::infinity()};
+
   QVector3D _position;
+  three::math::Euler _rotation;
   Controller *_controller = nullptr;
 
   three::Camera::Ptr _camera;
@@ -31,9 +37,9 @@ protected:
   virtual three::Camera::Ptr _create() = 0;
 
 public:
-  QObject *lookAt() const {return _lookAt;}
+  QVector3D lookAt() const {return _lookAt;}
 
-  void setLookAt(QObject * lookAt) {
+  void setLookAt(QVector3D lookAt) {
     if(_lookAt != lookAt) {
       _lookAt = lookAt;
       emit lookAtChanged();
@@ -45,7 +51,18 @@ public:
   void setPosition(const QVector3D &position) {
     if(position != _position) {
       _position = position;
+      if(_camera) _camera->position() = math::Vector3(_position.x(), _position.y(), _position.z());
       emit positionChanged();
+    }
+  }
+
+  three::math::Euler rotation() {return _rotation;}
+
+  void setRotation(const three::math::Euler &rotation) {
+    if(rotation != _rotation) {
+      _rotation = rotation;
+      if(_camera) _camera->rotation() = _rotation;
+      emit rotationChanged();
     }
   }
 
@@ -59,7 +76,15 @@ public:
     }
   }
 
-  three::Camera::Ptr create();
+  virtual void update()
+  {
+    if(!_lookAt.x() != std::numeric_limits<float>::infinity()) {
+      _camera->lookAt(math::Vector3(_lookAt.x(), _lookAt.y(), _lookAt.z()));
+      setRotation(_camera->rotation());
+    }
+  }
+
+  three::Camera::Ptr create(three::Scene::Ptr scene);
 
   three::Camera::Ptr camera() {return _camera;}
 
@@ -67,6 +92,7 @@ signals:
   void lookAtChanged();
   void positionChanged();
   void controllerChanged();
+  void rotationChanged();
 };
 
 }

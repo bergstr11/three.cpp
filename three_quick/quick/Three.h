@@ -21,27 +21,51 @@ class Material;
 class Texture;
 class Controller;
 
-using scene_and_camera = std::pair<three::Scene::Ptr, three::Camera::Ptr>;
-
 void init();
 
 class Three : public QObject
 {
 Q_OBJECT
 public:
-  enum ShadowType {None, Basic, PCF, PCFSoft};
+  enum ShadowType {
+    None = (unsigned)three::ShadowMapType::NoShadow,
+    Basic = (unsigned)three::ShadowMapType::Basic,
+    PCF  = (unsigned)three::ShadowMapType::PCF,
+    PCFSoft  = (unsigned)three::ShadowMapType::PCFSoft
+  };
   Q_ENUM(ShadowType);
 
-  enum Side {FrontSide, BackSide, FrontAndBackSide};
+  enum Side {
+    FrontSide = (unsigned)three::Side::Front,
+    BackSide = (unsigned)three::Side::Back,
+    FrontAndBackSide = (unsigned)three::Side::Double
+  };
   Q_ENUM(Side);
+
+  enum CullFace
+  {
+    NoFaceCulling  = (unsigned)three::CullFace::None,
+    BackFaceCulling = (unsigned)three::CullFace::Back,
+    FrontFaceCulling = (unsigned)three::CullFace::Front,
+    FrontBackFaceCulling = (unsigned)three::CullFace::FrontBack
+  };
+  Q_ENUM(CullFace);
+
+  enum FrontFaceDirection
+  {
+    FaceDirectionCW = (unsigned)three::FrontFaceDirection::CW,
+    FaceDirectionCCW = (unsigned)three::FrontFaceDirection::CCW,
+    FaceDirectionUndefined = (unsigned)three::FrontFaceDirection::Undefined
+  };
+  Q_ENUM(FrontFaceDirection)
 };
 
 class ObjectRootContainer {
 public:
-  virtual void addMaterial(three::Material::Ptr material) = 0;
-  virtual void addTexture(three::Texture::Ptr texture) = 0;
+  virtual void addMaterial(Material *material) = 0;
+  virtual void addTexture(Texture *texture) = 0;
   virtual void addController(Controller* controller, three::Camera::Ptr camera) = 0;
-  virtual void addScene(three::Scene::Ptr scene, three::Camera::Ptr camera) = 0;
+  virtual void addScene(Scene *scene) = 0;
 };
 
 class ThreeDItem : public QQuickFramebufferObject, public ObjectRootContainer
@@ -52,16 +76,22 @@ Q_OBJECT
 
 private:
   Q_PROPERTY(three::quick::Three::ShadowType shadowType READ shadowType WRITE setShadowType NOTIFY shadowTypeChanged)
+  Q_PROPERTY(three::quick::Three::CullFace faceCulling READ faceCulling WRITE setFaceCulling NOTIFY faceCullingChanged)
+  Q_PROPERTY(three::quick::Three::FrontFaceDirection faceDirection READ faceDirection WRITE setFaceDirection NOTIFY faceDirectionChanged)
+  Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
   QList<ThreeQObjectRoot *> _objects;
 
-  std::vector<scene_and_camera> _scenes;
+  std::vector<Scene *> _scenes;
 
   std::vector<Controller *> _controllers;
 
   Three::ShadowType _shadowType = Three::None;
+  Three::CullFace _faceCulling = Three::NoFaceCulling;
+  Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCW;
+  bool _autoClear = true;
 
   QMetaObject::Connection _geometryUpdate;
 
@@ -93,11 +123,23 @@ public:
 
   void setShadowType(Three::ShadowType type);
 
-  void addMaterial(three::Material::Ptr material) override;
+  Three::CullFace faceCulling() const {return _faceCulling;}
 
-  void addTexture(three::Texture::Ptr texture) override;
+  void setFaceCulling(Three::CullFace faceCulling);
 
-  void addScene(three::Scene::Ptr scene, three::Camera::Ptr camera) override;
+  bool autoClear() const {return _autoClear;}
+
+  void setAutoClear(bool autoClear);
+
+  Three::FrontFaceDirection faceDirection() const {return _faceDirection;}
+
+  void setFaceDirection(Three::FrontFaceDirection faceDirection);
+
+  void addMaterial(Material *material) override;
+
+  void addTexture(Texture *texture) override;
+
+  void addScene(Scene *scene) override;
 
 protected:
   void componentComplete() override;
@@ -127,6 +169,9 @@ protected:
 signals:
   void sceneGeometryChanged();
   void shadowTypeChanged();
+  void faceCullingChanged();
+  void faceDirectionChanged();
+  void autoClearChanged();
 };
 
 }

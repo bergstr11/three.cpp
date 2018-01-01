@@ -22,7 +22,7 @@ void Scene::setName(const QString &name) {
   }
 }
 
-void Scene::setCamera(Camera *camera)
+void Scene::setQuickCamera(Camera *camera)
 {
   if(_quickCamera != camera) {
     if(_quickCamera) {
@@ -83,10 +83,17 @@ QQmlListProperty<ThreeQObject> Scene::objects()
 
 void Scene::addTo(ObjectRootContainer *container)
 {
-  _scene = three::Scene::make(_name.toStdString());
+  _scene = _background.isValid() ?
+           three::SceneT<Color>::make(_name.toStdString(), Color(_background.redF(), _background.greenF(), _background.blueF()))
+                                 : three::Scene::make(_name.toStdString());
+
+  _position.setX(_scene->position().x());
+  _position.setY(_scene->position().y());
+  _position.setZ(_scene->position().z());
+  positionChanged();
 
   if(_fog) _scene->fog() = _fog->create();
-  _camera = _quickCamera->create();
+  _camera = _quickCamera->create(_scene);
 
   if(_quickCamera->controller()) {
     container->addController(_quickCamera->controller(), _camera);
@@ -95,7 +102,7 @@ void Scene::addTo(ObjectRootContainer *container)
     auto obj = object->create(this);
     if(obj) _scene->add(obj);
   }
-  container->addScene(_scene, _camera);
+  container->addScene(this);
 }
 
 }

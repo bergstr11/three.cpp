@@ -28,29 +28,41 @@ Q_OBJECT
 
   three::ImageCubeTexture::Ptr _texture;
 
-  three::ImageCubeTexture::Ptr getTexture()
-  {
-    if(!_texture) {
-      TextureOptions options = createTextureOptions();
-
-      std::array<QImage, 6> images;
-      for(int i=0; i<6; i++) {
-        images[i] = _images[i]->getImage();
-      }
-      _texture = three::ImageCubeTexture::make(options, images);
-    }
-    return _texture;
+protected:
+  virtual TextureOptions textureOptions() {
+    return three::ImageCubeTexture::options();
   }
 
 public:
+  ImageCubeTexture(QObject *parent = nullptr) : Texture(parent)
+  {
+    TextureOptions options = three::ImageCubeTexture::options();
+    _format = (Format)options.format;
+    _mapping = (Mapping)options.mapping;
+    _minFilter = (Filter)options.minFilter;
+    _magFilter = (Filter)options.magFilter;
+    _type = (Type)options.type;
+    _flipY = options.flipY;
+  }
+
+  three::ImageCubeTexture::Ptr getImageCubeTexture();
+
+  three::CubeTexture::Ptr getCubeTexture() override {
+    return getImageCubeTexture();
+  }
+
+  three::Texture::Ptr getTexture() override {
+    return getImageCubeTexture();
+  }
+
   void addTo(ObjectRootContainer *container) override
   {
-    container->addTexture(getTexture());
+    container->addTexture(this);
   }
 
   void setUniform(gl::UniformValues &uniforms, gl::UniformName name) override
   {
-    three::CubeTexture::Ptr tex = getTexture();
+    three::CubeTexture::Ptr tex = getImageCubeTexture();
     uniforms.set(name, tex);
   }
 };

@@ -225,10 +225,18 @@ public:
     _shadowMap.setType(type);
   }
 
-  void setFaceCulling(CullFace cullFace, FrontFaceDirection frontFaceDirection ) override
+  void setFaceCulling(CullFace cullFace ) override
   {
     _state.setCullFace(cullFace);
+    if(cullFace == CullFace::None)
+      _state.setFaceDirection(FrontFaceDirection::Undefined);
+  };
+
+  void setFaceDirection( FrontFaceDirection frontFaceDirection ) override
+  {
     _state.setFaceDirection(frontFaceDirection);
+    if(frontFaceDirection == FrontFaceDirection::Undefined)
+      _state.setCullFace(CullFace::None);
   };
 
   Renderer_impl &setClearColor(const Color &color, float alpha) override {

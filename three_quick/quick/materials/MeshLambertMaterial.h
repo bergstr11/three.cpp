@@ -20,7 +20,9 @@ Q_OBJECT
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
 
   QColor _color;
-  Texture *_envMap;
+  Texture *_envMap = nullptr;
+
+  three::MeshLambertMaterial::Ptr _material;
 
 public:
   QColor color() const {return _color;}
@@ -39,20 +41,30 @@ public:
     }
   }
 
+  three::MeshLambertMaterial::Ptr getMaterial()
+  {
+    if(!_material) {
+      _material = three::MeshLambertMaterial::make();
+      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+      _material->wireframe = _wireframe;
+
+      if(_envMap) {
+        _material->envMap = _envMap->getCubeTexture();
+        if(!_material->envMap)
+          qWarning() << "envMap set to non-cube texture is ignored";
+      }
+    }
+    return _material;
+  }
+
   void addTo(ObjectRootContainer *container) override
   {
-    three::MeshLambertMaterial::Ptr material = three::MeshLambertMaterial::make();
-    material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    material->wireframe = _wireframe;
-    container->addMaterial(material);
+    container->addMaterial(this);
   }
 
   void identify(MeshCreator *creator) override
   {
-    three::MeshLambertMaterial::Ptr material = three::MeshLambertMaterial::make();
-    material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    material->wireframe = _wireframe;
-    creator->material(material);
+    creator->material(getMaterial());
   }
 
 signals:

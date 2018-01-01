@@ -2,6 +2,10 @@
 // Created by byter on 12/29/17.
 //
 
+#include <QMetaType>
+#include <math/Euler.h>
+
+Q_DECLARE_METATYPE(three::math::Euler);
 #include "Three.h"
 
 #include <QOpenGLFramebufferObject>
@@ -31,6 +35,7 @@ namespace quick {
 
 void init()
 {
+  qRegisterMetaType<three::math::Euler>();
   qmlRegisterUncreatableType<three::quick::Three>("three.quick", 1, 0, "Three", "enum holder class");
   qmlRegisterType<three::quick::ThreeDItem>("three.quick", 1, 0, "ThreeD");
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
@@ -69,17 +74,17 @@ Q_OBJECT
 
   QColor m_background;
 
-  const std::vector<scene_and_camera> &_scenes;
+  const std::vector<Scene *> &_scenes;
   three::OpenGLRenderer::Ptr _renderer;
   three::Renderer::Target::Ptr _target;
 
   const ThreeDItem *const _item;
-  QOpenGLFramebufferObject *_framebufferObject = nullptr;
+  QOpenGLFramebufferObject *_fbo = nullptr;
 
 public:
 
   explicit FramebufferObjectRenderer(const ThreeDItem *item,
-                                     const std::vector<scene_and_camera> &scenes)
+                                     const std::vector<Scene *> &scenes)
      : _item(item),
        _scenes(scenes),
        _renderer(OpenGLRenderer::make(
@@ -87,7 +92,6 @@ public:
           item->width(), item->height(),
           item->window()->screen()->devicePixelRatio()))
   {
-    _renderer->setSize(item->width(), item->height());
     switch(item->shadowType()) {
       case Three::PCF:
         _renderer->setShadowMapType(three::ShadowMapType::PCF);
@@ -110,23 +114,17 @@ public:
                                                this,
                                                &FramebufferObjectRenderer::sceneGeometryChanged,
                                                Qt::QueuedConnection);
+      sceneGeometryChanged();
     }
   }
 
   void render() override
   {
-    three::Camera::Ptr firstCamera;
-
     for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
-      bool first = it == _scenes.begin();
-      if(first) {
-        firstCamera = it->second;
-        firstCamera->lookAt(it->first->position());
-      }
-      else
-        it->second->rotation() = firstCamera->rotation();
-
-      _renderer->render(it->first, it->second, _target, first);
+      (*it)->quickCamera()->update();
+    }
+    for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
+      _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
     }
     _item->window()->resetOpenGLState();
   }
@@ -138,24 +136,23 @@ public:
     format.setMipmap(false);
     format.setInternalTextureFormat(GL_RGBA);
 
-    _framebufferObject = new QOpenGLFramebufferObject(size, format);
+    _fbo = new QOpenGLFramebufferObject(size, format);
 
     _target = OpenGLRenderer::makeExternalTarget(
-       _framebufferObject->handle(), _framebufferObject->texture(), _item->width(), _item->height());
+       _fbo->handle(), _fbo->texture(), _item->width(), _item->height());
 
-    return _framebufferObject;
+    return _fbo;
   }
 
 public slots:
   void sceneGeometryChanged()
   {
     for(auto &scene : _scenes) {
-      scene.second->setAspect(_item->width() / _item->height());
-      scene.second->updateProjectionMatrix();
+      scene->camera()->setAspect(_item->width() / _item->height());
+      scene->camera()->updateProjectionMatrix();
     }
-
     _renderer->setSize(_item->width(), _item->height());
-  };
+  }
 };
 
 ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
@@ -178,6 +175,29 @@ void ThreeDItem::setShadowType(Three::ShadowType type) {
   }
 }
 
+void ThreeDItem::setFaceCulling(Three::CullFace faceCulling)
+{
+  if(_faceCulling != faceCulling) {
+    _faceCulling = faceCulling;
+    emit faceCullingChanged();
+  }
+}
+
+void ThreeDItem::setFaceDirection(Three::FrontFaceDirection faceDirection)
+{
+  if(_faceDirection != faceDirection) {
+    _faceDirection = faceDirection;
+    emit faceDirectionChanged();
+  }
+}
+
+void ThreeDItem::setAutoClear(bool autoClear)
+{
+  if(_autoClear != autoClear) {
+    _autoClear = autoClear;
+    emit autoClearChanged();
+  }
+}
 
 QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
 {
@@ -292,19 +312,19 @@ QQmlListProperty<ThreeQObjectRoot> ThreeDItem::objects()
                                         &ThreeDItem::clear_objects);
 }
 
-void ThreeDItem::addMaterial(three::Material::Ptr material)
+void ThreeDItem::addMaterial(Material *material)
 {
 
 }
 
-void ThreeDItem::addTexture(three::Texture::Ptr texture)
+void ThreeDItem::addTexture(Texture *texture)
 {
 
 }
 
-void ThreeDItem::addScene(three::Scene::Ptr scene, three::Camera::Ptr camera)
+void ThreeDItem::addScene(Scene *scene)
 {
-  _scenes.emplace_back(scene, camera);
+  _scenes.push_back(scene);
 }
 
 }

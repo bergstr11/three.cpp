@@ -40,5 +40,19 @@ QQmlListProperty<Image> ImageCubeTexture::images()
                                  &ImageCubeTexture::clear_objects);
 }
 
+three::ImageCubeTexture::Ptr ImageCubeTexture::getImageCubeTexture()
+{
+  if(!_texture) {
+    TextureOptions options = createTextureOptions();
+
+    std::array<QImage, 6> images;
+    for(int i=0; i<6; i++) {
+      images[i] = _images[i]->getImage();
+    }
+    _texture = three::ImageCubeTexture::make(options, images);
+  }
+  return _texture;
+}
+
 }
 }

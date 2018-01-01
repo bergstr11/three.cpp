@@ -125,13 +125,13 @@ public:
 
     //Sphere
     _sphereMesh = MeshT<buffer::Sphere, MeshLambertMaterial>::make("sphere",
-                                                                       buffer::Sphere::make(400.0f, 48, 24),
-                                                                       MeshLambertMaterial::make());
+                                                                   buffer::Sphere::make(400.0f, 48, 24),
+                                                                   MeshLambertMaterial::make());
     _sphereMesh->material<0>()->envMap = textureCube;
     _scene->add(_sphereMesh);
 
     _renderer->autoClear = false;
-    _renderer->setFaceCulling(CullFace::None, FrontFaceDirection::Undefined);
+    _renderer->setFaceCulling(CullFace::None);
   }
 
   ~FramebufferObjectRenderer() override = default;

@@ -15,16 +15,29 @@ class Texture : public ThreeQObjectRoot
 {
 Q_OBJECT
 public:
-  enum Format {RGB, RGBA};
+  enum Format {
+    RGB = (unsigned)three::TextureFormat::RGB,
+    RGBA = (unsigned)three::TextureFormat::RGBA
+  };
   Q_ENUM(Format)
 
-  enum Mapping {EquirectangularReflection, SphericalReflection, CubeReflection};
+  enum Mapping {
+    EquirectangularReflection = (unsigned)three::TextureMapping::EquirectangularReflection,
+    SphericalReflection = (unsigned)three::TextureMapping::SphericalReflection,
+    CubeReflection = (unsigned)three::TextureMapping::CubeReflection
+  };
   Q_ENUM(Mapping)
 
-  enum Filter {Linear, LinearMipMapLinear};
+  enum Filter {
+    Linear = (unsigned)three::TextureFilter::Linear,
+    LinearMipMapLinear = (unsigned)three::TextureFilter::LinearMipMapLinear
+  };
   Q_ENUM(Filter)
 
-  enum Type {UnsignedByte, UnsignedShort};
+  enum Type {
+    UnsignedByte = (unsigned)three::TextureType::UnsignedByte,
+    UnsignedShort = (unsigned)three::TextureType::UnsignedShort
+  };
   Q_ENUM(Type)
 
 private:
@@ -35,12 +48,19 @@ private:
   Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
   Q_PROPERTY(bool flipY READ flipY WRITE setFlipY NOTIFY flipYChanged)
 
+protected:
   Format _format;
   Mapping _mapping;
   Filter _minFilter;
   Filter _magFilter;
   Type _type;
   bool _flipY;
+
+  Texture(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
+
+  virtual TextureOptions textureOptions() {
+    return three::Texture::options();
+  }
 
 public:
   Format format() const {return _format;}
@@ -49,6 +69,9 @@ public:
   Filter magFilter() const {return _magFilter;}
   Type type() const {return _type;}
   bool flipY() const {return _flipY;}
+
+  virtual three::Texture::Ptr getTexture() = 0;
+  virtual three::CubeTexture::Ptr getCubeTexture() {return nullptr;}
 
   void setFormat(Format format) {
     if(_format != format) {
@@ -89,7 +112,7 @@ public:
 
   TextureOptions createTextureOptions()
   {
-    TextureOptions options = three::ImageTexture::options();
+    TextureOptions options = textureOptions();
     switch(_format) {
       case RGB:
         options.format = TextureFormat::RGB;

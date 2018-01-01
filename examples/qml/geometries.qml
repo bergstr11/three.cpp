@@ -13,10 +13,10 @@ Window {
     visible: true
 
     ThreeD {
-        shadowType: Three.PCFSoft
-        z: 1
+        id: threeD
         anchors.fill: parent
         focus: true
+        shadowType: Three.PCFSoft
 
         Scene {
             id: scene
@@ -81,13 +81,13 @@ Window {
 
             camera: PerspectiveCamera {
                 fov: 45
-                aspect: scene.width / scene.height
+                aspect: threeD.width / threeD.height
                 near: 0.1
                 far: 1000
 
                 position: "-30,40,30"
 
-                lookAt: scene
+                lookAt: scene.position
             }
         }
     }

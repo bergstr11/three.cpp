@@ -34,11 +34,6 @@ Q_OBJECT
 protected:
   virtual three::ShaderMaterial::Ptr createMaterial();
 
-  three::ShaderMaterial::Ptr getMaterial() {
-    if(!_material) createMaterial();
-    return _material;
-  }
-
 public:
   QString shaderID() const {return _shaderID;}
   Three::Side side() const {return _side;}
@@ -77,9 +72,14 @@ public:
     }
   }
 
+  three::ShaderMaterial::Ptr getMaterial() {
+    if(!_material) createMaterial();
+    return _material;
+  }
+
   void addTo(ObjectRootContainer *container) override
   {
-    container->addMaterial(getMaterial());
+    container->addMaterial(this);
   }
 
   void identify(MeshCreator *creator) override

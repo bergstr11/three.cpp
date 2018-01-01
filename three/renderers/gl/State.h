@@ -257,8 +257,8 @@ public:
   BlendFunc currentBlendDstAlpha = BlendFunc::None;
   bool currentPremultipledAlpha = false;
 
-  FrontFaceDirection currentFaceDirection = FrontFaceDirection::Undefined;
-  CullFace currentCullFace = CullFace::None;
+  FrontFaceDirection currentFaceDirection = FrontFaceDirection::CCW;
+  CullFace currentCullFace = CullFace::Back;
 
   GLfloat currentLineWidth = 0;
 

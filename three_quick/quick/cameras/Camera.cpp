@@ -7,22 +7,16 @@
 namespace three {
 namespace quick {
 
-three::Camera::Ptr Camera::create()
+three::Camera::Ptr Camera::create(three::Scene::Ptr scene)
 {
   _camera = _create();
 
-  _camera->position().set(_position.x(), _position.y(), _position.z());
+  if(!_position.isNull())
+    _camera->position().set(_position.x(), _position.y(), _position.z());
 
-  auto *scene = dynamic_cast<Scene *>(_lookAt);
-  if(scene) {
-    _camera->lookAt(scene->scene()->position());
-  }
-  else {
-    auto *object = dynamic_cast<ThreeQObject *>(_lookAt);
-    if(object) {
-      _camera->lookAt(object->object()->position());
-    }
-  }
+  if(!_lookAt.isNull())
+    _camera->lookAt(math::Vector3(_lookAt.x(), _lookAt.y(), _lookAt.z()));
+
   return _camera;
 }
 

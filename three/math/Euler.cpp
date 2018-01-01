@@ -203,7 +203,7 @@ void Euler::reorder(RotationOrder order)
   set(toQuaternion(), order);
 }
 
-bool Euler::operator ==(const Euler &euler)
+bool Euler::operator ==(const Euler &euler) const
 {
   return ( euler._x == _x ) && ( euler._y == _y ) && ( euler._z == _z ) && ( euler._order == _order );
 }

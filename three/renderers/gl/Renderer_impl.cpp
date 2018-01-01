@@ -208,7 +208,7 @@ cout << "doRender" << endl;
 
   state().reset();
 
-  //glFinish();
+  glFinish();
 }
 
 unsigned Renderer_impl::allocTextureUnit()
@@ -257,7 +257,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     }
     else if(internalTarget) {
       if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
-      _currentFramebuffer = framebuffer = internalTarget->frameBuffer;
+      framebuffer = internalTarget->frameBuffer;
     }
     else if(externalTarget) {
       if(externalTarget->reuse()) {

@@ -22,6 +22,8 @@ Q_OBJECT
   QColor _color;
   bool _dithering = false;
 
+  three::MeshPhongMaterial::Ptr _material;
+
 public:
   QColor color() const {return _color;}
 
@@ -41,18 +43,23 @@ public:
     }
   }
 
+  three::MeshPhongMaterial::Ptr getMaterial()
+  {
+    if(!_material) {
+      _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
+      _material->wireframe = _wireframe;
+    }
+    return _material;
+  }
+
   void addTo(ObjectRootContainer *container) override
   {
-    auto material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
-    material->wireframe = _wireframe;
-    container->addMaterial(material);
+    container->addMaterial(this);
   }
 
   void identify(MeshCreator *creator) override
   {
-    auto material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
-    material->wireframe = _wireframe;
-    creator->material(material);
+    creator->material(getMaterial());
   }
 
 signals:

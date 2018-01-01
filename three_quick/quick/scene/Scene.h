@@ -26,8 +26,9 @@ Q_OBJECT
 
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
-  Q_PROPERTY(Camera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
+  Q_PROPERTY(Camera * camera READ quickCamera WRITE setQuickCamera NOTIFY cameraChanged)
   Q_PROPERTY(FogBase * fog READ fog WRITE setFog NOTIFY fogChanged)
+  Q_PROPERTY(QVector3D position READ position NOTIFY positionChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -39,6 +40,8 @@ Q_OBJECT
   Camera *_quickCamera = nullptr;
   FogBase * _fog = nullptr;
 
+  QVector3D _position;
+
   three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
 
@@ -48,9 +51,6 @@ Q_OBJECT
   static void clear_objects(QQmlListProperty<ThreeQObject> *);
 
   QQmlListProperty<ThreeQObject> objects();
-
-protected:
-  three::Object3D::Ptr _create(Scene *scene) {return nullptr;}
 
 public:
   explicit Scene(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
@@ -65,15 +65,19 @@ public:
 
   void setName(const QString &name);
 
-  Camera *camera() {return _quickCamera;}
+  Camera *quickCamera() {return _quickCamera;}
 
-  void setCamera(Camera *camera);
+  void setQuickCamera(Camera *camera);
 
   FogBase *fog() {return _fog;}
 
   void setFog(FogBase *fog);
 
+  QVector3D position() const {return _position;}
+
   three::Scene::Ptr scene() {return _scene;}
+
+  three::Camera::Ptr camera() {return _camera;}
 
   void addTo(ObjectRootContainer *container) override;
 
@@ -82,6 +86,7 @@ signals:
   void nameChanged();
   void cameraChanged();
   void fogChanged();
+  void positionChanged();
 };
 
 }

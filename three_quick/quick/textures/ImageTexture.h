@@ -69,7 +69,24 @@ Q_OBJECT
 
   three::ImageTexture::Ptr _texture;
 
-  three::ImageTexture::Ptr getTexture()
+protected:
+  TextureOptions textureOptions() override {
+    return three::ImageTexture::options();
+  }
+
+public:
+  ImageTexture(QObject *parent = nullptr) : Texture(parent)
+  {
+    TextureOptions options = three::ImageTexture::options();
+    _format = (Format)options.format;
+    _mapping = (Mapping)options.mapping;
+    _minFilter = (Filter)options.minFilter;
+    _magFilter = (Filter)options.magFilter;
+    _type = (Type)options.type;
+    _flipY = options.flipY;
+  }
+
+  three::ImageTexture::Ptr getImageTexture()
   {
     if(!_texture) {
       TextureOptions options = createTextureOptions();
@@ -78,8 +95,13 @@ Q_OBJECT
     return _texture;
   }
 
-public:
+  three::Texture::Ptr getTexture() override
+  {
+    return getImageTexture();
+  }
+
   Image *image() const {return _image;}
+
   void setImage(Image *image) {
     if(_image != image) {
       _image = image;
@@ -89,7 +111,7 @@ public:
 
   void addTo(ObjectRootContainer *container) override
   {
-    container->addTexture(getTexture());
+    container->addTexture(this);
   }
 
   void setUniform(gl::UniformValues &uniforms, gl::UniformName name) override

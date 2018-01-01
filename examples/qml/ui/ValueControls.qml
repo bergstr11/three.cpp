@@ -7,7 +7,7 @@ Rectangle {
     color: "darkgray"
 
     property string title;
-    property Item scene
+    property Item threeD
     default property list<FloatValue> properties
 
     Item {
@@ -60,7 +60,7 @@ Rectangle {
 
                     onValueChanged: {
                         target.value = value
-                        scene.update()
+                        threeD.update()
                     }
                     handle: Rectangle {
                             x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)

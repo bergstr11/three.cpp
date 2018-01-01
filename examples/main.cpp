@@ -15,10 +15,10 @@ int main(int argc, char *argv[]) {
   three::quick::init();
 
   QQmlComponent maincomponent(&qmlEngine);
-  maincomponent.loadUrl(QUrl("qrc:///Test.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///Test.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///spotlight.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
     return -1;

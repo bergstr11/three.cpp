@@ -20,6 +20,8 @@ Q_OBJECT
 
   QColor _color;
 
+  three::MeshBasicMaterial::Ptr _material;
+
 public:
   QColor color() const {return _color;}
 
@@ -30,21 +32,25 @@ public:
     }
   }
 
+  three::MeshBasicMaterial::Ptr getMaterial()
+  {
+    if(!_material) {
+      _material = three::MeshBasicMaterial::make();
+      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+      _material->wireframe = _wireframe;
+    }
+    return _material;
+  }
+
   void addTo(ObjectRootContainer *container) override
   {
-    three::MeshBasicMaterial::Ptr material = three::MeshBasicMaterial::make();
-    material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    material->wireframe = _wireframe;
-    container->addMaterial(material);
+    container->addMaterial(this);
   }
 
 
   void identify(MeshCreator *creator) override
   {
-    three::MeshBasicMaterial::Ptr material = three::MeshBasicMaterial::make();
-    material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    material->wireframe = _wireframe;
-    creator->material(material);
+    creator->material(getMaterial());
   }
 
 signals:

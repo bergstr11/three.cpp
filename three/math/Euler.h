@@ -48,7 +48,9 @@ public:
 
   math::Quaternion toQuaternion() const;
   RotationOrder getRotationOrder() const {return _order;}
-  bool operator ==(const Euler &other);
+
+  bool operator ==(const Euler &other) const;
+  bool operator !=(const Euler &other) const {return !(*this == other);}
 
   const float x() const {return _x;}
   const float y() const {return _y;}

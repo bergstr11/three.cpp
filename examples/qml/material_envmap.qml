@@ -62,7 +62,10 @@ Window {
         }
     }*/
     ThreeD {
+        id: threeD
         anchors.fill: parent
+        faceCulling: Three.NoFaceCulling
+        autoClear: false
 
         ImageCubeTexture {
             id: textureCube
@@ -85,7 +88,6 @@ Window {
             mapping: Texture.SphericalReflection
             image: Image {url: ":/metal.jpg"; format: Image.RGBA8888}
         }
-
         ImageTexture {
             id: textureEquirec
             format: Texture.RGBA
@@ -94,6 +96,7 @@ Window {
             minFilter: Texture.LinearMipMapLinear
             image: Image {url: ":/2294472375_24a3b8ef46_o.jpg"; format: Image.RGBA8888}
         }
+
         ShaderMaterial {
             id: equirectMaterial
             shaderID: "cube"
@@ -103,7 +106,7 @@ Window {
             uniforms: {"tEquirect": textureEquirec}
         }
 
-        Scene {
+        /*Scene {
             id: sceneCube
 
             Box {
@@ -122,11 +125,13 @@ Window {
             }
             camera: PerspectiveCamera {
                 fov: 70
-                aspect: scene.width / scene.height
+                aspect: threeD.width / threeD.height
                 near: 1
                 far: 100000
+
+                //rotation: sceneCamera.rotation
             }
-        }
+        }*/
 
         Scene {
             id: scene
@@ -148,14 +153,15 @@ Window {
             }
 
             camera: PerspectiveCamera {
+                id: sceneCamera
                 fov: 70
-                aspect: scene.width / scene.height
+                aspect: threeD.width / threeD.height
                 near: 1
                 far: 100000
 
                 position: "0,0,1000"
 
-                lookAt: scene
+                lookAt: scene.position
 
                 controller: OrbitController {
                     minDistance: 500

@@ -50,7 +50,8 @@ public:
 
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
 
-  virtual void setFaceCulling(CullFace cullFace, FrontFaceDirection frontFaceDirection ) = 0;
+  virtual void setFaceCulling( CullFace cullFace ) = 0;
+  virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
 };
 
 }
