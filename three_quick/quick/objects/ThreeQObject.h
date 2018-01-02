@@ -92,16 +92,16 @@ public:
 
   three::Object3D::Ptr create(Scene *scene)
   {
-    three::Object3D::Ptr obj = _create(scene);
-    if(obj) {
-      obj->rotation().setX(_rotation.x());
-      obj->position().set(_position.x(), _position.y(), _position.z());
+    _object = _create(scene);
+    if(_object) {
+      _object->rotation().setX(_rotation.x());
+      _object->position().set(_position.x(), _position.y(), _position.z());
 
-      obj->castShadow = _castShadow;
-      obj->receiveShadow = _receiveShadow;
+      _object->castShadow = _castShadow;
+      _object->receiveShadow = _receiveShadow;
     }
     _post_create(scene);
-    return obj;
+    return _object;
   }
 
 signals:

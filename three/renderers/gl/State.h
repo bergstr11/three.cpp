@@ -569,8 +569,10 @@ public:
   State &setFaceDirection(FrontFaceDirection faceDirection)
   {
     if (currentFaceDirection != faceDirection) {
-      _f->glFrontFace((GLenum) faceDirection);
-
+      if(faceDirection != FrontFaceDirection::Undefined) {
+        _f->glFrontFace((GLenum) faceDirection);
+        check_glerror(_f);
+      }
       currentFaceDirection = faceDirection;
     }
   }
@@ -582,11 +584,12 @@ public:
 
       if (cullFace != currentCullFace) {
         _f->glCullFace((GLenum) cullFace);
+        check_glerror(_f);
       }
-
     }
     else {
       disable(GL_CULL_FACE);
+      check_glerror(_f);
     }
 
     currentCullFace = cullFace;
@@ -756,9 +759,9 @@ public:
     }
 
     /*for(auto &cap : capabilities) {
-      if(cap.second) _f->glDisable(cap.first);
-    }*/
-    //capabilities.clear();
+      _f->glDisable(cap.first);
+    }
+    capabilities.clear();*/
 
     compressedTextureFormats.clear();
 

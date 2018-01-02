@@ -10,18 +10,8 @@ namespace quick {
 
 three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
 {
-  three::Side side;
-  switch(_side) {
-    case Three::FrontSide:
-      side = three::Side::Front;
-      break;
-    case Three::BackSide:
-      side = three::Side::Back;
-      break;
-    case Three::FrontAndBackSide:
-      side = three::Side::Double;
-      break;
-  }
+  three::Side side = (three::Side)_side;
+
   gl::ShaderID shaderId = gl::toShaderID(_shaderID.toStdString());
   gl::ShaderInfo shaderInfo = gl::shaderlib::get(shaderId);
   _material = three::ShaderMaterial::make(shaderInfo.uniforms,

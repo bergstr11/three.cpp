@@ -34,9 +34,11 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, 
 }
 
 Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
+                                                         CullFace faceCulling, FrontFaceDirection faceDirection,
                                                          bool depthBuffer, bool stencilBuffer)
 {
-  return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, depthBuffer, stencilBuffer);
+  return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, faceCulling, faceDirection,
+                                        depthBuffer, stencilBuffer);
 }
 
 Renderer::Target::Ptr OpenGLRenderer::makeInternalTarget(
@@ -130,6 +132,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 cout << "doRender" << endl;
 
   if(renderTarget) renderTarget->init(this);
+  check_glerror(this);
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -1290,7 +1293,8 @@ void RenderTargetExternal::init(Renderer *renderer)
 {
   if(!_reuse) {
     Renderer_impl *rimpl = static_cast<Renderer_impl *>(renderer);
-    rimpl->_state.init();
+    rimpl->_state.setCullFace(_faceCulling);
+    rimpl->_state.setFaceDirection(_faceDirection);
     rimpl->_lights.state.clear();
   }
 }

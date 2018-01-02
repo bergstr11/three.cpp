@@ -57,12 +57,18 @@ class RenderTargetExternal : public RenderTarget
 
   const GLuint frameBuffer;
   const ExternalTexture::Ptr _texture;
+  const CullFace _faceCulling;
+  const FrontFaceDirection _faceDirection;
+
   bool _reuse = false;
 
 protected:
-  RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
+  RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height,
+                       CullFace faceCulling, FrontFaceDirection faceDirection,
+                       bool depthBuffer, bool stencilBuffer)
      : RenderTarget(TextureTarget::twoD, width, height, depthBuffer, stencilBuffer),
-       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture, width, height))
+       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture, width, height)),
+       _faceCulling(faceCulling), _faceDirection(faceDirection)
   {
   }
 
@@ -70,8 +76,12 @@ public:
   Signal<void(RenderTargetExternal &)> onDispose;
 
   using Ptr = std::shared_ptr<RenderTargetExternal>;
-  static Ptr make(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height, bool depthBuffer=true, bool stencilBuffer=true) {
-    return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, depthBuffer, stencilBuffer));
+  static Ptr make(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height,
+                  CullFace faceCulling, FrontFaceDirection faceDirection,
+                  bool depthBuffer=true, bool stencilBuffer=true)
+  {
+    return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, faceCulling, faceDirection,
+                                        depthBuffer, stencilBuffer));
   }
 
   bool reuse() const {return _reuse;}

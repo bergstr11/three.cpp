@@ -89,8 +89,8 @@ private:
   std::vector<Controller *> _controllers;
 
   Three::ShadowType _shadowType = Three::None;
-  Three::CullFace _faceCulling = Three::NoFaceCulling;
-  Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCW;
+  Three::CullFace _faceCulling = Three::BackFaceCulling;
+  Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCCW;
   bool _autoClear = true;
 
   QMetaObject::Connection _geometryUpdate;
@@ -161,8 +161,6 @@ protected:
   void focusInEvent(QFocusEvent *event) override;
 
   void focusOutEvent(QFocusEvent *event) override;
-
-  void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
   void releaseResources() override;
 

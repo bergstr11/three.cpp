@@ -16,10 +16,16 @@ class QOpenGLShaderProgram;
 namespace three {
 namespace quick {
 
+namespace threeDItem {
+ class FramebufferObjectRenderer;
+}
+
 class ThreeDTestItem : public QQuickFramebufferObject
 {
 Q_OBJECT
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
+
+  friend class threeDItem::FramebufferObjectRenderer;
 
   QColor m_background;
   OrbitControls::Ptr _controls;
@@ -34,8 +40,6 @@ public:
   QColor background() { return m_background; }
 
   void setBackground(QColor background);
-
-  QMetaObject::Connection _geometryUpdate;
 
   void setControls(OrbitControls::Ptr controls) {
     _controls = controls;
@@ -65,8 +69,6 @@ protected:
   void focusOutEvent(QFocusEvent *event) override;
 
 protected:
-  void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
-
   void releaseResources() override;
 
 signals:

@@ -45,7 +45,9 @@ public:
   {
     if(!_material) {
       _material = three::MeshLambertMaterial::make();
-      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+      if(_color.isValid())
+        _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+
       _material->wireframe = _wireframe;
 
       if(_envMap) {

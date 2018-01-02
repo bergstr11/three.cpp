@@ -28,7 +28,11 @@ class Camera : public QObject
                      std::numeric_limits<float>::infinity()};
 
   QVector3D _position;
-  three::math::Euler _rotation;
+  three::math::Euler _rotation {std::numeric_limits<float>::infinity(),
+                                std::numeric_limits<float>::infinity(),
+                                std::numeric_limits<float>::infinity(),
+                                math::Euler::RotationOrder::XYZ};
+
   Controller *_controller = nullptr;
 
   three::Camera::Ptr _camera;
@@ -51,7 +55,6 @@ public:
   void setPosition(const QVector3D &position) {
     if(position != _position) {
       _position = position;
-      if(_camera) _camera->position() = math::Vector3(_position.x(), _position.y(), _position.z());
       emit positionChanged();
     }
   }
@@ -59,9 +62,8 @@ public:
   three::math::Euler rotation() {return _rotation;}
 
   void setRotation(const three::math::Euler &rotation) {
-    if(rotation != _rotation) {
+    if(_rotation != rotation) {
       _rotation = rotation;
-      if(_camera) _camera->rotation() = _rotation;
       emit rotationChanged();
     }
   }
@@ -76,11 +78,18 @@ public:
     }
   }
 
+  QVector3D toQVector3D(const math::Vector3 &vector) {
+    return QVector3D(vector.x(), vector.y(), vector.z());
+  }
+
   virtual void update()
   {
-    if(!_lookAt.x() != std::numeric_limits<float>::infinity()) {
+    if(_lookAt.x() != std::numeric_limits<float>::infinity()) {
       _camera->lookAt(math::Vector3(_lookAt.x(), _lookAt.y(), _lookAt.z()));
       setRotation(_camera->rotation());
+    }
+    else if(_rotation.x() != std::numeric_limits<float>::infinity()) {
+      _camera->rotation() = _rotation;
     }
   }
 

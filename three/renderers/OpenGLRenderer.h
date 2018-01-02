@@ -44,6 +44,7 @@ public:
                   const OpenGLRendererOptions &options=OpenGLRendererOptions());
 
   static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
+                                        CullFace faceCulling, FrontFaceDirection faceDirection,
                                         bool depthBuffer=true, bool stencilBuffer=true);
 
   static Target::Ptr makeInternalTarget(size_t width, size_t height, bool depthBuffer=true, bool stencilBuffer=true);

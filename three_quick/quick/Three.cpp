@@ -12,6 +12,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include <QOpenGLExtraFunctions>
 #include <QQuickWindow>
 #include <QScreen>
+#include <QDebug>
 #include <renderers/OpenGLRenderer.h>
 #include "quick/scene/Scene.h"
 #include "elements/LightShadow.h"
@@ -102,30 +103,26 @@ public:
       default:
         _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
     }
+    _renderer->autoClear = _item->_autoClear;
   }
 
   ~FramebufferObjectRenderer() override = default;
 
   void synchronize(QQuickFramebufferObject *_item) override
   {
-    ThreeDItem *item = static_cast<ThreeDItem *>(_item);
-    if(!item->_geometryUpdate) {
-      item->_geometryUpdate = QObject::connect(item, &ThreeDItem::sceneGeometryChanged,
-                                               this,
-                                               &FramebufferObjectRenderer::sceneGeometryChanged,
-                                               Qt::QueuedConnection);
-      sceneGeometryChanged();
-    }
   }
 
   void render() override
   {
+    updateGeometry();
+
     for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
       (*it)->quickCamera()->update();
     }
     for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
       _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
     }
+
     _item->window()->resetOpenGLState();
   }
 
@@ -133,19 +130,19 @@ public:
   {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    format.setMipmap(false);
+    format.setMipmap(true);
     format.setInternalTextureFormat(GL_RGBA);
 
     _fbo = new QOpenGLFramebufferObject(size, format);
 
     _target = OpenGLRenderer::makeExternalTarget(
-       _fbo->handle(), _fbo->texture(), _item->width(), _item->height());
+       _fbo->handle(), _fbo->texture(), _item->width(), _item->height(),
+       (CullFace)_item->faceCulling(), (FrontFaceDirection)_item->faceDirection());
 
     return _fbo;
   }
 
-public slots:
-  void sceneGeometryChanged()
+  void updateGeometry()
   {
     for(auto &scene : _scenes) {
       scene->camera()->setAspect(_item->width() / _item->height());
@@ -202,12 +199,6 @@ void ThreeDItem::setAutoClear(bool autoClear)
 QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
 {
   return new FramebufferObjectRenderer(this, _scenes);
-}
-
-void ThreeDItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-  QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
-  sceneGeometryChanged();
 }
 
 void ThreeDItem::mouseMoveEvent(QMouseEvent *event)

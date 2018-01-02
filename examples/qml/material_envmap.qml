@@ -78,7 +78,7 @@ Window {
                 Image {url: ":/cube_bridge2_negx.jpg"; format: Image.RGBA8888},
                 Image {url: ":/cube_bridge2_posy.jpg"; format: Image.RGBA8888},
                 Image {url: ":/cube_bridge2_negy.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_posx.jpg"; format: Image.RGBA8888},
+                Image {url: ":/cube_bridge2_posz.jpg"; format: Image.RGBA8888},
                 Image {url: ":/cube_bridge2_negz.jpg"; format: Image.RGBA8888}
             ]
         }
@@ -106,8 +106,9 @@ Window {
             uniforms: {"tEquirect": textureEquirec}
         }
 
-        /*Scene {
+        Scene {
             id: sceneCube
+            name: "scene_cube"
 
             Box {
                 id: skyBox
@@ -129,12 +130,13 @@ Window {
                 near: 1
                 far: 100000
 
-                //rotation: sceneCamera.rotation
+                rotation: sceneCamera.rotation
             }
-        }*/
+        }
 
         Scene {
             id: scene
+            name: "scene_sphere"
 
             AmbientLight {
                 id: ambientLight

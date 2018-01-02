@@ -68,6 +68,7 @@ public:
   {
     _renderer->setSize(item->width(), item->height());
     _renderer->setShadowMapType(ShadowMapType::PCFSoft);
+    _renderer->autoClear = false;
 
     TextureOptions cubeOptions = ImageCubeTexture::options();
     cubeOptions.format = TextureFormat::RGBA;
@@ -129,9 +130,6 @@ public:
                                                                    MeshLambertMaterial::make());
     _sphereMesh->material<0>()->envMap = textureCube;
     _scene->add(_sphereMesh);
-
-    _renderer->autoClear = false;
-    _renderer->setFaceCulling(CullFace::None);
   }
 
   ~FramebufferObjectRenderer() override = default;
@@ -139,11 +137,7 @@ public:
   void synchronize(QQuickFramebufferObject *_item) override
   {
     auto *item = static_cast<ThreeDTestItem *>(_item);
-    if (!item->_geometryUpdate) {
-      item->_geometryUpdate = QObject::connect(item, &ThreeDTestItem::sceneGeometryChanged,
-                                               this, &FramebufferObjectRenderer::sceneGeometryChanged,
-                                               Qt::QueuedConnection);
-
+    if (!item->_controls) {
       OrbitControls::Ptr controls = OrbitControls::make(item, _camera);
       controls->minDistance = 500;
       controls->maxDistance = 2500;
@@ -153,13 +147,12 @@ public:
 
   void render() override
   {
+    updateGeometry();
+
     _camera->lookAt(_scene->position());
     _cameraCube->rotation() = _camera->rotation();
 
     _renderer->render(_sceneCube, _cameraCube, _target, true);
-    //_fbo->bind();
-    //_sphereMesh->material<0>()->needsUpdate = true;
-    //_target->setReuse(true);
     _renderer->render(_scene, _camera, _target);
 
     _item->window()->resetOpenGLState();
@@ -169,20 +162,18 @@ public:
   {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    format.setMipmap(false);
+    format.setMipmap(true);
     format.setInternalTextureFormat(GL_RGBA);
 
     _fbo = new QOpenGLFramebufferObject(size, format);
 
     _target = OpenGLRenderer::makeExternalTarget(
-       _fbo->handle(), _fbo->texture(), _item->width(), _item->height());
+       _fbo->handle(), _fbo->texture(), _item->width(), _item->height(), CullFace::None, FrontFaceDirection::Undefined);
 
     return _fbo;
   }
 
-public slots:
-
-  void sceneGeometryChanged()
+  void updateGeometry()
   {
     _camera->setAspect(_item->width() / _item->height());
     _camera->updateProjectionMatrix();
@@ -191,7 +182,7 @@ public slots:
     _cameraCube->updateProjectionMatrix();
 
     _renderer->setSize(_item->width(), _item->height());
-  };
+  }
 };
 
 }
@@ -219,12 +210,6 @@ void ThreeDTestItem::setBackground(QColor background) {
     m_background = background;
     emit backgroundChanged();
   }
-}
-
-void ThreeDTestItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-  QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
-  sceneGeometryChanged();
 }
 
 void ThreeDTestItem::mouseMoveEvent(QMouseEvent *event) {

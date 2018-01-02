@@ -13,6 +13,7 @@ Window {
     visible: true
 
     ThreeDItem {
+        id: threeD
         z: 1
         anchors.fill: parent
         focus: true
