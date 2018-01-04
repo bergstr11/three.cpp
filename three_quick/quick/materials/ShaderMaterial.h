@@ -34,6 +34,8 @@ Q_OBJECT
 protected:
   virtual three::ShaderMaterial::Ptr createMaterial() const;
 
+  three::Material::Ptr material() const override {return _material;}
+
 public:
   ShaderMaterial(QObject *parent = nullptr) : Material(parent) {}
 

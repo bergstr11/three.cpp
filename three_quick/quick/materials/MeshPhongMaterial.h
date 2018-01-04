@@ -24,6 +24,9 @@ Q_OBJECT
 
   three::MeshPhongMaterial::Ptr _material;
 
+protected:
+  three::Material::Ptr material() const override {return _material;}
+
 public:
   QColor color() const {return _color;}
 

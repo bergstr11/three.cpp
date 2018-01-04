@@ -15,11 +15,24 @@ class Material : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(bool wireframe READ wireframe WRITE setWireframe NOTIFY wireframeChanged)
+  Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
 protected:
   bool _wireframe = false;
 
   Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
+
+  virtual three::Material::Ptr material() const = 0;
+
+  bool needsUpdate() const {return material() ? material()->needsUpdate : true;}
+
+  void setNeedsUpdate(bool value) {
+    three::Material::Ptr mat = material();
+    if(mat && mat->needsUpdate != value) {
+      mat->needsUpdate = value;
+      emit needsUpdateChanged();
+    }
+  }
 
 public:
   bool wireframe() const {return _wireframe;}
@@ -35,6 +48,7 @@ public:
 
 signals:
   void wireframeChanged();
+  void needsUpdateChanged();
 };
 
 }

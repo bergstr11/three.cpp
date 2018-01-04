@@ -30,7 +30,9 @@ Window {
             onSelected: {
                 skyBox.material = cubeMaterial
 				skyBox.visible = true
-				sphere.material = sphereCubeMaterial
+                sphere.material.envMap = textureCube
+
+				sphere.material.needsUpdate = true
                 threeD.update()
             }
         }
@@ -39,7 +41,9 @@ Window {
             onSelected: {
                 skyBox.material = equirectMaterial
                 skyBox.visible = true
-                sphere.material = sphereEquirecMaterial
+                sphere.material.envMap = textureEquirec
+
+				sphere.material.needsUpdate = true
                 threeD.update()
             }
         }
@@ -47,7 +51,9 @@ Window {
             name: "Spherical"
             onSelected: {
                 skyBox.visible = false
-                sphere.material = sphereMetalMaterial
+                sphere.material.envMap = textureSphere
+
+				sphere.material.needsUpdate = true
                 threeD.update()
             }
         }
@@ -122,19 +128,6 @@ Window {
             uniforms: {"tCube": textureCube}
         }
 
-        MeshLambertMaterial {
-            id: sphereCubeMaterial
-            envMap: textureCube
-        }
-        MeshLambertMaterial {
-            id: sphereEquirecMaterial
-            envMap: textureEquirec
-        }
-        MeshLambertMaterial {
-            id: sphereMetalMaterial
-            envMap: textureSphere
-        }
-
         Scene {
             id: sceneCube
             name: "scene_cube"
@@ -172,7 +165,7 @@ Window {
                 widthSegments: 48
                 heightSegments: 24
 
-                material: sphereCubeMaterial
+                material: MeshLambertMaterial {envMap: textureCube}
             }
 
             camera: PerspectiveCamera {

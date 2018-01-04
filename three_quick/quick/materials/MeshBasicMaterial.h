@@ -17,11 +17,13 @@ class MeshBasicMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-  Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
   QColor _color;
 
   three::MeshBasicMaterial::Ptr _material;
+
+protected:
+  three::Material::Ptr material() const override {return _material;}
 
 public:
   QColor color() const {return _color;}
@@ -30,15 +32,6 @@ public:
     if(_color != color) {
       _color = color;
       emit colorChanged();
-    }
-  }
-
-  bool needsUpdate() const {return _material ? _material->needsUpdate : true;}
-
-  void setNeedsUpdate(bool value) {
-    if(_material && _material->needsUpdate != value) {
-      _material->needsUpdate = value;
-      emit needsUpdateChanged();
     }
   }
 
@@ -65,7 +58,6 @@ public:
 
 signals:
   void colorChanged();
-  void needsUpdateChanged();
 };
 
 }
