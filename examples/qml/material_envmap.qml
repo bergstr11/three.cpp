@@ -9,46 +9,52 @@ Window {
     id: mainWindow
     minimumWidth: 1280
     minimumHeight: 1024
-
     visible: true
 
-    /*Chooser {
+    Rectangle {
+        anchors.fill: parent
+        color: "lightgray"
+    }
+
+    OptionsMenu {
         anchors.top: parent.top
         anchors.right: parent.right
+        color: "transparent"
         width: 350
         height: 200
+        z: 2
 
-        Choice {
-            text: "Cube"
-            group: "configs"
+        MenuChoice {
+            name: "Cube"
+            value: true
             onSelected: {
                 skyBox.material = cubeMaterial
 				skyBox.visible = true
-				sphere.material.envMap = textureCube
-				sphere.material.needsUpdate = true
+				sphere.material = sphereCubeMaterial
+                threeD.update()
             }
         }
-        Choice {
-            text: "Equirectangular"
+        MenuChoice {
+            name: "Equirectangular"
             onSelected: {
                 skyBox.material = equirectMaterial
                 skyBox.visible = true
-                sphere.material.envMap = textureEquirec
-                sphere.material.needsUpdate = true
+                sphere.material = sphereEquirecMaterial
+                threeD.update()
             }
         }
-        Choice {
-            text: "Spherical"
+        MenuChoice {
+            name: "Spherical"
             onSelected: {
-                cubeMesh.visible = false
-                sphereMaterial.envMap = textureSphere
-                sphereMaterial.needsUpdate = true
+                skyBox.visible = false
+                sphere.material = sphereMetalMaterial
+                threeD.update()
             }
         }
         BoolChoice {
-            text: "Refraction"
+            name: "Refraction"
             value: false
-            onSelected: {
+            onValueChanged: {
                 if ( value ) {
                     textureEquirec.mapping = Texture.EquirectangularRefraction
                     textureCube.mapping = Texture.CubeRefraction
@@ -57,10 +63,11 @@ Window {
                     textureEquirec.mapping = Texture.EquirectangularReflection
                     textureCube.mapping = Texture.CubeReflection
                 }
-				sphereMaterial.needsUpdate = true
+				sphere.material.needsUpdate = true
+                threeD.update()
             }
         }
-    }*/
+    }
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -99,11 +106,33 @@ Window {
 
         ShaderMaterial {
             id: equirectMaterial
-            shaderID: "cube"
+            shaderID: "equirect"
             side: Three.BackSide
             depthTest: false
             depthWrite: false
             uniforms: {"tEquirect": textureEquirec}
+        }
+
+        ShaderMaterial {
+            id: cubeMaterial
+            shaderID: "cube"
+            side: Three.BackSide
+            depthTest: false
+            depthWrite: false
+            uniforms: {"tCube": textureCube}
+        }
+
+        MeshLambertMaterial {
+            id: sphereCubeMaterial
+            envMap: textureCube
+        }
+        MeshLambertMaterial {
+            id: sphereEquirecMaterial
+            envMap: textureEquirec
+        }
+        MeshLambertMaterial {
+            id: sphereMetalMaterial
+            envMap: textureSphere
         }
 
         Scene {
@@ -116,13 +145,7 @@ Window {
                 height: 100
                 depth: 100
 
-                material: ShaderMaterial {
-                    shaderID: "cube"
-                    side: Three.BackSide
-                    depthTest: false
-                    depthWrite: false
-                    uniforms: {"tCube": textureCube}
-                }
+                material: cubeMaterial
             }
             camera: PerspectiveCamera {
                 fov: 70
@@ -149,9 +172,7 @@ Window {
                 widthSegments: 48
                 heightSegments: 24
 
-                material: MeshLambertMaterial {
-                    envMap: textureCube
-                }
+                material: sphereCubeMaterial
             }
 
             camera: PerspectiveCamera {

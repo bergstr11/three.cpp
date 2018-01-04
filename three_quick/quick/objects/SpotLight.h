@@ -62,11 +62,6 @@ protected:
 public:
   SpotLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
-  void addTo(ObjectContainer *container) override
-  {
-
-  }
-
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
     if(_color != color) {

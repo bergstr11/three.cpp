@@ -25,25 +25,25 @@ class Plane : public ThreeQObject
 
   three::Mesh::Ptr _plane;
 
+  MeshCreatorG<geometry::Plane> _creator {"plane"};
+
 protected:
   three::Object3D::Ptr _create(Scene *scene) override
   {
-    auto *creator = new MeshCreatorG<geometry::Plane>("plane", geometry::Plane::make(_width, _height, 1, 1));
-    material()->identify(creator);
+    _creator.set(geometry::Plane::make(_width, _height, 1, 1));
+    material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = creator->mesh;
-    delete creator;
+    three::Mesh::Ptr mesh = _creator.mesh;
 
     return mesh;
   }
 
+  void updateMaterial() override {
+    material()->identify(_creator);
+  }
+
 public:
   Plane(QObject *parent = nullptr) : ThreeQObject(parent) {}
-
-  void addTo(ObjectContainer *container) override
-  {
-
-  }
 
   unsigned width() const {return _width;}
   unsigned height() const {return _height;}

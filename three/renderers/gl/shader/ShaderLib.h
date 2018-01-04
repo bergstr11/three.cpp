@@ -22,6 +22,10 @@ public:
     return values.find(name) != values.end();
   }
 
+  void needsUpdate(UniformName name, bool value) {
+    if(values.count(name) > 0) (*values.at(name)).needsUpdate = value;
+  }
+
   template <typename V>
   UniformValues &set(UniformName name, const V &v) {
     if(values.count(name) > 0)

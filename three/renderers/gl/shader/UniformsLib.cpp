@@ -116,7 +116,7 @@ public:
                          }));
     add(UniformsID::envmap,
         LibUniformValues({
-                         value<CubeTexture::Ptr>(UniformName::envMap, nullptr),
+                         value<Texture::Ptr>(UniformName::envMap, nullptr),
                          value<float>(UniformName::flipEnvMap, -1.0f),
                          value<Texture::Ptr>(UniformName::map, nullptr),
                          value<float>(UniformName::reflectivity, 1.0f),

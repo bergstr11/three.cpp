@@ -25,12 +25,13 @@ Q_OBJECT
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
   Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
+  Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
 
 protected:
   QVector3D _position {0.0, 0.0, 0.0};
   QVector3D _rotation {0.0, 0.0, 0.0};
 
-  bool _castShadow = false, _receiveShadow = false, _helper = false;
+  bool _castShadow = false, _receiveShadow = false, _visible = false;
 
   Material *_material = nullptr;
 
@@ -40,6 +41,8 @@ protected:
   virtual void _post_create(Scene *scene) {}
 
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
+
+  virtual void updateMaterial() {};
 
 public:
   QVector3D position() {return _position;}
@@ -64,6 +67,7 @@ public:
   void setMaterial(Material *material) {
     if(_material != material) {
       _material = material;
+      if(_object) updateMaterial();
       emit materialChanged();
     }
   }
@@ -86,9 +90,18 @@ public:
     }
   }
 
-  three::Object3D::Ptr object() const {return _object;}
+  bool visible() const {return _visible;}
 
-  virtual void addTo(ObjectContainer * container) = 0;
+  void setVisible(bool visible) {
+    if(_visible != visible) {
+      _visible = visible;
+
+      if(_object) _object->visible() = _visible;
+      emit visibleChanged();
+    }
+  }
+
+  three::Object3D::Ptr object() const {return _object;}
 
   three::Object3D::Ptr create(Scene *scene)
   {
@@ -110,6 +123,7 @@ signals:
   void materialChanged();
   void castShadowChanged();
   void receiveShadowChanged();
+  void visibleChanged();
 };
 
 }

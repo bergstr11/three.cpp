@@ -31,11 +31,6 @@ protected:
 public:
   Axes(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
-  void addTo(ObjectContainer *container) override
-  {
-
-  }
-
   size_t size() {return _size;}
 
   void setSize(size_t size) {

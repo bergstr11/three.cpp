@@ -17,6 +17,7 @@ class MeshBasicMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
   QColor _color;
 
@@ -29,6 +30,15 @@ public:
     if(_color != color) {
       _color = color;
       emit colorChanged();
+    }
+  }
+
+  bool needsUpdate() const {return _material ? _material->needsUpdate : true;}
+
+  void setNeedsUpdate(bool value) {
+    if(_material && _material->needsUpdate != value) {
+      _material->needsUpdate = value;
+      emit needsUpdateChanged();
     }
   }
 
@@ -48,13 +58,14 @@ public:
   }
 
 
-  void identify(MeshCreator *creator) override
+  void identify(MeshCreator &creator) override
   {
-    creator->material(getMaterial());
+    creator.material(getMaterial());
   }
 
 signals:
   void colorChanged();
+  void needsUpdateChanged();
 };
 
 }

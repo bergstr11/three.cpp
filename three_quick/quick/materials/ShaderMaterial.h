@@ -32,9 +32,11 @@ Q_OBJECT
   three::ShaderMaterial::Ptr _material;
 
 protected:
-  virtual three::ShaderMaterial::Ptr createMaterial();
+  virtual three::ShaderMaterial::Ptr createMaterial() const;
 
 public:
+  ShaderMaterial(QObject *parent = nullptr) : Material(parent) {}
+
   QString shaderID() const {return _shaderID;}
   Three::Side side() const {return _side;}
   bool depthTest() const {return _depthTest;}
@@ -73,7 +75,7 @@ public:
   }
 
   three::ShaderMaterial::Ptr getMaterial() {
-    if(!_material) createMaterial();
+    if(!_material) _material = createMaterial();
     return _material;
   }
 
@@ -82,9 +84,9 @@ public:
     container->addMaterial(this);
   }
 
-  void identify(MeshCreator *creator) override
+  void identify(MeshCreator &creator) override
   {
-    creator->material(getMaterial());
+    creator.material(getMaterial());
   }
 
 signals:

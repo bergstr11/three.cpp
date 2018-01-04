@@ -962,15 +962,14 @@ void refreshUniforms(UniformValues &uniforms, Fog &fog)
   fog.resolver->fog::DispatchResolver::getValue(dispatch);
 }
 
-void markUniformsLightsNeedsUpdate(const UniformValues &uniforms, bool refreshLights )
+void markUniformsLightsNeedsUpdate(UniformValues &uniforms, bool refreshLights )
 {
-  /*uniforms.ambientLightColor.needsUpdate = value;
-
-  uniforms.directionalLights.needsUpdate = value;
-  uniforms.pointLights.needsUpdate = value;
-  uniforms.spotLights.needsUpdate = value;
-  uniforms.rectAreaLights.needsUpdate = value;
-  uniforms.hemisphereLights.needsUpdate = value;*/
+  uniforms.needsUpdate(UniformName::ambientLightColor, refreshLights);
+  uniforms.needsUpdate(UniformName::directionalLights, refreshLights);
+  uniforms.needsUpdate(UniformName::pointLights, refreshLights);
+  uniforms.needsUpdate(UniformName::spotLights, refreshLights);
+  uniforms.needsUpdate(UniformName::rectAreaLights, refreshLights);
+  uniforms.needsUpdate(UniformName::hemisphereLights, refreshLights);
 }
 
 void uploadUniforms(const std::vector<Uniform::Ptr> &uniformsList, UniformValues &values )

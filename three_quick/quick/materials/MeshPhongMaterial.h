@@ -57,9 +57,9 @@ public:
     container->addMaterial(this);
   }
 
-  void identify(MeshCreator *creator) override
+  void identify(MeshCreator &creator) override
   {
-    creator->material(getMaterial());
+    creator.material(getMaterial());
   }
 
 signals:

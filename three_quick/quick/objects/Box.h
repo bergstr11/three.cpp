@@ -23,26 +23,24 @@ class Box : public ThreeQObject
 
   unsigned _width=0, _height=0, _depth=0;
 
-  three::Mesh::Ptr _cube;
+  MeshCreatorG<geometry::Box> _creator {"box"};
 
 protected:
   three::Object3D::Ptr _create(Scene *scene) override
   {
-    auto *creator = new MeshCreatorG<geometry::Box>("box", geometry::Box::make(_width, _height, _depth));
-    material()->identify(creator);
+    _creator.set(geometry::Box::make(_width, _height, _depth));
+    material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = creator->mesh;
-    delete creator;
+    three::Mesh::Ptr mesh = _creator.mesh;
 
     return mesh;
   }
 
-public:
-  void addTo(ObjectContainer *container) override
-  {
-
+  void updateMaterial() override {
+    material()->identify(_creator);
   }
 
+public:
   unsigned width() const {return _width;}
   unsigned height() const {return _height;}
   unsigned depth() const {return _depth;}

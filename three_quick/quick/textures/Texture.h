@@ -22,9 +22,11 @@ public:
   Q_ENUM(Format)
 
   enum Mapping {
+    EquirectangularRefraction = (unsigned)three::TextureMapping::EquirectangularRefraction,
     EquirectangularReflection = (unsigned)three::TextureMapping::EquirectangularReflection,
     SphericalReflection = (unsigned)three::TextureMapping::SphericalReflection,
-    CubeReflection = (unsigned)three::TextureMapping::CubeReflection
+    CubeReflection = (unsigned)three::TextureMapping::CubeReflection,
+    CubeRefraction = (unsigned)three::TextureMapping::CubeRefraction
   };
   Q_ENUM(Mapping)
 
@@ -82,6 +84,8 @@ public:
   void setMapping(Mapping mapping) {
     if(_mapping != mapping) {
       _mapping = mapping;
+      three::Texture::Ptr t = getTexture();
+      if(t) t->setMapping((three::TextureMapping)mapping);
       emit mappingChanged();
     }
   }

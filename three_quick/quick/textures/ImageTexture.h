@@ -65,7 +65,7 @@ class ImageTexture : public Texture
 Q_OBJECT
   Q_PROPERTY(Image * image READ image WRITE setImage NOTIFY imageChanged)
 
-  Image *_image;
+  Image *_image = nullptr;
 
   three::ImageTexture::Ptr _texture;
 

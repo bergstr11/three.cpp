@@ -8,13 +8,13 @@
 namespace three {
 namespace quick {
 
-three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
+three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
 {
   three::Side side = (three::Side)_side;
 
   gl::ShaderID shaderId = gl::toShaderID(_shaderID.toStdString());
   gl::ShaderInfo shaderInfo = gl::shaderlib::get(shaderId);
-  _material = three::ShaderMaterial::make(shaderInfo.uniforms,
+  auto material = three::ShaderMaterial::make(shaderInfo.uniforms,
                                           shaderInfo.vertexShader,
                                           shaderInfo.fragmentShader,
                                           side,
@@ -25,26 +25,27 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
     QVariant var = _uniforms[key];
     switch(var.type()) {
       case QVariant::Bool:
-        _material->uniforms.set(name, var.toBool());
+        material->uniforms.set(name, var.toBool());
         break;
       case QVariant::Int:
-        _material->uniforms.set(name, var.toInt());
+        material->uniforms.set(name, var.toInt());
         break;
       case QVariant::UInt:
-        _material->uniforms.set(name, var.toUInt());
+        material->uniforms.set(name, var.toUInt());
         break;
       case QVariant::Double:
-        _material->uniforms.set(name, (float)var.toDouble());
+        material->uniforms.set(name, (float)var.toDouble());
         break;
       case QMetaType::QObjectStar: {
         Texture *texture = var.value<Texture *>();
         if(texture) {
-          texture->setUniform(_material->uniforms, name);
+          texture->setUniform(material->uniforms, name);
         }
         break;
       }
     }
   }
+  return material;
 }
 
 }

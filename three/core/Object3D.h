@@ -106,6 +106,8 @@ public:
 
   bool visible() const {return _visible;}
 
+  bool &visible() {return _visible;}
+
   const std::string &name() const  {return _name;}
 
   const std::vector<Ptr> &children() const {return _children;}
@@ -369,6 +371,12 @@ public:
 
   template<int N>
   decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}
+
+  template<int N, typename T=decltype(std::get<N>(_materialsTuple))>
+  void setMaterial(T material) {
+    std::get<N>(_materialsTuple) = material;
+    _materialsArray[N] = material;
+  }
 };
 
 }

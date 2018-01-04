@@ -19,6 +19,8 @@ Q_OBJECT
 protected:
   bool _wireframe = false;
 
+  Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
+
 public:
   bool wireframe() const {return _wireframe;}
 
@@ -29,7 +31,7 @@ public:
     }
   }
 
-  virtual void identify(MeshCreator *creator) = 0;
+  virtual void identify(MeshCreator &creator) = 0;
 
 signals:
   void wireframeChanged();

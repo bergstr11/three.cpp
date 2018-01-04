@@ -122,6 +122,11 @@ public:
 
   TextureMapping mapping() const {return TextureOptions::mapping;}
 
+  Texture &setMapping(TextureMapping mapping) {
+    TextureOptions::mapping = mapping;
+    return *this;
+  }
+
   Encoding encoding() const {return TextureOptions::encoding;}
 
   void transformUv(UV &uv);

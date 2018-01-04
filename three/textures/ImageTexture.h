@@ -18,7 +18,7 @@ protected:
   QImage _image;
 
   ImageTexture(const TextureOptions &options, const QImage image)
-     : Texture(texture::ResolverT<ImageTexture>::make(*this), options), _image(image) {}
+     : Texture(texture::ResolverT<ImageTexture>::make(*this), options), _image(options.flipY ? image.mirrored() : image) {}
 
 public:
   using Ptr = std::shared_ptr<ImageTexture>;

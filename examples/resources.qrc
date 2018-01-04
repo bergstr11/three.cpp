@@ -4,8 +4,10 @@
         <file alias="geometries.qml">qml/geometries.qml</file>
         <file alias="spotlight.qml">qml/spotlight.qml</file>
         <file alias="material_envmap.qml">qml/material_envmap.qml</file>
-        <file alias="ValueControls.qml">qml/ui/ValueControls.qml</file>
+        <file alias="OptionsMenu.qml">qml/ui/OptionsMenu.qml</file>
         <file alias="FloatValue.qml">qml/ui/FloatValue.qml</file>
+        <file alias="BoolChoice.qml">qml/ui/BoolChoice.qml</file>
+        <file alias="MenuChoice.qml">qml/ui/MenuChoice.qml</file>
         <file alias="cube_bridge2_negx.jpg">qml/resources/cube_bridge2/negx.jpg</file>
         <file alias="cube_bridge2_negy.jpg">qml/resources/cube_bridge2/negy.jpg</file>
         <file alias="cube_bridge2_negz.jpg">qml/resources/cube_bridge2/negz.jpg</file>

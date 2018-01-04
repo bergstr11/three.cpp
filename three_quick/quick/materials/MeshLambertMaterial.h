@@ -26,7 +26,6 @@ Q_OBJECT
 
 public:
   QColor color() const {return _color;}
-  Texture *envMap() const {return _envMap;}
 
   void setColor(const QColor &color) {
     if(_color != color) {
@@ -34,9 +33,16 @@ public:
       emit colorChanged();
     }
   }
+
+  Texture *envMap() const {return _envMap;}
+
   void setEnvMap(Texture *envMap) {
     if(_envMap != envMap) {
       _envMap = envMap;
+      if(_material) {
+        _material->envMap = _envMap->getTexture();
+        _material->needsUpdate = true;
+      }
       emit envMapChanged();
     }
   }
@@ -51,7 +57,7 @@ public:
       _material->wireframe = _wireframe;
 
       if(_envMap) {
-        _material->envMap = _envMap->getCubeTexture();
+        _material->envMap = _envMap->getTexture();
         if(!_material->envMap)
           qWarning() << "envMap set to non-cube texture is ignored";
       }
@@ -64,9 +70,9 @@ public:
     container->addMaterial(this);
   }
 
-  void identify(MeshCreator *creator) override
+  void identify(MeshCreator &creator) override
   {
-    creator->material(getMaterial());
+    creator.material(getMaterial());
   }
 
 signals:

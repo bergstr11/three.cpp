@@ -24,28 +24,25 @@ class Sphere : public ThreeQObject
   qreal _radius = 1;
   unsigned _widthSegments=1, _heightSegments=1;
 
-  three::Mesh::Ptr _sphere;
+  MeshCreatorG<geometry::Sphere> _creator {"sphere"};
 
 protected:
   three::Object3D::Ptr _create(Scene *scene) override
   {
-    auto *creator = new MeshCreatorG<geometry::Sphere>("sphere",
-                                                       geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
-    material()->identify(creator);
+    _creator.set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
+    material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = creator->mesh;
-    delete creator;
+    three::Mesh::Ptr mesh = _creator.mesh;
 
     return mesh;
   }
 
+  void updateMaterial() override {
+    material()->identify(_creator);
+  }
+
 public:
   Sphere(QObject *parent = nullptr) : ThreeQObject(parent) {}
-
-  void addTo(ObjectContainer *container) override
-  {
-
-  }
 
   qreal radius() {return _radius;}
   unsigned widthSegments() const {return _widthSegments;}
