@@ -317,11 +317,13 @@ DEF_RESOLVER_1(Dispatch)
 
 class ImageCubeTexture;
 class ImageTexture;
+class Texture;
 class Color;
 
 namespace scene {
 
 DEF_FUNCTABLE(BackgroundDispatch)
+PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<Texture>)
 PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
 PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
 PUT_FUNCTABLE(BackgroundDispatch, Color)
@@ -357,6 +359,7 @@ class Mesh;
 class SkinnedMesh;
 class Line;
 class LineSegments;
+class Objects;
 class Points;
 class ImmediateRenderObject;
 
@@ -367,6 +370,7 @@ PUT_FUNCTABLE(Dispatch, Light)
 PUT_FUNCTABLE(Dispatch, Sprite)
 PUT_FUNCTABLE(Dispatch, LensFlare)
 PUT_FUNCTABLE(Dispatch, Mesh)
+PUT_FUNCTABLE(Dispatch, Objects)
 PUT_FUNCTABLE(Dispatch, SkinnedMesh)
 PUT_FUNCTABLE(Dispatch, Line)
 PUT_FUNCTABLE(Dispatch, LineSegments)

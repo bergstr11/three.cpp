@@ -20,16 +20,23 @@ struct MeshToonMaterial : public MeshPhongMaterial
 {
   std::unordered_map<std::string, std::string> defines {{ "TOON", "" }};
 
-  ImageTexture::Ptr gradientMap;
+  Texture::Ptr gradientMap;
 
 protected:
   MeshToonMaterial(const Color &color, bool dithering)
      : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this), color, dithering) {}
 
+  MeshToonMaterial()
+     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}
+
 public:
   using Ptr = std::shared_ptr<MeshToonMaterial>;
   static Ptr make(const Color &color, bool dithering) {
     return Ptr(new MeshToonMaterial(color, dithering));
+  }
+
+  static Ptr make() {
+    return Ptr(new MeshToonMaterial());
   }
 };
 

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
+find_package(assimp REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)

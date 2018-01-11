@@ -21,7 +21,7 @@ class Camera;
 namespace material {
 
 struct Colored {
-  Color color {0xffffff};
+  Color color {0xffffff}; //diffuse, really
   float opacity = 1;
 };
 
@@ -41,6 +41,7 @@ struct EmissiveMap
 struct AoMap
 {
   Texture::Ptr aoMap;
+  Color ambient;
   float aoMapIntensity = 1.0;
 };
 
@@ -48,6 +49,7 @@ struct EnvMap
 {
   Texture::Ptr envMap;
   CombineOperation combine = CombineOperation::Multiply;
+  Color reflective;
   float reflectivity = 1;
   float refractionRatio = 0.98;
 };
@@ -59,6 +61,8 @@ struct AlphaMap
 
 struct SpecularMap
 {
+  float shininess;
+  Color specular;
   Texture::Ptr specularMap;
 };
 

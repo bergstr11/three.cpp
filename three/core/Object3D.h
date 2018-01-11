@@ -32,11 +32,17 @@ using CameraPtr = std::shared_ptr<Camera>;
 
 static uint16_t __id_count = 0;
 
+namespace loader {
+class Access;
+}
+
 /**
  * 3D object without geometry or material
  */
 class Object3D
 {
+  friend class three::loader::Access;
+
 public:
   const sole::uuid uuid;
   using Ptr = std::shared_ptr<Object3D>;

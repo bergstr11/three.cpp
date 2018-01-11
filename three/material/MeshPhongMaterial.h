@@ -75,7 +75,6 @@ struct MeshPhongMaterial : public MaterialT<
   Color specular = 0x111111;
   float shininess = 30;
 
-
 protected:
   MeshPhongMaterial(material::Resolver::Ptr resolver, const Color &color, bool dithering)
      : MaterialT(resolver)
@@ -84,6 +83,9 @@ protected:
     this->dithering = dithering;
   }
 
+  MeshPhongMaterial(material::Resolver::Ptr resolver)
+     : MaterialT(resolver) {}
+
   MeshPhongMaterial(const Color &color, bool dithering)
      : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this))
   {
@@ -91,12 +93,18 @@ protected:
     this->dithering = dithering;
   }
 
+  MeshPhongMaterial()
+     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+
 public:
   using Ptr = std::shared_ptr<MeshPhongMaterial>;
 
-  static Ptr make(const Color &color, bool dithering)
-  {
+  static Ptr make(const Color &color, bool dithering) {
     return Ptr(new MeshPhongMaterial(color, dithering));
+  }
+
+  static Ptr make() {
+    return Ptr(new MeshPhongMaterial());
   }
 };
 
