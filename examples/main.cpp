@@ -18,7 +18,8 @@ int main(int argc, char *argv[]) {
   //maincomponent.loadUrl(QUrl("qrc:///Test.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///spotlight.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
     return -1;

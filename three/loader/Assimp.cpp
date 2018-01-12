@@ -27,12 +27,11 @@ class IOStream : public as::IOStream
   istream &_in;
 
 protected:
-  IOStream(istream &in) : _in(in)
+  IOStream(istream &&in) : _in(in)
   {}
 
 public:
-  ~IOStream()
-  {}
+  ~IOStream() {}
 
   size_t Read(void *pvBuffer, size_t pSize, size_t pCount) override
   {

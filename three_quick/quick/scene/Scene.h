@@ -5,10 +5,9 @@
 #ifndef THREEPP_QUICK_SCENE_H
 #define THREEPP_QUICK_SCENE_H
 
-#include <QQuickFramebufferObject>
+#include <QQmlListProperty>
 #include <QMetaObject>
 #include <QColor>
-#include <memory>
 #include <scene/Scene.h>
 #include <camera/Camera.h>
 #include "quick/ThreeQObjectRoot.h"
@@ -23,7 +22,6 @@ namespace quick {
 class Scene : public ThreeQObjectRoot
 {
 Q_OBJECT
-
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
   Q_PROPERTY(Camera * camera READ quickCamera WRITE setQuickCamera NOTIFY cameraChanged)

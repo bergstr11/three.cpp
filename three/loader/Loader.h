@@ -14,8 +14,7 @@ namespace three {
 
 struct ResourceLoader {
   virtual bool exists(const char *path) = 0;
-  virtual std::istream &istream(const char *path, std::ios_base::openmode) = 0;
-  virtual std::istream &istream(const std::string &path, std::ios_base::openmode) = 0;
+  virtual std::istream &&istream(const char *path, std::ios_base::openmode) = 0;
 };
 
 class Loader

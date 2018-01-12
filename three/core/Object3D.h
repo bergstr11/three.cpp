@@ -272,13 +272,13 @@ public:
     }
   }
 
-  Object3D *getObjectByName(std::string name) {
-
-    if(_name == name) return this;
-
+  Object3D::Ptr getChildByName(std::string name)
+  {
     for (const auto &child : _children) {
 
-      Object3D *object = child->getObjectByName(name);
+      if(child->name() == name) return child;
+
+      Object3D::Ptr object = child->getChildByName(name);
 
       if (object) return object;
     }

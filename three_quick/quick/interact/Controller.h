@@ -6,6 +6,7 @@
 #define THREEPP_CONTROLLER_H
 
 #include <QObject>
+#include <QMouseEvent>
 #include <camera/Camera.h>
 
 namespace three {

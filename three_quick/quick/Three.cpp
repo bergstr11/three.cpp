@@ -12,9 +12,9 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include <QOpenGLExtraFunctions>
 #include <QQuickWindow>
 #include <QScreen>
-#include <QDebug>
 #include <renderers/OpenGLRenderer.h>
 #include "quick/scene/Scene.h"
+#include "quick/scene/Model.h"
 #include "elements/LightShadow.h"
 #include "objects/AmbientLight.h"
 #include "objects/SpotLight.h"
@@ -22,6 +22,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
+#include "objects/Mesh.h"
 #include "materials/MeshBasicMaterial.h"
 #include "materials/MeshLambertMaterial.h"
 #include "materials/MeshPhongMaterial.h"
@@ -40,6 +41,7 @@ void init()
   qmlRegisterUncreatableType<three::quick::Three>("three.quick", 1, 0, "Three", "enum holder class");
   qmlRegisterType<three::quick::ThreeDItem>("three.quick", 1, 0, "ThreeD");
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
+  qmlRegisterType<three::quick::Model>("three.quick", 1, 0, "Model");
   qmlRegisterUncreatableType<three::quick::ThreeQObjectRoot>("three.quick", 1, 0, "ThreeQObjectRoot", "abstract class");
   qmlRegisterUncreatableType<three::quick::ThreeQObject>("three.quick", 1, 0, "ThreeQObject", "abstract class");
   qmlRegisterUncreatableType<three::quick::Material>("three.quick", 1, 0, "Material", "abstract class");
@@ -52,6 +54,7 @@ void init()
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
+  qmlRegisterType<three::quick::Mesh>("three.quick", 1, 0, "Mesh");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
