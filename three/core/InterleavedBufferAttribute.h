@@ -12,101 +12,121 @@ namespace three {
 
 class InterleavedBufferAttribute : public BufferAttribute
 {
-  InterleavedBuffer &_data;
+  InterleavedBuffer &_buffer;
   size_t _offset;
 
 public:
   InterleavedBufferAttribute(InterleavedBuffer &buffer, unsigned itemSize, unsigned offset, bool normalized=true)
-     : BufferAttribute(bufferattribute::ResolverT<InterleavedBufferAttribute>::make(*this), itemSize, normalized), _data(buffer)
+     : BufferAttribute(bufferattribute::ResolverT<InterleavedBufferAttribute>::make(*this), itemSize, normalized), _buffer(buffer)
   {}
 
-  size_t count() const override {return _data.count();}
+  size_t count() const {return _buffer.count();}
 
   size_t offset() const {return _offset;}
 
-  const InterleavedBuffer &data() const {return _data;}
+  const InterleavedBuffer &buffer() const {return _buffer;}
 
-  const std::vector<float> &array() const {return _data.array();}
+  const std::vector<float> &array() const {return _buffer.array();}
 
   InterleavedBufferAttribute &setX(unsigned index, float x) 
   {
-    _data._array[ index * _data._stride + _offset ] = x;
+    _buffer._array[ index * _buffer._stride + _offset ] = x;
 
     return *this;
   }
 
   InterleavedBufferAttribute &setY(unsigned index, float y)
   {
-    _data._array[ index * _data._stride + _offset + 1 ] = y;
+    _buffer._array[ index * _buffer._stride + _offset + 1 ] = y;
 
     return *this;
   }
 
   InterleavedBufferAttribute &setZ(unsigned index, float z)
   {
-    _data._array[ index * _data._stride + _offset + 2 ] = z;
+    _buffer._array[ index * _buffer._stride + _offset + 2 ] = z;
 
     return *this;
   }
 
   InterleavedBufferAttribute &setW(unsigned index, float w)
   {
-    _data._array[ index * _data._stride + _offset + 3 ] = w;
+    _buffer._array[ index * _buffer._stride + _offset + 3 ] = w;
 
     return *this;
   }
 
   float getX(unsigned index)
   {
-    return _data._array[ index * _data._stride + _offset ];
+    return _buffer._array[ index * _buffer._stride + _offset ];
   }
 
   float getY(unsigned index)
   {
-    return _data._array[ index * _data._stride + _offset + 1 ];
+    return _buffer._array[ index * _buffer._stride + _offset + 1 ];
   }
 
   float getZ(unsigned index)
   {
-    return _data._array[ index * _data._stride + _offset + 2 ];
+    return _buffer._array[ index * _buffer._stride + _offset + 2 ];
   }
 
   float getW(unsigned index)
   {
-    return _data._array[ index * _data._stride + _offset + 3 ];
+    return _buffer._array[ index * _buffer._stride + _offset + 3 ];
   }
 
   InterleavedBufferAttribute &setXY(unsigned index, float x, float y)
   {
-    index = index * _data._stride + _offset;
+    index = index * _buffer._stride + _offset;
 
-    _data._array[ index + 0 ] = x;
-    _data._array[ index + 1 ] = y;
+    _buffer._array[ index + 0 ] = x;
+    _buffer._array[ index + 1 ] = y;
 
     return *this;
   }
 
   InterleavedBufferAttribute &setXYZ(unsigned index, float x, float y, float z)
   {
-    index = index * _data._stride + _offset;
+    index = index * _buffer._stride + _offset;
 
-    _data._array[ index + 0 ] = x;
-    _data._array[ index + 1 ] = y;
-    _data._array[ index + 2 ] = z;
+    _buffer._array[ index + 0 ] = x;
+    _buffer._array[ index + 1 ] = y;
+    _buffer._array[ index + 2 ] = z;
 
     return *this;
   }
 
   InterleavedBufferAttribute &setXYZW(unsigned index, float x, float y, float z, float w)
   {
-    index = index * _data._stride + _offset;
+    index = index * _buffer._stride + _offset;
 
-    _data._array[ index + 0 ] = x;
-    _data._array[ index + 1 ] = y;
-    _data._array[ index + 2 ] = z;
-    _data._array[ index + 3 ] = w;
+    _buffer._array[ index + 0 ] = x;
+    _buffer._array[ index + 1 ] = y;
+    _buffer._array[ index + 2 ] = z;
+    _buffer._array[ index + 3 ] = w;
 
     return *this;
+  }
+
+  const void *data(size_t offset) const override
+  {
+    return _buffer.array().data() + offset;
+  }
+
+  GLenum glType() const override
+  {
+    return Cpp2GL<float>::glEnum;
+  }
+
+  size_t byteCount() const override
+  {
+    return _buffer.array().size() * sizeof(float);
+  }
+
+  unsigned int bytesPerElement() const override
+  {
+    return sizeof(float);
   }
 };
 

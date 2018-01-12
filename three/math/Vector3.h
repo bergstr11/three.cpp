@@ -64,7 +64,7 @@ public:
   static Vector3 fromBufferAttribute(const BufferAttributeT<float> &att, unsigned index);
 
   template <typename T>
-  static Vector3 fromArray(const T array, unsigned offset)
+  static Vector3 fromArray(const T *array, unsigned offset)
   {
     float x = array[ offset ];
     float y = array[ offset + 1 ];

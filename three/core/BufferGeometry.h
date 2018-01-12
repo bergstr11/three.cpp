@@ -37,6 +37,8 @@ class BufferGeometry : public Geometry
   BufferAttributeT<float>::Ptr _uv;
   BufferAttributeT<float>::Ptr _uv2;
   BufferAttributeT<float>::Ptr _lineDistances;
+  BufferAttributeT<float>::Ptr _tangents;
+  BufferAttributeT<float>::Ptr _bitangents;
 
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_position;
   std::vector<BufferAttributeT<float>::Ptr> _morphAttributes_normal;
@@ -76,7 +78,7 @@ protected:
       // boundingSphere of the boundingBox: sqrt(3) smaller in the best case
       float maxRadiusSq = 0;
 
-      for (size_t i=0, il = _position->count(); i < il; i ++ ) {
+      for (size_t i=0, il = _position->itemCount(); i < il; i ++ ) {
         math::Vector3 v(_position->get_x(i), _position->get_y(i), _position->get_z(i));
         maxRadiusSq = std::max(maxRadiusSq, center.distanceToSquared(v));
       }
@@ -139,6 +141,10 @@ public:
 
   const BufferAttributeT<float>::Ptr &uv2() const {return _uv2;}
 
+  const BufferAttributeT<float>::Ptr tangents() const {return _tangents;}
+
+  const BufferAttributeT<float>::Ptr bitangents() const {return _bitangents;}
+
   const std::vector<BufferAttributeT<float>::Ptr> &morphPositions() const {return _morphAttributes_position;}
 
   const std::vector<BufferAttributeT<float>::Ptr> &morphNormals() const {return _morphAttributes_normal;}
@@ -158,11 +164,9 @@ public:
     _drawRange.count = count;
   }
 
-  void setIndex(const std::vector<uint32_t> &indices) {
-    if(_index)
-      _index->set(indices);
-    else
-      _index = BufferAttributeT<uint32_t>::make(indices, 1, true);
+  BufferGeometry &setIndex(const BufferAttributeT<uint32_t>::Ptr &indices) {
+    _index = indices;
+    return *this;
   }
 
   BufferGeometry &setPosition(const BufferAttributeT<float>::Ptr &position)
@@ -192,6 +196,18 @@ public:
   BufferGeometry &setUV2(const BufferAttributeT<float>::Ptr &uv2)
   {
     _uv2 = uv2;
+    return *this;
+  }
+
+  BufferGeometry &setTangents(const BufferAttributeT<float>::Ptr &tangents)
+  {
+    _tangents = tangents;
+    return *this;
+  }
+
+  BufferGeometry &setBitangents(const BufferAttributeT<float>::Ptr &bitangents)
+  {
+    _bitangents = bitangents;
     return *this;
   }
 

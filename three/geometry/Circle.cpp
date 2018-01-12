@@ -57,10 +57,10 @@ Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLen
   }
 
   // build geometry
-  setIndex( indices );
-  setPosition(BufferAttributeT<float>::make(vertices));
-  setNormal(BufferAttributeT<float>::make(normals));
-  setUV(BufferAttributeT<float>::make(uvs));
+  setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
+  setPosition(DefaultBufferAttribute<float>::make(vertices));
+  setNormal(DefaultBufferAttribute<float>::make(normals));
+  setUV(DefaultBufferAttribute<float>::make(uvs));
 }
 
 }

@@ -29,8 +29,8 @@ class Axes : public LineSegments {
     };
 
     BufferGeometry::Ptr geometry = BufferGeometry::make();
-    geometry->setPosition(BufferAttributeT<float>::make(vertices, 3, true));
-    geometry->setColor(BufferAttributeT<float>::make(colors, 3, true));
+    geometry->setPosition(DefaultBufferAttribute<float>::make(vertices, 3, true));
+    geometry->setColor(DefaultBufferAttribute<float>::make(colors, 3, true));
     return geometry;
   }
 

@@ -18,17 +18,16 @@ class Attributes
   QOpenGLFunctions * const _fn;
   std::unordered_map<sole::uuid, Buffer> _buffers;
 
-  template <typename T>
-  void createBuffer(Buffer &buffer, const BufferAttributeT<T> &attribute, BufferType bufferType)
+  void createBuffer(Buffer &buffer, const BufferAttribute &attribute, BufferType bufferType)
   {
     GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
     _fn->glGenBuffers(1, &buffer.handle);
 
     _fn->glBindBuffer((GLenum)bufferType, buffer.handle);
-    _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(), usage);
+    _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(0), usage);
 
-    const_cast<BufferAttributeT<T> &>(attribute).onUpload.emitSignal(attribute);
+    const_cast<BufferAttribute &>(attribute).onUpload.emitSignal(attribute);
 
     buffer.type = attribute.glType();
     buffer.bytesPerElement = attribute.bytesPerElement();
@@ -38,19 +37,18 @@ class Attributes
 public:
   Attributes(QOpenGLFunctions *fn) : _fn(fn) {}
 
-  template <typename T>
-  void updateBuffer(const Buffer &buffer, BufferAttributeT<T> &attribute, BufferType bufferType)
+  void updateBuffer(const Buffer &buffer, BufferAttribute &attribute, BufferType bufferType)
   {
     UpdateRange &updateRange = attribute.updateRange();
 
     _fn->glBindBuffer((GLenum)bufferType, buffer.handle);
 
     if(!attribute.dynamic()) {
-      _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(), GL_STATIC_DRAW );
+      _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(0), GL_STATIC_DRAW );
     }
     else if(updateRange.count == -1) {
       // Not using update ranges
-      _fn->glBufferSubData((GLenum)bufferType, 0, attribute.byteCount(), attribute.data());
+      _fn->glBufferSubData((GLenum)bufferType, 0, attribute.byteCount(), attribute.data(0));
     }
     else if(updateRange.count == 0 ) {
 
@@ -78,8 +76,7 @@ public:
     return _buffers.at(attribute.uuid);
   }
 
-  template <typename T>
-  void remove(const BufferAttributeT<T> &attribute)
+  void remove(const BufferAttribute &attribute)
   {
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 
@@ -93,8 +90,7 @@ public:
     }
   }
 
-  template <typename T>
-  void update(BufferAttributeT<T> &attribute, BufferType bufferType)
+  void update(BufferAttribute &attribute, BufferType bufferType)
   {
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
 

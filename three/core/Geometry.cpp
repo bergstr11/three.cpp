@@ -132,7 +132,7 @@ void BufferGeometry::raycast(const Mesh &mesh,
   if (_index != nullptr) {
 
     // indexed buffer geometry
-    for (size_t i = 0, l = _index->count(); i < l; i += 3) {
+    for (size_t i = 0, l = _index->size(); i < l; i += 3) {
 
       uint32_t a = _index->get_x(i);
       uint32_t b = _index->get_x(i + 1);
@@ -151,7 +151,7 @@ void BufferGeometry::raycast(const Mesh &mesh,
   else {
 
     // non-indexed buffer geometry
-    for (unsigned i = 0, l = (unsigned)_position->count(); i < l; i += 3) {
+    for (unsigned i = 0, l = (unsigned) _position->itemCount(); i < l; i += 3) {
 
       unsigned a = i;
       unsigned b = i + 1;
@@ -182,13 +182,13 @@ void BufferGeometry::raycast(const Line &line,
 
   if (_index != nullptr) {
 
-    for (size_t i = 0, l = _index->array().size() - 1; i < l; i += step ) {
+    for (size_t i = 0, l = _index->size() - 1; i < l; i += step ) {
 
       uint32_t a = (*_index)[ i ];
       uint32_t b = (*_index)[ i + 1 ];
 
-      Vector3 vStart = Vector3::fromArray(_position->array(), a * 3 );
-      Vector3 vEnd = Vector3::fromArray(_position->array(), b * 3 );
+      Vector3 vStart = Vector3::fromArray(_position->tdata(), a * 3 );
+      Vector3 vEnd = Vector3::fromArray(_position->tdata(), b * 3 );
 
       float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
@@ -212,10 +212,10 @@ void BufferGeometry::raycast(const Line &line,
     }
   } else {
 
-    for (size_t i = 0, l = _position->count() / 3 - 1; i < l; i += step ) {
+    for (size_t i = 0, l = _position->size() / 3 - 1; i < l; i += step ) {
 
-      Vector3 vStart = Vector3::fromArray(_position->array(), 3 * i );
-      Vector3 vEnd = Vector3::fromArray(_position->array(), 3 * i + 3 );
+      Vector3 vStart = Vector3::fromArray(_position->tdata(), 3 * i );
+      Vector3 vEnd = Vector3::fromArray(_position->tdata(), 3 * i + 3 );
 
       Vector3 interSegment;
       Vector3 interRay;
@@ -262,15 +262,15 @@ BufferGeometry::BufferGeometry(Object3D::Ptr object, StaticGeometry::Ptr geometr
 
 void BufferGeometry::setFromLinearGeometry(StaticGeometry::Ptr geometry)
 {
-  _position = BufferAttributeT<float>::make(geometry->_vertices);
-  _color = BufferAttributeT<float>::make(geometry->_colors);
+  _position = DefaultBufferAttribute<float>::make(geometry->_vertices);
+  _color = DefaultBufferAttribute<float>::make(geometry->_colors);
 
   _boundingSphere = geometry->_boundingSphere;
   _boundingBox = geometry->_boundingBox;
 
   if (geometry->_lineDistances.size() == geometry->_vertices.size()) {
 
-    _lineDistances = BufferAttributeT<float>::make(geometry->_lineDistances);
+    _lineDistances = DefaultBufferAttribute<float>::make(geometry->_lineDistances);
   }
 }
 
@@ -283,39 +283,39 @@ void BufferGeometry::setFromMeshGeometry(StaticGeometry::Ptr geometry)
 
 void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
 {
-  _position = BufferAttributeT<float>::make( geometry->vertices);
+  _position = DefaultBufferAttribute<float>::make( geometry->vertices);
 
   if (!geometry->normals.empty())
-    _normal = BufferAttributeT<float>::make(geometry->normals);
+    _normal = DefaultBufferAttribute<float>::make(geometry->normals);
 
   if (!geometry->colors.empty())
-    _color = BufferAttributeT<float>::make(geometry->colors);
+    _color = DefaultBufferAttribute<float>::make(geometry->colors);
 
   if (!geometry->uvs.empty())
-    _uv = BufferAttributeT<float>::make(geometry->uvs);
+    _uv = DefaultBufferAttribute<float>::make(geometry->uvs);
 
   if (!geometry->uv2s.empty())
-    _uv2 = BufferAttributeT<float>::make(geometry->uv2s);
+    _uv2 = DefaultBufferAttribute<float>::make(geometry->uv2s);
 
   if (!geometry->indices.empty())
-    _index = BufferAttributeT<uint32_t>::make(geometry->indices);
+    _index = DefaultBufferAttribute<uint32_t>::make(geometry->indices);
 
   // groups
   _groups = geometry->groups;
 
   // morphs
   for(const auto &morphTargets : geometry->morphTargetsPosition)
-    _morphAttributes_position.push_back(BufferAttributeT<float>::make(morphTargets));
+    _morphAttributes_position.push_back(DefaultBufferAttribute<float>::make(morphTargets));
 
   for(const auto &morphTargets : geometry->morphTargetsNormal)
-    _morphAttributes_normal.push_back(BufferAttributeT<float>::make(morphTargets));
+    _morphAttributes_normal.push_back(DefaultBufferAttribute<float>::make(morphTargets));
 
   // skinning
   if (!geometry->skinIndices.empty())
-    _skinIndices = BufferAttributeT<float>::make(geometry->skinIndices);
+    _skinIndices = DefaultBufferAttribute<float>::make(geometry->skinIndices);
 
   if (!geometry->skinWeights.empty())
-    _skinWeight = BufferAttributeT<float>::make(geometry->skinWeights);
+    _skinWeight = DefaultBufferAttribute<float>::make(geometry->skinWeights);
 
   _boundingSphere = geometry->boundingSphere();
 
@@ -357,7 +357,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if ( _position ) {
 
-        _position = BufferAttributeT<float>::make(direct->vertices);
+        _position = DefaultBufferAttribute<float>::make(direct->vertices);
         _position->needsUpdate();
       }
 
@@ -368,7 +368,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_normal) {
 
-        _normal = BufferAttributeT<float>::make(direct->normals);
+        _normal = DefaultBufferAttribute<float>::make(direct->normals);
         _normal->needsUpdate();
       }
 
@@ -379,7 +379,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_color) {
 
-        _color = BufferAttributeT<float>::make(direct->colors);
+        _color = DefaultBufferAttribute<float>::make(direct->colors);
         _color->needsUpdate();
       }
 
@@ -389,7 +389,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_uv) {
 
-        _uv = BufferAttributeT<float>::make(direct->uvs);
+        _uv = DefaultBufferAttribute<float>::make(direct->uvs);
         _uv->needsUpdate();
       }
 
@@ -408,7 +408,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if ( _position ) {
 
-        _position = BufferAttributeT<float>::make(geometry->_vertices);
+        _position = DefaultBufferAttribute<float>::make(geometry->_vertices);
         _position->needsUpdate();
       }
 
@@ -419,7 +419,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_normal) {
 
-        _normal = BufferAttributeT<float>::make(geometry->_normals);
+        _normal = DefaultBufferAttribute<float>::make(geometry->_normals);
         _normal->needsUpdate();
       }
 
@@ -430,7 +430,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_color) {
 
-        _color = BufferAttributeT<float>::make(geometry->_colors);
+        _color = DefaultBufferAttribute<float>::make(geometry->_colors);
         _color->needsUpdate();
       }
 
@@ -440,7 +440,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr
 
       if (_lineDistances) {
 
-        _lineDistances = BufferAttributeT<float>::make(geometry->_lineDistances);
+        _lineDistances = DefaultBufferAttribute<float>::make(geometry->_lineDistances);
         _lineDistances->needsUpdate();
       }
 

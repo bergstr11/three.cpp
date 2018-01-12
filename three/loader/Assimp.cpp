@@ -3,6 +3,7 @@
 //
 
 #include "Assimp.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/ProgressHandler.hpp>
 #include <assimp/IOStream.hpp>
@@ -12,7 +13,6 @@
 #include <material/MeshPhongMaterial.h>
 #include <material/MeshLambertMaterial.h>
 #include <material/MeshToonMaterial.h>
-#include <textures/DataTexture.h>
 
 namespace three {
 namespace loader {
@@ -144,8 +144,18 @@ void ai2Three(math::Matrix4 &matrix, const aiMatrix4x4 &ai)
              ai.c3, ai.c4, ai.d1, ai.d2, ai.d3, ai.d4);
 }
 
-static Texture::Ptr loadTexture(const aiString &path, const aiScene *aiscene)
+static Texture::Ptr loadTexture(aiTextureType type, unsigned index, const aiMaterial *material, const aiScene *aiscene)
 {
+  aiString path;
+  aiTextureMapping mapping;
+  unsigned int uvindex;
+  ai_real blend;
+  aiTextureOp op;
+  aiTextureMapMode mapmode;
+
+  if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, &mapmode) == AI_SUCCESS) {
+
+  }
   return nullptr;
 }
 
@@ -193,9 +203,7 @@ struct ReadMaterial<material::LightMap>
 {
   FORWARD_MIXIN(material::LightMap)
   static void mixin(material::LightMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;	// filename
-    if(ai->GetTexture(aiTextureType_LIGHTMAP, 0, &path) == AI_SUCCESS)
-      material.lightMap = loadTexture(path, aiscene);
+    material.lightMap = loadTexture(aiTextureType_AMBIENT, 0, ai, aiscene);
     //material.lightMapIntensity;
   }
 };
@@ -204,9 +212,7 @@ struct ReadMaterial<material::EmissiveMap>
 {
   FORWARD_MIXIN(material::EmissiveMap)
   static void mixin(material::EmissiveMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_EMISSIVE, 0, &path) == AI_SUCCESS)
-      material.emissiveMap = loadTexture(path, aiscene);
+    material.emissiveMap = loadTexture(aiTextureType_EMISSIVE, 0, ai, aiscene);
     ai->Get(AI_MATKEY_COLOR_EMISSIVE, material.emissive);
     //material.emissive *= material.emissiveIntensity;
   }
@@ -216,9 +222,7 @@ struct ReadMaterial<material::AoMap>
 {
   FORWARD_MIXIN(material::AoMap)
   static void mixin(material::AoMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_AMBIENT, 0, &path) == AI_SUCCESS)
-      material.aoMap = loadTexture(path, aiscene);
+    material.aoMap = loadTexture(aiTextureType_LIGHTMAP, 0, ai, aiscene);
     //material.aoMapIntensity;
     ai->Get(AI_MATKEY_COLOR_AMBIENT, material.ambient);
   }
@@ -228,10 +232,7 @@ struct ReadMaterial<material::EnvMap>
 {
   FORWARD_MIXIN(material::EnvMap)
   static void mixin(material::EnvMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_REFLECTION, 0, &path) == AI_SUCCESS)
-      material.envMap = loadTexture(path, aiscene);
-
+    material.envMap = loadTexture(aiTextureType_REFLECTION, 0, ai, aiscene);
     //material.reflectivity;
     //material.refractionRatio;
     ai->Get(AI_MATKEY_COLOR_REFLECTIVE, material.reflective);
@@ -242,9 +243,7 @@ struct ReadMaterial<material::AlphaMap>
 {
   FORWARD_MIXIN(material::AlphaMap)
   static void mixin(material::AlphaMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_OPACITY, 0, &path) == AI_SUCCESS)
-      material.alphaMap = loadTexture(path, aiscene);
+    material.alphaMap = loadTexture(aiTextureType_OPACITY, 0, ai, aiscene);
     //ai->Get(AI_MATKEY_SHININESS, material.shininess);
   }
 };
@@ -253,9 +252,7 @@ struct ReadMaterial<material::SpecularMap>
 {
   FORWARD_MIXIN(material::SpecularMap)
   static void mixin(material::SpecularMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_SPECULAR, 0, &path) == AI_SUCCESS)
-      material.specularMap = loadTexture(path, aiscene);
+    material.specularMap = loadTexture(aiTextureType_SPECULAR, 0, ai, aiscene);
     ai->Get(AI_MATKEY_COLOR_SPECULAR, material.specular);
   }
 };
@@ -264,9 +261,7 @@ struct ReadMaterial<material::DisplacementMap>
 {
   FORWARD_MIXIN(material::DisplacementMap)
   static void mixin(material::DisplacementMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) == AI_SUCCESS)
-      material.displacementMap = loadTexture(path, aiscene);
+    material.displacementMap = loadTexture(aiTextureType_DISPLACEMENT, 0, ai, aiscene);
   }
 };
 template <>
@@ -274,9 +269,7 @@ struct ReadMaterial<material::BumpMap>
 {
   FORWARD_MIXIN(material::BumpMap)
   static void mixin(material::BumpMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS)
-      material.bumpMap = loadTexture(path, aiscene);
+    material.bumpMap = loadTexture(aiTextureType_HEIGHT, 0, ai, aiscene);
   }
 };
 template <>
@@ -284,9 +277,7 @@ struct ReadMaterial<material::NormalMap>
 {
   FORWARD_MIXIN(material::NormalMap)
   static void mixin(material::NormalMap &material, const aiMaterial *ai, const aiScene *aiscene) {
-    aiString path;
-    if(ai->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS)
-      material.normalMap = loadTexture(path, aiscene);
+    material.normalMap = loadTexture(aiTextureType_NORMALS, 0, ai, aiscene);
   }
 };
 
@@ -382,9 +373,6 @@ struct Access
     int blendFunc;
     ai->Get(AI_MATKEY_BLEND_FUNC, blendFunc);
 
-    //ai->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-    //ai->GetTexture(aiTextureType_SHININESS, 0, &path);
-
     makers[materialIndex] = maker;
   }
 
@@ -423,51 +411,27 @@ struct Access
         indices.push_back( f.mIndices[ 0 ] );
       }
     }
-    geometry->setIndex(indices);
+    geometry->setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
 
-    vector<Vertex> vertices;
-    for(unsigned i=0; i<ai->mNumVertices; i++) {
-      aiVector3D &vertex = ai->mVertices[i];
-      vertices.emplace_back(vertex.x, vertex.y, vertex.z);
-    }
-    geometry->setPosition(BufferAttributeT<float>::make(vertices) );
+    geometry->setPosition(ExternalBufferAttribute<float>::make(ai->mVertices, ai->mNumVertices) );
 
     if(ai->mNormals) {
-      vector<Vertex> normals;
-      for(unsigned i=0; i<ai->mNumVertices; i++) {
-        aiVector3D &normal = ai->mNormals[i];
-        normals.emplace_back(normal.x, normal.y, normal.z);
-      }
-      geometry->setNormal(BufferAttributeT<float>::make(normals) );
+      geometry->setNormal(ExternalBufferAttribute<float>::make(ai->mNormals, ai->mNumVertices) );
     }
-
     if(ai->mColors[0]) {
-      vector<Color> colors;
-      for(unsigned i=0; i<ai->mNumVertices; i++) {
-        aiColor4D &color = ai->mColors[0][i];
-        colors.emplace_back(color.r, color.g, color.b);
-      }
-      geometry->setColor(BufferAttributeT<float>::make(colors) );
+      geometry->setColor(ExternalBufferAttribute<float>::make(ai->mColors[0], ai->mNumVertices));
     }
-
     if(ai->mTextureCoords[0]) {
-      vector<UV> uvs;
-      for(unsigned i=0; i<ai->mNumVertices; i++) {
-        aiVector3D &coord = ai->mTextureCoords[0][i];
-        uvs.emplace_back(coord.x, coord.y);
-      }
-      geometry->setUV((BufferAttributeT<float>::make(uvs)));
+      geometry->setUV(ExternalBufferAttribute<float>::make(ai->mTextureCoords[0], ai->mNumVertices));
     }
     if(ai->mTextureCoords[1]) {
-      vector<UV> uvs;
-      for(unsigned i=0; i<ai->mNumVertices; i++) {
-        aiVector3D *coord = ai->mTextureCoords[0];
-        uvs.emplace_back(coord->x, coord->y);
-      }
-      geometry->setUV2((BufferAttributeT<float>::make(uvs)));
+      geometry->setUV2(ExternalBufferAttribute<float>::make(ai->mTextureCoords[1], ai->mNumVertices));
     }
     if(ai->mTangents) {
-
+      geometry->setTangents(ExternalBufferAttribute<float>::make(ai->mTangents, ai->mNumVertices));
+    }
+    if(ai->mBitangents) {
+      geometry->setBitangents(ExternalBufferAttribute<float>::make(ai->mBitangents, ai->mNumVertices));
     }
 #if 0
     if ( this.mTangentBuffer && this.mTangentBuffer.length > 0 )

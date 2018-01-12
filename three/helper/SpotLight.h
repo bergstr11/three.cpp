@@ -46,7 +46,7 @@ protected:
     }
 
     auto geometry = BufferGeometry::make();
-    geometry->setPosition(BufferAttributeT<float>::make(positions));
+    geometry->setPosition(DefaultBufferAttribute<float>::make(positions));
 
     _coneMaterial = LineBasicMaterial::make();
     _cone = LineSegments::make("spothelper", geometry, _coneMaterial);

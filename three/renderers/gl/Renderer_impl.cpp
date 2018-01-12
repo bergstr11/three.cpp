@@ -614,11 +614,11 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
   if (index) {
 
-    dataCount = index->count();
+    dataCount = index->size();
   }
   else if (geometry->position()) {
 
-    dataCount = geometry->position()->count();
+    dataCount = geometry->position()->itemCount();
   }
 
   size_t rangeStart = geometry->drawRange().offset * rangeFactor;
@@ -740,7 +740,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
 
         dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {
 
-          auto &data = att.data();
+          auto &data = att.buffer();
           GLsizei stride = (GLsizei) data.stride();
           GLsizei offset = (GLsizei) att.offset();
 

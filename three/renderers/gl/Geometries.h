@@ -123,7 +123,7 @@ public:
 
     if (geometry->index()) {
 
-      auto array = geometry->index()->data();
+      auto array = geometry->index()->tdata();
 
       for (size_t i = 0, l = geometry->index()->size(); i < l; i += 3) {
 
@@ -141,7 +141,7 @@ public:
     }
     else {
 
-      auto array = geometry->position()->data();
+      auto array = geometry->position()->tdata();
 
       for (size_t i = 0, l = (geometry->position()->size() / 3) - 1; i < l; i += 3 ) {
 
@@ -158,7 +158,7 @@ public:
       }
     }
 
-    attribute = BufferAttributeT<uint32_t>::make(indices, 1, false);
+    attribute = DefaultBufferAttribute<uint32_t>::make(indices, 1, false);
 
     _attributes.update(*attribute, BufferType::ElementArray);
 
