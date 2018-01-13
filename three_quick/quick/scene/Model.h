@@ -12,6 +12,11 @@
 #include "quick/ThreeQObjectRoot.h"
 
 namespace three {
+
+namespace loader {
+class Assimp;
+}
+
 namespace quick {
 
 class Model : public ThreeQObjectRoot
@@ -27,9 +32,11 @@ Q_OBJECT
   QVector3D _position;
   bool _isScene = true;
 
-  three::Scene::Ptr _scene;
+  std::shared_ptr<loader::Assimp> _assimp;
 
 public:
+  Model(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
+
   const QString name() {return _name;}
 
   void setName(const QString &name);
@@ -46,7 +53,7 @@ public:
 
   void addTo(ObjectRootContainer *container) override;
 
-  three::Scene::Ptr scene() {return _scene;}
+  three::Scene::Ptr scene();
 
 signals:
   void fileChanged();

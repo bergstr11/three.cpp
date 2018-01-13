@@ -33,15 +33,24 @@ Window {
         onClicked: fileDialog.visible = true
     }
 
+    Label {
+        id: holdon
+        anchors.centerIn: parent
+        text: "Hold on while loading.."
+        font.pointSize: 34
+        visible: false
+    }
+
     ThreeD {
         id: threeD
         anchors.fill: parent
-        faceCulling: Three.NoFaceCulling
         autoClear: false
 
         Model {
             id: threeDModel
             isScene: false
+            onFileChanged: holdon.visible = true
+            onModelLoaded: holdon.visible = false
         }
 
         Scene {
@@ -52,9 +61,10 @@ Window {
                 color: "#ffffff"
             }
 
-            Mesh {
+            ModelRef {
                 model: threeDModel
-                path: "something"
+                type: ModelRef.Mesh
+                selector: "*"
             }
 
             camera: PerspectiveCamera {

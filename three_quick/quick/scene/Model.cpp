@@ -16,21 +16,52 @@ namespace quick {
 
 using namespace std;
 
-static const char *root = "$root";
+class Resource : public three::Resource
+{
+  friend class Loader;
 
-class Loader : public QObject, public three::ResourceLoader
+  fstream fin;
+  QFileInfo info;
+
+  Resource(const QString &path, ios_base::openmode openmode)
+     : fin(path.toStdString(), openmode), info(path)
+  {
+    if(!info.exists() || fin.fail()) throw invalid_argument("cannot read file: "+path.toStdString());
+  }
+
+public:
+  using Ptr = shared_ptr<Resource>;
+
+  static Ptr make(const QString &path, ios_base::openmode openmode) {
+    return Ptr(new Resource(path, openmode));
+  }
+
+  size_t size() override
+  {
+    return info.size();
+  }
+
+  istream &in() override
+  {
+    return fin;
+  }
+};
+
+class Loader : public QThread, public three::ResourceLoader
 {
 Q_OBJECT
 
+  loader::Assimp &assimp;
   QFileInfo file;
   QDir dir;
 
 public:
-  Loader(QUrl url) : file(url.toLocalFile()), dir(file.absoluteDir()) {}
+  Loader(loader::Assimp &assimp, QUrl url)
+     : assimp(assimp), file(url.toLocalFile()), dir(file.absoluteDir()) {}
 
-  void load() {
-    loader::Assimp assimp;
-    assimp.load(root, *this);
+  void run() override
+  {
+    assimp.load(file.fileName().toStdString(), *this);
 
     emit completed();
     deleteLater();
@@ -38,7 +69,7 @@ public:
 
   bool exists(const char *path) override
   {
-    if(!strcmp(path, root)) {
+    if(file.fileName() == path) {
       return file.exists();
     }
     else {
@@ -46,14 +77,19 @@ public:
     }
   }
 
-  std::istream &&istream(const char *path, ios_base::openmode openmode) override
+  three::Resource::Ptr get(const char *path, ios_base::openmode openmode) override
   {
-    if(!strcmp(path, root)) {
-      return ifstream(file.absoluteFilePath().toStdString(), openmode);
+    if(file.fileName() == path) {
+      return Resource::make(file.absoluteFilePath(), openmode);
     }
     else {
-      return ifstream(dir.absoluteFilePath(QString(path)).toStdString());
+      return Resource::make(dir.absoluteFilePath(QString(path)), openmode);
     }
+  }
+
+  string makePath(const string &file) override
+  {
+    return dir.absoluteFilePath(QString::fromStdString(file)).toStdString();
   }
 
 signals:
@@ -66,12 +102,10 @@ void Model::setFile(const QUrl &file)
     _file = file;
     emit fileChanged();
 
-    QThread *thread = new QThread();
-    Loader *loader = new Loader(file);
-    loader->moveToThread(thread);
+    _assimp = make_shared<loader::Assimp>();
+    Loader *loader = new Loader(*_assimp, file);
     QObject::connect(loader, &Loader::completed, this, &Model::modelLoaded);
-    QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-    thread->start();
+    loader->start();
   }
 }
 
@@ -87,6 +121,10 @@ void Model::setIsScene(bool isScene) {
     _isScene = isScene;
     emit isSceneChanged();
   }
+}
+
+three::Scene::Ptr Model::scene() {
+  return _assimp ? _assimp->scene() : nullptr;
 }
 
 void Model::addTo(ObjectRootContainer *container)

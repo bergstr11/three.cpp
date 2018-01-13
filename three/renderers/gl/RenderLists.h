@@ -39,46 +39,49 @@ class RenderList
   std::vector<size_t> _opaque;
   std::vector<size_t> _transparent;
 
-  int painterSortStable(size_t index_a, size_t index_b)
+  bool painterSortStable(size_t index_a, size_t index_b)
   {
     const RenderItem &a = _renderItems.at(index_a);
     const RenderItem &b = _renderItems.at(index_b);
 
     if (a.renderOrder != b.renderOrder) {
 
-      return a.renderOrder - b.renderOrder;
+      return a.renderOrder < b.renderOrder;
     }
     else if (a.program != nullptr && b.program != nullptr && a.program != b.program) {
 
-      return a.program->handle() - b.program->handle();
+      return a.program->handle() < b.program->handle();
     }
     else if (a.material->id != b.material->id) {
-      return a.material->id - b.material->id;
+
+      return a.material->id < b.material->id;
     }
     else if (a.z != b.z) {
-      return a.z - b.z;
+
+      return a.z < b.z;
     }
     else {
-      return a.id - b.id;
+
+      return a.id < b.id;
     }
   }
 
-  int reversePainterSortStable(size_t index_a, size_t index_b)
+  bool reversePainterSortStable(size_t index_a, size_t index_b)
   {
     const RenderItem &a = _renderItems.at(index_a);
     const RenderItem &b = _renderItems.at(index_b);
 
     if (a.renderOrder != b.renderOrder) {
 
-      return a.renderOrder - b.renderOrder;
+      return a.renderOrder > b.renderOrder;
     }
     if (a.z != b.z) {
 
-      return b.z - a.z;
+      return b.z > a.z;
     }
     else {
 
-      return a.id - b.id;
+      return a.id > b.id;
     }
   }
 

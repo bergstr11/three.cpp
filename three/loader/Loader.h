@@ -12,23 +12,30 @@
 
 namespace three {
 
+struct Resource
+{
+  virtual size_t size() = 0;
+  virtual std::istream &in() = 0;
+  virtual ~Resource() = default;
+  using Ptr = std::shared_ptr<Resource>;
+};
+
 struct ResourceLoader {
   virtual bool exists(const char *path) = 0;
-  virtual std::istream &&istream(const char *path, std::ios_base::openmode) = 0;
+  virtual std::string makePath(const std::string &file) = 0;
+  virtual Resource::Ptr get(const char *path, std::ios_base::openmode) = 0;
 };
 
 class Loader
 {
 protected:
-  Loader() {}
-
   Scene::Ptr _scene;
   Objects::Ptr _objects;
 
 public:
   using Ptr = std::shared_ptr<Loader>;
 
-  virtual ~Loader() {}
+  virtual ~Loader() = default;
 
   Signal<void(Objects::Ptr objects)> onLoaded;
   Signal<void(unsigned percent)> onProgress;

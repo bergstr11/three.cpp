@@ -87,7 +87,7 @@ protected:
   {}
 
 public:
-  virtual ~BufferAttribute() {}
+  virtual ~BufferAttribute() = default;
 
   using Ptr = std::shared_ptr<BufferAttribute>;
 
@@ -133,7 +133,7 @@ template <typename Type>
 class BufferAttributeT : public BufferAttribute
 {
 protected:
-  Type * _data;
+  Type *_data;
   size_t _size = 0;
 
   explicit BufferAttributeT(bufferattribute::Resolver::Ptr resolver, unsigned itemSize, bool normalized)
@@ -490,7 +490,7 @@ public:
 
   template <typename ItemT>
   static Ptr make(ItemT *data, size_t size) {
-    return Ptr(new ExternalBufferAttribute(reinterpret_cast<Type *>(data), sizeof(ItemT), size));
+    return Ptr(new ExternalBufferAttribute(reinterpret_cast<Type *>(data), sizeof(ItemT) / sizeof(Type), size));
   }
 };
 

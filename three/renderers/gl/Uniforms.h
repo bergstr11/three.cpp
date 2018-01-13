@@ -376,7 +376,6 @@ public:
   void set(UniformName name, T value) {
     if(_map.count(name) > 0) {
       _map[name]->setValue(value);
-      //check_gl_error(_renderer);
     }
   }
 

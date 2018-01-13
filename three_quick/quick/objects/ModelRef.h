@@ -13,20 +13,28 @@
 namespace three {
 namespace quick {
 
-class Mesh : public ThreeQObject
+class ModelRef : public ThreeQObject
 {
 Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)
-  Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+  Q_PROPERTY(QString selector READ selector WRITE setSelector)
+  Q_PROPERTY(Type type READ type WRITE setType)
 
+public:
+  enum Type {Mesh, Texture, Light, Camera};
+  Q_ENUM(Type)
+
+private:
   Model *_model = nullptr;
-  QString _path;
+  QString _selector;
+  Type _type;
 
-  QMetaObject::Connection _modelConnection;
+  QMetaObject::Connection _loadedConnection;
+  QMetaObject::Connection _fileConnection;
 
   Scene *_scene = nullptr;
 
-  Object3D::Ptr _object;
+  std::vector<Object3D::Ptr> _objects;
 
 protected:
   Object3D::Ptr _create(Scene *scene) override
@@ -36,19 +44,25 @@ protected:
   }
 
 public:
+  ModelRef(QObject *parent=nullptr) : ThreeQObject(parent) {}
+
   Model *model() const {return _model;}
 
   void setModel(Model *model);
 
-  const QString &path() const {return _path;}
+  const QString &selector() const {return _selector;}
 
-  void setPath(const QString &path);
+  void setSelector(const QString &selector) {_selector = selector;}
+
+  Type type() const {return _type;}
+
+  void setType(Type type) {_type = type;}
 
 signals:
   void modelChanged();
-  void pathChanged();
 
 private slots:
+  void cleanupMesh();
   void updateMesh();
 };
 

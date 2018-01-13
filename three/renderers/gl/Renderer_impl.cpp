@@ -129,8 +129,6 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
-cout << "doRender" << endl;
-
   if(renderTarget) renderTarget->init(this);
   check_glerror(this);
 
@@ -309,7 +307,6 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
   while(renderIterator) {
 
     const RenderItem &renderItem = *renderIterator;
-cout << "renderItem: " << renderItem.object->name() << endl;
     Material::Ptr material = overrideMaterial ? overrideMaterial : renderItem.material;
 
     camera::Dispatch dispatch;
@@ -337,7 +334,6 @@ cout << "renderItem: " << renderItem.object->name() << endl;
     };
     if(!camera->cameraResolver->getValue(dispatch)) {
       _currentArrayCamera = nullptr;
-cout << "renderObject: " << renderItem.object->name() << endl;
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     }
     renderIterator++;
@@ -363,7 +359,6 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
     renderObjectImmediate( iro, program, material );
   };
   if(!object->objectResolver->getValue(dispatch)) {
-    cout << "renderBufferDirect " <<  object->name() << endl;
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   }
 

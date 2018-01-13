@@ -16,6 +16,10 @@
 
 #include "Loader.h"
 
+namespace Assimp {
+class Importer;
+}
+
 namespace three {
 namespace loader {
 
@@ -28,9 +32,13 @@ protected:
   std::vector<Material::Ptr> _materials;
   std::vector<Mesh::Ptr> _meshes;
 
+  std::shared_ptr<::Assimp::Importer> _importer;
+
   void loadScene(std::string name, ResourceLoader &loader);
 
 public:
+  ~Assimp() override;
+
   void load(std::string name, ResourceLoader &loader) override;
   void load(std::string name, Color background, ResourceLoader &loader) override;
   void load(std::string name, Texture::Ptr background, ResourceLoader &loader) override;

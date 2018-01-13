@@ -22,7 +22,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
-#include "objects/Mesh.h"
+#include "quick/objects/ModelRef.h"
 #include "materials/MeshBasicMaterial.h"
 #include "materials/MeshLambertMaterial.h"
 #include "materials/MeshPhongMaterial.h"
@@ -54,7 +54,7 @@ void init()
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
-  qmlRegisterType<three::quick::Mesh>("three.quick", 1, 0, "Mesh");
+  qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
@@ -319,6 +319,7 @@ void ThreeDItem::addTexture(Texture *texture)
 void ThreeDItem::addScene(Scene *scene)
 {
   _scenes.push_back(scene);
+  QObject::connect(scene, &Scene::sceneChanged, this, &QQuickItem::update);
 }
 
 }
