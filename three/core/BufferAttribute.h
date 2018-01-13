@@ -253,7 +253,7 @@ public:
     Type maxY = - std::numeric_limits<Type>::infinity();
     Type maxZ = - std::numeric_limits<Type>::infinity();
 
-    for(size_t i = 0; i < _size; i++) {
+    for(size_t i = 0, l=itemCount(); i < l; i++) {
       Type x = get_x(i);
       Type y = get_y(i);
       Type z = get_z(i);

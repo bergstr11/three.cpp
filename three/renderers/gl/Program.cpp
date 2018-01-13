@@ -537,10 +537,12 @@ Program::Program(Renderer_impl &renderer,
     if(( *parameters->useFog && *parameters->fogExp )) ss << "#define FOG_EXP2" << endl;
 
     if(*parameters->map) ss << "#define USE_MAP" << endl;
-    if(*parameters->envMap) ss << "#define USE_ENVMAP" << endl;
-    if(*parameters->envMap) ss << "#define " << envMapTypeDefine << endl;
-    if(*parameters->envMap) ss << "#define " << envMapModeDefine << endl;
-    if(*parameters->envMap) ss << "#define " << envMapBlendingDefine << endl;
+    if(*parameters->envMap) {
+      ss << "#define USE_ENVMAP" << endl;
+      ss << "#define " << envMapTypeDefine << endl;
+      ss << "#define " << envMapModeDefine << endl;
+      ss << "#define " << envMapBlendingDefine << endl;
+    }
     if(*parameters->lightMap) ss << "#define USE_LIGHTMAP" << endl;
     if(*parameters->aoMap) ss << "#define USE_AOMAP" << endl;
     if(*parameters->emissiveMap) ss << "#define USE_EMISSIVEMAP" << endl;
@@ -650,7 +652,6 @@ Program::Program(Renderer_impl &renderer,
   string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
 #if 1
-  if(shader.name() == "LineBasicMaterial") {
   GLsizei len;
   char buf[100000];
   ofstream of1("vertex.glsl", ios_base::app);
@@ -659,7 +660,6 @@ Program::Program(Renderer_impl &renderer,
   ofstream of2("fragment.glsl", ios_base::app);
   _renderer.glGetShaderSource(glFragmentShader, 100000, &len, buf);
   of2 << buf;
-  }
 #endif
 
   GLint value;

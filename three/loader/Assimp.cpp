@@ -237,7 +237,7 @@ struct ReadMaterial<material::LightMap>
   FORWARD_MIXIN(material::LightMap)
   static void mixin(material::LightMap &material, const aiMaterial *ai, Access *access) {
     material.lightMap = access->loadTexture(aiTextureType_AMBIENT, 0, ai);
-    //material.lightMapIntensity;
+    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.lightMapIntensity);
   }
 };
 template <>
@@ -247,7 +247,7 @@ struct ReadMaterial<material::EmissiveMap>
   static void mixin(material::EmissiveMap &material, const aiMaterial *ai, Access *access) {
     material.emissiveMap = access->loadTexture(aiTextureType_EMISSIVE, 0, ai);
     ai->Get(AI_MATKEY_COLOR_EMISSIVE, material.emissive);
-    //material.emissive *= material.emissiveIntensity;
+    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.emissiveIntensity);
   }
 };
 template <>
@@ -256,8 +256,8 @@ struct ReadMaterial<material::AoMap>
   FORWARD_MIXIN(material::AoMap)
   static void mixin(material::AoMap &material, const aiMaterial *ai, Access *access) {
     material.aoMap = access->loadTexture(aiTextureType_LIGHTMAP, 0, ai);
-    //material.aoMapIntensity;
     ai->Get(AI_MATKEY_COLOR_AMBIENT, material.ambient);
+    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.aoMapIntensity);
   }
 };
 template <>
@@ -266,9 +266,9 @@ struct ReadMaterial<material::EnvMap>
   FORWARD_MIXIN(material::EnvMap)
   static void mixin(material::EnvMap &material, const aiMaterial *ai, Access *access) {
     material.envMap = access->loadTexture(aiTextureType_REFLECTION, 0, ai);
-    //material.reflectivity;
-    //material.refractionRatio;
     ai->Get(AI_MATKEY_COLOR_REFLECTIVE, material.reflective);
+    ai->Get(AI_MATKEY_REFLECTIVITY, material.reflectivity);
+    ai->Get(AI_MATKEY_REFRACTI, material.refractionRatio);
   }
 };
 template <>
@@ -277,7 +277,6 @@ struct ReadMaterial<material::AlphaMap>
   FORWARD_MIXIN(material::AlphaMap)
   static void mixin(material::AlphaMap &material, const aiMaterial *ai, Access *access) {
     material.alphaMap = access->loadTexture(aiTextureType_OPACITY, 0, ai);
-    //ai->Get(AI_MATKEY_SHININESS, material.shininess);
   }
 };
 template <>
@@ -287,6 +286,7 @@ struct ReadMaterial<material::SpecularMap>
   static void mixin(material::SpecularMap &material, const aiMaterial *ai, Access *access) {
     material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
     ai->Get(AI_MATKEY_COLOR_SPECULAR, material.specular);
+    ai->Get(AI_MATKEY_SHININESS, material.shininess);
   }
 };
 template <>
@@ -371,6 +371,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         image.load(QString::fromStdString(loader.makePath(imageFile)));
         images[imageFile] = image;
       }
+      qDebug() << "loaded texture " << imageFile.c_str() << "(" << type << ")";
       TextureOptions options = ImageTexture::options();
       return ImageTexture::make(options, image);
     }
