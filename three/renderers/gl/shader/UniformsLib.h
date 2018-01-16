@@ -195,6 +195,37 @@ template<> struct UniformValueT<CachedDirectionalLights> : public UniformValue
   }
 };
 
+template<> struct UniformValueT<CachedHemisphereLights> : public UniformValue
+{
+  CachedHemisphereLights value;
+
+  explicit UniformValueT(UniformName nm, const CachedHemisphereLights &value)
+     : UniformValue(nm), value(value) {}
+  explicit UniformValueT(UniformName nm, const CachedHemisphereLights &value, UniformProperties properties)
+     : UniformValue(nm, properties), value(value) {}
+
+  UniformValueT &operator = (const CachedHemisphereLights &value) {
+    this->value = value; return *this;
+  }
+  static Ptr make(UniformName nm, const CachedHemisphereLights &value) {
+    return Ptr(new UniformValueT(nm, value));
+  }
+  Ptr clone() const override {
+    return Ptr(new UniformValueT(id, value));
+  }
+  void applyValue(Uniform::Ptr uniform) override
+  {
+    UniformContainer *container = uniform->asContainer();
+    size_t index = 0;
+    for(const auto &entry : value) {
+      UniformContainer *container2 = container->get(index)->asContainer();
+      container2->set(UniformName::direction, entry->direction);
+      container2->set(UniformName::skyColor, entry->skyColor);
+      container2->set(UniformName::groundColor, entry->groundColor);
+    }
+  }
+};
+
 class LibUniformValues
 {
   std::unordered_map<UniformName, UniformValue::Ptr> values;

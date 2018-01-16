@@ -116,6 +116,8 @@ public:
 
   const std::string &name() const  {return _name;}
 
+  void setName(const std::string &name) {_name = name;}
+
   const std::vector<Ptr> &children() const {return _children;}
 
   math::Vector3 &up() {return _up;}

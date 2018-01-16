@@ -163,6 +163,8 @@ struct Access
   unordered_map<unsigned, Mesh::Ptr> meshes;
   unordered_map<unsigned, MeshMaker::Ptr> makers;
 
+  bool switchHeightAndNormalMap = true;
+
   Access(Scene::Ptr scene, const aiScene * aiscene, ResourceLoader &loader)
      : scene(scene), aiscene(aiscene), loader(loader) {}
 
@@ -214,14 +216,6 @@ static void read(MaterialT<x> &material, const aiMaterial *ai, Access *access) {
   mixin(material, ai, access); \
 }
 
-template <>
-struct ReadMaterial<>
-{
-  FORWARD_MIXIN()
-  static void mixin(Material &material, const aiMaterial *ai, Access *access) {
-    //material.map = ai;
-  }
-};
 template <>
 struct ReadMaterial<material::Colored>
 {
@@ -302,7 +296,12 @@ struct ReadMaterial<material::BumpMap>
 {
   FORWARD_MIXIN(material::BumpMap)
   static void mixin(material::BumpMap &material, const aiMaterial *ai, Access *access) {
-    material.bumpMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
+    if(access->switchHeightAndNormalMap)
+      material.bumpMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
+    else
+      material.bumpMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
+
+    ai->Get(AI_MATKEY_BUMPSCALING, material.bumpScale);
   }
 };
 template <>
@@ -310,7 +309,10 @@ struct ReadMaterial<material::NormalMap>
 {
   FORWARD_MIXIN(material::NormalMap)
   static void mixin(material::NormalMap &material, const aiMaterial *ai, Access *access) {
-    material.normalMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
+    if(access->switchHeightAndNormalMap)
+      material.normalMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
+    else
+      material.normalMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
   }
 };
 
@@ -327,11 +329,46 @@ protected:
   static void read(MaterialT<Maps...> &material, const aiMaterial *ai, Access *access)
   {
     ReadMaterial<Maps...>::read(material, ai, access);
+
+    material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
+    if(!material.map)
+      material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
+
+    auto tex = access->loadTexture(aiTextureType_SHININESS, 0, ai);
+    if(tex) qWarning() << "found aiTextureType_SHININESS texture, dont't know what to do with it..";
+
+    aiString name;
+    ai->Get(AI_MATKEY_NAME, name);
+    material.name = name.C_Str();
+
+    int twosided;
+    if(ai->Get(AI_MATKEY_TWOSIDED, twosided) == AI_SUCCESS)
+      material.side = twosided ? Side::Double : Side::Front;
+
+    int blendFunc;
+    if(ai->Get(AI_MATKEY_BLEND_FUNC, blendFunc) == AI_SUCCESS) {
+      switch(blendFunc) {
+        case aiBlendMode_Default:
+          material.blendSrcAlpha = BlendFunc::SrcAlpha;
+          material.blendDstAlpha = BlendFunc::OneMinusSrcAlpha;
+          material.blendEquationAlpha = BlendEq::Add;
+          break;
+        case aiBlendMode_Additive:
+          material.blendSrcAlpha = BlendFunc::None;
+          material.blendDstAlpha = BlendFunc::None;
+          material.blendEquationAlpha = BlendEq::Add;
+          break;
+      }
+    }
+
+    ai->Get(AI_MATKEY_ENABLE_WIREFRAME, material.wireframe);
   }
 
 public:
   Mesh::Ptr makeMesh(BufferGeometry::Ptr geometry) override {
-    return MeshT<BufferGeometry, Mat>::make(geometry, _material);
+    Mesh::Ptr m = MeshT<BufferGeometry, Mat>::make(geometry, _material);
+    m->setName(_material->name);
+    return m;
   }
 
   Material &material() override {return *_material;}
@@ -352,9 +389,10 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
   unsigned int uvindex;
   ai_real blend;
   aiTextureOp op;
-  aiTextureMapMode mapmode;
+  aiTextureMapMode mapmode[3];
 
-  if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, &mapmode) == AI_SUCCESS) {
+  if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
+
     if(path.data[0] == '*') {
       unsigned index = atoi(path.data + 1);
       aiTexture *tex = aiscene->mTextures[index];
@@ -368,11 +406,49 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
       if(images.count(imageFile) > 0)
         image = images[imageFile];
       else {
-        image.load(QString::fromStdString(loader.makePath(imageFile)));
+        loader.load(image, imageFile);
         images[imageFile] = image;
       }
       qDebug() << "loaded texture " << imageFile.c_str() << "(" << type << ")";
       TextureOptions options = ImageTexture::options();
+      switch(mapmode[0]) {
+        case aiTextureMapMode_Wrap:
+          options.wrapS = TextureWrapping::Repeat;
+          break;
+        case aiTextureMapMode_Clamp:
+          options.wrapS = TextureWrapping::ClampToEdge;
+          break;
+        case aiTextureMapMode_Mirror:
+          options.wrapS = TextureWrapping::MirroredRepeat;
+          break;
+      }
+      switch(mapmode[1]) {
+        case aiTextureMapMode_Wrap:
+          options.wrapT = TextureWrapping::Repeat;
+          break;
+        case aiTextureMapMode_Clamp:
+          options.wrapT = TextureWrapping::ClampToEdge;
+          break;
+        case aiTextureMapMode_Mirror:
+          options.wrapT = TextureWrapping::MirroredRepeat;
+          break;
+      }
+      switch(op) {
+        case aiTextureOp_Multiply:
+          options.blending = Blending::Multiply;
+          break;
+        case aiTextureOp_SmoothAdd:
+        case aiTextureOp_SignedAdd:
+        case aiTextureOp_Add:
+          options.blending = Blending::Additive;
+          break;
+        case aiTextureOp_Subtract:
+          options.blending = Blending::Subtractive;
+          break;
+        case aiTextureOp_Divide:
+          options.blending = Blending::Divide;
+          break;
+      }
       return ImageTexture::make(options, image);
     }
   }
@@ -384,6 +460,7 @@ Object3D::Ptr Access::readObject(const aiNode *ai, Object3D::Ptr object)
   if(!object) {
     object = Objects::make();
   }
+
   object->_name = ai->mName.C_Str();
 
   ai2Three(object->_matrix, ai->mTransformation);
@@ -418,7 +495,8 @@ Mesh::Ptr Access::readMesh(int index)
     mesh = MeshT<BufferGeometry, MeshLambertMaterial>::make(geometry, mat);
   }
 
-  mesh->_name = ai->mName.C_Str();
+  if(mesh->_name.empty())
+    mesh->_name = ai->mName.C_Str();
 
   vector<uint32_t> indices;
   for(unsigned i=0; i<ai->mNumFaces; i++) {
@@ -542,9 +620,6 @@ void Access::readMaterial(unsigned materialIndex)
   MeshMaker::Ptr maker;
   const aiMaterial *ai = aiscene->mMaterials[materialIndex];
 
-  aiString name;
-  ai->Get(AI_MATKEY_NAME,name);
-
   int shadingModel;
   if(ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
     if(shadingModel == aiShadingMode_Phong) {
@@ -571,13 +646,6 @@ void Access::readMaterial(unsigned materialIndex)
   if(ai->Get(AI_MATKEY_ENABLE_WIREFRAME, wireframe) == AI_SUCCESS)
     maker->material().wireframe = (bool) wireframe;
 
-  int twosided;
-  if(ai->Get(AI_MATKEY_TWOSIDED, twosided) == AI_SUCCESS)
-    maker->material().side = twosided ? Side::Double : Side::Front;
-
-  int blendFunc;
-  ai->Get(AI_MATKEY_BLEND_FUNC, blendFunc);
-
   makers[materialIndex] = maker;
 }
 
@@ -594,11 +662,15 @@ void Assimp::loadScene(string name, ResourceLoader &loader)
                                              aiProcess_RemoveRedundantMaterials |
                                              aiProcess_GenUVCoords |
                                              aiProcess_OptimizeMeshes |
-                                             aiProcess_OptimizeGraph |
+                                             aiProcess_GenNormals |
+                                             aiProcess_FlipUVs |
+                                             //aiProcess_RemoveComponent | //see AI_CONFIG_PP_RVC_FLAGS
+                                             //aiProcess_OptimizeGraph |
                                              aiProcess_SortByPType);
 
   if (!aiscene || aiscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
     onError.emitSignal(_importer->GetErrorString());
+    qWarning() << _importer->GetErrorString();
     return;
   }
 

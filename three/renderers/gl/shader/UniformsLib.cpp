@@ -199,6 +199,12 @@ public:
                             value<float>(UniformName::shadowRadius, 0.0f),
                             value<math::Vector2>(UniformName::shadowMapSize, math::Vector2()),
                          }),
+
+                         value<CachedHemisphereLights>(UniformName::hemisphereLights, CachedHemisphereLights(), {
+                            value<math::Vector3>(UniformName::direction, math::Vector3()),
+                            value<Color>(UniformName::skyColor, Color()),
+                            value<Color>(UniformName::groundColor, Color()),
+                         }),
                          }));
     add(UniformsID::points,
         LibUniformValues({

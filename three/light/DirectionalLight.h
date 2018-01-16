@@ -12,14 +12,14 @@ namespace three {
 class DirectionalLight : public TargetLight
 {
 protected:
-  DirectionalLight(const Ptr &target, const Color &color, float intensity)
+  DirectionalLight(const Object3D::Ptr &target, const Color &color, float intensity)
      : TargetLight(light::ResolverT<DirectionalLight>::make(*this),  target, color, intensity)
   {}
 
 public:
   using Ptr = std::shared_ptr<DirectionalLight>;
 
-  static Ptr make(const Ptr &target, const Color &color, float intensity) {
+  static Ptr make(const Object3D::Ptr &target, const Color &color, float intensity) {
     return Ptr(new DirectionalLight(target, color, intensity));
   }
 };

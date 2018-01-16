@@ -17,22 +17,6 @@ Window {
         color: "lightgray"
     }
 
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a model file"
-        folder: shortcuts.home
-        selectMultiple: false
-        selectExisting: true
-        onAccepted: {
-            threeDModel.file = fileDialog.fileUrl
-        }
-    }
-    Button {
-        text: "Choose.."
-        z: 2
-        onClicked: fileDialog.visible = true
-    }
-
     Label {
         id: holdon
         anchors.centerIn: parent
@@ -49,22 +33,36 @@ Window {
         Model {
             id: threeDModel
             isScene: false
+            file: ":/portalgun.3ds"
             onFileChanged: holdon.visible = true
             onModelLoaded: holdon.visible = false
+            replacements: {"color.jpg": ":/portalgun_color.jpg"}
+        }
+
+        ImageTexture {
+            id: normalTexture
+            format: Texture.RGBA
+            image: Image {url: ":/portalgun_normal.jpg"; format: Image.RGBA8888}
         }
 
         Scene {
             id: scene
 
-            AmbientLight {
-                id: ambientLight
-                color: "#AAAAAA"
+            HemisphereLight {}
+
+            DirectionalLight {
+                color: "#ffeedd"
+                position: "0,0,2"
             }
 
             ModelRef {
                 model: threeDModel
                 type: ModelRef.Mesh
-                selector: "*"
+                selector: "PortalGun"
+
+                onObjectChanged: {
+                    object.material.normalMap = normalTexture
+                }
             }
 
             camera: PerspectiveCamera {
@@ -74,14 +72,14 @@ Window {
                 near: 1
                 far: 100000
 
-                position: "0,0,1000"
+                position: "0,0,2"
 
                 lookAt: scene.position
 
                 controller: OrbitController {
                     minDistance: 500
                     maxDistance: 2500
-                    enablePan: false
+                    enablePan: true
                 }
             }
         }

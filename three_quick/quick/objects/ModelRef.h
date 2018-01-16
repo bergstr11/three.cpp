@@ -19,6 +19,7 @@ Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)
   Q_PROPERTY(QString selector READ selector WRITE setSelector)
   Q_PROPERTY(Type type READ type WRITE setType)
+  Q_PROPERTY(QObject *object READ modelObject NOTIFY modelObjectChanged)
 
 public:
   enum Type {Mesh, Texture, Light, Camera};
@@ -33,6 +34,8 @@ private:
   QMetaObject::Connection _fileConnection;
 
   Scene *_scene = nullptr;
+
+  QObject *_object;
 
   std::vector<Object3D::Ptr> _objects;
 
@@ -50,6 +53,8 @@ public:
 
   void setModel(Model *model);
 
+  QObject *modelObject() const {return _object;}
+
   const QString &selector() const {return _selector;}
 
   void setSelector(const QString &selector) {_selector = selector;}
@@ -60,6 +65,7 @@ public:
 
 signals:
   void modelChanged();
+  void modelObjectChanged();
 
 private slots:
   void cleanupMesh();

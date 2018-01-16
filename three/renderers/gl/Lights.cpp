@@ -50,8 +50,10 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
         uniforms->shadowMapSize = light->shadow()->mapSize();
       }
 
-      state.directionalShadowMap.push_back(shadowMap);
-      state.directionalShadowMatrix.push_back(light->shadow()->matrix());
+      if(shadowMap) {
+        state.directionalShadowMap.push_back(shadowMap);
+        state.directionalShadowMatrix.push_back(light->shadow()->matrix());
+      }
       state.directional.push_back(uniforms);
     };
     dispatch.func<SpotLight>() = [&](SpotLight &spot)

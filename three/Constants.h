@@ -104,7 +104,8 @@ enum class Blending
   Additive = 2,
   Subtractive = 3,
   Multiply = 4,
-  Custom = 5
+  Divide = 5,
+  Custom = 6
 };
 
 enum class Side

@@ -6,6 +6,7 @@
 #include <textures/DataTexture.h>
 #include <textures/ImageTexture.h>
 #include <helper/Resolver.h>
+#include <QDebug>
 
 namespace three {
 namespace gl {
@@ -233,7 +234,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
     check_glerror(_fn);
 
     if ( texture.minFilter != TextureFilter::Nearest && texture.minFilter != TextureFilter::Linear) {
-      //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
+      qWarning() << "WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to NearestFilter or LinearFilter";
     }
   }
 

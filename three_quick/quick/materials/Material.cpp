@@ -3,6 +3,9 @@
 //
 
 #include "ShaderMaterial.h"
+#include "MeshPhongMaterial.h"
+#include "MeshLambertMaterial.h"
+#include "MeshBasicMaterial.h"
 #include <quick/textures/Texture.h>
 
 namespace three {
@@ -46,6 +49,21 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
     }
   }
   return material;
+}
+
+void MeshPhongMaterial::addTo(ObjectRootContainer *container)
+{
+  container->addMaterial(this);
+}
+
+void MeshLambertMaterial::addTo(ObjectRootContainer *container)
+{
+  container->addMaterial(this);
+}
+
+void MeshBasicMaterial::addTo(ObjectRootContainer *container)
+{
+  container->addMaterial(this);
 }
 
 }

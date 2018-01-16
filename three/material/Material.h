@@ -94,6 +94,8 @@ struct Material
   const sole::uuid uuid;
   uint16_t id;
 
+  std::string name;
+
   bool fog = true;
   bool lights = true;
 

@@ -18,16 +18,18 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "elements/LightShadow.h"
 #include "objects/AmbientLight.h"
 #include "objects/SpotLight.h"
+#include "objects/HemisphereLight.h"
+#include "objects/DirectionalLight.h"
 #include "objects/Axes.h"
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
+#include "objects/Mesh.h"
 #include "quick/objects/ModelRef.h"
 #include "materials/MeshBasicMaterial.h"
 #include "materials/MeshLambertMaterial.h"
 #include "materials/MeshPhongMaterial.h"
 #include "materials/ShaderMaterial.h"
-#include "textures/Texture.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
 #include "interact/OrbitController.h"
@@ -48,6 +50,7 @@ void init()
   qmlRegisterUncreatableType<three::quick::Camera>("three.quick", 1, 0, "Camera", "abstract class");
   qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
+  qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
   qmlRegisterType<three::quick::FogExp2>("three.quick", 1, 0, "FogExp2");
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
@@ -57,6 +60,8 @@ void init()
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
+  qmlRegisterType<three::quick::HemisphereLight>("three.quick", 1, 0, "HemisphereLight");
+  qmlRegisterType<three::quick::DirectionalLight>("three.quick", 1, 0, "DirectionalLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
   qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");

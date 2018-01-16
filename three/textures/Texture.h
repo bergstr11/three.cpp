@@ -28,6 +28,8 @@ struct TextureOptions
   TextureFilter magFilter = TextureFilter::Linear;
   TextureFilter minFilter = TextureFilter::LinearMipMapLinear;
 
+  Blending blending = Blending::Normal;
+
   float anisotropy = 1;
 
   // no flipping for cube textures

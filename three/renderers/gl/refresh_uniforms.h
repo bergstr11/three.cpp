@@ -28,16 +28,6 @@ struct Refresh<Map, Maps...>
 };
 
 template <>
-struct Refresh<>
-{
-  static void handle(UniformValues &uniforms, MaterialT<> &material) {
-    mixin(uniforms, material);
-  }
-  static void mixin(UniformValues &uniforms, Material &material) {
-    uniforms[UniformName::map] = material.map;
-  }
-};
-template <>
 struct Refresh<material::Colored>
 {
   static void handle(UniformValues &uniforms, MaterialT<material::Colored> &material) {
@@ -155,6 +145,8 @@ template <typename ... Maps>
 void refresh(UniformValues &uniforms, MaterialT<Maps...> &material)
 {
   Refresh<Maps...>::handle(uniforms, material);
+
+  uniforms[UniformName::map] = material.map;
 
   // uv repeat and offset setting priorities
   // 1. color map

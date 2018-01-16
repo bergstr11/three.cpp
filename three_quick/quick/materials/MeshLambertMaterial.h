@@ -28,6 +28,12 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
+  MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent)
+     : Material(parent), _material(mat) {}
+
+  MeshLambertMaterial(QObject *parent=nullptr)
+     : Material(parent) {}
+
   QColor color() const {return _color;}
 
   void setColor(const QColor &color) {
@@ -68,10 +74,7 @@ public:
     return _material;
   }
 
-  void addTo(ObjectRootContainer *container) override
-  {
-    container->addMaterial(this);
-  }
+  void addTo(ObjectRootContainer *container) override;
 
   void identify(MeshCreator &creator) override
   {

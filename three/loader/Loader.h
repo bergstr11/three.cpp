@@ -22,7 +22,7 @@ struct Resource
 
 struct ResourceLoader {
   virtual bool exists(const char *path) = 0;
-  virtual std::string makePath(const std::string &file) = 0;
+  virtual void load(QImage &image, std::string &file) = 0;
   virtual Resource::Ptr get(const char *path, std::ios_base::openmode) = 0;
 };
 

@@ -6,6 +6,7 @@
 #include "shader/UniformsLib.h"
 #include "Renderer_impl.h"
 #include <regex>
+#include <QDebug>
 
 namespace three {
 namespace gl {
@@ -133,6 +134,8 @@ UniformName toUniformName(string name, bool isIndex)
      MATCH_NAME(pointShadowMatrix),
      MATCH_NAME(distance),
      MATCH_NAME(position),
+     MATCH_NAME(skyColor),
+     MATCH_NAME(groundColor),
      MATCH_NAME(coneCos),
      MATCH_NAME(penumbraCos),
      MATCH_NAME(decay)
@@ -164,6 +167,12 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   _renderer.glGetActiveUniform( program, index, 100, &length, &size, &type, uname);
   GLint addr = _renderer.glGetUniformLocation(program, uname);
 
+  if(type == GL_SAMPLER_2D) {
+    qDebug() << "GL_SAMPLER_2D";
+  }
+  else if(type == GL_SAMPLER_CUBE) {
+    qDebug() << "GL_SAMPLER_CUBE";
+  }
   string name(uname);
   sregex_iterator rex_it(name.cbegin(), name.cend(), rex);
   sregex_iterator rex_end;

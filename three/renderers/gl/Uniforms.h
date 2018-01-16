@@ -100,6 +100,8 @@ enum class UniformName : unsigned
   ambientLightColor,
   direction,
   color,
+  skyColor,
+  groundColor,
   shadow,
   shadowBias,
   shadowRadius,
