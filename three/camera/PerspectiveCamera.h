@@ -132,7 +132,7 @@ public:
     _far = far;
   }
 
-  void setZoom(float zoom) {
+  void setZoom(float zoom) override {
     _zoom = zoom;
   }
 

@@ -15,10 +15,12 @@ class Material : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(bool wireframe READ wireframe WRITE setWireframe NOTIFY wireframeChanged)
+  Q_PROPERTY(bool flatShading READ flatShading WRITE setFlatShading NOTIFY flatShadingChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
 protected:
   bool _wireframe = false;
+  bool _flatShading = false;
 
   Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
 
@@ -44,10 +46,20 @@ public:
     }
   }
 
+  bool flatShading() const {return _flatShading;}
+
+  void setFlatShading(bool flatShading) {
+    if(_flatShading != flatShading) {
+      _flatShading = flatShading;
+      emit flatShadingChanged();
+    }
+  }
+
   virtual void identify(MeshCreator &creator) = 0;
 
 signals:
   void wireframeChanged();
+  void flatShadingChanged();
   void needsUpdateChanged();
 };
 

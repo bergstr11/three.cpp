@@ -182,7 +182,7 @@ public:
 
   Vector3 &operator /=(float scalar)
   {
-    return *this *= ( 1 / scalar );
+    return *this *= ( 1.0f / scalar );
   }
 
   Vector3 &min(const Vector3 &v)

@@ -47,6 +47,7 @@ public:
       _material = three::MeshBasicMaterial::make();
       _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
       _material->wireframe = _wireframe;
+      _material->flatShading = _flatShading;
     }
     return _material;
   }

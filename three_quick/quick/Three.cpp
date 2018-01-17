@@ -24,6 +24,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
+#include "objects/Cylinder.h"
 #include "objects/Mesh.h"
 #include "quick/objects/ModelRef.h"
 #include "materials/MeshBasicMaterial.h"
@@ -57,6 +58,7 @@ void init()
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
+  qmlRegisterType<three::quick::Cylinder>("three.quick", 1, 0, "Cylinder");
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");

@@ -76,6 +76,8 @@ public:
 
   virtual float zoom() const {return 1.0f;}
 
+  virtual void setZoom(float zoom) {}
+
   virtual void setAspect(float aspect) {}
 
   virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;

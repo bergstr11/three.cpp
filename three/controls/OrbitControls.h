@@ -8,6 +8,7 @@
 #include <camera/Camera.h>
 #include <math/Spherical.h>
 #include <helper/simplesignal.h>
+#include <QDebug>
 
 //var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -88,9 +89,20 @@ protected:
   virtual unsigned clientWidth() = 0;
   virtual unsigned clientHeight() = 0;
 
-  void handleMouseMoveRotate( unsigned x, unsigned y );
-  void handleMouseMoveDolly( unsigned x, unsigned y );
-  void handleMouseMovePan( unsigned x, unsigned y );
+  // deltaX and deltaY are in pixels; right and down are positive
+  void pan(float deltaX, float deltaY);
+  void dollyIn(float dollyScale);
+  void dollyOut(float dollyScale);
+
+  bool update();
+
+  void startRotate(unsigned x, unsigned y);
+  void startZoom(unsigned x, unsigned y);
+  void startPan(unsigned x, unsigned y);
+
+  void doRotate(unsigned x, unsigned y);
+  void doDolly(unsigned x, unsigned y);
+  void doPan(unsigned x, unsigned y);
 
 public:
   using Ptr = std::shared_ptr<OrbitControls>;
@@ -181,16 +193,19 @@ public:
 
   void panLeft(float distance, const math::Matrix4 &objectMatrix)
   {
+
     math::Vector3 v = math::Vector3::fromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
     v *= -distance;
+    qDebug() << "panLeft" << distance << "|" << v.x() << v.y() << v.z();
 
     _panOffset += v;
   }
 
   void panUp(float distance, const math::Matrix4 &objectMatrix)
   {
-    math::Vector3 v = math::Vector3::fromMatrixColumn( objectMatrix, 1 ); // get X column of objectMatrix
+    math::Vector3 v = math::Vector3::fromMatrixColumn( objectMatrix, 1 ); // get Y column of objectMatrix
     v *= distance;
+    qDebug() << "panUp" << distance << "|" << v.x() << v.y() << v.z();
 
     _panOffset += v;
   }
@@ -206,8 +221,8 @@ public:
   {
     target = _target0;
     _camera->position() = _position0;
-    //_object->zoom = scope.zoom0;
-    //_object->updateProjectionMatrix();
+    _camera->setZoom(_zoom0);
+    _camera->updateProjectionMatrix();
 
     onChanged.emitSignal();
 
@@ -216,15 +231,9 @@ public:
     state = State::NONE;
   }
 
-  // deltaX and deltaY are in pixels; right and down are positive
-  void pan(float deltaX, float deltaY);
+  bool handleEvent(unsigned x, unsigned y);
 
-  void dollyIn(float dollyScale);
-
-  void dollyOut(float dollyScale);
-
-  // this method is exposed, but perhaps it would be better if we can make it private...
-  bool update();
+  bool resetState();
 };
 
 }

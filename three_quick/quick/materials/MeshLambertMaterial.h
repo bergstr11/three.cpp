@@ -64,6 +64,7 @@ public:
         _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
 
       _material->wireframe = _wireframe;
+      _material->flatShading = _flatShading;
 
       if(_envMap) {
         _material->envMap = _envMap->getTexture();

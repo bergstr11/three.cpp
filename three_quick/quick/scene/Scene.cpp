@@ -81,6 +81,18 @@ QQmlListProperty<ThreeQObject> Scene::objects()
                                         &Scene::clear_objects);
 }
 
+void Scene::add(ThreeQObject *object)
+{
+  if(_scene) {
+    auto obj = object->object();
+    if(!obj) obj = object->create(this);
+    if(obj) {
+      _scene->add(obj);
+      obj->updateMatrix();
+    }
+  }
+}
+
 void Scene::addTo(ObjectRootContainer *container)
 {
   _scene = _background.isValid() ?

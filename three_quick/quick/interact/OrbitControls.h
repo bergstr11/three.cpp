@@ -45,35 +45,20 @@ public:
     switch ( event->button() ) {
 
       case Qt::LeftButton:
-
         if ( !OrbitControls::enableRotate ) return false;
-
-        _rotateStart.set( event->x(), event->y());
-
-        state = State::ROTATE;
-
+        startRotate(event->x(), event->y());
         event->setAccepted(true);
         break;
 
       case Qt::MidButton:
-
         if ( !OrbitControls::enableZoom ) return false;
-
-        _dollyStart.set( event->x(), event->y() );
-
+        startZoom(event->x(), event->y());
         event->setAccepted(true);
-        state = State::DOLLY;
-
         break;
 
       case Qt::RightButton:
-
         if ( !OrbitControls::enablePan ) return false;
-
-        _panStart.set( event->x(), event->y() );
-
-        state = State::PAN;
-
+        startPan(event->x(), event->y());
         event->setAccepted(true);
         break;
     }
@@ -82,29 +67,18 @@ public:
 
   bool handleMouseMoved(QMouseEvent *event)
   {
-    switch(state) {
-      case State::ROTATE:
-        handleMouseMoveRotate(event->x(), event->y());
-        event->setAccepted(true);
-        return true;
-      case State::DOLLY:
-        handleMouseMoveDolly(event->x(), event->y());
-        event->setAccepted(true);
-        return true;
-      case State::PAN:
-        handleMouseMovePan(event->x(), event->y());
-        event->setAccepted(true);
-        return true;
-      default:
-        return false;
+    if(handleEvent(event->x(), event->y())) {
+      event->setAccepted(true);
+      return true;
     }
+    return false;
   }
 
   bool handleMouseReleased(QMouseEvent *event)
   {
-    if(state != State::NONE) {
-      state = State::NONE;
+    if(resetState()) {
       event->setAccepted(true);
+      return true;
     }
     return false;
   }

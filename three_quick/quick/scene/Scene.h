@@ -77,6 +77,8 @@ public:
 
   three::Camera::Ptr camera() {return _camera;}
 
+  Q_INVOKABLE void add(ThreeQObject *object);
+
   void addTo(ObjectRootContainer *container) override;
 
 signals:

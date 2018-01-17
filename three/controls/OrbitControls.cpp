@@ -6,6 +6,7 @@
 #include <math/Math.h>
 #include <camera/PerspectiveCamera.h>
 #include <camera/OrtographicCamera.h>
+#include <QDebug>
 
 namespace three {
 
@@ -91,29 +92,29 @@ bool OrbitControls::update()
 
 void OrbitControls::pan(float deltaX, float deltaY)
 {
-  math::Vector3 offset;
-
-  //var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
   camera::Dispatch dispatch;
   dispatch.func<PerspectiveCamera>() = [&] (PerspectiveCamera &camera) {
 
     // perspective
-    offset = _camera->position() - target;
+    math::Vector3 offset = _camera->position() - target;
     float targetDistance = offset.length();
 
     // half of the fov is center to top of screen
-    targetDistance *= tan( ( camera.fov() / 2 ) * M_PI / 180.0 );
+    targetDistance *= tan( ( camera.fov() / 2.0f ) * M_PI / 180.0f );
 
     // we actually don't use screenWidth, since perspective camera is fixed to screen height
-    panLeft( 2 * deltaX * targetDistance / clientHeight(), camera.matrix() );
-    panUp( 2 * deltaY * targetDistance / clientHeight(), camera.matrix() );
+    if(deltaX != 0)
+      panLeft( 2.0f * deltaX * targetDistance / clientHeight(), camera.matrix() );
+    if(deltaY != 0)
+      panUp( 2.0f * deltaY * targetDistance / clientHeight(), camera.matrix() );
   };
   dispatch.func<OrtographicCamera>() = [&] (OrtographicCamera &camera) {
 
     // orthographic
-    panLeft( deltaX * ( camera.right() - camera.left() ) / camera.zoom() / clientWidth(), camera.matrix() );
-    panUp( deltaY * ( camera.top() - camera.bottom() ) / camera.zoom() / clientHeight(), camera.matrix() );
+    if(deltaX != 0)
+      panLeft( deltaX * ( camera.right() - camera.left() ) / camera.zoom() / clientWidth(), camera.matrix() );
+    if(deltaY != 0)
+      panUp( deltaY * ( camera.top() - camera.bottom() ) / camera.zoom() / clientHeight(), camera.matrix() );
   };
 
   if(!_camera->cameraResolver->getValue(dispatch)) {
@@ -132,7 +133,7 @@ void OrbitControls::dollyIn(float dollyScale)
   };
   dispatch.func<OrtographicCamera>() = [&] (OrtographicCamera &camera) {
 
-    camera.zoom() = std::max( minZoom, std::min( maxZoom, camera.zoom() * dollyScale ) );
+    camera.setZoom(std::max( minZoom, std::min( maxZoom, camera.zoom() * dollyScale )));
     camera.updateProjectionMatrix();
     _zoomChanged = true;
   };
@@ -153,7 +154,7 @@ void OrbitControls::dollyOut(float dollyScale)
   };
   dispatch.func<OrtographicCamera>() = [&] (OrtographicCamera &camera) {
 
-    camera.zoom() = std::max( minZoom, std::min( maxZoom, camera.zoom() / dollyScale ) );
+    camera.setZoom(std::max( minZoom, std::min( maxZoom, camera.zoom() / dollyScale )));
     camera.updateProjectionMatrix();
     _zoomChanged = true;
   };
@@ -164,7 +165,54 @@ void OrbitControls::dollyOut(float dollyScale)
   }
 }
 
-void OrbitControls::handleMouseMoveRotate( unsigned x, unsigned y )
+void OrbitControls::startRotate(unsigned x, unsigned y)
+{
+  _rotateStart.set( x, y);
+
+  state = State::ROTATE;
+}
+
+void OrbitControls::startZoom(unsigned x, unsigned y)
+{
+  _dollyStart.set( x, y );
+
+  state = State::DOLLY;
+}
+
+void OrbitControls::startPan(unsigned x, unsigned y)
+{
+  _panStart.set( x, y );
+
+  state = State::PAN;
+}
+
+bool OrbitControls::resetState()
+{
+  if(state != State::NONE) {
+    state = State::NONE;
+    return true;
+  }
+  return false;
+}
+
+bool OrbitControls::handleEvent(unsigned x, unsigned y)
+{
+  switch(state) {
+    case State::ROTATE:
+      doRotate(x, y);
+      return true;
+    case State::DOLLY:
+      doDolly(x, y);
+      return true;
+    case State::PAN:
+      doPan(x, y);
+      return true;
+    default:
+      return false;
+  }
+}
+
+void OrbitControls::doRotate(unsigned x, unsigned y)
 {
   _rotateEnd.set( x, y );
   _rotateDelta = _rotateEnd - _rotateStart;
@@ -180,7 +228,7 @@ void OrbitControls::handleMouseMoveRotate( unsigned x, unsigned y )
   update();
 }
 
-void OrbitControls::handleMouseMoveDolly( unsigned x, unsigned y )
+void OrbitControls::doDolly(unsigned x, unsigned y)
 {
   _dollyEnd.set( x, y );
 
@@ -200,11 +248,12 @@ void OrbitControls::handleMouseMoveDolly( unsigned x, unsigned y )
   update();
 }
 
-void OrbitControls::handleMouseMovePan( unsigned x, unsigned y )
+void OrbitControls::doPan(unsigned x, unsigned y)
 {
   _panEnd.set( x, y );
 
   _panDelta = _panEnd - _panStart;
+qDebug() << "delta: " << _panDelta.x() << _panDelta.y();
 
   pan( _panDelta.x(), _panDelta.y() );
 

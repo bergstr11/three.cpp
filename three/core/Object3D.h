@@ -65,7 +65,6 @@ protected:
   math::Matrix4 _matrix = math::Matrix4::identity();
   math::Matrix4 _matrixWorld = math::Matrix4::identity();
 
-  bool _matrixAutoUpdate = true;
   bool _matrixWorldNeedsUpdate = false;
 
   Layers _layers;
@@ -95,6 +94,7 @@ public:
   bool castShadow = false;
   bool receiveShadow = false;
   bool frustumCulled = true;
+  bool matrixAutoUpdate = true;
 
   Material::Ptr customDepthMaterial;
   Material::Ptr customDistanceMaterial;
@@ -102,7 +102,6 @@ public:
   uint16_t id() const {return _id;}
   const Layers &layers() const {return _layers;}
   const math::Matrix4 &matrix() const {return _matrix;}
-  const bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
   math::Matrix4 &matrix() {return _matrix;}
 

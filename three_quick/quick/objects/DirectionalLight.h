@@ -20,7 +20,7 @@ Q_OBJECT
   Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
   Q_PROPERTY(ThreeQObject *target READ target WRITE setTarget NOTIFY targetChanged)
 
-  QColor _color;
+  QColor _color {255, 255, 255};
   qreal _intensity = 1.0f;
 
   three::DirectionalLight::Ptr _light;

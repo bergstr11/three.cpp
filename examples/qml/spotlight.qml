@@ -12,7 +12,7 @@ Window {
 
     visible: true
 
-    ValueControls {
+    OptionsMenu {
         title: "spotlight"
         anchors.top: parent.top
         anchors.right: parent.right
@@ -52,7 +52,7 @@ Window {
             to: 2
         }
     }
-    ValueControls {
+    OptionsMenu {
         title: "ambientlight"
         anchors.top: parent.top
         anchors.left: parent.left

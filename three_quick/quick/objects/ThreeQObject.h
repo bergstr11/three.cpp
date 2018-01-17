@@ -26,12 +26,13 @@ Q_OBJECT
   Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
+  Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
 
 protected:
   QVector3D _position {0.0, 0.0, 0.0};
   QVector3D _rotation {0.0, 0.0, 0.0};
 
-  bool _castShadow = false, _receiveShadow = false, _visible = false;
+  bool _castShadow = false, _receiveShadow = false, _visible = false, _matrixAutoUpdate = true;
 
   Material *_material = nullptr;
 
@@ -69,6 +70,15 @@ public:
       _material = material;
       if(_object) updateMaterial();
       emit materialChanged();
+    }
+  }
+
+  bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
+
+  void setMatrixAutoUpdate(bool matrixAutoUpdate) {
+    if(_matrixAutoUpdate != matrixAutoUpdate) {
+      _matrixAutoUpdate = matrixAutoUpdate;
+      emit matrixAutoUpdateChanged();
     }
   }
 
@@ -112,6 +122,7 @@ public:
 
       _object->castShadow = _castShadow;
       _object->receiveShadow = _receiveShadow;
+      _object->matrixAutoUpdate = _matrixAutoUpdate;
     }
     _post_create(scene);
     return _object;
@@ -124,6 +135,7 @@ signals:
   void castShadowChanged();
   void receiveShadowChanged();
   void visibleChanged();
+  void matrixAutoUpdateChanged();
 };
 
 }

@@ -26,7 +26,7 @@ protected:
   {
     _light->updateMatrixWorld(true);
     _matrix = _light->matrixWorld();
-    _matrixAutoUpdate = false;
+    matrixAutoUpdate = false;
 
     std::vector<Vertex> positions {
        {0, 0, 0}, {0, 0, 1},

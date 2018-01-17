@@ -46,7 +46,7 @@ public:
   float near() const {return _near;}
   float far() const {return _far;}
   float zoom() const override {return _zoom;}
-  float &zoom() {return _zoom;}
+  void setZoom(float zoom) override {_zoom = zoom;}
 };
 
 }

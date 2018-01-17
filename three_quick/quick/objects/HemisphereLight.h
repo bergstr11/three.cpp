@@ -20,7 +20,8 @@ Q_OBJECT
   Q_PROPERTY(QColor groundColor READ groundColor WRITE setGroundColor NOTIFY groundColorChanged)
   Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
 
-  QColor _color, _groundColor;
+  QColor _color {255, 255, 255}, _groundColor {255, 255, 255};
+  float _intensity = 1.0f;
 
   three::HemisphereLight::Ptr _light;
 
@@ -34,8 +35,6 @@ protected:
 
     return _light;
   }
-
-  float _intensity=1;
 
 public:
   HemisphereLight(QObject *parent = nullptr) : ThreeQObject(parent) {}

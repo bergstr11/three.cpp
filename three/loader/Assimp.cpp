@@ -622,14 +622,18 @@ void Access::readMaterial(unsigned materialIndex)
 
   int shadingModel;
   if(ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
-    if(shadingModel == aiShadingMode_Phong) {
-      maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
-    }
-    else if(shadingModel == aiShadingMode_Toon) {
-      maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
-    }
-    else {
-      maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+
+    switch(shadingModel) {
+      case aiShadingMode_Phong:
+      case aiShadingMode_Gouraud:
+        maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
+        break;
+      case aiShadingMode_Toon:
+        maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
+        break;
+      default:
+        maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+        break;
     }
   }
   else {

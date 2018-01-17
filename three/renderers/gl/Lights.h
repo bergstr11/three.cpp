@@ -167,16 +167,6 @@ public:
   void setup(const std::vector<Light::Ptr> &lights, Camera::Ptr camera );
 };
 
-namespace uniformslib {
-
-//UNIFORM_VALUE_T(CachedDirectionalLights)
-//UNIFORM_VALUE_T(CachedSpotLights)
-//UNIFORM_VALUE_T(CachedRectareaLights)
-//UNIFORM_VALUE_T(CachedPointLights)
-//UNIFORM_VALUE_T(CachedHemisphereLights)
-
-}
-
 }
 }
 #endif //THREE_QT_LIGHTS_H

@@ -117,7 +117,7 @@ void Object3D::updateMatrix()
 
 void Object3D::updateMatrixWorld(bool force)
 {
-  if (_matrixAutoUpdate) updateMatrix();
+  if (matrixAutoUpdate) updateMatrix();
 
   if (_matrixWorldNeedsUpdate || force ) {
 

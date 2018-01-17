@@ -7,6 +7,7 @@
 
 #include <QColor>
 #include <material/MeshPhongMaterial.h>
+#include "../textures/Texture.h"
 
 #include "Material.h"
 
@@ -18,9 +19,12 @@ class MeshPhongMaterial : public Material
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
+  Q_PROPERTY(Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
 
   QColor _color;
   bool _dithering = false;
+
+  Texture *_normalMap = nullptr;
 
   three::MeshPhongMaterial::Ptr _material;
 
@@ -52,11 +56,25 @@ public:
     }
   }
 
+  Texture *normalMap() const {return _normalMap;}
+
+  void setNormalMap(Texture *normalMap) {
+    if(_normalMap != normalMap) {
+      _normalMap = normalMap;
+      if(_material) {
+        _material->normalMap = _normalMap->getTexture();
+        _material->needsUpdate = true;
+      }
+      emit normalMapChanged();
+    }
+  }
+
   three::MeshPhongMaterial::Ptr getMaterial()
   {
     if(!_material) {
       _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
       _material->wireframe = _wireframe;
+      _material->flatShading = _flatShading;
     }
     return _material;
   }
@@ -71,6 +89,7 @@ public:
 signals:
   void colorChanged();
   void ditheringChanged();
+  void normalMapChanged();
 };
 
 }
