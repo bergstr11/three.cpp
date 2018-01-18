@@ -201,7 +201,7 @@ string replaceLightNums(string value, const ProgramParameters &parameters)
 
 string parseIncludes(string lookat)
 {
-  static regex rex("#include +<([\\w\\d.]+)>");
+  static const regex rex("#include +<([\\w\\d.]+)>");
 
   sregex_iterator rex_it(lookat.begin(), lookat.end(), rex);
   sregex_iterator rex_end;
@@ -225,8 +225,8 @@ string parseIncludes(string lookat)
 
 string unrollLoops(string glsl)
 {
-  static regex rex(R"(for \( int i = (\d+)\; i < (\d+); i \+\+ \) \{[\r\n]?([\s\S]+?)(?=\})\})");
-  static regex rex2(R"(\[ i \])");
+  static const regex rex(R"(for \( int i = (\d+)\; i < (\d+); i \+\+ \) \{[\r\n]?([\s\S]+?)(?=\})\})");
+  static const regex rex2(R"(\[ i \])");
 
   stringstream unroll;
   sregex_iterator rex_it(glsl.begin(), glsl.end(), rex);

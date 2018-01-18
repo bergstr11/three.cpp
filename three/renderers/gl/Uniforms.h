@@ -127,6 +127,8 @@ enum class UniformName : unsigned
   pointShadowMatrix,
   distance,
   position,
+  halfHeight,
+  halfWidth,
   coneCos,
   penumbraCos,
   decay

@@ -121,31 +121,30 @@ UNIFORM_VALUE_T(CubeTexture::Ptr)
 UNIFORM_VALUE_T(std::vector<Texture::Ptr>)
 UNIFORM_VALUE_T(std::vector<math::Matrix4>)
 
+#define UNIFORM_STRUCT_BODY(Cls) \
+  Cls value; \
+  explicit UniformValueT(UniformName nm, const Cls &value) : UniformValue(nm), value(value) {} \
+  explicit UniformValueT(UniformName nm, const Cls &value, UniformProperties properties) : UniformValue(nm, properties), value(value) {} \
+  UniformValueT &operator = (const Cls &value) { \
+    this->value = value; return *this; \
+  } \
+  static Ptr make(UniformName nm, const Cls &value) { \
+    return Ptr(new UniformValueT(nm, value)); \
+  } \
+  Ptr clone() const override { \
+    return Ptr(new UniformValueT(id, value)); \
+  }
 
 template<> struct UniformValueT<CachedSpotLights> : public UniformValue
 {
-  CachedSpotLights value;
+  UNIFORM_STRUCT_BODY(CachedSpotLights)
 
-  explicit UniformValueT(UniformName nm, const CachedSpotLights &value)
-     : UniformValue(nm), value(value) {}
-  explicit UniformValueT(UniformName nm, const CachedSpotLights &value, UniformProperties properties)
-     : UniformValue(nm, properties), value(value) {}
-
-  UniformValueT &operator = (const CachedSpotLights &value) {
-    this->value = value; return *this;
-  }
-  static Ptr make(UniformName nm, const CachedSpotLights &value) {
-    return Ptr(new UniformValueT(nm, value));
-  }
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
   void applyValue(Uniform::Ptr uniform) override
   {
     UniformContainer *container = uniform->asContainer();
     size_t index = 0;
     for(const auto &entry : value) {
-      UniformContainer *container2 = container->get(index)->asContainer();
+      UniformContainer *container2 = container->get(index++)->asContainer();
       container2->set(UniformName::position, entry->position);
       container2->set(UniformName::direction, entry->direction);
       container2->set(UniformName::color, entry->color);
@@ -163,28 +162,14 @@ template<> struct UniformValueT<CachedSpotLights> : public UniformValue
 
 template<> struct UniformValueT<CachedDirectionalLights> : public UniformValue
 {
-  CachedDirectionalLights value;
+  UNIFORM_STRUCT_BODY(CachedDirectionalLights)
 
-  explicit UniformValueT(UniformName nm, const CachedDirectionalLights &value)
-     : UniformValue(nm), value(value) {}
-  explicit UniformValueT(UniformName nm, const CachedDirectionalLights &value, UniformProperties properties)
-     : UniformValue(nm, properties), value(value) {}
-
-  UniformValueT &operator = (const CachedDirectionalLights &value) {
-    this->value = value; return *this;
-  }
-  static Ptr make(UniformName nm, const CachedDirectionalLights &value) {
-    return Ptr(new UniformValueT(nm, value));
-  }
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
   void applyValue(Uniform::Ptr uniform) override
   {
     UniformContainer *container = uniform->asContainer();
     size_t index = 0;
     for(const auto &entry : value) {
-      UniformContainer *container2 = container->get(index)->asContainer();
+      UniformContainer *container2 = container->get(index++)->asContainer();
       container2->set(UniformName::direction, entry->direction);
       container2->set(UniformName::color, entry->color);
       container2->set(UniformName::shadow, entry->shadow);
@@ -197,31 +182,51 @@ template<> struct UniformValueT<CachedDirectionalLights> : public UniformValue
 
 template<> struct UniformValueT<CachedHemisphereLights> : public UniformValue
 {
-  CachedHemisphereLights value;
+  UNIFORM_STRUCT_BODY(CachedHemisphereLights)
 
-  explicit UniformValueT(UniformName nm, const CachedHemisphereLights &value)
-     : UniformValue(nm), value(value) {}
-  explicit UniformValueT(UniformName nm, const CachedHemisphereLights &value, UniformProperties properties)
-     : UniformValue(nm, properties), value(value) {}
-
-  UniformValueT &operator = (const CachedHemisphereLights &value) {
-    this->value = value; return *this;
-  }
-  static Ptr make(UniformName nm, const CachedHemisphereLights &value) {
-    return Ptr(new UniformValueT(nm, value));
-  }
-  Ptr clone() const override {
-    return Ptr(new UniformValueT(id, value));
-  }
   void applyValue(Uniform::Ptr uniform) override
   {
     UniformContainer *container = uniform->asContainer();
     size_t index = 0;
     for(const auto &entry : value) {
-      UniformContainer *container2 = container->get(index)->asContainer();
+      UniformContainer *container2 = container->get(index++)->asContainer();
       container2->set(UniformName::direction, entry->direction);
       container2->set(UniformName::skyColor, entry->skyColor);
       container2->set(UniformName::groundColor, entry->groundColor);
+    }
+  }
+};
+
+template<> struct UniformValueT<CachedRectareaLights> : public UniformValue
+{
+  UNIFORM_STRUCT_BODY(CachedRectareaLights)
+
+  void applyValue(Uniform::Ptr uniform) override
+  {
+    UniformContainer *container = uniform->asContainer();
+    size_t index = 0;
+    for(const auto &entry : value) {
+      UniformContainer *container2 = container->get(index++)->asContainer();
+      container2->set(UniformName::color, entry->color);
+      container2->set(UniformName::position, entry->position);
+      container2->set(UniformName::halfHeight, entry->halfHeight);
+      container2->set(UniformName::halfWidth, entry->halfWidth);
+    }
+  }
+};
+template<> struct UniformValueT<CachedPointLights> : public UniformValue
+{
+  UNIFORM_STRUCT_BODY(CachedPointLights)
+
+  void applyValue(Uniform::Ptr uniform) override
+  {
+    UniformContainer *container = uniform->asContainer();
+    size_t index = 0;
+    for(const auto &entry : value) {
+      UniformContainer *container2 = container->get(index++)->asContainer();
+      container2->set(UniformName::color, entry->color);
+      container2->set(UniformName::position, entry->position);
+      //TODO
     }
   }
 };

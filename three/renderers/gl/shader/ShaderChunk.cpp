@@ -38,12 +38,12 @@ const char *getShaderChunk(std::string chunk)
   if(res.isCompressed()) {
     QByteArray uncompressed = qUncompress(res.data(), res.size());
     shader_chunks[chunk] = uncompressed;
-    return uncompressed;
+    return shader_chunks[chunk].data();
   }
   else {
     QByteArray ba = QByteArray::fromRawData((const char *)res.data(), res.size());
     shader_chunks[chunk] = ba;
-    return ba;
+    return shader_chunks[chunk].data();
   }
 }
 

@@ -45,14 +45,14 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
 
     vector<uint32_t> indexRow;
 
-    float v = y / heightSegments;
+    float v = (float)y / heightSegments;
 
     // calculate the radius of the current row
     float radius = v * (radiusBottom - radiusTop) + radiusTop;
 
     for (unsigned x = 0; x <= radialSegments; x ++ ) {
 
-      float u = x / radialSegments;
+      float u = (float)x / radialSegments;
 
       float theta = u * thetaLength + thetaStart;
 
@@ -150,7 +150,7 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       // now we generate the surrounding vertices, normals and uvs
       for (unsigned x = 0; x <= radialSegments; x ++ ) {
 
-        float u = x / radialSegments;
+        float u = (float)x / radialSegments;
         float theta = u * thetaLength + thetaStart;
 
         float cosTheta = cos( theta );

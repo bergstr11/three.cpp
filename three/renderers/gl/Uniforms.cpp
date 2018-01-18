@@ -134,6 +134,8 @@ UniformName toUniformName(string name, bool isIndex)
      MATCH_NAME(pointShadowMatrix),
      MATCH_NAME(distance),
      MATCH_NAME(position),
+     MATCH_NAME(halfHeight),
+     MATCH_NAME(halfWidth),
      MATCH_NAME(skyColor),
      MATCH_NAME(groundColor),
      MATCH_NAME(coneCos),
