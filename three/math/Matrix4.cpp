@@ -259,7 +259,7 @@ Matrix4 &Matrix4::lookAt(const Vector3 &eye, const Vector3 &target, const Vector
 {
   float *te = _elements;
 
-  Vector3 z = eye- target;
+  Vector3 z = eye - target;
 
   if (z.lengthSq() == 0) {
     // eye and target are in the same position
@@ -273,10 +273,10 @@ Matrix4 &Matrix4::lookAt(const Vector3 &eye, const Vector3 &target, const Vector
 
     // up and z are parallel
     if (std::abs(up.z()) == 1) {
-      z.x() += 0.0001;
+      z.x() += 0.0001f;
     }
     else {
-      z.z() += 0.0001;
+      z.z() += 0.0001f;
     }
 
     z.normalize();
@@ -335,9 +335,9 @@ void Matrix4::decompose(Vector3 &position, Quaternion &rotation, Vector3&scale)
   // scale the rotation part
   Matrix4 matrix(*this);
 
-  float invSX = 1 / sx;
-  float invSY = 1 / sy;
-  float invSZ = 1 / sz;
+  float invSX = 1.0f / sx;
+  float invSY = 1.0f / sy;
+  float invSZ = 1.0f / sz;
 
   matrix._elements[0] *= invSX;
   matrix._elements[1] *= invSX;

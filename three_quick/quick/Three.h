@@ -110,7 +110,7 @@ public:
   Renderer *createRenderer() const override;
 
   void addController(Controller *controller, three::Camera::Ptr camera) override {
-    controller->start(this, camera);
+    controller->setItem(this);
     _controllers.push_back(controller);
   }
 

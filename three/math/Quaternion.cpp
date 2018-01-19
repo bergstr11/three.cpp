@@ -103,7 +103,7 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
 
   if (trace > 0) {
 
-    s = 0.5f / std::sqrt(trace + 1.0);
+    s = 0.5f / std::sqrt(trace + 1.0f);
 
     _w = 0.25f / s;
     _x = (m32 - m23) * s;
@@ -113,7 +113,7 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
   }
   else if (m11 > m22 && m11 > m33) {
 
-    s = 2.0f * std::sqrt(1.0 + m11 - m22 - m33);
+    s = 2.0f * std::sqrt(1.0f + m11 - m22 - m33);
 
     _w = (m32 - m23) / s;
     _x = 0.25f * s;
@@ -123,7 +123,7 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
   }
   else if (m22 > m33) {
 
-    s = 2.0f * std::sqrt(1.0 + m22 - m11 - m33);
+    s = 2.0f * std::sqrt(1.0f + m22 - m11 - m33);
 
     _w = (m13 - m31) / s;
     _x = (m12 + m21) / s;
@@ -133,7 +133,7 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
   }
   else {
 
-    s = 2.0f * std::sqrt(1.0 + m33 - m11 - m22);
+    s = 2.0f * std::sqrt(1.0f + m33 - m11 - m22);
 
     _w = (m21 - m12) / s;
     _x = (m13 + m31) / s;

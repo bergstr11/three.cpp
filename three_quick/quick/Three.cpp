@@ -126,9 +126,9 @@ public:
   {
     updateGeometry();
 
-    for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
+    /*for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
       (*it)->quickCamera()->update();
-    }
+    }*/
     for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
       _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
     }

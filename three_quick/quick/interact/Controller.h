@@ -2,24 +2,28 @@
 // Created by byter on 12/25/17.
 //
 
-#ifndef THREEPP_CONTROLLER_H
-#define THREEPP_CONTROLLER_H
+#ifndef THREEQUICK_CONTROLLER_H
+#define THREEQUICK_CONTROLLER_H
 
 #include <QObject>
 #include <QMouseEvent>
-#include <camera/Camera.h>
 
 namespace three {
 namespace quick {
 
 class ThreeDItem;
+class Camera;
 
 class Controller : public QObject
 {
+  friend class Camera;
 Q_OBJECT
 
+protected:
+  Camera *_camera = nullptr;
+
 public:
-  virtual void start(ThreeDItem *item, Camera::Ptr camera) = 0;
+  virtual void setItem(ThreeDItem *item) = 0;
 
   virtual bool handleMousePressed(QMouseEvent *event) = 0;
 
@@ -28,10 +32,12 @@ public:
   virtual bool handleMouseReleased(QMouseEvent *event) = 0;
 
   virtual bool handleMouseWheel(QWheelEvent *event) = 0;
+
+signals:
+  void changed();
 };
 
 }
 }
 
-
-#endif //THREEPP_CONTROLLER_H
+#endif //THREEQUICK_CONTROLLER_H

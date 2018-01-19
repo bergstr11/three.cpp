@@ -8,7 +8,6 @@
 #include <camera/Camera.h>
 #include <math/Spherical.h>
 #include <helper/simplesignal.h>
-#include <QDebug>
 
 //var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -108,8 +107,6 @@ public:
   using Ptr = std::shared_ptr<OrbitControls>;
 
   Signal<void()> onChanged;
-  Signal<void()> onStart;
-  Signal<void()> onEnd;
 
   // Set to false to disable this control
   bool enabled = true;
@@ -193,10 +190,8 @@ public:
 
   void panLeft(float distance, const math::Matrix4 &objectMatrix)
   {
-
     math::Vector3 v = math::Vector3::fromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
     v *= -distance;
-    qDebug() << "panLeft" << distance << "|" << v.x() << v.y() << v.z();
 
     _panOffset += v;
   }
@@ -205,7 +200,6 @@ public:
   {
     math::Vector3 v = math::Vector3::fromMatrixColumn( objectMatrix, 1 ); // get Y column of objectMatrix
     v *= distance;
-    qDebug() << "panUp" << distance << "|" << v.x() << v.y() << v.z();
 
     _panOffset += v;
   }

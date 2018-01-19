@@ -45,6 +45,8 @@ public:
     lookAt(eye, target, up);
   }
 
+  float operator [](unsigned index) const {return _elements[index];}
+
   const float * elements() const {return _elements;}
 
   float * elements() {return _elements;}

@@ -47,6 +47,8 @@ public:
     set(q, true);
   }
 
+  float operator[](unsigned index) const {return _elements[index];}
+
   Signal<void(const Quaternion &)> onChange;
 
   const float x() const {
@@ -139,13 +141,13 @@ public:
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
   explicit Quaternion(const Matrix4 &m);
 
-  Quaternion& set(const Matrix4 &m, bool emitSignal=true);
+  Quaternion &set(const Matrix4 &m, bool emitSignal=true);
 
   Quaternion &set(const Euler &euler, bool emitSignal=true);
 
 
   // assumes direction vectors vFrom and vTo are normalized
-  Quaternion(const Vector3 &vFrom, const Vector3 &vTo);
+  //Quaternion(const Vector3 &vFrom, const Vector3 &vTo);
 
   Quaternion &inverse()
   {

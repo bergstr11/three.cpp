@@ -6,7 +6,6 @@
 #include <math/Math.h>
 #include <camera/PerspectiveCamera.h>
 #include <camera/OrtographicCamera.h>
-#include <QDebug>
 
 namespace three {
 
@@ -38,7 +37,6 @@ bool OrbitControls::update()
   _spherical.phi() = std::max( minPolarAngle, std::min( maxPolarAngle, _spherical.phi() ) );
 
   _spherical.makeSafe();
-
 
   _spherical.radius() *= scale;
 
@@ -253,7 +251,6 @@ void OrbitControls::doPan(unsigned x, unsigned y)
   _panEnd.set( x, y );
 
   _panDelta = _panEnd - _panStart;
-qDebug() << "delta: " << _panDelta.x() << _panDelta.y();
 
   pan( _panDelta.x(), _panDelta.y() );
 

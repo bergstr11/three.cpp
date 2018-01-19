@@ -57,9 +57,12 @@ protected:
   }
 
 public:
-  void start(ThreeDItem *item, three::Camera::Ptr camera) override
+  void setItem(ThreeDItem *item) override
   {
-    _controls = OrbitControls::make(item, camera);
+    _controls = OrbitControls::make(item, _camera->camera());
+    _controls->onChanged.connect([this]() {
+      emit changed();
+    });
   }
 
   bool handleMousePressed(QMouseEvent *event) override
