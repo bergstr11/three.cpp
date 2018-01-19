@@ -11,7 +11,7 @@ namespace three {
 
 class HemisphereLight : public Light
 {
-  Color _groundColor;
+  Color _groundColor {1, 1, 1};
 
 protected:
   HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity)

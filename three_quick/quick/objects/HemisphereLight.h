@@ -16,7 +16,7 @@ namespace quick {
 class HemisphereLight : public ThreeQObject
 {
 Q_OBJECT
-  Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(QColor skyColor READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(QColor groundColor READ groundColor WRITE setGroundColor NOTIFY groundColorChanged)
   Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
 

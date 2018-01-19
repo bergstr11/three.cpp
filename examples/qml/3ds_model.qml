@@ -48,7 +48,8 @@ Window {
         Scene {
             id: scene
 
-            HemisphereLight {}
+            HemisphereLight {
+            }
 
             DirectionalLight {
                 color: "#ffeedd"

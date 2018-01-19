@@ -295,7 +295,9 @@ public:
 
   Vector3 &normalize()
   {
-    return *this /= length();
+    float l = length();
+    if(l) *this /= l;
+    return *this;
   }
 
   Vector3 normalized() const
