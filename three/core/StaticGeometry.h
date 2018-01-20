@@ -194,7 +194,7 @@ public:
 
 	void sortFacesByMaterialIndex();
 
-  void addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
+  void addFace(uint32_t a, uint32_t b, uint32_t c, uint32_t materialIndex,
                const BufferAttributeT<float>::Ptr &normals, const BufferAttributeT<float>::Ptr &uvs,
                const BufferAttributeT<float>::Ptr &uv2s,
                const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,

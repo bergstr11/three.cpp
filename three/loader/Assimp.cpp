@@ -170,6 +170,8 @@ struct Access
 
   void readMaterial(unsigned materialIndex);
 
+  BufferAttributeT<float>::Ptr readUVChannel(unsigned index, const aiMesh *mesh);
+
   Mesh::Ptr readMesh(int index);
 
   Object3D::Ptr readObject(const aiNode *ai, Object3D::Ptr object=nullptr);
@@ -334,6 +336,13 @@ protected:
     if(!material.map)
       material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
 
+    aiUVTransform tranform;
+    if(ai->Get(AI_MATKEY_UVTRANSFORM_DIFFUSE(0), tranform) == AI_SUCCESS) {
+      if(tranform.mRotation != 0 || tranform.mScaling.x != 1 || tranform.mScaling.y != 1
+         || tranform.mTranslation.x != 0 || tranform.mTranslation.y != 0)
+      qWarning() << "UVTRANSFORM_DIFFUSE found, but not used";
+    }
+
     auto tex = access->loadTexture(aiTextureType_SHININESS, 0, ai);
     if(tex) qWarning() << "found aiTextureType_SHININESS texture, dont't know what to do with it..";
 
@@ -386,19 +395,23 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
 {
   aiString path;
   aiTextureMapping mapping;
-  unsigned int uvindex;
+  unsigned int uvindex = numeric_limits<unsigned>::max();
   ai_real blend;
   aiTextureOp op;
   aiTextureMapMode mapmode[3];
 
   if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
 
+    if(uvindex != numeric_limits<unsigned>::max()) {
+      qWarning() << "explicit UV index not used";
+    }
     if(path.data[0] == '*') {
       unsigned index = atoi(path.data + 1);
       aiTexture *tex = aiscene->mTextures[index];
 
       TextureOptions options = DataTexture::options();
       //return DataTexture::make(options, image);
+      qWarning() << path.C_Str()  << ": embedded textures not (yet) supported";
     }
     else {
       string imageFile(path.C_Str());
@@ -411,6 +424,13 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
       }
       qDebug() << "loaded texture " << imageFile.c_str() << "(" << type << ")";
       TextureOptions options = ImageTexture::options();
+
+      switch(mapping) {
+        case aiTextureMapping_UV:
+          break;
+        default:
+          qWarning() << path.C_Str()  << ": unsupported texture mapping (non-UV)";
+      }
       switch(mapmode[0]) {
         case aiTextureMapMode_Wrap:
           options.wrapS = TextureWrapping::Repeat;
@@ -479,6 +499,22 @@ Object3D::Ptr Access::readObject(const aiNode *ai, Object3D::Ptr object)
   return object;
 }
 
+BufferAttributeT<float>::Ptr Access::readUVChannel(unsigned index, const aiMesh *ai)
+{
+  if(ai->mTextureCoords[index]) {
+    if(ai->mNumUVComponents[index] != 2)
+      qWarning() << ai->mNumUVComponents[index] << "UV components found, 2 used";
+
+    vector<UV> uvs(ai->mNumVertices);
+    for(unsigned i=0; i<ai->mNumVertices; i++) {
+      aiVector3t<float> &aiuv = ai->mTextureCoords[index][i];
+      uvs[i].set(aiuv.x, aiuv.y);
+    }
+    return DefaultBufferAttribute<float>::make(uvs);
+  }
+  return nullptr;
+}
+
 Mesh::Ptr Access::readMesh(int index)
 {
   if(meshes.count(index) > 0) return meshes[index];
@@ -519,20 +555,18 @@ Mesh::Ptr Access::readMesh(int index)
   }
   geometry->setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
 
-  geometry->setPosition(ExternalBufferAttribute<float>::make(ai->mVertices, ai->mNumVertices) );
+  geometry->setPosition(ExternalBufferAttribute<float>::make(ai->mVertices, ai->mNumVertices));
 
   if(ai->mNormals) {
-    geometry->setNormal(ExternalBufferAttribute<float>::make(ai->mNormals, ai->mNumVertices) );
+    geometry->setNormal(ExternalBufferAttribute<float>::make(ai->mNormals, ai->mNumVertices));
   }
   if(ai->mColors[0]) {
     geometry->setColor(ExternalBufferAttribute<float>::make(ai->mColors[0], ai->mNumVertices));
   }
-  if(ai->mTextureCoords[0]) {
-    geometry->setUV(ExternalBufferAttribute<float>::make(ai->mTextureCoords[0], ai->mNumVertices));
-  }
-  if(ai->mTextureCoords[1]) {
-    geometry->setUV2(ExternalBufferAttribute<float>::make(ai->mTextureCoords[1], ai->mNumVertices));
-  }
+
+  geometry->setUV(readUVChannel(0, ai));
+  geometry->setUV2(readUVChannel(1, ai));
+
   if(ai->mTangents) {
     geometry->setTangents(ExternalBufferAttribute<float>::make(ai->mTangents, ai->mNumVertices));
   }

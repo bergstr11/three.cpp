@@ -217,7 +217,7 @@ public:
   void load(QImage &image, string &file) override
   {
     QString path = dir.absoluteFilePath(QString::fromStdString(file));
-    image.load(path);
+    image = QImage(path).mirrored();
   }
 
 signals:
@@ -285,7 +285,7 @@ public:
     auto repl = _replacements.find(lookFor);
     if(repl != _replacements.end()) lookFor = (*repl).second;
 
-    image.load(QString::fromStdString(lookFor));
+    image = QImage(QString::fromStdString(lookFor)).mirrored();
   }
 
 signals:

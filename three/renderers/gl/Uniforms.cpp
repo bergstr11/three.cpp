@@ -169,12 +169,6 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   _renderer.glGetActiveUniform( program, index, 100, &length, &size, &type, uname);
   GLint addr = _renderer.glGetUniformLocation(program, uname);
 
-  if(type == GL_SAMPLER_2D) {
-    qDebug() << "GL_SAMPLER_2D";
-  }
-  else if(type == GL_SAMPLER_CUBE) {
-    qDebug() << "GL_SAMPLER_CUBE";
-  }
   string name(uname);
   sregex_iterator rex_it(name.cbegin(), name.cend(), rex);
   sregex_iterator rex_end;

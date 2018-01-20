@@ -90,9 +90,6 @@ public:
 
   void update(BufferGeometry::Ptr buffergeometry)
   {
-    //var index = geometry->index();
-    //var geometryAttributes = geometry.attributes;
-
     if (buffergeometry->index()) {
       _attributes.update(*buffergeometry->getIndex(), BufferType::ElementArray);
     }
