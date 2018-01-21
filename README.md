@@ -10,8 +10,12 @@ Contributors welcome anytime
 ## Samples
 simple geometries with ambient light, spot light and shade:
 
-![example 1](doc/example1.png "first example") 
+![example 1](doc/example1.png "geometries, lights and shade") 
 
 Environment Maps
 
-![example 2](doc/sphere_envmap.png "second example")
+![example 2](doc/sphere_envmap.png "environment mapping")
+
+Model Loading (3DS model through Assimp)
+
+![example 2](doc/3ds_loader.png "3ds model")

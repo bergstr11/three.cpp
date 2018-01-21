@@ -226,7 +226,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
     check_glerror(_fn);
 
     if ( texture.wrapS != TextureWrapping::ClampToEdge || texture.wrapT != TextureWrapping::ClampToEdge) {
-      //console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to THREE.ClampToEdgeWrapping.', texture );
+      qWarning() << "Texture is not power of two. Texture.wrapS and Texture.wrapT should be set to ClampToEdgeWrapping";
     }
 
     _fn->glTexParameteri((GLenum)textureTarget, GL_TEXTURE_MAG_FILTER, filterFallback( texture.magFilter ) );
@@ -234,7 +234,7 @@ void Textures::setTextureParameters(TextureTarget textureTarget, Texture &textur
     check_glerror(_fn);
 
     if ( texture.minFilter != TextureFilter::Nearest && texture.minFilter != TextureFilter::Linear) {
-      qWarning() << "WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to NearestFilter or LinearFilter";
+      qWarning() << "Texture is not power of two. Texture.minFilter should be set to NearestFilter or LinearFilter";
     }
   }
 
