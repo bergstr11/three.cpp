@@ -7,7 +7,7 @@
 
 #include <istream>
 #include <helper/simplesignal.h>
-#include <objects/Objects.h>
+#include <objects/Node.h>
 #include <scene/Scene.h>
 
 namespace three {
@@ -30,14 +30,13 @@ class Loader
 {
 protected:
   Scene::Ptr _scene;
-  Objects::Ptr _objects;
 
 public:
   using Ptr = std::shared_ptr<Loader>;
 
   virtual ~Loader() = default;
 
-  Signal<void(Objects::Ptr objects)> onLoaded;
+  Signal<void(Node::Ptr objects)> onLoaded;
   Signal<void(unsigned percent)> onProgress;
   Signal<void(std::string message)> onError;
 
@@ -46,7 +45,6 @@ public:
   virtual void load(std::string name, Texture::Ptr background, ResourceLoader &loader) = 0;
 
   const Scene::Ptr scene() const {return _scene;}
-  const Objects::Ptr objects() {return _objects;}
 };
 
 }

@@ -31,9 +31,7 @@ protected:
     _creator.set(geometry::Box::make(_width, _height, _depth));
     material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = _creator.mesh;
-
-    return mesh;
+    return _creator.mesh;
   }
 
   void updateMaterial() override {

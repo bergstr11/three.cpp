@@ -39,6 +39,9 @@ protected:
 public:
   HemisphereLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
+  HemisphereLight(three::HemisphereLight::Ptr light, QObject *parent = nullptr)
+     : ThreeQObject(light, parent), _light(light) {}
+
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
     if(_color != color) {

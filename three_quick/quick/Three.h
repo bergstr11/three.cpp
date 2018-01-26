@@ -62,10 +62,10 @@ public:
 
 class ObjectRootContainer {
 public:
-  virtual void addMaterial(Material *material) = 0;
-  virtual void addTexture(Texture *texture) = 0;
-  virtual void addController(Controller* controller, three::Camera::Ptr camera) = 0;
-  virtual void addScene(Scene *scene) = 0;
+  virtual void addMaterial(Material *material) {}
+  virtual void addTexture(Texture *texture) {}
+  virtual void addController(Controller* controller, three::Camera::Ptr camera) {}
+  virtual void addScene(Scene *scene) {}
 };
 
 class ThreeDItem : public QQuickFramebufferObject, public ObjectRootContainer
@@ -79,6 +79,7 @@ private:
   Q_PROPERTY(three::quick::Three::CullFace faceCulling READ faceCulling WRITE setFaceCulling NOTIFY faceCullingChanged)
   Q_PROPERTY(three::quick::Three::FrontFaceDirection faceDirection READ faceDirection WRITE setFaceDirection NOTIFY faceDirectionChanged)
   Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged)
+  Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -92,6 +93,7 @@ private:
   Three::CullFace _faceCulling = Three::BackFaceCulling;
   Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCCW;
   bool _autoClear = true;
+  unsigned _samples = 4;
 
   QMetaObject::Connection _geometryUpdate;
 
@@ -108,6 +110,8 @@ public:
   ~ThreeDItem() override;
 
   Renderer *createRenderer() const override;
+
+  void addScene(Scene *scene) override;
 
   void addController(Controller *controller, three::Camera::Ptr camera) override {
     controller->setItem(this);
@@ -131,15 +135,13 @@ public:
 
   void setAutoClear(bool autoClear);
 
+  unsigned samples() const {return _samples;}
+
+  void setSamples(unsigned samples);
+
   Three::FrontFaceDirection faceDirection() const {return _faceDirection;}
 
   void setFaceDirection(Three::FrontFaceDirection faceDirection);
-
-  void addMaterial(Material *material) override;
-
-  void addTexture(Texture *texture) override;
-
-  void addScene(Scene *scene) override;
 
 protected:
   void componentComplete() override;
@@ -170,6 +172,7 @@ signals:
   void faceCullingChanged();
   void faceDirectionChanged();
   void autoClearChanged();
+  void samplesChanged();
 };
 
 }

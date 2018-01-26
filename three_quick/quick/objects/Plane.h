@@ -23,8 +23,6 @@ class Plane : public ThreeQObject
 
   unsigned _width=1, _height=1;
 
-  three::Mesh::Ptr _plane;
-
   MeshCreatorG<geometry::Plane> _creator {"plane"};
 
 protected:
@@ -33,9 +31,7 @@ protected:
     _creator.set(geometry::Plane::make(_width, _height, 1, 1));
     material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = _creator.mesh;
-
-    return mesh;
+    return _creator.mesh;
   }
 
   void updateMaterial() override {

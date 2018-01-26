@@ -75,6 +75,7 @@ Window {
         focus: true
         z: 1
         shadowType: Three.PCFSoft
+
         Scene {
             id: scene
             background: Qt.rgba(0.4,0.4,0.6)
@@ -97,7 +98,7 @@ Window {
                 castShadow: true
 
                 shadow.mapSize: "1024x1024"
-                shadow.camera.near: 10
+                shadow.camera.near: 0.1
                 shadow.camera.far: 200
 
                 addHelper: true
@@ -108,6 +109,7 @@ Window {
             }
 
             Box {
+                name: "plane"
                 width: 2000
                 height: 1
                 depth: 2000

@@ -40,7 +40,6 @@ Q_OBJECT
 
   QVector3D _position;
 
-  three::Camera::Ptr _camera;
   three::Scene::Ptr _scene;
 
   static void append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
@@ -75,7 +74,7 @@ public:
 
   three::Scene::Ptr scene() {return _scene;}
 
-  three::Camera::Ptr camera() {return _camera;}
+  three::Camera::Ptr camera() {return _quickCamera ? _quickCamera->camera() : nullptr;}
 
   Q_INVOKABLE void add(ThreeQObject *object);
 

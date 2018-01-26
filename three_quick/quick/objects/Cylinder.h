@@ -36,9 +36,7 @@ protected:
     _creator.set(geometry::Cylinder::make(_params));
     material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = _creator.mesh;
-
-    return mesh;
+    return _creator.mesh;
   }
 
   void updateMaterial() override {

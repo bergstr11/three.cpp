@@ -7,18 +7,18 @@
 
 #include <QQuickItem>
 #include <QMouseEvent>
-#include <controls/OrbitControls.h>
+#include <controls/Orbit.h>
 
 namespace three {
 namespace quick {
 
-class OrbitControls : public three::OrbitControls
+class OrbitControls : public control::Orbit
 {
   const QQuickItem * const _item;
 
 protected:
   explicit OrbitControls(const QQuickItem *item, three::Camera::Ptr camera)
-     : three::OrbitControls(camera), _item(item) {}
+     : control::Orbit(camera), _item(item) {}
 
 public:
   using Ptr = std::shared_ptr<OrbitControls>;
@@ -67,7 +67,7 @@ public:
 
   bool handleMouseMoved(QMouseEvent *event)
   {
-    if(handleEvent(event->x(), event->y())) {
+    if(handleMove(event->x(), event->y())) {
       event->setAccepted(true);
       return true;
     }
@@ -85,17 +85,10 @@ public:
 
   bool handleMouseWheel(QWheelEvent *event)
   {
-    if ( event->delta() < 0 ) {
-      dollyOut( getZoomScale() );
+    if(handleDelta(event->delta())) {
       event->setAccepted(true);
       return true;
     }
-    else if ( event->delta() > 0 ) {
-      dollyIn( getZoomScale() );
-      event->setAccepted(true);
-      return true;
-    }
-
     return false;
   }
 };

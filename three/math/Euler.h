@@ -25,7 +25,7 @@ private:
   RotationOrder _order;
 
 public:
-  Euler(float x, float y, float z, RotationOrder order) : _x(x), _y(y), _z(z), _order(order) {}
+  Euler(float x, float y, float z, RotationOrder order=XYZ) : _x(x), _y(y), _z(z), _order(order) {}
 
   Euler() : _x(0), _y(0), _z(0), _order(XYZ) {}
 
@@ -39,8 +39,7 @@ public:
 
   Euler & operator = (const Euler &other);
 
-  void set(float x, float y, float z, RotationOrder order, bool emitSignal=true);
-
+  void set(float x, float y, float z, RotationOrder order=XYZ, bool emitSignal=true);
   void set(const math::Matrix4 &m, RotationOrder order, bool emitSignal=true);
   void set(const math::Quaternion &q, RotationOrder order, bool emitSignal=true);
   void set(const math::Vector3 &v, RotationOrder order, bool emitSignal=true);

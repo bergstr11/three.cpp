@@ -20,6 +20,7 @@ class ObjectContainer;
 class ThreeQObject : public QObject
 {
 Q_OBJECT
+  Q_PROPERTY(QString name READ name WRITE setName)
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
@@ -29,8 +30,11 @@ Q_OBJECT
   Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
 
 protected:
-  QVector3D _position {0.0, 0.0, 0.0};
-  QVector3D _rotation {0.0, 0.0, 0.0};
+  QString _name;
+
+  QVector3D _position {0.0f, 0.0f, 0.0f};
+
+  QVector3D _rotation;
 
   bool _castShadow = false, _receiveShadow = false, _visible = false, _matrixAutoUpdate = true;
 
@@ -42,23 +46,33 @@ protected:
   virtual void _post_create(Scene *scene) {}
 
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
+  ThreeQObject(three::Object3D::Ptr object, QObject *parent = nullptr)
+     : QObject(parent), _object(object) {}
 
-  virtual void updateMaterial() {};
+  virtual void updateMaterial() {}
 
 public:
   QVector3D position() {return _position;}
   QVector3D rotation() {return _rotation;}
 
-  void setPosition(const QVector3D &position) {
+  void setPosition(const QVector3D &position, bool propagate=true) {
     if(position != _position) {
       _position = position;
+
+      if(propagate)
+        if(_object) _object->position().set(_position.x(), _position.y(), _position.z());
+
       emit positionChanged();
     }
   }
 
-  void setRotation(const QVector3D &rotation) {
-    if(rotation != _rotation) {
+  void setRotation(const QVector3D &rotation, bool propagate=true) {
+    if(_rotation != rotation) {
       _rotation = rotation;
+
+      if(propagate)
+        if(_object) _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+
       emit rotationChanged();
     }
   }
@@ -111,14 +125,25 @@ public:
     }
   }
 
+  const QString &name() const {return _name;}
+
+  void setName(const QString &name) {
+    if(_name.isEmpty()) _name = name;
+  }
+
   three::Object3D::Ptr object() const {return _object;}
 
   three::Object3D::Ptr create(Scene *scene)
   {
     _object = _create(scene);
     if(_object) {
-      _object->rotation().setX(_rotation.x());
+      if(!_rotation.isNull())
+        _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+
       _object->position().set(_position.x(), _position.y(), _position.z());
+
+      if(!_name.isEmpty())
+        _object->setName(_name.toStdString());
 
       _object->castShadow = _castShadow;
       _object->receiveShadow = _receiveShadow;

@@ -38,6 +38,9 @@ protected:
 public:
   DirectionalLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
+  DirectionalLight(three::DirectionalLight::Ptr light, QObject *parent = nullptr)
+     : ThreeQObject(light, parent), _light(light) {}
+
   QColor color() const {return _color;}
 
   void setColor(const QColor &color) {

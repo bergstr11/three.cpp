@@ -47,14 +47,12 @@ public:
   const sole::uuid uuid;
   using Ptr = std::shared_ptr<Object3D>;
 
-private:
+protected:
   uint16_t _id;
+  std::string _name;
 
   Object3D *_parent = nullptr;
   std::vector<Ptr> _children;
-
-protected:
-  std::string _name;
 
   math::Vector3 _up {0, 1, 0};
   math::Vector3 _position;
@@ -70,7 +68,7 @@ protected:
   Layers _layers;
   bool _visible = true;
 
-  int _renderOrder = -1;
+  int _renderOrder = 0;
 
   void onRotationChange(const math::Euler &rotation);
   void onQuaternionChange(const math::Quaternion &quaternion);

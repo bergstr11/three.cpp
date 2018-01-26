@@ -4,8 +4,6 @@
 
 #include "ShadowMap.h"
 #include "Renderer_impl.h"
-#include <light/PointLight.h>
-#include <light/TargetLight.h>
 
 namespace three {
 namespace gl {
@@ -263,7 +261,6 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Perspecti
     if ( object->castShadow && ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) ) {
 
       object->modelViewMatrix.multiply(shadowCamera->matrixWorldInverse(), object->matrixWorld());
-
       BufferGeometry::Ptr geometry = _objects.update( object );
 
       if ( object->materialCount() > 1 ) {

@@ -105,10 +105,10 @@ void Scene::addTo(ObjectRootContainer *container)
   positionChanged();
 
   if(_fog) _scene->fog() = _fog->create();
-  _camera = _quickCamera->create(_scene);
+  _quickCamera->create(this);
 
   if(_quickCamera->controller()) {
-    container->addController(_quickCamera->controller(), _camera);
+    container->addController(_quickCamera->controller(), _quickCamera->camera());
   }
   for(auto &object :_objects) {
     auto obj = object->create(this);

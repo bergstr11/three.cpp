@@ -32,9 +32,7 @@ protected:
     _creator.set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
     material()->identify(_creator);
 
-    three::Mesh::Ptr mesh = _creator.mesh;
-
-    return mesh;
+    return _creator.mesh;
   }
 
   void updateMaterial() override {

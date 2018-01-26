@@ -22,22 +22,21 @@ Q_OBJECT
   Q_PROPERTY(QObject *object READ modelObject NOTIFY modelObjectChanged)
 
 public:
-  enum Type {Mesh, Texture, Light, Camera};
+  enum Type {Node, Mesh, Light, Camera};
   Q_ENUM(Type)
 
 private:
   Model *_model = nullptr;
   QString _selector;
-  Type _type;
+  Type _type = Mesh;
 
   QMetaObject::Connection _loadedConnection;
   QMetaObject::Connection _fileConnection;
 
   Scene *_scene = nullptr;
 
-  QObject *_object;
-
-  std::vector<Object3D::Ptr> _objects;
+  ThreeQObject *_object = nullptr;
+  std::vector<ThreeQObject *> _objects;
 
 protected:
   Object3D::Ptr _create(Scene *scene) override
@@ -45,6 +44,15 @@ protected:
     _scene = scene;
     return nullptr;
   }
+
+  void matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject);
+
+  enum class Eval {name, skipLevel, skipLevels, collectLevel, collectLevels};
+  bool evaluateSelector(QStringList::iterator &iter,
+                        QStringList::iterator &end,
+                        Object3D::Ptr parent,
+                        const std::vector<Object3D::Ptr> children,
+                        Eval wildcard=Eval::name);
 
 public:
   ModelRef(QObject *parent=nullptr) : ThreeQObject(parent) {}

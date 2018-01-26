@@ -4,8 +4,8 @@
 
 #include <QMetaType>
 #include <math/Euler.h>
-
 Q_DECLARE_METATYPE(three::math::Euler);
+
 #include "Three.h"
 
 #include <QOpenGLFramebufferObject>
@@ -141,6 +141,7 @@ public:
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setMipmap(true);
+    format.setSamples(_item->_samples);
     format.setInternalTextureFormat(GL_RGBA);
 
     _fbo = new QOpenGLFramebufferObject(size, format);
@@ -203,6 +204,14 @@ void ThreeDItem::setAutoClear(bool autoClear)
   if(_autoClear != autoClear) {
     _autoClear = autoClear;
     emit autoClearChanged();
+  }
+}
+
+void ThreeDItem::setSamples(unsigned samples)
+{
+  if(_samples != samples) {
+    _samples = samples;
+    emit samplesChanged();
   }
 }
 
@@ -311,16 +320,6 @@ QQmlListProperty<ThreeQObjectRoot> ThreeDItem::objects()
                                         &ThreeDItem::count_objects,
                                         &ThreeDItem::object_at,
                                         &ThreeDItem::clear_objects);
-}
-
-void ThreeDItem::addMaterial(Material *material)
-{
-
-}
-
-void ThreeDItem::addTexture(Texture *texture)
-{
-
 }
 
 void ThreeDItem::addScene(Scene *scene)

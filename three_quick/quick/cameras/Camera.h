@@ -9,68 +9,55 @@
 #include <QVector3D>
 #include <core/Object3D.h>
 #include <camera/Camera.h>
+#include <quick/objects/ThreeQObject.h>
 #include <quick/interact/Controller.h>
 #include <quick/Math.h>
 
 namespace three {
 namespace quick {
 
-class Camera : public QObject
+class Scene;
+
+class Camera : public ThreeQObject
 {
   Q_OBJECT
-  Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
-  Q_PROPERTY(three::math::Euler rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
 
-  QVector3D _lookAt {std::numeric_limits<float>::infinity(),
-                     std::numeric_limits<float>::infinity(),
-                     std::numeric_limits<float>::infinity()};
+  static const float infinity;
 
-  QVector3D _position;
-  three::math::Euler _rotation {std::numeric_limits<float>::infinity(),
-                                std::numeric_limits<float>::infinity(),
-                                std::numeric_limits<float>::infinity(),
-                                math::Euler::RotationOrder::XYZ};
+  QVector3D _lookAt {infinity, infinity, infinity};
 
   Controller *_controller = nullptr;
 
   three::Camera::Ptr _camera;
 
 protected:
-  virtual three::Camera::Ptr _create() = 0;
+  virtual three::Camera::Ptr _createCamera() {return nullptr;};
+
+  three::Object3D::Ptr _create(Scene *scene) override;
+
+  void _post_create(Scene *scene) override;
 
 public:
+  Camera(QObject *parent=nullptr) : ThreeQObject(parent) {}
+  Camera(three::Camera::Ptr camera, QObject *parent=nullptr) : ThreeQObject(parent), _camera(camera) {}
+
   QVector3D lookAt() const {return _lookAt;}
 
   void setLookAt(QVector3D lookAt) {
     if(_lookAt != lookAt) {
       _lookAt = lookAt;
 
-      if(_camera) updateControllerValues();
+      if(_camera) {
+        updateControllerValues();
+
+        const math::Euler &r = _camera->rotation();
+        _rotation = QVector3D(r.x(), r.y(), r.z());
+        emit rotationChanged();
+      }
 
       emit lookAtChanged();
-    }
-  }
-
-  QVector3D position() {return _position;}
-
-  void setPosition(const QVector3D &position, bool propagate=true) {
-    if(position != _position) {
-      _position = position;
-      if(_camera && propagate)
-        _camera->position().set(_position.x(), _position.y(), _position.z());
-      emit positionChanged();
-    }
-  }
-
-  three::math::Euler rotation() {return _rotation;}
-
-  void setRotation(const three::math::Euler &rotation, bool propagate=true) {
-    if(_rotation != rotation) {
-      _rotation = rotation;
-      if(_camera && propagate) _camera->rotation() = _rotation;
-      emit rotationChanged();
     }
   }
 
@@ -78,7 +65,8 @@ public:
   {
     const math::Vector3 &p = _camera->position();
     setPosition(QVector3D(p.x(), p.y(), p.z()), false);
-    setRotation(_camera->rotation(), false);
+    const math::Euler &r = _camera->rotation();
+    setRotation(QVector3D(r.x(), r.y(), r.z()), false);
   }
 
   Controller *controller() const {return _controller;}
@@ -97,15 +85,11 @@ public:
     return QVector3D(vector.x(), vector.y(), vector.z());
   }
 
-  three::Camera::Ptr create(three::Scene::Ptr scene);
-
   three::Camera::Ptr camera() {return _camera;}
 
 signals:
   void lookAtChanged();
-  void positionChanged();
   void controllerChanged();
-  void rotationChanged();
 };
 
 }

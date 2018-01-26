@@ -16,18 +16,21 @@ namespace quick {
 
 using namespace std;
 
-class Mesh : public QObject
+class Mesh : public ThreeQObject
 {
 Q_OBJECT
-  Q_PROPERTY(Material * material READ material NOTIFY materialChanged)
-
-  Material *_material;
 
   three::Mesh::Ptr _mesh;
 
+protected:
+  Object3D::Ptr _create(Scene *scene) override
+  {
+    return nullptr; //Mesh is not QML-creatable
+  }
+
 public:
   Mesh(three::Mesh::Ptr mesh, QObject *parent = nullptr)
-     : QObject(parent), _mesh(mesh)
+     : ThreeQObject(parent), _mesh(mesh)
   {
     three::MeshPhongMaterial::Ptr meshPhong = dynamic_pointer_cast<three::MeshPhongMaterial>(mesh->material());
     if(meshPhong) {
@@ -47,11 +50,6 @@ public:
     //three::MeshToonMaterial::Ptr meshToon = dynamic_pointer_cast<three::MeshToonMaterial>(mesh);
     //_material(new Material(mesh->material()), this)
   }
-
-  Material *material() const {return _material;}
-
-signals:
-  void materialChanged();
 };
 
 }

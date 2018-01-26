@@ -7,6 +7,7 @@
 
 #include "TargetLight.h"
 #include "SpotLightShadow.h"
+#include <QDebug>
 
 namespace three {
 
@@ -75,7 +76,6 @@ inline void SpotLightShadow::update()
   float far = light.distance() > 0 ? light.distance() : _camera->far();
 
   if ( fov != _camera->fov() || aspect != _camera->aspect() || far != _camera->far() ) {
-
     _camera->setFovAspect(fov, aspect);
     _camera->setFar(far);
     _camera->updateProjectionMatrix();

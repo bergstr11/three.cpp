@@ -359,7 +359,7 @@ class Mesh;
 class SkinnedMesh;
 class Line;
 class LineSegments;
-class Objects;
+class Node;
 class Points;
 class ImmediateRenderObject;
 
@@ -370,7 +370,7 @@ PUT_FUNCTABLE(Dispatch, Light)
 PUT_FUNCTABLE(Dispatch, Sprite)
 PUT_FUNCTABLE(Dispatch, LensFlare)
 PUT_FUNCTABLE(Dispatch, Mesh)
-PUT_FUNCTABLE(Dispatch, Objects)
+PUT_FUNCTABLE(Dispatch, Node)
 PUT_FUNCTABLE(Dispatch, SkinnedMesh)
 PUT_FUNCTABLE(Dispatch, Line)
 PUT_FUNCTABLE(Dispatch, LineSegments)

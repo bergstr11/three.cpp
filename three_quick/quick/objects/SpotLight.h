@@ -62,6 +62,9 @@ protected:
 public:
   SpotLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
+  SpotLight(three::SpotLight::Ptr light, QObject *parent = nullptr)
+     : ThreeQObject(light, parent), _spot(light) {}
+
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
     if(_color != color) {

@@ -39,12 +39,21 @@ Window {
         text: "Stand by, we're loading.."
         font.pointSize: 34
         visible: false
+
+        RotationAnimation on rotation {
+            loops: Animation.Infinite
+            from: 0
+            to: 360
+            duration: 4000
+            running: holdon.visible
+        }
     }
 
     ThreeD {
         id: threeD
         anchors.fill: parent
         autoClear: false
+        samples: 8
 
         Model {
             id: threeDModel
@@ -56,9 +65,6 @@ Window {
         Scene {
             id: scene
 
-            HemisphereLight {
-            }
-
             DirectionalLight {
                 color: "#ffeedd"
                 position: "0,0,2"
@@ -66,13 +72,12 @@ Window {
 
             AmbientLight {
                 id: ambientLight
-                color: "#AAAAAA"
+                color: "#cccccc"
             }
 
             ModelRef {
                 model: threeDModel
-                type: ModelRef.Mesh
-                selector: "*"
+                type: ModelRef.Node
             }
 
             camera: PerspectiveCamera {

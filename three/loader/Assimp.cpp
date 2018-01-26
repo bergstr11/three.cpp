@@ -136,12 +136,6 @@ public:
   }
 };
 
-void ai2Three(math::Matrix4 &matrix, const aiMatrix4x4 &ai)
-{
-  matrix.set(ai.a1, ai.a2, ai.a3, ai.a4, ai.b1, ai.b2, ai.b3, ai.b4, ai.c1, ai.c2,
-             ai.c3, ai.c4, ai.d1, ai.d2, ai.d3, ai.d4);
-}
-
 class MeshMaker
 {
 public:
@@ -174,7 +168,7 @@ struct Access
 
   Mesh::Ptr readMesh(int index);
 
-  Object3D::Ptr readObject(const aiNode *ai, Object3D::Ptr object=nullptr);
+  void readObject(const aiNode *ai, Object3D::Ptr object);
 
   void readScene()
   {
@@ -218,12 +212,22 @@ static void read(MaterialT<x> &material, const aiMaterial *ai, Access *access) {
   mixin(material, ai, access); \
 }
 
+inline void read_color(const char* pKey,unsigned int type, unsigned int idx, const aiMaterial *ai, Color &color)
+{
+  aiColor4D c4D;
+  if(ai->Get(pKey, type, idx, c4D) == AI_SUCCESS) {
+    color.r = c4D.r;
+    color.g = c4D.g;
+    color.b = c4D.b;
+  }
+}
+
 template <>
 struct ReadMaterial<material::Colored>
 {
   FORWARD_MIXIN(material::Colored)
   static void mixin(material::Colored &material, const aiMaterial *ai, Access *access) {
-    ai->Get(AI_MATKEY_COLOR_DIFFUSE, material.color);
+    read_color(AI_MATKEY_COLOR_DIFFUSE, ai, material.color);
     ai->Get(AI_MATKEY_OPACITY, material.opacity);
   }
 };
@@ -233,7 +237,6 @@ struct ReadMaterial<material::LightMap>
   FORWARD_MIXIN(material::LightMap)
   static void mixin(material::LightMap &material, const aiMaterial *ai, Access *access) {
     material.lightMap = access->loadTexture(aiTextureType_AMBIENT, 0, ai);
-    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.lightMapIntensity);
   }
 };
 template <>
@@ -242,8 +245,7 @@ struct ReadMaterial<material::EmissiveMap>
   FORWARD_MIXIN(material::EmissiveMap)
   static void mixin(material::EmissiveMap &material, const aiMaterial *ai, Access *access) {
     material.emissiveMap = access->loadTexture(aiTextureType_EMISSIVE, 0, ai);
-    ai->Get(AI_MATKEY_COLOR_EMISSIVE, material.emissive);
-    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.emissiveIntensity);
+    read_color(AI_MATKEY_COLOR_EMISSIVE, ai, material.emissive);
   }
 };
 template <>
@@ -252,8 +254,7 @@ struct ReadMaterial<material::AoMap>
   FORWARD_MIXIN(material::AoMap)
   static void mixin(material::AoMap &material, const aiMaterial *ai, Access *access) {
     material.aoMap = access->loadTexture(aiTextureType_LIGHTMAP, 0, ai);
-    ai->Get(AI_MATKEY_COLOR_AMBIENT, material.ambient);
-    ai->Get(AI_MATKEY_SHININESS_STRENGTH, material.aoMapIntensity);
+    read_color(AI_MATKEY_COLOR_AMBIENT, ai, material.ambient);
   }
 };
 template <>
@@ -262,7 +263,7 @@ struct ReadMaterial<material::EnvMap>
   FORWARD_MIXIN(material::EnvMap)
   static void mixin(material::EnvMap &material, const aiMaterial *ai, Access *access) {
     material.envMap = access->loadTexture(aiTextureType_REFLECTION, 0, ai);
-    ai->Get(AI_MATKEY_COLOR_REFLECTIVE, material.reflective);
+    read_color(AI_MATKEY_COLOR_REFLECTIVE, ai, material.reflective);
     ai->Get(AI_MATKEY_REFLECTIVITY, material.reflectivity);
     ai->Get(AI_MATKEY_REFRACTI, material.refractionRatio);
   }
@@ -281,8 +282,11 @@ struct ReadMaterial<material::SpecularMap>
   FORWARD_MIXIN(material::SpecularMap)
   static void mixin(material::SpecularMap &material, const aiMaterial *ai, Access *access) {
     material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
-    ai->Get(AI_MATKEY_COLOR_SPECULAR, material.specular);
+    read_color(AI_MATKEY_COLOR_SPECULAR, ai, material.specular);
     ai->Get(AI_MATKEY_SHININESS, material.shininess);
+
+    float scale;
+    if(ai->Get(AI_MATKEY_SHININESS_STRENGTH, scale) == AI_SUCCESS) material.specular *= scale;
   }
 };
 template <>
@@ -332,19 +336,26 @@ protected:
   {
     ReadMaterial<Maps...>::read(material, ai, access);
 
+    aiColor4D tmp_c;
+    aiString tmp_s;
+    if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, tmp_c) == AI_SUCCESS)
+      qWarning() << "COLOR_TRANSPARENT found, currently not supported";
+    if(ai->Get(AI_MATKEY_GLOBAL_BACKGROUND_IMAGE, tmp_s) == AI_SUCCESS)
+      qWarning() << "GLOBAL_BACKGROUND_IMAGE found, currently not supported";
+
     material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
     if(!material.map)
       material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
 
-    aiUVTransform tranform;
-    if(ai->Get(AI_MATKEY_UVTRANSFORM_DIFFUSE(0), tranform) == AI_SUCCESS) {
-      if(tranform.mRotation != 0 || tranform.mScaling.x != 1 || tranform.mScaling.y != 1
-         || tranform.mTranslation.x != 0 || tranform.mTranslation.y != 0)
-      qWarning() << "UVTRANSFORM_DIFFUSE found, but not used";
+    aiUVTransform transform;
+    if(ai->Get(AI_MATKEY_UVTRANSFORM_DIFFUSE(0), transform) == AI_SUCCESS) {
+      if(transform.mRotation != 0 || transform.mScaling.x != 1 || transform.mScaling.y != 1
+         || transform.mTranslation.x != 0 || transform.mTranslation.y != 0)
+      qWarning() << "UVTRANSFORM_DIFFUSE found, currently not supported";
     }
 
     auto tex = access->loadTexture(aiTextureType_SHININESS, 0, ai);
-    if(tex) qWarning() << "found aiTextureType_SHININESS texture, dont't know what to do with it..";
+    if(tex) qWarning() << "found SHININESS texture, currently not supported";
 
     aiString name;
     ai->Get(AI_MATKEY_NAME, name);
@@ -397,7 +408,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
   aiTextureMapping mapping;
   unsigned int uvindex = numeric_limits<unsigned>::max();
   ai_real blend;
-  aiTextureOp op;
+  aiTextureOp op = (aiTextureOp)numeric_limits<int>::max();
   aiTextureMapMode mapmode[3];
 
   if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
@@ -431,43 +442,52 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         default:
           qWarning() << path.C_Str()  << ": unsupported texture mapping (non-UV)";
       }
-      switch(mapmode[0]) {
-        case aiTextureMapMode_Wrap:
-          options.wrapS = TextureWrapping::Repeat;
-          break;
-        case aiTextureMapMode_Clamp:
-          options.wrapS = TextureWrapping::ClampToEdge;
-          break;
-        case aiTextureMapMode_Mirror:
-          options.wrapS = TextureWrapping::MirroredRepeat;
-          break;
+      bool isPo2 = math::isPowerOfTwo(image.width()) && math::isPowerOfTwo(image.height());
+      if(isPo2) {
+        switch(mapmode[0]) {
+          case aiTextureMapMode_Wrap:
+            options.wrapS = TextureWrapping::Repeat;
+            break;
+          case aiTextureMapMode_Clamp:
+            options.wrapS = TextureWrapping::ClampToEdge;
+            break;
+          case aiTextureMapMode_Mirror:
+            options.wrapS = TextureWrapping::MirroredRepeat;
+            break;
+        }
+        switch(mapmode[1]) {
+          case aiTextureMapMode_Wrap:
+            options.wrapT = TextureWrapping::Repeat;
+            break;
+          case aiTextureMapMode_Clamp:
+            options.wrapT = TextureWrapping::ClampToEdge;
+            break;
+          case aiTextureMapMode_Mirror:
+            options.wrapT = TextureWrapping::MirroredRepeat;
+            break;
+        }
       }
-      switch(mapmode[1]) {
-        case aiTextureMapMode_Wrap:
-          options.wrapT = TextureWrapping::Repeat;
-          break;
-        case aiTextureMapMode_Clamp:
-          options.wrapT = TextureWrapping::ClampToEdge;
-          break;
-        case aiTextureMapMode_Mirror:
-          options.wrapT = TextureWrapping::MirroredRepeat;
-          break;
+      else {
+        options.minFilter = TextureFilter::Linear;
+        options.wrapS = options.wrapT = TextureWrapping::ClampToEdge;
       }
-      switch(op) {
-        case aiTextureOp_Multiply:
-          options.blending = Blending::Multiply;
-          break;
-        case aiTextureOp_SmoothAdd:
-        case aiTextureOp_SignedAdd:
-        case aiTextureOp_Add:
-          options.blending = Blending::Additive;
-          break;
-        case aiTextureOp_Subtract:
-          options.blending = Blending::Subtractive;
-          break;
-        case aiTextureOp_Divide:
-          options.blending = Blending::Divide;
-          break;
+      if(op < (aiTextureOp)numeric_limits<int>::max()) {
+        switch(op) {
+          case aiTextureOp_Multiply:
+            options.blending = Blending::Multiply;
+            break;
+          case aiTextureOp_SmoothAdd:
+          case aiTextureOp_SignedAdd:
+          case aiTextureOp_Add:
+            options.blending = Blending::Additive;
+            break;
+          case aiTextureOp_Subtract:
+            options.blending = Blending::Subtractive;
+            break;
+          case aiTextureOp_Divide:
+            options.blending = Blending::Divide;
+            break;
+        }
       }
       return ImageTexture::make(options, image);
     }
@@ -475,28 +495,26 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
   return nullptr;
 }
 
-Object3D::Ptr Access::readObject(const aiNode *ai, Object3D::Ptr object)
+void Access::readObject(const aiNode *ai, Object3D::Ptr object)
 {
-  if(!object) {
-    object = Objects::make();
-  }
-
   object->_name = ai->mName.C_Str();
 
-  ai2Three(object->_matrix, ai->mTransformation);
-
-  for(unsigned i=0; i<ai->mNumChildren; i++) {
-    auto child = readObject(ai->mChildren[i]);
-    object->add(child);
-  }
+  const aiMatrix4x4 & m = ai->mTransformation;
+  object->_matrix.set(
+     m.a1, m.a2, m.a3, m.a4, m.b1, m.b2, m.b3, m.b4, m.c1, m.c2, m.c3, m.c4, m.d1, m.d2, m.d3, m.d4);
 
   for(unsigned i=0; i<ai->mNumMeshes; i++) {
     Mesh::Ptr mesh = readMesh(ai->mMeshes[i]);
     object->add(mesh);
   }
-  object->_matrix.decompose(object->_position, object->_quaternion, object->_scale);
 
-  return object;
+  for(unsigned i=0; i<ai->mNumChildren; i++) {
+    Node::Ptr node = Node::make();
+    readObject(ai->mChildren[i], node);
+    object->add(node);
+  }
+
+  object->_matrix.decompose(object->_position, object->_quaternion, object->_scale);
 }
 
 BufferAttributeT<float>::Ptr Access::readUVChannel(unsigned index, const aiMesh *ai)
@@ -679,10 +697,6 @@ void Access::readMaterial(unsigned materialIndex)
       maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
     }
   }
-
-  unsigned wireframe;
-  if(ai->Get(AI_MATKEY_ENABLE_WIREFRAME, wireframe) == AI_SUCCESS)
-    maker->material().wireframe = (bool) wireframe;
 
   makers[materialIndex] = maker;
 }

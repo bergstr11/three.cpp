@@ -409,7 +409,7 @@ Program::Program(Renderer_impl &renderer,
   } else {
     stringstream ss;
 
-    cout << "generating shaders for " << shader.name() << endl;
+    qDebug() << "generating shaders for " << shader.name() << " pid: " << _program;
 
     //vertex prefix
     //=============

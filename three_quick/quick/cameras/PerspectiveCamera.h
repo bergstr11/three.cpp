@@ -24,12 +24,18 @@ Q_OBJECT
   three::PerspectiveCamera::Ptr _perspectiveCamera;
 
 protected:
-  three::Camera::Ptr _create() override {
+  three::Camera::Ptr _createCamera() override
+  {
     _perspectiveCamera = three::PerspectiveCamera::make(_fov, _aspect, _near, _far);
     return _perspectiveCamera;
   }
 
 public:
+  PerspectiveCamera(QObject *parent = nullptr) : Camera(parent) {}
+
+  PerspectiveCamera(three::PerspectiveCamera::Ptr camera, QObject *parent = nullptr)
+     : Camera(camera, parent), _perspectiveCamera(camera) {}
+
   qreal fov() const {return _fov;}
   qreal aspect() const {return _aspect;}
   qreal near() const {return _near;}

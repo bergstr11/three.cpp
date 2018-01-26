@@ -2,12 +2,7 @@
 // Created by byter on 10/30/17.
 //
 #include "Renderer_impl.h"
-#include "Programs.h"
-#include <sstream>
 #include <material/MeshPhongMaterial.h>
-#include <material/MeshBasicMaterial.h>
-#include <material/MeshDistanceMaterial.h>
-#include <material/MeshDepthMaterial.h>
 #include <material/MeshToonMaterial.h>
 #include <material/MeshLambertMaterial.h>
 #include <material/MeshNormalMaterial.h>

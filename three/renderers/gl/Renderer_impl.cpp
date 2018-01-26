@@ -675,7 +675,8 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     if ( ibg->maxInstancedCount() > 0 ) {
       renderer->renderInstances( ibg, drawStart, drawCount );
     }
-  } else {
+  }
+  else {
 
     glValidateProgram(program->handle());
     GLint status;
@@ -684,7 +685,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       char buf[500];
       int len;
       glGetProgramInfoLog(program->handle(), 500, &len, buf);
-      cout << buf << endl;
+      qWarning() << buf;
     }
 
     renderer->render( drawStart, drawCount );

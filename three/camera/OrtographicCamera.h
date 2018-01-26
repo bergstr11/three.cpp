@@ -39,6 +39,10 @@ public:
 
   void updateProjectionMatrix() override;
 
+  void set(float left, float right, float top, float bottom) {
+    _left = left; _right = right; _top = top; _bottom = bottom;
+  }
+
   float left() const {return _left;}
   float right() const {return _right;}
   float top() const {return _top;}

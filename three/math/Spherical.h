@@ -32,7 +32,6 @@ public:
   // restrict phi to be betwee EPS and PI-EPS
   Spherical &makeSafe()
   {
-    float EPS = 0.000001;
     _phi = std::max( EPS, (float)std::min(M_PI - EPS, (double)_phi));
 
     return *this;
