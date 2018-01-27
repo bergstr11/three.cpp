@@ -107,9 +107,13 @@ void Scene::addTo(ObjectRootContainer *container)
   if(_fog) _scene->fog() = _fog->create();
   _quickCamera->create(this);
 
-  if(_quickCamera->controller()) {
+  if(_quickCamera->controller())
     container->addController(_quickCamera->controller(), _quickCamera->camera());
-  }
+
+  //cameras with children need to be parented to the scene!
+  if(!_quickCamera->camera()->children().empty())
+    _scene->add(_quickCamera->camera());
+
   for(auto &object :_objects) {
     auto obj = object->create(this);
     if(obj) _scene->add(obj);

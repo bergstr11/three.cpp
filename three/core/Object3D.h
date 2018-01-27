@@ -103,7 +103,7 @@ public:
 
   math::Matrix4 &matrix() {return _matrix;}
 
-  void applyMatrix(const math::Matrix4 &matrix);
+  void apply(const math::Matrix4 &matrix);
 
   virtual bool skinned() {return false;}
 
@@ -143,7 +143,7 @@ public:
 
   virtual const Geometry::Ptr geometry() const {return nullptr;}
 
-  void applyQuaternion(math::Quaternion q)
+  void apply(const math::Quaternion &q)
   {
     _quaternion *= q;
   }

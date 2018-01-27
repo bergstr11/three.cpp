@@ -8,20 +8,18 @@
 #include <light/HemisphereLight.h>
 #include <quick/elements/LightShadow.h>
 #include <quick/scene/Scene.h>
-#include "ThreeQObject.h"
+#include "Light.h"
 
 namespace three {
 namespace quick {
 
-class HemisphereLight : public ThreeQObject
+class HemisphereLight : public Light
 {
 Q_OBJECT
   Q_PROPERTY(QColor skyColor READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(QColor groundColor READ groundColor WRITE setGroundColor NOTIFY groundColorChanged)
-  Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
 
   QColor _color {255, 255, 255}, _groundColor {255, 255, 255};
-  float _intensity = 1.0f;
 
   three::HemisphereLight::Ptr _light;
 
@@ -37,10 +35,10 @@ protected:
   }
 
 public:
-  HemisphereLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
+  HemisphereLight(QObject *parent = nullptr) : Light(parent) {}
 
   HemisphereLight(three::HemisphereLight::Ptr light, QObject *parent = nullptr)
-     : ThreeQObject(light, parent), _light(light) {}
+     : Light(light, parent), _light(light) {}
 
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
@@ -58,19 +56,9 @@ public:
     }
   }
 
-  qreal intensity() const {return _intensity;}
-  void setIntensity(qreal intensity) {
-    if(_intensity != intensity) {
-      _intensity = intensity;
-      if(_light) _light->intensity() = _intensity;
-      emit intensityChanged();
-    }
-  }
-
 signals:
   void colorChanged();
   void groundColorChanged();
-  void intensityChanged();
 };
 
 }

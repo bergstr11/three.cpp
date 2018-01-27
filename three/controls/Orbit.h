@@ -175,7 +175,7 @@ public:
 
   float getAutoRotationAngle()
   {
-    return 2 * (float) M_PI / 60 / 60 * autoRotateSpeed;
+    return 2.0f * (float) M_PI / 60 / 60 * autoRotateSpeed;
   }
 
   float getZoomScale()

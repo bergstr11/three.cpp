@@ -8,17 +8,16 @@
 #include <light/SpotLight.h>
 #include <helper/SpotLight.h>
 #include <quick/elements/LightShadow.h>
-#include "ThreeQObject.h"
+#include "Light.h"
 
 namespace three {
 namespace quick {
 
-class SpotLight : public ThreeQObject
+class SpotLight : public Light
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(LightShadow * shadow READ shadow CONSTANT)
-  Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
   Q_PROPERTY(qreal distance READ distance WRITE setDistance NOTIFY distanceChanged)
   Q_PROPERTY(qreal angle READ angle WRITE setAngle NOTIFY angleChanged)
   Q_PROPERTY(qreal penumbra READ penumbra WRITE setPenumbra NOTIFY penumbraChanged)
@@ -55,15 +54,15 @@ protected:
     }
   }
 
-  float _intensity=1, _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;
+  float _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;
 
   bool _helper = false;
 
 public:
-  SpotLight(QObject *parent = nullptr) : ThreeQObject(parent) {}
+  SpotLight(QObject *parent = nullptr) : Light(parent) {}
 
   SpotLight(three::SpotLight::Ptr light, QObject *parent = nullptr)
-     : ThreeQObject(light, parent), _spot(light) {}
+     : Light(light, parent), _spot(light) {}
 
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
@@ -74,15 +73,6 @@ public:
   }
 
   LightShadow *shadow() {return &_shadow;}
-
-  qreal intensity() const {return _intensity;}
-  void setIntensity(qreal intensity) {
-    if(_intensity != intensity) {
-      _intensity = intensity;
-      if(_spot) _spot->intensity() = _intensity;
-      emit intensityChanged();
-    }
-  }
 
   qreal distance() const {return _distance;}
   void setDistance(qreal distance) {
@@ -130,7 +120,6 @@ public:
 
 signals:
   void colorChanged();
-  void intensityChanged();
   void distanceChanged();
   void angleChanged();
   void penumbraChanged();

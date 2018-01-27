@@ -230,10 +230,10 @@ void Orbit::doRotate(unsigned x, unsigned y)
   _rotateDelta = _rotateEnd - _rotateStart;
 
   // rotating across whole screen goes 360 degrees around
-  rotateLeft(2 * M_PI * _rotateDelta.x() / clientWidth() * rotateSpeed);
+  rotateLeft(2.0f * (float)M_PI * _rotateDelta.x() / clientWidth() * rotateSpeed);
 
   // rotating up and down along whole screen attempts to go 360, but limited to 180
-  rotateUp(2 * M_PI * _rotateDelta.y() / clientHeight() * rotateSpeed);
+  rotateUp(2.0f * (float)M_PI * _rotateDelta.y() / clientHeight() * rotateSpeed);
 
   _rotateStart = _rotateEnd;
 

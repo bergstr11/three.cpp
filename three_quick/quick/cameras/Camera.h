@@ -9,7 +9,7 @@
 #include <QVector3D>
 #include <core/Object3D.h>
 #include <camera/Camera.h>
-#include <quick/objects/ThreeQObject.h>
+#include <quick/objects/Light.h>
 #include <quick/interact/Controller.h>
 #include <quick/Math.h>
 
@@ -23,14 +23,23 @@ class Camera : public ThreeQObject
   Q_OBJECT
   Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
+  Q_PROPERTY(QQmlListProperty<three::quick::Light> lights READ lights)
+  Q_CLASSINFO("DefaultProperty", "lights")
 
   static const float infinity;
 
   QVector3D _lookAt {infinity, infinity, infinity};
 
+  QList<Light *> _lights;
+
   Controller *_controller = nullptr;
 
   three::Camera::Ptr _camera;
+
+  static void append_light(QQmlListProperty<Light> *list, Light *light);
+  static int count_lights(QQmlListProperty<Light> *);
+  static Light *light_at(QQmlListProperty<Light> *, int);
+  static void clear_lights(QQmlListProperty<Light> *);
 
 protected:
   virtual three::Camera::Ptr _createCamera() {return nullptr;};
@@ -39,9 +48,12 @@ protected:
 
   void _post_create(Scene *scene) override;
 
+  QQmlListProperty<Light> lights();
+
 public:
   Camera(QObject *parent=nullptr) : ThreeQObject(parent) {}
-  Camera(three::Camera::Ptr camera, QObject *parent=nullptr) : ThreeQObject(parent), _camera(camera) {}
+  Camera(three::Camera::Ptr camera, QObject *parent=nullptr)
+     : ThreeQObject(camera, parent), _camera(camera) {}
 
   QVector3D lookAt() const {return _lookAt;}
 

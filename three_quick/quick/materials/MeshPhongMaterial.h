@@ -18,10 +18,12 @@ class MeshPhongMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
 
   QColor _color;
+  float _opacity = 1.0f;
   bool _dithering = false;
 
   Texture *_normalMap = nullptr;
@@ -56,6 +58,15 @@ public:
     }
   }
 
+  float opacity() const {return _opacity;}
+
+  void setOpacity(float opacity) {
+    if(_opacity != opacity) {
+      _opacity = opacity;
+      emit opacityChanged();
+    }
+  }
+
   Texture *normalMap() const {return _normalMap;}
 
   void setNormalMap(Texture *normalMap) {
@@ -75,6 +86,8 @@ public:
       _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
       _material->wireframe = _wireframe;
       _material->flatShading = _flatShading;
+      _material->opacity = _opacity;
+      if(_opacity < 1.0f) _material->transparent = true;
     }
     return _material;
   }
@@ -90,6 +103,7 @@ signals:
   void colorChanged();
   void ditheringChanged();
   void normalMapChanged();
+  void opacityChanged();
 };
 
 }

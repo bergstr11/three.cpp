@@ -78,8 +78,8 @@ Window {
                 lookAt: scene.position
 
                 controller: OrbitController {
-                    minDistance: 500
-                    maxDistance: 2500
+                    minDistance: 2
+                    maxDistance: 500
                     enablePan: true
                 }
             }

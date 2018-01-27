@@ -38,7 +38,7 @@ Object3D::Object3D(object::Resolver::Ptr resolver)
   _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
 }
 
-void Object3D::applyMatrix(const Matrix4 &matrix)
+void Object3D::apply(const Matrix4 &matrix)
 {
   _matrix.multiply(matrix, _matrix);
   math::decompose(_matrix, _position, _quaternion, _scale );

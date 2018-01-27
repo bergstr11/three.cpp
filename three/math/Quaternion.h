@@ -135,7 +135,7 @@ public:
   // assumes axis is normalized
   Quaternion(const Vector3 &axis, float angle );
 
-  Quaternion& set(const Vector3 &axis, float angle );
+  Quaternion& set(const Vector3 &axis, float angle, bool emitSignal=true);
 
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)

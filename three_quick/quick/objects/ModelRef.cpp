@@ -4,7 +4,6 @@
 
 #include <QDebug>
 #include "ModelRef.h"
-#include <objects/Node.h>
 #include <quick/objects/Mesh.h>
 #include <quick/objects/AmbientLight.h>
 #include <quick/objects/HemisphereLight.h>
@@ -97,7 +96,7 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
 bool ModelRef::evaluateSelector(QStringList::iterator &iter,
                                 QStringList::iterator &end,
                                 Object3D::Ptr parent,
-                                const std::vector<Object3D::Ptr> children,
+                                const std::vector<Object3D::Ptr> &children,
                                 Eval eval)
 {
   Eval ev = eval;
@@ -151,8 +150,40 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
   return false;
 }
 
+void ModelRef::setRotateX(float angle) {
+  if(_rotation.x() != angle) {
+    float diff = angle - _rotateX;
+    _rotateX = angle;
+    if(_node) _node->rotateX(diff);
+    emit rotateChanged();
+  }
+}
+void ModelRef::setRotateY(float angle) {
+  if(_rotation.y() != angle) {
+    float diff = angle - _rotateY;
+    _rotateY = angle;
+    if(_node) _node->rotateY(diff);
+    emit rotateChanged();
+  }
+}
+void ModelRef::setRotateZ(float angle) {
+  if(_rotation.z() != angle) {
+    float diff = angle - _rotateZ;
+    _rotateZ = angle;
+    if(_node) _node->rotateZ(diff);
+    emit rotateChanged();
+  }
+}
+
 void ModelRef::updateMesh()
 {
+  if(_node) _scene->scene()->remove(_node);
+
+  _node = three::Node::make(_model->name().toStdString());
+  _node->rotateX(_rotateX);
+  _node->rotateY(_rotateY);
+  _node->rotateZ(_rotateZ);
+
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
     _objects.clear();
@@ -160,14 +191,16 @@ void ModelRef::updateMesh()
     auto begin = selectors.begin();
     auto end = selectors.end();
 
-    evaluateSelector(begin, end, _scene->scene(), _model->scene()->children());
+    evaluateSelector(begin, end, _node, _model->scene()->children());
   }
   else {
+    //must copy, as the children are in effect moved
     const std::vector<Object3D::Ptr> children = _model->scene()->children();
-    for(Object3D::Ptr child : children) {
-      _scene->scene()->add(child);
-    }
+
+    for(Object3D::Ptr child : children)  _node->add(child);
   }
+
+  _scene->scene()->add(_node);
   if(_object)
     emit modelObjectChanged();
 

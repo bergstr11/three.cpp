@@ -16,6 +16,41 @@ Window {
         anchors.fill: parent
         color: "lightgray"
     }
+    OptionsMenu {
+        title: "adjust model"
+        anchors.top: parent.top
+        anchors.right: parent.right
+        width: 350
+        color: "transparent"
+        z: 2
+        threeD: threeD
+
+        FloatValue {
+            name: "rotateX"
+            target: modelref
+            from: -Math.PI
+            to: Math.PI
+        }
+        FloatValue {
+            name: "rotateY"
+            target: modelref
+            from: -Math.PI
+            to: Math.PI
+        }
+        FloatValue {
+            name: "rotateZ"
+            target: modelref
+            from: -Math.PI
+            to: Math.PI
+        }
+        BoolChoice {
+            name: "Enable pan"
+            value: controller.enablePan
+            onValueChanged: {
+                controller.enablePan = value
+            }
+        }
+    }
 
     FileDialog {
         id: fileDialog
@@ -65,17 +100,13 @@ Window {
         Scene {
             id: scene
 
-            DirectionalLight {
-                color: "#ffeedd"
-                position: "0,0,2"
-            }
-
             AmbientLight {
                 id: ambientLight
                 color: "#cccccc"
             }
 
             ModelRef {
+                id: modelref
                 model: threeDModel
                 type: ModelRef.Node
             }
@@ -85,16 +116,23 @@ Window {
                 fov: 70
                 aspect: threeD.width / threeD.height
                 near: 1
-                far: 100000
+                far: 1000
 
-                position: "0,0,1000"
+                position: "0,0,600"
 
                 lookAt: scene.position
 
                 controller: OrbitController {
-                    minDistance: 500
-                    maxDistance: 2500
+                    id: controller
+                    minDistance: 150
+                    maxDistance: 1500
+                    maxPolarAngle: Math.PI;
                     enablePan: false
+                }
+
+                DirectionalLight {
+                    color: "#ffeedd"
+                    position: "0,0,2"
                 }
             }
         }
