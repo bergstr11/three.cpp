@@ -72,9 +72,6 @@ struct MeshPhongMaterial : public MaterialT<
    material::AlphaMap,
    material::EnvMap>
 {
-  Color specular = 0x111111;
-  float shininess = 30;
-
 protected:
   MeshPhongMaterial(material::Resolver::Ptr resolver, const Color &color, bool dithering)
      : MaterialT(resolver)

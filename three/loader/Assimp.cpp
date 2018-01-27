@@ -263,7 +263,7 @@ struct ReadMaterial<material::EnvMap>
   FORWARD_MIXIN(material::EnvMap)
   static void mixin(material::EnvMap &material, const aiMaterial *ai, Access *access) {
     material.envMap = access->loadTexture(aiTextureType_REFLECTION, 0, ai);
-    read_color(AI_MATKEY_COLOR_REFLECTIVE, ai, material.reflective);
+    //read_color(AI_MATKEY_COLOR_REFLECTIVE, ai, material.reflective);
     ai->Get(AI_MATKEY_REFLECTIVITY, material.reflectivity);
     ai->Get(AI_MATKEY_REFRACTI, material.refractionRatio);
   }

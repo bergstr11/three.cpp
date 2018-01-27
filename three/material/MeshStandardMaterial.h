@@ -70,16 +70,11 @@ struct MeshStandardMaterial : public MaterialT<
    material::NormalMap,
    material::DisplacementMap,
    material::AlphaMap,
-   material::EnvMap>
+   material::EnvMap,
+   material::RoughnessMap,
+   material::MetalnessMap>
 {
   std::unordered_map<std::string, std::string> defines {{ "STANDARD", "" }};
-
-  float roughness = 0.5;
-  float metalness = 0.5;
-
-  ImageTexture::Ptr roughnessMap;
-
-  ImageTexture::Ptr metalnessMap;
 
 protected:
   MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}

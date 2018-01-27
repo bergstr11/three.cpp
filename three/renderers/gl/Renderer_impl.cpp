@@ -1217,26 +1217,18 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     };
     dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
       refresh( m_uniforms, material);
-      m_uniforms[UniformName::roughness] = material.roughness;
-      m_uniforms[UniformName::metalness] = material.metalness;
     };
     dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
       refresh( m_uniforms, material);
     };
     dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
       refresh( m_uniforms, material );
-      m_uniforms[UniformName::specular] = material.specular;
-      m_uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     };
     dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
       refresh( m_uniforms, material );
-      m_uniforms[UniformName::specular] = material.specular;
-      m_uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     };
     dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
       refresh( m_uniforms, material );
-      m_uniforms[UniformName::roughness] = material.roughness;
-      m_uniforms[UniformName::metalness] = material.metalness;
       m_uniforms[UniformName::clearCoat] = material.clearCoat;
       m_uniforms[UniformName::clearCoatRoughness] = material.clearCoatRoughness;
     };
@@ -1249,8 +1241,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       m_uniforms[UniformName::scale] = _height * 0.5f;
     };
     dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &material) {
-      m_uniforms[UniformName::color] = material.color;
-      m_uniforms[UniformName::opacity] = material.opacity;
+      refresh(m_uniforms, material);
     };
     material->resolver->material::DispatchResolver::getValue(dispatch);
     check_glerror(this);

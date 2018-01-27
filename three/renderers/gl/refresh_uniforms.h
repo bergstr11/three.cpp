@@ -68,6 +68,7 @@ struct Refresh<material::AoMap>
   }
   static void mixin(UniformValues &uniforms, material::AoMap &material) {
     uniforms[UniformName::aoMap] = material.aoMap;
+    uniforms[UniformName::ambientLightColor] = material.ambient;
     uniforms[UniformName::aoMapIntensity] = material.aoMapIntensity;
   }
 };
@@ -107,6 +108,8 @@ struct Refresh<material::SpecularMap>
     mixin(uniforms, material);
   }
   static void mixin(UniformValues &uniforms, material::SpecularMap &material) {
+    uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
+    uniforms[UniformName::specular] = material.specular;
     uniforms[UniformName::specularMap] = material.specularMap;
   }
 };
@@ -118,6 +121,8 @@ struct Refresh<material::DisplacementMap>
   }
   static void mixin(UniformValues &uniforms, material::DisplacementMap &material) {
     uniforms[UniformName::displacementMap] = material.displacementMap;
+    uniforms[UniformName::displacementBias] = material.displacementBias;
+    uniforms[UniformName::displacementScale] = material.displacementScale;
   }
 };
 template <>
@@ -128,6 +133,7 @@ struct Refresh<material::BumpMap>
   }
   static void mixin(UniformValues &uniforms, material::BumpMap &material) {
     uniforms[UniformName::bumpMap] = material.bumpMap;
+    uniforms[UniformName::bumpScale] = material.bumpScale;
   }
 };
 template <>
@@ -138,6 +144,31 @@ struct Refresh<material::NormalMap>
   }
   static void mixin(UniformValues &uniforms, material::NormalMap &material) {
     uniforms[UniformName::normalMap] = material.normalMap;
+    uniforms[UniformName::normalScale] = material.normalScale;
+  }
+};
+
+template <>
+struct Refresh<material::RoughnessMap>
+{
+  static void handle(UniformValues &uniforms, MaterialT<material::RoughnessMap> &material) {
+    mixin(uniforms, material);
+  }
+  static void mixin(UniformValues &uniforms, material::RoughnessMap &material) {
+    uniforms[UniformName::roughness] = material.roughness;
+    uniforms[UniformName::roughnessMap] = material.roughnessMap;
+  }
+};
+
+template <>
+struct Refresh<material::MetalnessMap>
+{
+  static void handle(UniformValues &uniforms, MaterialT<material::MetalnessMap> &material) {
+    mixin(uniforms, material);
+  }
+  static void mixin(UniformValues &uniforms, material::MetalnessMap &material) {
+    uniforms[UniformName::metalness] = material.metalness;
+    uniforms[UniformName::metalnessMap] = material.metalnessMap;
   }
 };
 

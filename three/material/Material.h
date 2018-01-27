@@ -49,7 +49,6 @@ struct EnvMap
 {
   Texture::Ptr envMap;
   CombineOperation combine = CombineOperation::Multiply;
-  Color reflective;
   float reflectivity = 1;
   float refractionRatio = 0.98;
 };
@@ -61,8 +60,8 @@ struct AlphaMap
 
 struct SpecularMap
 {
-  float shininess;
-  Color specular;
+  float shininess = 30;
+  Color specular = 0x111111;
   Texture::Ptr specularMap;
 };
 
@@ -83,6 +82,18 @@ struct NormalMap
 {
   Texture::Ptr normalMap;
   math::Vector2 normalScale {1, 1};
+};
+
+struct RoughnessMap
+{
+  float roughness = 0.5f;
+  Texture::Ptr roughnessMap;
+};
+
+struct MetalnessMap
+{
+  float metalness = 0.5f;
+  Texture::Ptr metalnessMap;
 };
 
 }
