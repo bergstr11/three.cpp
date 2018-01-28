@@ -16,6 +16,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "quick/scene/Scene.h"
 #include "quick/scene/Model.h"
 #include "elements/LightShadow.h"
+#include "cameras/OrtographicCamera.h"
 #include "objects/AmbientLight.h"
 #include "objects/SpotLight.h"
 #include "objects/HemisphereLight.h"
@@ -70,6 +71,7 @@ void init()
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::ShaderMaterial>("three.quick", 1, 0, "ShaderMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
+  qmlRegisterType<three::quick::OrtographicCamera>("three.quick", 1, 0, "OrtographicCamera");
   qmlRegisterUncreatableType<three::quick::Texture>("three.quick", 1, 0, "Texture", "abstract class");
   qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "Image");
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");

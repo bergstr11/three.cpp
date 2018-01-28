@@ -43,6 +43,12 @@ Window {
             from: -Math.PI
             to: Math.PI
         }
+        FloatValue {
+            name: "translateZ"
+            target: modelref
+            from: -10000
+            to: 10000
+        }
         BoolChoice {
             name: "Enable pan"
             value: controller.enablePan
@@ -113,12 +119,11 @@ Window {
 
             camera: PerspectiveCamera {
                 id: sceneCamera
-                fov: 70
                 aspect: threeD.width / threeD.height
                 near: 1
-                far: 1000
+                far: 2000
 
-                position: "0,0,600"
+                position: "0,0,1000"
 
                 lookAt: scene.position
 
@@ -131,7 +136,7 @@ Window {
                 }
 
                 DirectionalLight {
-                    color: "#ffeedd"
+                    color: "#dddddd"
                     position: "0,0,2"
                 }
             }

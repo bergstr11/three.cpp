@@ -151,7 +151,7 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
 }
 
 void ModelRef::setRotateX(float angle) {
-  if(_rotation.x() != angle) {
+  if(_rotateX != angle) {
     float diff = angle - _rotateX;
     _rotateX = angle;
     if(_node) _node->rotateX(diff);
@@ -159,7 +159,7 @@ void ModelRef::setRotateX(float angle) {
   }
 }
 void ModelRef::setRotateY(float angle) {
-  if(_rotation.y() != angle) {
+  if(_rotateY != angle) {
     float diff = angle - _rotateY;
     _rotateY = angle;
     if(_node) _node->rotateY(diff);
@@ -167,11 +167,20 @@ void ModelRef::setRotateY(float angle) {
   }
 }
 void ModelRef::setRotateZ(float angle) {
-  if(_rotation.z() != angle) {
+  if(_rotateZ != angle) {
     float diff = angle - _rotateZ;
     _rotateZ = angle;
     if(_node) _node->rotateZ(diff);
     emit rotateChanged();
+  }
+}
+
+void ModelRef::setTranslateZ(float distance) {
+  if(_translateZ != distance) {
+    float diff = distance - _translateZ;
+    _translateZ = distance;
+    if(_node) _node->translateZ(diff);
+    emit translateZChanged();
   }
 }
 
@@ -183,6 +192,8 @@ void ModelRef::updateMesh()
   _node->rotateX(_rotateX);
   _node->rotateY(_rotateY);
   _node->rotateZ(_rotateZ);
+
+  _node->translateZ(_translateZ);
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);

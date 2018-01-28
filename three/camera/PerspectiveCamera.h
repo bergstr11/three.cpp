@@ -13,9 +13,6 @@ class PerspectiveCamera : public Camera
 {
   float _fov    = 50;
   float _aspect = 1;
-  float _zoom   = 1;
-  float _near   = 0.1;
-  float _far    = 2000;
   float _focus  = 10;
   unsigned int _filmGauge = 35;
   unsigned int _filmOffset = 0;
@@ -105,15 +102,9 @@ public:
 
   void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
 
-  float near() const {return _near;}
-
-  float far() const {return _far;}
-
   float fov() const {return _fov;}
 
   float aspect() const {return _aspect;}
-
-  float zoom() const override {return _zoom;}
 
   void setFov(float fov) {
     _fov = fov;
@@ -122,23 +113,6 @@ public:
   void setAspect(float aspect) override {
     _aspect = aspect;
     updateProjectionMatrix();
-  }
-
-  void setNear(float near) {
-    _near = near;
-  }
-
-  void setFar(float far) {
-    _far = far;
-  }
-
-  void setZoom(float zoom) override {
-    _zoom = zoom;
-  }
-
-  void setNearFar(float near, float far) {
-    _near = near;
-    _far = far;
   }
 
   void setFovAspect(float fov, float aspect) {

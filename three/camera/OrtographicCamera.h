@@ -19,13 +19,12 @@ class OrtographicCamera : public Camera
   float _top;
   float _bottom;
 
-  float _near;
-  float _far;
-
 protected:
   OrtographicCamera(float left, float right, float top, float bottom, float near, float far)
-     : _left(left), _right(right), _top(top), _bottom(bottom), _near(near), _far(far)
+     : _left(left), _right(right), _top(top), _bottom(bottom)
      {
+       _near = near;
+       _far = far;
        updateProjectionMatrix();
      };
 
@@ -47,10 +46,6 @@ public:
   float right() const {return _right;}
   float top() const {return _top;}
   float bottom() const {return _bottom;}
-  float near() const {return _near;}
-  float far() const {return _far;}
-  float zoom() const override {return _zoom;}
-  void setZoom(float zoom) override {_zoom = zoom;}
 };
 
 }

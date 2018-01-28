@@ -217,7 +217,11 @@ public:
   void load(QImage &image, string &file) override
   {
     QString path = dir.absoluteFilePath(QString::fromStdString(file));
-    image = QImage(path).mirrored();
+    QImage img(path);
+    if(img.isNull())
+      qWarning() << "error loading image from " << path;
+    else
+      image = img.mirrored();
   }
 
 signals:

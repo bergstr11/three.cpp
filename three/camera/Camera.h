@@ -33,6 +33,9 @@ class Camera : public Object3D
 protected:
   math::Matrix4 _matrixWorldInverse;
   math::Matrix4 _projectionMatrix;
+  float _zoom   = 1;
+  float _near   = 0.1;
+  float _far    = 2000;
 
   Camera(camera::Resolver::Ptr resolver)
     : Object3D(object::Resolver::makeNull()), cameraResolver(resolver), _projectionMatrix(math::Matrix4::identity()),
@@ -74,9 +77,28 @@ public:
     _quaternion.set(m1);
   }
 
-  virtual float zoom() const {return 1.0f;}
+  float near() const {return _near;}
 
-  virtual void setZoom(float zoom) {}
+  void setNear(float near) {
+    _near = near;
+  }
+
+  float far() const {return _far;}
+
+  void setFar(float far) {
+    _far = far;
+  }
+
+  float zoom() const {return _zoom;}
+
+  void setZoom(float zoom) {
+    _zoom = zoom;
+  }
+
+  void setNearFar(float near, float far) {
+    _near = near;
+    _far = far;
+  }
 
   virtual void setAspect(float aspect) {}
 

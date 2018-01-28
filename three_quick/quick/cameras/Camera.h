@@ -24,9 +24,13 @@ class Camera : public ThreeQObject
   Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::Light> lights READ lights)
+  Q_PROPERTY(float near READ near WRITE setNear NOTIFY nearChanged)
+  Q_PROPERTY(float far READ far WRITE setFar NOTIFY farChanged)
   Q_CLASSINFO("DefaultProperty", "lights")
 
   static const float infinity;
+
+  float _near=0.1f, _far=2000;
 
   QVector3D _lookAt {infinity, infinity, infinity};
 
@@ -54,6 +58,29 @@ public:
   Camera(QObject *parent=nullptr) : ThreeQObject(parent) {}
   Camera(three::Camera::Ptr camera, QObject *parent=nullptr)
      : ThreeQObject(camera, parent), _camera(camera) {}
+
+  float near() const {return _near;}
+  float far() const {return _far;}
+
+  void setNear(qreal near) {
+    if(_near != near) {
+      _near = near;
+      if(_camera) {
+        _camera->setNear(_near);
+      }
+      emit nearChanged();
+    }
+  }
+
+  void setFar(qreal far) {
+    if(_far != far) {
+      _far = far;
+      if(_camera) {
+        _camera->setFar(_far);
+      }
+      emit farChanged();
+    }
+  }
 
   QVector3D lookAt() const {return _lookAt;}
 
@@ -100,6 +127,8 @@ public:
   three::Camera::Ptr camera() {return _camera;}
 
 signals:
+  void nearChanged();
+  void farChanged();
   void lookAtChanged();
   void controllerChanged();
 };

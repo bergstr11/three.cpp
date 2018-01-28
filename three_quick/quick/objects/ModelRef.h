@@ -24,6 +24,7 @@ Q_OBJECT
   Q_PROPERTY(float rotateX READ rotateX WRITE setRotateX NOTIFY rotateChanged)
   Q_PROPERTY(float rotateY READ rotateY WRITE setRotateY NOTIFY rotateChanged)
   Q_PROPERTY(float rotateZ READ rotateZ WRITE setRotateZ NOTIFY rotateChanged)
+  Q_PROPERTY(float translateZ READ translateZ WRITE setTranslateZ NOTIFY translateZChanged)
 
 public:
   enum Type {Node, Mesh, Light, Camera};
@@ -41,7 +42,7 @@ private:
 
   three::Node::Ptr _node;
 
-  float _rotateX, _rotateY, _rotateZ;
+  float _rotateX, _rotateY, _rotateZ, _translateZ;
 
   ThreeQObject *_object = nullptr;
   std::vector<ThreeQObject *> _objects;
@@ -79,17 +80,20 @@ public:
 
   void setType(Type type) {_type = type;}
 
-  float rotateX() const {return _rotation.x();}
+  float rotateX() const {return _rotateX;}
   void setRotateX(float angle);
-  float rotateY() const {return _rotation.y();}
+  float rotateY() const {return _rotateY;}
   void setRotateY(float angle);
-  float rotateZ() const {return _rotation.z();}
+  float rotateZ() const {return _rotateZ;}
   void setRotateZ(float angle);
+  float translateZ() const {return _translateZ;}
+  void setTranslateZ(float distance);
 
 signals:
   void modelChanged();
   void modelObjectChanged();
   void rotateChanged();
+  void translateZChanged();
 
 private slots:
   void cleanupMesh();

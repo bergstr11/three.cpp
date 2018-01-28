@@ -8,14 +8,18 @@
 namespace three {
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far, camera::Resolver::Ptr resolver)
-   : Camera(resolver), _fov(fov), _aspect(aspect), _near(near), _far(far)
+   : Camera(resolver), _fov(fov), _aspect(aspect)
 {
+  _near = near;
+  _far = far;
   updateProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far)
-   : Camera(camera::ResolverT<PerspectiveCamera>::make(*this)), _fov(fov), _aspect(aspect), _near(near), _far(far)
+   : Camera(camera::ResolverT<PerspectiveCamera>::make(*this)), _fov(fov), _aspect(aspect)
 {
+  _near = near;
+  _far = far;
   updateProjectionMatrix();
 }
 
