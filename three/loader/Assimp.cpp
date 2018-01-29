@@ -281,6 +281,14 @@ struct ReadMaterial<material::SpecularMap>
   FORWARD_MIXIN(material::SpecularMap)
   static void mixin(material::SpecularMap &material, const aiMaterial *ai, Access *access) {
     material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
+  }
+};
+template <>
+struct ReadMaterial<material::PhongSpecular>
+{
+  FORWARD_MIXIN(material::PhongSpecular)
+  static void mixin(material::PhongSpecular &material, const aiMaterial *ai, Access *access) {
+    material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
     read_color(AI_MATKEY_COLOR_SPECULAR, ai, material.specular);
     ai->Get(AI_MATKEY_SHININESS, material.shininess);
 

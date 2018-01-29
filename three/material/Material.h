@@ -60,9 +60,13 @@ struct AlphaMap
 
 struct SpecularMap
 {
+  Texture::Ptr specularMap;
+};
+
+struct PhongSpecular : public SpecularMap
+{
   float shininess = 30;
   Color specular = 0x111111;
-  Texture::Ptr specularMap;
 };
 
 struct DisplacementMap

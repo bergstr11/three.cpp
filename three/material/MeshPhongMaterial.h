@@ -68,7 +68,7 @@ struct MeshPhongMaterial : public MaterialT<
    material::BumpMap,
    material::NormalMap,
    material::DisplacementMap,
-   material::SpecularMap,
+   material::PhongSpecular,
    material::AlphaMap,
    material::EnvMap>
 {

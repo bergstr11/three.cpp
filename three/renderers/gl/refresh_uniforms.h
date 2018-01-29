@@ -108,6 +108,16 @@ struct Refresh<material::SpecularMap>
     mixin(uniforms, material);
   }
   static void mixin(UniformValues &uniforms, material::SpecularMap &material) {
+    uniforms[UniformName::specularMap] = material.specularMap;
+  }
+};
+template <>
+struct Refresh<material::PhongSpecular>
+{
+  static void handle(UniformValues &uniforms, MaterialT<material::PhongSpecular> &material) {
+    mixin(uniforms, material);
+  }
+  static void mixin(UniformValues &uniforms, material::PhongSpecular &material) {
     uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     uniforms[UniformName::specular] = material.specular;
     uniforms[UniformName::specularMap] = material.specularMap;

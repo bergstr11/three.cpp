@@ -18,4 +18,4 @@ Environment Maps
 
 Model Loading (3DS model through Assimp)
 
-![example 2](doc/3ds_loader.png "3ds model")
+![example 2](doc/MercedesGLE.png "3ds model")

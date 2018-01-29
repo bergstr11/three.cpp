@@ -17,8 +17,10 @@ class MeshBasicMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
 
   QColor _color;
+  float _opacity = 1.0f;
 
   three::MeshBasicMaterial::Ptr _material;
 
@@ -41,14 +43,24 @@ public:
     }
   }
 
-  three::MeshBasicMaterial::Ptr getMaterial()
-  {
-    if(!_material) {
-      _material = three::MeshBasicMaterial::make();
-      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-      _material->wireframe = _wireframe;
-      _material->flatShading = _flatShading;
+  float opacity() const {return _opacity;}
+
+  void setOpacity(float opacity) {
+    if(_opacity != opacity) {
+      _opacity = opacity;
+      emit opacityChanged();
     }
+  }
+
+  three::MeshBasicMaterial::Ptr createMaterial()
+  {
+    _material = three::MeshBasicMaterial::make();
+    _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+    _material->opacity = _opacity;
+    if(_opacity < 1.0f) _material->transparent = true;
+
+    setBaseProperties(_material);
+
     return _material;
   }
 
@@ -56,11 +68,12 @@ public:
 
   void identify(MeshCreator &creator) override
   {
-    creator.material(getMaterial());
+    creator.material(createMaterial());
   }
 
 signals:
   void colorChanged();
+  void opacityChanged();
 };
 
 }

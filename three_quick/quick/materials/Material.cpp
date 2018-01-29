@@ -11,6 +11,14 @@
 namespace three {
 namespace quick {
 
+void Material::setBaseProperties(three::Material::Ptr material)
+{
+  material->wireframe = _wireframe;
+  material->flatShading = _flatShading;
+  material->visible = _visible;
+  if(_map) material->map = _map->getTexture();
+}
+
 three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
 {
   three::Side side = (three::Side)_side;

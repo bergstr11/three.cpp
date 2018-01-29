@@ -20,6 +20,10 @@ struct MeshCreator
   virtual void material(MeshLambertMaterial::Ptr material) = 0;
   virtual void material(MeshPhongMaterial::Ptr material) = 0;
   virtual void material(ShaderMaterial::Ptr material) = 0;
+
+  virtual Mesh::Ptr getMesh() = 0;
+
+  using Ptr = std::shared_ptr<MeshCreator>;
 };
 
 template <typename Geometry>
@@ -30,8 +34,6 @@ struct MeshCreatorG : public MeshCreator
   std::shared_ptr<Geometry> geometry;
 
   Mesh::Ptr mesh;
-
-  MeshCreatorG(const char *name) : name(name) {}
 
   void set(std::shared_ptr<Geometry> geometry) {
     this->geometry = geometry;
@@ -67,6 +69,19 @@ struct MeshCreatorG : public MeshCreator
       if(mp) mp->template setMaterial<0>(material);
     }
     else mesh = MeshT<Geometry, ShaderMaterial>::make(name, geometry, material);
+  }
+
+  Mesh::Ptr getMesh() override
+  {
+    return mesh;
+  }
+
+  MeshCreatorG(const char *name) : name(name) {}
+
+  using Ptr = std::shared_ptr<MeshCreatorG>;
+
+  static Ptr make(const char *name) {
+    return Ptr(new MeshCreatorG(name));
   }
 };
 

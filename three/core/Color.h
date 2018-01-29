@@ -98,6 +98,13 @@ struct Color
     return r == g && g == b && b == std::numeric_limits<float>::infinity();
   }
 
+  void set(float r, float g, float b)
+  {
+    this->r = r;
+    this->g = g;
+    this->b = b;
+  }
+
   Color &operator = (const Color &color) {
     r = color.r;
     g = color.g;

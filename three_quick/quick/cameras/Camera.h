@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QVector3D>
+#include <QQmlListProperty>
 #include <core/Object3D.h>
 #include <camera/Camera.h>
 #include <quick/objects/Light.h>

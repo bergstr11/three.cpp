@@ -5,8 +5,6 @@
 #ifndef THREE_QT_RAYCAST_H
 #define THREE_QT_RAYCAST_H
 
-#include <math/Vector2.h>
-#include <math/Vector3.h>
 #include <math/Triangle.h>
 #include <core/Object3D.h>
 #include <core/Raycaster.h>
@@ -14,18 +12,6 @@
 #include <material/Material.h>
 
 namespace three {
-
-struct Intersection
-{
-  float distance;
-  math::Vector3 point;
-  math::Vector2 uv;
-  const Object3D *object;
-  Face3 face;
-  unsigned faceIndex;
-  unsigned index;
-};
-
 namespace impl {
 
 inline bool checkIntersection(const Object3D &object,

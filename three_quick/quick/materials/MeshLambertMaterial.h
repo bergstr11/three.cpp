@@ -56,22 +56,20 @@ public:
     }
   }
 
-  three::MeshLambertMaterial::Ptr getMaterial()
+  three::MeshLambertMaterial::Ptr createMaterial()
   {
-    if(!_material) {
-      _material = three::MeshLambertMaterial::make();
-      if(_color.isValid())
-        _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+    _material = three::MeshLambertMaterial::make();
+    if(_color.isValid())
+      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
 
-      _material->wireframe = _wireframe;
-      _material->flatShading = _flatShading;
+    setBaseProperties(_material);
 
-      if(_envMap) {
-        _material->envMap = _envMap->getTexture();
-        if(!_material->envMap)
-          qWarning() << "envMap set to non-cube texture is ignored";
-      }
+    if(_envMap) {
+      _material->envMap = _envMap->getTexture();
+      if(!_material->envMap)
+        qWarning() << "envMap set to non-cube texture is ignored";
     }
+
     return _material;
   }
 
@@ -79,7 +77,7 @@ public:
 
   void identify(MeshCreator &creator) override
   {
-    creator.material(getMaterial());
+    creator.material(createMaterial());
   }
 
 signals:

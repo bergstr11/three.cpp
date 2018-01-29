@@ -7,6 +7,7 @@
 
 #include <quick/ThreeQObjectRoot.h>
 #include <quick/objects/MeshCreator.h>
+#include "../textures/Texture.h"
 
 namespace three {
 namespace quick {
@@ -17,10 +18,14 @@ Q_OBJECT
   Q_PROPERTY(bool wireframe READ wireframe WRITE setWireframe NOTIFY wireframeChanged)
   Q_PROPERTY(bool flatShading READ flatShading WRITE setFlatShading NOTIFY flatShadingChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
+  Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
+  Q_PROPERTY(Texture *map READ map WRITE setMap NOTIFY mapChanged)
 
 protected:
   bool _wireframe = false;
   bool _flatShading = false;
+  bool _visible = true;
+  Texture *_map = nullptr;
 
   Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
 
@@ -36,7 +41,21 @@ protected:
     }
   }
 
+  void setBaseProperties(three::Material::Ptr material);
+
 public:
+  bool visible() const {return _visible;}
+
+  void setVisible(bool visible) {
+    if(_visible != visible) {
+      _visible = visible;
+      if(material()) {
+        material()->visible = _visible;
+      }
+      emit visibleChanged();
+    }
+  }
+
   bool wireframe() const {return _wireframe;}
 
   void setWireframe(bool wireframe) {
@@ -55,12 +74,27 @@ public:
     }
   }
 
+  Texture *map() const {return _map;}
+
+  void setMap(Texture *map) {
+    if(_map != map) {
+      _map = map;
+      if(material()) {
+        material()->map = _map->getTexture();
+        material()->needsUpdate = true;
+      }
+      emit mapChanged();
+    }
+  }
+
   virtual void identify(MeshCreator &creator) = 0;
 
 signals:
   void wireframeChanged();
   void flatShadingChanged();
   void needsUpdateChanged();
+  void mapChanged();
+  void visibleChanged();
 };
 
 }

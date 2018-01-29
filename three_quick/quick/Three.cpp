@@ -16,12 +16,14 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "quick/scene/Scene.h"
 #include "quick/scene/Model.h"
 #include "elements/LightShadow.h"
+#include "elements/RayCaster.h"
 #include "cameras/OrtographicCamera.h"
 #include "objects/AmbientLight.h"
 #include "objects/SpotLight.h"
 #include "objects/HemisphereLight.h"
 #include "objects/DirectionalLight.h"
 #include "objects/Axes.h"
+#include "objects/GridLines.h"
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
@@ -54,9 +56,11 @@ void init()
   qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
+  qmlRegisterType<three::quick::RayCaster>("three.quick", 1, 0, "Raycaster");
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
   qmlRegisterType<three::quick::FogExp2>("three.quick", 1, 0, "FogExp2");
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
+  qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");

@@ -153,6 +153,16 @@ public:
     return _object;
   }
 
+  Q_INVOKABLE void rotateX(float angle) {
+    if(_object) _object->rotateX(angle);
+  }
+  Q_INVOKABLE void rotateY(float angle) {
+    if(_object) _object->rotateY(angle);
+  }
+  Q_INVOKABLE void rotateZ(float angle) {
+    if(_object) _object->rotateZ(angle);
+  }
+
 signals:
   void positionChanged();
   void rotationChanged();

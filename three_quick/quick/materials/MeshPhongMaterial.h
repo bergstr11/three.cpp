@@ -80,15 +80,15 @@ public:
     }
   }
 
-  three::MeshPhongMaterial::Ptr getMaterial()
+  three::MeshPhongMaterial::Ptr createMaterial()
   {
-    if(!_material) {
-      _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
-      _material->wireframe = _wireframe;
-      _material->flatShading = _flatShading;
-      _material->opacity = _opacity;
-      if(_opacity < 1.0f) _material->transparent = true;
-    }
+    _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
+    _material->opacity = _opacity;
+    if(_opacity < 1.0f) _material->transparent = true;
+    if(_normalMap) _material->normalMap = _normalMap->getTexture();
+
+    setBaseProperties(_material);
+
     return _material;
   }
 
@@ -96,7 +96,7 @@ public:
 
   void identify(MeshCreator &creator) override
   {
-    creator.material(getMaterial());
+    creator.material(createMaterial());
   }
 
 signals:

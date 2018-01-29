@@ -27,20 +27,26 @@ class Three : public QObject
 {
 Q_OBJECT
 public:
+  enum GeometryType {
+    DefaultGeometry,
+    BufferGeometry
+  };
+  Q_ENUM(GeometryType)
+
   enum ShadowType {
     None = (unsigned)three::ShadowMapType::NoShadow,
     Basic = (unsigned)three::ShadowMapType::Basic,
     PCF  = (unsigned)three::ShadowMapType::PCF,
     PCFSoft  = (unsigned)three::ShadowMapType::PCFSoft
   };
-  Q_ENUM(ShadowType);
+  Q_ENUM(ShadowType)
 
   enum Side {
     FrontSide = (unsigned)three::Side::Front,
     BackSide = (unsigned)three::Side::Back,
     FrontAndBackSide = (unsigned)three::Side::Double
   };
-  Q_ENUM(Side);
+  Q_ENUM(Side)
 
   enum CullFace
   {
@@ -49,7 +55,7 @@ public:
     FrontFaceCulling = (unsigned)three::CullFace::Front,
     FrontBackFaceCulling = (unsigned)three::CullFace::FrontBack
   };
-  Q_ENUM(CullFace);
+  Q_ENUM(CullFace)
 
   enum FrontFaceDirection
   {
