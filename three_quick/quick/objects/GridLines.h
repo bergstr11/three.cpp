@@ -11,6 +11,8 @@
 namespace three {
 namespace quick {
 
+class Intersect;
+
 class GridLines : public ThreeQObject
 {
   Q_OBJECT
@@ -23,15 +25,10 @@ class GridLines : public ThreeQObject
   QColor _color1, _color2;
   helper::Grid::Ptr _grid;
 
-protected:
-  three::Object3D::Ptr _create(Scene *scene) override
-  {
-    _options.color1.set(_color1.redF(), _color1.greenF(), _color1.blueF());
-    _options.color2.set(_color1.redF(), _color1.greenF(), _color1.blueF());
-    _grid = helper::Grid::make(_options);
+  Scene *_scene = nullptr;
 
-    return _grid;
-  }
+protected:
+  three::Object3D::Ptr _create(Scene *scene) override;
 
 public:
   GridLines(QObject *parent = nullptr)
@@ -75,6 +72,8 @@ public:
       emit color2Changed();
     }
   }
+
+  Q_INVOKABLE void snap(QVariant object, QVariant pos);
 
 signals:
   void sizeChanged();

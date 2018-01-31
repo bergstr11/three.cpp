@@ -2,14 +2,11 @@
 // Created by byter on 10.09.17.
 //
 #include "impl/raycast.h"
-//#include <core/Object3D.h>
-//#include <memory>
 
 namespace three {
 
 void intersectObject(const Object3D &object, const Raycaster &raycaster, std::vector<Intersection> &intersects, bool recursive )
 {
-
   if (!object.visible()) return;
 
   object.raycast( raycaster, intersects );

@@ -19,35 +19,38 @@ inline bool checkIntersection(const Object3D &object,
                               const Raycaster &raycaster,
                               const math::Ray &ray,
                               const math::Vector3 &pA, const math::Vector3 &pB, const math::Vector3 &pC,
-                              math::Vector3 &point,
                               Intersection &result)
 {
   bool intersect;
   if (material->side == Side::Back) {
-    intersect = ray.intersectTriangle(pC, pB, pA, true, point);
+    intersect = ray.intersectTriangle(pC, pB, pA, true, result.point);
   }
   else {
-    intersect = ray.intersectTriangle(pA, pB, pC, material->side != Side::Double, point);
+    intersect = ray.intersectTriangle(pA, pB, pC, material->side != Side::Double, result.point);
   }
 
   if (!intersect) return false;
 
-  math::Vector3 intersectionPointWorld = point;
-  intersectionPointWorld.apply(object.matrixWorld());
+  result.point.apply(object.matrixWorld());
+  const math::Matrix4 &m = object.matrixWorld();
 
-  float distance = raycaster.ray().origin().distanceTo(intersectionPointWorld);
+  float distance = raycaster.ray().origin().distanceTo(result.point);
 
   if (distance < raycaster.near() || distance > raycaster.far()) return false;
 
   result.distance = distance;
-  result.point = intersectionPointWorld;
   result.object = &object;
 
   return true;
 }
 
-inline math::Vector2 uvIntersection(const math::Vector3 &point, const math::Vector3 &p1, const math::Vector3 &p2,
-                                    const math::Vector3 &p3, math::Vector2 &uv1, math::Vector2 &uv2, math::Vector2 &uv3)
+inline math::Vector2 uvIntersection(const math::Vector3 &point,
+                                    const math::Vector3 &p1,
+                                    const math::Vector3 &p2,
+                                    const math::Vector3 &p3,
+                                    math::Vector2 &uv1,
+                                    math::Vector2 &uv2,
+                                    math::Vector2 &uv3)
 {
   math::Vector3 barycoord = math::Triangle::barycoordFromPoint(point, p1, p2, p3);
 
@@ -60,7 +63,6 @@ inline bool checkBufferGeometryIntersection(const Object3D &object,
                                             const BufferAttributeT<float>::Ptr &position,
                                             const BufferAttributeT<float>::Ptr &uv,
                                             unsigned a, unsigned b, unsigned c,
-                                            math::Vector3 &intersectionPoint,
                                             Intersection &intersection)
 {
 
@@ -68,13 +70,13 @@ inline bool checkBufferGeometryIntersection(const Object3D &object,
   math::Vector3 vB = math::Vector3::fromBufferAttribute(*position, b);
   math::Vector3 vC = math::Vector3::fromBufferAttribute(*position, c);
 
-  if (checkIntersection(object, object.material(), raycaster, ray, vA, vB, vC, intersectionPoint, intersection)) {
+  if (checkIntersection(object, object.material(), raycaster, ray, vA, vB, vC, intersection)) {
 
     math::Vector2 uvA = math::Vector2::fromBufferAttribute(*uv, a);
     math::Vector2 uvB = math::Vector2::fromBufferAttribute(*uv, b);
     math::Vector2 uvC = math::Vector2::fromBufferAttribute(*uv, c);
 
-    intersection.uv = uvIntersection(intersectionPoint, vA, vB, vC, uvA, uvB, uvC);
+    intersection.uv = uvIntersection(intersection.point, vA, vB, vC, uvA, uvB, uvC);
 
     intersection.face = Face3(a, b, c, math::Triangle::normal(vA, vB, vC));
     intersection.faceIndex = a;

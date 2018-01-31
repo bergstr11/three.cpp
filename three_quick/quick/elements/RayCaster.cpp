@@ -8,25 +8,35 @@ namespace quick {
 
 using namespace std;
 
-void RayCaster::setFromCamera(const QVector2D &mouse, Camera *camera)
+void RayCaster::set(const QVector2D &position)
 {
-
+  _camera->camera()->setup(raycaster.ray(), position.x(), position.y());
 }
 
-QList<ThreeQObject *> RayCaster::intersectObjects(const QList<ThreeQObject *> &objects)
+QVariantList RayCaster::intersectObjects(const QVariantList &objects)
 {
   vector<Object3D::Ptr> objs;
-  QList<ThreeQObject *> result;
+  QVariantList result;
 
-  for(auto o : objects) objs.push_back(o->object());
+  for(const QVariant &var : objects) {
+    ThreeQObject *o = var.value<ThreeQObject *>();
+    objs.push_back(o->object());
+  }
   vector<Intersection> intersects = raycaster.intersectObjects(objs);
 
+  for(const QVariant &ovar : objects) {
+    ThreeQObject *to = ovar.value<ThreeQObject *>();
+    auto found = find_if(intersects.begin(), intersects.end(),
+                         [&to](Intersection &i) {return i.object == to->object().get();});
+
+    if(found != intersects.end()) {
+      QVariant var;
+      var.setValue(new Intersect(to, *found));
+      result.push_back(var);
+    }
+  }
+
   return result;
-}
-
-void RayCaster::addTo(ObjectRootContainer *container)
-{
-
 }
 
 }

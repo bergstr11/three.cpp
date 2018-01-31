@@ -10,6 +10,7 @@
 #include "Face3.h"
 #include <math/Vector2.h>
 #include <math/Vector3.h>
+#include <QDebug>
 
 namespace three {
 
@@ -31,7 +32,7 @@ void intersectObject(const Object3D &object, const Raycaster &raycaster, std::ve
 
 class Raycaster
 {
-  math::Ray _ray = {math::Vector3(), math::Vector3()};
+  math::Ray _ray;
   float _near=0, _far=std::numeric_limits<float>::infinity();
 
   float _linePrecision = 1;
@@ -51,6 +52,7 @@ public:
 
   float linePrecision() const {return _linePrecision;}
   const math::Ray &ray() const {return _ray;}
+  math::Ray &ray() {return _ray;}
   const float near() const {return _near;}
   const float far() const {return _far;}
 

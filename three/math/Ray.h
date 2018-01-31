@@ -10,6 +10,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box3.h"
+#include <QDebug>
 
 namespace three {
 namespace math {
@@ -20,6 +21,8 @@ class Ray
   Vector3 _direction;
 
 public:
+  Ray() {}
+
   Ray(const Vector3 &origin, const Vector3 &direction) : _origin(origin), _direction(direction)
   {}
 
@@ -117,7 +120,6 @@ public:
     if (det > 0) {
 
       // The ray and segment are not parallel.
-
       s0 = a01 * b1 - b0;
       s1 = a01 * b0 - b1;
       extDet = segExtent * det;
@@ -130,67 +132,51 @@ public:
 
             // region 0
             // Minimum at interior points of ray and segment.
-
             float invDet = 1 / det;
             s0 *= invDet;
             s1 *= invDet;
             sqrDist = s0 * (s0 + a01 * s1 + 2 * b0) + s1 * (a01 * s0 + s1 + 2 * b1) + c;
-
           }
           else {
 
             // region 1
-
             s1 = segExtent;
             s0 = std::max(0.0f, -(a01 * s1 + b0));
             sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-
           }
-
         }
         else {
 
           // region 5
-
           s1 = -segExtent;
           s0 = std::max(0.0f, -(a01 * s1 + b0));
           sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-
         }
-
       }
       else {
 
         if (s1 <= -extDet) {
 
           // region 4
-
           s0 = std::max(0.0f, -(-a01 * segExtent + b0));
           s1 = (s0 > 0) ? -segExtent : std::min(std::max(-segExtent, -b1), segExtent);
           sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-
         }
         else if (s1 <= extDet) {
 
           // region 3
-
           s0 = 0;
           s1 = std::min(std::max(-segExtent, -b1), segExtent);
           sqrDist = s1 * (s1 + 2 * b1) + c;
-
         }
         else {
 
           // region 2
-
           s0 = std::max(0.0f, -(a01 * segExtent + b0));
           s1 = (s0 > 0) ? segExtent : std::min(std::max(-segExtent, -b1), segExtent);
           sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-
         }
-
       }
-
     }
     else {
 
@@ -385,19 +371,89 @@ public:
     return intersectBox(box, intersect);
   }
 
+  static void test1(bool eins) {
+    Vector3 a, b, c, edge1, edge2, normal, direction, origin;
+
+    if(eins) {
+      a = {-500, 500, 0};
+      b = {-500, -500, 0};
+      c = {500, 500, 0};
+      edge1 = b - a;
+      edge2 = c - a;
+      normal = cross(edge1, edge2);
+      direction = {-0.378328, 0.788505, -0.484899};
+      origin = {500, -1300, 800};
+    }
+    else {
+      a = {-500, 500, 0};
+      b = {-500, -500, 0};
+      c = {500, 500, 0};
+      edge1 = b - a;
+      edge2 = c - a;
+      normal = cross(edge1, edge2);
+      direction = {-0.37873, 0.788029, -0.485359};
+      origin = {500, -1300, 800};
+    }
+
+    float DdN = direction.dot(normal);
+    float sign;
+
+    if (DdN > 0) {
+
+      sign = 1;
+    }
+    else if (DdN < 0) {
+
+      sign = -1;
+      DdN = abs(DdN);
+    }
+    else {
+      return;
+    }
+
+    Vector3 diff = origin - a;
+    float DdQxE2 = sign * direction.dot(cross(diff, edge2));
+
+    // b1 < 0, no intersection
+    if (DdQxE2 < 0) {
+      return;
+    }
+
+    float DdE1xQ = sign * direction.dot(cross(edge1, diff));
+
+    // b2 < 0, no intersection
+    if (DdE1xQ < 0) {
+      return;
+    }
+
+    // b1+b2 > 1, no intersection
+    if (DdQxE2 + DdE1xQ > DdN) {
+      return;
+    }
+
+    // Line intersects triangle, check if ray does.
+    float QdN = -sign * diff.dot(normal);
+
+    // t < 0, no intersection
+    if (QdN < 0) {
+      return;
+    }
+
+    float t = QdN / DdN;
+    // Ray intersects triangle.
+    Vector3 point = direction * t + origin;
+  }
+
   // from http://www.geometrictools.com/GTEngine/Include/Mathematics/GteIntrRay3Triangle3.h
-  bool intersectTriangle(const Vector3 &a, const Vector3 &b, const Vector3 &c, bool backfaceCulling, Vector3 &intersect) const
+  bool intersectTriangle(const Vector3 &a, const Vector3 &b, const Vector3 &c, bool backfaceCulling, Vector3 &point) const
   {
     // Compute the offset origin, edges, and normal.
-    /*var diff = new Vector3();
-    var edge1 = new Vector3();
-    var edge2 = new Vector3();
-    var normal = new Vector3();*/
-
-
     Vector3 edge1 = b - a;
     Vector3 edge2 = c - a;
     Vector3 normal = cross(edge1, edge2);
+
+    //test1(true);
+    //test1(false);
 
     // Solve Q + t*D = b1*E1 + b2*E2 (Q = kDiff, D = ray direction,
     // E1 = kEdge1, E2 = kEdge2, N = Cross(E1,E2)) by
@@ -411,18 +467,14 @@ public:
 
       if (backfaceCulling) return false;
       sign = 1;
-
     }
     else if (DdN < 0) {
 
       sign = -1;
-      DdN = -DdN;
-
+      DdN = abs(DdN);
     }
     else {
-
       return false;
-
     }
 
     Vector3 diff = _origin - a;
@@ -433,7 +485,7 @@ public:
       return false;
     }
 
-    float DdE1xQ = sign * _direction.dot(edge1.cross(diff));
+    float DdE1xQ = sign * _direction.dot(cross(edge1, diff));
 
     // b2 < 0, no intersection
     if (DdE1xQ < 0) {
@@ -450,27 +502,20 @@ public:
 
     // t < 0, no intersection
     if (QdN < 0) {
-
       return false;
-
     }
 
     // Ray intersects triangle.
-    intersect = at(QdN / DdN);
+    point = at(QdN / DdN);
     return true;
   }
 
-  Ray &applyMatrix4(const Matrix4 &matrix4)
+  Ray &apply(const Matrix4 &matrix4)
   {
     _origin.apply(matrix4);
     _direction.transformDirection(matrix4);
 
     return *this;
-  }
-
-  Ray operator *(const Matrix4 & matrix) const
-  {
-    return Ray(*this).applyMatrix4(matrix);
   }
 };
 
