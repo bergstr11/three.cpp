@@ -41,7 +41,7 @@ struct EmissiveMap
 struct AoMap
 {
   Texture::Ptr aoMap;
-  Color ambient {0x000000};
+  Color ambient = Color::null(); //unused
   float aoMapIntensity = 1.0;
 };
 

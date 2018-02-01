@@ -89,11 +89,6 @@ struct Color
 
   Color(ColorName name) : Color((unsigned)name) {}
 
-  static const Color &white() {
-    static Color white(1, 1, 1);
-    return white;
-  }
-
   static Color null() {
     static Color null(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
                       std::numeric_limits<float>::infinity());

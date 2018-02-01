@@ -68,7 +68,6 @@ struct Refresh<material::AoMap>
   }
   static void mixin(UniformValues &uniforms, material::AoMap &material) {
     uniforms[UniformName::aoMap] = material.aoMap;
-    uniforms[UniformName::ambientLightColor] = material.ambient;
     uniforms[UniformName::aoMapIntensity] = material.aoMapIntensity;
   }
 };

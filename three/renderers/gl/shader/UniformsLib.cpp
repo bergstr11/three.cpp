@@ -173,7 +173,7 @@ public:
                          }));
     add(UniformsID::lights,
         LibUniformValues({
-                         value<Color>(UniformName::ambientLightColor, Color::null()),
+                         value<Color>(UniformName::ambientLightColor, Color(ColorName::white)),
                          value<CachedDirectionalLights>(UniformName::directionalLights, CachedDirectionalLights(), {
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
                             value<Color>(UniformName::color, Color::null()),
