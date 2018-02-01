@@ -173,10 +173,10 @@ public:
                          }));
     add(UniformsID::lights,
         LibUniformValues({
-                         value<Color>(UniformName::ambientLightColor, Color()),
+                         value<Color>(UniformName::ambientLightColor, Color::null()),
                          value<CachedDirectionalLights>(UniformName::directionalLights, CachedDirectionalLights(), {
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
-                            value<Color>(UniformName::color, Color()),
+                            value<Color>(UniformName::color, Color::null()),
                             value<bool>(UniformName::shadow, false),
                             value<float>(UniformName::shadowBias, 0.0f),
                             value<float>(UniformName::shadowRadius, 0.0f),
@@ -187,7 +187,7 @@ public:
                          value<std::vector<math::Matrix4>>(UniformName::directionalShadowMatrix, std::vector<math::Matrix4>()),
 
                          value<CachedSpotLights>(UniformName::spotLights, CachedSpotLights(), {
-                            value<Color>(UniformName::color, Color()),
+                            value<Color>(UniformName::color, Color::null()),
                             value<math::Vector3>(UniformName::position, math::Vector3()),
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
                             value<math::Vector3>(UniformName::distance, math::Vector3()),
@@ -202,8 +202,8 @@ public:
 
                          value<CachedHemisphereLights>(UniformName::hemisphereLights, CachedHemisphereLights(), {
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
-                            value<Color>(UniformName::skyColor, Color()),
-                            value<Color>(UniformName::groundColor, Color()),
+                            value<Color>(UniformName::skyColor, Color::null()),
+                            value<Color>(UniformName::groundColor, Color::null()),
                          }),
                          }));
     add(UniformsID::points,

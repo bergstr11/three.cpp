@@ -17,7 +17,7 @@ void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
 
   math::Matrix4 inverseMatrix = _matrixWorld.inverse();
   math::Ray ray = raycaster.ray();
-  ray.applyMatrix4( inverseMatrix );
+  ray.apply( inverseMatrix );
 
   geometry()->raycast(*this, raycaster, ray, intersects);
 }

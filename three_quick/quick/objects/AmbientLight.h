@@ -19,7 +19,7 @@ Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(qreal intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
 
-  QColor _color;
+  QColor _color {Qt::white};
   qreal _intensity = 1.0f;
 
   three::AmbientLight::Ptr _ambient;

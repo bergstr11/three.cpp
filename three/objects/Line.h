@@ -7,6 +7,7 @@
 
 #include <core/Object3D.h>
 #include <core/Raycaster.h>
+#include <core/BufferGeometry.h>
 #include <material/Material.h>
 #include <material/LineMaterial.h>
 

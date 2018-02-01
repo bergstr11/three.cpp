@@ -23,7 +23,7 @@ struct Face3
   Vertex normal;
   std::vector<Vertex> vertexNormals;
 
-  Color color;
+  Color color {ColorName::white};
   std::vector<Color> vertexColors;
 
   unsigned materialIndex = 0;

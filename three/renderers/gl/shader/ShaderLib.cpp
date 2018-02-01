@@ -120,7 +120,7 @@ public:
                         UniformsID::lights
                      }
                   ).merge(UniformsID::lights, {
-                     {UniformName::emissive, Color()}
+                     {UniformName::emissive, Color(ColorName::black)}
                   }),
                   ":shader/meshlambert_vert.glsl",
                   ":shader/meshlambert_frag.glsl"
@@ -143,8 +143,8 @@ public:
                         UniformsID::lights
                      }
                   ).merge(UniformsID::lights, {
-                     {UniformName::emissive, Color(0x000000)},
-                     {UniformName::specular, Color(0x111111)},
+                     {UniformName::emissive, Color(ColorName::black)},
+                     {UniformName::specular, Color(ColorName::white)},
                      {UniformName::shininess, 30.0f}
                   }),
                   ":shader/meshphong_vert.glsl",
@@ -167,7 +167,7 @@ public:
                         UniformsID::fog
                      }
                   ).merge(UniformsID::lights, {
-                     {UniformName::emissive,        Color(0x000000)},
+                     {UniformName::emissive,        Color(ColorName::black)},
                      {UniformName::roughness,       0.5f},
                      {UniformName::metalness,       0.5f},
                      {UniformName::envMapIntensity, 1}
@@ -267,7 +267,7 @@ public:
                         UniformsID::fog
                      }
                   ).merge(UniformsID::fog, {
-                     {UniformName::color,   Color(0x00000)},
+                     {UniformName::color,   Color(ColorName::black)},
                      {UniformName::opacity, 1.0f}
                   }),
                   ":shader/distanceRGBA_vert.glsl",

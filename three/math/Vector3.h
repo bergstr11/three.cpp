@@ -423,7 +423,9 @@ inline Vector3 operator *(const Vector3 &left, const Vector3 &right)
 
 inline Vector3 operator *(const Vector3 &vector, float scalar)
 {
-  return Vector3(vector.x() * scalar, vector.y() * scalar, vector.z() * scalar);
+  Vector3 result {vector};
+  result *= scalar;
+  return result;
 }
 
 inline Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix)

@@ -15,6 +15,8 @@ namespace quick {
 
 class Image : public QObject {
 Q_OBJECT
+
+friend class ImageTexture;
 public:
   enum Format {
     Invalid = QImage::Format_Invalid,
@@ -52,20 +54,25 @@ private:
   QString _url;
   Format _format = (Format)QImage::Format_RGBA8888;
 
+  QImage _image;
+
 public:
   QImage getImage()
   {
-    QImage image(_url);
-    return image.convertToFormat((QImage::Format)_format);
+    if(_image.isNull()) {
+      _image = QImage(_url).convertToFormat((QImage::Format)_format);
+    }
+    return _image;
   }
 };
 
 class ImageTexture : public Texture
 {
 Q_OBJECT
-  Q_PROPERTY(Image * image READ image WRITE setImage NOTIFY imageChanged)
+  Q_PROPERTY(QString image READ image WRITE setImage NOTIFY imageChanged)
+  Q_PROPERTY(three::quick::Image::Format imageFormat READ imageFormat WRITE setImageFormat NOTIFY imageFormatChanged)
 
-  Image *_image = nullptr;
+  Image _image;
 
   three::ImageTexture::Ptr _texture;
 
@@ -90,7 +97,7 @@ public:
   {
     if(!_texture) {
       TextureOptions options = createTextureOptions();
-      _texture = three::ImageTexture::make(options, _image->getImage());
+      _texture = three::ImageTexture::make(options, _image.getImage());
     }
     return _texture;
   }
@@ -100,12 +107,21 @@ public:
     return getImageTexture();
   }
 
-  Image *image() const {return _image;}
+  QString image() const {return _image._url;}
 
-  void setImage(Image *image) {
-    if(_image != image) {
-      _image = image;
+  void setImage(QString image) {
+    if(_image._url != image) {
+      _image._url = image;
       emit imageChanged();
+    }
+  }
+
+  Image::Format imageFormat() const {return _image._format;}
+
+  void setImageFormat(Image::Format imageFormat) {
+    if(_image._format != imageFormat) {
+      _image._format = imageFormat;
+      emit imageFormatChanged();
     }
   }
 
@@ -122,6 +138,7 @@ public:
 
 signals:
   void imageChanged();
+  void imageFormatChanged();
 };
 
 }

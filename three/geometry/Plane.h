@@ -6,7 +6,7 @@
 #define THREE_QT_PLANE_H
 
 #include <cstdint>
-#include "core/StaticGeometry.h"
+#include "core/LinearGeometry.h"
 #include "core/BufferGeometry.h"
 
 namespace three {
@@ -62,11 +62,11 @@ public:
       for (unsigned ix = 0; ix < gridX1; ix ++ ) {
         float x = (float)ix * segment_width - width_half;
 
-        vertices.emplace_back(x, - y, 0);
+        vertices.emplace_back(x, -y, 0);
 
         normals.emplace_back(0, 0, 1);
 
-        uvs.emplace_back( (float)ix / gridX, 1 - ( (float)iy / gridY ) );
+        uvs.emplace_back((float)ix / gridX, 1.0f - ((float)iy / gridY));
       }
     }
 
@@ -74,13 +74,13 @@ public:
     for (unsigned iy = 0; iy < gridY; iy ++ ) {
       for (unsigned ix = 0; ix < gridX; ix ++ ) {
 
-        unsigned a = ix + gridX1 * iy;
-        unsigned b = ix + gridX1 * ( iy + 1 );
-        unsigned c = ( ix + 1 ) + gridX1 * ( iy + 1 );
-        unsigned d = ( ix + 1 ) + gridX1 * iy;
+        uint32_t a = ix + gridX1 * iy;
+        uint32_t b = ix + gridX1 * ( iy + 1 );
+        uint32_t c = ( ix + 1 ) + gridX1 * ( iy + 1 );
+        uint32_t d = ( ix + 1 ) + gridX1 * iy;
 
         // faces
-        indices.insert(indices.end(), {a, b, d, b, c, d});
+        for(auto i : {a, b, d, b, c, d}) indices.push_back(i);
       }
     }
 
@@ -99,7 +99,7 @@ public:
 
 }
 
-class Plane : public StaticGeometry, public PlaneParameters
+class Plane : public LinearGeometry, public PlaneParameters
 {
 protected:
   Plane(float width, float height, float widthSegments, float heightSegments)

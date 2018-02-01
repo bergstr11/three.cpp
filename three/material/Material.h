@@ -34,14 +34,14 @@ struct LightMap
 struct EmissiveMap
 {
   Texture::Ptr emissiveMap;
-  Color emissive = 0x000000;
+  Color emissive {0x000000};
   float emissiveIntensity = 1.0;
 };
 
 struct AoMap
 {
   Texture::Ptr aoMap;
-  Color ambient;
+  Color ambient {0x000000};
   float aoMapIntensity = 1.0;
 };
 

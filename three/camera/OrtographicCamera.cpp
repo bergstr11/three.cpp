@@ -6,9 +6,9 @@
 
 namespace three {
 
-void OrtographicCamera::applyTo(math::Ray &ray, const math::Vector3 &coords)
+void OrtographicCamera::setup(math::Ray &ray, float x, float y)
 {
-  ray.origin().set( coords.x(), coords.y(), (_near + _far) / (_near - _far) ).unproject(*this); // set origin in plane of camera
+  ray.origin().set(x, y, (_near + _far) / (_near - _far)).unproject(*this); // set origin in plane of camera
   ray.direction().set( 0, 0, - 1 ).transformDirection( _matrixWorld );
 }
 

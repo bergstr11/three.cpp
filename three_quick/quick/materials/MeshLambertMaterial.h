@@ -67,7 +67,7 @@ public:
     if(_envMap) {
       _material->envMap = _envMap->getTexture();
       if(!_material->envMap)
-        qWarning() << "envMap set to non-cube texture is ignored";
+        qWarning() << "envMap is ignored";
     }
 
     return _material;

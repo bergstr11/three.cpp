@@ -23,17 +23,15 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   if (!raycaster.ray().intersectsSphere(sphere)) return;
 
   math::Matrix4 inverseMatrix = _matrixWorld.inverse();
-  math::Ray ray = raycaster.ray() * inverseMatrix;
+  math::Ray ray(raycaster.ray());
+  ray.apply(inverseMatrix);
 
   // Check boundingBox before continuing
   if (!geometry()->boundingBox().isEmpty()) {
     if (!ray.intersectsBox(geometry()->boundingBox())) return;
   }
 
-  math::Vector3 intersectionPoint;
-  math::Vector3 intersectionPointWorld;
-
-  geometry()->raycast(*this, raycaster, ray, intersectionPoint, intersectionPointWorld, intersects);
+  geometry()->raycast(*this, raycaster, ray, intersects);
 }
 
 }

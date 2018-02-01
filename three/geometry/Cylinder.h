@@ -5,7 +5,7 @@
 #ifndef THREEPP_CYLINDER_H
 #define THREEPP_CYLINDER_H
 
-#include <core/StaticGeometry.h>
+#include <core/LinearGeometry.h>
 #include <core/BufferGeometry.h>
 
 namespace three {
@@ -23,7 +23,7 @@ struct CylinderParams
   float thetaLength = (float)M_PI * 2;
 };
 
-class Cylinder : public StaticGeometry
+class Cylinder : public LinearGeometry
 {
   float _radiusTop;
   float _radiusBottom;

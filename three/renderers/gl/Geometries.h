@@ -77,8 +77,8 @@ public:
 
     BufferGeometry::Ptr buffergeometry = std::dynamic_pointer_cast<BufferGeometry>(geometry);
     if (!buffergeometry) {
-      StaticGeometry::Ptr staticgeometry = std::dynamic_pointer_cast<StaticGeometry>(geometry);
-      buffergeometry = BufferGeometry::make(object, staticgeometry);
+      LinearGeometry::Ptr lineargeometry = std::dynamic_pointer_cast<LinearGeometry>(geometry);
+      buffergeometry = BufferGeometry::make(object, lineargeometry);
     }
 
     gi.geometry = buffergeometry;

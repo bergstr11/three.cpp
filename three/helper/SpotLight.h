@@ -57,7 +57,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<SpotLight>;
-  static Ptr make(const std::string &name, const three::SpotLight::Ptr &light, const Color &color=Color()) {
+  static Ptr make(const std::string &name, const three::SpotLight::Ptr &light, const Color &color=Color(ColorName::white)) {
     Ptr p(new SpotLight(light, color));
     p->_name = name;
     return p;

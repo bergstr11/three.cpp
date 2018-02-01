@@ -18,7 +18,7 @@ class Renderer_impl;
 
 class Programs
 {
-  std::unordered_map<ProgramParameters::Ptr, Program::Ptr, parameters_hash> _programs;
+  std::unordered_map<ProgramParameters::Ptr, Program::Ptr, parameters_hash, parameters_equal> _programs;
 
   Renderer_impl &_renderer;
   Extensions &_extensions;
@@ -70,13 +70,11 @@ public:
 
   Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters)
   {
-    Program::Ptr program;
-
     // Check if code has been already compiled
-    if(_programs.count(parameters) > 0) {
-      return _programs[parameters];
-    }
-    program = Program::make( _renderer, _extensions, material, shader, parameters );
+    auto it = _programs.find(parameters);
+    if(it != _programs.end()) return it->second;
+
+    Program::Ptr program = Program::make( _renderer, _extensions, material, shader, parameters );
     _programs[parameters] = program;
 
     return program;

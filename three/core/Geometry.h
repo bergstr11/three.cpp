@@ -20,7 +20,6 @@ class Line;
 class Intersection;
 
 class BufferGeometry;
-class DirectGeometry;
 
 class Geometry
 {
@@ -29,8 +28,6 @@ class Geometry
   static size_t id_count;
 
 protected:
-  std::shared_ptr<DirectGeometry> _directGeometry;
-
   math::Box3 _boundingBox;
   math::Sphere _boundingSphere;
 
@@ -65,8 +62,6 @@ public:
   virtual void raycast(const Mesh &mesh,
                        const Raycaster &raycaster,
                        const math::Ray &ray,
-                       math::Vector3 &intersectionPoint,
-                       math::Vector3 &intersectionPointWorld,
                        std::vector<Intersection> &intersects) {}
 
   virtual bool useMorphing() const = 0;

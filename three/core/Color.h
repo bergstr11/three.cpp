@@ -89,13 +89,21 @@ struct Color
 
   Color(ColorName name) : Color((unsigned)name) {}
 
-  Color() :
-     r(std::numeric_limits<float>::infinity()),
-     g(std::numeric_limits<float>::infinity()),
-     b(std::numeric_limits<float>::infinity()) {}
+  static const Color &white() {
+    static Color white(1, 1, 1);
+    return white;
+  }
+
+  static Color null() {
+    static Color null(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+                      std::numeric_limits<float>::infinity());
+    return null;
+  }
 
   bool isNull() const {
-    return r == g && g == b && b == std::numeric_limits<float>::infinity();
+    return r == std::numeric_limits<float>::infinity() ||
+       r == std::numeric_limits<float>::infinity() ||
+       b == std::numeric_limits<float>::infinity();
   }
 
   void set(float r, float g, float b)

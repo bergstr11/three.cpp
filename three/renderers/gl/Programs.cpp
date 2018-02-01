@@ -47,12 +47,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->precision = _capabilities.precision;
 
   if (material->precision != Precision::unknown) {
-
     parameters->precision = _capabilities.getMaxPrecision( material->precision );
-
-    /*if ( precision != material->precision ) {
-      console.warn( 'THREE.WebGLProgram.getParameters:', material.precision, 'not supported, using', precision, 'instead.' );
-    }*/
   }
 
   parameters->supportsVertexTextures = _capabilities.vertexTextures;

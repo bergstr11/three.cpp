@@ -99,7 +99,8 @@ Window {
             id: textureSphere
             format: Texture.RGBA
             mapping: Texture.SphericalReflection
-            image: Image {url: ":/metal.jpg"; format: Image.RGBA8888}
+            image: ":/metal.jpg"
+            imageFormat: Image.RGBA8888
         }
         ImageTexture {
             id: textureEquirec
@@ -107,7 +108,8 @@ Window {
             mapping: Texture.EquirectangularReflection
             magFilter: Texture.Linear
             minFilter: Texture.LinearMipMapLinear
-            image: Image {url: ":/2294472375_24a3b8ef46_o.jpg"; format: Image.RGBA8888}
+            image: ":/2294472375_24a3b8ef46_o.jpg"
+            imageFormat: Image.RGBA8888
         }
 
         ShaderMaterial {

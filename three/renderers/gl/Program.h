@@ -267,6 +267,7 @@ public:
     }
     return it1 == all.end() && it2 == parameters.all.end();
   }
+
   bool operator != (const ProgramParameters &parameters)
   {
     return !(*this == parameters);
@@ -283,6 +284,13 @@ struct parameters_hash {
       p->hash_combine(h);
     }
     return h;
+  }
+};
+
+struct parameters_equal {
+  bool operator () (const ProgramParameters::Ptr &left, const ProgramParameters::Ptr &right) const
+  {
+    return (*left) == (*right);
   }
 };
 

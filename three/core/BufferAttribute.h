@@ -375,7 +375,7 @@ protected:
     }
   }
 
-  DefaultBufferAttribute(std::vector<math::Vector2> vectors, bool normalized)
+  DefaultBufferAttribute(const std::vector<math::Vector2> &vectors, bool normalized)
   : Super(2, normalized)
   {
     resize(vectors.size() * Base::_itemSize);
@@ -387,7 +387,7 @@ protected:
     }
   }
 
-  DefaultBufferAttribute(std::vector<math::Vector3> vectors, bool normalized)
+  DefaultBufferAttribute(const std::vector<math::Vector3> &vectors, bool normalized)
   : Super(3, normalized)
   {
     resize(vectors.size() * Base::_itemSize);
@@ -400,7 +400,7 @@ protected:
     }
   }
 
-  DefaultBufferAttribute(std::vector<math::Vector4> vectors, bool normalized)
+  DefaultBufferAttribute(const std::vector<math::Vector4> &vectors, bool normalized)
   : Super(4, normalized)
   {
     resize(vectors.size() * Base::_itemSize);

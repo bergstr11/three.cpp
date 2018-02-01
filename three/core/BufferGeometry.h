@@ -2,8 +2,8 @@
 // Created by byter on 22.08.17.
 //
 
-#ifndef THREE_QT_BUFFERGEOMETRY_H
-#define THREE_QT_BUFFERGEOMETRY_H
+#ifndef THREEPP_BUFFERGEOMETRY_H
+#define THREEPP_BUFFERGEOMETRY_H
 
 #include <unordered_map>
 #include <functional>
@@ -14,6 +14,8 @@
 namespace three {
 
 class Object3D;
+class LinearGeometry;
+class DirectGeometry;
 
 enum class IndexedAttributeName
 {
@@ -25,8 +27,6 @@ enum class AttributeName
 };
 
 using IndexedAttributeKey = std::pair<IndexedAttributeName, size_t>;
-
-class StaticGeometry;
 
 class BufferGeometry : public Geometry
 {
@@ -50,8 +50,8 @@ class BufferGeometry : public Geometry
 
   UpdateRange _drawRange;
 
-  void setFromLinearGeometry(std::shared_ptr<StaticGeometry> geometry);
-  void setFromMeshGeometry(std::shared_ptr<StaticGeometry> geometry);
+  void setFromLinearGeometry(std::shared_ptr<LinearGeometry> geometry);
+  void setFromMeshGeometry(std::shared_ptr<LinearGeometry> geometry);
   void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
 protected:
@@ -67,9 +67,6 @@ protected:
 
   BufferGeometry &computeBoundingSphere() override
   {
-    //var box = new Box3();
-    //var vector = new Vector3();
-
     if (_position) {
       math::Box3 box = _position->box3();
       math::Vector3 center = box.getCenter();
@@ -88,7 +85,7 @@ protected:
   }
 
   explicit BufferGeometry() {}
-  explicit BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry);
+  explicit BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
 
 public:
   static size_t MaxIndex;
@@ -97,7 +94,7 @@ public:
   static Ptr make() {
     return Ptr(new BufferGeometry());
   }
-  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry) {
+  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry) {
     return Ptr(new BufferGeometry(object, geometry));
   }
 
@@ -118,7 +115,7 @@ public:
     _drawRange = geom._drawRange;
   }
 
-  BufferGeometry &update(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry);
+  BufferGeometry &update(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
 
   bool useMorphing() const override
   {
@@ -267,8 +264,6 @@ public:
   void raycast(const Mesh &mesh,
                const Raycaster &raycaster,
                const math::Ray &ray,
-               math::Vector3 &intersectionPoint,
-               math::Vector3 &intersectionPointWorld,
                std::vector<Intersection> &intersects) override;
 };
 
@@ -279,7 +274,7 @@ class InstancedBufferGeometry : public BufferGeometry
 protected:
   explicit InstancedBufferGeometry() : BufferGeometry() {}
   explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object,
-                                   std::shared_ptr<StaticGeometry> geometry)
+                                   std::shared_ptr<LinearGeometry> geometry)
      : BufferGeometry(object, geometry) {}
 
 public:
@@ -287,7 +282,7 @@ public:
   static Ptr make() {
     return Ptr(new InstancedBufferGeometry());
   }
-  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<StaticGeometry> geometry) {
+  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry) {
     return Ptr(new InstancedBufferGeometry(object, geometry));
   }
 
@@ -311,4 +306,4 @@ template<> struct hash<three::IndexedAttributeKey>
 };
 }
 
-#endif //THREE_QT_BUFFERGEOMETRY_H
+#endif //THREEPP_BUFFERGEOMETRY_H

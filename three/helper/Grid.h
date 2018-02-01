@@ -30,7 +30,7 @@ protected:
     float halfSize = (float) o.size / 2;
 
     std::vector<Vertex> vertices((o.divisions+1) * 4);
-    std::vector<Color> colors((o.divisions+1) * 4);
+    std::vector<Color> colors((o.divisions+1) * 4, Color(ColorName::white));
 
     float k = -halfSize;
     for (unsigned  i = 0; i <= o.divisions; i++) {

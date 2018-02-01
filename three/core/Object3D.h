@@ -19,7 +19,7 @@
 #include <math/Matrix4.h>
 #include <material/Material.h>
 #include <helper/Resolver.h>
-#include "StaticGeometry.h"
+#include "LinearGeometry.h"
 
 namespace three {
 
@@ -366,7 +366,9 @@ protected:
 public:
   const Material::Ptr material() const override {return _materialsArray[0];}
 
-  const Material::Ptr material(size_t index) const override {return _materialsArray[index];}
+  const Material::Ptr material(size_t index) const override {
+    return _materialsArray.size() > index ? _materialsArray[index] : nullptr;
+  }
 
   const size_t materialCount() const override {return sizeof ... (Mat);}
 

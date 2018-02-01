@@ -8,7 +8,7 @@
 #include <helper/Types.h>
 #include <math/Sphere.h>
 #include "BufferAttribute.h"
-#include "StaticGeometry.h"
+#include "LinearGeometry.h"
 
 namespace three {
 
@@ -16,8 +16,8 @@ class DirectGeometry : public Geometry
 {
   friend class BufferGeometry;
 protected:
-  DirectGeometry(const StaticGeometry &geometry);
-  void computeGroups(const StaticGeometry &geometry);
+  DirectGeometry(const LinearGeometry &geometry);
+  void computeGroups(const LinearGeometry &geometry);
 
 public:
   std::vector<Index> indices;
@@ -43,7 +43,7 @@ public:
   bool groupsNeedUpdate = false;
 
   using Ptr = std::shared_ptr<DirectGeometry>;
-  static Ptr make(const StaticGeometry &geometry) {
+  static Ptr make(const LinearGeometry &geometry) {
     return Ptr(new DirectGeometry(geometry));
   }
 

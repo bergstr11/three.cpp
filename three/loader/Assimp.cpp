@@ -4,6 +4,7 @@
 
 #include "Assimp.h"
 
+#include <core/BufferGeometry.h>
 #include <assimp/Importer.hpp>
 #include <assimp/ProgressHandler.hpp>
 #include <assimp/IOStream.hpp>

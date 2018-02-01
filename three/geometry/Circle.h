@@ -5,7 +5,7 @@
 #ifndef THREEPP_CIRCLE_H
 #define THREEPP_CIRCLE_H
 
-#include <core/StaticGeometry.h>
+#include <core/LinearGeometry.h>
 #include <core/BufferGeometry.h>
 
 namespace three {
@@ -19,7 +19,7 @@ struct CircleParams
   float thetaLength = (float)M_PI * 2;
 };
 
-class Circle : public StaticGeometry
+class Circle : public LinearGeometry
 {
   float _radius;
   unsigned _segments;

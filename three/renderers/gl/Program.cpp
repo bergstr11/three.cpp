@@ -409,7 +409,7 @@ Program::Program(Renderer_impl &renderer,
   } else {
     stringstream ss;
 
-    qDebug() << "generating shaders for " << shader.name() << " pid: " << _program;
+    qDebug() << "generating shaders for" << shader.name() << "pid:" << _program;
 
     //vertex prefix
     //=============
@@ -651,7 +651,7 @@ Program::Program(Renderer_impl &renderer,
 
   string programLog = getInfoLog(&_renderer, InfoObject::program, _program );
 
-#if 1
+#if 0
   GLsizei len;
   char buf[100000];
   ofstream of1("vertex.glsl", ios_base::app);

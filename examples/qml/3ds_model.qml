@@ -42,7 +42,8 @@ Window {
         ImageTexture {
             id: normalTexture
             format: Texture.RGBA
-            image: Image {url: ":/portalgun_normal.jpg"; format: Image.RGBA8888}
+            image: ":/portalgun_normal.jpg"
+            imageFormat: Image.RGBA8888
         }
 
         Scene {

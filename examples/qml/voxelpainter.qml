@@ -13,17 +13,13 @@ Window {
     visible: true
 
     Component {
-        id: voxel
+        id: voxelFactory
         Box {
-            width: 50
-            height: 50
-            depth: 50
+            property alias color: voxelMaterial.color
+            property alias texture: voxelMaterial.map
 
             material: MeshLambertMaterial {
-                color: "#feb74c"
-                map: ImageTexture {
-                    image: Image {url: ":/square-outline-textured.png"; format: Image.RGBA8888}
-                }
+                id: voxelMaterial
             }
         }
     }
@@ -36,10 +32,11 @@ Window {
 
         property var objectList: []
 
-        Raycaster {
-            id: raycaster
+        ImageTexture {
+            id: cubeTexture
+            image: ":/square-outline-textured.png"
+            imageFormat: Image.RGBA8888
         }
-
         Scene {
             id: scene
             background: "#f0f0f0"
@@ -66,12 +63,13 @@ Window {
             }
 
             GridLines {
+                id: grid
                 size: 1000
                 divisions: 20
             }
 
             Plane {
-                name: "plane"
+                id: plane
                 type: Three.BufferGeometry
                 width: 1000
                 height: 1000
@@ -98,20 +96,56 @@ Window {
     }
     MouseArea {
         anchors.fill: threeD
+        z: 2
+        hoverEnabled: true
+
+        property var raycaster: Three.raycaster(scene.camera)
+
         onPositionChanged: {
             mouse.accepted = true
 
             var m = Qt.vector2d((mouse.x / threeD.width) * 2 - 1, -(mouse.y / threeD.height) * 2 + 1)
+            raycaster.set(m);
 
-            raycaster.setFromCamera( m, camera );
+            var intersects = raycaster.intersectObjects(threeD.objectList);
+            if (intersects.length > 0) {
+                var intersect = intersects[0];
+                grid.snap(rollOver, intersect);
 
-            var intersects = raycaster.intersectObjects( objects );
-            if ( intersects.length > 0 ) {
-                var intersect = intersects[ 0 ];
-                rollOver.position = intersect.point + intersect.face.normal
-                rollOver.position = (rollOver.position / 50 ).floor() * 50 + 25
+                threeD.update()
             }
-            threeD.update()
+        }
+        onClicked: {
+            mouse.accepted = true
+
+            var m = Qt.vector2d((mouse.x / threeD.width) * 2 - 1, -(mouse.y / threeD.height) * 2 + 1)
+            raycaster.set(m);
+
+            var intersects = raycaster.intersectObjects(threeD.objectList);
+            if (intersects.length > 0) {
+                var intersect = intersects[ 0 ];
+
+                // delete cube
+                if ( mouse.modifiers & Qt.ShiftModifier ) {
+                    if ( intersect.object !== plane ) {
+
+                        scene.remove( intersect.object );
+                        threeD.objectList.splice( threeD.objectList.indexOf( intersect.object ), 1 );
+                    }
+
+                // create cube
+                } else {
+                    var voxel = voxelFactory.createObject(scene, {
+                        width: 50, height: 50, depth: 50, color: "#feb74c",
+                        texture: cubeTexture})
+
+                    scene.add(voxel);
+                    grid.snap(voxel, intersect);
+
+                    threeD.objectList.push( voxel );
+                }
+                threeD.update()
+            }
         }
     }
 }

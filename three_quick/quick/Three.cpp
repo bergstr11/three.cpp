@@ -30,9 +30,6 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Cylinder.h"
 #include "objects/Mesh.h"
 #include "quick/objects/ModelRef.h"
-#include "materials/MeshBasicMaterial.h"
-#include "materials/MeshLambertMaterial.h"
-#include "materials/MeshPhongMaterial.h"
 #include "materials/ShaderMaterial.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
@@ -41,10 +38,18 @@ Q_DECLARE_METATYPE(three::math::Euler);
 namespace three {
 namespace quick {
 
+static QObject *three_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+  Q_UNUSED(engine)
+  Q_UNUSED(scriptEngine)
+
+  return new Three();
+}
+
 void init()
 {
   qRegisterMetaType<three::math::Euler>();
-  qmlRegisterUncreatableType<three::quick::Three>("three.quick", 1, 0, "Three", "enum holder class");
+  qmlRegisterSingletonType<three::quick::Three>("three.quick", 1, 0, "Three", three_provider);
   qmlRegisterType<three::quick::ThreeDItem>("three.quick", 1, 0, "ThreeD");
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
   qmlRegisterType<three::quick::Model>("three.quick", 1, 0, "Model");
@@ -56,7 +61,8 @@ void init()
   qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
-  qmlRegisterType<three::quick::RayCaster>("three.quick", 1, 0, "Raycaster");
+  qmlRegisterType<three::quick::Intersect>();
+  qmlRegisterType<three::quick::RayCaster>();
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
   qmlRegisterType<three::quick::FogExp2>("three.quick", 1, 0, "FogExp2");
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
@@ -85,6 +91,17 @@ void init()
 }
 
 using namespace std;
+
+QVariant Three::raycaster(QVariant value)
+{
+  Camera *camera = value.value<Camera *>();
+  if(camera) {
+    QVariant var;
+    var.setValue(new RayCaster(camera));
+    return var;
+  }
+  return QVariant();
+}
 
 class FramebufferObjectRenderer : public QObject, public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {

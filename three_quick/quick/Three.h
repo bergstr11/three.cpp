@@ -20,6 +20,7 @@ class Scene;
 class Material;
 class Texture;
 class Controller;
+class RayCaster;
 
 void init();
 
@@ -64,6 +65,8 @@ public:
     FaceDirectionUndefined = (unsigned)three::FrontFaceDirection::Undefined
   };
   Q_ENUM(FrontFaceDirection)
+
+  Q_INVOKABLE QVariant raycaster(QVariant camera);
 };
 
 class ObjectRootContainer {

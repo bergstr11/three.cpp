@@ -36,7 +36,7 @@ struct Entry<DirectionalLight> : public EntryBase
   using Ptr = std::shared_ptr<Entry<DirectionalLight>>;
 
   math::Vector3 direction;
-  Color color;
+  Color color {ColorName::white};
   bool shadow = false;
   float shadowBias = 0;
   float shadowRadius = 1;
@@ -50,7 +50,7 @@ struct Entry<SpotLight> : public EntryBase
 
   math::Vector3 position;
   math::Vector3 direction;
-  Color color;
+  Color color {ColorName::white};
   float distance = 0;
   float coneCos = 0;
   float penumbraCos = 0;
@@ -67,7 +67,7 @@ struct Entry<PointLight> : public EntryBase
   using Ptr = std::shared_ptr<Entry<PointLight>>;
 
   math::Vector3 position;
-  Color color;
+  Color color {ColorName::white};
   float distance = 0;
   float decay = 0;
   bool shadow = false;
@@ -84,8 +84,8 @@ struct Entry<HemisphereLight> : public EntryBase
   using Ptr = std::shared_ptr<Entry<HemisphereLight>>;
 
   math::Vector3 direction;
-  Color skyColor;
-  Color groundColor;
+  Color skyColor {ColorName::white};
+  Color groundColor {ColorName::white};
 };
 
 template<>
@@ -94,7 +94,7 @@ struct Entry<RectAreaLight> : public EntryBase
   using Ptr = std::shared_ptr<Entry<RectAreaLight>>;
 
   math::Vector3 position;
-  Color color;
+  Color color {ColorName::white};
   math::Vector3 halfWidth;
   math::Vector3 halfHeight;
 };
@@ -145,7 +145,7 @@ struct Lights
     std::vector<math::Matrix4> pointShadowMatrix;
     CachedPointLights point;
     CachedHemisphereLights hemi;
-    Color ambient {0, 0, 0};
+    Color ambient {1, 1, 1};
     std::string hash;
 
     void clear() {

@@ -2,8 +2,8 @@
 // Created by byter on 08.08.17.
 //
 
-#ifndef THREE_QT_STATICGEOMETRY_H
-#define THREE_QT_STATICGEOMETRY_H
+#ifndef THREEPP_LINEARGEOMETRY_H
+#define THREEPP_LINEARGEOMETRY_H
 
 #include <memory>
 #include <vector>
@@ -17,12 +17,14 @@
 #include <math/Matrix3.h>
 #include <helper/Types.h>
 
-#include "BufferGeometry.h"
 #include "Geometry.h"
+#include "BufferAttribute.h"
 #include "Face3.h"
 #include "Color.h"
 
 namespace three {
+
+class DirectGeometry;
 
 struct MorphTarget {
   std::string name;
@@ -35,7 +37,7 @@ struct MorphNormal {
   bool isEmpty() {return faceNormals.empty();}
 };
 
-class StaticGeometry : public Geometry
+class LinearGeometry : public Geometry
 {
   friend class DirectGeometry;
   friend class BufferGeometry;
@@ -68,23 +70,25 @@ class StaticGeometry : public Geometry
   bool _lineDistancesNeedUpdate = false;
   bool _groupsNeedUpdate = false;
 
-  static StaticGeometry &computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices);
+  static LinearGeometry &computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices);
 
-  static StaticGeometry &computeVertexNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices,
+  static LinearGeometry &computeVertexNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices,
                                         bool areaWeighted=true);
 
 protected:
-  StaticGeometry() {}
+  std::shared_ptr<DirectGeometry> _directGeometry;
+
+  LinearGeometry() {}
 
 public:
-  using Ptr = std::shared_ptr<StaticGeometry>;
+  using Ptr = std::shared_ptr<LinearGeometry>;
 
   bool useMorphing() const override
   {
     return !_morphTargets.empty();
   }
 
-  StaticGeometry &apply(const math::Matrix4 &matrix) override
+  LinearGeometry &apply(const math::Matrix4 &matrix) override
   {
 		math::Matrix3 normalMatrix = matrix.normalMatrix();
 
@@ -114,7 +118,7 @@ public:
     return _boundingBox.getCenter().negate();
   }
 
-	StaticGeometry &setCenter()
+	LinearGeometry &setCenter()
   {
     computeBoundingBox();
 
@@ -125,7 +129,7 @@ public:
 		return *this;
 	}
 
-	StaticGeometry &normalize()
+	LinearGeometry &normalize()
   {
 		computeBoundingSphere();
 
@@ -143,7 +147,7 @@ public:
 		return *this;
 	}
 
-	StaticGeometry &computeFlatVertexNormals()
+	LinearGeometry &computeFlatVertexNormals()
   {
 		computeFaceNormals(_faces, _vertices);
 
@@ -156,9 +160,9 @@ public:
 		_normalsNeedUpdate = !_faces.empty();
 	}
 
-	StaticGeometry &computeMorphNormals();
+	LinearGeometry &computeMorphNormals();
 
-	StaticGeometry &computeLineDistances()
+	LinearGeometry &computeLineDistances()
   {
 		float d = 0;
 		for (size_t i = 0, il = _vertices.size(); i < il; i ++ ) {
@@ -170,19 +174,19 @@ public:
     return *this;
 	}
 
-	StaticGeometry &computeBoundingBox() override
+	LinearGeometry &computeBoundingBox() override
   {
 		_boundingBox.set(_vertices);
     return *this;
 	}
 
-	StaticGeometry &computeBoundingSphere() override
+	LinearGeometry &computeBoundingSphere() override
   {
 		_boundingSphere.set(_vertices);
     return *this;
 	}
 
-	StaticGeometry &merge(const StaticGeometry &geometry,
+	LinearGeometry &merge(const LinearGeometry &geometry,
                         const math::Matrix4 &matrix, unsigned materialIndexOffset=0);
 
 	/*
@@ -200,20 +204,19 @@ public:
                const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,
                const std::vector<UV> &tempUVs2);
 
-  StaticGeometry &set(const BufferGeometry &geometry );
+  LinearGeometry &set(const BufferGeometry &geometry );
 
   void raycast(const Line &line,
-               const Raycaster &raycaster, const math::Ray &ray,
+               const Raycaster &raycaster,
+               const math::Ray &ray,
                std::vector<Intersection> &intersects) override;
 
   void raycast(const Mesh &mesh,
                const Raycaster &raycaster,
                const math::Ray &ray,
-               math::Vector3 &intersectionPoint,
-               math::Vector3 &intersectionPointWorld,
                std::vector<Intersection> &intersects) override;
 };
 
 } //three
 
-#endif //THREE_QT_STATICGEOMETRY_H
+#endif //THREEPP_LINEARGEOMETRY_H

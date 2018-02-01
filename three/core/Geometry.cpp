@@ -6,11 +6,8 @@
 #include <objects/Mesh.h>
 #include <objects/Line.h>
 #include <objects/Points.h>
-#include <geometry/Box.h>
-#include <geometry/Plane.h>
 
 #include "DirectGeometry.h"
-#include "BufferGeometry.h"
 #include "impl/raycast.h"
 
 namespace three {
@@ -21,11 +18,9 @@ using namespace impl;
 size_t Geometry::id_count = 0;
 size_t BufferGeometry::MaxIndex = 65535;
 
-void StaticGeometry::raycast(const Mesh &mesh,
+void LinearGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
-                             math::Vector3 &intersectionPoint,
-                             math::Vector3 &intersectionPointWorld,
                              std::vector<Intersection> &intersects)
 {
   std::vector<UV_Array> &faceVertexUvs = _faceVertexUvs[0];
@@ -65,11 +60,8 @@ void StaticGeometry::raycast(const Mesh &mesh,
       fvC += vC;
     }
 
-    intersects.emplace_back();
-    Intersection &intersection = intersects.back();
-    bool hasIntersect = checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersectionPoint, intersection);
-
-    if (hasIntersect) {
+    Intersection intersection;
+    if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
 
       if (faceVertexUvs.size() > f) {
 
@@ -78,17 +70,17 @@ void StaticGeometry::raycast(const Mesh &mesh,
         Vector2 uvB(uvs_f[1]);
         Vector2 uvC(uvs_f[2]);
 
-        intersection.uv = uvIntersection(intersectionPoint, fvA, fvB, fvC, uvA, uvB, uvC);
+        intersection.uv = uvIntersection(intersection.point, fvA, fvB, fvC, uvA, uvB, uvC);
       }
 
       intersection.face = face;
       intersection.faceIndex = (unsigned)f;
+      intersects.push_back(intersection);
     }
-    else intersects.pop_back();
   }
 }
 
-void StaticGeometry::raycast(const Line &line,
+void LinearGeometry::raycast(const Line &line,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
                              std::vector<Intersection> &intersects)
@@ -125,8 +117,6 @@ void StaticGeometry::raycast(const Line &line,
 void BufferGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
-                             math::Vector3 &intersectionPoint,
-                             math::Vector3 &intersectionPointWorld,
                              std::vector<Intersection> &intersects)
 {
   if (_index != nullptr) {
@@ -138,18 +128,14 @@ void BufferGeometry::raycast(const Mesh &mesh,
       uint32_t b = _index->get_x(i + 1);
       uint32_t c = _index->get_x(i + 2);
 
-      intersects.emplace_back();
-      Intersection &intersection = intersects.back();
-
-      bool isIntersect = checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersectionPoint, intersection);
-      if (isIntersect) {
+      Intersection intersection;
+      if(checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
         intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in indices buffer semantics
+        intersects.push_back(intersection);
       }
-      else intersects.pop_back();
     }
   }
   else {
-
     // non-indexed buffer geometry
     for (unsigned i = 0, l = (unsigned) _position->itemCount(); i < l; i += 3) {
 
@@ -157,15 +143,11 @@ void BufferGeometry::raycast(const Mesh &mesh,
       unsigned b = i + 1;
       unsigned c = i + 2;
 
-      intersects.emplace_back();
-      Intersection &intersection = intersects.back();
-
-      bool isIntersect = checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersectionPoint, intersection);
-
-      if (isIntersect) {
+      Intersection intersection;
+      if (checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
         intersection.index = a; // triangle number in positions buffer semantics
+        intersects.push_back(intersection);
       }
-      else intersects.pop_back();
     }
   }
 }
@@ -204,8 +186,8 @@ void BufferGeometry::raycast(const Line &line,
       Intersection &intersection = intersects.back();
 
       intersection.distance = distance;
-                          // What do we want? intersection point on the ray or on the segment??
-                          // point: raycaster.ray.at( distance ),
+      // What do we want? intersection point on the ray or on the segment??
+      // point: raycaster.ray.at( distance ),
       intersection.point = interSegment.apply(line.matrixWorld());
       intersection.index = i;
       intersection.object = &line;
@@ -217,8 +199,6 @@ void BufferGeometry::raycast(const Line &line,
       Vector3 vStart = Vector3::fromArray(_position->tdata(), 3 * i );
       Vector3 vEnd = Vector3::fromArray(_position->tdata(), 3 * i + 3 );
 
-      Vector3 interSegment;
-      Vector3 interRay;
       float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
       if ( distSq > precisionSq ) continue;
@@ -231,17 +211,18 @@ void BufferGeometry::raycast(const Line &line,
 
       intersects.emplace_back();
       Intersection &intersection = intersects.back();
+
       intersection.distance = distance;
-                          // What do we want? intersection point on the ray or on the segment??
-                          // point: raycaster.ray.at( distance ),
-      intersection.point = interSegment.apply( line.matrixWorld() ),
-         intersection.index = i,
-         intersection.object = &line;
+      // What do we want? intersection point on the ray or on the segment??
+      // point: raycaster.ray.at( distance ),
+      intersection.point = interSegment.apply(line.matrixWorld());
+      intersection.index = i;
+      intersection.object = &line;
     }
   }
 }
 
-BufferGeometry::BufferGeometry(Object3D::Ptr object, StaticGeometry::Ptr geometry)
+BufferGeometry::BufferGeometry(Object3D::Ptr object, LinearGeometry::Ptr geometry)
 {
   object::Dispatch dispatch;
 
@@ -260,7 +241,7 @@ BufferGeometry::BufferGeometry(Object3D::Ptr object, StaticGeometry::Ptr geometr
   object->objectResolver->object::DispatchResolver::getValue(dispatch);
 }
 
-void BufferGeometry::setFromLinearGeometry(StaticGeometry::Ptr geometry)
+void BufferGeometry::setFromLinearGeometry(LinearGeometry::Ptr geometry)
 {
   _position = DefaultBufferAttribute<float>::make(geometry->_vertices);
   _color = DefaultBufferAttribute<float>::make(geometry->_colors);
@@ -274,7 +255,7 @@ void BufferGeometry::setFromLinearGeometry(StaticGeometry::Ptr geometry)
   }
 }
 
-void BufferGeometry::setFromMeshGeometry(StaticGeometry::Ptr geometry)
+void BufferGeometry::setFromMeshGeometry(LinearGeometry::Ptr geometry)
 {
   geometry->_directGeometry = DirectGeometry::make(*geometry);
 
@@ -322,7 +303,7 @@ void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
   _boundingBox = geometry->boundingBox();
 }
 
-BufferGeometry &BufferGeometry::update(Object3D::Ptr object, StaticGeometry::Ptr geometry)
+BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr geometry)
 {
   Mesh::Ptr mesh = std::dynamic_pointer_cast<Mesh>(object);
   if ( mesh ) {

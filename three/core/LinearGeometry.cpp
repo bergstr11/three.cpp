@@ -2,9 +2,12 @@
 // Created by byter on 08.08.17.
 //
 
-#include "StaticGeometry.h"
+#include "LinearGeometry.h"
+#include "BufferGeometry.h"
+#include "../helper/utils.h"
 
 namespace three {
+
 
 struct array_hash {
   std::size_t operator () (const std::array<float, 3> &a) const {
@@ -16,7 +19,7 @@ struct array_hash {
   }
 };
 
-StaticGeometry &StaticGeometry::computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
+LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
 {
   for (Face3 & face : faces) {
     Vertex &vA = vertices[ face.a ];
@@ -30,7 +33,7 @@ StaticGeometry &StaticGeometry::computeFaceNormals(std::vector<Face3> &faces, st
   }
 }
 
-StaticGeometry &StaticGeometry::computeVertexNormals(std::vector<Face3> &faces,
+LinearGeometry &LinearGeometry::computeVertexNormals(std::vector<Face3> &faces,
                                                      std::vector<Vertex> vertices, bool areaWeighted)
 {
   std::vector<Vertex> verts(vertices.size());
@@ -76,7 +79,7 @@ StaticGeometry &StaticGeometry::computeVertexNormals(std::vector<Face3> &faces,
   //_normalsNeedUpdate = !_faces.empty();
 }
 
-StaticGeometry &StaticGeometry::computeMorphNormals()
+LinearGeometry &LinearGeometry::computeMorphNormals()
 {
   //copy faces
   std::vector<Face3> copiedFaces = _faces;
@@ -115,7 +118,7 @@ StaticGeometry &StaticGeometry::computeMorphNormals()
 }
 
 
-StaticGeometry &StaticGeometry::merge(const StaticGeometry &geometry,
+LinearGeometry &LinearGeometry::merge(const LinearGeometry &geometry,
                                       const math::Matrix4 &matrix,
                                       unsigned materialIndexOffset)
 {
@@ -134,7 +137,7 @@ StaticGeometry &StaticGeometry::merge(const StaticGeometry &geometry,
   }
 
   // colors
-  for (Color color : colors2) {
+  for (const Color &color : colors2) {
     colors1.push_back(color);
   }
 
@@ -166,7 +169,7 @@ StaticGeometry &StaticGeometry::merge(const StaticGeometry &geometry,
  * Duplicated vertices are removed
  * and faces' vertices are updated.
  */
-size_t StaticGeometry::mergeVertices()
+size_t LinearGeometry::mergeVertices()
 {
   float precisionPoints = 4; // number of decimal points, e.g. 4 for epsilon of 0.0001
   float precision = std::pow( 10.0f, precisionPoints );
@@ -235,7 +238,7 @@ size_t StaticGeometry::mergeVertices()
 
 }
 
-void StaticGeometry::sortFacesByMaterialIndex()
+void LinearGeometry::sortFacesByMaterialIndex()
 {
   // tag faces
   std::unordered_map<unsigned, unsigned> idMap;
@@ -272,7 +275,7 @@ void StaticGeometry::sortFacesByMaterialIndex()
 
 }
 
-void StaticGeometry::addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
+void LinearGeometry::addFace(const uint32_t a, const uint32_t b, const uint32_t c, const uint32_t materialIndex,
              const BufferAttributeT<float>::Ptr &normals, const BufferAttributeT<float>::Ptr &uvs,
              const BufferAttributeT<float>::Ptr &uv2s,
              const std::vector<Vertex> &tempNormals, const std::vector<UV> &tempUVs,
@@ -280,7 +283,7 @@ void StaticGeometry::addFace(const uint32_t a, const uint32_t b, const uint32_t 
 {
 }
 
-StaticGeometry &StaticGeometry::set(const BufferGeometry &geometry )
+LinearGeometry &LinearGeometry::set(const BufferGeometry &geometry )
 {
   std::vector<Vertex> tempNormals;
   std::vector<UV> tempUVs;

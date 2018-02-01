@@ -28,6 +28,8 @@ struct Viewport
   }
 };
 
+class Raycaster;
+
 class Camera : public Object3D
 {
 protected:
@@ -102,7 +104,7 @@ public:
 
   virtual void setAspect(float aspect) {}
 
-  virtual void applyTo(math::Ray &ray, const math::Vector3 &coords) = 0;
+  virtual void setup(math::Ray &ray, float x, float y) = 0;
 
   virtual void updateProjectionMatrix() = 0;
 };

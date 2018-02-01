@@ -98,10 +98,10 @@ void PerspectiveCamera::updateProjectionMatrix()
   _projectionMatrix = math::Matrix4::perspective(left, left + width, top, top - height, near, _far);
 }
 
-void PerspectiveCamera::applyTo(math::Ray &ray, const math::Vector3 &coords)
+void PerspectiveCamera::setup(math::Ray &ray, float x, float y)
 {
   ray.origin() = math::Vector3::fromMatrixPosition(_matrixWorld);
-  ray.direction().set( coords.x(), coords.y(), 0.5 ).unproject(*this);
+  ray.direction().set(x, y, 0.5).unproject(*this);
   ray.direction() -= ray.origin();
   ray.direction().normalize();
 }

@@ -647,7 +647,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     //var lineWidth = material.linewidth;
     //if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
 
-    _state.setLineWidth( line.material<0>()->linewidth * getTargetPixelRatio() );
+    _state.setLineWidth(line.material<0>()->linewidth * getTargetPixelRatio());
 
     renderer->setMode(DrawMode::LineStrip);
 

@@ -5,13 +5,13 @@
 #ifndef THREEPP_GEOM_BOX_H
 #define THREEPP_GEOM_BOX_H
 
-#include <core/StaticGeometry.h>
+#include <core/LinearGeometry.h>
 #include <core/BufferGeometry.h>
 
 namespace three {
 namespace geometry {
 
-class Box : public StaticGeometry
+class Box : public LinearGeometry
 {
   unsigned const _width, _height, _depth;
   unsigned const _widthSegments, _heightSegments, _depthSegments;

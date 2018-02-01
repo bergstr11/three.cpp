@@ -34,7 +34,7 @@ public:
     return std::shared_ptr<OrtographicCamera>(new OrtographicCamera(left, right, top, bottom, near, far));
   }
 
-  void applyTo(math::Ray &ray, const math::Vector3 &coords) override;
+  void setup(math::Ray &ray, float x, float y) override;
 
   void updateProjectionMatrix() override;
 

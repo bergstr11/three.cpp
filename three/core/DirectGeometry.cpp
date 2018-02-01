@@ -3,13 +3,13 @@
 //
 
 #include "DirectGeometry.h"
-#include "StaticGeometry.h"
+#include "LinearGeometry.h"
 
 namespace three {
 
 using namespace std;
 
-void DirectGeometry::computeGroups(const StaticGeometry &geometry)
+void DirectGeometry::computeGroups(const LinearGeometry &geometry)
 {
   unsigned materialIndex = std::numeric_limits<unsigned>::max();
 
@@ -39,7 +39,7 @@ void DirectGeometry::computeGroups(const StaticGeometry &geometry)
   }
 }
 
-DirectGeometry::DirectGeometry(const StaticGeometry &geometry)
+DirectGeometry::DirectGeometry(const LinearGeometry &geometry)
 {
   const auto &faces = geometry._faces;
   const auto &vertices = geometry._vertices;
