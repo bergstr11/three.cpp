@@ -20,7 +20,7 @@ class Attributes
 
   void createBuffer(Buffer &buffer, const BufferAttribute &attribute, BufferType bufferType)
   {
-    GLenum usage = attribute.dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    GLenum usage = attribute.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
     _fn->glGenBuffers(1, &buffer.handle);
 
@@ -43,7 +43,7 @@ public:
 
     _fn->glBindBuffer((GLenum)bufferType, buffer.handle);
 
-    if(!attribute.dynamic()) {
+    if(!attribute.dynamic) {
       _fn->glBufferData((GLenum)bufferType, attribute.byteCount(), attribute.data(0), GL_STATIC_DRAW );
     }
     else if(updateRange.count == -1) {

@@ -16,21 +16,19 @@ class Axes : public LineSegments {
 
   static BufferGeometry::Ptr createGeometry(float size)
   {
-    std::vector<float> vertices {
-       0, 0, 0, size, 0, 0,
-       0, 0, 0, 0, size, 0,
-       0, 0, 0, 0, 0, size
-    };
+    auto vertices = attribute::prealloc<float, Vertex>(
+       {{0.0f, 0.0f, 0.0f}, {size, 0.0f, 0.0f},
+        {0.0f, 0.0f, 0.0f}, {0.0f, size, 0.0f},
+        {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, size}}, true);
 
-    std::vector<float> colors {
-       1, 0, 0, 1, 0.6, 0,
-       0, 1, 0, 0.6, 1, 0,
-       0, 0, 1, 0, 0.6, 1
-    };
+    auto colors = attribute::prealloc<float, Color>(
+       {{1.0f, 0.0f, 0.0f}, {1.0f, 0.6f, 0.0f},
+        {0.0f, 1.0f, 0.0f}, {0.6f, 1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f}, {0.0f, 0.6f, 1.0f}}, true);
 
     BufferGeometry::Ptr geometry = BufferGeometry::make();
-    geometry->setPosition(DefaultBufferAttribute<float>::make(vertices, 3, true));
-    geometry->setColor(DefaultBufferAttribute<float>::make(colors, 3, true));
+    geometry->setPosition(vertices);
+    geometry->setColor(colors);
     return geometry;
   }
 

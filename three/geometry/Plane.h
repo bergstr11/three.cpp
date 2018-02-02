@@ -46,14 +46,10 @@ public:
     float segment_height = height / gridY;
 
     // buffers
-    std::vector<uint32_t> indices(gridX1 * gridY1 * 6);
-    indices.clear();
-    std::vector<Vertex> vertices(gridX1 * gridY1 * 3);
-    vertices.clear();
-    std::vector<Vertex> normals(gridX1 * gridY1 * 3);
-    normals.clear();
-    std::vector<UV> uvs(gridX1 * gridY1 * 2);
-    uvs.clear();
+    auto indices = attribute::prealloc<uint32_t>(gridX * gridY * 6, true);
+    auto vertices = attribute::prealloc<float, Vertex>(gridX1 * gridY1);
+    auto normals = attribute::prealloc<float, Vertex>(gridX1 * gridY1, true);
+    auto uvs = attribute::prealloc<float, UV>(gridX1 * gridY1);
 
     // generate vertices, normals and uvs
     for (unsigned iy = 0; iy < gridY1; iy ++) {
@@ -62,11 +58,11 @@ public:
       for (unsigned ix = 0; ix < gridX1; ix ++ ) {
         float x = (float)ix * segment_width - width_half;
 
-        vertices.emplace_back(x, -y, 0);
+        vertices->next() = {x, -y, 0};
 
-        normals.emplace_back(0, 0, 1);
+        normals->next() = {0, 0, 1};
 
-        uvs.emplace_back((float)ix / gridX, 1.0f - ((float)iy / gridY));
+        uvs->next() = {(float)ix / gridX, 1.0f - ((float)iy / gridY)};
       }
     }
 
@@ -80,15 +76,15 @@ public:
         uint32_t d = ( ix + 1 ) + gridX1 * iy;
 
         // faces
-        for(auto i : {a, b, d, b, c, d}) indices.push_back(i);
+        for(auto i : {a, b, d, b, c, d}) indices->next() = i;
       }
     }
 
     // build geometry
-    setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
-    setPosition(DefaultBufferAttribute<float>::make(vertices));
-    setNormal(DefaultBufferAttribute<float>::make(normals, true));
-    setUV(DefaultBufferAttribute<float>::make(uvs));
+    setIndex(indices);
+    setPosition(vertices);
+    setNormal(normals);
+    setUV(uvs);
   }
 
   using Ptr = std::shared_ptr<Plane>;

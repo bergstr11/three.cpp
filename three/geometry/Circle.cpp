@@ -21,15 +21,15 @@ Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLen
   segments = std::max(3u, segments);
 
   // buffers
-  std::vector<uint32_t> indices;
-  std::vector<Vertex> vertices;
-  std::vector<Vertex> normals;
-  std::vector<UV> uvs;
+  auto indices = attribute::prealloc<uint32_t>(segments * 3, true);
+  auto vertices = attribute::prealloc<float, Vertex>(segments + 2, true);
+  auto normals = attribute::prealloc<float, Vertex>(segments + 2, true);
+  auto uvs = attribute::prealloc<float, UV>(segments + 2, true);
 
   // center point
-  vertices.emplace_back(0, 0, 0);
-  normals.emplace_back(0, 0, 1);
-  uvs.emplace_back(0.5, 0.5);
+  vertices->next() = {0, 0, 0};
+  normals->next() = {0, 0, 1};
+  uvs->next() = {0.5, 0.5};
 
   for (unsigned s = 0, i = 3; s <= segments; s ++, i += 3 ) {
 
@@ -39,28 +39,29 @@ Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLen
     float x = radius * std::cos( segment );
     float y = radius * std::sin( segment );
 
-    vertices.emplace_back( x, y, 0 );
+    vertices->next() = {x, y, 0};
 
     // normal
-    normals.emplace_back(0, 0, 1);
+    normals->next() = {0, 0, 1};
 
     // uvs
     float uvx = (x / radius + 1) / 2;
     float uvy = (y / radius + 1) / 2;
 
-    uvs.emplace_back(uvx, uvy);
+    uvs->next() = {uvx, uvy};
   }
 
   // indices
   for (uint32_t i = 1; i <= segments; i ++ ) {
-    indices += {i, i + 1, 0u};
+    indices->next() = i;
+    indices->next() = i + 1;
+    indices->next() = 0u;
   }
 
-  // build geometry
-  setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
-  setPosition(DefaultBufferAttribute<float>::make(vertices));
-  setNormal(DefaultBufferAttribute<float>::make(normals));
-  setUV(DefaultBufferAttribute<float>::make(uvs));
+  setIndex(indices);
+  setPosition(vertices);
+  setNormal(normals);
+  setUV(uvs);
 }
 
 }

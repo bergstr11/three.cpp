@@ -533,12 +533,13 @@ BufferAttributeT<float>::Ptr Access::readUVChannel(unsigned index, const aiMesh 
     if(ai->mNumUVComponents[index] != 2)
       qWarning() << ai->mNumUVComponents[index] << "UV components found, 2 used";
 
-    vector<UV> uvs(ai->mNumVertices);
+    auto uvs = attribute::prealloc<float, UV>(ai->mNumVertices);
+
     for(unsigned i=0; i<ai->mNumVertices; i++) {
       aiVector3t<float> &aiuv = ai->mTextureCoords[index][i];
-      uvs[i].set(aiuv.x, aiuv.y);
+      uvs->next().set(aiuv.x, aiuv.y);
     }
-    return DefaultBufferAttribute<float>::make(uvs);
+    return uvs;
   }
   return nullptr;
 }
@@ -562,44 +563,45 @@ Mesh::Ptr Access::readMesh(int index)
   if(mesh->_name.empty())
     mesh->_name = ai->mName.C_Str();
 
-  vector<uint32_t> indices;
+  auto indices = attribute::growing<uint32_t>(true);
+
   for(unsigned i=0; i<ai->mNumFaces; i++) {
     aiFace &f = ai->mFaces[i];
     if ( f.mNumIndices == 3 ) {
 
-      indices.push_back( f.mIndices[ 0 ] );
-      indices.push_back( f.mIndices[ 1 ] );
-      indices.push_back( f.mIndices[ 2 ] );
+      indices->next() = f.mIndices[ 0 ];
+      indices->next() = f.mIndices[ 1 ];
+      indices->next() = f.mIndices[ 2 ];
     }
     else if ( f.mNumIndices == 4 ) {
 
-      indices.push_back( f.mIndices[ 0 ] );
-      indices.push_back( f.mIndices[ 1 ] );
-      indices.push_back( f.mIndices[ 2 ] );
-      indices.push_back( f.mIndices[ 2 ] );
-      indices.push_back( f.mIndices[ 3 ] );
-      indices.push_back( f.mIndices[ 0 ] );
+      indices->next() = f.mIndices[ 0 ];
+      indices->next() = f.mIndices[ 1 ];
+      indices->next() = f.mIndices[ 2 ];
+      indices->next() = f.mIndices[ 2 ];
+      indices->next() = f.mIndices[ 3 ];
+      indices->next() = f.mIndices[ 0 ];
     }
   }
-  geometry->setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
+  geometry->setIndex(indices);
 
-  geometry->setPosition(ExternalBufferAttribute<float>::make(ai->mVertices, ai->mNumVertices));
+  geometry->setPosition(attribute::external<float, Vertex>(ai->mVertices, ai->mNumVertices));
 
   if(ai->mNormals) {
-    geometry->setNormal(ExternalBufferAttribute<float>::make(ai->mNormals, ai->mNumVertices));
+    geometry->setNormal(attribute::external<float, Vertex>(ai->mNormals, ai->mNumVertices));
   }
   if(ai->mColors[0]) {
-    geometry->setColor(ExternalBufferAttribute<float>::make(ai->mColors[0], ai->mNumVertices));
+    geometry->setColor(attribute::external<float, Color>(ai->mColors[0], ai->mNumVertices));
   }
 
   geometry->setUV(readUVChannel(0, ai));
   geometry->setUV2(readUVChannel(1, ai));
 
   if(ai->mTangents) {
-    geometry->setTangents(ExternalBufferAttribute<float>::make(ai->mTangents, ai->mNumVertices));
+    geometry->setTangents(attribute::external<float, Vertex>(ai->mTangents, ai->mNumVertices));
   }
   if(ai->mBitangents) {
-    geometry->setBitangents(ExternalBufferAttribute<float>::make(ai->mBitangents, ai->mNumVertices));
+    geometry->setBitangents(attribute::external<float, Vertex>(ai->mBitangents, ai->mNumVertices));
   }
 #if 0
   if ( this.mTangentBuffer && this.mTangentBuffer.length > 0 )

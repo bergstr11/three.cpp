@@ -52,7 +52,7 @@ class FogExp2 : public Fog
 {
   float _density;
 
-  FogExp2(const Color &color, float density)
+  FogExp2(const Color &color, float density = 0.00025f)
      : Fog(color, fog::ResolverT<FogExp2>::make(*this)), _density(density) {}
 
 public:

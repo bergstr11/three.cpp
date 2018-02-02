@@ -30,22 +30,25 @@ Box::Box(unsigned int width,
    : _width(width), _height(height), _depth(depth),
      _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
 {
-  //_widthSegments = std::floor( widthSegments );
   if (_widthSegments == 0) _widthSegments = 1;
-  //_heightSegments = std::floor( heightSegments ) || 1;
   if (_heightSegments == 0) _heightSegments = 1;
-  //_depthSegments = std::floor( depthSegments ) || 1;
   if (_depthSegments == 0) _depthSegments = 1;
 
   // buffers
+  unsigned inum = depthSegments*heightSegments*12
+                  + widthSegments*depthSegments*12
+                  + widthSegments*heightSegments*12;
 
-  std::vector<uint32_t> indices;
-  std::vector<Vertex> vertices;
-  std::vector<Vertex> normals;
-  std::vector<UV> uvs;
+  unsigned num = (depthSegments+1)*(heightSegments+1)*2
+                 + (widthSegments+1)*(depthSegments+1)*2
+                 + (widthSegments+1)*(heightSegments+1)*2;
+
+  auto indices = attribute::prealloc<uint32_t>(inum, true);
+  auto vertices = attribute::prealloc<float, Vertex>(num);
+  auto normals = attribute::prealloc<float, Vertex>(num, true);
+  auto uvs = attribute::prealloc<float, UV>(num);
 
   // helper variables
-
   unsigned numberOfVertices = 0;
   unsigned groupStart = 0;
 
@@ -67,7 +70,6 @@ Box::Box(unsigned int width,
     unsigned groupCount = 0;
 
     // generate vertices, normals and uvs
-
     for (unsigned iy = 0; iy < gridY1; iy++) {
 
       float y = iy * segmentHeight - heightHalf;
@@ -83,7 +85,7 @@ Box::Box(unsigned int width,
         vector[w] = depthHalf;
 
         // now apply vector to vertex buffer
-        vertices.push_back(vector);
+        vertices->next() = vector;
 
         // set values to correct vector component
         vector[u] = 0;
@@ -91,10 +93,10 @@ Box::Box(unsigned int width,
         vector[w] = depth > 0 ? 1 : -1;
 
         // now apply vector to normal buffer
-        normals.push_back(vector);
+        normals->next() = vector;
 
         // uvs
-        uvs.emplace_back((float)ix / gridX, (float)1 - ((float)iy / gridY));
+        uvs->next() = {(float)ix / gridX, (float)1 - ((float)iy / gridY)};
 
         // counters
         vertexCounter += 1;
@@ -106,7 +108,6 @@ Box::Box(unsigned int width,
     // 1. you need three indices to draw a single face
     // 2. a single segment consists of two faces
     // 3. so we need to generate six (2*3) indices per segment
-
     for (unsigned iy = 0; iy < gridY; iy++) {
 
       for (unsigned ix = 0; ix < gridX; ix++) {
@@ -117,8 +118,13 @@ Box::Box(unsigned int width,
         uint32_t d = numberOfVertices + (ix + 1) + gridX1 * iy;
 
         // faces
-        indices += {a, b, d};
-        indices += {b, c, d};
+        indices->next() = a;
+        indices->next() = b;
+        indices->next() = d;
+
+        indices->next() = b;
+        indices->next() = c;
+        indices->next() = d;
 
         // increase counter
         groupCount += 6;
@@ -145,10 +151,10 @@ Box::Box(unsigned int width,
 
   // build geometry
 
-  setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
-  setPosition(DefaultBufferAttribute<float>::make(vertices));
-  setNormal(DefaultBufferAttribute<float>::make(normals, true));
-  setUV(DefaultBufferAttribute<float>::make(uvs));
+  setIndex(indices);
+  setPosition(vertices);
+  setNormal(normals);
+  setUV(uvs);
 }
 
 }

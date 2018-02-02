@@ -58,8 +58,16 @@ struct Cpp2GL<uint8_t> {
 
 struct Index
 {
-  const uint32_t a, b, c;
+  union
+  {
+    struct
+    {
+      uint32_t a, b, c;
+    };
+    uint32_t elements[3];
+  };
 
+  Index() : a(0), b(0), c(0) {}
   Index(uint32_t a, uint32_t b, uint32_t c) : a(a), b(b), c(c) {}
 };
 
@@ -74,20 +82,21 @@ protected:
   unsigned _itemSize;
   bool _normalized;
 
-  bool _dynamic = false;
   UpdateRange _updateRange;
 
   explicit BufferAttribute(bufferattribute::Resolver::Ptr resolver, unsigned itemSize, bool normalized)
      : uuid(sole::uuid0()), resolver(resolver), _itemSize(itemSize), _normalized(normalized)
   {}
 
-  BufferAttribute(unsigned itemSize, bool normalized, bool dynamic)
+  BufferAttribute(unsigned itemSize, bool normalized)
      : uuid(sole::uuid0()), resolver(bufferattribute::Resolver::makeNull()), _itemSize(itemSize),
-       _normalized(normalized), _dynamic(dynamic)
+       _normalized(normalized)
   {}
 
 public:
   virtual ~BufferAttribute() = default;
+
+  bool dynamic = false;
 
   using Ptr = std::shared_ptr<BufferAttribute>;
 
@@ -97,11 +106,6 @@ public:
 
   const sole::uuid uuid;
 
-  void setDynamic(bool value)
-  {
-    _dynamic = value;
-  }
-
   void needsUpdate() {_version++;}
   bool needsUpdate() const {return _version > 0;}
 
@@ -110,8 +114,6 @@ public:
   bool normalized() const {return _normalized;}
 
   UpdateRange &updateRange() {return _updateRange;}
-
-  bool dynamic() const {return _dynamic;}
 
   unsigned itemSize() const {return _itemSize;}
 
@@ -136,12 +138,13 @@ protected:
   Type *_data;
   size_t _size = 0;
 
-  explicit BufferAttributeT(bufferattribute::Resolver::Ptr resolver, unsigned itemSize, bool normalized)
-  : BufferAttribute(resolver, itemSize, normalized)
+  explicit BufferAttributeT(bufferattribute::Resolver::Ptr resolver, Type *data, size_t size,
+                            unsigned itemSize, bool normalized)
+  : BufferAttribute(resolver, itemSize, normalized), _data(data), _size(size)
   {}
 
-  BufferAttributeT(unsigned itemSize, bool normalized)
-     : BufferAttribute(itemSize, normalized, false)
+  BufferAttributeT(size_t size, unsigned itemSize, bool normalized)
+     : BufferAttribute(itemSize, normalized), _size(size), _data(nullptr)
   {}
 
 public:
@@ -304,167 +307,115 @@ public:
 };
 
 /**
- * a buffer attribute that manages an internal buffer
+ * a buffer attribute that manages a preallocated buffer
  *
  * @tparam Type
  */
-template <typename Type>
-class DefaultBufferAttribute : public BufferAttributeT<Type>
+template <typename ComponentType, typename ItemType=ComponentType>
+class PreallocBufferAttribute : public BufferAttributeT<ComponentType>
 {
-  using Super = BufferAttributeT<Type>;
+  constexpr static size_t itemSize = sizeof(ItemType) / sizeof(ComponentType);
+
+  friend struct attribute;
+
+  using Super = BufferAttributeT<ComponentType>;
   using Base = BufferAttribute;
 
-  std::vector<Type> _array;
+  ItemType *it;
+  size_t _offset = 0;
 
 protected:
-  DefaultBufferAttribute(const std::vector<Type> &array, unsigned itemSize, bool normalized)
-     : Super(itemSize, normalized), _array(array)
+  PreallocBufferAttribute(size_t itemCount, bool normalized)
+     : Super(itemCount * itemSize, itemSize, normalized)
   {
-    Super::_data = _array.data();
-    Super::_size = _array.size();
+    it = new ItemType[itemCount];
+    Super::_data = reinterpret_cast<ComponentType *>(it);
   }
 
-  DefaultBufferAttribute(const DefaultBufferAttribute &source) :
-     Super(source._itemSize, source._normalized, source._array, source._size)
-  {}
-
-  void resize(size_t newSize) {
-    _array.resize(newSize);
-    Super::_data = _array.data();
-    Super::_size = newSize;
+  PreallocBufferAttribute(const std::vector<ItemType> &items, bool normalized)
+     : Super(items.size() * itemSize, itemSize, normalized)
+  {
+    it = new ItemType[items.size()];
+    memcpy(it, items.data(), Super::byteCount());
+    Super::_data = reinterpret_cast<ComponentType *>(it);
   }
 
-  DefaultBufferAttribute(const std::vector<UV> &uvs, bool normalized)
-     : Super(2, normalized)
+  PreallocBufferAttribute(const std::initializer_list<ItemType> &items, bool normalized)
+     : Super(items.size() * itemSize, itemSize, normalized)
   {
-    resize(uvs.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for(const UV &uv : uvs) {
-      _array[ offset ++ ] = uv.u();
-      _array[ offset ++ ] = uv.v();
-    }
-  }
-
-  DefaultBufferAttribute(const std::vector<Color> &colors, bool normalized)
-     : Super(3, normalized)
-  {
-    resize(colors.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for(const Color &color : colors) {
-      _array[ offset ++ ] = color.r;
-      _array[ offset ++ ] = color.g;
-      _array[ offset ++ ] = color.b;
-    }
-  }
-
-  DefaultBufferAttribute(const std::vector<Index> &indices, bool normalized)
-     : Super(3, normalized)
-  {
-    resize(indices.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for (size_t i = 0, l = _array.size(); i < l; i ++ ) {
-
-      const Index &index = indices[ i ];
-
-      _array[ offset ++ ] = index.a;
-      _array[ offset ++ ] = index.b;
-      _array[ offset ++ ] = index.c;
-    }
-  }
-
-  DefaultBufferAttribute(const std::vector<math::Vector2> &vectors, bool normalized)
-  : Super(2, normalized)
-  {
-    resize(vectors.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for(const math::Vector2 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-    }
-  }
-
-  DefaultBufferAttribute(const std::vector<math::Vector3> &vectors, bool normalized)
-  : Super(3, normalized)
-  {
-    resize(vectors.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for(const math::Vector3 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-      _array[ offset ++ ] = vector.z();
-    }
-  }
-
-  DefaultBufferAttribute(const std::vector<math::Vector4> &vectors, bool normalized)
-  : Super(4, normalized)
-  {
-    resize(vectors.size() * Base::_itemSize);
-
-    size_t offset = 0;
-    for(const math::Vector4 &vector : vectors) {
-      _array[ offset ++ ] = vector.x();
-      _array[ offset ++ ] = vector.y();
-      _array[ offset ++ ] = vector.z();
-      _array[ offset ++ ] = vector.w();
-    }
+    it = new ItemType[items.size()];
+    for(auto i=items.begin(); i != items.end(); i++) next() = *i;
+    Super::_data = reinterpret_cast<ComponentType *>(it);
   }
 
 public:
-  using Ptr = std::shared_ptr<DefaultBufferAttribute>;
-
-  static Ptr make(const std::vector<Type> &array, unsigned itemSize, bool normalized)
+  ItemType &next()
   {
-    return Ptr(new DefaultBufferAttribute<Type>(array, itemSize, normalized));
+    return it[_offset++];
   }
 
-  static Ptr make(const std::vector<float> values, bool normalized=false)
+  ItemType &back()
   {
-    return Ptr(new DefaultBufferAttribute(values, 1, normalized));
+    return it[_offset-1];
   }
 
-  static Ptr make(const std::vector<UV> uvs, bool normalized=false)
+  using Ptr = std::shared_ptr<PreallocBufferAttribute>;
+
+  ~PreallocBufferAttribute() {
+    delete[] it;
+  }
+};
+
+/**
+ * a buffer attribute that manages a growing buffer
+ *
+ * @tparam Type
+ */
+template <typename ComponentType, typename ItemType=ComponentType>
+class GrowingBufferAttribute : public BufferAttributeT<ComponentType>
+{
+  constexpr static size_t itemSize = sizeof(ItemType) / sizeof(ComponentType);
+
+  friend struct attribute;
+
+  using Super = BufferAttributeT<ComponentType>;
+  using Base = BufferAttribute;
+
+  std::vector<ItemType> _array;
+
+protected:
+  explicit GrowingBufferAttribute(bool normalized)
+     : Super(0, itemSize, normalized)
+  {}
+
+  GrowingBufferAttribute(const std::initializer_list<ItemType> &value, bool normalized)
+     : Super(0, itemSize, normalized), _array(value)
+  {}
+
+public:
+  template<typename... _Args>
+  void emplace_back(_Args&&... __args)
   {
-    return Ptr(new DefaultBufferAttribute(uvs, normalized));
+    _array.emplace_back(std::forward<_Args>(__args)...);
+    Super::_size = _array.size() * itemSize;
+    Super::_data = reinterpret_cast<ComponentType *>(_array.data());
   }
 
-  static Ptr make(const std::vector<Color> colors, bool normalized=false)
+  ItemType &next()
   {
-    return Ptr(new DefaultBufferAttribute(colors, normalized));
+    _array.emplace_back();
+    Super::_size = _array.size() * itemSize;
+    Super::_data = reinterpret_cast<ComponentType *>(_array.data());
+
+    return _array.back();
   }
 
-  static Ptr make(const std::vector<Index> &indices, bool normalized=false)
+  ItemType &back()
   {
-    return Ptr(new DefaultBufferAttribute(indices, normalized));
+    return _array.back();
   }
 
-  static Ptr make(const std::vector<math::Vector2> &vectors, bool normalized=false)
-  {
-    return Ptr(new DefaultBufferAttribute(vectors, normalized));
-  }
-
-  static Ptr make(const std::vector<math::Vector3> &vectors, bool normalized=false)
-  {
-    return Ptr(new DefaultBufferAttribute(vectors, normalized));
-  }
-
-  static Ptr make(const std::vector<math::Vector4> &vectors, bool normalized=false)
-  {
-    return Ptr(new DefaultBufferAttribute(vectors, normalized));
-  }
-
-  void set(const std::vector<Type> &array)
-  {
-    _array = array;
-    Super::_data = _array.data();
-    Super::_size = _array.size();
-  }
-
-  const std::vector<Type> &array() const {return _array;}
+  using Ptr = std::shared_ptr<GrowingBufferAttribute>;
 };
 
 /**
@@ -475,23 +426,75 @@ public:
 template <typename Type>
 class ExternalBufferAttribute : public three::BufferAttributeT<Type>
 {
+  friend struct attribute;
+
   using Super = three::BufferAttributeT<Type>;
 
 protected:
   ExternalBufferAttribute(Type *data, size_t itemSize, size_t itemCount)
-     : three::BufferAttributeT<Type>(itemSize, true)
+     : three::BufferAttributeT<Type>(itemCount * itemSize, itemSize, true)
   {
     Super::_data = data;
-    Super::_size = itemCount * itemSize;
   }
 
 public:
   using Ptr = std::shared_ptr<ExternalBufferAttribute>;
+};
 
-  template <typename ItemT>
-  static Ptr make(ItemT *data, size_t size) {
-    return Ptr(new ExternalBufferAttribute(reinterpret_cast<Type *>(data), sizeof(ItemT) / sizeof(Type), size));
+struct attribute {
+
+  //growing buffer, based on vector
+  template <typename ComponentType, typename ItemType=ComponentType>
+  using growing_t = std::shared_ptr<GrowingBufferAttribute<ComponentType, ItemType>>;
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static growing_t<ComponentType, ItemType> growing(bool normalized=false)
+  {
+    return typename GrowingBufferAttribute<ComponentType, ItemType>::Ptr(
+       new GrowingBufferAttribute<ComponentType, ItemType>(normalized));
   }
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static growing_t<ComponentType, ItemType>
+  growing(const std::initializer_list<ItemType> &value, bool normalized=false)
+  {
+    return typename GrowingBufferAttribute<ComponentType, ItemType>::Ptr(
+       new GrowingBufferAttribute<ComponentType, ItemType>(value, normalized));
+  }
+
+  //internally preallocated buffer, fixed size
+  template <typename ComponentType, typename ItemType=ComponentType>
+  using prealloc_t = std::shared_ptr<PreallocBufferAttribute<ComponentType, ItemType>>;
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static prealloc_t<ComponentType, ItemType> prealloc(size_t itemCount, bool normalized = false)
+  {
+    return typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
+       new PreallocBufferAttribute<ComponentType, ItemType>(itemCount, normalized));
+  }
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static prealloc_t<ComponentType, ItemType>
+  prealloc(const std::initializer_list<ItemType> &value, bool normalized=false)
+  {
+    return typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
+       new PreallocBufferAttribute<ComponentType, ItemType>(value, normalized));
+  }
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static prealloc_t<ComponentType, ItemType> copied(const std::vector<ItemType> &items, bool normalized=false)
+  {
+    return typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
+       new PreallocBufferAttribute<ComponentType, ItemType>(items, normalized));
+  }
+
+  //externally allocated buffer, fixed size
+  template <typename ComponentType, typename ItemType>
+  static typename ExternalBufferAttribute<ComponentType>::Ptr external(void *data, size_t size) {
+    return typename ExternalBufferAttribute<ComponentType>::Ptr(new ExternalBufferAttribute<ComponentType> (
+       reinterpret_cast<ComponentType *>(data), sizeof(ItemType) / sizeof(ComponentType), size));
+  }
+
 };
 
 }

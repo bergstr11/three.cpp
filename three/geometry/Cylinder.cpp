@@ -25,10 +25,10 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
                    unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
 {
   // buffers
-  vector<uint32_t> indices;
-  vector<Vertex> vertices;
-  vector<Vertex> normals;
-  vector<UV> uvs;
+  auto indices = attribute::growing<uint32_t>(false);
+  auto vertices = attribute::growing<float, Vertex>(true);
+  auto normals = attribute::growing<float, Vertex>(true);
+  auto uvs = attribute::growing<float, UV>(true);
 
   vector<vector<uint32_t>> indexArray;
   float halfHeight = height / 2;
@@ -64,14 +64,14 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       float vx = radius * sinTheta;
       float vy = - v * height + halfHeight;
       float vz = radius * cosTheta;
-      vertices.emplace_back( vx, vy, vz );
+      vertices->next() = {vx, vy, vz};
 
       // normal
       Vertex normal(sinTheta, slope, cosTheta);
-      normals.push_back(normal.normalized());
+      normals->next() = normal.normalized();
 
       // uv
-      uvs.emplace_back(u, 1 - v);
+      uvs->next() = {u, 1 - v};
 
       // save index of vertex in respective row
       indexRow.push_back( index ++ );
@@ -94,8 +94,13 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       unsigned d = indexArray[ y ][ x + 1 ];
 
       // faces
-      indices += {a, b, d};
-      indices += {b, c, d};
+      indices->next() = a;
+      indices->next() = b;
+      indices->next() = d;
+
+      indices->next() = b;
+      indices->next() = c;
+      indices->next() = d;
 
       // update group counter
       groupCount += 6;
@@ -120,7 +125,7 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       unsigned groupCount = 0;
 
       float radius = top ? radiusTop : radiusBottom;
-      int sign = top ? 1 : - 1;
+      float sign = top ? 1 : - 1;
 
       // save the index of the first center vertex
       unsigned centerIndexStart = index;
@@ -132,13 +137,13 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       for (unsigned x = 1; x <= radialSegments; x ++ ) {
 
         // vertex
-        vertices.emplace_back( 0, halfHeight * sign, 0 );
+        vertices->next() = {0.0f, halfHeight * sign, 0.0f};
 
         // normal
-        normals.emplace_back( 0, sign, 0 );
+        normals->next() = {0.0f, sign, 0.0f};
 
         // uv
-        uvs.emplace_back( 0.5f, 0.5f );
+        uvs->next() = {0.5f, 0.5f};
 
         // increase index
         index ++;
@@ -160,15 +165,15 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
         float vx = radius * sinTheta;
         float vy = halfHeight * sign;
         float vz = radius * cosTheta;
-        vertices.emplace_back( vx, vy, vz );
+        vertices->next() = {vx, vy, vz};
 
         // normal
-        normals.emplace_back( 0, sign, 0 );
+        normals->next() = {0, sign, 0};
 
         // uv
         float uvx = ( cosTheta * 0.5f ) + 0.5f;
         float uvy = ( sinTheta * 0.5f * sign ) + 0.5f;
-        uvs.emplace_back( uvx, uvy );
+        uvs->next() = {uvx, uvy};
 
         // increase index
         index ++;
@@ -184,12 +189,16 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
         if (top) {
 
           // face top
-          indices += {i, i + 1, c};
+          indices->next() = i;
+          indices->next() = i + 1;
+          indices->next() = c;
 
         } else {
 
           // face bottom
-          indices += {i + 1, i, c };
+          indices->next() = i + 1;
+          indices->next() = i;
+          indices->next() = c;
         }
 
         groupCount += 3;
@@ -207,10 +216,10 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
   }
 
   // build geometry
-  setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
-  setPosition(DefaultBufferAttribute<float>::make(vertices));
-  setNormal(DefaultBufferAttribute<float>::make(normals));
-  setUV(DefaultBufferAttribute<float>::make(uvs));
+  setIndex(indices);
+  setPosition(vertices);
+  setNormal(normals);
+  setUV(uvs);
 }
 
 }

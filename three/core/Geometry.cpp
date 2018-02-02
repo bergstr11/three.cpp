@@ -243,15 +243,15 @@ BufferGeometry::BufferGeometry(Object3D::Ptr object, LinearGeometry::Ptr geometr
 
 void BufferGeometry::setFromLinearGeometry(LinearGeometry::Ptr geometry)
 {
-  _position = DefaultBufferAttribute<float>::make(geometry->_vertices);
-  _color = DefaultBufferAttribute<float>::make(geometry->_colors);
+  _position = attribute::copied<float, Vertex>(geometry->_vertices);
+  _color = attribute::copied<float, Color>(geometry->_colors);
 
   _boundingSphere = geometry->_boundingSphere;
   _boundingBox = geometry->_boundingBox;
 
   if (geometry->_lineDistances.size() == geometry->_vertices.size()) {
 
-    _lineDistances = DefaultBufferAttribute<float>::make(geometry->_lineDistances);
+    _lineDistances = attribute::copied<float>(geometry->_lineDistances);
   }
 }
 
@@ -264,39 +264,39 @@ void BufferGeometry::setFromMeshGeometry(LinearGeometry::Ptr geometry)
 
 void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
 {
-  _position = DefaultBufferAttribute<float>::make( geometry->vertices);
+  _position = attribute::copied<float, Vertex>( geometry->vertices);
 
   if (!geometry->normals.empty())
-    _normal = DefaultBufferAttribute<float>::make(geometry->normals);
+    _normal = attribute::copied<float, Vertex>(geometry->normals);
 
   if (!geometry->colors.empty())
-    _color = DefaultBufferAttribute<float>::make(geometry->colors);
+    _color = attribute::copied<float, Color>(geometry->colors);
 
   if (!geometry->uvs.empty())
-    _uv = DefaultBufferAttribute<float>::make(geometry->uvs);
+    _uv = attribute::copied<float, UV>(geometry->uvs);
 
   if (!geometry->uv2s.empty())
-    _uv2 = DefaultBufferAttribute<float>::make(geometry->uv2s);
+    _uv2 = attribute::copied<float, UV>(geometry->uv2s);
 
   if (!geometry->indices.empty())
-    _index = DefaultBufferAttribute<uint32_t>::make(geometry->indices);
+    _index = attribute::copied<uint32_t, Index>(geometry->indices);
 
   // groups
   _groups = geometry->groups;
 
   // morphs
   for(const auto &morphTargets : geometry->morphTargetsPosition)
-    _morphAttributes_position.push_back(DefaultBufferAttribute<float>::make(morphTargets));
+    _morphAttributes_position.push_back(attribute::copied<float, Vertex>(morphTargets));
 
   for(const auto &morphTargets : geometry->morphTargetsNormal)
-    _morphAttributes_normal.push_back(DefaultBufferAttribute<float>::make(morphTargets));
+    _morphAttributes_normal.push_back(attribute::copied<float, Vertex>(morphTargets));
 
   // skinning
   if (!geometry->skinIndices.empty())
-    _skinIndices = DefaultBufferAttribute<float>::make(geometry->skinIndices);
+    _skinIndices = attribute::copied<float, math::Vector4>(geometry->skinIndices);
 
   if (!geometry->skinWeights.empty())
-    _skinWeight = DefaultBufferAttribute<float>::make(geometry->skinWeights);
+    _skinWeight = attribute::copied<float, math::Vector4>(geometry->skinWeights);
 
   _boundingSphere = geometry->boundingSphere();
 
@@ -338,7 +338,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if ( _position ) {
 
-        _position = DefaultBufferAttribute<float>::make(direct->vertices);
+        _position = attribute::copied<float, Vertex>(direct->vertices);
         _position->needsUpdate();
       }
 
@@ -349,7 +349,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_normal) {
 
-        _normal = DefaultBufferAttribute<float>::make(direct->normals);
+        _normal = attribute::copied<float, Vertex>(direct->normals);
         _normal->needsUpdate();
       }
 
@@ -360,7 +360,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_color) {
 
-        _color = DefaultBufferAttribute<float>::make(direct->colors);
+        _color = attribute::copied<float, Color>(direct->colors);
         _color->needsUpdate();
       }
 
@@ -370,7 +370,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_uv) {
 
-        _uv = DefaultBufferAttribute<float>::make(direct->uvs);
+        _uv = attribute::copied<float, UV>(direct->uvs);
         _uv->needsUpdate();
       }
 
@@ -389,7 +389,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if ( _position ) {
 
-        _position = DefaultBufferAttribute<float>::make(geometry->_vertices);
+        _position = attribute::copied<float, Vertex>(geometry->_vertices);
         _position->needsUpdate();
       }
 
@@ -400,7 +400,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_normal) {
 
-        _normal = DefaultBufferAttribute<float>::make(geometry->_normals);
+        _normal = attribute::copied<float, Vertex>(geometry->_normals);
         _normal->needsUpdate();
       }
 
@@ -411,7 +411,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_color) {
 
-        _color = DefaultBufferAttribute<float>::make(geometry->_colors);
+        _color = attribute::copied<float, Color>(geometry->_colors);
         _color->needsUpdate();
       }
 
@@ -421,7 +421,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
       if (_lineDistances) {
 
-        _lineDistances = DefaultBufferAttribute<float>::make(geometry->_lineDistances);
+        _lineDistances = attribute::copied<float>(geometry->_lineDistances);
         _lineDistances->needsUpdate();
       }
 

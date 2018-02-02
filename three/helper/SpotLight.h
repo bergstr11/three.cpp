@@ -28,25 +28,25 @@ protected:
     _matrix = _light->matrixWorld();
     matrixAutoUpdate = false;
 
-    std::vector<Vertex> positions {
+    auto positions = attribute::growing<float, Vertex>({
        {0, 0, 0}, {0, 0, 1},
        {0, 0, 0}, {1, 0, 1},
        {0, 0, 0}, {-1, 0, 1},
        {0, 0, 0}, {0, 1, 1},
        {0, 0, 0}, {0, -1, 1}
-    };
+    }, true);
 
     for (unsigned i = 0, j = 1, l = 32; i < l; i ++, j ++ ) {
 
       double p1 = ( (double)i / l ) * M_PI * 2;
       double p2 = ( (double)j / l ) * M_PI * 2;
 
-      positions.emplace_back(std::cos( p1 ), std::sin( p1 ), 1);
-      positions.emplace_back(std::cos( p2 ), std::sin( p2 ), 1);
+      positions->emplace_back(std::cos( p1 ), std::sin( p1 ), 1);
+      positions->emplace_back(std::cos( p2 ), std::sin( p2 ), 1);
     }
 
     auto geometry = BufferGeometry::make();
-    geometry->setPosition(DefaultBufferAttribute<float>::make(positions));
+    geometry->setPosition(positions);
 
     _coneMaterial = LineBasicMaterial::make();
     _cone = LineSegments::make("spothelper", geometry, _coneMaterial);

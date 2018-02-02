@@ -78,7 +78,7 @@ class FogExp2 : public FogBase
 Q_OBJECT
   Q_PROPERTY(qreal density READ density WRITE setDensity NOTIFY densityChanged)
 
-  float _density;
+  float _density = 0.00025f;
 
 public:
   float density() const {return _density;}

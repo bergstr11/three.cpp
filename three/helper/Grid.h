@@ -29,26 +29,26 @@ protected:
     float step = (float) o.size / o.divisions;
     float halfSize = (float) o.size / 2;
 
-    std::vector<Vertex> vertices((o.divisions+1) * 4);
-    std::vector<Color> colors((o.divisions+1) * 4, Color(ColorName::white));
+    auto vertices = attribute::prealloc<float, Vertex>((o.divisions + 1) * 4);
+    auto colors = attribute::prealloc<float, Color>((o.divisions + 1) * 4);
 
     float k = -halfSize;
     for (unsigned  i = 0; i <= o.divisions; i++) {
 
-      vertices.emplace_back(-halfSize, 0, k);
-      vertices.emplace_back(halfSize, 0, k);
-      vertices.emplace_back(k, 0, -halfSize);
-      vertices.emplace_back(k, 0, halfSize);
+      vertices->next() = {-halfSize, 0, k};
+      vertices->next() = {halfSize, 0, k};
+      vertices->next() = {k, 0, -halfSize};
+      vertices->next() = {k, 0, halfSize};
 
       const Color &color = i == center ? o.color1 : o.color2;
 
-      for (auto j = 0; j < 4; j++) colors[i * 4 + j] = color;
+      for (auto j = 0; j < 4; j++) colors->next() = color;
       k += step;
     }
 
     BufferGeometry::Ptr geometry = BufferGeometry::make();
-    geometry->setPosition(DefaultBufferAttribute<float>::make(vertices));
-    geometry->setColor(DefaultBufferAttribute<float>::make(colors));
+    geometry->setPosition(vertices);
+    geometry->setColor(colors);
 
     return geometry;
   }

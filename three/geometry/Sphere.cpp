@@ -31,11 +31,12 @@ Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
   vector<vector<unsigned>> grid;
 
   // buffers
+  unsigned num = (heightSegments + 1) * (widthSegments + 1);
 
-  vector<uint32_t> indices;
-  vector<Vertex> vertices;
-  vector<Vertex> normals;
-  vector<UV> uvs;
+  auto indices = attribute::growing<uint32_t>(true);
+  auto vertices = attribute::prealloc<float, Vertex>(num);
+  auto normals = attribute::prealloc<float, Vertex>(num, true);
+  auto uvs = attribute::prealloc<float, UV>(num, true);
 
   // generate vertices, normals and uvs
   for (unsigned iy = 0; iy <= heightSegments; iy ++) {
@@ -53,15 +54,14 @@ Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
       float y = radius * std::cos( thetaStart + v * thetaLength );
       float z = radius * std::sin( phiStart + u * phiLength ) * std::sin( thetaStart + v * thetaLength );
 
-      vertices.emplace_back(x, y, z);
-      normals.push_back( vertices.back().normalized() );
-      uvs.emplace_back(u, 1 - v);
+      vertices->next() = {x, y, z};
+      normals->next() = vertices->back().normalized();
+      uvs->next() = {u, 1 - v};
 
       verticesRow.push_back( index ++ );
     }
 
     grid.push_back( verticesRow );
-
   }
 
   // generate indices
@@ -75,23 +75,23 @@ Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
       unsigned d = grid[ iy + 1 ][ ix + 1 ];
 
       if ( iy != 0 || thetaStart > 0 ) {
-        indices.push_back(a);
-        indices.push_back(b);
-        indices.push_back(d);
+        indices->next() = a;
+        indices->next() = b;
+        indices->next() = d;
       }
       if ( iy != heightSegments - 1 || thetaEnd < M_PI ) {
-        indices.push_back(b);
-        indices.push_back(c);
-        indices.push_back(d);
+        indices->next() = b;
+        indices->next() = c;
+        indices->next() = d;
       }
     }
   }
 
   // build geometry
-  setIndex(DefaultBufferAttribute<uint32_t>::make(indices, 1, true));
-  setPosition(DefaultBufferAttribute<float>::make(vertices));
-  setNormal(DefaultBufferAttribute<float>::make(normals, true));
-  setUV(DefaultBufferAttribute<float>::make(uvs));
+  setIndex(indices);
+  setPosition(vertices);
+  setNormal(normals);
+  setUV(uvs);
 }
 
 }

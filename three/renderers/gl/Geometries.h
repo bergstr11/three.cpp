@@ -116,52 +116,52 @@ public:
 
     if ( attribute ) return attribute;
 
-    std::vector<uint32_t> indices;
+    attribute::prealloc_t<uint32_t> indices;
 
     if (geometry->index()) {
 
       auto array = geometry->index()->tdata();
 
+      indices = attribute::prealloc<uint32_t>(geometry->index()->size() * 2, false);
       for (size_t i = 0, l = geometry->index()->size(); i < l; i += 3) {
 
         auto a = array[ i + 0 ];
         auto b = array[ i + 1 ];
         auto c = array[ i + 2 ];
 
-        indices.push_back(a);
-        indices.push_back(b);
-        indices.push_back(b);
-        indices.push_back(c);
-        indices.push_back(c);
-        indices.push_back(a);
+        indices->next() = a;
+        indices->next() = b;
+        indices->next() = b;
+        indices->next() = c;
+        indices->next() = c;
+        indices->next() = a;
       }
     }
     else {
 
       auto array = geometry->position()->tdata();
 
+      indices = attribute::prealloc<uint32_t>(((geometry->position()->size() / 3) - 1) * 2, false);
       for (size_t i = 0, l = (geometry->position()->size() / 3) - 1; i < l; i += 3 ) {
 
         uint32_t a = i + 0;
         uint32_t b = i + 1;
         uint32_t c = i + 2;
 
-        indices.push_back(a);
-        indices.push_back(b);
-        indices.push_back(b);
-        indices.push_back(c);
-        indices.push_back(c);
-        indices.push_back(a);
+        indices->next() = a;
+        indices->next() = b;
+        indices->next() = b;
+        indices->next() = c;
+        indices->next() = c;
+        indices->next() = a;
       }
     }
 
-    attribute = DefaultBufferAttribute<uint32_t>::make(indices, 1, false);
+    _attributes.update(*indices, BufferType::ElementArray);
 
-    _attributes.update(*attribute, BufferType::ElementArray);
+    wireframeAttributes[ geometry->id ] = indices;
 
-    wireframeAttributes[ geometry->id ] = attribute;
-
-    return attribute;
+    return indices;
   }
 };
 
