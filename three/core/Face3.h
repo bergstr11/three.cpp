@@ -26,7 +26,7 @@ struct Face3
   Color color {ColorName::white};
   std::vector<Color> vertexColors;
 
-  unsigned materialIndex = 0;
+  unsigned materialIndex;
 
   Face3() : a(0), b(0), c(0), materialIndex(0) {}
 

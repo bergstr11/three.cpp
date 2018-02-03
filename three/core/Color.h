@@ -144,6 +144,15 @@ struct Color
     return *this;
   }
 
+  Color &operator +=(const Color &color)
+  {
+    r += color.r;
+    g += color.g;
+    b += color.b;
+
+    return *this;
+  }
+
 #if 0
   static Color fromHsl(unsigned h, float s, float l)
   {
@@ -377,6 +386,13 @@ inline Color operator *(const Color &color1, const Color &color2)
 {
   Color result(color1);
   result *= color2;
+  return result;
+}
+
+inline Color operator +(const Color &color1, const Color &color2)
+{
+  Color result(color1);
+  result += color2;
   return result;
 }
 

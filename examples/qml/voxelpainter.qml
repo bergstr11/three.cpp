@@ -12,6 +12,25 @@ Window {
 
     visible: true
 
+    OptionsMenu {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        color: "transparent"
+        textColor: "black"
+        width: 300
+        height: 50
+        z: 2
+
+        BoolChoice {
+            name: "Navigate"
+            value: false
+            onValueChanged: {
+                controller.enableRotate = value
+                voxelMouse.enabled = (value === false)
+            }
+        }
+    }
+
     Component {
         id: voxelFactory
         Box {
@@ -28,7 +47,6 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        z: 1
 
         property var objectList: []
 
@@ -91,12 +109,19 @@ Window {
                 lookAt: scene.position
 
                 position: "500,800,1300"
+
+                controller: OrbitController {
+                    id: controller
+                    enablePan: false
+                    enableRotate: false
+                }
             }
         }
     }
     MouseArea {
+        id: voxelMouse
         anchors.fill: threeD
-        z: 2
+        z: 1
         hoverEnabled: true
 
         property var raycaster: Three.raycaster(scene.camera)
@@ -109,7 +134,7 @@ Window {
 
             var intersects = raycaster.intersectObjects(threeD.objectList);
             if (intersects.length > 0) {
-                var intersect = intersects[0];
+                var intersect = intersects[intersects.length - 1];
                 grid.snap(rollOver, intersect);
 
                 threeD.update()
@@ -125,16 +150,15 @@ Window {
             if (intersects.length > 0) {
                 var intersect = intersects[ 0 ];
 
-                // delete cube
-                if ( mouse.modifiers & Qt.ShiftModifier ) {
-                    if ( intersect.object !== plane ) {
+                if ( mouse.modifiers & Qt.ShiftModifier && intersect.object !== plane) {
 
-                        scene.remove( intersect.object );
-                        threeD.objectList.splice( threeD.objectList.indexOf( intersect.object ), 1 );
-                    }
+                    // delete cube
+                    scene.remove( intersect.object );
+                    threeD.objectList.splice( threeD.objectList.indexOf( intersect.object ), 1 );
 
-                // create cube
-                } else {
+                } else if(intersect.object === plane) {
+
+                    // create cube
                     var voxel = voxelFactory.createObject(scene, {
                         width: 50, height: 50, depth: 50, color: "#feb74c",
                         texture: cubeTexture})

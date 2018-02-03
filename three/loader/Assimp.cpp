@@ -158,7 +158,7 @@ struct Access
   unordered_map<unsigned, Mesh::Ptr> meshes;
   unordered_map<unsigned, MeshMaker::Ptr> makers;
 
-  bool switchHeightAndNormalMap = true;
+  bool switchHeightAndNormalMap = false;
 
   Access(Scene::Ptr scene, const aiScene * aiscene, ResourceLoader &loader)
      : scene(scene), aiscene(aiscene), loader(loader) {}
@@ -237,7 +237,7 @@ struct ReadMaterial<material::LightMap>
 {
   FORWARD_MIXIN(material::LightMap)
   static void mixin(material::LightMap &material, const aiMaterial *ai, Access *access) {
-    material.lightMap = access->loadTexture(aiTextureType_AMBIENT, 0, ai);
+    material.lightMap = access->loadTexture(aiTextureType_LIGHTMAP, 0, ai);
   }
 };
 template <>
@@ -254,8 +254,7 @@ struct ReadMaterial<material::AoMap>
 {
   FORWARD_MIXIN(material::AoMap)
   static void mixin(material::AoMap &material, const aiMaterial *ai, Access *access) {
-    material.aoMap = access->loadTexture(aiTextureType_LIGHTMAP, 0, ai);
-    read_color(AI_MATKEY_COLOR_AMBIENT, ai, material.ambient);
+    material.aoMap = access->loadTexture(aiTextureType_AMBIENT, 0, ai);
   }
 };
 template <>
@@ -347,11 +346,13 @@ protected:
     aiColor4D tmp_c;
     aiString tmp_s;
     if(ai->Get(AI_MATKEY_COLOR_REFLECTIVE, tmp_c) == AI_SUCCESS)
-      qWarning() << "COLOR_REFLECTIVE found, currently not supported";
+      qWarning() << "COLOR_REFLECTIVE found, currently not used";
     if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, tmp_c) == AI_SUCCESS)
-      qWarning() << "COLOR_TRANSPARENT found, currently not supported";
+      qWarning() << "COLOR_TRANSPARENT found, currently not used";
     if(ai->Get(AI_MATKEY_GLOBAL_BACKGROUND_IMAGE, tmp_s) == AI_SUCCESS)
-      qWarning() << "GLOBAL_BACKGROUND_IMAGE found, currently not supported";
+      qWarning() << "GLOBAL_BACKGROUND_IMAGE found, currently not used";
+
+    read_color(AI_MATKEY_COLOR_AMBIENT, ai, material.ambientColor);
 
     material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
     if(!material.map)

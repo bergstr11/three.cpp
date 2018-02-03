@@ -78,6 +78,8 @@ public:
 
   Q_INVOKABLE void add(ThreeQObject *object);
 
+  Q_INVOKABLE void remove(ThreeQObject *object);
+
   void addTo(ObjectRootContainer *container) override;
 
 signals:

@@ -28,13 +28,13 @@ void LinearGeometry::raycast(const Mesh &mesh,
   for (size_t f=0, fl=_faces.size(); f < fl; f++) {
 
     const Face3 &face = _faces[f];
-    Material::Ptr faceMaterial = mesh.material(face.materialIndex);
+    Material::Ptr faceMaterial = mesh.materialCount() > 1 ? mesh.material(face.materialIndex) : mesh.material();
 
     if (!faceMaterial) continue;
 
-    Vector3 &fvA = _vertices[face.a];
-    Vector3 &fvB = _vertices[face.b];
-    Vector3 &fvC = _vertices[face.c];
+    Vector3 fvA(_vertices[face.a]);
+    Vector3 fvB(_vertices[face.b]);
+    Vector3 fvC(_vertices[face.c]);
 
     if (faceMaterial->morphTargets) {
 

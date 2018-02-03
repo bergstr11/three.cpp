@@ -41,7 +41,6 @@ struct EmissiveMap
 struct AoMap
 {
   Texture::Ptr aoMap;
-  Color ambient = Color::null(); //unused
   float aoMapIntensity = 1.0;
 };
 
@@ -113,6 +112,8 @@ struct Material
 
   bool fog = true;
   bool lights = true;
+
+  Color ambientColor = Color::null();
 
   Blending blending = Blending::Normal;
   Side side = Side::Front;

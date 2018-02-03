@@ -12,7 +12,7 @@ using namespace std;
 
 void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 {
-  float r = 0, g = 0, b = 0;
+  Color ambient {0, 0, 0};
 
   const math::Matrix4 &viewMatrix = camera->matrixWorldInverse();
 
@@ -27,9 +27,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
 
     dispatch.func<AmbientLight>() = [&](AmbientLight &alight)
     {
-      r += color.r * intensity;
-      g += color.g * intensity;
-      b += color.b * intensity;
+      ambient += color * intensity;
     };
     dispatch.func<DirectionalLight>() = [&](DirectionalLight &directional)
     {
@@ -163,7 +161,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
     light->lightResolver->getValue(dispatch);
   }
 
-  state.ambient = {r, g, b};
+  state.ambient = ambient;
 
   // TODO (sam-g-steel) why aren't we using join
   stringstream ss;

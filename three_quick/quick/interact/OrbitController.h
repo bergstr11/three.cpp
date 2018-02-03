@@ -20,10 +20,11 @@ class OrbitController : public Controller
   Q_PROPERTY(float maxDistance READ maxDistance WRITE setMaxDistance NOTIFY maxDistanceChanged)
   Q_PROPERTY(float maxPolarAngle READ maxPolarAngle WRITE setMaxPolarAngle NOTIFY maxPolarAngleChanged)
   Q_PROPERTY(bool enablePan READ enablePan WRITE setEnablePan NOTIFY enablePanChanged)
+  Q_PROPERTY(bool enableRotate READ enableRotate WRITE setEnableRotate NOTIFY enableRotateChanged)
 
   float _minDistance=0, _maxDistance=std::numeric_limits<float>::infinity();
   float _maxPolarAngle = (float) M_PI;
-  bool _enablePan = true;
+  bool _enablePan = true, _enableRotate = true;
 
   OrbitControls::Ptr _controls;
 
@@ -69,6 +70,17 @@ protected:
     }
   }
 
+  bool enableRotate() const { return _enableRotate; }
+
+  void setEnableRotate(bool enableRotate)
+  {
+    if (_enableRotate != enableRotate) {
+      _enableRotate = enableRotate;
+      if(_controls) _controls->enableRotate = enableRotate;
+      emit enableRotateChanged();
+    }
+  }
+
 public:
   void setItem(ThreeDItem *item) override
   {
@@ -77,6 +89,7 @@ public:
     _controls->maxDistance = _maxDistance;
     _controls->maxPolarAngle = _maxPolarAngle;
     _controls->enablePan = _enablePan;
+    _controls->enableRotate = _enableRotate;
 
     _controls->onChanged.connect([this]() {
       emit changed();
@@ -108,6 +121,7 @@ signals:
   void maxDistanceChanged();
   void maxPolarAngleChanged();
   void enablePanChanged();
+  void enableRotateChanged();
 };
 
 }

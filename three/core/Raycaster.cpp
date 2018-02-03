@@ -40,9 +40,8 @@ std::vector<Intersection> Raycaster::intersectObjects(const std::vector<Object3D
   for (auto obj : objects) {
     three::intersectObject( *obj, *this, intersects, recursive );
   }
-
   std::sort(intersects.begin(), intersects.end(),
-            [](const Intersection &a, const Intersection &b) {return a.distance > b.distance;});
+            [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
 
   return intersects;
 }

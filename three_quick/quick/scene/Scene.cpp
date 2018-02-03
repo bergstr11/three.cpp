@@ -93,6 +93,13 @@ void Scene::add(ThreeQObject *object)
   }
 }
 
+void Scene::remove(ThreeQObject *object)
+{
+  if(_scene && object->object()) {
+    _scene->remove(object->object());
+  }
+}
+
 void Scene::addTo(ObjectRootContainer *container)
 {
   _scene = _background.isValid() ?

@@ -921,7 +921,8 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // wire up the material to this renderer's lighting state
     uniforms.set(UniformName::spotLights, _lights.state.spot);
-    uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
+    if(!_lights.state.ambient.isNull())
+      uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
     uniforms.set(UniformName::directionalLights, _lights.state.directional);
     uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
     uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
@@ -1245,6 +1246,11 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     };
     material->resolver->material::DispatchResolver::getValue(dispatch);
     check_glerror(this);
+
+    //in case a material carries ambient color (Assimp)
+    if(!material->ambientColor.isNull()) {
+      m_uniforms[UniformName::ambientLightColor] = material->ambientColor;
+    }
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation

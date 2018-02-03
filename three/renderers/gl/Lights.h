@@ -145,7 +145,7 @@ struct Lights
     std::vector<math::Matrix4> pointShadowMatrix;
     CachedPointLights point;
     CachedHemisphereLights hemi;
-    Color ambient {1, 1, 1};
+    Color ambient = Color::null();
     std::string hash;
 
     void clear() {

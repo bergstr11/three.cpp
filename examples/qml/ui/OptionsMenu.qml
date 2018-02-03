@@ -7,7 +7,7 @@ Rectangle {
     color: "darkgray"
 
     property string title;
-    property color labelColor: "white"
+    property color textColor: "white"
     property Item threeD
     default property list<QtObject> properties
 
@@ -51,7 +51,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignRight
                     width: 80
                     text: name
-                    color: labelColor
+                    color: textColor
                     font.bold: true
                 }
                 CheckBox {
@@ -87,7 +87,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 text: name
-                color: target.value ? "green" : labelColor
+                color: target.value ? "green" : textColor
                 font.bold: true
 
                 MouseArea {
@@ -128,7 +128,7 @@ Rectangle {
                     width: 60
                     text: name
                     font.bold: true
-                    color: labelColor
+                    color: textColor
                 }
                 Slider {
                     id: slider
