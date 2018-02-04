@@ -2,7 +2,7 @@
 // Created by byter on 26.09.17.
 //
 
-#include <camera/Camera.h>
+#include <three/camera/Camera.h>
 #include "MeshDistanceMaterial.h"
 
 namespace three {

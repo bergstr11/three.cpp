@@ -13,9 +13,9 @@
 #include <unordered_map>
 #include <algorithm>
 
-#include <math/Vector4.h>
-#include <math/Matrix3.h>
-#include <helper/Types.h>
+#include <three/math/Vector4.h>
+#include <three/math/Matrix3.h>
+#include <three/helper/Types.h>
 
 #include "Geometry.h"
 #include "BufferAttribute.h"

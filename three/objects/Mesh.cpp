@@ -3,10 +3,10 @@
 //
 
 #include "Mesh.h"
-#include <math/Matrix4.h>
-#include <math/Sphere.h>
-#include <math/Triangle.h>
-#include <core/Raycaster.h>
+#include <three/math/Matrix4.h>
+#include <three/math/Sphere.h>
+#include <three/math/Triangle.h>
+#include <three/core/Raycaster.h>
 
 namespace three {
 

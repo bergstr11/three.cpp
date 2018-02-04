@@ -3,7 +3,7 @@
 //
 
 #include "OrtographicTrackball.h"
-#include <math/Quaternion.h>
+#include <three/math/Quaternion.h>
 
 namespace three {
 namespace control {

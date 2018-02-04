@@ -12,20 +12,20 @@
 
 #include "ThreeDTestItem.h"
 
-#include <renderers/OpenGLRenderer.h>
-#include <objects/Mesh.h>
-#include <scene/Scene.h>
-#include <camera/PerspectiveCamera.h>
-#include <material/MeshLambertMaterial.h>
-#include <material/ShaderMaterial.h>
-#include <textures/ImageTexture.h>
-#include <geometry/Box.h>
-#include <geometry/Plane.h>
-#include <geometry/Sphere.h>
-#include <helper/Axes.h>
-#include <helper/SpotLight.h>
-#include <light/AmbientLight.h>
-#include <renderers/gl/shader/ShaderLib.h>
+#include <three/renderers/OpenGLRenderer.h>
+#include <three/objects/Mesh.h>
+#include <three/scene/Scene.h>
+#include <three/camera/PerspectiveCamera.h>
+#include <three/material/MeshLambertMaterial.h>
+#include <three/material/ShaderMaterial.h>
+#include <three/textures/ImageTexture.h>
+#include <three/geometry/Box.h>
+#include <three/geometry/Plane.h>
+#include <three/geometry/Sphere.h>
+#include <three/helper/Axes.h>
+#include <three/helper/SpotLight.h>
+#include <three/light/AmbientLight.h>
+#include <three/renderers/gl/shader/ShaderLib.h>
 
 namespace three {
 namespace quick {

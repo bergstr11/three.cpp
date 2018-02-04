@@ -7,8 +7,8 @@
 #include "Quaternion.h"
 #include "Spherical.h"
 #include "Cylindrical.h"
-#include "camera/Camera.h"
-#include "core/BufferAttribute.h"
+#include <three/camera/Camera.h>
+#include <three/core/BufferAttribute.h>
 
 namespace three {
 namespace math {

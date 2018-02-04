@@ -4,7 +4,7 @@
 
 #include "LinearGeometry.h"
 #include "BufferGeometry.h"
-#include "../helper/utils.h"
+#include <three/helper/utils.h>
 
 namespace three {
 

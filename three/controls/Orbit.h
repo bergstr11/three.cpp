@@ -5,9 +5,9 @@
 #ifndef THREEPP_ORBITCONTROLS_H
 #define THREEPP_ORBITCONTROLS_H
 
-#include <camera/Camera.h>
-#include <math/Spherical.h>
-#include <helper/simplesignal.h>
+#include <three/camera/Camera.h>
+#include <three/math/Spherical.h>
+#include <three/helper/simplesignal.h>
 
 //var controls = new THREE.OrbitControls( camera, renderer.domElement );
 

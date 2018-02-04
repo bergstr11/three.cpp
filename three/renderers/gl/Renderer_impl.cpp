@@ -3,22 +3,22 @@
 //
 
 #include "Renderer_impl.h"
-#include <helper/Resolver.h>
-#include <math/Math.h>
-#include <textures/DataTexture.h>
+#include <three/helper/Resolver.h>
+#include <three/math/Math.h>
+#include <three/textures/DataTexture.h>
 #include <sstream>
 #include <iostream>
-#include <core/InterleavedBufferAttribute.h>
-#include <objects/Line.h>
-#include <objects/Points.h>
-#include <material/MeshStandardMaterial.h>
-#include <material/MeshPhongMaterial.h>
-#include <material/MeshNormalMaterial.h>
-#include <material/MeshLambertMaterial.h>
-#include <material/MeshToonMaterial.h>
-#include <material/MeshPhysicalMaterial.h>
-#include <material/PointsMaterial.h>
-#include <material/ShadowMaterial.h>
+#include <three/core/InterleavedBufferAttribute.h>
+#include <three/objects/Line.h>
+#include <three/objects/Points.h>
+#include <three/material/MeshStandardMaterial.h>
+#include <three/material/MeshPhongMaterial.h>
+#include <three/material/MeshNormalMaterial.h>
+#include <three/material/MeshLambertMaterial.h>
+#include <three/material/MeshToonMaterial.h>
+#include <three/material/MeshPhysicalMaterial.h>
+#include <three/material/PointsMaterial.h>
+#include <three/material/ShadowMaterial.h>
 #include "refresh_uniforms.h"
 
 namespace three {

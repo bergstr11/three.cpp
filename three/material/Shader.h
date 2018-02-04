@@ -6,7 +6,7 @@
 #define THREE_QT_SHADER_H
 
 #include <string>
-#include <renderers/gl/shader/ShaderLib.h>
+#include <three/renderers/gl/shader/ShaderLib.h>
 
 namespace three {
 

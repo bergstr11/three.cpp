@@ -5,7 +5,7 @@
 #ifndef THREEPP_NODE_H
 #define THREEPP_NODE_H
 
-#include <core/Object3D.h>
+#include <three/core/Object3D.h>
 
 namespace three {
 

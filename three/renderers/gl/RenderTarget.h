@@ -6,11 +6,11 @@
 #define THREE_QT_OPENGLRENDERTARGET_H
 
 #include <memory>
-#include <helper/simplesignal.h>
-#include <textures/DepthTexture.h>
-#include <helper/sole.h>
+#include <three/helper/simplesignal.h>
+#include <three/textures/DepthTexture.h>
+#include <three/helper/sole.h>
 #include "Properties.h"
-#include "../Renderer.h"
+#include <three/renderers/Renderer.h>
 
 namespace three {
 namespace gl {

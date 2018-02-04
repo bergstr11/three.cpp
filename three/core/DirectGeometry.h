@@ -5,8 +5,8 @@
 #ifndef THREE_QT_DIRECTGEOMETRY_H
 #define THREE_QT_DIRECTGEOMETRY_H
 
-#include <helper/Types.h>
-#include <math/Sphere.h>
+#include <three/helper/Types.h>
+#include <three/math/Sphere.h>
 #include "BufferAttribute.h"
 #include "LinearGeometry.h"
 

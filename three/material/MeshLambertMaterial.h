@@ -5,7 +5,7 @@
 #ifndef THREE_QT_MESHLAMBERTMATERIAL_H
 #define THREE_QT_MESHLAMBERTMATERIAL_H
 
-#include <core/Color.h>
+#include <three/core/Color.h>
 #include "Material.h"
 
 namespace three {

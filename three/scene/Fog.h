@@ -5,8 +5,8 @@
 #ifndef THREE_QT_FOG_H
 #define THREE_QT_FOG_H
 
-#include <Constants.h>
-#include <core/Color.h>
+#include <three/Constants.h>
+#include <three/core/Color.h>
 
 namespace three {
 

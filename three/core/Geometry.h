@@ -5,12 +5,12 @@
 #ifndef THREE_QT_GEOMETRY_H
 #define THREE_QT_GEOMETRY_H
 
-#include <math/Vector3.h>
-#include <math/Matrix4.h>
-#include <math/Sphere.h>
-#include <math/Box3.h>
-#include <helper/simplesignal.h>
-#include <helper/Types.h>
+#include <three/math/Vector3.h>
+#include <three/math/Matrix4.h>
+#include <three/math/Sphere.h>
+#include <three/math/Box3.h>
+#include <three/helper/simplesignal.h>
+#include <three/helper/Types.h>
 #include "Raycaster.h"
 
 namespace three {

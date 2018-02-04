@@ -5,8 +5,8 @@
 #ifndef THREE_QT_GLCLIPPING_H
 #define THREE_QT_GLCLIPPING_H
 
-#include <camera/Camera.h>
-#include <math/Plane.h>
+#include <three/camera/Camera.h>
+#include <three/math/Plane.h>
 #include "Properties.h"
 
 namespace three {

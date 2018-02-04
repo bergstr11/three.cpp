@@ -5,9 +5,9 @@
 #ifndef THREE_QT_SPRITE_H
 #define THREE_QT_SPRITE_H
 
-#include <core/Object3D.h>
-#include <core/BufferGeometry.h>
-#include <material/SpriteMaterial.h>
+#include <three/core/Object3D.h>
+#include <three/core/BufferGeometry.h>
+#include <three/material/SpriteMaterial.h>
 
 namespace three {
 

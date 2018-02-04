@@ -6,8 +6,8 @@
 #define THREE_QT_ATTRIBUTES_H
 
 #include <QOpenGLFunctions>
-#include <core/BufferAttribute.h>
-#include <Constants.h>
+#include <three/core/BufferAttribute.h>
+#include <three/Constants.h>
 #include "Helpers.h"
 
 namespace three {

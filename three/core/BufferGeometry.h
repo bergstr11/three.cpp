@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 #include <functional>
-#include <helper/utils.h>
+#include <three/helper/utils.h>
 #include "Geometry.h"
 #include "BufferAttribute.h"
 

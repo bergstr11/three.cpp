@@ -5,11 +5,11 @@
 #ifndef THREE_QT_LINE_H
 #define THREE_QT_LINE_H
 
-#include <core/Object3D.h>
-#include <core/Raycaster.h>
-#include <core/BufferGeometry.h>
-#include <material/Material.h>
-#include <material/LineMaterial.h>
+#include <three/core/Object3D.h>
+#include <three/core/Raycaster.h>
+#include <three/core/BufferGeometry.h>
+#include <three/material/Material.h>
+#include <three/material/LineMaterial.h>
 
 namespace three {
 

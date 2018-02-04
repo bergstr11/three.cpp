@@ -5,16 +5,16 @@
 #ifndef THREE_QT_LIGHTS_H
 #define THREE_QT_LIGHTS_H
 
-#include <light/AmbientLight.h>
-#include <light/DirectionalLight.h>
-#include <light/HemisphereLight.h>
-#include <light/PointLight.h>
-#include <light/SpotLight.h>
-#include <light/RectAreaLight.h>
-#include <light/LightShadow.h>
+#include <three/light/AmbientLight.h>
+#include <three/light/DirectionalLight.h>
+#include <three/light/HemisphereLight.h>
+#include <three/light/PointLight.h>
+#include <three/light/SpotLight.h>
+#include <three/light/RectAreaLight.h>
+#include <three/light/LightShadow.h>
 #include <shadow.h>
 #include <unordered_map>
-#include <helper/Resolver.h>
+#include <three/helper/Resolver.h>
 
 namespace three {
 namespace gl {

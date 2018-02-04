@@ -6,7 +6,7 @@
 #define THREE_QT_HELPERS_H
 
 #include <string>
-#include <Constants.h>
+#include <three/Constants.h>
 #include <QOpenGLFunctions>
 
 namespace three {

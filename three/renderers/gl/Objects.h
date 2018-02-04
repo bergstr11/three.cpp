@@ -6,7 +6,7 @@
 #define THREE_QT_OBJECTS_H
 
 #include <vector>
-#include <core/Object3D.h>
+#include <three/core/Object3D.h>
 #include "Helpers.h"
 #include "Geometries.h"
 

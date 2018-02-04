@@ -5,7 +5,7 @@
 #ifndef THREE_QT_POINTS_H
 #define THREE_QT_POINTS_H
 
-#include <core/Object3D.h>
+#include <three/core/Object3D.h>
 
 namespace three {
 

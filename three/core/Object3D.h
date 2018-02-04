@@ -11,14 +11,14 @@
 #include <tuple>
 #include <array>
 
-#include <helper/sole.h>
-#include <helper/simplesignal.h>
-#include <helper/Types.h>
-#include <math/Euler.h>
-#include <math/Quaternion.h>
-#include <math/Matrix4.h>
-#include <material/Material.h>
-#include <helper/Resolver.h>
+#include <three/helper/sole.h>
+#include <three/helper/simplesignal.h>
+#include <three/helper/Types.h>
+#include <three/math/Euler.h>
+#include <three/math/Quaternion.h>
+#include <three/math/Matrix4.h>
+#include <three/material/Material.h>
+#include <three/helper/Resolver.h>
 #include "LinearGeometry.h"
 
 namespace three {

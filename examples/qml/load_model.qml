@@ -138,6 +138,7 @@ Window {
                 DirectionalLight {
                     color: "#dddddd"
                     position: "0,0,2"
+                    intensity: 0.5
                 }
             }
         }

@@ -9,8 +9,8 @@
 #include <vector>
 #include <array>
 #include <memory>
-#include <math/Vector2.h>
-#include <math/Vector3.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector3.h>
 
 namespace three {
 

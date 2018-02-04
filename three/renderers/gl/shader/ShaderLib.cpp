@@ -3,10 +3,12 @@
 //
 
 #include "ShaderLib.h"
-#include <core/Color.h>
-#include <math/Vector3.h>
+
 #include <QResource>
 #include <QFile>
+
+#include <three/core/Color.h>
+#include <three/math/Vector3.h>
 
 static void qInitResource()
 {

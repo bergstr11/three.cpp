@@ -5,9 +5,9 @@
 #ifndef THREE_QT_LENSFLARE_H
 #define THREE_QT_LENSFLARE_H
 
-#include <core/Object3D.h>
-#include <core/Color.h>
-#include <textures/Texture.h>
+#include <three/core/Object3D.h>
+#include <three/core/Color.h>
+#include <three/textures/Texture.h>
 
 namespace three {
 

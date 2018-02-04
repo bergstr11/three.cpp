@@ -6,10 +6,10 @@
 #define THREE_QT_GLSTATE_H
 
 #include <QOpenGLExtraFunctions>
-#include <math/Vector4.h>
-#include <material/Material.h>
-#include <helper/Types.h>
-#include <Constants.h>
+#include <three/math/Vector4.h>
+#include <three/material/Material.h>
+#include <three/helper/Types.h>
+#include <three/Constants.h>
 #include <unordered_map>
 #include "Helpers.h"
 

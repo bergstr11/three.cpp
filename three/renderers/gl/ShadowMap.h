@@ -5,16 +5,16 @@
 #ifndef THREE_QT_SHADOWMAP_H
 #define THREE_QT_SHADOWMAP_H
 
-#include <core/Object3D.h>
-#include <math/Frustum.h>
-#include <math/Vector2.h>
-#include <math/Vector4.h>
-#include <material/Material.h>
-#include <material/MeshDepthMaterial.h>
-#include <material/MeshDistanceMaterial.h>
-#include <light/Light.h>
-#include <scene/Scene.h>
-#include <camera/PerspectiveCamera.h>
+#include <three/core/Object3D.h>
+#include <three/math/Frustum.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector4.h>
+#include <three/material/Material.h>
+#include <three/material/MeshDepthMaterial.h>
+#include <three/material/MeshDistanceMaterial.h>
+#include <three/light/Light.h>
+#include <three/scene/Scene.h>
+#include <three/camera/PerspectiveCamera.h>
 
 #include "Objects.h"
 #include "RenderTarget.h"

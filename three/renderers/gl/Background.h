@@ -5,13 +5,13 @@
 #ifndef THREE_QT_BACKGROUND_H
 #define THREE_QT_BACKGROUND_H
 
-#include <core/Color.h>
-#include <objects/Mesh.h>
-#include <scene/Scene.h>
-#include <camera/OrtographicCamera.h>
-#include <geometry/Box.h>
-#include <geometry/Plane.h>
-#include <material/ShaderMaterial.h>
+#include <three/core/Color.h>
+#include <three/objects/Mesh.h>
+#include <three/scene/Scene.h>
+#include <three/camera/OrtographicCamera.h>
+#include <three/geometry/Box.h>
+#include <three/geometry/Plane.h>
+#include <three/material/ShaderMaterial.h>
 #include "State.h"
 #include "Geometries.h"
 #include "RenderLists.h"

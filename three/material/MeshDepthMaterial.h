@@ -6,7 +6,7 @@
 #define THREE_QT_MESHDEPTHMATERIAL_H
 
 #include "Material.h"
-#include <textures/Texture.h>
+#include <three/textures/Texture.h>
 
 namespace three {
 

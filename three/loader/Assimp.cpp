@@ -4,18 +4,20 @@
 
 #include "Assimp.h"
 
-#include <core/BufferGeometry.h>
 #include <assimp/Importer.hpp>
 #include <assimp/ProgressHandler.hpp>
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <material/MeshPhongMaterial.h>
-#include <material/MeshLambertMaterial.h>
-#include <material/MeshToonMaterial.h>
-#include <textures/ImageTexture.h>
-#include <textures/DataTexture.h>
+
+#include <three/core/BufferGeometry.h>
+#include <three/material/MeshPhongMaterial.h>
+#include <three/material/MeshLambertMaterial.h>
+#include <three/material/MeshToonMaterial.h>
+#include <three/textures/ImageTexture.h>
+#include <three/textures/DataTexture.h>
+
 #include <QDebug>
 
 namespace three {

@@ -6,7 +6,7 @@
 #define THREE_QT_CAPABILITIES_H
 
 #include <QOpenGLFunctions>
-#include <helper/simplesignal.h>
+#include <three/helper/simplesignal.h>
 #include "Extensions.h"
 #include "Helpers.h"
 

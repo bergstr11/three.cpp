@@ -6,7 +6,7 @@
 #define THREE_QT_SPOTLIGHTSHADOW_H
 
 #include "LightShadow.h"
-#include <camera/PerspectiveCamera.h>
+#include <three/camera/PerspectiveCamera.h>
 
 namespace three {
 

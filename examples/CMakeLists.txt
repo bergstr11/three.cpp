@@ -20,4 +20,7 @@ set(SOURCE_FILES
 set(HEADER_FILES ThreeDTestItem.h)
 
 add_executable(three_test ${SOURCE_FILES} ${HEADER_FILES} ${UI_RESOURCES})
-target_link_libraries(three_test PUBLIC threepp three_quick Qt5::Core Qt5::Gui Qt5::Quick assimp)
+target_include_directories(three_test PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+        $<INSTALL_INTERFACE:include)
+target_link_libraries(three_test PUBLIC threepp threeppq GL Qt5::Core Qt5::Gui Qt5::Quick assimp)

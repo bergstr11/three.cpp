@@ -5,9 +5,9 @@
 #ifndef THREEQT_SCENE
 #define THREEQT_SCENE
 
-#include <core/Object3D.h>
-#include <core/Color.h>
-#include <helper/Resolver.h>
+#include <three/core/Object3D.h>
+#include <three/core/Color.h>
+#include <three/helper/Resolver.h>
 #include "Fog.h"
 
 namespace three {

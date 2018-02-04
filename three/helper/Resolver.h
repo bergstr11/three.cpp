@@ -11,7 +11,7 @@
 #include <string>
 #include <set>
 
-#include <renderers/gl/shader/ShaderID.h>
+#include <three/renderers/gl/shader/ShaderID.h>
 
 namespace resolver {
 

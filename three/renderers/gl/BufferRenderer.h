@@ -7,8 +7,9 @@
 
 #include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
-#include <Constants.h>
-#include <core/BufferGeometry.h>
+
+#include <three/Constants.h>
+#include <three/core/BufferGeometry.h>
 #include "Helpers.h"
 #include "Extensions.h"
 

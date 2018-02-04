@@ -7,7 +7,6 @@
 
 #include "TargetLight.h"
 #include "SpotLightShadow.h"
-#include <QDebug>
 
 namespace three {
 

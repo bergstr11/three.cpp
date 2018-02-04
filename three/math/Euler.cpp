@@ -2,7 +2,7 @@
 // Created by byter on 29.07.17.
 //
 
-#include "math/Euler.h"
+#include "Euler.h"
 #include "Math.h"
 
 #include <cmath>

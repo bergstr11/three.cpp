@@ -5,9 +5,9 @@
 #ifndef THREEPP_ORTOGRAPHICTRACKBALL_H
 #define THREEPP_ORTOGRAPHICTRACKBALL_H
 
-#include <math/Vector2.h>
-#include <math/Vector3.h>
-#include <camera/OrtographicCamera.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector3.h>
+#include <three/camera/OrtographicCamera.h>
 
 namespace three {
 namespace control {

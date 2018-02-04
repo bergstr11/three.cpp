@@ -3,7 +3,7 @@
 //
 
 #include "BufferRenderer.h"
-#include <core/InterleavedBufferAttribute.h>
+#include <three/core/InterleavedBufferAttribute.h>
 
 namespace three {
 namespace gl {

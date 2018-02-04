@@ -3,7 +3,7 @@
 //
 
 #include "FlareRenderer.h"
-#include <math/Box2.h>
+#include <three/math/Box2.h>
 #include <QByteArray>
 #include <array>
 #include <sstream>

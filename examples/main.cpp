@@ -3,7 +3,7 @@
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QDebug>
-#include <quick/Three.h>
+#include <three/quick/Three.h>
 #include "ThreeDTestItem.h"
 
 int main(int argc, char *argv[]) {
@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
   //maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///orbit_controls.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///3ds_model.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///voxelpainter.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///voxelpainter.qml"));
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
     return -1;

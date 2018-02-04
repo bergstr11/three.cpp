@@ -6,7 +6,7 @@
 #define THREE_QT_SHADER_H
 
 #include <QOpenGLFunctions>
-#include <Constants.h>
+#include <three/Constants.h>
 #include <iostream>
 #include <stdexcept>
 

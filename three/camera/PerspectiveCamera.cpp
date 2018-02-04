@@ -3,7 +3,7 @@
 //
 
 #include "PerspectiveCamera.h"
-#include "math/Math.h"
+#include <three/math/Math.h>
 
 namespace three {
 

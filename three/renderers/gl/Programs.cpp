@@ -2,12 +2,12 @@
 // Created by byter on 10/30/17.
 //
 #include "Renderer_impl.h"
-#include <material/MeshPhongMaterial.h>
-#include <material/MeshToonMaterial.h>
-#include <material/MeshLambertMaterial.h>
-#include <material/MeshNormalMaterial.h>
-#include <material/MeshPhysicalMaterial.h>
-#include <material/PointsMaterial.h>
+#include <three/material/MeshPhongMaterial.h>
+#include <three/material/MeshToonMaterial.h>
+#include <three/material/MeshLambertMaterial.h>
+#include <three/material/MeshNormalMaterial.h>
+#include <three/material/MeshPhysicalMaterial.h>
+#include <three/material/PointsMaterial.h>
 
 namespace three {
 namespace gl {

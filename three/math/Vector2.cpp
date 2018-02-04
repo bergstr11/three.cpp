@@ -4,7 +4,7 @@
 
 #include "Vector2.h"
 #include "Matrix3.h"
-#include <core/BufferAttribute.h>
+#include <three/core/BufferAttribute.h>
 
 namespace three {
 namespace math {

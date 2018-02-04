@@ -6,13 +6,13 @@
 #define THREE_QT_MATERIAL_H
 
 #include <memory>
-#include <Constants.h>
-#include <textures/Texture.h>
-#include <helper/sole.h>
-#include <helper/simplesignal.h>
-#include <math/Plane.h>
-#include <helper/Resolver.h>
-#include <core/Color.h>
+#include <three/Constants.h>
+#include <three/textures/Texture.h>
+#include <three/helper/sole.h>
+#include <three/helper/simplesignal.h>
+#include <three/math/Plane.h>
+#include <three/helper/Resolver.h>
+#include <three/core/Color.h>
 
 namespace three {
 

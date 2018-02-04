@@ -9,10 +9,10 @@
 #include <istream>
 #include <string>
 
-#include <material/Material.h>
-#include <objects/Mesh.h>
-#include <scene/Scene.h>
-#include <helper/simplesignal.h>
+#include <three/material/Material.h>
+#include <three/objects/Mesh.h>
+#include <three/scene/Scene.h>
+#include <three/helper/simplesignal.h>
 
 #include "Loader.h"
 

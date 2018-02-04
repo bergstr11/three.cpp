@@ -5,7 +5,7 @@
 #ifndef THREE_QT_PROGRAMS_H
 #define THREE_QT_PROGRAMS_H
 
-#include <objects/SkinnedMesh.h>
+#include <three/objects/SkinnedMesh.h>
 #include "Program.h"
 #include "Lights.h"
 #include "Extensions.h"

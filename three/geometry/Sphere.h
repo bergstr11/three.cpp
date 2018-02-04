@@ -5,8 +5,8 @@
 #ifndef THREEPP_GEOM_SPHERE_H
 #define THREEPP_GEOM_SPHERE_H
 
-#include <core/LinearGeometry.h>
-#include <core/BufferGeometry.h>
+#include <three/core/LinearGeometry.h>
+#include <three/core/BufferGeometry.h>
 
 namespace three {
 namespace geometry {

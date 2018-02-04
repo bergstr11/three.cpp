@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include <helper/utils.h>
+#include <three/helper/utils.h>
 #include "Program.h"
 #include "Renderer_impl.h"
 #include "shader/ShaderChunk.h"

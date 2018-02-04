@@ -5,7 +5,7 @@
 #ifndef THREE_QT_POINTLIGHT_H
 #define THREE_QT_POINTLIGHT_H
 
-#include <camera/PerspectiveCamera.h>
+#include <three/camera/PerspectiveCamera.h>
 #include "Light.h"
 
 namespace three {

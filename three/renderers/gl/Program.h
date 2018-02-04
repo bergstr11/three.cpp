@@ -11,11 +11,11 @@
 #include <vector>
 #include <unordered_map>
 #include <stdexcept>
-#include <Constants.h>
-#include <material/Material.h>
-#include <material/ShaderMaterial.h>
-#include <material/RawShaderMaterial.h>
-#include <core/BufferGeometry.h>
+#include <three/Constants.h>
+#include <three/material/Material.h>
+#include <three/material/ShaderMaterial.h>
+#include <three/material/RawShaderMaterial.h>
+#include <three/core/BufferGeometry.h>
 #include "shader/ShaderLib.h"
 #include "Helpers.h"
 #include "Extensions.h"

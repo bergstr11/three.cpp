@@ -3,9 +3,9 @@
 //
 
 #include "Textures.h"
-#include <textures/DataTexture.h>
-#include <textures/ImageTexture.h>
-#include <helper/Resolver.h>
+#include <three/textures/DataTexture.h>
+#include <three/textures/ImageTexture.h>
+#include <three/helper/Resolver.h>
 #include <QDebug>
 
 namespace three {

@@ -6,7 +6,7 @@
 #define THREEPP_SHADOWMATERIAL_H
 
 #include "Material.h"
-#include "core/Color.h"
+#include <three/core/Color.h>
 
 namespace three {
 

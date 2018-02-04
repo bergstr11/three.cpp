@@ -5,10 +5,10 @@
 #ifndef THREEPP_SPOTLIGHTHELPER_H
 #define THREEPP_SPOTLIGHTHELPER_H
 
-#include <objects/Line.h>
-#include <core/BufferGeometry.h>
-#include <material/LineMaterial.h>
-#include <light/SpotLight.h>
+#include <three/objects/Line.h>
+#include <three/core/BufferGeometry.h>
+#include <three/material/LineMaterial.h>
+#include <three/light/SpotLight.h>
 
 namespace three {
 namespace helper {

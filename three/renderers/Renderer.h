@@ -5,10 +5,10 @@
 #ifndef THREE_QT_RENDERER_H
 #define THREE_QT_RENDERER_H
 
-#include <textures/Texture.h>
-#include <scene/Scene.h>
-#include <camera/Camera.h>
-#include <helper/sole.h>
+#include <three/textures/Texture.h>
+#include <three/scene/Scene.h>
+#include <three/camera/Camera.h>
+#include <three/helper/sole.h>
 
 namespace three {
 

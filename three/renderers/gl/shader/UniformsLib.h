@@ -5,13 +5,13 @@
 #ifndef THREE_QT_UNIFORMSLIB_H
 #define THREE_QT_UNIFORMSLIB_H
 
-#include <textures/DataTexture.h>
-#include <textures/ImageTexture.h>
-#include <core/Color.h>
-#include <math/Matrix3.h>
-#include <math/Vector3.h>
-#include "../Uniforms.h"
-#include "../Lights.h"
+#include <three/textures/DataTexture.h>
+#include <three/textures/ImageTexture.h>
+#include <three/core/Color.h>
+#include <three/math/Matrix3.h>
+#include <three/math/Vector3.h>
+#include <three/renderers/gl/Uniforms.h>
+#include <three/renderers/gl/Lights.h>
 
 namespace three {
 namespace gl {

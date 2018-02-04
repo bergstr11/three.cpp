@@ -6,8 +6,8 @@
 #define THREE_QT_MESHDISTANCEMATERIAL_H
 
 #include "Material.h"
-#include <math/Vector3.h>
-#include <textures/Texture.h>
+#include <three/math/Vector3.h>
+#include <three/textures/Texture.h>
 
 namespace three {
 

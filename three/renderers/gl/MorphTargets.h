@@ -9,9 +9,9 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
-#include <objects/Mesh.h>
-#include <core/BufferGeometry.h>
-#include <material/Material.h>
+#include <three/objects/Mesh.h>
+#include <three/core/BufferGeometry.h>
+#include <three/material/Material.h>
 #include "Program.h"
 
 namespace three {

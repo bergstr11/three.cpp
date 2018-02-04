@@ -7,7 +7,7 @@
 
 #include <QOpenGLFunctions>
 #include <QImage>
-#include <math/Math.h>
+#include <three/math/Math.h>
 #include "RenderTarget.h"
 #include "Extensions.h"
 #include "State.h"

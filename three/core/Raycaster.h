@@ -5,12 +5,12 @@
 #ifndef THREE_QT_RAYCASTER_H
 #define THREE_QT_RAYCASTER_H
 
-#include <math/Ray.h>
 #include <memory>
+
+#include <three/math/Ray.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector3.h>
 #include "Face3.h"
-#include <math/Vector2.h>
-#include <math/Vector3.h>
-#include <QDebug>
 
 namespace three {
 

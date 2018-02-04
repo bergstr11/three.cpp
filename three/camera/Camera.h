@@ -5,12 +5,12 @@
 #ifndef THREEQT_CAMERA
 #define THREEQT_CAMERA
 
-#include <math/Matrix4.h>
-#include <math/Vector3.h>
-#include <math/Quaternion.h>
-#include <math/Ray.h>
-#include <core/Object3D.h>
-#include <helper/Resolver.h>
+#include <three/math/Matrix4.h>
+#include <three/math/Vector3.h>
+#include <three/math/Quaternion.h>
+#include <three/math/Ray.h>
+#include <three/core/Object3D.h>
+#include <three/helper/Resolver.h>
 
 namespace three {
 

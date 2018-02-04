@@ -6,12 +6,12 @@
 #define THREE_QT_RENDERERIMPL
 
 #include <cstdio>
-#include <renderers/OpenGLRenderer.h>
-#include <light/Light.h>
-#include <math/Frustum.h>
-#include <objects/Sprite.h>
-#include <objects/LensFlare.h>
-#include <camera/ArrayCamera.h>
+#include <three/renderers/OpenGLRenderer.h>
+#include <three/light/Light.h>
+#include <three/math/Frustum.h>
+#include <three/objects/Sprite.h>
+#include <three/objects/LensFlare.h>
+#include <three/camera/ArrayCamera.h>
 #include "RenderTarget.h"
 #include "BufferRenderer.h"
 #include "SpriteRenderer.h"

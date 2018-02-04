@@ -3,9 +3,9 @@
 //
 
 #include <vector>
-#include <objects/Mesh.h>
-#include <objects/Line.h>
-#include <objects/Points.h>
+#include <three/objects/Mesh.h>
+#include <three/objects/Line.h>
+#include <three/objects/Points.h>
 
 #include "DirectGeometry.h"
 #include "impl/raycast.h"

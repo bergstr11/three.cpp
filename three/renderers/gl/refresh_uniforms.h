@@ -5,7 +5,7 @@
 #ifndef THREE_QT_REFRESH_UNIFORMS_H
 #define THREE_QT_REFRESH_UNIFORMS_H
 
-#include <material/Material.h>
+#include <three/material/Material.h>
 
 namespace three {
 namespace gl {

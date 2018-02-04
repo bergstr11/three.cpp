@@ -5,8 +5,8 @@
 #ifndef THREE_QT_LIGHT_H
 #define THREE_QT_LIGHT_H
 
-#include <core/Object3D.h>
-#include <helper/Resolver.h>
+#include <three/core/Object3D.h>
+#include <three/helper/Resolver.h>
 #include "LightShadow.h"
 
 namespace three {

@@ -7,20 +7,18 @@
 
 #include <vector>
 #include <cstring>
-#include <core/Color.h>
 #include <memory>
 
-#include <qopengl.h>
-
-#include <Constants.h>
-#include <helper/sole.h>
-#include <helper/simplesignal.h>
-#include <math/Vector2.h>
-#include <math/Vector3.h>
-#include <math/Vector4.h>
-#include <math/Box3.h>
-#include <helper/Types.h>
-#include <helper/Resolver.h>
+#include <three/Constants.h>
+#include <three/core/Color.h>
+#include <three/helper/sole.h>
+#include <three/helper/simplesignal.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector3.h>
+#include <three/math/Vector4.h>
+#include <three/math/Box3.h>
+#include <three/helper/Types.h>
+#include <three/helper/Resolver.h>
 
 namespace three {
 

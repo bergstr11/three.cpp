@@ -6,7 +6,7 @@
 #define THREE_QT_FLARERENDERER_H
 
 #include <QOpenGLFunctions>
-#include <objects/LensFlare.h>
+#include <three/objects/LensFlare.h>
 #include "State.h"
 #include "Textures.h"
 #include "Capabilities.h"

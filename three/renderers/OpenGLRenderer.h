@@ -6,9 +6,9 @@
 #define THREE_QT_OPENGLRENDERER
 
 #include <QOpenGLContext>
-#include <Constants.h>
-#include <scene/Scene.h>
-#include <camera/Camera.h>
+#include <three/Constants.h>
+#include <three/scene/Scene.h>
+#include <three/camera/Camera.h>
 #include "Renderer.h"
 
 namespace three {

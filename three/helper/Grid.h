@@ -5,8 +5,8 @@
 #ifndef THREEPP_GRIDHELPER_H
 #define THREEPP_GRIDHELPER_H
 
-#include <objects/Line.h>
-#include <core/Color.h>
+#include <three/objects/Line.h>
+#include <three/core/Color.h>
 
 namespace three {
 namespace helper {

@@ -6,9 +6,9 @@
 #define THREEPP_LOADER_H
 
 #include <istream>
-#include <helper/simplesignal.h>
-#include <objects/Node.h>
-#include <scene/Scene.h>
+#include <three/helper/simplesignal.h>
+#include <three/objects/Node.h>
+#include <three/scene/Scene.h>
 
 namespace three {
 

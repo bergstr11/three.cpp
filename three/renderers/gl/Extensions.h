@@ -7,7 +7,7 @@
 
 #include <QOpenGLContext>
 #include <unordered_map>
-#include <Constants.h>
+#include <three/Constants.h>
 #include <QOpenGLTexture>
 
 namespace three {

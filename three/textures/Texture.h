@@ -6,15 +6,15 @@
 #define THREE_QT_TEXTURE_H
 
 #include <QImage>
-#include <math/Vector2.h>
-#include <math/Matrix3.h>
+#include <three/math/Vector2.h>
+#include <three/math/Matrix3.h>
 #include <vector>
 #include <memory>
-#include <Constants.h>
-#include <helper/simplesignal.h>
-#include <helper/sole.h>
-#include <helper/Resolver.h>
-#include <helper/Types.h>
+#include <three/Constants.h>
+#include <three/helper/simplesignal.h>
+#include <three/helper/sole.h>
+#include <three/helper/Resolver.h>
+#include <three/helper/Types.h>
 
 namespace three {
 

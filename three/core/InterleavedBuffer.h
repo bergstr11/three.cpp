@@ -6,7 +6,7 @@
 #define THREE_QT_INTERLEAVEDBUFFER_H
 
 #include <vector>
-#include <helper/simplesignal.h>
+#include <three/helper/simplesignal.h>
 
 namespace three {
 

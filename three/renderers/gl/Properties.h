@@ -8,9 +8,9 @@
 #include <unordered_map>
 #include <string>
 #include <type_traits>
-#include <core/Object3D.h>
-#include <scene/Fog.h>
-#include <textures/Texture.h>
+#include <three/core/Object3D.h>
+#include <three/scene/Fog.h>
+#include <three/textures/Texture.h>
 #include "Program.h"
 #include "shader/ShaderLib.h"
 

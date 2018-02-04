@@ -5,10 +5,10 @@
 #ifndef THREE_QT_GLRENDERERLISTS_H
 #define THREE_QT_GLRENDERERLISTS_H
 
-#include <core/Object3D.h>
-#include <core/Geometry.h>
-#include <scene/Scene.h>
-#include <camera/Camera.h>
+#include <three/core/Object3D.h>
+#include <three/core/Geometry.h>
+#include <three/scene/Scene.h>
+#include <three/camera/Camera.h>
 #include "Program.h"
 
 namespace three {

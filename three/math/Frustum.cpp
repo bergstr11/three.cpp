@@ -4,7 +4,7 @@
 
 #include "Frustum.h"
 
-#include <objects/Sprite.h>
+#include <three/objects/Sprite.h>
 #include <iostream>
 
 namespace three {

@@ -7,7 +7,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include "math/Matrix3.h"
+#include <three/math/Matrix3.h>
 
 namespace three {
 namespace math {

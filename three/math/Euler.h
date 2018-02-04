@@ -5,10 +5,10 @@
 #ifndef THREEQT_EULER
 #define THREEQT_EULER
 
-#include "math/Matrix4.h"
-#include "math/Quaternion.h"
-#include "math/Vector3.h"
-#include "helper/simplesignal.h"
+#include <three/math/Matrix4.h>
+#include <three/math/Quaternion.h>
+#include <three/math/Vector3.h>
+#include <three/helper/simplesignal.h>
 
 namespace three {
 namespace math {

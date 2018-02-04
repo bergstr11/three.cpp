@@ -5,10 +5,11 @@
 #ifndef THREE_QT_GEOMETRIES_H
 #define THREE_QT_GEOMETRIES_H
 
-#include <core/Object3D.h>
-#include <core/Geometry.h>
-#include <core/BufferGeometry.h>
 #include <unordered_map>
+
+#include <three/core/Object3D.h>
+#include <three/core/Geometry.h>
+#include <three/core/BufferGeometry.h>
 #include "Attributes.h"
 
 

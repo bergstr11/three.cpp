@@ -5,8 +5,8 @@
 #ifndef THREE_QT_SKELETON_H
 #define THREE_QT_SKELETON_H
 
-#include <core/Object3D.h>
-#include <textures/Texture.h>
+#include <three/core/Object3D.h>
+#include <three/textures/Texture.h>
 
 namespace three {
 

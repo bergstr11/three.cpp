@@ -5,9 +5,10 @@
 #ifndef THREE_QT_AXISHELPER_H
 #define THREE_QT_AXISHELPER_H
 
-#include <objects/Line.h>
 #include <memory>
-#include <core/BufferAttribute.h>
+
+#include <three/objects/Line.h>
+#include <three/core/BufferAttribute.h>
 
 namespace three {
 namespace helper {

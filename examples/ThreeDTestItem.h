@@ -8,8 +8,8 @@
 #include <QQuickFramebufferObject>
 #include <QColor>
 #include <memory>
-#include <scene/Scene.h>
-#include <quick/interact/OrbitControls.h>
+#include <three/scene/Scene.h>
+#include <three/quick/interact/OrbitControls.h>
 
 class QOpenGLShaderProgram;
 

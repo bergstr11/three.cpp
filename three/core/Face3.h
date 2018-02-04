@@ -6,7 +6,7 @@
 #define THREE_QT_FACE3_H
 
 #include <array>
-#include "math/Vector3.h"
+#include <three/math/Vector3.h>
 #include "Color.h"
 
 namespace three {

@@ -3,8 +3,6 @@
 //
 
 #include "Object3D.h"
-#include <math/Math.h>
-#include <math/Quaternion.h>
 
 namespace three {
 

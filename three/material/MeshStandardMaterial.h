@@ -6,7 +6,7 @@
 #define THREE_QT_MESHSTANDARDMATERIAL_H
 
 #include "Material.h"
-#include <core/Color.h>
+#include <three/core/Color.h>
 
 namespace three {
 

@@ -9,7 +9,7 @@
 #include "State.h"
 #include "Textures.h"
 #include "Capabilities.h"
-#include <objects/Sprite.h>
+#include <three/objects/Sprite.h>
 
 namespace three {
 namespace gl {

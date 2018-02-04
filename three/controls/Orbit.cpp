@@ -3,9 +3,9 @@
 //
 
 #include "Orbit.h"
-#include <math/Math.h>
-#include <camera/PerspectiveCamera.h>
-#include <camera/OrtographicCamera.h>
+#include <three/math/Math.h>
+#include <three/camera/PerspectiveCamera.h>
+#include <three/camera/OrtographicCamera.h>
 
 namespace three {
 namespace control {

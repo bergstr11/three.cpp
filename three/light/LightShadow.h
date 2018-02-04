@@ -5,11 +5,12 @@
 #ifndef THREE_QT_LIGHTSHADOW_H
 #define THREE_QT_LIGHTSHADOW_H
 
-#include <camera/PerspectiveCamera.h>
-#include <math/Vector2.h>
-#include <textures/Texture.h>
 #include <type_traits>
-#include <renderers/Renderer.h>
+
+#include <three/camera/PerspectiveCamera.h>
+#include <three/math/Vector2.h>
+#include <three/textures/Texture.h>
+#include <three/renderers/Renderer.h>
 #include "Light.h"
 
 namespace three {

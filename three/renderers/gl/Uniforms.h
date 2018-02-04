@@ -11,16 +11,16 @@
 #include <memory>
 #include <unordered_map>
 
-#include <core/Color.h>
-#include <math/Vector2.h>
-#include <math/Vector3.h>
-#include <math/Vector4.h>
-#include <math/Matrix3.h>
-#include <math/Matrix4.h>
+#include <three/core/Color.h>
+#include <three/math/Vector2.h>
+#include <three/math/Vector3.h>
+#include <three/math/Vector4.h>
+#include <three/math/Matrix3.h>
+#include <three/math/Matrix4.h>
 
-#include <textures/ImageTexture.h>
-#include <textures/DataTexture.h>
-#include <Constants.h>
+#include <three/textures/ImageTexture.h>
+#include <three/textures/DataTexture.h>
+#include <three/Constants.h>
 #include "Helpers.h"
 #include "Lights.h"
 

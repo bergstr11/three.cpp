@@ -5,10 +5,10 @@
 #ifndef THREEQT_MESH
 #define THREEQT_MESH
 
-#include <core/Object3D.h>
-#include <material/Material.h>
-#include <material/MeshBasicMaterial.h>
-#include <helper/simplesignal.h>
+#include <three/core/Object3D.h>
+#include <three/material/Material.h>
+#include <three/material/MeshBasicMaterial.h>
+#include <three/helper/simplesignal.h>
 
 namespace three {
 
