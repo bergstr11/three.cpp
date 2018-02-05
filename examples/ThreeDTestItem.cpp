@@ -12,20 +12,20 @@
 
 #include "ThreeDTestItem.h"
 
-#include <three/renderers/OpenGLRenderer.h>
-#include <three/objects/Mesh.h>
-#include <three/scene/Scene.h>
-#include <three/camera/PerspectiveCamera.h>
-#include <three/material/MeshLambertMaterial.h>
-#include <three/material/ShaderMaterial.h>
-#include <three/textures/ImageTexture.h>
-#include <three/geometry/Box.h>
-#include <three/geometry/Plane.h>
-#include <three/geometry/Sphere.h>
-#include <three/helper/Axes.h>
-#include <three/helper/SpotLight.h>
-#include <three/light/AmbientLight.h>
-#include <three/renderers/gl/shader/ShaderLib.h>
+#include <threepp/renderers/OpenGLRenderer.h>
+#include <threepp/objects/Mesh.h>
+#include <threepp/scene/Scene.h>
+#include <threepp/camera/PerspectiveCamera.h>
+#include <threepp/material/MeshLambertMaterial.h>
+#include <threepp/material/ShaderMaterial.h>
+#include <threepp/textures/ImageTexture.h>
+#include <threepp/geometry/Box.h>
+#include <threepp/geometry/Plane.h>
+#include <threepp/geometry/Sphere.h>
+#include <threepp/helper/Axes.h>
+#include <threepp/helper/SpotLight.h>
+#include <threepp/light/AmbientLight.h>
+#include <threepp/renderers/gl/shader/ShaderLib.h>
 
 namespace three {
 namespace quick {

@@ -3,7 +3,7 @@
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QDebug>
-#include <three/quick/Three.h>
+#include <threepp/quick/Three.h>
 #include "ThreeDTestItem.h"
 
 int main(int argc, char *argv[]) {

@@ -2,14 +2,14 @@
 // Created by cse on 5/12/17.
 //
 
-#ifndef VTKQUICK_VTK_3DSITEM_H
-#define VTKQUICK_VTK_3DSITEM_H
+#ifndef THREEPP_TESTITEM_H
+#define THREEPP_TESTITEM_H
 
 #include <QQuickFramebufferObject>
 #include <QColor>
 #include <memory>
-#include <three/scene/Scene.h>
-#include <three/quick/interact/OrbitControls.h>
+#include <threepp/scene/Scene.h>
+#include <threepp/quick/interact/OrbitControls.h>
 
 class QOpenGLShaderProgram;
 
@@ -81,4 +81,4 @@ signals:
 }
 }
 
-#endif //VTKQUICK_VTK_3DSITEM_H
+#endif //THREEPP_TESTITEM_H

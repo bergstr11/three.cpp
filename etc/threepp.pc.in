@@ -1,0 +1,11 @@
+prefix=@DEST_DIR@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: Threepp
+Description: 3D rendering framework based on Three.js
+Version: 1.0
+Libs: -L${libdir} -lthreepp
+Libs.private: -lstdc++ -lz
+Cflags: -I${includedir}
