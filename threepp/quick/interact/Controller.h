@@ -6,12 +6,12 @@
 #define THREEQUICK_CONTROLLER_H
 
 #include <QObject>
+#include <QQuickItem>
 #include <QMouseEvent>
 
 namespace three {
 namespace quick {
 
-class ThreeDItem;
 class Camera;
 
 class Controller : public QObject
@@ -23,7 +23,7 @@ protected:
   Camera *_camera = nullptr;
 
 public:
-  virtual void setItem(ThreeDItem *item) = 0;
+  virtual void setItem(QQuickItem *item) = 0;
 
   virtual bool handleMousePressed(QMouseEvent *event) = 0;
 

@@ -181,9 +181,7 @@ public:
   void run() override
   {
     assimp.load(file.fileName().toStdString(), *this);
-
-    emit completed();
-    deleteLater();
+    emit loaded();
   }
 
   bool exists(const char *path) override
@@ -225,7 +223,7 @@ public:
   }
 
 signals:
-  void completed();
+  void loaded();
 };
 
 /**
@@ -249,9 +247,7 @@ public:
   void run() override
   {
     assimp.load(file.fileName().toStdString(), *this);
-
-    emit completed();
-    deleteLater();
+    emit loaded();
   }
 
   bool exists(const char *path) override
@@ -293,7 +289,7 @@ public:
   }
 
 signals:
-  void completed();
+  void loaded();
 };
 
 void Model::setReplacements(const QVariantMap &replacements)
@@ -316,12 +312,14 @@ void Model::loadFile(const QString &file)
   QFileInfo info(file);
   if(info.isNativePath()) {
     FileSystemLoader *loader = new FileSystemLoader(*_assimp, file, replacements);
-    QObject::connect(loader, &FileSystemLoader::completed, this, &Model::modelLoaded);
+    QObject::connect(loader, &FileSystemLoader::loaded, this, &Model::modelLoaded);
+    QObject::connect(loader, &QThread::finished, loader, &QObject::deleteLater);
     loader->start();
   }
   else {
     ResourceLoader *loader = new ResourceLoader(*_assimp, file, replacements);
-    QObject::connect(loader, &ResourceLoader::completed, this, &Model::modelLoaded);
+    QObject::connect(loader, &ResourceLoader::loaded, this, &Model::modelLoaded);
+    QObject::connect(loader, &QThread::finished, loader, &QObject::deleteLater);
     loader->start();
   }
 }

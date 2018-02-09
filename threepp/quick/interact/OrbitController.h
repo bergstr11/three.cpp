@@ -82,7 +82,7 @@ protected:
   }
 
 public:
-  void setItem(ThreeDItem *item) override
+  void setItem(QQuickItem *item) override
   {
     _controls = OrbitControls::make(item, _camera->camera());
     _controls->minDistance = _minDistance;

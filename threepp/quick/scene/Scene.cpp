@@ -115,7 +115,7 @@ void Scene::addTo(ObjectRootContainer *container)
   _quickCamera->create(this);
 
   if(_quickCamera->controller())
-    container->addController(_quickCamera->controller(), _quickCamera->camera());
+    container->addController(_quickCamera->controller());
 
   //cameras with children need to be parented to the scene!
   if(!_quickCamera->camera()->children().empty())
