@@ -6,18 +6,9 @@
 #include "MeshPhongMaterial.h"
 #include "MeshLambertMaterial.h"
 #include "MeshBasicMaterial.h"
-#include <threepp/quick/textures/Texture.h>
 
 namespace three {
 namespace quick {
-
-void Material::setBaseProperties(three::Material::Ptr material)
-{
-  material->wireframe = _wireframe;
-  material->flatShading = _flatShading;
-  material->visible = _visible;
-  if(_map) material->map = _map->getTexture();
-}
 
 void Material::setMap(Texture *map)
 {
@@ -29,6 +20,14 @@ void Material::setMap(Texture *map)
     }
     emit mapChanged();
   }
+}
+
+void Material::setBaseProperties(three::Material::Ptr material)
+{
+  material->wireframe = _wireframe;
+  material->flatShading = _flatShading;
+  material->visible = _visible;
+  if(_map) material->map = _map->getTexture();
 }
 
 three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const

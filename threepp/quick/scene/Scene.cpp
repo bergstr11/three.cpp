@@ -10,10 +10,12 @@
 #include <QScreen>
 
 #include "Scene.h"
-#include <threepp/quick/Three.h>
+#include <threepp/quick/ThreeDItem.h>
 
 namespace three {
 namespace quick {
+
+Scene::Scene(ThreeDItem *item) : ThreeQObjectRoot(item), _item(item) {}
 
 void Scene::setName(const QString &name) {
   if (_name != name) {

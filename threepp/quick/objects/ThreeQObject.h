@@ -20,7 +20,7 @@ class ObjectContainer;
 class ThreeQObject : public QObject
 {
 Q_OBJECT
-  Q_PROPERTY(QString name READ name WRITE setName)
+  Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
@@ -32,7 +32,7 @@ Q_OBJECT
 protected:
   QString _name;
 
-  QVector3D _position {0.0f, 0.0f, 0.0f};
+  QVector3D _position;
 
   QVector3D _rotation;
 
@@ -54,6 +54,8 @@ protected:
 public:
   QVector3D position() {return _position;}
   QVector3D rotation() {return _rotation;}
+
+  void setObject(three::Object3D::Ptr object);
 
   void setPosition(const QVector3D &position, bool propagate=true) {
     if(position != _position) {
@@ -89,79 +91,65 @@ public:
 
   bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
-  void setMatrixAutoUpdate(bool matrixAutoUpdate) {
+  void setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate=true) {
     if(_matrixAutoUpdate != matrixAutoUpdate) {
       _matrixAutoUpdate = matrixAutoUpdate;
+      if(propagate && _object) _object->matrixAutoUpdate = _matrixAutoUpdate;
       emit matrixAutoUpdateChanged();
     }
   }
 
   bool castShadow() const {return _castShadow;}
 
-  void setCastShadow(bool castShadow) {
+  void setCastShadow(bool castShadow, bool propagate=true) {
     if(_castShadow != castShadow) {
       _castShadow = castShadow;
+      if(propagate && _object) _object->castShadow = _castShadow;
       emit castShadowChanged();
     }
   }
 
   bool receiveShadow() const {return _receiveShadow;}
 
-  void setReceiveShadow(bool receiveShadow) {
+  void setReceiveShadow(bool receiveShadow, bool propagate=true) {
     if(_receiveShadow != receiveShadow) {
       _receiveShadow = receiveShadow;
+      if(propagate && _object) _object->receiveShadow = _castShadow;
       emit receiveShadowChanged();
     }
   }
 
   bool visible() const {return _visible;}
 
-  void setVisible(bool visible) {
+  void setVisible(bool visible, bool propagate=true) {
     if(_visible != visible) {
       _visible = visible;
 
-      if(_object) _object->visible() = _visible;
+      if(propagate && _object) _object->visible() = _visible;
       emit visibleChanged();
     }
   }
 
   const QString &name() const {return _name;}
 
-  void setName(const QString &name) {
-    if(_name.isEmpty()) _name = name;
+  void setName(const QString &name, bool propagate=true)
+  {
+    if(_name != name) {
+      _name = name;
+      if(_object && propagate) _object->setName(_name.toStdString());
+
+      emit nameChanged();
+    }
   }
 
   three::Object3D::Ptr object() const {return _object;}
 
-  three::Object3D::Ptr create(Scene *scene)
-  {
-    _object = _create(scene);
-    if(_object) {
-      if(!_rotation.isNull())
-        _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+  three::Object3D::Ptr create(Scene *scene);
 
-      _object->position().set(_position.x(), _position.y(), _position.z());
-
-      if(!_name.isEmpty())
-        _object->setName(_name.toStdString());
-
-      _object->castShadow = _castShadow;
-      _object->receiveShadow = _receiveShadow;
-      _object->matrixAutoUpdate = _matrixAutoUpdate;
-    }
-    _post_create(scene);
-    return _object;
-  }
-
-  Q_INVOKABLE void rotateX(float angle) {
-    if(_object) _object->rotateX(angle);
-  }
-  Q_INVOKABLE void rotateY(float angle) {
-    if(_object) _object->rotateY(angle);
-  }
-  Q_INVOKABLE void rotateZ(float angle) {
-    if(_object) _object->rotateZ(angle);
-  }
+  Q_INVOKABLE void rotateX(float angle);
+  Q_INVOKABLE void rotateY(float angle);
+  Q_INVOKABLE void rotateZ(float angle);
+  Q_INVOKABLE void translateZ(float distance);
 
 signals:
   void positionChanged();
@@ -171,6 +159,7 @@ signals:
   void receiveShadowChanged();
   void visibleChanged();
   void matrixAutoUpdateChanged();
+  void nameChanged();
 };
 
 }

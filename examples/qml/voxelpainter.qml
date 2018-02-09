@@ -160,8 +160,7 @@ Window {
 
                     // create cube
                     var voxel = voxelFactory.createObject(scene, {
-                        width: 50, height: 50, depth: 50, color: "#feb74c",
-                        texture: cubeTexture})
+                        width: 50, height: 50, depth: 50, color: "#feb74c", texture: cubeTexture})
 
                     scene.add(voxel);
                     grid.snap(voxel, intersect);

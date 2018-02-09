@@ -2,7 +2,6 @@
 // Created by byter on 1/12/18.
 //
 
-#include <QDebug>
 #include "ModelRef.h"
 #include <threepp/quick/objects/Mesh.h>
 #include <threepp/quick/objects/AmbientLight.h>
@@ -49,7 +48,7 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       if (m) {
         parent->add(m);
         if(setObject)
-          _object = new three::quick::Mesh(m, this);
+          _threeQObject = new three::quick::Mesh(m, this);
       }
       break;
     }
@@ -57,25 +56,25 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       auto hl = dynamic_pointer_cast<three::HemisphereLight>(obj);
       if(hl) {
         parent->add(hl);
-        if(setObject) _object = new three::quick::HemisphereLight(hl, this);
+        if(setObject) _threeQObject = new three::quick::HemisphereLight(hl, this);
       }
       else {
         auto dl = dynamic_pointer_cast<three::DirectionalLight>(obj);
         if(dl) {
           parent->add(dl);
-          if(setObject) _object = new three::quick::DirectionalLight(dl, this);
+          if(setObject) _threeQObject = new three::quick::DirectionalLight(dl, this);
         }
         else {
           auto al = dynamic_pointer_cast<three::AmbientLight>(obj);
           if(al) {
             parent->add(al);
-            if(setObject) _object = new three::quick::AmbientLight(al, this);
+            if(setObject) _threeQObject = new three::quick::AmbientLight(al, this);
           }
           else {
             auto sl = dynamic_pointer_cast<three::SpotLight>(obj);
             if(sl) {
               parent->add(sl);
-              if(setObject) _object = new three::quick::SpotLight(sl, this);
+              if(setObject) _threeQObject = new three::quick::SpotLight(sl, this);
             }
           }
         }
@@ -86,7 +85,7 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       auto pcam = dynamic_pointer_cast<three::PerspectiveCamera>(obj);
       if (pcam) {
         _scene->scene()->add(pcam);
-        if(setObject) _object = new three::quick::PerspectiveCamera(pcam, this);
+        if(setObject) _threeQObject = new three::quick::PerspectiveCamera(pcam, this);
       }
       break;
     }
@@ -150,50 +149,11 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
   return false;
 }
 
-void ModelRef::setRotateX(float angle) {
-  if(_rotateX != angle) {
-    float diff = angle - _rotateX;
-    _rotateX = angle;
-    if(_node) _node->rotateX(diff);
-    emit rotateChanged();
-  }
-}
-void ModelRef::setRotateY(float angle) {
-  if(_rotateY != angle) {
-    float diff = angle - _rotateY;
-    _rotateY = angle;
-    if(_node) _node->rotateY(diff);
-    emit rotateChanged();
-  }
-}
-void ModelRef::setRotateZ(float angle) {
-  if(_rotateZ != angle) {
-    float diff = angle - _rotateZ;
-    _rotateZ = angle;
-    if(_node) _node->rotateZ(diff);
-    emit rotateChanged();
-  }
-}
-
-void ModelRef::setTranslateZ(float distance) {
-  if(_translateZ != distance) {
-    float diff = distance - _translateZ;
-    _translateZ = distance;
-    if(_node) _node->translateZ(diff);
-    emit translateZChanged();
-  }
-}
-
 void ModelRef::updateMesh()
 {
-  if(_node) _scene->scene()->remove(_node);
+  if(_object) _scene->scene()->remove(_object);
 
-  _node = three::Node::make(_model->name().toStdString());
-  _node->rotateX(_rotateX);
-  _node->rotateY(_rotateY);
-  _node->rotateZ(_rotateZ);
-
-  _node->translateZ(_translateZ);
+  setObject(three::Node::make(_model->name().toStdString()));
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
@@ -202,19 +162,18 @@ void ModelRef::updateMesh()
     auto begin = selectors.begin();
     auto end = selectors.end();
 
-    evaluateSelector(begin, end, _node, _model->scene()->children());
+    evaluateSelector(begin, end, _object, _model->scene()->children());
   }
   else {
-    //must copy, as the children are in effect moved
+    //must copy the list, as the children are in effect moved (reparented)
     const std::vector<Object3D::Ptr> children = _model->scene()->children();
 
-    for(Object3D::Ptr child : children)  _node->add(child);
+    for(Object3D::Ptr child : children)  _object->add(child);
   }
 
-  _scene->scene()->add(_node);
-  if(_object)
-    emit modelObjectChanged();
+  _scene->scene()->add(_object);
 
+  emit objectChanged();
   emit _scene->sceneChanged();
 }
 

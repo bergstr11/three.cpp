@@ -16,6 +16,15 @@ Window {
         anchors.fill: parent
         color: "lightgray"
     }
+    Row {
+        anchors.top: parent.top
+        anchors.topMargin: 10
+        anchors.horizontalCenter: parent.horizontalCenter
+        spacing: 20
+
+        Label {text: "Position: %1:%2:%3".arg(modelref.position.x).arg(modelref.position.y).arg(modelref.position.z)}
+        Label {text: "Rotation: %1:%2:%3".arg(modelref.rotation.x).arg(modelref.rotation.y).arg(modelref.rotation.z)}
+    }
     OptionsMenu {
         title: "adjust model"
         anchors.top: parent.top
@@ -25,29 +34,45 @@ Window {
         z: 2
         threeD: threeD
 
-        FloatValue {
-            name: "rotateX"
+        FloatManip {
+            name: "rotation.x"
             target: modelref
             from: -Math.PI
             to: Math.PI
+            onValueChanged: {
+                target.rotateX(value - base)
+                base = value
+            }
         }
-        FloatValue {
-            name: "rotateY"
+        FloatManip {
+            name: "rotation.y"
             target: modelref
             from: -Math.PI
             to: Math.PI
+            onValueChanged: {
+                target.rotateY(value - base)
+                base = value
+            }
         }
-        FloatValue {
-            name: "rotateZ"
+        FloatManip {
+            name: "rotation.z"
             target: modelref
             from: -Math.PI
             to: Math.PI
+            onValueChanged: {
+                target.rotateZ(value - base)
+                base = value
+            }
         }
-        FloatValue {
-            name: "translateZ"
-            target: modelref
+        FloatManip {
+            name: "position.z"
+            target: sceneCamera
             from: -10000
             to: 10000
+            onValueChanged: {
+                target.translateZ(value - base)
+                base = value
+            }
         }
         BoolChoice {
             name: "Enable pan"
@@ -94,7 +119,7 @@ Window {
         id: threeD
         anchors.fill: parent
         autoClear: false
-        samples: 8
+        samples: 12
 
         Model {
             id: threeDModel

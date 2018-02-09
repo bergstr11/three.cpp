@@ -11,6 +11,7 @@ namespace three {
 namespace quick {
 
 class ObjectRootContainer;
+class ThreeDItem;
 
 class ThreeQObjectRoot : public QObject
 {

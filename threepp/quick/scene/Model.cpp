@@ -5,11 +5,8 @@
 #include <QThread>
 #include <QFileInfo>
 #include <QDir>
-#include <QString>
 #include <fstream>
 #include <threepp/loader/Assimp.h>
-#include <QDebug>
-#include <algorithm>
 
 #include "Model.h"
 
@@ -229,7 +226,7 @@ signals:
 /**
  * loader that resolves resources from Qt resource storage
  */
-class ResourceLoader : public QThread, public three::ResourceLoader
+class QtResourceLoader : public QThread, public three::ResourceLoader
 {
 Q_OBJECT
 
@@ -239,7 +236,7 @@ Q_OBJECT
   unordered_map<string, string> _replacements;
 
 public:
-  ResourceLoader(loader::Assimp &assimp, const QString &url, const unordered_map<string, string> &replacements)
+  QtResourceLoader(loader::Assimp &assimp, const QString &url, const unordered_map<string, string> &replacements)
      : assimp(assimp), file(url), _replacements(replacements) {
     if(!file.exists()) qWarning() << "file " << file.fileName() << "does not exist";
   }
@@ -317,8 +314,8 @@ void Model::loadFile(const QString &file)
     loader->start();
   }
   else {
-    ResourceLoader *loader = new ResourceLoader(*_assimp, file, replacements);
-    QObject::connect(loader, &ResourceLoader::loaded, this, &Model::modelLoaded);
+    QtResourceLoader *loader = new QtResourceLoader(*_assimp, file, replacements);
+    QObject::connect(loader, &QtResourceLoader::loaded, this, &Model::modelLoaded);
     QObject::connect(loader, &QThread::finished, loader, &QObject::deleteLater);
     loader->start();
   }

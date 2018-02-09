@@ -7,7 +7,7 @@
 
 #include <threepp/quick/ThreeQObjectRoot.h>
 #include <threepp/quick/objects/MeshCreator.h>
-#include <threepp/textures/Texture.h>
+#include <threepp/quick/textures/Texture.h>
 
 namespace three {
 namespace quick {

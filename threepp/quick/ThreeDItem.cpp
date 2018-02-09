@@ -8,7 +8,6 @@
 #include <QQuickWindow>
 #include <QScreen>
 #include <threepp/quick/scene/Scene.h>
-#include <threepp/quick/interact/Controller.h>
 #include <threepp/renderers/OpenGLRenderer.h>
 
 namespace three {
