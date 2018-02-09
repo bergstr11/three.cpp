@@ -88,7 +88,7 @@ namespace uniformslib {
 
 class UniformsLib
 {
-  std::unordered_map<UniformsID, LibUniformValues> _uniforms;
+  enum_map<UniformsID, LibUniformValues> _uniforms;
 
   void add(UniformsID id, const LibUniformValues &uv)
   {
@@ -96,7 +96,7 @@ class UniformsLib
   }
 
 public:
-  const std::unordered_map<UniformsID, LibUniformValues> &uniforms() const {return _uniforms;}
+  const enum_map<UniformsID, LibUniformValues> &uniforms() const {return _uniforms;}
 
   UniformsLib()
   {

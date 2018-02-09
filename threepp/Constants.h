@@ -5,7 +5,7 @@
 #ifndef THREEPP_CONSTANTS
 #define THREEPP_CONSTANTS
 
-#include <GL/gl.h>
+#include <QOpenGLFunctions>
 #include <iostream>
 #include <assert.h>
 
@@ -51,11 +51,17 @@ enum class TextureFormat : GLenum
   Undefined = 0,
   Alpha = GL_ALPHA,
   RGB = GL_RGB,
+#ifdef GL_BGR
   BGR = GL_BGR,
+#endif
   RGBA = GL_RGBA,
+#ifdef GL_BGRA
   BGRA = GL_BGRA,
+#endif
   Luminance = GL_LUMINANCE,
+#ifdef GL_LUMINANCE4_ALPHA4
   LuminanceAlpha = GL_LUMINANCE4_ALPHA4,
+#endif
   Depth = GL_DEPTH,
   DepthComponent=GL_DEPTH_COMPONENT,
   DepthComponent32 = GL_DEPTH_COMPONENT32F,

@@ -5,7 +5,7 @@
 #include "Textures.h"
 #include <threepp/textures/DataTexture.h>
 #include <threepp/textures/ImageTexture.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 #include <QDebug>
 
 namespace three {

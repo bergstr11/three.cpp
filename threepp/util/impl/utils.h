@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <cstring>
+#include <sstream>
 #include <unordered_map>
 
 namespace three {
@@ -14,6 +15,14 @@ namespace three {
 template <typename Value>
 static void operator +=(std::vector<Value> &container, const std::initializer_list<Value> &args) {
   container.insert(container.end(), std::begin(args), std::end(args));
+}
+
+template<typename _Arg>
+inline std::string to_string(_Arg&& _arg)
+{
+  std::stringstream ss;
+  ss << std::forward<_Arg>(_arg);
+  return ss.str();
 }
 
 inline std::string replace_all(std::string target, const std::string &find, const std::string &replace)
@@ -42,23 +51,6 @@ inline std::string replace_all(std::string target, const std::unordered_map<std:
   }
   return target;
 }
-
-template <class T>
-inline void hash_combine(std::size_t & seed, const T & v)
-{
-  std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
-struct pair_hash {
-  template <class T1, class T2>
-  std::size_t operator () (const std::pair<T1,T2> &p) const {
-    auto h = std::hash<T1>{}(p.first);
-    hash_combine(h, p.second);
-
-    return h;
-  }
-};
 
 }
 #endif //THREEPP_UTILS_H

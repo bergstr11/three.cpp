@@ -249,9 +249,9 @@ public:
 
   Vector3 &round()
   {
-    _x = std::round( _x );
-    _y = std::round( _y );
-    _z = std::round( _z );
+    _x = ::round( _x );
+    _y = ::round( _y );
+    _z = ::round( _z );
 
     return *this;
   }

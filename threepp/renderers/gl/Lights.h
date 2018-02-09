@@ -12,9 +12,8 @@
 #include <threepp/light/SpotLight.h>
 #include <threepp/light/RectAreaLight.h>
 #include <threepp/light/LightShadow.h>
-#include <shadow.h>
 #include <unordered_map>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 
 namespace three {
 namespace gl {

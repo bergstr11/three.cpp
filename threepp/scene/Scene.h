@@ -7,7 +7,7 @@
 
 #include <threepp/core/Object3D.h>
 #include <threepp/core/Color.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 #include "Fog.h"
 
 namespace three {

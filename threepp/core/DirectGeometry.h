@@ -5,7 +5,7 @@
 #ifndef THREEPP_DIRECTGEOMETRY_H
 #define THREEPP_DIRECTGEOMETRY_H
 
-#include <threepp/helper/Types.h>
+#include <threepp/util/Types.h>
 #include <threepp/math/Sphere.h>
 #include "BufferAttribute.h"
 #include "LinearGeometry.h"

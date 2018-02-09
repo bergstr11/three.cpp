@@ -8,7 +8,7 @@
 #include <threepp/math/Matrix4.h>
 #include <threepp/math/Quaternion.h>
 #include <threepp/math/Vector3.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 namespace three {
 namespace math {

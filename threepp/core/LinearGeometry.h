@@ -15,7 +15,7 @@
 
 #include <threepp/math/Vector4.h>
 #include <threepp/math/Matrix3.h>
-#include <threepp/helper/Types.h>
+#include <threepp/util/Types.h>
 
 #include "Geometry.h"
 #include "BufferAttribute.h"

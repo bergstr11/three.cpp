@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include <threepp/helper/utils.h>
+#include <threepp/util/impl/utils.h>
 #include "Program.h"
 #include "Renderer_impl.h"
 #include "shader/ShaderChunk.h"
@@ -16,7 +16,7 @@ namespace gl {
 
 unsigned Program::programIdCount = 0;
 
-const std::unordered_map<std::string, std::string> Code<std::unordered_map<std::string, std::string>>::init = {};
+const std::unordered_map<std::string, std::string> Code<std::unordered_map<std::string, std::string>>::init;
 const Texture::Ptr Code<Texture::Ptr>::init = nullptr;
 
 using namespace std;
@@ -100,7 +100,7 @@ generateExtensions(Extensions &extensions, const ProgramParameters &parameters)
     ss << "#extension GL_OES_standard_derivatives : enable" << endl;
   if ((extensions.get(Extension::EXT_frag_depth) || *parameters.logarithmicDepthBuffer) && parameters.extensions.get(Extension::EXT_frag_depth))
     ss << "#extension GL_EXT_frag_depth : enable" << endl;
-  if (extensions.get(Extension::GL_EXT_draw_buffers) && parameters.extensions.get(Extension::GL_EXT_draw_buffers))
+  if (extensions.get(Extension::GLEXT_draw_buffers) && parameters.extensions.get(Extension::GLEXT_draw_buffers))
     ss << "#extension GL_EXT_draw_buffers : require" << endl;
   if ((extensions.get(Extension::EXT_shader_texture_lod) || *parameters.envMap) && parameters.extensions.get(Extension::EXT_shader_texture_lod))
     ss << "#extension GL_EXT_shader_texture_lod : enable" << endl;
@@ -136,7 +136,7 @@ int findIndexed(const char *haystack, const char *needle)
   return s ? atoi(s+strlen(needle)) : -1;
 }
 
-void Program::fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &attributes,
+void Program::fetchAttributeLocations(enum_map<AttributeName, GLint> &attributes,
                                       std::unordered_map<IndexedAttributeKey, GLint> &indexedAttributes)
 {
   GLint numActive;
@@ -199,15 +199,21 @@ string replaceLightNums(string value, const ProgramParameters &parameters)
                              {"NUM_HEMI_LIGHTS",      to_string(*parameters.numHemiLights)}});
 }
 
-string parseIncludes(string lookat)
+string parseIncludes(const string &lookat)
 {
   static const regex rex("#include +<([\\w\\d.]+)>");
 
+  string result;
+
   sregex_iterator rex_it(lookat.begin(), lookat.end(), rex);
   sregex_iterator rex_end;
+  size_t pos = 0;
 
   while(rex_it != rex_end) {
     std::smatch match = *rex_it;
+    result.append(lookat, pos, match.position(0) - pos);
+    pos = match.position(0) + match.length(0);
+
     std::ssub_match sub = match[1];
     string r = getShaderChunk(sub.str());
     if(r.empty()) {
@@ -215,15 +221,17 @@ string parseIncludes(string lookat)
       ss << "unable to resolve #include <" << sub.str() << ">";
       throw logic_error(ss.str());
     }
-    std::ssub_match all = match[0];
-    lookat.replace(all.first, all.second, r);
-
-    rex_it = sregex_iterator(lookat.begin() + match.position() + r.length(), lookat.end(), rex);
+    result.append(r);
+    rex_it++;
   }
-  return lookat;
+  if(pos == 0) return lookat;
+  else {
+    result.append(lookat, pos, lookat.length());
+    return result;
+  }
 }
 
-string unrollLoops(string glsl)
+string unrollLoops(const string &glsl)
 {
   static const regex rex(R"(for \( int i = (\d+)\; i < (\d+); i \+\+ \) \{[\r\n]?([\s\S]+?)(?=\})\})");
   static const regex rex2(R"(\[ i \])");
@@ -240,8 +248,8 @@ string unrollLoops(string glsl)
 
     for (auto it_end = glsl.begin() + match.position(); it_start != it_end; it_start++) unroll << *it_start;
 
-    int start = stoi(match[1].str());
-    int end = stoi(match[2].str());
+    int start = atoi(match[1].str().c_str());
+    int end = atoi(match[2].str().c_str());
     ssub_match snippet = match[3];
 
     for (int i = start; i < end; i++) {
@@ -694,7 +702,7 @@ Uniforms::Ptr Program::getUniforms()
   return _cachedUniforms;
 }
 
-const std::unordered_map<AttributeName, GLint> &Program::getAttributes()
+const enum_map<AttributeName, GLint> &Program::getAttributes()
 {
   if(_cachedAttributes.count(AttributeName::unknown) == 1)
     fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);

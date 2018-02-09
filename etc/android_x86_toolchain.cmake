@@ -1,0 +1,23 @@
+set(ENV{QT_OPENGL_ES_3_1} True)
+set(QT_TARGET $ENV{HOME}/Qt/5.9/android_x86)
+set(CMAKE_STAGING_PREFIX $ENV{HOME}/work/android-toolchain/x86_23)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_STAGING_PREFIX})
+set(CMAKE_SYSTEM_NAME Android)
+set(CMAKE_SYSTEM_VERSION 23) # API level
+set(CMAKE_ANDROID_ARCH_ABI x86)
+set(CMAKE_ANDROID_NDK $ENV{HOME}/Android/Sdk/ndk-bundle)
+set(CMAKE_ANDROID_STL_TYPE gnustl_shared)
+
+#look for dependencies here
+SET(CMAKE_FIND_ROOT_PATH "${CMAKE_STAGING_PREFIX};${QT_TARGET}")
+
+# search for programs in the build host and target directories
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
+
+# for libraries and headers in the target directories
+SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+add_definitions(-DANDROID -DBUILD_ANDROID -DQT_OPENGL_ES_3_1)
+SET(ANDROID_NDK_ABI_NAME ${CMAKE_ANDROID_ARCH_ABI})

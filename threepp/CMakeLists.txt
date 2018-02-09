@@ -8,6 +8,8 @@ find_package(assimp REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 qt5_add_resources(SHADER_RESOURCES
         renderers/gl/shader/ShaderLib/ShaderLib.qrc
         renderers/gl/shader/ShaderChunk/ShaderChunk.qrc
@@ -26,6 +28,8 @@ set(THREE_SRCDIRS
         objects
         scene
         textures
+        util
+        util/impl
         renderers
         renderers/gl
         renderers/gl/shader)
@@ -43,17 +47,31 @@ set(THREE_HDRDIRS
         objects
         scene
         textures
-        renderers)
+        renderers
+        util)
 
 CONFIGURE_FILE("${THREE_ROOT}/etc/threepp.pc.in" "threepp.pc" @ONLY)
 
+message("ASS: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
+
 add_subdirectory(quick)
 
-add_library(threepp SHARED ${SHADER_RESOURCES})
+add_library(threepp SHARED Constants.h ${SHADER_RESOURCES})
 target_include_directories(threepp PUBLIC
         $<BUILD_INTERFACE:${THREE_ROOT}>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(threepp PUBLIC Qt5::Core Qt5::Gui)
+
+if(ANDROID)
+    target_link_libraries(threepp PUBLIC
+            z
+            ${ASSIMP_LIBRARY_DIRS}/libassimpd.a
+            ${ASSIMP_LIBRARY_DIRS}/libIrrXMLd.a
+            Qt5::Core Qt5::Gui)
+else(ANDROID)
+    target_link_libraries(threepp PUBLIC assimp Qt5::Core Qt5::Gui)
+endif(ANDROID)
+
+target_include_directories(threepp PRIVATE ${ASSIMP_INCLUDE_DIRS})
 
 set_target_properties(threepp PROPERTIES SOVERSION ${THREE_VERSION})
 
@@ -80,5 +98,4 @@ foreach(DIR in ${THREE_HDRDIRS})
 endforeach(DIR in ${THREE_HDRDIRS})
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 install(FILES ${HEADERS} DESTINATION include/threepp)
-install(FILES renderers/gl/shader/ShaderID.h
-        DESTINATION include/threepp/renderers/gl/shader)
+install(FILES renderers/gl/shader/ShaderID.h DESTINATION include/threepp/renderers/gl/shader)

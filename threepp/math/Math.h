@@ -104,7 +104,7 @@ inline bool isPowerOfTwo(int value )
 
 inline int nearestPowerOfTwo(int value)
 {
-  return std::pow( 2, std::round( std::log( value ) / M_LN2 ) );
+  return std::pow( 2, round( std::log( value ) / M_LN2 ) );
 }
 
 inline int ceilPowerOfTwo(float value)

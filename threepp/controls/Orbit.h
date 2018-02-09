@@ -7,7 +7,7 @@
 
 #include <threepp/camera/Camera.h>
 #include <threepp/math/Spherical.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 //var controls = new THREE.OrbitControls( camera, renderer.domElement );
 

@@ -12,7 +12,7 @@
 #include <threepp/material/Material.h>
 #include <threepp/objects/Mesh.h>
 #include <threepp/scene/Scene.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 #include "Loader.h"
 

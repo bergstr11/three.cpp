@@ -53,6 +53,21 @@ Window {
                 castShadow: true
             }
 
+            Torus {
+                radius: 4
+                tube: 0.7
+                radialSegments: 8
+                tubularSegments: 24
+
+                position: "5,8,2"
+                rotation: "2,4,6"
+
+                material: MeshLambertMaterial {
+                    color: "#36aa22"
+                }
+                castShadow: true
+            }
+
             Sphere {
                 radius: 4
                 widthSegments: 20

@@ -5,7 +5,6 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5Quick REQUIRED)
 find_package(Qt5Core REQUIRED)
-find_package(assimp REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -25,7 +24,7 @@ add_library(threeppq SHARED ${SOURCE_FILES} ${HEADER_FILES})
 target_include_directories(threeppq PUBLIC
         $<BUILD_INTERFACE:${THREE_ROOT}>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(threeppq PUBLIC threepp Qt5::Core Qt5::Gui Qt5::Quick assimp)
+target_link_libraries(threeppq PUBLIC threepp Qt5::Core Qt5::Gui Qt5::Quick)
 
 set_target_properties(threeppq PROPERTIES SOVERSION ${THREE_VERSION})
 

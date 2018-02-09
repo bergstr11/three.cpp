@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <type_traits>
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>
 
@@ -172,6 +173,31 @@ struct UpdateRange
 
   bool empty() const {return count == 0;}
 };
+
+template <class T>
+inline void hash_combine(std::size_t & seed, const T & v)
+{
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+/**
+ * use this as hash functor for enum-key maps, or use the unordered_map further below
+ */
+struct EnumHash
+{
+  template <typename EnumT>
+  typename std::underlying_type<EnumT>::type operator()(EnumT t) const
+  {
+    return static_cast<typename std::underlying_type<EnumT>::type>(t);
+  }
+};
+
+/**
+ * if your compiler doesn't accept enums as keys, you may try this..
+ */
+template <typename EnumT, typename ValueT>
+using enum_map = std::unordered_map<EnumT, ValueT, EnumHash>;
 
 } // namespace three
 

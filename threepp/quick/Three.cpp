@@ -24,6 +24,8 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/DirectionalLight.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
+#include "objects/Ring.h"
+#include "objects/Torus.h"
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
@@ -68,6 +70,8 @@ void init()
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
+  qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");
+  qmlRegisterType<three::quick::Torus>("three.quick", 1, 0, "Torus");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
   qmlRegisterType<three::quick::Cylinder>("three.quick", 1, 0, "Cylinder");

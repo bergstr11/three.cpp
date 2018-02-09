@@ -4,7 +4,7 @@
 
 #include "LinearGeometry.h"
 #include "BufferGeometry.h"
-#include <threepp/helper/utils.h>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 
@@ -181,7 +181,10 @@ size_t LinearGeometry::mergeVertices()
   for (size_t i = 0, il = _vertices.size(); i < il; i ++ ) {
     const Vertex v = _vertices[ i ];
 
-    std::array<float, 3> key {std::round( v.x() * precision ), std::round( v.y() * precision ), std::round( v.z() * precision)};
+    std::array<float, 3> key;
+    key[0] = round(v.x() * precision);
+    key[1] = round(v.y() * precision);
+    key[2] = round(v.z() * precision);
 
     if (verticesMap.count(key) == 0) {
       verticesMap[key] = i;

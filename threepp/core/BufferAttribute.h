@@ -11,14 +11,14 @@
 
 #include <threepp/Constants.h>
 #include <threepp/core/Color.h>
-#include <threepp/helper/sole.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/sole.h>
+#include <threepp/util/simplesignal.h>
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>
 #include <threepp/math/Vector4.h>
 #include <threepp/math/Box3.h>
-#include <threepp/helper/Types.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Types.h>
+#include <threepp/util/Resolver.h>
 
 namespace three {
 

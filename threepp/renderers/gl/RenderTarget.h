@@ -6,9 +6,9 @@
 #define THREEPP_OPENGLRENDERTARGET_H
 
 #include <memory>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 #include <threepp/textures/DepthTexture.h>
-#include <threepp/helper/sole.h>
+#include <threepp/util/sole.h>
 #include "Properties.h"
 #include <threepp/renderers/Renderer.h>
 

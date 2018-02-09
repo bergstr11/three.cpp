@@ -6,7 +6,7 @@
 #define THREEPP_INTERLEAVEDBUFFER_H
 
 #include <vector>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 namespace three {
 

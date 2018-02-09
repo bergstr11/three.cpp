@@ -8,7 +8,7 @@
 #include <QOpenGLExtraFunctions>
 #include <threepp/math/Vector4.h>
 #include <threepp/material/Material.h>
-#include <threepp/helper/Types.h>
+#include <threepp/util/Types.h>
 #include <threepp/Constants.h>
 #include <unordered_map>
 #include "Helpers.h"
@@ -121,7 +121,7 @@ public:
     DepthBuffer &setClear(double depth)
     {
       if (currentDepthClear != depth) {
-        glClearDepth(depth);
+        _f->glClearDepthf(depth);
         currentDepthClear = depth;
       }
       return *this;
@@ -304,7 +304,7 @@ public:
   }
 
   QOpenGLExtraFunctions * const _f;
-  std::unordered_map<TextureTarget, GLuint> emptyTextures = {};
+  enum_map<TextureTarget, GLuint> emptyTextures;
 
 public:
   State(QOpenGLExtraFunctions *fn, int initialTextureSlot=-1) :

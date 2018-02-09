@@ -6,7 +6,7 @@
 #define THREEPP_LIGHT_H
 
 #include <threepp/core/Object3D.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 #include "LightShadow.h"
 
 namespace three {

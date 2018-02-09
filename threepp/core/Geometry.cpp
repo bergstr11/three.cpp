@@ -16,7 +16,6 @@ using namespace math;
 using namespace impl;
 
 size_t Geometry::id_count = 0;
-size_t BufferGeometry::MaxIndex = 65535;
 
 void LinearGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,

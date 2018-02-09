@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include "Math.h"
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 namespace three {
 namespace math {

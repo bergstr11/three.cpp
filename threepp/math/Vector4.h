@@ -261,10 +261,10 @@ public:
 
   Vector4 &round()
   {
-    _x = std::round( _x );
-    _y = std::round( _y );
-    _z = std::round( _z );
-    _w = std::round( _w );
+    _x = ::round( _x );
+    _y = ::round( _y );
+    _z = ::round( _z );
+    _w = ::round( _w );
 
     return *this;
   }

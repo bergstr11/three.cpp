@@ -8,6 +8,7 @@
 #include <QOpenGLContext>
 #include <unordered_map>
 #include <threepp/Constants.h>
+#include <threepp/util/Types.h>
 #include <QOpenGLTexture>
 
 namespace three {
@@ -28,7 +29,7 @@ enum class Extension : uint16_t
   OES_standard_derivatives        = 1<<10,
   ANGLE_instanced_arrays          = 1<<11,
   OES_element_index_uint          = 1<<12,
-  GL_EXT_draw_buffers             = 1<<13
+  GLEXT_draw_buffers              = 1<<13
 };
 
 class UseExtension
@@ -62,7 +63,7 @@ class Extensions
 {
   QOpenGLContext *const context;
 
-  std::unordered_map<Extension, bool> _extensions;
+  enum_map<Extension, bool> _extensions;
 
 public:
   Extensions(QOpenGLContext *context) : context(context)

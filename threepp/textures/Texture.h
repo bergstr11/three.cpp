@@ -11,10 +11,10 @@
 #include <vector>
 #include <memory>
 #include <threepp/Constants.h>
-#include <threepp/helper/simplesignal.h>
-#include <threepp/helper/sole.h>
-#include <threepp/helper/Resolver.h>
-#include <threepp/helper/Types.h>
+#include <threepp/util/simplesignal.h>
+#include <threepp/util/sole.h>
+#include <threepp/util/Resolver.h>
+#include <threepp/util/Types.h>
 
 namespace three {
 

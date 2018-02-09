@@ -143,7 +143,7 @@ UniformName toUniformName(string name, bool isIndex)
      MATCH_NAME(decay)
   };
   if(isIndex) {
-    unsigned index = stoi(name);
+    unsigned index = atoi(name.c_str());
     if((unsigned)UniformName::index_15 >= index) {
       return (UniformName)((unsigned)UniformName::index_0 + index);
     }

@@ -321,10 +321,10 @@ private:
 
   Uniforms::Ptr _cachedUniforms;
 
-  std::unordered_map<AttributeName, GLint> _cachedAttributes;
+  enum_map<AttributeName, GLint> _cachedAttributes;
   std::unordered_map<IndexedAttributeKey, GLint> _cachedIndexedAttributes;
 
-  void fetchAttributeLocations(std::unordered_map<AttributeName, GLint> &attributes,
+  void fetchAttributeLocations(enum_map<AttributeName, GLint> &attributes,
                                std::unordered_map<IndexedAttributeKey, GLint> &indexedAttributes);
 
   Program(Renderer_impl &renderer,
@@ -352,7 +352,7 @@ public:
 
   Uniforms::Ptr getUniforms();
 
-  const std::unordered_map<AttributeName, GLint> &getAttributes();
+  const enum_map<AttributeName, GLint> &getAttributes();
 
   const std::unordered_map<IndexedAttributeKey, GLint> &getIndexedAttributes();
 };

@@ -9,8 +9,8 @@
 #include <threepp/math/Matrix4.h>
 #include <threepp/math/Sphere.h>
 #include <threepp/math/Box3.h>
-#include <threepp/helper/simplesignal.h>
-#include <threepp/helper/Types.h>
+#include <threepp/util/simplesignal.h>
+#include <threepp/util/Types.h>
 #include "Raycaster.h"
 
 namespace three {

@@ -6,7 +6,7 @@
 #define THREEPP_LOADER_H
 
 #include <istream>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 #include <threepp/objects/Node.h>
 #include <threepp/scene/Scene.h>
 

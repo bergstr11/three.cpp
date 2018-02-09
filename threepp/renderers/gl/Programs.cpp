@@ -77,7 +77,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     if(mat.use_derivatives)
       parameters->extensions.add(Extension::OES_standard_derivatives);
     if(mat.use_drawBuffers)
-      parameters->extensions.add(Extension::GL_EXT_draw_buffers);
+      parameters->extensions.add(Extension::GLEXT_draw_buffers);
     if(mat.use_fragDepth)
       parameters->extensions.add(Extension::EXT_frag_depth);
     if(mat.use_shaderTextureLOD)

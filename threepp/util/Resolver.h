@@ -15,6 +15,63 @@
 
 namespace resolver {
 
+/**
+ * helper template that serves as implementation container. This setup is the result of
+ * googl'ing and experimentation, because declaring virtual functions inside the resolver
+ * chain templates did not work out. The Callback mechanism was devised to pass control back
+ * to the basetype-aware resolver chain
+ *
+ * @tparam Tmap
+ */
+template<typename Tmap>
+class Resolve
+{
+public:
+  struct Callback
+  {
+    virtual typename Tmap::value_type getValue(Tmap &t) const = 0;
+  };
+
+  Callback * callback = nullptr;
+
+  typename Tmap::value_type getValue(Tmap &t) {
+    if(callback) return callback->getValue(t);
+    return Tmap::getNull();
+  }
+};
+
+/**
+ * base template for the basetype-agnostic resolver chain. Resolvers is a variadic template
+ * which recursively builds a class hierarchy which implements the basetype-agnostic interface
+ * for a collection of type maps. A type map holds associations between type (aka classes) and
+ * values of a given type.
+ *
+ * @tparam Tmaps a list of type maps
+ */
+template<typename ...Tmaps>
+class Resolvers;
+
+/** variadic template terminator */
+template<>
+class Resolvers<>
+{
+};
+
+/**
+ * template specialization for the for the basetype-agnostic resolver chain.
+ * Main contribution is the implementation of the callback invoker functions
+ *
+ * @tparam Tmap a type map
+ * @tparam Tmaps more type maps
+ */
+template<typename Tmap, typename ...Tmaps>
+class Resolvers<Tmap, Tmaps...> : public Resolvers<Tmaps...>, public virtual Resolve<Tmap>
+{
+public:
+  using Ptr = std::shared_ptr<Resolvers>;
+  static Ptr makeNull() {return Ptr(new Resolvers());}
+};
+
 static const nullptr_t null = nullptr;
 
 struct Clearable
@@ -119,64 +176,6 @@ template <typename T>
 using FuncAssoc = Assoc<T, Functor<T>>;
 template <typename T>
 using StringAssoc = Assoc<T, std::string>;
-
-/**
- * helper template that serves as implementation container. This setup is the result of
- * googl'ing and experimentation, because declaring virtual functions inside the resolver
- * chain templates did not work out. The Callback mechanism was devised to pass control back
- * to the basetype-aware resolver chain
- *
- * @tparam Tmap
- */
-template<typename Tmap>
-class Resolve
-{
-public:
-  struct Callback
-  {
-    virtual typename Tmap::value_type getValue(Tmap &t) const = 0;
-  };
-
-  Callback * callback = nullptr;
-
-  typename Tmap::value_type getValue(Tmap &t) {
-    if(callback) return callback->getValue(t);
-    return Tmap::getNull();
-  }
-};
-
-/**
- * base template for the basetype-agnostic resolver chain. Resolvers is a variadic template
- * which recursively builds a class hierarchy which implements the basetype-agnostic interface
- * for a collection of type maps. A type map holds associations between type (aka classes) and
- * values of a given type.
- *
- * @tparam Tmaps a list of type maps
- */
-template<typename ...Tmaps>
-class Resolvers;
-
-/** variadic template terminator */
-template<>
-class Resolvers<>
-{
-};
-
-/**
- * template specialization for the for the basetype-agnostic resolver chain.
- * Main contribution is the implementation of the callback invoker functions
- *
- * @tparam Tmap a type map
- * @tparam Tmaps more type maps
- */
-template<typename Tmap, typename ...Tmaps>
-class Resolvers<Tmap, Tmaps...> : public Resolvers<Tmaps...>, public virtual Resolve<Tmap>
-{
-public:
-  using Ptr = std::shared_ptr<Resolvers>;
-  static Ptr makeNull() {return Ptr(new Resolvers());}
-};
-
 
 /**
  * base template for the basetype-aware resolver chain. The basetype-aware resolver chain inherits

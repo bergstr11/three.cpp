@@ -10,7 +10,7 @@
 #include <threepp/math/Quaternion.h>
 #include <threepp/math/Ray.h>
 #include <threepp/core/Object3D.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 
 namespace three {
 

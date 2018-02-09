@@ -69,7 +69,7 @@ public:
   }
 
 protected:
-  pos_type seekoff(long off, ios_base::seekdir seekdir, ios_base::openmode openmode) override
+  pos_type seekoff(off_type off, ios_base::seekdir seekdir, ios_base::openmode openmode) override
   {
     if(openmode == ios_base::in) {
       switch(seekdir) {
@@ -100,7 +100,7 @@ protected:
 
   streamsize xsgetn(char_type *s, streamsize count) override
   {
-    streamsize off = min(count, _bytes.size() - _pos);
+    streamsize off = min((size_t)count, (size_t)(_bytes.size() - _pos));
     memcpy(s, _data + _pos, off);
     _pos += off;
     return off;

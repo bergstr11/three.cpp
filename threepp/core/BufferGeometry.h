@@ -7,9 +7,32 @@
 
 #include <unordered_map>
 #include <functional>
-#include <threepp/helper/utils.h>
+#include <threepp/util/Types.h>
 #include "Geometry.h"
 #include "BufferAttribute.h"
+
+namespace three {
+enum class IndexedAttributeName : size_t
+{
+  morphTarget, morphNormal
+};
+using IndexedAttributeKey = std::pair<IndexedAttributeName, size_t>;
+}
+
+namespace std
+{
+template<> struct hash<three::IndexedAttributeKey>
+{
+  typedef three::IndexedAttributeKey argument_type;
+  typedef std::size_t result_type;
+  result_type operator()(argument_type const& s) const noexcept
+  {
+    auto h = three::EnumHash{}(s.first);
+    three::hash_combine(h, s.second);
+    return h;
+  }
+};
+}
 
 namespace three {
 
@@ -17,16 +40,10 @@ class Object3D;
 class LinearGeometry;
 class DirectGeometry;
 
-enum class IndexedAttributeName
-{
-  morphTarget, morphNormal
-};
 enum class AttributeName
 {
   index, color, position, normal, uv, uv2, lineDistances, unknown
 };
-
-using IndexedAttributeKey = std::pair<IndexedAttributeName, size_t>;
 
 class BufferGeometry : public Geometry
 {
@@ -46,7 +63,7 @@ class BufferGeometry : public Geometry
   BufferAttributeT<float>::Ptr _skinIndices;
   BufferAttributeT<float>::Ptr _skinWeight;
 
-  std::unordered_map<IndexedAttributeKey, BufferAttributeT<float>::Ptr, pair_hash> _indexedAttributes;
+  std::unordered_map<IndexedAttributeKey, BufferAttributeT<float>::Ptr> _indexedAttributes;
 
   UpdateRange _drawRange;
 
@@ -88,8 +105,6 @@ protected:
   explicit BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
 
 public:
-  static size_t MaxIndex;
-
   using Ptr = std::shared_ptr<BufferGeometry>;
   static Ptr make() {
     return Ptr(new BufferGeometry());
@@ -289,21 +304,6 @@ public:
   unsigned maxInstancedCount() const {return _maxInstancedCount;}
 };
 
-}
-
-namespace std
-{
-template<> struct hash<three::IndexedAttributeKey>
-{
-  typedef three::IndexedAttributeKey argument_type;
-  typedef std::size_t result_type;
-  result_type operator()(argument_type const& s) const noexcept
-  {
-    result_type const h1 ( std::hash<three::IndexedAttributeName>{}(s.first) );
-    result_type const h2 ( std::hash<size_t>{}(s.second) );
-    return h1 ^ (h2 << 1);
-  }
-};
 }
 
 #endif //THREEPP_BUFFERGEOMETRY_H

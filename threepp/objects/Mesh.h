@@ -8,7 +8,7 @@
 #include <threepp/core/Object3D.h>
 #include <threepp/material/Material.h>
 #include <threepp/material/MeshBasicMaterial.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 
 namespace three {
 

@@ -3,7 +3,7 @@
 //
 
 #include "Renderer_impl.h"
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 #include <threepp/math/Math.h>
 #include <threepp/textures/DataTexture.h>
 #include <sstream>
@@ -81,15 +81,14 @@ void Renderer_impl::initContext()
   initializeOpenGLFunctions();
 
   _state.init();
-  _extensions.get({Extension::ARB_depth_texture, Extension::OES_texture_float,
-                   Extension::OES_texture_float_linear, Extension::OES_texture_half_float,
-                   Extension::OES_texture_half_float_linear, Extension::OES_standard_derivatives,
+  _extensions.get({Extension::ARB_depth_texture,
+                   Extension::OES_texture_float,
+                   Extension::OES_texture_float_linear,
+                   Extension::OES_texture_half_float,
+                   Extension::OES_texture_half_float_linear,
+                   Extension::OES_standard_derivatives,
+                   Extension::OES_element_index_uint,
                    Extension::ANGLE_instanced_arrays});
-
-  if (_extensions.get(Extension::OES_element_index_uint) ) {
-
-    BufferGeometry::MaxIndex = 4294967296;
-  }
 
   _capabilities.init();
 

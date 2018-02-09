@@ -3,7 +3,7 @@
 //
 
 #include "Box.h"
-#include <threepp/helper/utils.h>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace geometry {

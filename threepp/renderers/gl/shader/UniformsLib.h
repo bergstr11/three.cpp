@@ -60,7 +60,7 @@ namespace uniformslib {
 struct UniformValue
 {
   using Ptr = std::shared_ptr<UniformValue>;
-  using UniformProperties = std::unordered_map<UniformName, UniformValue::Ptr>;
+  using UniformProperties = std::unordered_map<UniformName, UniformValue::Ptr, EnumHash>;
 
   const UniformName id;
 
@@ -233,7 +233,7 @@ template<> struct UniformValueT<CachedPointLights> : public UniformValue
 
 class LibUniformValues
 {
-  std::unordered_map<UniformName, UniformValue::Ptr> values;
+  enum_map<UniformName, UniformValue::Ptr> values;
 
 public:
   LibUniformValues(std::initializer_list<UniformValue::Ptr> vals) {
@@ -243,9 +243,9 @@ public:
     }
   }
 
-  std::unordered_map<UniformName, UniformValue::Ptr> cloneValues() const
+  enum_map<UniformName, UniformValue::Ptr> cloneValues() const
   {
-    std::unordered_map<UniformName, UniformValue::Ptr> cloned;
+    enum_map<UniformName, UniformValue::Ptr> cloned;
 
     for(auto &entry : values) {
       cloned[entry.first] = entry.second->clone();

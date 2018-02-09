@@ -8,10 +8,10 @@
 #include <memory>
 #include <threepp/Constants.h>
 #include <threepp/textures/Texture.h>
-#include <threepp/helper/sole.h>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/sole.h>
+#include <threepp/util/simplesignal.h>
 #include <threepp/math/Plane.h>
-#include <threepp/helper/Resolver.h>
+#include <threepp/util/Resolver.h>
 #include <threepp/core/Color.h>
 
 namespace three {

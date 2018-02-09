@@ -6,7 +6,7 @@
 #define THREEPP_CAPABILITIES_H
 
 #include <QOpenGLFunctions>
-#include <threepp/helper/simplesignal.h>
+#include <threepp/util/simplesignal.h>
 #include "Extensions.h"
 #include "Helpers.h"
 

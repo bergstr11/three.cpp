@@ -216,7 +216,7 @@ class UniformContainer
 
 protected:
   std::vector<UniformName> _sequence;
-  std::unordered_map<UniformName, Uniform::Ptr> _map;
+  enum_map<UniformName, Uniform::Ptr> _map;
 
 public:
   virtual ~UniformContainer() {}

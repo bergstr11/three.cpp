@@ -8,7 +8,7 @@
 #include <threepp/textures/Texture.h>
 #include <threepp/scene/Scene.h>
 #include <threepp/camera/Camera.h>
-#include <threepp/helper/sole.h>
+#include <threepp/util/sole.h>
 
 namespace three {
 

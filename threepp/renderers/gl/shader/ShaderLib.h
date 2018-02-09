@@ -13,7 +13,7 @@ namespace gl {
 
 class UniformValues
 {
-  std::unordered_map<UniformName, uniformslib::UniformValue::Ptr> values;
+  enum_map<UniformName, uniformslib::UniformValue::Ptr> values;
 
 public:
   explicit UniformValues(const uniformslib::LibUniformValues &libUniforms) : values(libUniforms.cloneValues()) {}
