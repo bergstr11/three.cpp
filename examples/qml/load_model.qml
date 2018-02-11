@@ -123,7 +123,6 @@ Window {
 
         Model {
             id: threeDModel
-            isScene: false
             onFileChanged: holdon.visible = true
             onModelLoaded: holdon.visible = false
         }
@@ -140,6 +139,7 @@ Window {
                 id: modelref
                 model: threeDModel
                 type: ModelRef.Node
+                replace: true
             }
 
             camera: PerspectiveCamera {

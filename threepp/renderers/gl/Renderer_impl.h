@@ -156,7 +156,7 @@ protected:
 
   gl::State _state;
 
-  void initContext();
+  void initContext() override;
 
   void initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object);
 
@@ -188,7 +188,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<Renderer_impl>;
 
-  Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha=true);
+  Renderer_impl(size_t width, size_t height, float pixelRatio, bool premultipliedAlpha=true);
 
   gl::State &state() {return _state;}
 

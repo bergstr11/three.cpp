@@ -8,6 +8,16 @@ namespace three {
 
 using namespace three::math;
 
+void Object3D::dispose()
+{
+  for(auto i=0; i<materialCount(); i++) {
+    material(i)->dispose();
+  }
+  for(auto child : children()) {
+    child->dispose();
+  }
+}
+
 void Object3D::updateMaterials()
 {
   for(unsigned i=0, l=materialCount(); i<l; i++) {

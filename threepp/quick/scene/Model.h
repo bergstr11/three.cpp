@@ -20,19 +20,24 @@ class Assimp;
 
 namespace quick {
 
+/**
+ * represents a complete 3D scene loaded from a file
+ *
+ * @property name arbitrarily assigned name
+ * @property file a file URI, either pointing to a filesystem resource ('file:' prefix) or a Qt resource
+ * (':' prefix)
+ * @property replacements resource name replacements, e.g. if a resource referenced inside the model file
+ * is actually stored under a different name
+ */
 class Model : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QString file READ file WRITE setFile NOTIFY fileChanged)
-  Q_PROPERTY(bool isScene READ isScene WRITE setIsScene NOTIFY isSceneChanged)
-  Q_PROPERTY(QVector3D position READ position NOTIFY positionChanged)
   Q_PROPERTY(QVariantMap replacements READ replacements WRITE setReplacements NOTIFY replacementsChanged)
 
   QString _file;
   QString _name;
-  QVector3D _position;
-  bool _isScene = true;
   ObjectRootContainer *_container = nullptr;
 
   QVariantMap _replacements;
@@ -56,12 +61,6 @@ public:
 
   void setFile(const QString &file);
 
-  const QVector3D position() const {return _position;}
-
-  bool isScene() {return _isScene;}
-
-  void setIsScene(bool isScene);
-
   void addTo(ObjectRootContainer *container) override;
 
   three::Scene::Ptr scene();
@@ -69,8 +68,6 @@ public:
 signals:
   void fileChanged();
   void nameChanged();
-  void isSceneChanged();
-  void positionChanged();
   void modelLoaded();
   void replacementsChanged();
 };

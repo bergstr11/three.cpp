@@ -3,11 +3,6 @@
 //
 
 #include "Renderer_impl.h"
-#include <threepp/util/Resolver.h>
-#include <threepp/math/Math.h>
-#include <threepp/textures/DataTexture.h>
-#include <sstream>
-#include <iostream>
 #include <threepp/core/InterleavedBufferAttribute.h>
 #include <threepp/objects/Line.h>
 #include <threepp/objects/Points.h>
@@ -25,10 +20,9 @@ namespace three {
 
 using namespace std;
 
-OpenGLRenderer::Ptr OpenGLRenderer::make(QOpenGLContext *context, size_t width, size_t height, float pixelRatio,
-                                         const OpenGLRendererOptions &options)
+OpenGLRenderer::Ptr OpenGLRenderer::make(size_t width, size_t height, float pixelRatio, const OpenGLRendererOptions &options)
 {
-  gl::Renderer_impl::Ptr p(new gl::Renderer_impl(context, width, height, pixelRatio));
+  gl::Renderer_impl::Ptr p(new gl::Renderer_impl(width, height, pixelRatio));
 
   return p;
 }
@@ -51,15 +45,13 @@ namespace gl {
 
 const std::tuple<size_t, GLuint, bool> Renderer_impl::no_program {0, 0, false};
 
-Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
-   : OpenGLRenderer(context),
-     _state(this),
+Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
+   : _state(this),
      _width(width),
      _height(height),
      _attributes(this),
      _objects(_geometries, _infoRender),
      _geometries(_attributes),
-     _extensions(context),
      _capabilities(this, _extensions, _parameters ),
      _morphTargets(this),
      _shadowMap(*this, _objects, _capabilities),
@@ -73,7 +65,6 @@ Renderer_impl::Renderer_impl(QOpenGLContext *context, size_t width, size_t heigh
      _flareRenderer(this, _state, _textures, _capabilities),
      _pixelRatio(pixelRatio)
 {
-  initContext();
 }
 
 void Renderer_impl::initContext()
@@ -81,6 +72,9 @@ void Renderer_impl::initContext()
   initializeOpenGLFunctions();
 
   _state.init();
+
+  _extensions.setContext(QOpenGLContext::currentContext());
+
   _extensions.get({Extension::ARB_depth_texture,
                    Extension::OES_texture_float,
                    Extension::OES_texture_float_linear,

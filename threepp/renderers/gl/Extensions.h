@@ -61,13 +61,15 @@ public:
 
 class Extensions
 {
-  QOpenGLContext *const context;
+  QOpenGLContext * context;
 
   enum_map<Extension, bool> _extensions;
 
 public:
-  Extensions(QOpenGLContext *context) : context(context)
-  {}
+  void setContext(QOpenGLContext *context)
+  {
+    this->context = context;
+  }
 
   void get(std::vector<Extension> extensions)
   {
@@ -78,7 +80,8 @@ public:
 
   bool get(Extension extension)
   {
-    if (_extensions.find(extension) != _extensions.end()) {
+    if(!context) return false;
+    else if (_extensions.find(extension) != _extensions.end()) {
       return _extensions.at(extension);
     }
     switch (extension) {

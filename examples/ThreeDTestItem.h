@@ -10,6 +10,7 @@
 #include <memory>
 #include <threepp/scene/Scene.h>
 #include <threepp/quick/interact/OrbitControls.h>
+#include <threepp/renderers/OpenGLRenderer.h>
 
 class QOpenGLShaderProgram;
 
@@ -29,6 +30,7 @@ Q_OBJECT
 
   QColor m_background;
   OrbitControls::Ptr _controls;
+  three::OpenGLRenderer::Ptr _renderer;
 
 public:
   explicit ThreeDTestItem(QQuickItem *parent = 0);
@@ -49,6 +51,8 @@ protected:
   friend class FramebufferObjectRenderer;
 
   friend class RenderDelegate;
+
+  void componentComplete() override;
 
   void mouseMoveEvent(QMouseEvent *event) override;
 

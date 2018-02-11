@@ -143,6 +143,8 @@ public:
 
   virtual const Geometry::Ptr geometry() const {return nullptr;}
 
+  virtual void dispose();
+
   void apply(const math::Quaternion &q)
   {
     _quaternion *= q;
@@ -252,22 +254,19 @@ public:
     }
 
     object->_parent = this;
-    //object->dispatchEvent( 'added');
 
     _children.push_back( object );
   }
 
   void remove(Object3D::Ptr object)
   {
-    auto index = std::find(_children.begin(), _children.end(), object);
+    auto found = std::find(_children.begin(), _children.end(), object);
 
-    if (index != _children.end()) {
+    if (found != _children.end()) {
 
-      object->_parent = nullptr;
+      (*found)->_parent = nullptr;
 
-      //object.dispatchEvent( 'removed' );
-
-      _children.erase(index);
+      _children.erase(found);
     }
   }
 

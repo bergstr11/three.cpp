@@ -26,10 +26,8 @@ struct OpenGLRendererOptions
 class OpenGLRenderer : public Renderer, private OpenGLRendererOptions
 {
 protected:
-  QOpenGLContext *_context;
-
-  explicit OpenGLRenderer(QOpenGLContext *context, const OpenGLRendererOptions &options=OpenGLRendererOptions())
-    : _context(context), OpenGLRendererOptions(options) { }
+  explicit OpenGLRenderer(const OpenGLRendererOptions &options=OpenGLRendererOptions())
+    : OpenGLRendererOptions(options) { }
 
 public:
   // clearing
@@ -40,8 +38,7 @@ public:
 
   using Ptr = std::shared_ptr<OpenGLRenderer>;
 
-  static Ptr make(QOpenGLContext *context, size_t width, size_t height, float pixelRatio,
-                  const OpenGLRendererOptions &options=OpenGLRendererOptions());
+  static Ptr make(size_t width, size_t height, float pixelRatio, const OpenGLRendererOptions &options=OpenGLRendererOptions());
 
   static Target::Ptr makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
                                         CullFace faceCulling, FrontFaceDirection faceDirection,
@@ -49,8 +46,8 @@ public:
 
   static Target::Ptr makeInternalTarget(size_t width, size_t height, bool depthBuffer=true, bool stencilBuffer=true);
 
+  virtual void initContext() = 0;
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
-
   virtual void setFaceCulling( CullFace cullFace ) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
 };

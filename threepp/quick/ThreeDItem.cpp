@@ -27,13 +27,11 @@ Q_OBJECT
 public:
 
   explicit FramebufferObjectRenderer(const ThreeDItem *item,
+                                     three::OpenGLRenderer::Ptr renderer,
                                      const std::vector<Scene *> &scenes)
      : _item(item),
        _scenes(scenes),
-       _renderer(OpenGLRenderer::make(
-          QOpenGLContext::currentContext(),
-          item->width(), item->height(),
-          item->window()->screen()->devicePixelRatio()))
+       _renderer(renderer)
   {
     switch(item->shadowType()) {
       case Three::PCF:
@@ -46,11 +44,12 @@ public:
         _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
     }
     _renderer->autoClear = _item->_autoClear;
+    _renderer->initContext();
   }
 
   ~FramebufferObjectRenderer() override = default;
 
-  void synchronize(QQuickFramebufferObject *_item) override
+  void synchronize(QQuickFramebufferObject *item) override
   {
   }
 
@@ -158,7 +157,7 @@ void ThreeDItem::removeController(Controller *controller)
 
 QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
 {
-  return new FramebufferObjectRenderer(this, _scenes);
+  return new FramebufferObjectRenderer(this, _renderer, _scenes);
 }
 
 void ThreeDItem::mouseMoveEvent(QMouseEvent *event)
@@ -227,6 +226,8 @@ void ThreeDItem::releaseResources() {
 void ThreeDItem::componentComplete()
 {
   QQuickItem::componentComplete();
+
+  _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
 
   for(const auto &object : _objects) {
     object->addTo(this);

@@ -32,7 +32,6 @@ Window {
 
         Model {
             id: threeDModel
-            isScene: false
             file: ":/portalgun.3ds"
             onFileChanged: holdon.visible = true
             onModelLoaded: holdon.visible = false

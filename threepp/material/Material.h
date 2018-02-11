@@ -183,6 +183,11 @@ public:
 
   using Ptr = std::shared_ptr<Material>;
 
+  virtual void dispose() {
+    onDispose.emitSignal(this);
+    onDispose.disconnectAll();
+  }
+
   virtual void setupPointLight(const math::Vector3 &position, float near, float far) {}
 };
 

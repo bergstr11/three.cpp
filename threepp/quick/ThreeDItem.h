@@ -7,6 +7,7 @@
 
 #include <QQuickFramebufferObject>
 #include <threepp/camera/Camera.h>
+#include <threepp/renderers/OpenGLRenderer.h>
 #include "Three.h"
 
 namespace three {
@@ -42,7 +43,7 @@ private:
   bool _autoClear = true;
   unsigned _samples = 4;
 
-  QMetaObject::Connection _geometryUpdate;
+  three::OpenGLRenderer::Ptr _renderer;
 
   static void append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj);
   static int count_objects(QQmlListProperty<ThreeQObjectRoot> *);
@@ -107,8 +108,7 @@ protected:
 
   void releaseResources() override;
 
-  signals:
-  void sceneGeometryChanged();
+signals:
   void shadowTypeChanged();
   void faceCullingChanged();
   void faceDirectionChanged();

@@ -8,6 +8,7 @@
 #include <threepp/quick/objects/HemisphereLight.h>
 #include <threepp/quick/objects/DirectionalLight.h>
 #include <threepp/quick/objects/SpotLight.h>
+#include <threepp/quick/ThreeDItem.h>
 
 namespace three {
 namespace quick {
@@ -18,19 +19,19 @@ void ModelRef::setModel(Model *model) {
     if(_fileConnection) QObject::disconnect(_fileConnection);
     _model = model;
     if(_model) {
-      _fileConnection = QObject::connect(_model, &Model::fileChanged, this, &ModelRef::cleanupMesh);
-      _loadedConnection = QObject::connect(_model, &Model::modelLoaded, this, &ModelRef::updateMesh);
+      _fileConnection = QObject::connect(_model, &Model::fileChanged, this, &ModelRef::cleanupScene);
+      _loadedConnection = QObject::connect(_model, &Model::modelLoaded, this, &ModelRef::updateScene);
     }
     emit modelChanged();
   }
 }
 
-void ModelRef::cleanupMesh()
+void ModelRef::setReplace(bool replace)
 {
-  for(const auto &obj : _objects) {
-    _scene->scene()->remove(obj->object());
+  if(_replace != replace) {
+    _replace = replace;
+    emit replaceChanged();
   }
-  _objects.clear();
 }
 
 void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject)
@@ -149,15 +150,20 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
   return false;
 }
 
-void ModelRef::updateMesh()
+void ModelRef::cleanupScene()
 {
-  if(_object) _scene->scene()->remove(_object);
+  if(_replace && _object) {
+    _scene->scene()->remove(_object);
+    _object->dispose();
+  }
+}
 
+void ModelRef::updateScene()
+{
   setObject(three::Node::make(_model->name().toStdString()));
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
-    _objects.clear();
 
     auto begin = selectors.begin();
     auto end = selectors.end();

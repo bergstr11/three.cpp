@@ -21,6 +21,7 @@ Q_OBJECT
   Q_PROPERTY(QString selector READ selector WRITE setSelector)
   Q_PROPERTY(Type type READ type WRITE setType)
   Q_PROPERTY(QObject *object READ modelObject NOTIFY objectChanged)
+  Q_PROPERTY(bool replace READ replace WRITE setReplace NOTIFY replaceChanged)
 
 public:
   enum Type {Node, Mesh, Light, Camera};
@@ -34,10 +35,10 @@ private:
   QMetaObject::Connection _loadedConnection;
   QMetaObject::Connection _fileConnection;
 
+  bool _replace = true;
   Scene *_scene = nullptr;
 
   ThreeQObject *_threeQObject = nullptr;
-  std::vector<ThreeQObject *> _objects;
 
 protected:
   Object3D::Ptr _create(Scene *scene) override
@@ -68,6 +69,10 @@ public:
 
   void setSelector(const QString &selector) {_selector = selector;}
 
+  bool replace() const {return _replace;}
+
+  void setReplace(bool replace);
+
   Type type() const {return _type;}
 
   void setType(Type type) {_type = type;}
@@ -75,10 +80,11 @@ public:
 signals:
   void modelChanged();
   void objectChanged();
+  void replaceChanged();
 
 private slots:
-  void cleanupMesh();
-  void updateMesh();
+  void cleanupScene();
+  void updateScene();
 };
 
 }

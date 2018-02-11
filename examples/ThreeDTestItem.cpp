@@ -61,11 +61,9 @@ public:
        _sceneCube(Scene::make("sceneCube")),
        _camera(PerspectiveCamera::make(70, item->width() / item->height(), 1, 100000)),
        _cameraCube(PerspectiveCamera::make(70, item->width() / item->height(), 1, 100000)),
-       _renderer(OpenGLRenderer::make(
-          QOpenGLContext::currentContext(),
-          item->width(), item->height(),
-          item->window()->screen()->devicePixelRatio()))
+       _renderer(item->_renderer)
   {
+    _renderer->initContext();
     _renderer->setSize(item->width(), item->height());
     _renderer->setShadowMapType(ShadowMapType::PCFSoft);
     _renderer->autoClear = false;
@@ -210,6 +208,11 @@ void ThreeDTestItem::setBackground(QColor background) {
     m_background = background;
     emit backgroundChanged();
   }
+}
+
+void ThreeDTestItem::componentComplete()
+{
+  _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
 }
 
 void ThreeDTestItem::mouseMoveEvent(QMouseEvent *event) {

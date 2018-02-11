@@ -6,7 +6,6 @@
 
 #include <QOpenGLExtraFunctions>
 #include <QQuickWindow>
-#include <QThread>
 #include <QScreen>
 
 #include "Scene.h"

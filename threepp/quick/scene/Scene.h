@@ -84,6 +84,8 @@ public:
 
   void addTo(ObjectRootContainer *container) override;
 
+  ThreeDItem *item() {return _item;}
+
 signals:
   void backgroundChanged();
   void nameChanged();
