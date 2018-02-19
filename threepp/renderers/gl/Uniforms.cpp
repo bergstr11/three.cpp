@@ -41,19 +41,31 @@ std::vector<Uniform::Ptr> Uniforms::sequenceUniforms(const UniformValues &values
 {
   std::vector<Uniform::Ptr> result;
   for(auto name : _sequence) {
-
-    if(values.contains(name)) {
+    if(uniformname::is_registered(name)) {
+      for(const auto &entry : _nameRegistry) {
+        if(entry.second == name) {
+          UniformName uname = values.uniformName(entry.first);
+          if(uname != UniformName::unknown_name) {
+            result.push_back(_map[name]->clone(uname));
+          }
+          break;
+        }
+      }
+    }
+    else if(values.contains(name)) {
       result.push_back(_map[name]);
     }
   }
   return result;
 }
 
+namespace uniformname {
+
 #define MATCH_NAME(nm) {#nm, UniformName::nm}
 
-UniformName toUniformName(string name, bool isIndex)
+UniformName get(string name, bool isIndex)
 {
-  static std::unordered_map<string, UniformName> string_to_name {
+  static const std::unordered_map<string, UniformName> string_to_name {
      MATCH_NAME(tCube),
      MATCH_NAME(tEquirect),
      MATCH_NAME(tFlip),
@@ -142,19 +154,19 @@ UniformName toUniformName(string name, bool isIndex)
      MATCH_NAME(penumbraCos),
      MATCH_NAME(decay)
   };
-  if(isIndex) {
+  if (isIndex) {
     unsigned index = atoi(name.c_str());
-    if((unsigned)UniformName::index_15 >= index) {
-      return (UniformName)((unsigned)UniformName::index_0 + index);
+    if ((unsigned) UniformName::index_15 >= index) {
+      return (UniformName) ((unsigned) UniformName::index_0 + index);
     }
-    throw std::invalid_argument(std::string("unsupported index ")+name);
+    throw std::invalid_argument(std::string("unsupported index ") + name);
   }
-  try {
-    return string_to_name.at(name);
-  }
-  catch(const out_of_range &r) {
-    throw std::invalid_argument(std::string("unknown variable ")+name);
-  }
+  auto found = string_to_name.find(name);
+  if (found != string_to_name.end()) return found->second;
+
+  return UniformName::unknown_name;
+}
+
 }
 
 void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *container)
@@ -179,7 +191,8 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
     bool isIndex = match[2] == "]";
     string subscript = match[3];
 
-    UniformName id = toUniformName(match[1], isIndex);
+    UniformName id = uniformname::get(match[1], isIndex);
+    if(id == UniformName::unknown_name) id = container->registered(match[1]);
 
     if(!match[3].matched || subscript == "[" && match[3].second == name.end()) {
       // bare name or "pure" bottom-level array "[0]" suffix
@@ -206,12 +219,26 @@ void Uniform::setValue(GLfloat v) {
 }
 
 void Uniform::setValue(GLint v) {
-  _renderer.glUniform1i( _addr, v );
+  switch(_type) {
+    case UniformType::Float:
+      _renderer.glUniform1f( _addr, (float)v );
+      break;
+    case UniformType::Int:
+      _renderer.glUniform1i( _addr, v );
+      break;
+  }
   check_glerror(&_renderer);
 }
 
 void Uniform::setValue(GLuint v) {
-  _renderer.glUniform1i( _addr, v );
+  switch(_type) {
+    case UniformType::Float:
+      _renderer.glUniform1f( _addr, (float)v );
+      break;
+    case UniformType::Int:
+      _renderer.glUniform1i( _addr, v );
+      break;
+  }
   check_glerror(&_renderer);
 }
 

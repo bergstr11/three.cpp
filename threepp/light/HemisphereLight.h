@@ -32,8 +32,11 @@ public:
     return Ptr(new HemisphereLight(skyColor, groundColor, intensity));
   }
 
-  const Color &skyColor() {return color();}
-  const Color &groundColor() {return _groundColor;}
+  const Color &skyColor() const {return _color;}
+  const Color &groundColor() const {return _groundColor;}
+
+  Color &skyColor() {return _color;}
+  Color &groundColor() {return _groundColor;}
 };
 
 }

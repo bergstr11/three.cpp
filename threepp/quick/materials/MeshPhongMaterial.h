@@ -18,11 +18,12 @@ class MeshPhongMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
 
-  QColor _color;
+  QColor _color {255, 255, 255}, _specular {0x111111};
   float _opacity = 1.0f;
   bool _dithering = false;
 
@@ -46,6 +47,15 @@ public:
     if(_color != color) {
       _color = color;
       emit colorChanged();
+    }
+  }
+
+  QColor specular() const {return _specular;}
+
+  void setSpecular(const QColor &specular) {
+    if(_specular != specular) {
+      _specular = specular;
+      emit specularChanged();
     }
   }
 
@@ -84,6 +94,7 @@ public:
   {
     _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
     _material->opacity = _opacity;
+    _material->specular = Color(_specular.redF(), _specular.greenF(), _specular.blueF());
     if(_opacity < 1.0f) _material->transparent = true;
     if(_normalMap) _material->normalMap = _normalMap->getTexture();
 
@@ -101,6 +112,7 @@ public:
 
 signals:
   void colorChanged();
+  void specularChanged();
   void ditheringChanged();
   void normalMapChanged();
   void opacityChanged();

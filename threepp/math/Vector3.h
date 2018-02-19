@@ -320,6 +320,15 @@ public:
     return *this;
   }
 
+  Vector3 lerped(const Vector3 &v, float alpha) const
+  {
+    float x = _x + ( v._x - _x ) * alpha;
+    float y = _y + ( v._y - _y ) * alpha;
+    float z = _z + ( v._z - _z ) * alpha;
+
+    return Vector3(x, y, z);
+  }
+
   Vector3 &lerpVectors(const Vector3 &v1, const Vector3 &v2, float alpha)
   {
     *this = (v2 - v1) * alpha + v1;
@@ -384,6 +393,16 @@ public:
   float manhattanDistance(const Vector3 &v) const 
   {
     return std::abs( _x - v._x ) + std::abs( _y - v._y ) + std::abs( _z - v._z );
+  }
+
+  // Angle around the Y axis, counter-clockwise when looking from above.
+  float azimuth() {
+    return std::atan2(_z, -_x );
+  }
+
+  // Angle above the XZ plane.
+  float inclination() {
+    return std::atan2( -_y, std::sqrt( ( _x * _x ) + ( _z * _z ) ) );
   }
 
   template <typename Array>

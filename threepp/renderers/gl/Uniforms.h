@@ -45,6 +45,23 @@ enum class UniformName : unsigned
   index_13=13,
   index_14=14,
   index_15=15,
+  unknown_name,
+  registered_name_1,
+  registered_name_2,
+  registered_name_3,
+  registered_name_4,
+  registered_name_5,
+  registered_name_6,
+  registered_name_7,
+  registered_name_8,
+  registered_name_9,
+  registered_name_10,
+  registered_name_11,
+  registered_name_12,
+  registered_name_13,
+  registered_name_14,
+  registered_name_15,
+  registered_name_16,
   tCube,
   tEquirect,
   tFlip,
@@ -134,7 +151,22 @@ enum class UniformName : unsigned
   decay
 };
 
-UniformName toUniformName(std::string name, bool isIndex=false);
+namespace uniformname {
+
+static inline bool is_registered(UniformName name) {
+  return name >= UniformName::registered_name_1 && name <= UniformName::registered_name_16;
+}
+
+static inline UniformName registered(unsigned count) {
+  unsigned regname = (unsigned)UniformName::registered_name_1 + count;
+  if(regname > (unsigned)UniformName::registered_name_16)
+    throw std::out_of_range("too many user-defined uniforms");
+  return (UniformName)regname;
+}
+
+UniformName get(std::string name, bool isIndex=false);
+
+}
 
 class UniformContainer;
 class Renderer_impl;
@@ -142,12 +174,12 @@ class UniformValues;
 
 class Uniform
 {
+protected:
   const UniformName _id;
   const GLint _addr;
   const UniformType _type;
   Renderer_impl &_renderer;
 
-protected:
   Uniform(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr)
      : _id(id), _addr(addr), _type(type), _renderer(renderer) {}
 
@@ -155,6 +187,10 @@ public:
   using Ptr = std::shared_ptr<Uniform>;
   static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new Uniform(renderer, id, type, addr));
+  }
+
+  virtual Ptr clone(UniformName id) {
+    return Ptr(new Uniform(_renderer, id, _type, _addr));
   }
 
   virtual ~Uniform() {}
@@ -208,6 +244,10 @@ public:
   static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new ArrayUniform(renderer, id, type, addr));
   }
+
+  Uniform::Ptr clone(UniformName id) override {
+    return Ptr(new ArrayUniform(_renderer, id, _type, _addr));
+  }
 };
 
 class UniformContainer
@@ -217,9 +257,18 @@ class UniformContainer
 protected:
   std::vector<UniformName> _sequence;
   enum_map<UniformName, Uniform::Ptr> _map;
+  std::unordered_map<std::string, UniformName> _nameRegistry;
 
 public:
   virtual ~UniformContainer() {}
+
+  UniformName registered(std::string name) {
+    auto found = _nameRegistry.find(name);
+    if(found != _nameRegistry.end()) return found->second;
+    auto uname = uniformname::registered(_nameRegistry.size());
+    _nameRegistry[name] = uname;
+    return uname;
+  }
 
   void add(Uniform::Ptr uniform) {
     _sequence.push_back(uniform->id());
@@ -272,6 +321,14 @@ public:
   using Ptr = std::shared_ptr<StructuredUniform>;
   static Ptr make(Renderer_impl &renderer, UniformName id, UniformType type, const GLint addr) {
     return Ptr(new StructuredUniform(renderer, id, type, addr));
+  }
+
+  Uniform::Ptr clone(UniformName id) override {
+    auto ret = Ptr(new StructuredUniform(_renderer, id, _type, _addr));
+    ret->_nameRegistry = _nameRegistry;
+    ret->_sequence = _sequence;
+    ret->_map = _map;
+    return ret;
   }
 
   Uniform *asUniform() override {return nullptr;}

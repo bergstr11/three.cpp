@@ -6,7 +6,7 @@
 #define THREEPPQ_MATERIAL_H
 
 #include <threepp/quick/ThreeQObjectRoot.h>
-#include <threepp/quick/objects/MeshCreator.h>
+#include <threepp/quick/qutil/MeshCreator.h>
 #include <threepp/quick/textures/Texture.h>
 
 namespace three {

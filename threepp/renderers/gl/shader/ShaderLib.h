@@ -15,11 +15,29 @@ class UniformValues
 {
   enum_map<UniformName, uniformslib::UniformValue::Ptr> values;
 
+  std::unordered_map<std::string, UniformName> _nameRegistry;
+
 public:
+  UniformValues() {}
+
   explicit UniformValues(const uniformslib::LibUniformValues &libUniforms) : values(libUniforms.cloneValues()) {}
 
   bool contains(UniformName name) const {
     return values.find(name) != values.end();
+  }
+
+  bool contains(const std::string &name) const {
+    auto found = _nameRegistry.find(name);
+    return found != _nameRegistry.end() ? values.find(found->second) != values.end() : false;
+  }
+
+  UniformName uniformName(const std::string &name) const {
+    auto found = _nameRegistry.find(name);
+    if(found != _nameRegistry.end()) {
+      auto found2 = values.find(found->second);
+      return found2 != values.end() ? found2->first : UniformName::unknown_name;
+    }
+    return UniformName::unknown_name;
   }
 
   void needsUpdate(UniformName name, bool value) {
@@ -33,6 +51,14 @@ public:
     else {
       values[name] = uniformslib::UniformValueT<V>::make(name, v);
     }
+  }
+
+  UniformName registered(std::string name) {
+    auto found = _nameRegistry.find(name);
+    if(found != _nameRegistry.end()) return found->second;
+    auto uname = uniformname::registered(_nameRegistry.size());
+    _nameRegistry[name] = uname;
+    return uname;
   }
 
   uniformslib::UniformValue &operator[] (UniformName name) {

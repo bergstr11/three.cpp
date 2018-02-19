@@ -16,7 +16,6 @@ class Light : public Object3D
 protected:
   Color _color;
   float _intensity = 1;
-  LightShadow::Ptr _shadow;
 
   Light(light::Resolver::Ptr resolver, const Color &color, float intensity)
      : Object3D(object::ResolverT<Light>::make(*this)),
@@ -33,7 +32,7 @@ public:
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}
   float &intensity() {return _intensity;}
-  const LightShadow::Ptr shadow() const {return _shadow;};
+  virtual const LightShadow::Ptr shadow() const {return nullptr;}
 };
 
 }

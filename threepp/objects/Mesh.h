@@ -31,6 +31,12 @@ protected:
 public:
   using Ptr = std::shared_ptr<Mesh>;
 
+  template <typename Geom, typename Mat>
+  static Ptr make(std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat);
+
+  template <typename Geom, typename Mat>
+  static Ptr make(const std::string &name, std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat);
+
   DrawMode drawMode() const {return _drawMode;}
 
   void setDrawMode(DrawMode mode) {_drawMode = mode;}
@@ -58,19 +64,19 @@ public:
 template <typename Geom, typename Mat>
 class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
 {
-  using GeometryPtr = std::shared_ptr<Geom>;
+  friend class Mesh;
 
   std::vector<float> _morphTargetInfluences;
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  MeshT(const GeometryPtr &geometry, object::Resolver::Ptr resolver, std::shared_ptr<Mat> material)
+  MeshT(const typename Geom::Ptr &geometry, object::Resolver::Ptr resolver, typename Mat::Ptr material)
      : Object3D(resolver), Object3D_GM<Geom, Mat>(geometry, resolver, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
-  MeshT(const GeometryPtr &geometry, std::shared_ptr<Mat> material)
+  MeshT(const typename Geom::Ptr &geometry, typename Mat::Ptr material)
      : Object3D(object::ResolverT<Mesh>::make(*this)), Object3D_GM<Geom, Mat>(geometry, nullptr, material)
   {
     setDrawMode(DrawMode::Triangles);
@@ -79,18 +85,30 @@ protected:
 public:
   using Ptr = std::shared_ptr<MeshT<Geom, Mat>>;
 
-  static Ptr make(const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
+  static Ptr make(const typename Geom::Ptr &geometry, const std::shared_ptr<Mat> &material)
   {
     return Ptr(new MeshT(geometry, material));
   }
 
-  static Ptr make(std::string name, const GeometryPtr &geometry, const std::shared_ptr<Mat> &material)
+  static Ptr make(std::string name, const typename Geom::Ptr &geometry, const std::shared_ptr<Mat> &material)
   {
     Ptr p(new MeshT(geometry, material));
     p->_name = name;
     return p;
   }
 };
+
+template <typename Geom, typename Mat>
+Mesh::Ptr Mesh::make(std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat) {
+  return Ptr(new MeshT<Geom, Mat>(geom, mat));
+}
+
+template <typename Geom, typename Mat>
+Mesh::Ptr Mesh::make(const std::string &name, std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat) {
+  auto ptr = Ptr(new MeshT<Geom, Mat>(geom, mat));
+  ptr->setName(name);
+  return ptr;
+}
 
 }
 

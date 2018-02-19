@@ -47,13 +47,13 @@ Vector3 &Vector3::apply(const Quaternion &q)
 
 Vector3 &Vector3::project(const Camera &camera)
 {
-  apply(camera.projectionMatrix() * camera.matrixWorld().inverse());
+  apply(camera.projectionMatrix() * camera.matrixWorld().inverted());
   return *this;
 }
 
 Vector3 &Vector3::unproject(const Camera &camera)
 {
-  apply(camera.matrixWorld() * camera.projectionMatrix().inverse());
+  apply(camera.matrixWorld() * camera.projectionMatrix().inverted());
   return *this;
 }
 

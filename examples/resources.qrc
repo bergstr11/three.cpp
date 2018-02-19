@@ -3,6 +3,7 @@
         <file alias="ThreeDItem.qml">qml/ThreeDItem.qml</file>
         <file alias="geometries.qml">qml/geometries.qml</file>
         <file alias="spotlight.qml">qml/spotlight.qml</file>
+        <file alias="hemisphere.qml">qml/hemisphere.qml</file>
         <file alias="orbit_controls.qml">qml/orbit_controls.qml</file>
         <file alias="material_envmap.qml">qml/material_envmap.qml</file>
         <file alias="voxelpainter.qml">qml/voxelpainter.qml</file>
@@ -10,6 +11,7 @@
         <file alias="load_model.qml">qml/load_model.qml</file>
         <file alias="OptionsMenu.qml">qml/ui/OptionsMenu.qml</file>
         <file alias="FloatValue.qml">qml/ui/FloatValue.qml</file>
+        <file alias="BoolValue.qml">qml/ui/BoolValue.qml</file>
         <file alias="FloatManip.qml">qml/ui/FloatManip.qml</file>
         <file alias="BoolChoice.qml">qml/ui/BoolChoice.qml</file>
         <file alias="MenuChoice.qml">qml/ui/MenuChoice.qml</file>
@@ -22,6 +24,7 @@
         <file alias="2294472375_24a3b8ef46_o.jpg">qml/resources/2294472375_24a3b8ef46_o.jpg</file>
         <file alias="square-outline-textured.png">qml/resources/square-outline-textured.png</file>
         <file alias="metal.jpg">qml/resources/metal.jpg</file>
+        <file alias="eagle.3ds">qml/resources/eagle.3ds</file>
         <file alias="portalgun.3ds">qml/resources/portalgun/portalgun.3ds</file>
         <file alias="portalgun_color.jpg">qml/resources/portalgun/color.jpg</file>
         <file alias="portalgun_normal.jpg">qml/resources/portalgun/normal.jpg</file>

@@ -160,8 +160,6 @@ struct Access
   unordered_map<unsigned, Mesh::Ptr> meshes;
   unordered_map<unsigned, MeshMaker::Ptr> makers;
 
-  bool switchHeightAndNormalMap = false;
-
   Access(Scene::Ptr scene, const aiScene * aiscene, ResourceLoader &loader)
      : scene(scene), aiscene(aiscene), loader(loader) {}
 
@@ -311,11 +309,7 @@ struct ReadMaterial<material::BumpMap>
 {
   FORWARD_MIXIN(material::BumpMap)
   static void mixin(material::BumpMap &material, const aiMaterial *ai, Access *access) {
-    if(access->switchHeightAndNormalMap)
-      material.bumpMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
-    else
-      material.bumpMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
-
+    material.bumpMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
     ai->Get(AI_MATKEY_BUMPSCALING, material.bumpScale);
   }
 };
@@ -324,10 +318,7 @@ struct ReadMaterial<material::NormalMap>
 {
   FORWARD_MIXIN(material::NormalMap)
   static void mixin(material::NormalMap &material, const aiMaterial *ai, Access *access) {
-    if(access->switchHeightAndNormalMap)
-      material.normalMap = access->loadTexture(aiTextureType_HEIGHT, 0, ai);
-    else
-      material.normalMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
+    material.normalMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
   }
 };
 
@@ -446,7 +437,48 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         loader.load(image, imageFile);
         images[imageFile] = image;
       }
-      qDebug() << "loaded texture " << imageFile.c_str() << "(" << type << ")";
+      const char *textype;
+      switch(type) {
+        case aiTextureType_DIFFUSE:
+          textype = "diffuse";
+          break;
+        case aiTextureType_SPECULAR:
+          textype = "specular";
+          break;
+        case aiTextureType_AMBIENT:
+          textype = "ambient";
+          break;
+        case aiTextureType_EMISSIVE:
+          textype = "emissive";
+          break;
+        case aiTextureType_HEIGHT:
+          textype = "height";
+          break;
+        case aiTextureType_NORMALS:
+          textype = "normals";
+          break;
+        case aiTextureType_SHININESS:
+          textype = "shininess";
+          break;
+        case aiTextureType_OPACITY:
+          textype = "opacity";
+          break;
+        case aiTextureType_DISPLACEMENT:
+          textype = "displacement";
+          break;
+        case aiTextureType_LIGHTMAP:
+          textype = "lightmap";
+          break;
+        case aiTextureType_REFLECTION:
+          textype = "reflection";
+          break;
+        case aiTextureType_UNKNOWN:
+          textype = "unknown";
+          break;
+        default:
+          textype = "undefined";
+      }
+      qDebug() << "loaded texture " << imageFile.c_str() << "(" << textype << ")";
       TextureOptions options = ImageTexture::options();
 
       switch(mapping) {
@@ -560,7 +592,7 @@ Mesh::Ptr Access::readMesh(int index)
   }
   else {
     MeshLambertMaterial::Ptr mat = MeshLambertMaterial::make();
-    mesh = MeshT<BufferGeometry, MeshLambertMaterial>::make(geometry, mat);
+    mesh = Mesh::make(geometry, mat);
   }
 
   if(mesh->_name.empty())

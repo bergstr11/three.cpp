@@ -1,0 +1,127 @@
+import QtQuick 2.7
+import QtQuick.Controls 2.1
+import QtQuick.Layouts 1.1
+import QtQuick.Window 2.2
+
+import three.quick 1.0
+
+Window {
+    id: mainWindow
+    minimumWidth: 1280
+    minimumHeight: 1024
+
+    visible: true
+
+    ThreeD {
+        id: threeD
+        anchors.fill: parent
+        focus: true
+        shadowType: Three.PCFSoft
+
+        Model {
+            id: eagleModel
+            file: ":/eagle.3ds"
+        }
+
+        ShaderMaterial {
+            id: skyMaterial
+            side: Three.BackSide
+            vertexShader:
+                "varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }"
+            fragmentShader:
+                "uniform vec3 topColor;
+                uniform vec3 bottomColor;
+                uniform float offset;
+                uniform float exponent;
+
+                varying vec3 vWorldPosition;
+
+                void main() {
+                    float h = normalize( vWorldPosition + offset ).y;
+                    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+                }"
+            uniforms: {"topColor": Three.color("#0077ff"), "bottomColor": Three.color("#ffffff"), "offset": 33, "exponent": 0.6 }
+        }
+        Scene {
+            id: scene
+            background: Qt.hsla(0.6,0,1,1)
+            fog: Fog {near: 1; far: 5000; color: Qt.hsla(0.6,0,1,1)}
+
+            Sphere {
+                radius: 4000
+                widthSegments: 32
+                heightSegments: 15
+
+                material: skyMaterial
+            }
+
+            ModelRef {
+                id: eagle
+                model: eagleModel
+                type: ModelRef.Node
+                castShadow: true
+                scale: 0.035
+                position: "30,-5,0"
+                rotation: "-1.62716,-0.0526228,-2.53596"
+            }
+
+            Plane {
+                width: 10000
+                height: 10000
+
+                rotation.x: Math.PI / 2
+                position.y: -33
+
+                material: MeshPhongMaterial {
+                    color: Qt.hsla(0.095,1,0.75,1)
+                    specular: "#050505"
+                    dithering: true
+                }
+                receiveShadow: true
+            }
+
+            HemisphereLight {
+                skyColor: Qt.hsla(0.6, 1, 0.6, 1)
+                groundColor: Qt.hsla(0.095, 1, 0.75, 1)
+                intensity: 0.6
+                position: "0,50,0"
+
+                helperSize: 10
+            }
+
+            DirectionalLight {
+                color: Qt.hsla(0.1, 1, 0.95, 1)
+                intensity: 1
+                position: Qt.vector3d(-1,1.75,1).times(30)
+                castShadow: true
+                shadow.mapSize: "2048x2048"
+                shadow.camera.left: -50
+                shadow.camera.right: 50
+                shadow.camera.top: 50
+                shadow.camera.bottom: -50
+
+                helperSize: 10
+            }
+
+            camera: PerspectiveCamera {
+                fov: 30
+                aspect: threeD.width / threeD.height
+                near: 1
+                far: 10000
+                position: "0,0,250"
+
+                lookAt: scene.position
+
+                controller: OrbitController {
+                    enablePan: false
+                    enableRotate: false
+                }
+            }
+        }
+    }
+}

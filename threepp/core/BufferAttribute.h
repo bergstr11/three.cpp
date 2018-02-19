@@ -152,6 +152,8 @@ public:
 
   const Type *tdata() {return _data;}
 
+  void clear() {memset(_data, 0, byteCount());}
+
   GLenum glType() const override {return Cpp2GL<Type>::glEnum;}
 
   unsigned bytesPerElement() const override {return sizeof(Type);}
@@ -191,6 +193,18 @@ public:
     _data[ index * _itemSize + 1 ] = y;
 
     return *this;
+  }
+
+  Type &at(size_t index)
+  {
+    return _data[ index];
+  }
+
+  template <typename ItemType>
+  ItemType &item_at(size_t index)
+  {
+    if(sizeof(ItemType) / sizeof(Type) != _itemSize) throw std::invalid_argument("invalid item type");
+    return reinterpret_cast<ItemType &>(_data[index * _itemSize]);
   }
 
   Type get_z(size_t index) const
@@ -273,7 +287,7 @@ public:
 
   void apply(const math::Matrix4 &matrix)
   {
-    for(size_t i = 0; i < _size; i ++ ) {
+    for(size_t i = 0, l = itemCount(); i < l; i ++ ) {
       math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
 
       v1.apply(matrix);
@@ -284,7 +298,7 @@ public:
 
   void apply(const math::Matrix3 &matrix)
   {
-    for(size_t i = 0; i < _size; i ++ ) {
+    for(size_t i = 0, l = itemCount(); i < l; i ++ ) {
       math::Vector3 v1(get_x(i),  get_y(i), get_z(i));
 
       v1.apply(matrix);
@@ -315,6 +329,9 @@ class PreallocBufferAttribute : public BufferAttributeT<ComponentType>
   constexpr static size_t itemSize = sizeof(ItemType) / sizeof(ComponentType);
 
   friend struct attribute;
+
+  template <typename CT, typename IT>
+  friend class GrowingBufferAttribute;
 
   using Super = BufferAttributeT<ComponentType>;
   using Base = BufferAttribute;
@@ -413,6 +430,19 @@ public:
     return _array.back();
   }
 
+  ItemType &at(size_t index)
+  {
+    return _array.at(index);
+  }
+
+  typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr clone() {
+    auto cloned = typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
+       new PreallocBufferAttribute<ComponentType, ItemType>(this->itemCount(), this->normalized()));
+
+    memcpy(cloned->_data, this->_data, this->byteCount());
+    return cloned;
+  };
+
   using Ptr = std::shared_ptr<GrowingBufferAttribute>;
 };
 
@@ -492,7 +522,6 @@ struct attribute {
     return typename ExternalBufferAttribute<ComponentType>::Ptr(new ExternalBufferAttribute<ComponentType> (
        reinterpret_cast<ComponentType *>(data), sizeof(ItemType) / sizeof(ComponentType), size));
   }
-
 };
 
 }

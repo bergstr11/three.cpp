@@ -257,7 +257,7 @@ public:
 
   Matrix4 &setPosition(const Vector3 &v);
 
-  Matrix4 inverse() const
+  Matrix4 inverted() const
   {
     // based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
     Matrix4 inv;

@@ -18,14 +18,20 @@ class Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
   const unsigned _steps;
 
 protected:
-  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
+  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps=1)
      : Object3D(object::ResolverT<Line>::make(*this)),
        Object3D_GM(geometry, nullptr, material), _steps(steps) {}
 
-  Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) : Line(geometry, material, 1) {}
-
 public:
   using Ptr = std::shared_ptr<Line>;
+  static Ptr make(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
+    return Ptr(new Line(geometry, material));
+  }
+  static Ptr make(const std::string &name, BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
+    auto ptr = Ptr(new Line(geometry, material));
+    ptr->setName(name);
+    return ptr;
+  }
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 

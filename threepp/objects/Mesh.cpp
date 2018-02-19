@@ -22,7 +22,7 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
 
   if (!raycaster.ray().intersectsSphere(sphere)) return;
 
-  math::Matrix4 inverseMatrix = _matrixWorld.inverse();
+  math::Matrix4 inverseMatrix = _matrixWorld.inverted();
   math::Ray ray(raycaster.ray());
   ray.apply(inverseMatrix);
 

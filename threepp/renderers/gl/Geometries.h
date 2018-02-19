@@ -122,9 +122,10 @@ public:
     if (geometry->index()) {
 
       auto array = geometry->index()->tdata();
+      unsigned num = geometry->index()->size();
 
-      indices = attribute::prealloc<uint32_t>(geometry->index()->size() * 2, false);
-      for (size_t i = 0, l = geometry->index()->size(); i < l; i += 3) {
+      indices = attribute::prealloc<uint32_t>(num * 2 + num % 3, false);
+      for (size_t i = 0; i < num; i += 3) {
 
         auto a = array[ i + 0 ];
         auto b = array[ i + 1 ];
@@ -140,10 +141,10 @@ public:
     }
     else {
 
-      auto array = geometry->position()->tdata();
+      unsigned num = geometry->position()->size() / 3 - 1;
 
-      indices = attribute::prealloc<uint32_t>(((geometry->position()->size() / 3) - 1) * 2, false);
-      for (size_t i = 0, l = (geometry->position()->size() / 3) - 1; i < l; i += 3 ) {
+      indices = attribute::prealloc<uint32_t>(num * 2 + num % 3, false);
+      for (size_t i = 0; i < num; i += 3 ) {
 
         uint32_t a = i + 0;
         uint32_t b = i + 1;

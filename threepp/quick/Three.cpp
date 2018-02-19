@@ -13,10 +13,11 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
 #include "cameras/OrtographicCamera.h"
-#include "objects/AmbientLight.h"
-#include "objects/SpotLight.h"
-#include "objects/HemisphereLight.h"
-#include "objects/DirectionalLight.h"
+#include "threepp/quick/lights/AmbientLight.h"
+#include "threepp/quick/lights/SpotLight.h"
+#include "threepp/quick/lights/PointLight.h"
+#include "threepp/quick/lights/HemisphereLight.h"
+#include "threepp/quick/lights/DirectionalLight.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
 #include "objects/Ring.h"
@@ -56,6 +57,8 @@ void init()
   qmlRegisterUncreatableType<three::quick::Camera>("three.quick", 1, 0, "Camera", "abstract class");
   qmlRegisterUncreatableType<three::quick::Light>("three.quick", 1, 0, "Light", "abstract class");
   qmlRegisterUncreatableType<three::quick::LightShadow>("three.quick", 1, 0, "LightShadow", "internal class");
+  qmlRegisterUncreatableType<three::quick::LightShadowOC>("three.quick", 1, 0, "LightShadowOC", "internal class");
+  qmlRegisterUncreatableType<three::quick::LightShadowPC>("three.quick", 1, 0, "LightShadowPC", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
   qmlRegisterType<three::quick::Intersect>();
@@ -73,6 +76,7 @@ void init()
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
+  qmlRegisterType<three::quick::PointLight>("three.quick", 1, 0, "PointLight");
   qmlRegisterType<three::quick::HemisphereLight>("three.quick", 1, 0, "HemisphereLight");
   qmlRegisterType<three::quick::DirectionalLight>("three.quick", 1, 0, "DirectionalLight");
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
@@ -100,6 +104,13 @@ QVariant Three::raycaster(QVariant value)
     return var;
   }
   return QVariant();
+}
+
+QVariant Three::color(QString hex)
+{
+  QVariant var;
+  var.setValue(QColor(hex));
+  return var;
 }
 
 }

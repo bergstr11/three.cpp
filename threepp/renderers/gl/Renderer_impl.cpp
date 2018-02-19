@@ -914,8 +914,13 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     // wire up the material to this renderer's lighting state
     uniforms.set(UniformName::spotLights, _lights.state.spot);
-    if(!_lights.state.ambient.isNull())
+
+    if(material->ambientColor)
+      //in case a material carries ambient color (Assimp)
+      uniforms.set(UniformName::ambientLightColor, material->ambientColor);
+    else if(_lights.state.ambient)
       uniforms.set(UniformName::ambientLightColor, _lights.state.ambient);
+
     uniforms.set(UniformName::directionalLights, _lights.state.directional);
     uniforms.set(UniformName::hemisphereLights, _lights.state.hemi);
     uniforms.set(UniformName::rectAreaLights, _lights.state.rectArea);
@@ -1031,8 +1036,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   bool refreshLights = false;
 
   Program::Ptr program = materialProperties.program;
-  Uniforms::Ptr p_uniforms = program->getUniforms();
-  UniformValues &m_uniforms = materialProperties.shader.uniforms();
+  Uniforms::Ptr prg_uniforms = program->getUniforms();
+  UniformValues &mat_uniforms = materialProperties.shader.uniforms();
 
   if (_state.useProgram(program->handle()) ) {
 
@@ -1050,12 +1055,12 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   if ( refreshProgram || camera != _currentCamera ) {
 
-    p_uniforms->set(UniformName::projectionMatrix, camera->projectionMatrix());
+    prg_uniforms->set(UniformName::projectionMatrix, camera->projectionMatrix());
 
     if (_capabilities.logarithmicDepthBuffer) {
       PerspectiveCamera::Ptr pcamera = dynamic_pointer_cast<PerspectiveCamera>(camera);
       if(pcamera)
-        p_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
+        prg_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
       check_glerror(this);
     }
 
@@ -1078,9 +1083,9 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     material::Dispatch dispatch;
     resolver::FuncAssoc<Material> assoc = [&] (Material &mat) {
 
-      if(p_uniforms->get(UniformName::cameraPosition)) {
+      if(prg_uniforms->get(UniformName::cameraPosition)) {
         _vector3 = camera->matrixWorld().getPosition();
-        p_uniforms->set(UniformName::cameraPosition, _vector3);
+        prg_uniforms->set(UniformName::cameraPosition, _vector3);
         check_glerror(this);
       }
     };
@@ -1094,7 +1099,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     assoc = [&] (Material &mat) {
 
-      p_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
+      prg_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
       check_glerror(this);
     };
     dispatch.func<MeshPhongMaterial>() = assoc;
@@ -1116,8 +1121,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
     object::Dispatch dispatch;
     dispatch.func<SkinnedMesh>() = [&] (SkinnedMesh &m) {
-      p_uniforms->set(UniformName::bindMatrix, m.bindMatrix());
-      p_uniforms->set(UniformName::bindMatrixInverse, m.bindMatrixInverse());
+      prg_uniforms->set(UniformName::bindMatrix, m.bindMatrix());
+      prg_uniforms->set(UniformName::bindMatrixInverse, m.bindMatrixInverse());
 
       if (m.skeleton()) {
 
@@ -1155,7 +1160,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
         } else {
           if(!m.skeleton()->boneMatrices().empty())
-            p_uniforms->set(UniformName::boneMatrices, m.skeleton()->boneMatrices().data());
+            prg_uniforms->set(UniformName::boneMatrices, m.skeleton()->boneMatrices().data());
         }
       }
     };
@@ -1163,8 +1168,8 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   }
   if ( refreshMaterial ) {
 
-    p_uniforms->set(UniformName::toneMappingExposure, _toneMappingExposure );
-    p_uniforms->set(UniformName::toneMappingWhitePoint, _toneMappingWhitePoint );
+    prg_uniforms->set(UniformName::toneMappingExposure, _toneMappingExposure );
+    prg_uniforms->set(UniformName::toneMappingWhitePoint, _toneMappingWhitePoint );
 
     if ( material->lights ) {
 
@@ -1177,73 +1182,68 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       // use the current material's .needsUpdate flags to set
       // the GL state when required
 
-      markUniformsLightsNeedsUpdate( m_uniforms, refreshLights );
+      markUniformsLightsNeedsUpdate( mat_uniforms, refreshLights );
     }
 
     // refresh uniforms common to several materials
 
     if ( fog && material->fog ) {
 
-      refreshUniforms( m_uniforms, *fog );
+      refreshUniforms( mat_uniforms, *fog );
     }
 
     material::Dispatch dispatch;
     dispatch.func<MeshBasicMaterial>() = [&](MeshBasicMaterial &material) {
-      refresh( m_uniforms, material );
+      refresh( mat_uniforms, material );
     };
     dispatch.func<MeshDepthMaterial>() = [&](MeshDepthMaterial &material) {
-      refresh( m_uniforms, material);
+      refresh( mat_uniforms, material);
     };
     dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &material) {
-      refresh( m_uniforms, material);
-      m_uniforms[UniformName::referencePosition] = material.referencePosition;
-      m_uniforms[UniformName::nearDistance] = material.nearDistance;
-      m_uniforms[UniformName::farDistance] = material.farDistance;
+      refresh( mat_uniforms, material);
+      mat_uniforms[UniformName::referencePosition] = material.referencePosition;
+      mat_uniforms[UniformName::nearDistance] = material.nearDistance;
+      mat_uniforms[UniformName::farDistance] = material.farDistance;
     };
     dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &material) {
-      refresh( m_uniforms, material);
+      refresh( mat_uniforms, material);
     };
     dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &material) {
-      refresh( m_uniforms, material );
-      m_uniforms[UniformName::dashSize] = material.dashSize;
-      m_uniforms[UniformName::totalSize] = material.dashSize + material.gapSize;
-      m_uniforms[UniformName::scale] = material.scale;
+      refresh( mat_uniforms, material );
+      mat_uniforms[UniformName::dashSize] = material.dashSize;
+      mat_uniforms[UniformName::totalSize] = material.dashSize + material.gapSize;
+      mat_uniforms[UniformName::scale] = material.scale;
     };
     dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
-      refresh( m_uniforms, material);
+      refresh( mat_uniforms, material);
     };
     dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
-      refresh( m_uniforms, material);
+      refresh( mat_uniforms, material);
     };
     dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
-      refresh( m_uniforms, material );
+      refresh( mat_uniforms, material );
     };
     dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
-      refresh( m_uniforms, material );
+      refresh( mat_uniforms, material );
     };
     dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
-      refresh( m_uniforms, material );
-      m_uniforms[UniformName::clearCoat] = material.clearCoat;
-      m_uniforms[UniformName::clearCoatRoughness] = material.clearCoatRoughness;
+      refresh( mat_uniforms, material );
+      mat_uniforms[UniformName::clearCoat] = material.clearCoat;
+      mat_uniforms[UniformName::clearCoatRoughness] = material.clearCoatRoughness;
     };
     dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &material) {
-      refresh( m_uniforms, material );
+      refresh( mat_uniforms, material );
     };
     dispatch.func<PointsMaterial>() = [&] (PointsMaterial &material) {
-      refresh( m_uniforms, material );
-      m_uniforms[UniformName::size] = material.size * _pixelRatio;
-      m_uniforms[UniformName::scale] = _height * 0.5f;
+      refresh( mat_uniforms, material );
+      mat_uniforms[UniformName::size] = material.size * _pixelRatio;
+      mat_uniforms[UniformName::scale] = _height * 0.5f;
     };
     dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &material) {
-      refresh(m_uniforms, material);
+      refresh(mat_uniforms, material);
     };
     material->resolver->material::DispatchResolver::getValue(dispatch);
     check_glerror(this);
-
-    //in case a material carries ambient color (Assimp)
-    if(!material->ambientColor.isNull()) {
-      m_uniforms[UniformName::ambientLightColor] = material->ambientColor;
-    }
 
     // RectAreaLight Texture
     // TODO (mrdoob): Find a nicer implementation
@@ -1251,13 +1251,13 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     //if ( m_uniforms.ltcMat ) m_uniforms.ltcMat.value = uniforms::LTC_MAT_TEXTURE;
     //if ( m_uniforms.ltcMag ) m_uniforms.ltcMag.value = uniforms::LTC_MAG_TEXTURE;
 
-    uploadUniforms(materialProperties.uniformsList, m_uniforms);
+    uploadUniforms(materialProperties.uniformsList, mat_uniforms);
   }
 
   // common matrices
-  p_uniforms->set(UniformName::modelViewMatrix, object->modelViewMatrix );
-  p_uniforms->set(UniformName::normalMatrix, object->normalMatrix );
-  p_uniforms->set(UniformName::modelMatrix, object->matrixWorld() );
+  prg_uniforms->set(UniformName::modelViewMatrix, object->modelViewMatrix );
+  prg_uniforms->set(UniformName::normalMatrix, object->normalMatrix );
+  prg_uniforms->set(UniformName::modelMatrix, object->matrixWorld() );
 
   check_glerror(this);
   return program;

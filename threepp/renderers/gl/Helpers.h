@@ -41,7 +41,7 @@ inline void _check_glerror(QOpenGLFunctions *f, const char *file, int line)
     std::stringstream ss;
     ss << file << ":" << line;
     do {
-      ss << std::setbase(16) << " error code " << err;
+      ss << std::setbase(16) << " error code 0x" << err;
     } while((err = glGetError()) != GL_NO_ERROR);
 
     throw std::logic_error(ss.str());

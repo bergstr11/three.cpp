@@ -5,7 +5,7 @@
 #ifndef THREEPP_PERSPECTIVECAMERA
 #define THREEPP_PERSPECTIVECAMERA
 
-#include "Camera.h"
+#include <threepp/camera/Camera.h>
 
 namespace three {
 

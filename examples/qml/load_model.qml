@@ -17,15 +17,43 @@ Window {
         color: "lightgray"
     }
     Row {
+        id: lrow
         anchors.top: parent.top
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 20
+        z: 2
 
-        Label {text: "Position: %1:%2:%3".arg(modelref.position.x).arg(modelref.position.y).arg(modelref.position.z)}
-        Label {text: "Rotation: %1:%2:%3".arg(modelref.rotation.x).arg(modelref.rotation.y).arg(modelref.rotation.z)}
+        Label {id: dlabel; text: "Distance: %1".arg(orbitController.distance)}
+        Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(modelref.rotation.x).arg(modelref.rotation.y).arg(modelref.rotation.z)}
+
+    }
+    MouseArea {
+        anchors.fill: lrow
+        z: 3
+        onClicked: {
+            console.log(dlabel.text, rlabel.text)
+        }
     }
     OptionsMenu {
+        id: lightControls
+        title: "light"
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: 350
+        color: "transparent"
+        z: 2
+        threeD: threeD
+
+        FloatValue {
+            name: "intensity"
+            target: hemisphereLight
+            from: 0
+            to: 2
+        }
+    }
+    OptionsMenu {
+        id: objectControls
         title: "adjust model"
         anchors.top: parent.top
         anchors.right: parent.right
@@ -64,22 +92,9 @@ Window {
                 base = value
             }
         }
-        FloatManip {
-            name: "position.z"
-            target: sceneCamera
-            from: -10000
-            to: 10000
-            onValueChanged: {
-                target.translateZ(value - base)
-                base = value
-            }
-        }
-        BoolChoice {
-            name: "Enable pan"
-            value: controller.enablePan
-            onValueChanged: {
-                controller.enablePan = value
-            }
+        BoolValue {
+            name: "enablePan"
+            target: orbitController
         }
     }
 
@@ -119,7 +134,7 @@ Window {
         id: threeD
         anchors.fill: parent
         autoClear: false
-        samples: 12
+        samples: 24
 
         Model {
             id: threeDModel
@@ -130,9 +145,10 @@ Window {
         Scene {
             id: scene
 
-            AmbientLight {
-                id: ambientLight
-                color: "#cccccc"
+            HemisphereLight {
+                id: hemisphereLight
+                skyColor: "#ababab"
+                intensity: 0.4
             }
 
             ModelRef {
@@ -140,31 +156,45 @@ Window {
                 model: threeDModel
                 type: ModelRef.Node
                 replace: true
+
+                onObjectChanged: {
+                    orbitController.reset()
+                    objectControls.reset()
+                    lightControls.reset()
+                }
             }
 
             camera: PerspectiveCamera {
                 id: sceneCamera
                 aspect: threeD.width / threeD.height
                 near: 1
-                far: 2000
+                far: 100000
 
                 position: "0,0,1000"
 
                 lookAt: scene.position
 
                 controller: OrbitController {
-                    id: controller
-                    minDistance: 150
-                    maxDistance: 1500
+                    id: orbitController
                     maxPolarAngle: Math.PI;
                     enablePan: false
                 }
 
-                DirectionalLight {
-                    color: "#dddddd"
-                    position: "0,0,2"
+                PointLight {
+                    color: "#ffffff"
                     intensity: 0.5
+                    position: Qt.vector3d(12,15,1).times(30)
                 }
+                PointLight {
+                    color: "#ffffff"
+                    intensity: 0.75
+                    position: Qt.vector3d(-12, 17.6, 2.4).times(30)
+                }
+                /*DirectionalLight {
+                    color: "#cccccc"
+                    position: "0,0,400"
+                    intensity: 0.2
+                }*/
             }
         }
     }

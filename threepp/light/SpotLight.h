@@ -5,10 +5,26 @@
 #ifndef THREEPP_SPOTLIGHT_H
 #define THREEPP_SPOTLIGHT_H
 
+#include <threepp/camera/PerspectiveCamera.h>
 #include "TargetLight.h"
-#include "SpotLightShadow.h"
 
 namespace three {
+
+class SpotLight;
+
+class SpotLightShadow : public LightShadowT<PerspectiveCamera>
+{
+  SpotLightShadow(SpotLight &light)
+     : LightShadowT(PerspectiveCamera::make( 50, 1, 0.5, 500 )), light(light) {}
+
+  SpotLight &light;
+
+public:
+  using Ptr = std::shared_ptr<SpotLightShadow>;
+  static Ptr make(SpotLight &light) {return Ptr(new SpotLightShadow(light));}
+
+  void update() override;
+};
 
 class SpotLight : public TargetLight
 {
@@ -17,6 +33,8 @@ class SpotLight : public TargetLight
   float _distance;
   float _angle;
   Object3D::Ptr _target;
+
+  SpotLightShadow::Ptr _shadow;
 
   SpotLight(Object3D::Ptr target,
             const Color &color,
@@ -66,6 +84,9 @@ public:
     // ref: equation (17) from http://www.frostbite.com/wp-content/uploads/2014/11/course_notes_moving_frostbite_to_pbr.pdf
     _intensity = power / (float)M_PI;
   }
+
+  const LightShadow::Ptr shadow() const override {return _shadow;}
+  SpotLightShadow::Ptr shadow_t() const {return _shadow;}
 };
 
 inline void SpotLightShadow::update()

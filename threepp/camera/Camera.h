@@ -41,11 +41,11 @@ protected:
 
   Camera(camera::Resolver::Ptr resolver)
     : Object3D(object::Resolver::makeNull()), cameraResolver(resolver), _projectionMatrix(math::Matrix4::identity()),
-      _matrixWorldInverse(_matrixWorld.inverse()) {}
+      _matrixWorldInverse(_matrixWorld.inverted()) {}
 
   Camera()
     : Object3D(object::Resolver::makeNull()), cameraResolver(camera::Resolver::makeNull()),
-      _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverse()) {}
+      _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverted()) {}
 
   virtual ~Camera() {}
 
@@ -69,7 +69,7 @@ public:
 
     Object3D::updateMatrixWorld(force);
 
-    _matrixWorldInverse = _matrixWorld.inverse();
+    _matrixWorldInverse = _matrixWorld.inverted();
   }
 
   void lookAt(const math::Vector3 &vector) override

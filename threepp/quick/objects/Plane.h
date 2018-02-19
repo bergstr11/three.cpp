@@ -10,7 +10,7 @@
 #include <threepp/material/MeshBasicMaterial.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/objects/Mesh.h>
-#include "MeshCreator.h"
+#include "threepp/quick/qutil/MeshCreator.h"
 #include <threepp/quick/Three.h>
 
 namespace three {

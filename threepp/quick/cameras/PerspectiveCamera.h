@@ -5,7 +5,7 @@
 #ifndef THREEPPQ_PERSPECTIVECAMERA_H
 #define THREEPPQ_PERSPECTIVECAMERA_H
 
-#include "Camera.h"
+#include <threepp/quick/cameras/Camera.h>
 #include <threepp/camera/PerspectiveCamera.h>
 
 namespace three {
@@ -14,10 +14,10 @@ namespace quick {
 class PerspectiveCamera : public Camera
 {
 Q_OBJECT
-  Q_PROPERTY(qreal fov READ fov WRITE setFov NOTIFY fovChanged)
-  Q_PROPERTY(qreal aspect READ aspect WRITE setAspect NOTIFY aspectChanged)
+  Q_PROPERTY(float fov READ fov WRITE setFov NOTIFY fovChanged)
+  Q_PROPERTY(float aspect READ aspect WRITE setAspect NOTIFY aspectChanged)
 
-  qreal _fov=50, _aspect=1, _near=0.1f, _far=2000;
+  float _fov=50, _aspect=1, _near=0.1f, _far=2000;
 
   three::PerspectiveCamera::Ptr _perspectiveCamera;
 
@@ -34,17 +34,17 @@ public:
   PerspectiveCamera(three::PerspectiveCamera::Ptr camera, QObject *parent = nullptr)
      : Camera(camera, parent), _perspectiveCamera(camera) {}
 
-  qreal fov() const {return _fov;}
-  qreal aspect() const {return _aspect;}
+  float fov() const {return _fov;}
+  float aspect() const {return _aspect;}
 
-  void setFov(qreal fov) {
+  void setFov(float fov) {
     if(_fov != fov) {
       _fov = fov;
       emit fovChanged();
     }
   }
 
-  void setAspect(qreal aspect) {
+  void setAspect(float aspect) {
     if(_aspect != aspect) {
       _aspect = aspect;
       if(_perspectiveCamera) {
@@ -57,6 +57,7 @@ public:
 signals:
   void fovChanged();
   void aspectChanged();
+  void distanceChanged();
 };
 
 }

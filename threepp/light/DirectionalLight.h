@@ -5,16 +5,26 @@
 #ifndef THREEPP_DIRECTIONALLIGHT_H
 #define THREEPP_DIRECTIONALLIGHT_H
 
+#include <threepp/camera/OrtographicCamera.h>
 #include "TargetLight.h"
 
 namespace three {
 
+using DirectionalLightShadow = LightShadowT<OrtographicCamera>;
+
 class DirectionalLight : public TargetLight
 {
 protected:
+  DirectionalLightShadow::Ptr _shadow;
+
   DirectionalLight(const Object3D::Ptr &target, const Color &color, float intensity)
      : TargetLight(light::ResolverT<DirectionalLight>::make(*this),  target, color, intensity)
-  {}
+  {
+    _position = math::Vector3( 0, 1, 0 );
+    updateMatrix();
+
+    _shadow = LightShadowT<OrtographicCamera>::make(OrtographicCamera::make(-5, 5, 5, -5, 0.5, 500));
+  }
 
 public:
   using Ptr = std::shared_ptr<DirectionalLight>;
@@ -22,6 +32,9 @@ public:
   static Ptr make(const Object3D::Ptr &target, const Color &color, float intensity) {
     return Ptr(new DirectionalLight(target, color, intensity));
   }
+
+  const LightShadow::Ptr shadow() const override {return _shadow;}
+  const DirectionalLightShadow::Ptr shadow_t() const {return _shadow;}
 };
 
 }

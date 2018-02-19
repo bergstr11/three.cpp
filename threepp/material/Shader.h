@@ -11,7 +11,7 @@
 namespace three {
 
 /**
- * represents a OpenGL shader program. This class is only defined at the non-renderer level to
+ * represents a OpenGL shader program. This class is only defined outside the renderer-specific realm to
  * accomodate the needs of ShaderMaterial
  */
 class Shader
@@ -24,8 +24,7 @@ protected:
   std::string _fragmentShader;
 
 public:
-  Shader()
-     : _name(nullptr), _uniforms({}) {}
+  Shader() : _name(nullptr) {}
 
   Shader(const char *name, const gl::UniformValues &uniforms, const std::string &vertexShader, const std::string &fragmentShader)
      : _name(name), _uniforms(uniforms), _vertexShader(vertexShader), _fragmentShader(fragmentShader) {}

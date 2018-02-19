@@ -274,5 +274,10 @@ void Orbit::doPan(unsigned x, unsigned y)
   update();
 }
 
+float Orbit::getDistance()
+{
+  return _camera ? _camera->position().distanceTo(target) : 0.0f;
+}
+
 }
 }

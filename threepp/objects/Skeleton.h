@@ -33,7 +33,7 @@ class Skeleton
   explicit Skeleton(const std::vector<Bone::Ptr> bones) : _bones(bones)
   {
     for(Bone::Ptr bone : _bones) {
-      _boneInverses.push_back(bone->matrixWorld().inverse());
+      _boneInverses.push_back(bone->matrixWorld().inverted());
     }
   }
 public:
@@ -63,14 +63,14 @@ public:
     // recover the bind-time world matrices
     size_t index = 0;
     for(Bone::Ptr bone : _bones) {
-      bone->matrixWorld() = _boneInverses[index++].inverse();
+      bone->matrixWorld() = _boneInverses[index++].inverted();
     }
 
     // compute the local matrices, positions, rotations and scales
     for(Bone::Ptr bone : _bones) {
       const Bone *parent = bone->parent() ? dynamic_cast<const Bone *>(bone->parent()) : nullptr;
       if (parent) {
-        bone->matrix() = parent->matrixWorld().inverse();
+        bone->matrix() = parent->matrixWorld().inverted();
         bone->matrix() *= bone->matrixWorld();
       }
       else {

@@ -78,7 +78,7 @@ protected:
   }
 
   explicit Orbit(Camera::Ptr camera)
-     : _camera(camera), _target0(target), _position0(camera->position()), _zoom0(camera->zoom())
+     : _camera(camera), target(0, 0, 0), _target0(0, 0, 0), _position0(camera->position()), _zoom0(camera->zoom())
   {
     init();
   }
@@ -208,6 +208,8 @@ public:
 
     _panOffset += v;
   }
+
+  float getDistance();
 
   void saveState()
   {

@@ -101,6 +101,8 @@ struct Color
        b == std::numeric_limits<float>::infinity();
   }
 
+  operator bool() {return !isNull();}
+
   void set(float r, float g, float b)
   {
     this->r = r;

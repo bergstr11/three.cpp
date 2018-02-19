@@ -232,7 +232,7 @@ public:
 
   math::Vector3 worldToLocal(const math::Vector3 &vector)
   {
-    return vector * _matrixWorld.inverse();
+    return vector * _matrixWorld.inverted();
   }
 
   // This method does not support objects with rotated and/or translated parent(s)

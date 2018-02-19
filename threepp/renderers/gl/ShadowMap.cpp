@@ -36,7 +36,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       continue;
     }
 
-    const PerspectiveCamera::Ptr shadowCamera = shadow->camera();
+    const Camera::Ptr shadowCamera = shadow->camera();
 
     math::Vector2 maxShadowMapSize {(float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize};
     math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
@@ -250,7 +250,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   return result;
 }
 
-void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera, bool isPointLight)
+void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight)
 {
   if (!object->visible()) return;
 

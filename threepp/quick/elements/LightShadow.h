@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QSize>
 #include <threepp/quick/cameras/PerspectiveCamera.h>
+#include <threepp/quick/cameras/OrtographicCamera.h>
 
 namespace three {
 namespace quick {
@@ -17,17 +18,12 @@ class LightShadow : public QObject
 Q_OBJECT
   Q_PROPERTY(QSize mapSize READ mapSize WRITE setMapSize NOTIFY mapSizeChanged)
   Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
-  Q_PROPERTY(PerspectiveCamera * camera READ camera CONSTANT)
 
   QSize _mapSize {512, 512};
   qreal _radius = 1;
 
-  PerspectiveCamera _camera;
-
 public:
-  PerspectiveCamera *camera() {
-    return &_camera;
-  }
+  LightShadow(QObject *parent=nullptr) : QObject(parent) {}
 
   QSize mapSize() {return _mapSize;}
 
@@ -50,6 +46,32 @@ public:
 signals:
   void mapSizeChanged();
   void radiusChanged();
+};
+
+class LightShadowPC : public LightShadow
+{
+Q_OBJECT
+  Q_PROPERTY(PerspectiveCamera *camera READ camera CONSTANT)
+
+  PerspectiveCamera _camera;
+
+public:
+  PerspectiveCamera *camera() {
+    return &_camera;
+  }
+};
+
+class LightShadowOC : public LightShadow
+{
+Q_OBJECT
+  Q_PROPERTY(OrtographicCamera *camera READ camera CONSTANT)
+
+  OrtographicCamera _camera;
+
+public:
+  OrtographicCamera *camera() {
+    return &_camera;
+  }
 };
 
 }

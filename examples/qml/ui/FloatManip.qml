@@ -10,10 +10,10 @@ QtObject {
     property QtObject target
     property real value
 
-    signal setValue
-
-    onTargetChanged: {
+    function reset() {
         value = base = eval("target."+name)
-        main.valueChanged.connect(setValue)
+    }
+    onTargetChanged: {
+        reset()
     }
 }

@@ -10,34 +10,43 @@
 
 namespace three {
 
+using PointLightShadow = LightShadowT<PerspectiveCamera>;
+
 class PointLight : public Light
 {
   float _distance = 0;
-  float _angle;
   float _decay = 1;	// for physically correct lights, should be 2.
 
+  PointLightShadow::Ptr _shadow;
+
 protected:
-  PointLight(const Color &color, float intensity, float distance, float angle)
-     : Light(light::ResolverT<PointLight>::make(*this), color, intensity), _distance(distance), _angle(angle)
+  PointLight(const Color &color, float intensity, float distance, float decay)
+     : Light(light::ResolverT<PointLight>::make(*this), color, intensity), _distance(distance), _decay(decay)
   {
-    _shadow = LightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
+    _shadow = LightShadowT<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
 public:
   using Ptr = std::shared_ptr<PointLight>;
-  static Ptr make(const Color &color, float intensity, float distance, float angle)
+  static Ptr make(const Color &color, float intensity, float distance, float decay)
   {
-    return Ptr(new PointLight(color, intensity, distance, angle));
+    return Ptr(new PointLight(color, intensity, distance, decay));
   }
 
-  LightShadow::Ptr shadow()
-  {
-    return _shadow;
-  }
+  const LightShadow::Ptr shadow() const override {return _shadow;}
+  const PointLightShadow::Ptr shadow_t() const {return _shadow;}
 
   float distance() const {return _distance;}
 
+  void setDistance(float distance) {
+    _distance = distance;
+  }
+
   float decay() const {return _decay;}
+
+  void setDecay(float decay) {
+    _decay = decay;
+  }
 
   float power() const
   {

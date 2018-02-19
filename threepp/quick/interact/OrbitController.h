@@ -16,6 +16,7 @@ namespace quick {
 class OrbitController : public Controller
 {
   Q_OBJECT
+  Q_PROPERTY(float distance READ distance NOTIFY distanceChanged)
   Q_PROPERTY(float minDistance READ minDistance WRITE setMinDistance NOTIFY minDistanceChanged)
   Q_PROPERTY(float maxDistance READ maxDistance WRITE setMaxDistance NOTIFY maxDistanceChanged)
   Q_PROPERTY(float maxPolarAngle READ maxPolarAngle WRITE setMaxPolarAngle NOTIFY maxPolarAngleChanged)
@@ -81,6 +82,10 @@ protected:
     }
   }
 
+  float distance() {
+    return _controls ? _controls->getDistance() : 0.0f;
+  }
+
 public:
   void setItem(QQuickItem *item) override
   {
@@ -93,6 +98,7 @@ public:
 
     _controls->onChanged.connect([this]() {
       emit changed();
+      emit distanceChanged();
     });
   }
 
@@ -116,12 +122,17 @@ public:
     return _controls->handleMouseWheel(event);
   }
 
+  Q_INVOKABLE void reset() {
+    if(_controls) _controls->reset();
+  }
+
 signals:
   void minDistanceChanged();
   void maxDistanceChanged();
   void maxPolarAngleChanged();
   void enablePanChanged();
   void enableRotateChanged();
+  void distanceChanged();
 };
 
 }

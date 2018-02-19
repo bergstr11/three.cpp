@@ -9,7 +9,6 @@
 
 #include <threepp/camera/PerspectiveCamera.h>
 #include <threepp/math/Vector2.h>
-#include <threepp/textures/Texture.h>
 #include <threepp/renderers/Renderer.h>
 #include "Light.h"
 
@@ -28,16 +27,8 @@ protected:
   Renderer::Target::Ptr _map;
   math::Matrix4 _matrix;
 
-  PerspectiveCamera::Ptr _camera;
-
-protected:
-  explicit LightShadow(PerspectiveCamera::Ptr camera) : _camera(camera) {}
-
 public:
   using Ptr = std::shared_ptr<LightShadow>;
-  static Ptr make(PerspectiveCamera::Ptr camera) {
-    return Ptr(new LightShadow(camera));
-  }
 
   float bias() const {return _bias;}
   float radius() const {return _radius;}
@@ -54,9 +45,31 @@ public:
   math::Matrix4 &matrix() {return _matrix;}
   const math::Matrix4 &matrix() const {return _matrix;}
 
-  virtual const PerspectiveCamera::Ptr camera() const {return _camera;}
+  virtual const Camera::Ptr camera() const = 0;
 
   virtual void update() {}
+};
+
+template <typename tCamera>
+class LightShadowT : public LightShadow
+{
+  static_assert(std::is_base_of<three::Camera, tCamera>::value, "tCamera must be a three::Camera subtype");
+  friend class LightShadow;
+  
+protected:
+  typename tCamera::Ptr _camera;
+
+  explicit LightShadowT(typename tCamera::Ptr camera) : _camera(camera) {}
+
+public:
+  using Ptr = std::shared_ptr<LightShadowT>;
+  static Ptr make(std::shared_ptr<tCamera> camera) {
+    return Ptr(new LightShadowT(camera));
+  }
+
+  const Camera::Ptr camera() const override {return _camera;}
+
+  const typename tCamera::Ptr camera_t() const {return _camera;}
 };
 
 }

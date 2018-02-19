@@ -132,6 +132,9 @@ public:
 
   BufferGeometry &update(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
 
+  void computeVertexNormals();
+  void normalizeNormals();
+
   bool useMorphing() const override
   {
     return !_morphAttributes_position.empty();

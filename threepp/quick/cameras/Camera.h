@@ -8,9 +8,8 @@
 #include <QObject>
 #include <QVector3D>
 #include <QQmlListProperty>
-#include <threepp/core/Object3D.h>
 #include <threepp/camera/Camera.h>
-#include <threepp/quick/objects/Light.h>
+#include <threepp/quick/lights/Light.h>
 #include <threepp/quick/interact/Controller.h>
 #include <threepp/quick/Math.h>
 

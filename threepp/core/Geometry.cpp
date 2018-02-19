@@ -430,4 +430,93 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
   return *this;
 }
 
+void BufferGeometry::normalizeNormals()
+{
+  for (unsigned i = 0, il = _normal->itemCount(); i < il; i ++ ) {
+    _normal->item_at<Vector3>(i).normalize();
+  }
+}
+
+void BufferGeometry::computeVertexNormals()
+{
+  //var index = this.index;
+  //var attributes = this.attributes;
+  //var groups = this.groups;
+
+  if(_position) {
+    //var positions = _position->.array;
+
+    if (_normal)
+      // reset existing normals to zero
+      _normal->clear();
+    else
+      _normal = attribute::prealloc<float, Vector3>(_position->itemCount());
+
+
+    // indexed elements
+    if ( _index ) {
+      //var indices = index.array;
+
+      if (_groups.empty()) {
+
+        addGroup( 0, _index->size());
+      }
+
+      for (unsigned j = 0, jl = _groups.size(); j < jl; ++ j ) {
+
+        Group &group = _groups[ j ];
+
+        for (unsigned i = group.start, il = group.start + group.count; i < il; i += 3 ) {
+
+          unsigned vA = _index->at(i) * 3;
+          unsigned vB = _index->at(i+1) * 3;
+          unsigned vC = _index->at(i+2) * 3;
+
+          Vector3 pA = Vector3::fromBufferAttribute(*_position, vA);
+          Vector3 pB = Vector3::fromBufferAttribute(*_position, vB);
+          Vector3 pC = Vector3::fromBufferAttribute(*_position, vC);
+
+          Vector3 cb = pC - pB;
+          Vector3 ab = pA - pB;
+          cb.cross( ab );
+
+          _normal->at(vA) += cb.x();
+          _normal->at(vA + 1) += cb.y();
+          _normal->at(vA + 2) += cb.z();
+
+          _normal->at(vB) += cb.x();
+          _normal->at(vB + 1) += cb.y();
+          _normal->at(vB + 2) += cb.z();
+
+          _normal->at(vC) += cb.x();
+          _normal->at(vC + 1) += cb.y();
+          _normal->at(vC + 2) += cb.z();
+        }
+      }
+
+    } else {
+      // non-indexed elements (unconnected triangle soup)
+      for (unsigned i = 0, il = _position->itemCount(); i < il; i += 3 ) {
+
+        Vector3 pA = Vector3::fromBufferAttribute(*_position, i);
+        Vector3 pB = Vector3::fromBufferAttribute(*_position, i+1);
+        Vector3 pC = Vector3::fromBufferAttribute(*_position, i+2);
+
+        Vector3 cb = pC - pB;
+        Vector3 ab = pA - pB;
+        cb.cross( ab );
+
+        for(unsigned ix=0; ix < 3; ix++) {
+          _normal->set_x(ix, cb.x());
+          _normal->set_y(ix, cb.y());
+          _normal->set_z(ix, cb.z());
+        }
+      }
+    }
+
+    normalizeNormals();
+    _normal->needsUpdate();
+  }
+}
+
 }

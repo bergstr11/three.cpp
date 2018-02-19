@@ -92,7 +92,7 @@ public:
                             float shadowCameraNear,
                             float shadowCameraFar );
 
-  void renderObject(Object3D::Ptr object, Camera::Ptr camera, PerspectiveCamera::Ptr shadowCamera, bool isPointLight);
+  void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
 
   bool enabled() const {return _enabled;}
 

@@ -4,16 +4,17 @@
 
 #include "ModelRef.h"
 #include <threepp/quick/objects/Mesh.h>
-#include <threepp/quick/objects/AmbientLight.h>
-#include <threepp/quick/objects/HemisphereLight.h>
-#include <threepp/quick/objects/DirectionalLight.h>
-#include <threepp/quick/objects/SpotLight.h>
+#include <threepp/quick/lights/AmbientLight.h>
+#include <threepp/quick/lights/HemisphereLight.h>
+#include <threepp/quick/lights/DirectionalLight.h>
+#include <threepp/quick/lights/SpotLight.h>
 #include <threepp/quick/ThreeDItem.h>
 
 namespace three {
 namespace quick {
 
-void ModelRef::setModel(Model *model) {
+void ModelRef::setModel(Model *model)
+{
   if(_model != model) {
     if(_loadedConnection) QObject::disconnect(_loadedConnection);
     if(_fileConnection) QObject::disconnect(_fileConnection);
@@ -160,7 +161,23 @@ void ModelRef::cleanupScene()
 
 void ModelRef::updateScene()
 {
-  setObject(three::Node::make(_model->name().toStdString()));
+  auto node = three::Node::make(_model->name().toStdString());
+  if(!_rotation.isNull())
+    node->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+
+  if(!_position.isNull())
+    node->position().set(_position.x(), _position.y(), _position.z());
+
+  node->scale().set(_scale, _scale, _scale);
+
+  if(!_name.isEmpty())
+    node->setName(_name.toStdString());
+
+  node->castShadow = _castShadow;
+  node->receiveShadow = _receiveShadow;
+  node->matrixAutoUpdate = _matrixAutoUpdate;
+  
+  setObject(node);
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);

@@ -57,6 +57,7 @@ public:
   Q_ENUM(FrontFaceDirection)
 
   Q_INVOKABLE QVariant raycaster(QVariant camera);
+  Q_INVOKABLE QVariant color(QString hex);
 };
 
 class Scene;
