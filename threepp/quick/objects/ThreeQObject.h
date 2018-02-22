@@ -39,7 +39,7 @@ protected:
 
   float _scale = 1.0f;
 
-  bool _castShadow = false, _receiveShadow = false, _visible = false, _matrixAutoUpdate = true;
+  bool _castShadow = false, _receiveShadow = false, _visible = true, _matrixAutoUpdate = true;
 
   Material *_material = nullptr;
 
@@ -114,7 +114,9 @@ public:
   void setCastShadow(bool castShadow, bool propagate=true) {
     if(_castShadow != castShadow) {
       _castShadow = castShadow;
-      if(propagate && _object) _object->castShadow = _castShadow;
+      if(propagate && _object) {
+        _object->visit([&](Object3D *o) {o->castShadow = _castShadow; return true;});
+      }
       emit castShadowChanged();
     }
   }
@@ -124,7 +126,9 @@ public:
   void setReceiveShadow(bool receiveShadow, bool propagate=true) {
     if(_receiveShadow != receiveShadow) {
       _receiveShadow = receiveShadow;
-      if(propagate && _object) _object->receiveShadow = _castShadow;
+      if(propagate && _object) {
+        _object->visit([&](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
+      }
       emit receiveShadowChanged();
     }
   }

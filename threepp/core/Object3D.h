@@ -78,6 +78,9 @@ protected:
 public:
   virtual ~Object3D() {}
 
+  void visit(bool (*f)(Object3D *));
+  void visit(std::function<bool(Object3D *)> f);
+
   const object::Resolver::Ptr objectResolver;
 
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,

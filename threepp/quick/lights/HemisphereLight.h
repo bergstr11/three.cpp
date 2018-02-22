@@ -10,6 +10,7 @@
 #include <threepp/quick/elements/LightShadow.h>
 #include <threepp/quick/scene/Scene.h>
 #include "Light.h"
+#include "Helper.h"
 
 namespace three {
 namespace quick {
@@ -19,13 +20,11 @@ class HemisphereLight : public Light
 Q_OBJECT
   Q_PROPERTY(QColor skyColor READ color WRITE setColor NOTIFY skyColorChanged)
   Q_PROPERTY(QColor groundColor READ groundColor WRITE setGroundColor NOTIFY groundColorChanged)
-  Q_PROPERTY(float helperSize READ helperSize WRITE setHelperSize NOTIFY helperSizeChanged)
 
   QColor _groundColor {255, 255, 255};
 
   three::HemisphereLight::Ptr _light;
-
-  float _helperSize = 1;
+  helper::HemisphereLight::Ptr _helper;
 
 protected:
   Object3D::Ptr _create(Scene *scene) override
@@ -42,8 +41,11 @@ protected:
 
   void _post_create(Scene *scene) override
   {
-    if(_helper) {
-      scene->scene()->add(helper::HemisphereLight::make(_light, _helperSize, Color(ColorName::blueviolet)));
+    if(_qhelper.configured()) {
+      _helper = helper::HemisphereLight::make(_light, _qhelper.size(), Color::null());
+      QObject::connect(&_qhelper, &Helper::visibleChanged,
+                       [&]() {_helper->visible() = _qhelper.visible();});
+      scene->scene()->add(_helper);
     }
   }
 
@@ -65,20 +67,9 @@ public:
     }
   }
 
-  int helperSize() {return _helperSize;}
-
-  void setHelperSize(int helperSize) {
-    if(_helperSize != helperSize) {
-      _helperSize = helperSize;
-      emit helperSizeChanged();
-      setHelper(_helperSize > 0);
-    }
-  }
-
 signals:
   void skyColorChanged();
   void groundColorChanged();
-  void helperSizeChanged();
 };
 
 }

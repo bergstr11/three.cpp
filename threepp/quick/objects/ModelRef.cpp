@@ -173,27 +173,32 @@ void ModelRef::updateScene()
   if(!_name.isEmpty())
     node->setName(_name.toStdString());
 
-  node->castShadow = _castShadow;
-  node->receiveShadow = _receiveShadow;
   node->matrixAutoUpdate = _matrixAutoUpdate;
   
-  setObject(node);
-
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
 
     auto begin = selectors.begin();
     auto end = selectors.end();
 
-    evaluateSelector(begin, end, _object, _model->scene()->children());
+    evaluateSelector(begin, end, node, _model->scene()->children());
   }
   else {
     //must copy the list, as the children are in effect moved (reparented)
     const std::vector<Object3D::Ptr> children = _model->scene()->children();
 
-    for(Object3D::Ptr child : children)  _object->add(child);
+    for(Object3D::Ptr child : children)  {
+      node->add(child);
+    }
   }
 
+  node->visit([&](Object3D *o) {
+    o->castShadow = _castShadow;
+    o->receiveShadow = _receiveShadow;
+    return true;
+  });
+
+  setObject(node);
   _scene->scene()->add(_object);
 
   emit objectChanged();

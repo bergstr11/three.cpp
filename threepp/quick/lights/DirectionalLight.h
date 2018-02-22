@@ -19,12 +19,11 @@ class DirectionalLight : public Light
 Q_OBJECT
   Q_PROPERTY(LightShadowOC * shadow READ shadow CONSTANT)
   Q_PROPERTY(ThreeQObject *target READ target WRITE setTarget NOTIFY targetChanged)
-  Q_PROPERTY(int helperSize READ helperSize WRITE setHelperSize NOTIFY helperSizeChanged)
 
   three::DirectionalLight::Ptr _light;
   ThreeQObject *_target = nullptr;
 
-  int _helperSize = 1;
+  helper::DirectionalLight::Ptr _helper;
 
   LightShadowOC _shadow;
 
@@ -52,8 +51,11 @@ protected:
 
   void _post_create(Scene *scene) override
   {
-    if(_helper) {
-      scene->scene()->add(helper::DirectionalLight::make(_light, _helperSize));
+    if(_qhelper.configured()) {
+      _helper = helper::DirectionalLight::make(_light, _qhelper.size());
+      QObject::connect(&_qhelper, &Helper::visibleChanged,
+                       [&]() {_helper->visible() = _qhelper.visible();});
+      scene->scene()->add(_helper);
     }
   }
 
@@ -74,19 +76,8 @@ public:
     }
   }
 
-  int helperSize() {return _helperSize;}
-
-  void setHelperSize(int helperSize) {
-    if(_helperSize != helperSize) {
-      _helperSize = helperSize;
-      emit helperSizeChanged();
-      setHelper(_helperSize > 0);
-    }
-  }
-
 signals:
   void targetChanged();
-  void helperSizeChanged();
 };
 
 }

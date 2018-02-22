@@ -16,7 +16,7 @@ namespace helper {
 class HemisphereLight : public Object3D
 {
   three::HemisphereLight::Ptr _light;
-  Color _color;
+  Color _color = Color::null();
 
   geometry::buffer::Octahedron::Ptr _geometry;
   MeshBasicMaterial::Ptr _material;
@@ -25,37 +25,35 @@ protected:
   HemisphereLight(const three::HemisphereLight::Ptr &light, float radius, const Color &color)
      : Object3D(object::Resolver::makeNull()), _light(light), _color(color)
   {
-    _light->updateMatrixWorld(false);
+    _light->updateMatrixWorld(true);
     _matrix = _light->matrixWorld();
     matrixAutoUpdate = false;
 
-    auto geometry = geometry::buffer::Octahedron::make(radius, 0);
-    geometry->rotateY(M_PI * 0.5f);
+    _geometry = geometry::buffer::Octahedron::make(radius, 0);
+    _geometry->rotateY(M_PI * 0.5f);
 
     _material = MeshBasicMaterial::make();
     _material->wireframe = true;
 
-    if(_color) _material->vertexColors = Colors::Vertex;
+    if(!_color) _material->vertexColors = Colors::Vertex;
 
-    geometry->setColor(attribute::prealloc<float, Color>(geometry->position()->itemCount()));
+    _geometry->setColor(attribute::prealloc<float, Color>(_geometry->position()->itemCount()));
 
-    add(Mesh::make("hemi_helper", geometry, _material));
+    add(Mesh::make("hemi_helper", _geometry, _material));
     update();
   }
 
   void update()
   {
-    //var mesh = this.children[ 0 ];
-
     if (_color) {
 
       _material->color = _color;
-
-    } else {
+    }
+    else {
 
       for(unsigned i = 0, l = _geometry->color()->itemCount(); i < l; i ++ ) {
 
-        Color &color = _geometry->color()->item_at<Color>(i);
+        auto &color = _geometry->color()->item_at<Color>(i);
         color = ( i < ( l / 2 ) ) ? _light->skyColor() : _light->groundColor();
       }
 

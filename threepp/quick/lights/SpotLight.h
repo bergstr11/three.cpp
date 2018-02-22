@@ -22,6 +22,7 @@ Q_OBJECT
   Q_PROPERTY(qreal decay READ decay WRITE setDecay NOTIFY decayChanged)
 
   three::SpotLight::Ptr _light;
+  helper::SpotLight::Ptr _helper;
   LightShadowPC _shadow;
 
 protected:
@@ -46,8 +47,11 @@ protected:
 
   void _post_create(Scene *scene) override
   {
-    if(_helper) {
-      scene->scene()->add(helper::SpotLight::make("spotlight_helper", _light));
+    if(_qhelper.configured()) {
+      _helper = helper::SpotLight::make("spotlight_helper", _light);
+      QObject::connect(&_qhelper, &Helper::visibleChanged,
+                       [&]() {_helper->visible() = _qhelper.visible();});
+      scene->scene()->add(_helper);
     }
   }
 

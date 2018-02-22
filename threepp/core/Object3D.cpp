@@ -29,6 +29,24 @@ void Object3D::updateMaterials()
   }
 }
 
+void Object3D::visit(bool (*f)(Object3D *))
+{
+  if(f(this)) {
+    for(auto &child : _children) {
+      child->visit(f);
+    }
+  }
+}
+
+void Object3D::visit(std::function<bool(Object3D *)> f)
+{
+  if(f(this)) {
+    for(auto &child : _children) {
+      child->visit(f);
+    }
+  }
+}
+
 void Object3D::onRotationChange(const math::Euler &rotation)
 {
   _quaternion.set(_rotation, false);

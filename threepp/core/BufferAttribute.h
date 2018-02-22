@@ -105,7 +105,6 @@ public:
   const sole::uuid uuid;
 
   void needsUpdate() {_version++;}
-  bool needsUpdate() const {return _version > 0;}
 
   unsigned version() const {return _version;}
 

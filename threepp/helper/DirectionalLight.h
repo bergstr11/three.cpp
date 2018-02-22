@@ -77,7 +77,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<DirectionalLight>;
-  static Ptr make(three::DirectionalLight::Ptr light, float size=1.0f, const Color &color=Color(ColorName::blueviolet))
+  static Ptr make(three::DirectionalLight::Ptr light, float size=1.0f, const Color &color=Color::null())
   {
     return Ptr(new DirectionalLight(light, size, color));
   }

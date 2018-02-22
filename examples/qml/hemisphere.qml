@@ -12,6 +12,34 @@ Window {
 
     visible: true
 
+    OptionsMenu {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        color: "transparent"
+        width: 350
+        height: 200
+        z: 2
+
+        BoolChoice {
+            name: "Directional"
+            value: dirlight.visible
+            onValueChanged: {
+                dirlight.visible = value
+                dirlight.helper.visible = value
+                threeD.update()
+            }
+        }
+        BoolChoice {
+            name: "Hemisphere"
+            value: hemilight.visible
+            onValueChanged: {
+                hemilight.visible = value
+                hemilight.helper.visible = value
+                threeD.update()
+            }
+        }
+    }
+
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -65,16 +93,18 @@ Window {
                 model: eagleModel
                 type: ModelRef.Node
                 castShadow: true
+                receiveShadow: true
                 scale: 0.035
                 position: "30,-5,0"
                 rotation: "-1.62716,-0.0526228,-2.53596"
             }
 
             Plane {
+                type: Three.BufferGeometry
                 width: 10000
                 height: 10000
 
-                rotation.x: Math.PI / 2
+                rotation.x: -Math.PI / 2
                 position.y: -33
 
                 material: MeshPhongMaterial {
@@ -86,15 +116,17 @@ Window {
             }
 
             HemisphereLight {
+                id: hemilight
                 skyColor: Qt.hsla(0.6, 1, 0.6, 1)
                 groundColor: Qt.hsla(0.095, 1, 0.75, 1)
                 intensity: 0.6
                 position: "0,50,0"
 
-                helperSize: 10
+                helper.size: 10
             }
 
             DirectionalLight {
+                id: dirlight
                 color: Qt.hsla(0.1, 1, 0.95, 1)
                 intensity: 1
                 position: Qt.vector3d(-1,1.75,1).times(30)
@@ -105,7 +137,7 @@ Window {
                 shadow.camera.top: 50
                 shadow.camera.bottom: -50
 
-                helperSize: 10
+                helper.size: 10
             }
 
             camera: PerspectiveCamera {
@@ -118,6 +150,8 @@ Window {
                 lookAt: scene.position
 
                 controller: OrbitController {
+                    minDistance: 50
+                    maxDistance:3500
                     enablePan: false
                     enableRotate: false
                 }

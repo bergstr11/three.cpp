@@ -101,7 +101,7 @@ Window {
                 shadow.camera.near: 0.1
                 shadow.camera.far: 200
 
-                helper: true
+                helper.visible: true
             }
 
             Axes {

@@ -6,6 +6,7 @@
 #define THREEPPQ_LIGHT_H
 
 #include "threepp/quick/objects/ThreeQObject.h"
+#include "Helper.h"
 
 namespace three {
 namespace quick {
@@ -17,14 +18,14 @@ class Light : public ThreeQObject
 Q_OBJECT
   Q_PROPERTY(float intensity READ intensity WRITE setIntensity NOTIFY intensityChanged)
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-  Q_PROPERTY(bool helper READ helper WRITE setHelper NOTIFY helperChanged)
+  Q_PROPERTY(Helper *helper READ helper)
 
 protected:
   QColor _color {Qt::white};
 
   float _intensity=1.0f;
 
-  bool _helper = false;
+  Helper _qhelper;
 
   virtual three::Light::Ptr light() = 0;
 
@@ -50,13 +51,7 @@ public:
     }
   }
 
-  bool helper() const {return _helper;}
-  void setHelper(bool helper) {
-    if(_helper != helper) {
-      _helper = helper;
-      emit helperChanged();
-    }
-  }
+  Helper *helper() {return &_qhelper;}
 
 signals:
   void colorChanged();

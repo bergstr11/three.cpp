@@ -10,6 +10,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "ThreeDItem.h"
 #include <threepp/quick/scene/Scene.h>
 #include <threepp/quick/scene/Model.h>
+#include <threepp/quick/objects/ModelRef.h>
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
 #include "cameras/OrtographicCamera.h"
@@ -18,6 +19,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/lights/PointLight.h"
 #include "threepp/quick/lights/HemisphereLight.h"
 #include "threepp/quick/lights/DirectionalLight.h"
+#include "threepp/quick/lights/Helper.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
 #include "objects/Ring.h"
@@ -27,7 +29,6 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Sphere.h"
 #include "objects/Cylinder.h"
 #include "objects/Mesh.h"
-#include <threepp/quick/objects/ModelRef.h>
 #include "materials/ShaderMaterial.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
@@ -61,6 +62,7 @@ void init()
   qmlRegisterUncreatableType<three::quick::LightShadowPC>("three.quick", 1, 0, "LightShadowPC", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
+  qmlRegisterUncreatableType<three::quick::Helper>("three.quick", 1, 0, "Helper", "internal class");
   qmlRegisterType<three::quick::Intersect>();
   qmlRegisterType<three::quick::RayCaster>();
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
