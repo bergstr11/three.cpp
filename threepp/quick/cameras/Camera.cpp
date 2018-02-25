@@ -20,8 +20,7 @@ void Camera::_post_create(Scene *scene)
 
 three::Object3D::Ptr Camera::_create(Scene *scene)
 {
-  _camera = _createCamera();
-  _camera->setNearFar(_near, _far);
+  _camera = _createCamera(_near, _far);
 
   for(auto &light :_lights) {
     auto l = light->create(scene);

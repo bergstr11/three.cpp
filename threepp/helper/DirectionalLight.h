@@ -24,6 +24,8 @@ protected:
   DirectionalLight(three::DirectionalLight::Ptr light, float size, const Color &color)
      : Object3D(object::Resolver::makeNull()), _light(light), _color(color)
   {
+    _light->updateMatrixWorld(true);
+
     _matrix = _light->matrixWorld();
     matrixAutoUpdate = false;
 
@@ -47,7 +49,7 @@ protected:
     geometry->setPosition(position);
 
     _targetLine = Line::make("targetLine", geometry, material);
-    //add(_targetLine);
+    add(_targetLine);
 
     update();
   }

@@ -14,10 +14,10 @@ void OrtographicCamera::setup(math::Ray &ray, float x, float y)
 
 void OrtographicCamera::updateProjectionMatrix()
 {
-  float dx = ( _right - _left ) / ( 2 * _zoom );
-  float dy = ( _top - _bottom ) / ( 2 * _zoom );
-  float cx = ( _right + _left ) / 2;
-  float cy = ( _top + _bottom ) / 2;
+  float dx = ( _right - _left ) / ( 2.0f * _zoom );
+  float dy = ( _top - _bottom ) / ( 2.0f * _zoom );
+  float cx = ( _right + _left ) / 2.0f;
+  float cy = ( _top + _bottom ) / 2.0f;
 
   float left = cx - dx;
   float right = cx + dx;
@@ -26,16 +26,15 @@ void OrtographicCamera::updateProjectionMatrix()
 
   if (!_view.isNull()) {
 
-    float zoomW = _zoom / ( _view.width / _view.fullWidth );
-    float zoomH = _zoom / ( _view.height / _view.fullHeight );
+    float zoomW = _zoom / ( (float)_view.width / _view.fullWidth );
+    float zoomH = _zoom / ( (float)_view.height / _view.fullHeight );
     float scaleW = ( _right - _left ) / _view.width;
     float scaleH = ( _top - _bottom ) / _view.height;
 
-    left += scaleW * ( _view.offsetX / zoomW );
-    right = left + scaleW * ( _view.width / zoomW );
-    top -= scaleH * ( _view.offsetY / zoomH );
-    bottom = top - scaleH * ( _view.height / zoomH );
-
+    left += scaleW * ( (float)_view.offsetX / zoomW );
+    right = left + scaleW * ( (float)_view.width / zoomW );
+    top -= scaleH * ( (float)_view.offsetY / zoomH );
+    bottom = top - scaleH * ( (float)_view.height / zoomH );
   }
 
   _projectionMatrix = math::Matrix4::orthographic( left, right, top, bottom, _near, _far );

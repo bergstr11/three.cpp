@@ -73,7 +73,7 @@ Window {
                 widthSegments: 20
                 heightSegments: 20
 
-                position: "20,4,2"
+                position: "25,4,2"
 
                 material: MeshLambertMaterial {
                     color: "#7777ff"

@@ -17,14 +17,14 @@ Q_OBJECT
   Q_PROPERTY(float fov READ fov WRITE setFov NOTIFY fovChanged)
   Q_PROPERTY(float aspect READ aspect WRITE setAspect NOTIFY aspectChanged)
 
-  float _fov=50, _aspect=1, _near=0.1f, _far=2000;
+  float _fov=50, _aspect=1;
 
   three::PerspectiveCamera::Ptr _perspectiveCamera;
 
 protected:
-  three::Camera::Ptr _createCamera() override
+  three::Camera::Ptr _createCamera(float near, float far) override
   {
-    _perspectiveCamera = three::PerspectiveCamera::make(_fov, _aspect, _near, _far);
+    _perspectiveCamera = three::PerspectiveCamera::make(_fov, _aspect, near, far);
     return _perspectiveCamera;
   }
 

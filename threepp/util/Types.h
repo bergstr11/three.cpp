@@ -167,11 +167,9 @@ using UV_Array = std::array<UV, 3>;
 struct UpdateRange
 {
   size_t offset;
-  size_t count;
+  int count;
 
-  UpdateRange(size_t offset=0, size_t count=0) : offset(offset), count(count) {}
-
-  bool empty() const {return count == 0;}
+  UpdateRange(size_t offset=0, int count=-1) : offset(offset), count(count) {}
 };
 
 template <class T>

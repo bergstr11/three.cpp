@@ -463,8 +463,9 @@ Program::Program(Renderer_impl &renderer,
 
     ss << "#define NUM_CLIPPING_PLANES " << *parameters->numClippingPlanes << endl;
 
-    if(*parameters->shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
-    if(*parameters->shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
+    if(*parameters->shadowMapEnabled) {
+      ss << "#define USE_SHADOWMAP" << endl << "#define " << shadowMapTypeDefine << endl;
+    }
 
     if(*parameters->sizeAttenuation) ss << "#define USE_SIZEATTENUATION" << endl;
 
@@ -572,8 +573,9 @@ Program::Program(Renderer_impl &renderer,
     ss << "#define NUM_CLIPPING_PLANES " << *parameters->numClippingPlanes << endl;
     ss << "#define UNION_CLIPPING_PLANES " << ( *parameters->numClippingPlanes - *parameters->numClipIntersection ) << endl;
 
-    if(*parameters->shadowMapEnabled) ss << "#define USE_SHADOWMAP" << endl;
-    if(*parameters->shadowMapEnabled) ss << "#define " << shadowMapTypeDefine << endl;
+    if(*parameters->shadowMapEnabled) {
+      ss << "#define USE_SHADOWMAP" << endl << "#define " << shadowMapTypeDefine << endl;
+    }
 
     if(*parameters->premultipliedAlpha) ss << "#define PREMULTIPLIED_ALPHA" << endl;
 
@@ -688,7 +690,7 @@ Program::Program(Renderer_impl &renderer,
   fetchAttributeLocations(_cachedAttributes, _cachedIndexedAttributes);
   check_glerror(&_renderer);
 
-  // clean up
+           // clean up
   _renderer.glDeleteShader( glVertexShader );
   _renderer.glDeleteShader( glFragmentShader );
 }

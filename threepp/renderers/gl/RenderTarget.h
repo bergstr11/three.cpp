@@ -100,6 +100,30 @@ public:
   }
 };
 
+class RenderTargetTexture : public Texture
+{
+  friend class RenderTargetInternal;
+
+  const GLsizei _width;
+  const GLsizei _height;
+
+protected:
+  RenderTargetTexture(const TextureOptions &options, GLsizei width, GLsizei height)
+     : Texture(texture::Resolver::makeNull(), options, false, 1), _width(width), _height(height)
+  {}
+
+public:
+  using Ptr = std::shared_ptr<RenderTargetTexture>;
+  static Ptr make(const TextureOptions &options, GLsizei width, GLsizei height) {
+    return Ptr(new RenderTargetTexture(options, width, height));
+  }
+
+  bool isPowerOfTwo() const override
+  {
+    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
+  }
+};
+
 class RenderTargetInternal : public RenderTarget
 {
   friend class Textures;
@@ -118,19 +142,16 @@ public:
   };
 
 private:
-  DataTexture::Ptr _texture;
-
   GLuint renderBuffer=0, frameBuffer=0;
 
+  RenderTargetTexture::Ptr _texture;
   DepthTexture::Ptr _depthTexture;
 
 protected:
   RenderTargetInternal(const Options &options, GLsizei width, GLsizei height)
      : RenderTarget(TextureTarget::twoD, width, height, options.depthBuffer, options.stencilBuffer),
-       _texture(DataTexture::make(options, width, height))
-  {
-    _depthTexture = options.depthTexture;
-  }
+       _texture(RenderTargetTexture::make(options, width, height)), _depthTexture(options.depthTexture)
+  {}
 
 public:
   Signal<void(RenderTargetInternal &)> onDispose;

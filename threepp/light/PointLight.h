@@ -23,7 +23,7 @@ protected:
   PointLight(const Color &color, float intensity, float distance, float decay)
      : Light(light::ResolverT<PointLight>::make(*this), color, intensity), _distance(distance), _decay(decay)
   {
-    _shadow = LightShadowT<PerspectiveCamera>::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
+    _shadow = PointLightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
 public:

@@ -22,6 +22,7 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene)
     _object->castShadow = _castShadow;
     _object->receiveShadow = _receiveShadow;
     _object->matrixAutoUpdate = _matrixAutoUpdate;
+    _object->visible() = _visible;
   }
   _post_create(scene);
   return _object;

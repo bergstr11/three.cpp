@@ -19,14 +19,14 @@ Q_OBJECT
   Q_PROPERTY(float top READ top WRITE setTop NOTIFY topChanged)
   Q_PROPERTY(float bottom READ bottom WRITE setBottom NOTIFY bottomChanged)
 
-  float _left = 0, _right = 0, _top = 0, _bottom = 0, _near = 0, _far = 0;
+  float _left = 0, _right = 0, _top = 0, _bottom = 0;
 
   three::OrtographicCamera::Ptr _ortographicCamera;
 
 protected:
-  three::Camera::Ptr _createCamera() override
+  three::Camera::Ptr _createCamera(float near, float far) override
   {
-    _ortographicCamera = three::OrtographicCamera::make(_left, _right, _top, _bottom, _near, _far);
+    _ortographicCamera = three::OrtographicCamera::make(_left, _right, _top, _bottom, near, far);
     return _ortographicCamera;
   }
 

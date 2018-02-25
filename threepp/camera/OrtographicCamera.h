@@ -11,9 +11,6 @@ namespace three {
 
 class OrtographicCamera : public Camera
 {
-  float _zoom = 1;
-  Viewport _view;
-
   float _left;
   float _right;
   float _top;
@@ -22,11 +19,11 @@ class OrtographicCamera : public Camera
 protected:
   OrtographicCamera(float left, float right, float top, float bottom, float near, float far)
      : _left(left), _right(right), _top(top), _bottom(bottom)
-     {
+  {
        _near = near;
        _far = far;
        updateProjectionMatrix();
-     };
+  }
 
 public:
   using Ptr = std::shared_ptr<OrtographicCamera>;

@@ -670,7 +670,6 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     }
   }
   else {
-
     glValidateProgram(program->handle());
     GLint status;
     glGetProgramiv(program->handle(), GL_VALIDATE_STATUS, &status);
@@ -1040,7 +1039,6 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   UniformValues &mat_uniforms = materialProperties.shader.uniforms();
 
   if (_state.useProgram(program->handle()) ) {
-
     refreshProgram = true;
     refreshMaterial = true;
     refreshLights = true;
@@ -1058,9 +1056,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     prg_uniforms->set(UniformName::projectionMatrix, camera->projectionMatrix());
 
     if (_capabilities.logarithmicDepthBuffer) {
-      PerspectiveCamera::Ptr pcamera = dynamic_pointer_cast<PerspectiveCamera>(camera);
-      if(pcamera)
-        prg_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0 / ( log( pcamera->far() + 1.0 ) / M_LN2 )));
+      prg_uniforms->set(UniformName::logDepthBufFC, (GLfloat)(2.0f / ( log( camera->far() + 1.0f ) / M_LN2 )));
       check_glerror(this);
     }
 

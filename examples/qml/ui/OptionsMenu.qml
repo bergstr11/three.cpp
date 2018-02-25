@@ -47,20 +47,21 @@ Rectangle {
             }
             Row {
                 anchors.fill: parent
-                spacing: 10
+                spacing: 5
 
                 Label {
+                    id: bool_control_label
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    width: 80
+                    width: parent.width - bool_check.implicitWidth - 5
                     text: name
                     color: textColor
                     font.bold: true
                 }
-                CheckBox {
+                Switch {
                     id: bool_check
-                    width: parent.width - 90
+                    width: implicitWidth
                     checked: target.value
 
                     onCheckedChanged: {

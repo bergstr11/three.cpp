@@ -38,6 +38,7 @@ protected:
     _light->shadow()->mapSize().x() = _shadow.mapSize().width();
     _light->shadow()->mapSize().y() = _shadow.mapSize().height();
     _light->shadow()->radius() = _shadow.radius();
+    _light->shadow()->bias() = _shadow.bias();
     _light->shadow()->camera()->setNearFar(_shadow.camera()->near(), _shadow.camera()->far());
     _light->shadow_t()->camera_t()->set(_shadow.camera()->left(),
                                         _shadow.camera()->right(),

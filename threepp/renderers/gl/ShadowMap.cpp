@@ -36,8 +36,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       continue;
     }
 
-    const Camera::Ptr shadowCamera = shadow->camera();
-
     math::Vector2 maxShadowMapSize {(float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize};
     math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
 
@@ -79,6 +77,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       check_glerror(&_renderer);
     }
 
+    const Camera::Ptr shadowCamera = shadow->camera();
     if (!shadow->map()) {
 
       RenderTargetInternal::Options options;
@@ -88,7 +87,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
 
       shadowCamera->updateProjectionMatrix();
-      check_glerror(&_renderer);
     }
 
     shadow->update();
@@ -282,8 +280,9 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
       else {
         Material::Ptr material = object->material();
         if (material->visible) {
+          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld,
+                                                         shadowCamera->near(), shadowCamera->far());
 
-          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld, shadowCamera->near(), shadowCamera->far());
           _renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
         }
       }

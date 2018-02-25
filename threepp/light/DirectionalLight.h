@@ -23,7 +23,7 @@ protected:
     _position = math::Vector3( 0, 1, 0 );
     updateMatrix();
 
-    _shadow = LightShadowT<OrtographicCamera>::make(OrtographicCamera::make(-5, 5, 5, -5, 0.5, 500));
+    _shadow = DirectionalLightShadow::make(OrtographicCamera::make(-5, 5, 5, -5, 0.5, 500));
   }
 
 public:

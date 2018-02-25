@@ -11,8 +11,6 @@
 namespace three {
 namespace quick {
 
-class LightShadow;
-
 class Light : public ThreeQObject
 {
 Q_OBJECT

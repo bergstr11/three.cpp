@@ -93,12 +93,12 @@ public:
   void update(BufferAttribute &attribute, BufferType bufferType)
   {
     //if ( attribute.isInterleavedBufferAttributeBase ) attribute = attribute.data;
-
-    if (_buffers.find(attribute.uuid) == _buffers.end()) {
+    auto found = _buffers.find(attribute.uuid);
+    if (found == _buffers.end()) {
        createBuffer(_buffers[ attribute.uuid ], attribute, bufferType );
     }
     else {
-      Buffer &buffer = _buffers[ attribute.uuid ];
+      Buffer &buffer = found->second;
       if ( buffer.version < attribute.version() ) {
         updateBuffer(buffer, attribute, bufferType);
         buffer.version = attribute.version();

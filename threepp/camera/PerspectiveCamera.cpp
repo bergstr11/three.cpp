@@ -56,46 +56,24 @@ unsigned PerspectiveCamera::getFilmHeight()
   return (unsigned)(_filmGauge / std::max(_aspect, 1.0f));
 }
 
-void PerspectiveCamera::setViewOffset(unsigned fullWidth, unsigned fullHeight, unsigned x, unsigned y, unsigned width, unsigned height)
-{
-  _aspect = fullWidth / fullHeight;
-
-  _view.fullWidth = fullWidth;
-  _view.fullHeight = fullHeight;
-  _view.offsetX = x;
-  _view.offsetY = y;
-  _view.width = width;
-  _view.height = height;
-  _view.isNull = false;
-
-  updateProjectionMatrix();
-}
-
-void PerspectiveCamera::clearViewOffset()
-{
-  _view.isNull = true;
-  updateProjectionMatrix();
-}
-
 void PerspectiveCamera::updateProjectionMatrix()
 {
-  float near = _near;
-  auto top = near * std::tan(math::DEG2RAD * 0.5 * _fov) / _zoom;
-  auto height = 2 * top;
-  auto width = _aspect * height;
-  auto left = -0.5 * width;
+  float top = _near * std::tan((float)math::DEG2RAD * 0.5f * _fov) / _zoom;
+  float height = 2.0f * top;
+  float width = _aspect * height;
+  float left = -0.5f * width;
 
-  if(!_view.isNull) {
+  if(!_view.isNull()) {
     left += _view.offsetX * width / _view.fullWidth;
     top -= _view.offsetY * height / _view.fullHeight;
-    width *= _view.width / _view.fullWidth;
-    height *= _view.height / _view.fullHeight;
+    width *= (float)_view.width / _view.fullWidth;
+    height *= (float)_view.height / _view.fullHeight;
   }
 
   if(_filmOffset != 0)
-    left += near * _filmOffset / getFilmWidth();
+    left += _near * (float)_filmOffset / getFilmWidth();
 
-  _projectionMatrix = math::Matrix4::perspective(left, left + width, top, top - height, near, _far);
+  _projectionMatrix = math::Matrix4::perspective(left, left + width, top, top - height, _near, _far);
 }
 
 void PerspectiveCamera::setup(math::Ray &ray, float x, float y)

@@ -52,5 +52,34 @@ inline std::string replace_all(std::string target, const std::unordered_map<std:
   return target;
 }
 
+#ifdef QDEBUG_H
+inline void printMatrix(const char *prefix, const three::math::Matrix4 &m)
+{
+  auto q(qDebug().nospace());
+  q << prefix << " ";
+  for(int i=0; i<16; i++) {
+    q << m[i]; if(i<15) q << '|';
+  }
+}
+inline void printEuler(const char *prefix, const three::math::Euler &e)
+{
+  auto q(qDebug().nospace());
+  q << prefix << " " << e.x() << '|' << e.y() << '|' << e.z();
+}
+inline void printVertex(const char *prefix, const three::math::Vector3 &v)
+{
+  auto q(qDebug().nospace());
+  q << prefix << " " << v.x() << '|' << v.y() << '|' << v.z();
+}
+inline void printQuaternion(const char *prefix, const three::math::Quaternion &m)
+{
+  auto q(qDebug().nospace());
+  q << prefix << " ";
+  for(int i=0; i<4; i++) {
+    q << m[i]; if(i<3) q << '|';
+  }
+}
+#endif
+
 }
 #endif //THREEPP_UTILS_H

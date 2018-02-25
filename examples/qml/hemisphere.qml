@@ -16,12 +16,12 @@ Window {
         anchors.top: parent.top
         anchors.left: parent.left
         color: "transparent"
-        width: 350
+        width: 250
         height: 200
         z: 2
 
         BoolChoice {
-            name: "Directional"
+            name: "DirectionalLight"
             value: dirlight.visible
             onValueChanged: {
                 dirlight.visible = value
@@ -30,7 +30,7 @@ Window {
             }
         }
         BoolChoice {
-            name: "Hemisphere"
+            name: "HemisphereLight"
             value: hemilight.visible
             onValueChanged: {
                 hemilight.visible = value
@@ -131,11 +131,14 @@ Window {
                 intensity: 1
                 position: Qt.vector3d(-1,1.75,1).times(30)
                 castShadow: true
+
                 shadow.mapSize: "2048x2048"
-                shadow.camera.left: -50
-                shadow.camera.right: 50
-                shadow.camera.top: 50
-                shadow.camera.bottom: -50
+                shadow.bias: -0.0001
+                shadow.camera.left: -150
+                shadow.camera.right: 150
+                shadow.camera.top: 150
+                shadow.camera.bottom: -150
+                shadow.camera.far: 3500
 
                 helper.size: 10
             }

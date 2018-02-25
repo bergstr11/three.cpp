@@ -46,7 +46,7 @@ class Camera : public ThreeQObject
   static void clear_lights(QQmlListProperty<Light> *);
 
 protected:
-  virtual three::Camera::Ptr _createCamera() {return nullptr;};
+  virtual three::Camera::Ptr _createCamera(float near, float far) {return nullptr;};
 
   three::Object3D::Ptr _create(Scene *scene) override;
 
@@ -62,7 +62,7 @@ public:
   float near() const {return _near;}
   float far() const {return _far;}
 
-  void setNear(qreal near) {
+  void setNear(float near) {
     if(_near != near) {
       _near = near;
       if(_camera) {
@@ -72,7 +72,7 @@ public:
     }
   }
 
-  void setFar(qreal far) {
+  void setFar(float far) {
     if(_far != far) {
       _far = far;
       if(_camera) {
