@@ -4,5 +4,6 @@ QtObject {
     id: main
     property string type: "bool"
     property string name
+    property string otherName
     property bool value
 }

@@ -9,7 +9,7 @@
 
 namespace three {
 
-class OrtographicCamera : public Camera
+class OrthographicCamera : public Camera
 {
   float _left;
   float _right;
@@ -17,7 +17,7 @@ class OrtographicCamera : public Camera
   float _bottom;
 
 protected:
-  OrtographicCamera(float left, float right, float top, float bottom, float near, float far)
+  OrthographicCamera(float left, float right, float top, float bottom, float near, float far)
      : _left(left), _right(right), _top(top), _bottom(bottom)
   {
        _near = near;
@@ -26,9 +26,9 @@ protected:
   }
 
 public:
-  using Ptr = std::shared_ptr<OrtographicCamera>;
+  using Ptr = std::shared_ptr<OrthographicCamera>;
   static Ptr make(float left, float right, float top, float bottom, float near=0.1f, float far=2000.0f) {
-    return std::shared_ptr<OrtographicCamera>(new OrtographicCamera(left, right, top, bottom, near, far));
+    return std::shared_ptr<OrthographicCamera>(new OrthographicCamera(left, right, top, bottom, near, far));
   }
 
   void setup(math::Ray &ray, float x, float y) override;
@@ -37,6 +37,12 @@ public:
 
   void set(float left, float right, float top, float bottom) {
     _left = left; _right = right; _top = top; _bottom = bottom;
+    updateProjectionMatrix();
+  }
+
+  void set(float left, float right, float top, float bottom, float near, float far) {
+    _left = left; _right = right; _top = top; _bottom = bottom; _near = near; _far = far;
+    updateProjectionMatrix();
   }
 
   float left() const {return _left;}

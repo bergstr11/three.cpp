@@ -7,24 +7,24 @@
 
 #include <QQuickItem>
 #include <QMouseEvent>
-#include <threepp/controls/OrtographicTrackball.h>
+#include <threepp/controls/OrthographicTrackball.h>
 
 
 namespace three {
 namespace quick {
 
-class OrtographicTrackballControls : public three::control::OrtographicTrackball
+class OrthographicTrackballControls : public three::control::OrthographicTrackball
 {
   const QQuickItem * const _item;
 
 protected:
-  explicit OrtographicTrackballControls(const QQuickItem *item, three::Camera::Ptr camera)
-     : control::OrtographicTrackball(camera), _item(item) {}
+  explicit OrthographicTrackballControls(const QQuickItem *item, three::Camera::Ptr camera)
+     : control::OrthographicTrackball(camera), _item(item) {}
 
 public:
-  using Ptr = std::shared_ptr<OrtographicTrackballControls>;
+  using Ptr = std::shared_ptr<OrthographicTrackballControls>;
   static Ptr make(const QQuickItem *item, three::Camera::Ptr camera) {
-    return Ptr(new OrtographicTrackballControls(item, camera));
+    return Ptr(new OrthographicTrackballControls(item, camera));
   }
 
   bool handleMousePressed(QMouseEvent *event)

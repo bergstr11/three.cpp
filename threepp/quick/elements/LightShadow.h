@@ -8,7 +8,7 @@
 #include <QObject>
 #include <QSize>
 #include <threepp/quick/cameras/PerspectiveCamera.h>
-#include <threepp/quick/cameras/OrtographicCamera.h>
+#include <threepp/quick/cameras/OrthographicCamera.h>
 
 namespace three {
 namespace quick {
@@ -76,12 +76,12 @@ public:
 class LightShadowOC : public LightShadow
 {
 Q_OBJECT
-  Q_PROPERTY(OrtographicCamera *camera READ camera CONSTANT)
+  Q_PROPERTY(OrthographicCamera *camera READ camera CONSTANT)
 
-  OrtographicCamera _camera;
+  OrthographicCamera _camera;
 
 public:
-  OrtographicCamera *camera() {
+  OrthographicCamera *camera() {
     return &_camera;
   }
 };

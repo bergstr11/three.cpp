@@ -61,6 +61,14 @@ inline void printMatrix(const char *prefix, const three::math::Matrix4 &m)
     q << m[i]; if(i<15) q << '|';
   }
 }
+inline void printMatrix(const char *prefix, const three::math::Matrix3 &m)
+{
+  auto q(qDebug().nospace());
+  q << prefix << " ";
+  for(int i=0; i<9; i++) {
+    q << m[i]; if(i<8) q << '|';
+  }
+}
 inline void printEuler(const char *prefix, const three::math::Euler &e)
 {
   auto q(qDebug().nospace());

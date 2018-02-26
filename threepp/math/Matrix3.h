@@ -39,6 +39,8 @@ public:
     return _elements;
   }
 
+  float operator [](unsigned index) const {return _elements[index];}
+
   Matrix3 &set(float n11, float n12, float n13, float n21, float n22, float n23, float n31, float n32, float n33)
   {
     float *te = _elements;

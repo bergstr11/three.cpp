@@ -8,7 +8,7 @@
 #include <threepp/core/Color.h>
 #include <threepp/objects/Mesh.h>
 #include <threepp/scene/Scene.h>
-#include <threepp/camera/OrtographicCamera.h>
+#include <threepp/camera/OrthographicCamera.h>
 #include <threepp/geometry/Box.h>
 #include <threepp/geometry/Plane.h>
 #include <threepp/material/ShaderMaterial.h>

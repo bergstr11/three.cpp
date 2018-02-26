@@ -13,7 +13,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include <threepp/quick/objects/ModelRef.h>
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
-#include "cameras/OrtographicCamera.h"
+#include "cameras/OrthographicCamera.h"
 #include "threepp/quick/lights/AmbientLight.h"
 #include "threepp/quick/lights/SpotLight.h"
 #include "threepp/quick/lights/PointLight.h"
@@ -86,7 +86,7 @@ void init()
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::ShaderMaterial>("three.quick", 1, 0, "ShaderMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
-  qmlRegisterType<three::quick::OrtographicCamera>("three.quick", 1, 0, "OrtographicCamera");
+  qmlRegisterType<three::quick::OrthographicCamera>("three.quick", 1, 0, "OrthographicCamera");
   qmlRegisterUncreatableType<three::quick::Texture>("three.quick", 1, 0, "Texture", "abstract class");
   qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "Image");
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");

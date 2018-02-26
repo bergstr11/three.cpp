@@ -5,7 +5,7 @@
 #include "Orbit.h"
 #include <threepp/math/Math.h>
 #include <threepp/camera/PerspectiveCamera.h>
-#include <threepp/camera/OrtographicCamera.h>
+#include <threepp/camera/OrthographicCamera.h>
 
 namespace three {
 namespace control {
@@ -108,7 +108,7 @@ void Orbit::pan(float deltaX, float deltaY)
     if (deltaY != 0)
       panUp(2.0f * deltaY * targetDistance / clientHeight(), camera.matrix());
   };
-  dispatch.func<OrtographicCamera>() = [&](OrtographicCamera &camera) {
+  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
 
     // orthographic
     if (deltaX != 0)
@@ -131,7 +131,7 @@ void Orbit::dollyIn(float dollyScale)
     scale /= dollyScale;
     update();
   };
-  dispatch.func<OrtographicCamera>() = [&](OrtographicCamera &camera) {
+  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
 
     camera.setZoom(std::max(minZoom, std::min(maxZoom, camera.zoom() * dollyScale)));
     camera.updateProjectionMatrix();
@@ -152,7 +152,7 @@ void Orbit::dollyOut(float dollyScale)
     scale *= dollyScale;
     update();
   };
-  dispatch.func<OrtographicCamera>() = [&](OrtographicCamera &camera) {
+  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
 
     camera.setZoom(std::max(minZoom, std::min(maxZoom, camera.zoom() / dollyScale)));
     camera.updateProjectionMatrix();

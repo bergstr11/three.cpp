@@ -7,7 +7,7 @@
 
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>
-#include <threepp/camera/OrtographicCamera.h>
+#include <threepp/camera/OrthographicCamera.h>
 
 namespace three {
 namespace control {
@@ -16,12 +16,12 @@ struct Screen {
   unsigned left=0, top=0, width=0, height=0;
 };
 
-class OrtographicTrackball
+class OrthographicTrackball
 {
 protected:
   enum class State : int {NONE=-1, ROTATE=0, ZOOM=1, PAN=2, ZOOM_PAN=3};
 
-  OrtographicCamera::Ptr _camera;
+  OrthographicCamera::Ptr _camera;
   math::Vector3 _target;
 
   bool _changed = true;
@@ -70,7 +70,7 @@ protected:
   bool handleMove(unsigned x, unsigned y);
   bool handleDelta(int delta);
 
-  OrtographicTrackball(OrtographicCamera::Ptr camera) : _camera(camera)
+  OrthographicTrackball(OrthographicCamera::Ptr camera) : _camera(camera)
   {
     _position0 = _camera->position();
     _up0 = _camera->up();

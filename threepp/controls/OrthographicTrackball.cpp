@@ -2,7 +2,7 @@
 // Created by byter on 1/26/18.
 //
 
-#include "OrtographicTrackball.h"
+#include "OrthographicTrackball.h"
 #include <threepp/math/Quaternion.h>
 
 namespace three {
@@ -11,13 +11,13 @@ namespace control {
 using namespace math;
 using namespace std;
 
-Vector2 OrtographicTrackball::getMouseOnScreen(unsigned x, unsigned y)
+Vector2 OrthographicTrackball::getMouseOnScreen(unsigned x, unsigned y)
 {
   return Vector2(
      ((float)x - _screen.left) / _screen.width, ((float)y - _screen.top) / _screen.height);
 }
 
-Vector3 OrtographicTrackball::getMouseProjectionOnBall(unsigned x, unsigned y)
+Vector3 OrthographicTrackball::getMouseProjectionOnBall(unsigned x, unsigned y)
 {
   Vector3 mouseOnBall(
      ((float) x - _screen.width * 0.5f - _screen.left) / radius,
@@ -54,7 +54,7 @@ Vector3 OrtographicTrackball::getMouseProjectionOnBall(unsigned x, unsigned y)
   return vector;
 }
 
-void OrtographicTrackball::rotateCamera()
+void OrthographicTrackball::rotateCamera()
 {
   float angle = acos(_rotateStart.dot(_rotateEnd) / _rotateStart.length() / _rotateEnd.length());
 
@@ -83,7 +83,7 @@ void OrtographicTrackball::rotateCamera()
   }
 }
 
-void OrtographicTrackball::zoomCamera()
+void OrthographicTrackball::zoomCamera()
 {
   if (_state == State::ZOOM_PAN) {
     float factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
@@ -113,7 +113,7 @@ void OrtographicTrackball::zoomCamera()
   }
 }
 
-void OrtographicTrackball::panCamera()
+void OrthographicTrackball::panCamera()
 {
   //objectUp = new THREE.Vector3(),
   //pan = new THREE.Vector3();
@@ -147,7 +147,7 @@ void OrtographicTrackball::panCamera()
   }
 }
 
-void OrtographicTrackball::update()
+void OrthographicTrackball::update()
 {
   _eye = _camera->position() - _target;
 
@@ -181,7 +181,7 @@ void OrtographicTrackball::update()
   }
 };
 
-bool OrtographicTrackball::reset()
+bool OrthographicTrackball::reset()
 {
   if(_state == State::NONE) return false;
 
@@ -204,7 +204,7 @@ bool OrtographicTrackball::reset()
   return true;
 };
 
-bool OrtographicTrackball::startRotate(unsigned x, unsigned y)
+bool OrthographicTrackball::startRotate(unsigned x, unsigned y)
 {
   if (noRotate) return false;
 
@@ -213,7 +213,7 @@ bool OrtographicTrackball::startRotate(unsigned x, unsigned y)
   return true;
 }
 
-bool OrtographicTrackball::startZoom(unsigned x, unsigned y)
+bool OrthographicTrackball::startZoom(unsigned x, unsigned y)
 {
   if ( noZoom ) return false;
 
@@ -222,7 +222,7 @@ bool OrtographicTrackball::startZoom(unsigned x, unsigned y)
   return true;
 }
 
-bool OrtographicTrackball::startPan(unsigned x, unsigned y)
+bool OrthographicTrackball::startPan(unsigned x, unsigned y)
 {
   if ( noPan ) return false;
 
@@ -230,7 +230,7 @@ bool OrtographicTrackball::startPan(unsigned x, unsigned y)
   _panEnd = _panStart;
 }
 
-bool OrtographicTrackball::handleMove(unsigned x, unsigned y)
+bool OrthographicTrackball::handleMove(unsigned x, unsigned y)
 {
   switch(_state) {
     case State::ROTATE: {
@@ -248,7 +248,7 @@ bool OrtographicTrackball::handleMove(unsigned x, unsigned y)
   }
 }
 
-bool OrtographicTrackball::handleDelta(int delta)
+bool OrthographicTrackball::handleDelta(int delta)
 {
   _zoomStart.y() += delta * 0.01;
 }

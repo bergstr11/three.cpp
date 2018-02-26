@@ -6,12 +6,12 @@
 #define THREEPPQ_ORTOGRAPHICCAMERA_H
 
 #include "Camera.h"
-#include <threepp/camera/OrtographicCamera.h>
+#include <threepp/camera/OrthographicCamera.h>
 
 namespace three {
 namespace quick {
 
-class OrtographicCamera : public Camera
+class OrthographicCamera : public Camera
 {
 Q_OBJECT
   Q_PROPERTY(float left READ left WRITE setLeft NOTIFY leftChanged)
@@ -21,20 +21,20 @@ Q_OBJECT
 
   float _left = 0, _right = 0, _top = 0, _bottom = 0;
 
-  three::OrtographicCamera::Ptr _ortographicCamera;
+  three::OrthographicCamera::Ptr _orthographicCamera;
 
 protected:
   three::Camera::Ptr _createCamera(float near, float far) override
   {
-    _ortographicCamera = three::OrtographicCamera::make(_left, _right, _top, _bottom, near, far);
-    return _ortographicCamera;
+    _orthographicCamera = three::OrthographicCamera::make(_left, _right, _top, _bottom, near, far);
+    return _orthographicCamera;
   }
 
 public:
-  OrtographicCamera(QObject *parent = nullptr) : Camera(parent) {}
+  OrthographicCamera(QObject *parent = nullptr) : Camera(parent) {}
 
-  OrtographicCamera(three::OrtographicCamera::Ptr camera, QObject *parent = nullptr)
-  : Camera(camera, parent), _ortographicCamera(camera) {}
+  OrthographicCamera(three::OrthographicCamera::Ptr camera, QObject *parent = nullptr)
+  : Camera(camera, parent), _orthographicCamera(camera) {}
 
   float left() const {return _left;}
   float right() const {return _right;}

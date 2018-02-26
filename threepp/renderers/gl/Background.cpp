@@ -55,7 +55,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
       }
       if (!planeCamera) {
 
-        planeCamera = OrtographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
+        planeCamera = OrthographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
 
         MeshBasicMaterial::Ptr mat = MeshBasicMaterial::make();
         mat->depthTest = false;

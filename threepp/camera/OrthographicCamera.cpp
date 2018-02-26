@@ -2,17 +2,17 @@
 // Created by byter on 09.09.17.
 //
 
-#include "OrtographicCamera.h"
+#include "OrthographicCamera.h"
 
 namespace three {
 
-void OrtographicCamera::setup(math::Ray &ray, float x, float y)
+void OrthographicCamera::setup(math::Ray &ray, float x, float y)
 {
   ray.origin().set(x, y, (_near + _far) / (_near - _far)).unproject(*this); // set origin in plane of camera
   ray.direction().set( 0, 0, - 1 ).transformDirection( _matrixWorld );
 }
 
-void OrtographicCamera::updateProjectionMatrix()
+void OrthographicCamera::updateProjectionMatrix()
 {
   float dx = ( _right - _left ) / ( 2.0f * _zoom );
   float dy = ( _top - _bottom ) / ( 2.0f * _zoom );

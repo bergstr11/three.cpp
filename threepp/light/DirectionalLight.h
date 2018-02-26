@@ -5,12 +5,12 @@
 #ifndef THREEPP_DIRECTIONALLIGHT_H
 #define THREEPP_DIRECTIONALLIGHT_H
 
-#include <threepp/camera/OrtographicCamera.h>
+#include <threepp/camera/OrthographicCamera.h>
 #include "TargetLight.h"
 
 namespace three {
 
-using DirectionalLightShadow = LightShadowT<OrtographicCamera>;
+using DirectionalLightShadow = LightShadowT<OrthographicCamera>;
 
 class DirectionalLight : public TargetLight
 {
@@ -23,7 +23,7 @@ protected:
     _position = math::Vector3( 0, 1, 0 );
     updateMatrix();
 
-    _shadow = DirectionalLightShadow::make(OrtographicCamera::make(-5, 5, 5, -5, 0.5, 500));
+    _shadow = DirectionalLightShadow::make(OrthographicCamera::make(-5, 5, 5, -5, 0.5, 500));
   }
 
 public:
