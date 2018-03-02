@@ -14,7 +14,7 @@
 namespace three {
 namespace quick {
 
-Scene::Scene(ThreeDItem *item) : ThreeQObjectRoot(item), _item(item) {}
+Scene::Scene(QObject *parent) : ThreeQObjectRoot(parent) {}
 
 void Scene::setName(const QString &name) {
   if (_name != name) {
@@ -27,9 +27,12 @@ void Scene::setQuickCamera(Camera *camera)
 {
   if(_quickCamera != camera) {
     if(_quickCamera) {
-      _quickCamera->deleteLater();
+      if(_quickCamera->controller()) _item->removeController(_quickCamera->controller());
+      if(_quickCamera->camera()) _scene->remove(_quickCamera->camera());
     }
     _quickCamera = camera;
+    if(_scene) updateCamera();
+
     emit cameraChanged();
   }
 }
@@ -43,6 +46,18 @@ void Scene::setFog(FogBase *fog)
     _fog = fog;
     emit fogChanged();
   }
+}
+
+void Scene::updateCamera()
+{
+  if(!_quickCamera->camera()) _quickCamera->create(this);
+
+  if(_quickCamera->controller())
+    _item->addController(_quickCamera->controller());
+
+  //cameras with children need to be parented to the scene!
+  if(!_quickCamera->camera()->children().empty())
+    _scene->add(_quickCamera->camera());
 }
 
 void Scene::setBackground(const QColor &background) {
@@ -103,6 +118,8 @@ void Scene::remove(ThreeQObject *object)
 
 void Scene::addTo(ObjectRootContainer *container)
 {
+  _item = container->threeDItem();
+
   _scene = _background.isValid() ?
            three::SceneT<Color>::make(_name.toStdString(), Color(_background.redF(), _background.greenF(), _background.blueF()))
                                  : three::Scene::make(_name.toStdString());
@@ -113,14 +130,8 @@ void Scene::addTo(ObjectRootContainer *container)
   positionChanged();
 
   if(_fog) _scene->fog() = _fog->create();
-  _quickCamera->create(this);
 
-  if(_quickCamera->controller())
-    container->addController(_quickCamera->controller());
-
-  //cameras with children need to be parented to the scene!
-  if(!_quickCamera->camera()->children().empty())
-    _scene->add(_quickCamera->camera());
+  if(_quickCamera) updateCamera();
 
   for(auto &object :_objects) {
     auto obj = object->create(this);

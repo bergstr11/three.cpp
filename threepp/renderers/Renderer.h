@@ -82,7 +82,9 @@ public:
 
   virtual Renderer &setClearColor(const Color &color, float alpha) = 0;
 
-  virtual Renderer &setSize(size_t width, size_t height) = 0;
+  virtual Renderer &setSize(size_t width, size_t height, bool setViewport) = 0;
+
+  virtual Renderer &setViewport(size_t x, size_t y, size_t width, size_t height) = 0;
 };
 
 }

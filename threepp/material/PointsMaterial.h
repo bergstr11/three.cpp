@@ -29,12 +29,17 @@ struct PointsMaterial : public MaterialT<material::Colored>
   bool sizeAttenuation;
 
 protected:
-  PointsMaterial() : MaterialT(material::ResolverT<PointsMaterial>::make(*this)) {}
+  PointsMaterial() : MaterialT(material::ResolverT<PointsMaterial>::make(*this))
+  {
+    lights = false;
+  }
 
 public:
   using Ptr = std::shared_ptr<PointsMaterial>;
-  static Ptr make() {
-    return Ptr(new PointsMaterial());
+  static Ptr make(Color color) {
+    auto p = Ptr(new PointsMaterial());
+    p->color = color;
+    return p;
   }
 };
 

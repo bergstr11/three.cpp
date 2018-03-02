@@ -9,8 +9,8 @@ Window {
     id: mainWindow
     minimumWidth: 1280
     minimumHeight: 1024
-
     visible: true
+    color: "gray"
 
     OptionsMenu {
         anchors.top: parent.top
@@ -21,18 +21,10 @@ Window {
         z: 2
 
         BoolChoice {
-            name: "Orthographic"
-            otherName: "Perspective"
             value: false
+            name: value ? "Orthographic" : "Perspective"
             onValueChanged: {
-
-                if(value === true) {
-                    activeCamera = cameraOrtho
-                }
-                else {
-                    activeCamera = cameraPerspective
-                }
-                threeD.update()
+                threeD.activeCamera = value ? orthoCamera : perspectiveCamera
             }
         }
     }
@@ -44,9 +36,10 @@ Window {
         antialias: true
         autoClear: false
 
-        property float frustumSize: 600
+        property real frustumSize: 600
         property int frameCount: 0
-        property Camera activeCamera
+        property Camera activeCamera: perspectiveCamera
+        property real aspect: width / height
 
         Scene {
             id: scene
@@ -80,25 +73,25 @@ Window {
 
             Points {
                 id: particles
-                material: PointsMaterial {color: "#888888"}
+                material.color: "#888888"
 
                 Component.onCompleted: {
                     for ( var i = 0; i < 10000; i ++ ) {
 
-                        var vertex = Qt.vector3();
-                        vertex.x = THREE.Math.randFloatSpread( 2000 );
-                        vertex.y = THREE.Math.randFloatSpread( 2000 );
-                        vertex.z = THREE.Math.randFloatSpread( 2000 );
+                        var vertex = Qt.vector3d(
+                                Three.randFloatSpread( 2000 ),
+                                Three.randFloatSpread( 2000 ),
+                                Three.randFloatSpread( 2000 ));
 
-                        geometry.vertices.push( vertex );
-				    }
-				}
+                        particles.addPoint( vertex );
+                    }
+                }
             }
 
             PerspectiveCamera {
                 id: defaultCamera
                 fov: 50
-                aspect: 0.5 * threeD.width / threeD.height
+                aspect: 0.5 * threeD.aspect
                 near: 1
                 far: 10000
                 position: "0,0,2500"
@@ -121,21 +114,22 @@ Window {
                 }
 
                 PerspectiveCamera {
-                    id: cameraPerspective
+                    id: perspectiveCamera
                     fov: 50
-                    aspect: 0.5 * threeD.width / threeD.height
+                    aspect: 0.5 * threeD.aspect
                     near: 150
                     far: 1000
                     rotation.y: Math.PI
 
                     helper.visible: true
                 }
+
                 OrthographicCamera {
-                    id: cameraOrtho
-                    left: 0.5 * frustumSize * aspect / - 2
-                    right: 0.5 * frustumSize * aspect / 2
-                    top: frustumSize / 2
-                    bottom: frustumSize / - 2
+                    id: orthoCamera
+                    left: 0.5 * threeD.frustumSize * threeD.aspect / - 2
+                    right: 0.5 * threeD.frustumSize * threeD.aspect / 2
+                    top: threeD.frustumSize / 2
+                    bottom: threeD.frustumSize / - 2
                     near: 150
                     far: 1000
                     rotation.y: Math.PI
@@ -145,15 +139,18 @@ Window {
             }
         }
 
-        onSizeChanged: {
-            camera.updateProjectionMatrix()
-            cameraPerspective.updateProjectionMatrix()
-            cameraOrtho.updateProjectionMatrix()
+        onGeometryChanged: {
+            defaultCamera.updateProjectionMatrix()
+            perspectiveCamera.updateProjectionMatrix()
+            orthoCamera.updateProjectionMatrix()
         }
 
-        onBeforeRender: {
-
-            if((frameCount % 2) == 0) {
+        animate: function() {
+            if((frameCount % 2) === 1) {
+                threeD.viewport = Qt.rect(threeD.width/2,0,threeD.width/2,threeD.height);
+                scene.camera = defaultCamera
+            }
+            else {
                 var r = Date.now() * 0.0005;
 
                 sphere.position.x = 700 * Math.cos( r );
@@ -163,41 +160,34 @@ Window {
                 sphere2.position.x = 70 * Math.cos( 2 * r );
                 sphere2.position.z = 70 * Math.sin( r );
 
-                if (scene.camera === cameraPerspective) {
+                if (activeCamera === perspectiveCamera) {
 
-                    cameraPerspective.fov = 35 + 30 * Math.sin( 0.5 * r )
-                    cameraPerspective.far = mesh.position.length()
-                    cameraPerspective.updateProjectionMatrix()
+                    perspectiveCamera.fov = 35 + 30 * Math.sin( 0.5 * r )
+                    perspectiveCamera.far = sphere.position.length()
+                    perspectiveCamera.updateProjectionMatrix()
 
-                    cameraPerspective.helper.update()
-                    cameraPerspective.helper.visible = true
-
-                    cameraOrtho.helper.visible = false;
+                    perspectiveCamera.helper.update()
+                    perspectiveCamera.helper.visible = true
+                    orthoCamera.helper.visible = false;
                 }
                 else {
 
-                    cameraOrtho.far = mesh.position.length()
-                    cameraOrtho.updateProjectionMatrix()
+                    orthoCamera.far = sphere.position.length()
+                    orthoCamera.updateProjectionMatrix()
 
-                    cameraOrtho.helper.update()
-                    cameraOrtho.helper.visible = true
-
-                    cameraPerspective.helper.visible = false
+                    orthoCamera.helper.update()
+                    orthoCamera.helper.visible = true
+                    perspectiveCamera.helper.visible = false
                 }
 
-                renderer.viewport = Qt.rectangle(0,0,threeD.width/2,threeD.height);
+                threeD.viewport = Qt.rect(0,0,threeD.width/2,threeD.height);
                 scene.camera = activeCamera
-            }
-            else {
-                renderer.viewport = Qt.rectangle(threeD.width/2,0,threeD.width/2,threeD.height);
-                scene.camera = defaultCamera
             }
 
             cameraRig.lookAt( sphere.position );
 
-            renderer.clear();
+            clear();
+            frameCount++
         }
-
-        onRendered: update()
     }
 }

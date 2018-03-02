@@ -141,6 +141,8 @@ Window {
                 shadow.camera.far: 3500
 
                 helper.size: 10
+
+                Component.onCompleted: console.log(shadow.camera)
             }
 
             camera: PerspectiveCamera {

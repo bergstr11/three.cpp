@@ -78,7 +78,7 @@ public:
 
   void setMap(Texture *map);
 
-  virtual void identify(MeshCreator &creator) = 0;
+  virtual void identify(MeshCreator &creator) {}
 
 signals:
   void wireframeChanged();

@@ -58,6 +58,7 @@ public:
 
   Q_INVOKABLE QVariant raycaster(QVariant camera);
   Q_INVOKABLE QVariant color(QString hex);
+  Q_INVOKABLE float randFloatSpread(float range);
 };
 
 class Scene;
@@ -65,9 +66,12 @@ class Material;
 class Texture;
 class Controller;
 class RayCaster;
+class ThreeDItem;
 
-class ObjectRootContainer {
+class ObjectRootContainer
+{
 public:
+  virtual ThreeDItem *threeDItem() = 0;
   virtual void addMaterial(Material *material) {}
   virtual void addTexture(Texture *texture) {}
   virtual void addController(Controller* controller) {}

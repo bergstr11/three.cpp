@@ -148,6 +148,8 @@ public:
 
   const BufferAttributeT<float>::Ptr &position() const {return _position;}
 
+  BufferAttributeT<float>::Ptr &getPosition() {return _position;}
+
   const BufferAttributeT<float>::Ptr &normal() const {return _normal;}
 
   const BufferAttributeT<float>::Ptr &color() const {return _color;}

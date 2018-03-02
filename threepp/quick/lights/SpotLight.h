@@ -51,7 +51,7 @@ protected:
   {
     if(_qhelper.configured()) {
       _helper = helper::SpotLight::make("spotlight_helper", _light);
-      QObject::connect(&_qhelper, &Helper::visibleChanged,
+      QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
       scene->scene()->add(_helper);
     }

@@ -39,7 +39,7 @@ Rectangle {
             anchors.rightMargin: 10
             implicitHeight: 40
 
-            property string name
+            property QtObject prop
             property QtObject target
 
             function reset() {
@@ -55,7 +55,7 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
                     width: parent.width - bool_check.implicitWidth - 5
-                    text: name
+                    text: prop.name
                     color: textColor
                     font.bold: true
                 }
@@ -83,7 +83,7 @@ Rectangle {
             anchors.rightMargin: 10
             implicitHeight: 30
 
-            property string name
+            property QtObject prop
             property QtObject target
 
             color: target.value ? "lightgray" : "transparent"
@@ -96,7 +96,7 @@ Rectangle {
                 anchors.fill: parent
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: name
+                text: prop.name
                 color: target.value ? "green" : textColor
                 font.bold: true
 
@@ -122,7 +122,7 @@ Rectangle {
             anchors.rightMargin: 10
             implicitHeight: 40
 
-            property string name
+            property QtObject prop
             property alias from: float_slider.from
             property alias to: float_slider.to
             property QtObject target
@@ -138,7 +138,7 @@ Rectangle {
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     width: 60
-                    text: name
+                    text: prop.name
                     font.bold: true
                     color: textColor
                 }
@@ -190,15 +190,15 @@ Rectangle {
             var prop = properties[index]
             if(prop.type === "float") {
                 prev = float_control.createObject(main, {"anchors.top": prev.bottom,
-                                                      name: prop.name, from: prop.from, to: prop.to, target: prop})
+                                                      prop: prop, from: prop.from, to: prop.to, target: prop})
                 controls.push(prev)
             }
             else if(prop.type === "bool") {
-                prev = bool_control.createObject(main, {"anchors.top": prev.bottom, name: prop.name, target: prop})
+                prev = bool_control.createObject(main, {"anchors.top": prev.bottom, prop: prop, target: prop})
                 controls.push(prev)
             }
             else if(prop.type === "menuchoice") {
-                prev = menu_choice.createObject(main, {"anchors.top": prev.bottom, name: prop.name, target: prop})
+                prev = menu_choice.createObject(main, {"anchors.top": prev.bottom, prop: prop, target: prop})
                 menuChoices.push(prop)
             }
             height += prev.implicitHeight

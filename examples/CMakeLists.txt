@@ -12,13 +12,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 qt5_add_resources(UI_RESOURCES resources.qrc)
 
-set(SOURCE_FILES
-        main.cpp
-        ThreeDTestItem.cpp)
+set(SOURCE_FILES main.cpp)
 
-set(HEADER_FILES ThreeDTestItem.h)
-
-add_executable(three_test ${SOURCE_FILES} ${HEADER_FILES} ${UI_RESOURCES})
+add_executable(three_test ${SOURCE_FILES} ${UI_RESOURCES})
 target_include_directories(three_test PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
         $<INSTALL_INTERFACE:include)

@@ -33,7 +33,7 @@ Q_OBJECT
   QString _name;
   QColor _background;
 
-  ThreeDItem * const _item;
+  ThreeDItem * _item;
 
   QList<ThreeQObject *> _objects;
 
@@ -51,8 +51,10 @@ Q_OBJECT
 
   QQmlListProperty<ThreeQObject> objects();
 
+  void updateCamera();
+
 public:
-  explicit Scene(ThreeDItem *item=nullptr);
+  explicit Scene(QObject *parent=nullptr);
 
   ~Scene() override {};
 

@@ -87,7 +87,7 @@ struct Color
   Color(unsigned hex) : r((hex >> 16 & 255) / 255.0f), g((hex >> 8 & 255) / 255.0f), b((hex & 255) / 255.0f)
   {}
 
-  Color(ColorName name=ColorName::white) : Color((unsigned)name) {}
+  explicit Color(ColorName name=ColorName::white) : Color((unsigned)name) {}
 
   static Color null() {
     static Color null(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),

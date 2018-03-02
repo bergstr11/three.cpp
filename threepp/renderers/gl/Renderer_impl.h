@@ -41,6 +41,8 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
   friend class RenderTargetExternal;
 
 protected:
+  bool _initialized = false;
+
   std::vector<Light::Ptr> _lightsArray;
   std::vector<Light::Ptr> _shadowsArray;
 
@@ -198,7 +200,7 @@ public:
 
   bool localClippingEnabled() const {return _localClippingEnabled;}
 
-  void clear(bool color=true, bool depth=true, bool stencil=true);
+  void clear(bool color, bool depth, bool stencil);
 
   unsigned allocTextureUnit();
 
@@ -243,9 +245,13 @@ public:
     _background.setClearColor(color, alpha);
   }
 
-  Renderer_impl &setSize(size_t width, size_t height) override;
+  void clear() override {
+    if(_initialized) clear(true, true, true);
+  }
 
-  Renderer_impl &setViewport(size_t x, size_t y, size_t width, size_t height);
+  Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
+
+  Renderer_impl &setViewport(size_t x, size_t y, size_t width, size_t height) override;
 };
 
 }

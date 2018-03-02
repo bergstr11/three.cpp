@@ -38,6 +38,17 @@ public:
     memcpy(_elements, array, sizeof(_elements));
   }
 
+  bool isNull()
+  {
+    return _z == 0 && _w == 0;
+  }
+
+  void setNull()
+  {
+    _z = 0;
+    _w = 0;
+  }
+
   const float *elements() const {return _elements;}
 
   Vector4 &set(float x, float y, float z, float w )

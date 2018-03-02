@@ -39,6 +39,8 @@ protected:
   }
 
 public:
+  Box(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
   unsigned width() const {return _width;}
   unsigned height() const {return _height;}
   unsigned depth() const {return _depth;}

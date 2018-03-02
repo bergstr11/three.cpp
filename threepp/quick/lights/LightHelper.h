@@ -2,15 +2,15 @@
 // Created by byter on 2/22/18.
 //
 
-#ifndef THREE_PP_HELPER_H
-#define THREE_PP_HELPER_H
+#ifndef THREE_PPQ_LIGHTHELPER_H
+#define THREE_PPQ_LIGHTHELPER_H
 
 #include <QObject>
 
 namespace three {
 namespace quick {
 
-class Helper : public QObject
+class LightHelper : public QObject
 {
 Q_OBJECT
   Q_PROPERTY(unsigned size READ size WRITE setSize NOTIFY sizeChanged)
@@ -20,10 +20,10 @@ Q_OBJECT
   QColor _color;
   unsigned _size = 0;
   bool _visible = true;
-  bool _configured;
+  bool _configured = false;
 
 public:
-  Helper(QObject *parent = nullptr) {}
+  LightHelper(QObject *parent = nullptr) {}
 
   unsigned size() const {return _size;}
   void setSize(unsigned size) {
@@ -62,4 +62,4 @@ signals:
 }
 }
 
-#endif //THREE_PP_HELPER_H
+#endif //THREE_PPQ_LIGHTHELPER_H

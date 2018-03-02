@@ -24,19 +24,34 @@ class Sphere : public ThreeQObject
   qreal _radius = 1;
   unsigned _widthSegments=1, _heightSegments=1;
 
-  MeshCreatorG<geometry::Sphere> _creator {"sphere"};
+  //MeshCreatorG<geometry::Sphere> _creator {"sphere"};
+  MeshCreator::Ptr _creator;
 
 protected:
   three::Object3D::Ptr _create(Scene *scene) override
   {
-    _creator.set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
-    material()->identify(_creator);
+    switch(_geometryType) {
+      case Three::DefaultGeometry: {
+        auto creator = MeshCreatorG<geometry::Sphere>::make("plane");
+        creator->set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
+        _creator = creator;
+        break;
+      }
+      case Three::BufferGeometry: {
+        auto creator = MeshCreatorG<geometry::buffer::Sphere>::make("plane");
+        creator->set(geometry::buffer::Sphere::make(_radius, _widthSegments, _heightSegments));
+        _creator = creator;
+        break;
+      }
+    }
 
-    return _creator.mesh;
+    material()->identify(*_creator);
+
+    return _creator->getMesh();
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    material()->identify(*_creator);
   }
 
 public:

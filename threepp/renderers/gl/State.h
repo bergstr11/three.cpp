@@ -737,6 +737,7 @@ public:
   {
     if(currentScissor != scissor) {
       _f->glScissor( scissor.x(), scissor.y(), scissor.z(), scissor.w() );
+      check_glerror(_f);
       currentScissor = scissor;
     }
   }
@@ -745,6 +746,7 @@ public:
   {
     if(currentViewport != viewport) {
       _f->glViewport( viewport.x(), viewport.y(), viewport.z(), viewport.w());
+      check_glerror(_f);
       currentViewport = viewport;
     }
   }
@@ -754,6 +756,7 @@ public:
     for(size_t i=0; i < enabledAttributes.size(); i ++ ) {
       if (enabledAttributes[ i ] == 1) {
         _f->glDisableVertexAttribArray( i );
+        check_glerror(_f);
         enabledAttributes[ i ] = 0;
       }
     }

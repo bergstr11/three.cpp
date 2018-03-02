@@ -5,10 +5,11 @@
 #include "ThreeDItem.h"
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLExtraFunctions>
+#include <QQmlEngine>
 #include <QQuickWindow>
 #include <QScreen>
+#include <QTimer>
 #include <threepp/quick/scene/Scene.h>
-#include <threepp/renderers/OpenGLRenderer.h>
 
 namespace three {
 namespace quick {
@@ -44,6 +45,7 @@ public:
         _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
     }
     _renderer->autoClear = _item->_autoClear;
+    _renderer->antialias = _item->_antialias;
     _renderer->initContext();
   }
 
@@ -87,7 +89,7 @@ public:
       scene->camera()->setAspect(_item->width() / _item->height());
       scene->camera()->updateProjectionMatrix();
     }
-    _renderer->setSize(_item->width(), _item->height());
+    _renderer->setSize(_item->width(), _item->height(), _item->_viewport.isNull());
   }
 };
 
@@ -102,6 +104,11 @@ ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
 
 ThreeDItem::~ThreeDItem()
 {
+}
+
+void ThreeDItem::clear()
+{
+  if(_renderer) _renderer->clear();
 }
 
 void ThreeDItem::setShadowType(Three::ShadowType type) {
@@ -135,12 +142,35 @@ void ThreeDItem::setAutoClear(bool autoClear)
   }
 }
 
+void ThreeDItem::setAntialias(bool antialias)
+{
+  if(_antialias != antialias) {
+  _antialias = antialias;
+  emit antialiasChanged();
+  }
+}
+
 void ThreeDItem::setSamples(unsigned samples)
 {
   if(_samples != samples) {
     _samples = samples;
     emit samplesChanged();
   }
+}
+
+void ThreeDItem::setViewport(const QRect &viewport)
+{
+  if(_viewport != viewport) {
+    _viewport = viewport;
+    if(_renderer) _renderer->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
+    emit viewportChanged();
+  }
+}
+
+void ThreeDItem::setAnimate(QJSValue animate)
+{
+  _animateFunc = animate;
+  _jsInstance = qmlEngine(this)->newQObject(this);
 }
 
 void ThreeDItem::addController(Controller *controller)
@@ -202,6 +232,11 @@ void ThreeDItem::wheelEvent(QWheelEvent *event) {
   }
 }
 
+void ThreeDItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+  QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
+  emit geometryChanged();
+}
 
 void ThreeDItem::keyPressEvent(QKeyEvent *event) {
   update();
@@ -223,6 +258,19 @@ void ThreeDItem::releaseResources() {
   QQuickFramebufferObject::releaseResources();
 }
 
+bool ThreeDItem::execAnimate()
+{
+  QJSValue jsRes = _animateFunc.callWithInstance(_jsInstance);
+  if(jsRes.isError()) {
+    qWarning() << "javascript error at line"
+               << jsRes.property("lineNumber").toInt()
+               << ":" << jsRes.toString();
+    return false;
+  }
+  update();
+  return true;
+}
+
 void ThreeDItem::componentComplete()
 {
   QQuickItem::componentComplete();
@@ -231,6 +279,20 @@ void ThreeDItem::componentComplete()
 
   for(const auto &object : _objects) {
     object->addTo(this);
+  }
+
+  if(_animateFunc.isCallable()) {
+    if(execAnimate()) {
+      //no need to start timer if script fails on first call
+      _timer = new QTimer(this);
+      connect(_timer, &QTimer::timeout, this, &ThreeDItem::execAnimate, Qt::QueuedConnection);
+      _timer->start(15);
+    }
+  }
+  else if(_animateFunc.toBool()) {
+    _timer = new QTimer(this);
+    connect(_timer, &QTimer::timeout, this, &QQuickItem::update);
+    _timer->start(15);
   }
 }
 
@@ -262,6 +324,11 @@ QQmlListProperty<ThreeQObjectRoot> ThreeDItem::objects()
                                             &ThreeDItem::count_objects,
                                             &ThreeDItem::object_at,
                                             &ThreeDItem::clear_objects);
+}
+
+ThreeDItem *ThreeDItem::threeDItem()
+{
+  return this;
 }
 
 void ThreeDItem::addScene(Scene *scene)

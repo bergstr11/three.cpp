@@ -13,17 +13,19 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include <threepp/quick/objects/ModelRef.h>
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
-#include "cameras/OrthographicCamera.h"
+#include "cameras/CameraHelper.h"
 #include "threepp/quick/lights/AmbientLight.h"
 #include "threepp/quick/lights/SpotLight.h"
 #include "threepp/quick/lights/PointLight.h"
 #include "threepp/quick/lights/HemisphereLight.h"
 #include "threepp/quick/lights/DirectionalLight.h"
-#include "threepp/quick/lights/Helper.h"
+#include "threepp/quick/lights/LightHelper.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
 #include "objects/Ring.h"
 #include "objects/Torus.h"
+#include "objects/Points.h"
+#include "objects/Group.h"
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
@@ -62,7 +64,8 @@ void init()
   qmlRegisterUncreatableType<three::quick::LightShadowPC>("three.quick", 1, 0, "LightShadowPC", "internal class");
   qmlRegisterUncreatableType<three::quick::FogBase>("three.quick", 1, 0, "FogBase", "abstract class");
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
-  qmlRegisterUncreatableType<three::quick::Helper>("three.quick", 1, 0, "Helper", "internal class");
+  qmlRegisterUncreatableType<three::quick::LightHelper>("three.quick", 1, 0, "LightHelper", "internal class");
+  qmlRegisterUncreatableType<three::quick::CameraHelper>("three.quick", 1, 0, "CameraHelper", "internal class");
   qmlRegisterType<three::quick::Intersect>();
   qmlRegisterType<three::quick::RayCaster>();
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
@@ -70,6 +73,9 @@ void init()
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
+  qmlRegisterType<three::quick::Points>("three.quick", 1, 0, "Points");
+  qmlRegisterUncreatableType<three::quick::PointsMaterial>("three.quick", 1, 0, "PointsMaterial", "internal class");
+  qmlRegisterType<three::quick::Group>("three.quick", 1, 0, "Group");
   qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");
   qmlRegisterType<three::quick::Torus>("three.quick", 1, 0, "Torus");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
@@ -113,6 +119,11 @@ QVariant Three::color(QString hex)
   QVariant var;
   var.setValue(QColor(hex));
   return var;
+}
+
+float Three::randFloatSpread(float range)
+{
+  return range * ( 0.5f - std::rand() );
 }
 
 }

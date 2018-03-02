@@ -25,7 +25,7 @@ Q_OBJECT
 
   geometry::TorusParams _params;
 
-  MeshCreatorG<geometry::Torus> _creator {"ring"};
+  MeshCreatorG<geometry::Torus> _creator {"torus"};
 
 protected:
   three::Object3D::Ptr _create(Scene *scene) override
@@ -41,6 +41,8 @@ protected:
   }
 
 public:
+  Torus(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
   float radius() const {return _params.radius;}
   float tube() const {return _params.tube;}
   float arc() const {return _params.arc;}

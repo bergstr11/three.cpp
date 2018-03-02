@@ -11,7 +11,6 @@
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/objects/Mesh.h>
 #include "threepp/quick/qutil/MeshCreator.h"
-#include <threepp/quick/Three.h>
 
 namespace three {
 namespace quick {
@@ -21,11 +20,8 @@ class Plane : public ThreeQObject
   Q_OBJECT
   Q_PROPERTY(unsigned width READ width WRITE setWidth NOTIFY widthChanged)
   Q_PROPERTY(unsigned height READ height WRITE setHeight NOTIFY heightChanged)
-  Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
 
   unsigned _width=1, _height=1;
-
-  Three::GeometryType _geometryType = Three::DefaultGeometry;
 
   MeshCreator::Ptr _creator;
 
@@ -75,18 +71,9 @@ public:
     }
   }
 
-  Three::GeometryType geometryType() const {return _geometryType;}
-  void setGeometryType(Three::GeometryType geometryType) {
-    if(_geometryType != geometryType) {
-      _geometryType = geometryType;
-      emit geometryTypeChanged();
-    }
-  }
-
 signals:
   void widthChanged();
   void heightChanged();
-  void geometryTypeChanged();
 };
 
 }

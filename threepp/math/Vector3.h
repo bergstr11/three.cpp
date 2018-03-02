@@ -166,6 +166,7 @@ public:
   Vector3 &project(const Camera &camera);
 
   Vector3 &unproject(const Camera &camera);
+  Vector3 &unproject(const math::Matrix4 &world, const math::Matrix4 &projection);
 
   // input: THREE.Matrix4 affine matrix
   // vector interpreted as a direction

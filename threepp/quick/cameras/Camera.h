@@ -12,6 +12,7 @@
 #include <threepp/quick/lights/Light.h>
 #include <threepp/quick/interact/Controller.h>
 #include <threepp/quick/Math.h>
+#include <threepp/quick/cameras/CameraHelper.h>
 
 namespace three {
 namespace quick {
@@ -24,6 +25,7 @@ class Camera : public ThreeQObject
   Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::Light> lights READ lights)
+  Q_PROPERTY(CameraHelper *helper READ helper)
   Q_PROPERTY(float near READ near WRITE setNear NOTIFY nearChanged)
   Q_PROPERTY(float far READ far WRITE setFar NOTIFY farChanged)
   Q_CLASSINFO("DefaultProperty", "lights")
@@ -37,6 +39,8 @@ class Camera : public ThreeQObject
   QList<Light *> _lights;
 
   Controller *_controller = nullptr;
+
+  CameraHelper _qhelper;
 
   three::Camera::Ptr _camera;
 
@@ -125,6 +129,10 @@ public:
   }
 
   three::Camera::Ptr camera() {return _camera;}
+
+  CameraHelper *helper() {return &_qhelper;}
+
+  Q_INVOKABLE void updateProjectionMatrix();
 
 signals:
   void nearChanged();

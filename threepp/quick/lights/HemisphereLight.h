@@ -10,7 +10,7 @@
 #include <threepp/quick/elements/LightShadow.h>
 #include <threepp/quick/scene/Scene.h>
 #include "Light.h"
-#include "Helper.h"
+#include "LightHelper.h"
 
 namespace three {
 namespace quick {
@@ -43,7 +43,7 @@ protected:
   {
     if(_qhelper.configured()) {
       _helper = helper::HemisphereLight::make(_light, _qhelper.size(), Color::null());
-      QObject::connect(&_qhelper, &Helper::visibleChanged,
+      QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
       scene->scene()->add(_helper);
     }

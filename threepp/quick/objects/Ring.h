@@ -42,6 +42,8 @@ protected:
   }
 
 public:
+  Ring(QObject *parent = nullptr) : ThreeQObject(parent) {}
+
   float innerRadius() const {return _params.innerRadius;}
   float outerRadius() const {return _params.outerRadius;}
   unsigned thetaSegments() const {return _params.thetaSegments;}

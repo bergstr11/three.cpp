@@ -243,7 +243,7 @@ public:
   ProgramParameterT<float>           alphaTest {all};
   ProgramParameterT<bool>            doubleSided {all};
   ProgramParameterT<bool>            flipSided {all};
-  ProgramParameterT<DepthPacking>  depthPacking {all};
+  ProgramParameterT<DepthPacking>    depthPacking {all};
   ProgramParameterT<std::unordered_map<std::string, std::string>> defines {all};
 
   ShaderMaterialKind shaderMaterial = ShaderMaterialKind::none;

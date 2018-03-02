@@ -273,6 +273,15 @@ public:
     }
   }
 
+  void removeAll()
+  {
+    for(auto child : _children) {
+
+      child->_parent = nullptr;
+    }
+    _children.clear();
+  }
+
   Object3D::Ptr getChildByName(std::string name)
   {
     for (const auto &child : _children) {

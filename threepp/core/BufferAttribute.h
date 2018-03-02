@@ -147,9 +147,9 @@ protected:
 public:
   using Ptr = std::shared_ptr<BufferAttributeT<Type>>;
 
-  const Type &tdata(uint32_t offset) {return _data[offset];}
+  const Type &data_t(uint32_t offset) {return _data[offset];}
 
-  const Type *tdata() {return _data;}
+  const Type *data_t() {return _data;}
 
   void clear() {memset(_data, 0, byteCount());}
 
@@ -195,6 +195,11 @@ public:
   }
 
   Type &at(size_t index)
+  {
+    return _data[ index];
+  }
+
+  const Type &at(size_t index) const
   {
     return _data[ index];
   }
@@ -406,6 +411,18 @@ protected:
      : Super(0, itemSize, normalized), _array(value)
   {}
 
+  GrowingBufferAttribute(const typename BufferAttributeT<ComponentType>::Ptr &attr)
+     : Super(0, itemSize, attr->normalized())
+  {
+    auto itemCount = attr->size() / itemSize;
+    for(unsigned i=0; i<itemCount; i++) {
+      _array.emplace_back();
+      size_t index = i * itemSize;
+      ComponentType *dta = Super::data(0) + index;
+      for(unsigned i=0; i<itemSize; i++) dta[i] = attr->at(index+i);
+    }
+  }
+
 public:
   template<typename... _Args>
   void emplace_back(_Args&&... __args)
@@ -487,6 +504,15 @@ struct attribute {
   {
     return typename GrowingBufferAttribute<ComponentType, ItemType>::Ptr(
        new GrowingBufferAttribute<ComponentType, ItemType>(value, normalized));
+  }
+
+  template <typename ComponentType, typename ItemType=ComponentType>
+  static growing_t<ComponentType, ItemType> growing(typename BufferAttributeT<ComponentType>::Ptr &attr)
+  {
+    auto ret = typename GrowingBufferAttribute<ComponentType, ItemType>::Ptr(
+       new GrowingBufferAttribute<ComponentType, ItemType>(attr));
+    attr = ret;
+    return ret;
   }
 
   //internally preallocated buffer, fixed size

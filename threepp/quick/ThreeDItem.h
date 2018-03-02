@@ -2,10 +2,11 @@
 // Created by byter on 2/9/18.
 //
 
-#ifndef THREE_PP_THREEDITEM_H
-#define THREE_PP_THREEDITEM_H
+#ifndef THREE_PPQ_THREEDITEM_H
+#define THREE_PPQ_THREEDITEM_H
 
 #include <QQuickFramebufferObject>
+#include <QJSValue>
 #include <threepp/camera/Camera.h>
 #include <threepp/renderers/OpenGLRenderer.h>
 #include "Three.h"
@@ -16,9 +17,9 @@ namespace quick {
 class ThreeQObject;
 class ThreeQObjectRoot;
 
-class ThreeDItem : public QQuickFramebufferObject, public ObjectRootContainer
+class ThreeDItem : public QQuickFramebufferObject, private ObjectRootContainer
 {
-  Q_OBJECT
+Q_OBJECT
   friend class FramebufferObjectRenderer;
   friend class Scene;
 
@@ -27,7 +28,10 @@ private:
   Q_PROPERTY(three::quick::Three::CullFace faceCulling READ faceCulling WRITE setFaceCulling NOTIFY faceCullingChanged)
   Q_PROPERTY(three::quick::Three::FrontFaceDirection faceDirection READ faceDirection WRITE setFaceDirection NOTIFY faceDirectionChanged)
   Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged)
+  Q_PROPERTY(bool antialias READ antialias WRITE setAntialias NOTIFY antialiasChanged)
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged)
+  Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
+  Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -40,8 +44,13 @@ private:
   Three::ShadowType _shadowType = Three::None;
   Three::CullFace _faceCulling = Three::BackFaceCulling;
   Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCCW;
-  bool _autoClear = true;
+  bool _autoClear = true, _antialias=false;
   unsigned _samples = 4;
+  QRect _viewport;
+
+  QTimer *_timer = nullptr;
+  QJSValue _animateFunc;
+  QJSValue _jsInstance;
 
   three::OpenGLRenderer::Ptr _renderer;
 
@@ -53,13 +62,15 @@ private:
   QQmlListProperty<ThreeQObjectRoot> objects();
 
 public:
-  explicit ThreeDItem(QQuickItem *parent = 0);
+  explicit ThreeDItem(QQuickItem *parent = nullptr);
 
   ~ThreeDItem() override;
 
   Renderer *createRenderer() const override;
 
-  void addScene(Scene *scene) override;
+  ThreeDItem *threeDItem() override;
+
+  void addScene(three::quick::Scene *scene) override;
 
   void addController(Controller *controller) override;
 
@@ -77,6 +88,10 @@ public:
 
   void setAutoClear(bool autoClear);
 
+  bool antialias() const {return _antialias;}
+
+  void setAntialias(bool antialias);
+
   unsigned samples() const {return _samples;}
 
   void setSamples(unsigned samples);
@@ -85,7 +100,19 @@ public:
 
   void setFaceDirection(Three::FrontFaceDirection faceDirection);
 
+  QRect viewport() {return _viewport;}
+
+  void setViewport(const QRect &rect);
+
+  QJSValue animate() {return _animateFunc;}
+
+  void setAnimate(QJSValue animate);
+
+  Q_INVOKABLE void clear();
+
 protected:
+  bool execAnimate();
+
   void componentComplete() override;
 
   void mouseMoveEvent(QMouseEvent *event) override;
@@ -108,16 +135,22 @@ protected:
 
   void releaseResources() override;
 
+  void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+
 signals:
   void shadowTypeChanged();
   void faceCullingChanged();
   void faceDirectionChanged();
   void autoClearChanged();
   void samplesChanged();
+  void antialiasChanged();
+  void geometryChanged();
+  void animateChanged();
+  void viewportChanged();
 };
 
 }
 }
 
 
-#endif //THREE_PP_THREEDITEM_H
+#endif //THREE_PPQ_THREEDITEM_H

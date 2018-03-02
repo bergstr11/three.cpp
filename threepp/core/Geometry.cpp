@@ -168,8 +168,8 @@ void BufferGeometry::raycast(const Line &line,
       uint32_t a = (*_index)[ i ];
       uint32_t b = (*_index)[ i + 1 ];
 
-      Vector3 vStart = Vector3::fromArray(_position->tdata(), a * 3 );
-      Vector3 vEnd = Vector3::fromArray(_position->tdata(), b * 3 );
+      Vector3 vStart = Vector3::fromArray(_position->data_t(), a * 3 );
+      Vector3 vEnd = Vector3::fromArray(_position->data_t(), b * 3 );
 
       float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
@@ -195,8 +195,8 @@ void BufferGeometry::raycast(const Line &line,
 
     for (size_t i = 0, l = _position->size() / 3 - 1; i < l; i += step ) {
 
-      Vector3 vStart = Vector3::fromArray(_position->tdata(), 3 * i );
-      Vector3 vEnd = Vector3::fromArray(_position->tdata(), 3 * i + 3 );
+      Vector3 vStart = Vector3::fromArray(_position->data_t(), 3 * i );
+      Vector3 vEnd = Vector3::fromArray(_position->data_t(), 3 * i + 3 );
 
       float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 

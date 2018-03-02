@@ -121,7 +121,7 @@ public:
 
     if (geometry->index()) {
 
-      auto array = geometry->index()->tdata();
+      auto array = geometry->index()->data_t();
       unsigned num = geometry->index()->size();
 
       indices = attribute::prealloc<uint32_t>(num * 2 + num % 3, false);

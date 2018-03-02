@@ -16,6 +16,10 @@ void Camera::_post_create(Scene *scene)
     _camera->lookAt(math::Vector3(_lookAt.x(), _lookAt.y(), _lookAt.z()));
     updateControllerValues();
   }
+  if(_qhelper.configured()) {
+    auto helper = _qhelper.create(_camera);
+    scene->scene()->add(helper);
+  }
 }
 
 three::Object3D::Ptr Camera::_create(Scene *scene)
@@ -28,6 +32,11 @@ three::Object3D::Ptr Camera::_create(Scene *scene)
   }
 
   return _camera;
+}
+
+void Camera::updateProjectionMatrix()
+{
+  if(_camera) _camera->updateProjectionMatrix();
 }
 
 void Camera::append_light(QQmlListProperty<Light> *list, Light *obj)

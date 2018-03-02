@@ -6,10 +6,12 @@
 #define THREEPPQ_THREEDOBJECT_H
 
 #include <QObject>
+#include <QQmlListProperty>
 #include <QVector3D>
 #include <QVector4D>
 #include <threepp/scene/Scene.h>
 #include <threepp/quick/materials/Material.h>
+#include <threepp/quick/Three.h>
 
 namespace three {
 namespace quick {
@@ -29,6 +31,9 @@ Q_OBJECT
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
   Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
+  Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
+  Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
+  Q_CLASSINFO("DefaultProperty", "objects")
 
 protected:
   QString _name;
@@ -40,6 +45,10 @@ protected:
   float _scale = 1.0f;
 
   bool _castShadow = false, _receiveShadow = false, _visible = true, _matrixAutoUpdate = true;
+
+  QList<ThreeQObject *> _objects;
+
+  Three::GeometryType _geometryType = Three::DefaultGeometry;
 
   Material *_material = nullptr;
 
@@ -53,6 +62,13 @@ protected:
      : QObject(parent), _object(object) {}
 
   virtual void updateMaterial() {}
+
+  static void append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
+  static int count_objects(QQmlListProperty<ThreeQObject> *);
+  static ThreeQObject *object_at(QQmlListProperty<ThreeQObject> *, int);
+  static void clear_objects(QQmlListProperty<ThreeQObject> *);
+
+  QQmlListProperty<ThreeQObject> objects();
 
 public:
   QVector3D position() const {return _position;}
@@ -156,6 +172,15 @@ public:
     }
   }
 
+  Three::GeometryType geometryType() const {return _geometryType;}
+
+  void setGeometryType(Three::GeometryType geometryType) {
+    if(_geometryType != geometryType) {
+      _geometryType = geometryType;
+      emit geometryTypeChanged();
+    }
+  }
+
   three::Object3D::Ptr object() const {return _object;}
 
   three::Object3D::Ptr create(Scene *scene);
@@ -164,6 +189,7 @@ public:
   Q_INVOKABLE void rotateY(float angle);
   Q_INVOKABLE void rotateZ(float angle);
   Q_INVOKABLE void translateZ(float distance);
+  Q_INVOKABLE void lookAt(const QVector3D &position);
 
 signals:
   void positionChanged();
@@ -175,6 +201,7 @@ signals:
   void visibleChanged();
   void matrixAutoUpdateChanged();
   void nameChanged();
+  void geometryTypeChanged();
 };
 
 }

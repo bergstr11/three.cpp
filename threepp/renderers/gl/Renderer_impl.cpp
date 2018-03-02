@@ -70,6 +70,7 @@ Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool
 void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
+  _initialized = true;
 
   _state.init();
 
@@ -103,12 +104,14 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   glClear( bits );
 }
 
-Renderer_impl &Renderer_impl::setSize(size_t width, size_t height)
+Renderer_impl &Renderer_impl::setSize(size_t width, size_t height, bool viewport)
 {
   _width = width;
   _height = height;
 
-  setViewport( 0, 0, width, height );
+  if(viewport) {
+    setViewport( 0, 0, width, height );
+  }
   return *this;
 }
 
@@ -117,6 +120,7 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
   _viewport.set( x, _height - y - height, width, height );
   _currentViewport = _viewport * _pixelRatio;
   _state.viewport( _currentViewport );
+  return *this;
 }
 
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,

@@ -23,7 +23,7 @@ struct OpenGLRendererOptions
   bool preserveDrawingBuffer = false;
 };
 
-class OpenGLRenderer : public Renderer, private OpenGLRendererOptions
+class OpenGLRenderer : public Renderer, public OpenGLRendererOptions
 {
 protected:
   explicit OpenGLRenderer(const OpenGLRendererOptions &options=OpenGLRendererOptions())
@@ -50,6 +50,7 @@ public:
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
   virtual void setFaceCulling( CullFace cullFace ) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
+  virtual void clear() = 0;
 };
 
 }

@@ -55,7 +55,7 @@ protected:
   {
     if(_qhelper.configured()) {
       _helper = helper::DirectionalLight::make(_light, _qhelper.size());
-      QObject::connect(&_qhelper, &Helper::visibleChanged,
+      QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
       scene->scene()->add(_helper);
     }

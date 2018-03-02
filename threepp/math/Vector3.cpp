@@ -57,6 +57,12 @@ Vector3 &Vector3::unproject(const Camera &camera)
   return *this;
 }
 
+Vector3 &Vector3::unproject(const math::Matrix4 &world, const math::Matrix4 &projection)
+{
+  apply(world * projection.inverted());
+  return *this;
+}
+
 // input: THREE.Matrix4 affine matrix
 // vector interpreted as a direction
 Vector3 &Vector3::transformDirection(const Matrix4 & m)
