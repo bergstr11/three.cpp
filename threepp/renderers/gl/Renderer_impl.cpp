@@ -45,6 +45,26 @@ namespace gl {
 
 const std::tuple<size_t, GLuint, bool> Renderer_impl::no_program {0, 0, false};
 
+struct DeferredCalls
+{
+  pair<bool, array<bool, 3>> _clear = make_pair(false, array<bool, 3>{false, false, false});
+
+  void clear(bool color, bool depth, bool stencil)
+  {
+    _clear.first = true;
+    _clear.second[0] = color;
+    _clear.second[1] = depth;
+    _clear.second[2] = stencil;
+  }
+  void exec(Renderer_impl *r)
+  {
+    if(_clear.first) {
+      r->clear(_clear.second[0], _clear.second[1], _clear.second[2]);
+      _clear.first = false;
+    }
+  }
+};
+
 Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
    : _state(this),
      _width(width),
@@ -65,12 +85,17 @@ Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool
      _flareRenderer(this, _state, _textures, _capabilities),
      _pixelRatio(pixelRatio)
 {
+  _deferredCalls = new DeferredCalls();
+}
+
+Renderer_impl::~Renderer_impl()
+{
+  delete _deferredCalls;
 }
 
 void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
-  _initialized = true;
 
   _state.init();
 
@@ -86,11 +111,6 @@ void Renderer_impl::initContext()
                    Extension::ANGLE_instanced_arrays});
 
   _capabilities.init();
-
-  _currentScissor = _scissor * _pixelRatio;
-  _currentViewport = _viewport * _pixelRatio;
-  _state.scissor(_currentScissor);
-  _state.viewport(_currentViewport);
 }
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
@@ -115,11 +135,14 @@ Renderer_impl &Renderer_impl::setSize(size_t width, size_t height, bool viewport
   return *this;
 }
 
+void Renderer_impl::clear()
+{
+  _deferredCalls->clear(true, true, true);
+}
+
 Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
 {
   _viewport.set( x, _height - y - height, width, height );
-  _currentViewport = _viewport * _pixelRatio;
-  _state.viewport( _currentViewport );
   return *this;
 }
 
@@ -128,6 +151,8 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 {
   if(renderTarget) renderTarget->init(this);
   check_glerror(this);
+
+  _deferredCalls->exec(this);
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -258,14 +283,8 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
       framebuffer = internalTarget->frameBuffer;
     }
     else if(externalTarget) {
-      if(externalTarget->reuse()) {
-        //_textures.setupRenderTarget(*externalTarget);
-        framebuffer = externalTarget->frameBuffer;
-      }
-      else {
-        framebuffer = externalTarget->frameBuffer;
-        _textures.setDefaultFramebuffer(framebuffer);
-      }
+      framebuffer = externalTarget->frameBuffer;
+      _textures.setDefaultFramebuffer(framebuffer);
     }
     check_glerror(this);
 
@@ -1275,12 +1294,10 @@ void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
 
 void RenderTargetExternal::init(Renderer *renderer)
 {
-  if(!_reuse) {
-    Renderer_impl *rimpl = static_cast<Renderer_impl *>(renderer);
-    rimpl->_state.setCullFace(_faceCulling);
-    rimpl->_state.setFaceDirection(_faceDirection);
-    rimpl->_lights.state.clear();
-  }
+  Renderer_impl *rimpl = static_cast<Renderer_impl *>(renderer);
+  rimpl->_state.setCullFace(_faceCulling);
+  rimpl->_state.setFaceDirection(_faceDirection);
+  rimpl->_lights.state.clear();
 }
 
 }

@@ -34,15 +34,18 @@
 namespace three {
 namespace gl {
 
+class DeferredCalls;
+
 class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 {
   friend class Programs;
   friend class Program;
   friend class RenderTargetExternal;
+  friend class DeferredCalls;
+
+  DeferredCalls *_deferredCalls;
 
 protected:
-  bool _initialized = false;
-
   std::vector<Light::Ptr> _lightsArray;
   std::vector<Light::Ptr> _shadowsArray;
 
@@ -191,6 +194,7 @@ public:
   using Ptr = std::shared_ptr<Renderer_impl>;
 
   Renderer_impl(size_t width, size_t height, float pixelRatio, bool premultipliedAlpha=true);
+  ~Renderer_impl();
 
   gl::State &state() {return _state;}
 
@@ -245,9 +249,7 @@ public:
     _background.setClearColor(color, alpha);
   }
 
-  void clear() override {
-    if(_initialized) clear(true, true, true);
-  }
+  void clear() override;
 
   Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
 

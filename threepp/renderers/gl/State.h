@@ -12,6 +12,7 @@
 #include <threepp/Constants.h>
 #include <unordered_map>
 #include "Helpers.h"
+#include <QDebug>
 
 namespace three {
 namespace gl {

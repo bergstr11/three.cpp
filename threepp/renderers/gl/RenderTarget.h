@@ -22,7 +22,8 @@ protected:
   bool _stencilBuffer;
 
   RenderTarget(TextureTarget textureTarget, GLsizei width, GLsizei height, bool depthBuffer, bool stencilBuffer)
-     : Renderer::Target(width, height), textureTarget(textureTarget), _depthBuffer(depthBuffer), _stencilBuffer(stencilBuffer) {}
+     : Renderer::Target(width, height), textureTarget(textureTarget), _depthBuffer(depthBuffer), _stencilBuffer(stencilBuffer)
+  {}
 
 public:
   const TextureTarget textureTarget;
@@ -60,8 +61,6 @@ class RenderTargetExternal : public RenderTarget
   const CullFace _faceCulling;
   const FrontFaceDirection _faceDirection;
 
-  bool _reuse = false;
-
 protected:
   RenderTargetExternal(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height,
                        CullFace faceCulling, FrontFaceDirection faceDirection,
@@ -83,10 +82,6 @@ public:
     return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, faceCulling, faceDirection,
                                         depthBuffer, stencilBuffer));
   }
-
-  bool reuse() const {return _reuse;}
-
-  void setReuse(bool reuse) override {_reuse = reuse;}
 
   void init(Renderer *renderer) override;
 

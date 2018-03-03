@@ -24,12 +24,13 @@ Q_OBJECT
 
   const ThreeDItem *const _item;
   QOpenGLFramebufferObject *_fbo = nullptr;
+  std::vector<ThreeDItem::RenderGroup> _renderGroups;
 
 public:
 
-  explicit FramebufferObjectRenderer(const ThreeDItem *item,
-                                     three::OpenGLRenderer::Ptr renderer,
-                                     const std::vector<Scene *> &scenes)
+  FramebufferObjectRenderer(const ThreeDItem *item,
+                            three::OpenGLRenderer::Ptr renderer,
+                            const std::vector<Scene *> &scenes)
      : _item(item),
        _scenes(scenes),
        _renderer(renderer)
@@ -53,14 +54,26 @@ public:
 
   void synchronize(QQuickFramebufferObject *item) override
   {
+    ThreeDItem *threeD = reinterpret_cast<ThreeDItem *>(item);
+    _renderGroups = threeD->_renderGroups;
+    threeD->_renderGroups.clear();
   }
 
   void render() override
   {
-    updateGeometry();
+    if(_item->_autoRender && _renderGroups.empty()) {
+      updateGeometry(_item->_viewport.isNull());
 
-    for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
-      _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
+      for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
+        _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
+      }
+    }
+    else {
+      _renderer->setSize(_item->width(), _item->height(), false);
+      for(const auto &group : _renderGroups) {
+        _target->setViewport(group.viewport.x(), group.viewport.y(), group.viewport.width(), group.viewport.height());
+        _renderer->render(group.scene, group.camera, _target, false);
+      }
     }
 
     _item->window()->resetOpenGLState();
@@ -83,13 +96,14 @@ public:
     return _fbo;
   }
 
-  void updateGeometry()
+  void updateGeometry(bool setViewport)
   {
     for(auto &scene : _scenes) {
       scene->camera()->setAspect(_item->width() / _item->height());
       scene->camera()->updateProjectionMatrix();
     }
-    _renderer->setSize(_item->width(), _item->height(), _item->_viewport.isNull());
+    _target->setSize(_item->width(), _item->height());
+    _renderer->setSize(_item->width(), _item->height(), setViewport);
   }
 };
 
@@ -104,6 +118,12 @@ ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
 
 ThreeDItem::~ThreeDItem()
 {
+}
+
+void ThreeDItem::render(Scene *scene, Camera *camera, QRect viewport)
+{
+  viewport.setY((int)height() - viewport.height() - viewport.y()); //flip vertically
+  _renderGroups.emplace_back(scene->scene(), camera->camera(), viewport);
 }
 
 void ThreeDItem::clear()
@@ -142,6 +162,14 @@ void ThreeDItem::setAutoClear(bool autoClear)
   }
 }
 
+void ThreeDItem::setAutoRender(bool autoRender)
+{
+  if(_autoRender != autoRender) {
+    _autoRender = autoRender;
+    emit autoRenderChanged();
+  }
+}
+
 void ThreeDItem::setAntialias(bool antialias)
 {
   if(_antialias != antialias) {
@@ -158,8 +186,9 @@ void ThreeDItem::setSamples(unsigned samples)
   }
 }
 
-void ThreeDItem::setViewport(const QRect &viewport)
+void ThreeDItem::setViewport(QRect viewport)
 {
+  //viewport.setY((int)height() - viewport.height() - viewport.y()); //flip vertically
   if(_viewport != viewport) {
     _viewport = viewport;
     if(_renderer) _renderer->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
@@ -275,6 +304,7 @@ void ThreeDItem::componentComplete()
 {
   QQuickItem::componentComplete();
 
+  //window()->screen()->devicePixelRatio() QML's sizes are already adjusted
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
 
   for(const auto &object : _objects) {

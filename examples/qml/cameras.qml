@@ -35,9 +35,9 @@ Window {
         focus: true
         antialias: true
         autoClear: false
+        autoRender: false
 
         property real frustumSize: 600
-        property int frameCount: 0
         property Camera activeCamera: perspectiveCamera
         property real aspect: width / height
 
@@ -62,7 +62,7 @@ Window {
                     radius: 50
                     widthSegments: 16
                     heightSegments: 8
-                    position.y: 150
+                    position: "0,150,0"
 
                     material: MeshBasicMaterial {
                         color: "#00ff00"
@@ -71,7 +71,7 @@ Window {
                 }
             }
 
-            Points {
+            /*Points {
                 id: particles
                 material.color: "#888888"
 
@@ -86,7 +86,7 @@ Window {
                         particles.addPoint( vertex );
                     }
                 }
-            }
+            }*/
 
             PerspectiveCamera {
                 id: defaultCamera
@@ -146,48 +146,44 @@ Window {
         }
 
         animate: function() {
-            if((frameCount % 2) === 1) {
-                threeD.viewport = Qt.rect(threeD.width/2,0,threeD.width/2,threeD.height);
-                scene.camera = defaultCamera
+            var r = Date.now() * 0.0005;
+
+            sphere.position.x = 700 * Math.cos( r );
+            sphere.position.z = 700 * Math.sin( r );
+            sphere.position.y = 700 * Math.sin( r );
+
+            sphere2.position.x = 70 * Math.cos( 2 * r );
+            sphere2.position.z = 70 * Math.sin( r );
+
+            if (activeCamera === perspectiveCamera) {
+
+                perspectiveCamera.fov = 35 + 30 * Math.sin( 0.5 * r )
+                perspectiveCamera.far = sphere.position.length()
+                perspectiveCamera.updateProjectionMatrix()
+
+                perspectiveCamera.helper.update()
+                perspectiveCamera.helper.visible = true
+                orthoCamera.helper.visible = false;
             }
             else {
-                var r = Date.now() * 0.0005;
 
-                sphere.position.x = 700 * Math.cos( r );
-                sphere.position.z = 700 * Math.sin( r );
-                sphere.position.y = 700 * Math.sin( r );
+                orthoCamera.far = sphere.position.length()
+                orthoCamera.updateProjectionMatrix()
 
-                sphere2.position.x = 70 * Math.cos( 2 * r );
-                sphere2.position.z = 70 * Math.sin( r );
-
-                if (activeCamera === perspectiveCamera) {
-
-                    perspectiveCamera.fov = 35 + 30 * Math.sin( 0.5 * r )
-                    perspectiveCamera.far = sphere.position.length()
-                    perspectiveCamera.updateProjectionMatrix()
-
-                    perspectiveCamera.helper.update()
-                    perspectiveCamera.helper.visible = true
-                    orthoCamera.helper.visible = false;
-                }
-                else {
-
-                    orthoCamera.far = sphere.position.length()
-                    orthoCamera.updateProjectionMatrix()
-
-                    orthoCamera.helper.update()
-                    orthoCamera.helper.visible = true
-                    perspectiveCamera.helper.visible = false
-                }
-
-                threeD.viewport = Qt.rect(0,0,threeD.width/2,threeD.height);
-                scene.camera = activeCamera
+                orthoCamera.helper.update()
+                orthoCamera.helper.visible = true
+                perspectiveCamera.helper.visible = false
             }
 
             cameraRig.lookAt( sphere.position );
-
             clear();
-            frameCount++
+
+            //scripted rendering, autoRender is false
+            var viewport = Qt.rect(0, 0, threeD.width/2, threeD.height);
+            render(scene, activeCamera, viewport)
+
+            viewport = Qt.rect(threeD.width/2, 0, threeD.width/2, threeD.height);
+            render(scene, defaultCamera, viewport)
         }
     }
 }

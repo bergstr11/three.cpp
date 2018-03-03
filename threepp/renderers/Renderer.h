@@ -43,10 +43,9 @@ public:
     GLsizei height() const {return _height;}
 
     virtual void init(Renderer *renderer) {}
-    virtual void setReuse(bool reuse) {}
     virtual Texture::Ptr texture() const = 0;
 
-    Target &setSize(GLsizei width, GLsizei height )
+    Target &setSize(GLsizei width, GLsizei height)
     {
       if ( _width != width || _height != height ) {
 
@@ -58,6 +57,11 @@ public:
 
       _viewport.set( 0, 0, width, height );
       _scissor.set( 0, 0, width, height );
+    }
+
+    Target &setViewport(unsigned x, unsigned y, GLsizei width, GLsizei height)
+    {
+      _viewport.set( x, y, width, height );
     }
   };
 

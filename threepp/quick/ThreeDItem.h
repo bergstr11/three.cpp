@@ -7,7 +7,7 @@
 
 #include <QQuickFramebufferObject>
 #include <QJSValue>
-#include <threepp/camera/Camera.h>
+#include <threepp/quick/cameras/Camera.h>
 #include <threepp/renderers/OpenGLRenderer.h>
 #include "Three.h"
 
@@ -27,7 +27,8 @@ private:
   Q_PROPERTY(three::quick::Three::ShadowType shadowType READ shadowType WRITE setShadowType NOTIFY shadowTypeChanged)
   Q_PROPERTY(three::quick::Three::CullFace faceCulling READ faceCulling WRITE setFaceCulling NOTIFY faceCullingChanged)
   Q_PROPERTY(three::quick::Three::FrontFaceDirection faceDirection READ faceDirection WRITE setFaceDirection NOTIFY faceDirectionChanged)
-  Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged)
+  Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged FINAL)
+  Q_PROPERTY(bool autoRender READ autoRender WRITE setAutoRender NOTIFY autoRenderChanged FINAL)
   Q_PROPERTY(bool antialias READ antialias WRITE setAntialias NOTIFY antialiasChanged)
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged)
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
@@ -37,14 +38,24 @@ private:
 
   QList<ThreeQObjectRoot *> _objects;
 
-  std::vector<Scene *> _scenes;
+  std::vector<three::quick::Scene *> _scenes;
 
   std::vector<Controller *> _controllers;
+
+  struct RenderGroup {
+    three::Scene::Ptr scene;
+    three::Camera::Ptr camera;
+    QRect viewport;
+
+    RenderGroup(three::Scene::Ptr scene, three::Camera::Ptr camera, const QRect &viewport)
+       : scene(scene), camera(camera), viewport(viewport) {}
+  };
+  std::vector<RenderGroup> _renderGroups;
 
   Three::ShadowType _shadowType = Three::None;
   Three::CullFace _faceCulling = Three::BackFaceCulling;
   Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCCW;
-  bool _autoClear = true, _antialias=false;
+  bool _autoClear = true, _autoRender = true, _antialias=false;
   unsigned _samples = 4;
   QRect _viewport;
 
@@ -88,6 +99,10 @@ public:
 
   void setAutoClear(bool autoClear);
 
+  bool autoRender() const {return _autoRender;}
+
+  void setAutoRender(bool autoRender);
+
   bool antialias() const {return _antialias;}
 
   void setAntialias(bool antialias);
@@ -102,13 +117,15 @@ public:
 
   QRect viewport() {return _viewport;}
 
-  void setViewport(const QRect &rect);
+  void setViewport(QRect rect);
 
   QJSValue animate() {return _animateFunc;}
 
   void setAnimate(QJSValue animate);
 
   Q_INVOKABLE void clear();
+
+  Q_INVOKABLE void render(three::quick::Scene *scene, three::quick::Camera *camera, QRect viewport);
 
 protected:
   bool execAnimate();
@@ -142,6 +159,7 @@ signals:
   void faceCullingChanged();
   void faceDirectionChanged();
   void autoClearChanged();
+  void autoRenderChanged();
   void samplesChanged();
   void antialiasChanged();
   void geometryChanged();
