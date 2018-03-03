@@ -378,6 +378,8 @@ public:
     return it[_offset-1];
   }
 
+  size_t offset() const {return _offset;}
+
   using Ptr = std::shared_ptr<PreallocBufferAttribute>;
 
   ~PreallocBufferAttribute() {

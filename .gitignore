@@ -32,4 +32,6 @@
 *.app
 
 .idea
-js
+CMakeLists.txt.user
+a_js
+cmake-build

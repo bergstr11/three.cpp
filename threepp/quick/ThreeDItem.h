@@ -45,10 +45,10 @@ private:
   struct RenderGroup {
     three::Scene::Ptr scene;
     three::Camera::Ptr camera;
-    QRect viewport;
+    QJSValue prepare;
 
-    RenderGroup(three::Scene::Ptr scene, three::Camera::Ptr camera, const QRect &viewport)
-       : scene(scene), camera(camera), viewport(viewport) {}
+    RenderGroup(three::Scene::Ptr scene, three::Camera::Ptr camera, QJSValue prepare)
+       : scene(scene), camera(camera), prepare(prepare) {}
   };
   std::vector<RenderGroup> _renderGroups;
 
@@ -125,7 +125,7 @@ public:
 
   Q_INVOKABLE void clear();
 
-  Q_INVOKABLE void render(three::quick::Scene *scene, three::quick::Camera *camera, QRect viewport);
+  Q_INVOKABLE void render(three::quick::Scene *scene, three::quick::Camera *camera, QJSValue prepare);
 
 protected:
   bool execAnimate();

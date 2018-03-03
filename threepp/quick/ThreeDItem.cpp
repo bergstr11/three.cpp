@@ -14,9 +14,21 @@
 namespace three {
 namespace quick {
 
+inline bool handle_jserror(const QJSValue &jsValue)
+{
+  if (jsValue.isError()) {
+    qWarning() << "javascript error at line"
+               << jsValue.property("lineNumber").toInt()
+               << ":" << jsValue.toString();
+    return true;
+  }
+  return false;
+}
+
 class FramebufferObjectRenderer : public QObject, public QQuickFramebufferObject::Renderer, protected QOpenGLExtraFunctions
 {
 Q_OBJECT
+  Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
 
   const std::vector<Scene *> &_scenes;
   three::OpenGLRenderer::Ptr _renderer;
@@ -25,6 +37,8 @@ Q_OBJECT
   const ThreeDItem *const _item;
   QOpenGLFramebufferObject *_fbo = nullptr;
   std::vector<ThreeDItem::RenderGroup> _renderGroups;
+
+  QJSValue _jsInstance;
 
 public:
 
@@ -48,19 +62,30 @@ public:
     _renderer->autoClear = _item->_autoClear;
     _renderer->antialias = _item->_antialias;
     _renderer->initContext();
+
+    _jsInstance = qmlEngine(_item)->newQObject(this);
+    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
   }
 
-  ~FramebufferObjectRenderer() override = default;
+  ~FramebufferObjectRenderer() override {
+    _renderGroups.clear();
+    _jsInstance = QJSValue::NullValue;
+  }
 
   void synchronize(QQuickFramebufferObject *item) override
   {
     ThreeDItem *threeD = reinterpret_cast<ThreeDItem *>(item);
     _renderGroups = threeD->_renderGroups;
+    if(!threeD->_viewport.isNull())
+      _target->setViewport(threeD->_viewport.x(), threeD->_viewport.y(),
+                           threeD->_viewport.width(), threeD->_viewport.height());
     threeD->_renderGroups.clear();
   }
 
   void render() override
   {
+    std::lock_guard<std::mutex> lock(_renderer->mutex);
+
     if(_item->_autoRender && _renderGroups.empty()) {
       updateGeometry(_item->_viewport.isNull());
 
@@ -70,8 +95,13 @@ public:
     }
     else {
       _renderer->setSize(_item->width(), _item->height(), false);
-      for(const auto &group : _renderGroups) {
-        _target->setViewport(group.viewport.x(), group.viewport.y(), group.viewport.width(), group.viewport.height());
+      for(size_t i=0, l=_renderGroups.size(); i<l; i++) {
+        auto group = _renderGroups.back();
+        _renderGroups.pop_back();
+
+        if(group.prepare.isCallable()) {
+          handle_jserror(group.prepare.callWithInstance(_jsInstance));
+        }
         _renderer->render(group.scene, group.camera, _target, false);
       }
     }
@@ -105,6 +135,17 @@ public:
     _target->setSize(_item->width(), _item->height());
     _renderer->setSize(_item->width(), _item->height(), setViewport);
   }
+
+  QRect viewport() {
+    return QRect(_target->viewport().x(), _target->viewport().y(), _target->viewport().z(), _target->viewport().w());
+  }
+
+  void setViewport(const QRect &viewport) {
+    unsigned y = ((unsigned)_item->height() - viewport.height() - viewport.y()); //flip vertically
+    _target->setViewport(viewport.x(), y, viewport.width(), viewport.height());
+  }
+signals:
+  void viewportChanged();
 };
 
 ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
@@ -114,16 +155,16 @@ ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
   setFlag(QQuickItem::ItemAcceptsInputMethod);
 
   setMirrorVertically(true);
+  QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
 ThreeDItem::~ThreeDItem()
 {
 }
 
-void ThreeDItem::render(Scene *scene, Camera *camera, QRect viewport)
+void ThreeDItem::render(Scene *scene, Camera *camera, QJSValue prepare)
 {
-  viewport.setY((int)height() - viewport.height() - viewport.y()); //flip vertically
-  _renderGroups.emplace_back(scene->scene(), camera->camera(), viewport);
+  _renderGroups.emplace_back(scene->scene(), camera->camera(), prepare);
 }
 
 void ThreeDItem::clear()
@@ -188,10 +229,9 @@ void ThreeDItem::setSamples(unsigned samples)
 
 void ThreeDItem::setViewport(QRect viewport)
 {
-  //viewport.setY((int)height() - viewport.height() - viewport.y()); //flip vertically
+  viewport.setY((int)height() - viewport.height() - viewport.y()); //flip vertically
   if(_viewport != viewport) {
     _viewport = viewport;
-    if(_renderer) _renderer->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
     emit viewportChanged();
   }
 }
@@ -289,14 +329,14 @@ void ThreeDItem::releaseResources() {
 
 bool ThreeDItem::execAnimate()
 {
-  QJSValue jsRes = _animateFunc.callWithInstance(_jsInstance);
-  if(jsRes.isError()) {
-    qWarning() << "javascript error at line"
-               << jsRes.property("lineNumber").toInt()
-               << ":" << jsRes.toString();
-    return false;
+  std::unique_lock<std::mutex> lock(_renderer->mutex, std::try_to_lock);
+  if(lock) {
+    QJSValue jsRes = _animateFunc.callWithInstance(_jsInstance);
+    if(handle_jserror(jsRes)) return false;
+
+    update();
   }
-  update();
+
   return true;
 }
 

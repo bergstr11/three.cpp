@@ -284,7 +284,6 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     }
     else if(externalTarget) {
       framebuffer = externalTarget->frameBuffer;
-      _textures.setDefaultFramebuffer(framebuffer);
     }
     check_glerror(this);
 
@@ -1295,6 +1294,7 @@ void Renderer_impl::setTextureCube(Texture::Ptr texture, GLuint slot)
 void RenderTargetExternal::init(Renderer *renderer)
 {
   Renderer_impl *rimpl = static_cast<Renderer_impl *>(renderer);
+  rimpl->_textures.setDefaultFramebuffer(frameBuffer);
   rimpl->_state.setCullFace(_faceCulling);
   rimpl->_state.setFaceDirection(_faceDirection);
   rimpl->_lights.state.clear();

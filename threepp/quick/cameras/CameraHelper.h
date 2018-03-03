@@ -37,7 +37,9 @@ public:
 
   three::helper::Camera::Ptr create(three::Camera::Ptr camera)
   {
-    _helper = three::helper::Camera::make("camera_helper", camera);
+    std::string name = camera->name().empty() ? "camera_helper" : std::string(camera->name()).append("_helper");
+    _helper = three::helper::Camera::make(name, camera);
+    _helper->visible() = _visible;
     return _helper;
   }
 
@@ -46,7 +48,7 @@ public:
   }
 
   Q_INVOKABLE void update() {
-
+    if(_helper) _helper->update();
   }
 
 signals:

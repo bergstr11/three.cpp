@@ -9,11 +9,9 @@ namespace helper {
 
 using namespace math;
 
-enum PointID {n1, n2, n3, n4, f1, f2, f3, f4, p, u1, u2, u3, c, t, cn1, cn2, cn3, cn4, cf1, cf2, cf3, cf4};
-
 template <typename ID>
 void setPoint(ID point, float x, float y, float z,
-              const Matrix4 &world, const Matrix4 &projection,
+              const Matrix4 &projection, const Matrix4 &world,
               std::unordered_map<ID, std::vector<float>> &pointMap,
               BufferAttributeT<float>::Ptr position)
 {
@@ -37,7 +35,7 @@ void addPoint(ID id, const Color &color,
   vertices->next() = {0, 0, 0};
   colors->next() = {color.r, color.g, color.b};
 
-  pointMap[ id ].push_back(vertices->itemCount() - 1);
+  pointMap[ id ].push_back(vertices->offset() - 1);
 }
 
 template <typename ID>

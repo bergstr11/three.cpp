@@ -5,6 +5,7 @@
 #ifndef THREEPP_OPENGLRENDERER
 #define THREEPP_OPENGLRENDERER
 
+#include <mutex>
 #include <QOpenGLContext>
 #include <threepp/Constants.h>
 #include <threepp/scene/Scene.h>
@@ -35,6 +36,8 @@ public:
   bool autoClearColor = true;
   bool autoClearDepth = true;
   bool autoClearStencil = true;
+
+  std::mutex mutex;
 
   using Ptr = std::shared_ptr<OpenGLRenderer>;
 

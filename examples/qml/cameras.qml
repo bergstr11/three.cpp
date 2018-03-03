@@ -24,7 +24,14 @@ Window {
             value: false
             name: value ? "Orthographic" : "Perspective"
             onValueChanged: {
-                threeD.activeCamera = value ? orthoCamera : perspectiveCamera
+                if(value) {
+                    threeD.activeCamera = orthoCamera
+                    perspectiveCamera.helper.visible = false
+                }
+                else {
+                    threeD.activeCamera = perspectiveCamera
+                    orthoCamera.helper.visible = false
+                }
             }
         }
     }
@@ -115,6 +122,7 @@ Window {
 
                 PerspectiveCamera {
                     id: perspectiveCamera
+                    name: "perspective"
                     fov: 50
                     aspect: 0.5 * threeD.aspect
                     near: 150
@@ -126,6 +134,7 @@ Window {
 
                 OrthographicCamera {
                     id: orthoCamera
+                    name: "ortho"
                     left: 0.5 * threeD.frustumSize * threeD.aspect / - 2
                     right: 0.5 * threeD.frustumSize * threeD.aspect / 2
                     top: threeD.frustumSize / 2
@@ -162,8 +171,7 @@ Window {
                 perspectiveCamera.updateProjectionMatrix()
 
                 perspectiveCamera.helper.update()
-                perspectiveCamera.helper.visible = true
-                orthoCamera.helper.visible = false;
+                orthoCamera.helper.visible = false
             }
             else {
 
@@ -171,7 +179,6 @@ Window {
                 orthoCamera.updateProjectionMatrix()
 
                 orthoCamera.helper.update()
-                orthoCamera.helper.visible = true
                 perspectiveCamera.helper.visible = false
             }
 
@@ -179,11 +186,15 @@ Window {
             clear();
 
             //scripted rendering, autoRender is false
-            var viewport = Qt.rect(0, 0, threeD.width/2, threeD.height);
-            render(scene, activeCamera, viewport)
+            render(scene, activeCamera, function() {
+                activeCamera.helper.visible = false
+                this.viewport = Qt.rect(0, 0, threeD.width/2, threeD.height)
+            })
 
-            viewport = Qt.rect(threeD.width/2, 0, threeD.width/2, threeD.height);
-            render(scene, defaultCamera, viewport)
+            render(scene, defaultCamera, function() {
+                activeCamera.helper.visible = true
+                this.viewport = Qt.rect(threeD.width/2, 0, threeD.width/2, threeD.height);
+            })
         }
     }
 }

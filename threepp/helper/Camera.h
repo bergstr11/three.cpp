@@ -32,10 +32,10 @@ class Camera : private Maker, public LineSegments
      : Object3D(object::ResolverT<LineSegments>::make(*this)),
        Maker(camera), LineSegments(_helperGeometry, LineBasicMaterial::make(Colors::Face))
   {
-    camera->updateProjectionMatrix();
-    _matrix = camera->matrixWorld();
+    _camera = camera;
+    _camera->updateProjectionMatrix();
     matrixAutoUpdate = false;
-    update(camera);
+    Maker::update(camera);
   }
 
 public:
@@ -44,6 +44,11 @@ public:
     Ptr p(new Camera(camera));
     p->_name = name;
     return p;
+  }
+
+  void update() {
+    _matrix = _camera->matrixWorld();
+    Maker::update(_camera);
   }
 };
 
