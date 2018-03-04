@@ -41,7 +41,7 @@ public:
 
   void setDrawMode(DrawMode mode) {_drawMode = mode;}
 
-  bool renderable() const override {return true;}
+  bool isShadowRenderable() const override {return true;}
 
   bool frontFaceCW() const override
   {

@@ -25,8 +25,8 @@ namespace three {
 
 struct PointsMaterial : public MaterialT<material::Colored>
 {
-  float size;
-  bool sizeAttenuation;
+  float size = 1;
+  bool sizeAttenuation = true;
 
 protected:
   PointsMaterial() : MaterialT(material::ResolverT<PointsMaterial>::make(*this))
@@ -36,9 +36,20 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<PointsMaterial>;
-  static Ptr make(Color color) {
+  static Ptr make(Color color, float opacity, Texture::Ptr map) {
     auto p = Ptr(new PointsMaterial());
     p->color = color;
+    p->opacity = opacity;
+    p->map = map;
+    return p;
+  }
+
+  static Ptr make(Color color, float opacity=1.0f, float size=1.0f, bool sizeAttenuation=true) {
+    auto p = Ptr(new PointsMaterial());
+    p->color = color;
+    p->opacity = opacity;
+    p->size = size;
+    p->sizeAttenuation = sizeAttenuation;
     return p;
   }
 };

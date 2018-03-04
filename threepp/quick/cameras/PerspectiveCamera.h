@@ -40,6 +40,7 @@ public:
   void setFov(float fov) {
     if(_fov != fov) {
       _fov = fov;
+      if(_perspectiveCamera) _perspectiveCamera->setFov(_fov);
       emit fovChanged();
     }
   }
@@ -47,9 +48,8 @@ public:
   void setAspect(float aspect) {
     if(_aspect != aspect) {
       _aspect = aspect;
-      if(_perspectiveCamera) {
-        _perspectiveCamera->setAspect(_aspect);
-      }
+      if(_perspectiveCamera) _perspectiveCamera->setAspect(_aspect);
+
       emit aspectChanged();
     }
   }

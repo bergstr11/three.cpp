@@ -69,9 +69,8 @@ public:
   void setNear(float near) {
     if(_near != near) {
       _near = near;
-      if(_camera) {
-        _camera->setNear(_near);
-      }
+      if(_camera) _camera->setNear(_near);
+
       emit nearChanged();
     }
   }
@@ -79,9 +78,8 @@ public:
   void setFar(float far) {
     if(_far != far) {
       _far = far;
-      if(_camera) {
-        _camera->setFar(_far);
-      }
+      if(_camera) _camera->setFar(_far);
+
       emit farChanged();
     }
   }

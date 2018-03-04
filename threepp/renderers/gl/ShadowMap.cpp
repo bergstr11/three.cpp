@@ -254,7 +254,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
 
   bool visible = object->layers().test( camera->layers() );
 
-  if ( visible && object->renderable()) {
+  if ( visible && object->isShadowRenderable()) {
 
     if ( object->castShadow && ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) ) {
 

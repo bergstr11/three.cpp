@@ -10,7 +10,7 @@ Window {
     minimumWidth: 1280
     minimumHeight: 1024
     visible: true
-    color: "gray"
+    color: "black"
 
     OptionsMenu {
         anchors.top: parent.top
@@ -21,6 +21,7 @@ Window {
         z: 2
 
         BoolChoice {
+            id: cameraChoice
             value: false
             name: value ? "Orthographic" : "Perspective"
             onValueChanged: {
@@ -78,9 +79,10 @@ Window {
                 }
             }
 
-            /*Points {
+            Points {
                 id: particles
-                material.color: "#888888"
+                color: "#888888"
+                size: 1.5
 
                 Component.onCompleted: {
                     for ( var i = 0; i < 10000; i ++ ) {
@@ -93,7 +95,7 @@ Window {
                         particles.addPoint( vertex );
                     }
                 }
-            }*/
+            }
 
             PerspectiveCamera {
                 id: defaultCamera

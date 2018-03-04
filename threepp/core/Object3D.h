@@ -137,7 +137,8 @@ public:
 
   int renderOrder() const {return _renderOrder;}
 
-  virtual bool renderable() const {return false;}
+  virtual bool isShadowRenderable() const {return false;}
+
   virtual bool frontFaceCW() const {return false;}
 
   virtual const Material::Ptr material() const {return nullptr;}

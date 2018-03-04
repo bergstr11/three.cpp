@@ -317,7 +317,8 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
   }
 }
 
-void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera, Material::Ptr overrideMaterial)
+void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera,
+                                  Material::Ptr overrideMaterial)
 {
   while(renderIterator) {
 

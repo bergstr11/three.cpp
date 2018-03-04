@@ -74,7 +74,6 @@ void init()
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Points>("three.quick", 1, 0, "Points");
-  qmlRegisterUncreatableType<three::quick::PointsMaterial>("three.quick", 1, 0, "PointsMaterial", "internal class");
   qmlRegisterType<three::quick::Group>("three.quick", 1, 0, "Group");
   qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");
   qmlRegisterType<three::quick::Torus>("three.quick", 1, 0, "Torus");
@@ -121,9 +120,13 @@ QVariant Three::color(QString hex)
   return var;
 }
 
+random_device rdevice;
+mt19937 random_gen(rdevice());
+uniform_real_distribution<float> urealdist(0, 1.0f);
+
 float Three::randFloatSpread(float range)
 {
-  return range * ( 0.5f - std::rand() );
+  return range * ( 0.5f - urealdist(random_gen) );
 }
 
 }

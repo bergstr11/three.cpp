@@ -13,16 +13,40 @@
 namespace three {
 namespace quick {
 
-class PointsMaterial : public Material
+class Points : public ThreeQObject
 {
 Q_OBJECT
+  Q_PROPERTY(float size READ size WRITE setSize NOTIFY sizeChanged)
+  Q_PROPERTY(bool sizeAttenuation READ sizeAttenuation WRITE setSizeAttenuation NOTIFY sizeAttenuationChanged)
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
+protected:
+  three::Points::Ptr _points;
+  attribute::growing_t<float, math::Vector3> _positions;
+
+  float _size = 1.0f;
+  bool _sizeAttenuation = true;
   QColor _color;
+
   three::PointsMaterial::Ptr _material;
 
+
+  three::Object3D::Ptr _create(Scene *scene) override
+  {
+    _points = three::Points::make();
+
+    _points->geometry_t()->setPosition(_positions);
+    _points->material<0>()->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+    _material = _points->material<0>();
+
+    return _points;
+  }
+
 public:
-  explicit PointsMaterial(ThreeQObject *parent=nullptr): Material(parent) {}
+  Points(QObject *parent = nullptr) : ThreeQObject(parent)
+  {
+    _positions = attribute::growing<float, math::Vector3>();
+  }
 
   const QColor &color()const  {return _color;}
 
@@ -30,61 +54,40 @@ public:
   {
     if(_color != color) {
       _color = color;
+      if(_material) _material->color = Color(color.redF(), color.greenF(), color.blueF());
       emit colorChanged();
     }
   }
 
-  void addTo(three::quick::ObjectRootContainer*) override {}
+  float size() const {return _size;}
 
-  three::Material::Ptr material() const override {
-    return _material;
+  void setSize(float size) {
+    if(_size != size) {
+      _size = size;
+      if(_material) _material->size = _size;
+      emit sizeChanged();
+    }
+  }
+
+  bool sizeAttenuation() const {return _sizeAttenuation;}
+
+  void setSizeAttenuation(bool sizeAttenuation) {
+    if(_sizeAttenuation != sizeAttenuation) {
+      _sizeAttenuation = sizeAttenuation;
+      if(_material) _material->sizeAttenuation = _sizeAttenuation;
+      emit sizeAttenuationChanged();
+    }
+  }
+
+  Q_INVOKABLE void addPoint(QVector3D point)
+  {
+    _positions->next() = math::Vector3(point.x(), point.y(), point.z());
   }
 
 signals:
   void colorChanged();
-};
-
-class Points : public ThreeQObject
-{
-Q_OBJECT
-  Q_PROPERTY(PointsMaterial * material READ material)
-
-protected:
-  three::Points::Ptr _points;
-  attribute::growing_t<float, math::Vector3> _positions;
-
-  PointsMaterial _material;
-
-  QList<QVector3D> _geomPoints;
-
-
-  three::Object3D::Ptr _create(Scene *scene) override
-  {
-    _points = three::Points::make();
-
-    _positions = attribute::growing<float, math::Vector3>();
-    for(const auto &gp : _geomPoints)
-      _positions->next() = math::Vector3(gp.x(), gp.y(), gp.z());
-
-    _points->buffergeometry()->setPosition(_positions);
-
-    return _points;
-  }
-
-public:
-  Points(QObject *parent = nullptr) : ThreeQObject(parent) {}
-
-  PointsMaterial * material() {return &_material;}
-
-  Q_INVOKABLE void addPoint(QVector3D point)
-  {
-    if(_points) {
-      _positions->next() = math::Vector3(point.x(), point.y(), point.z());
-    }
-    else {
-      _geomPoints.append(point);
-    }
-  }
+  void sizeChanged();
+  void sizeAttenuationChanged();
 };
 
 }

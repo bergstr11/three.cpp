@@ -44,24 +44,28 @@ public:
   void setLeft(float left) {
     if(_left != left) {
       _left = left;
+      if(_orthographicCamera) _orthographicCamera->setLeft(_left);
       emit leftChanged();
     }
   }
   void setRight(float right) {
     if(_right != right) {
       _right = right;
+      if(_orthographicCamera) _orthographicCamera->setRight(_right);
       emit rightChanged();
     }
   }
   void setTop(float top) {
     if(_top != top) {
       _top = top;
+      if(_orthographicCamera) _orthographicCamera->setTop(_top);
       emit topChanged();
     }
   }
   void setBottom(float bottom) {
     if(_bottom != bottom) {
       _bottom = bottom;
+      if(_orthographicCamera) _orthographicCamera->setBottom(_bottom);
       emit bottomChanged();
     }
   }

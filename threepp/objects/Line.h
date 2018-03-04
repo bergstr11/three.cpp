@@ -35,7 +35,7 @@ public:
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
 
-  bool renderable() const override {return true;}
+  bool isShadowRenderable() const override {return true;}
 
   unsigned steps() const {return _steps;}
 };

@@ -38,9 +38,9 @@ Q_OBJECT
 protected:
   QString _name;
 
-  QVector3D _position;
+  QVector3D _position {0, 0, 0};
 
-  QVector3D _rotation;
+  QVector3D _rotation {0, 0, 0};
 
   float _scale = 1.0f;
 

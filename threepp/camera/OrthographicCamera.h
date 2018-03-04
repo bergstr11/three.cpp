@@ -49,6 +49,11 @@ public:
   float right() const {return _right;}
   float top() const {return _top;}
   float bottom() const {return _bottom;}
+
+  void setLeft(float left) {_left = left;}
+  void setRight(float right) {_right = right;}
+  void setTop(float top) {_top = top;}
+  void setBottom(float bottom) {_bottom = bottom;}
 };
 
 }

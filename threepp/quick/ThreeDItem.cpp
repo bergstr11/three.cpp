@@ -214,8 +214,8 @@ void ThreeDItem::setAutoRender(bool autoRender)
 void ThreeDItem::setAntialias(bool antialias)
 {
   if(_antialias != antialias) {
-  _antialias = antialias;
-  emit antialiasChanged();
+    _antialias = antialias;
+    emit antialiasChanged();
   }
 }
 
