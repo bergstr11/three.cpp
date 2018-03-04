@@ -128,7 +128,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
     }
 
     _renderer.setRenderTarget(shadow->map());
-    _renderer.clear();
+    _renderer.clear(true, true, true);
     check_glerror(&_renderer);
 
     // render shadow map for each cube face (if omni-directional) or

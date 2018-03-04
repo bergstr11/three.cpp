@@ -273,11 +273,11 @@ public:
   int initialTextureSlot, currentTextureSlot;
 
   struct BoundTexture {
-    const TextureTarget target;
-    const GLuint texture;
+    TextureTarget target;
+    GLint texture;
 
-    BoundTexture(TextureTarget target, GLuint texture) : target(target), texture(texture) {}
-    BoundTexture() : target(TextureTarget::twoD), texture(0) {}
+    BoundTexture(TextureTarget target, GLint texture) : target(target), texture(texture) {}
+    BoundTexture() : target(TextureTarget::twoD), texture(-1) {}
   };
   std::unordered_map<GLuint, BoundTexture> currentBoundTextures;
 
@@ -650,18 +650,26 @@ public:
 
   void bindTexture(TextureTarget target, GLint webglTexture=-1)
   {
-    if(currentTextureSlot < 0)
-      activeTexture();
+    if(currentTextureSlot < 0) activeTexture();
 
-    BoundTexture *boundTexture = currentBoundTextures.count(currentTextureSlot) ?
-                                 &currentBoundTextures[currentTextureSlot] : nullptr;
+    BoundTexture *boundTexture;
 
-    if(!boundTexture || boundTexture->target != target || boundTexture->texture != webglTexture ) {
+    auto found = currentBoundTextures.find(currentTextureSlot);
+    if(found == currentBoundTextures.end()) {
+      currentBoundTextures.emplace(currentTextureSlot, BoundTexture(target, -1));
+      boundTexture = &currentBoundTextures[currentTextureSlot];
+    }
+    else {
+      boundTexture = &found->second;
+    }
+
+    if(boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
       _f->glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
       check_glerror(_f);
 
-      currentBoundTextures.emplace(currentTextureSlot, BoundTexture(target, webglTexture));
+      boundTexture->target = target;
+      boundTexture->texture = webglTexture;
     }
   }
 

@@ -541,7 +541,7 @@ void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
   setupFrameBufferTexture( renderTarget.frameBuffer, renderTarget, GL_COLOR_ATTACHMENT0, renderTarget.textureTarget);
 
   if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
-  _state.bindTexture(renderTarget.textureTarget, 0 );
+  _state.bindTexture(renderTarget.textureTarget);
 
   // Setup depth and stencil buffers
   if ( renderTarget.depthBuffer() ) {
@@ -601,7 +601,7 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
   }
 
   if ( needsGenerateMipmaps(*renderTarget.texture()) ) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
-  _state.bindTexture(renderTarget.textureTarget, 0 );
+  _state.bindTexture(renderTarget.textureTarget);
 
   // Setup depth and stencil buffers
   if ( renderTarget.depthBuffer() ) {
@@ -618,7 +618,7 @@ void Textures::updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget)
 
     _state.bindTexture( renderTarget->textureTarget, webglTexture );
     _fn->glGenerateMipmap((GLenum)renderTarget->textureTarget);
-    _state.bindTexture( renderTarget->textureTarget, 0 );
+    _state.bindTexture( renderTarget->textureTarget);
   }
 }
 
