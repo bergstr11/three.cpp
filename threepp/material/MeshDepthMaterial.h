@@ -54,6 +54,11 @@ public:
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {
     return Ptr(new MeshDepthMaterial(packing, morphing, skinning));
   }
+  static Ptr make(std::string name, DepthPacking packing, bool morphing, bool skinning) {
+    Ptr p(new MeshDepthMaterial(packing, morphing, skinning));
+    p->name = name;
+    return p;
+  }
 };
 
 }

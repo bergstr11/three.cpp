@@ -77,7 +77,6 @@ public:
   void setTexture2D(Texture::Ptr texture, unsigned slot);
   void setTextureCube(Texture::Ptr texture, unsigned slot);
   void updateRenderTargetMipmap(const RenderTarget::Ptr &renderTarget);
-  void setupRenderTarget(RenderTargetExternal &renderTarget);
   void setupRenderTarget(RenderTargetInternal &renderTarget);
   void setupRenderTarget(RenderTargetCube &renderTarget);
 
@@ -88,8 +87,6 @@ public:
   void setDefaultFramebuffer(GLuint fbo) {
     _defaultFBO = fbo;
   }
-
-  GLuint defaultFramebuffer();
 };
 }
 }

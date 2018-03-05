@@ -19,6 +19,7 @@ Q_OBJECT
   Q_PROPERTY(bool flatShading READ flatShading WRITE setFlatShading NOTIFY flatShadingChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
+  Q_PROPERTY(QByteArray name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(Texture *map READ map WRITE setMap NOTIFY mapChanged)
 
 protected:
@@ -26,6 +27,7 @@ protected:
   bool _flatShading = false;
   bool _visible = true;
   Texture *_map = nullptr;
+  QByteArray _name;
 
   Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
 
@@ -41,7 +43,7 @@ protected:
     }
   }
 
-  void setBaseProperties(three::Material::Ptr material);
+  void setBaseProperties(three::Material::Ptr material) const;
 
 public:
   bool visible() const {return _visible;}
@@ -74,6 +76,15 @@ public:
     }
   }
 
+  const QByteArray &name() const {return _name;}
+
+  void setName(const QByteArray &name) {
+    if(_name != name) {
+      _name = name;
+      emit nameChanged();
+    }
+  }
+
   Texture *map() const {return _map;}
 
   void setMap(Texture *map);
@@ -86,6 +97,7 @@ signals:
   void needsUpdateChanged();
   void mapChanged();
   void visibleChanged();
+  void nameChanged();
 };
 
 }

@@ -551,29 +551,6 @@ void Textures::setupRenderTarget(RenderTargetInternal &renderTarget)
   check_framebuffer(_fn);
 }
 
-void Textures::setupRenderTarget(RenderTargetExternal &renderTarget)
-{
-  _fn->glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.frameBuffer);
-
-  auto &textureProperties = _properties.get( renderTarget.texture() );
-
-  textureProperties.texture = renderTarget.textureHandle();
-
-  //_infoMemory.textures ++;
-  _state.currentTextureSlot = 0;
-  _state.currentBoundTextures.emplace(_state.currentTextureSlot,
-                                      State::BoundTexture(TextureTarget::twoD, textureProperties.texture));
-
-  _state.bindTexture( TextureTarget::twoD, textureProperties.texture);
-  setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
-
-  if (needsGenerateMipmaps(*renderTarget.texture())) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);
-}
-
-GLuint Textures::defaultFramebuffer() {
-  return _defaultFBO;
-}
-
 // Set up GL resources for the render target
 void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
 {

@@ -45,24 +45,37 @@ namespace gl {
 
 const std::tuple<size_t, GLuint, bool> Renderer_impl::no_program {0, 0, false};
 
-struct DeferredCalls
+class DeferredCalls
 {
+  Renderer_impl * const r;
+
+  bool _active = true;
   pair<bool, array<bool, 3>> _clear = make_pair(false, array<bool, 3>{false, false, false});
+
+public:
+  DeferredCalls(Renderer_impl * const r) : r(r) {}
 
   void clear(bool color, bool depth, bool stencil)
   {
-    _clear.first = true;
-    _clear.second[0] = color;
-    _clear.second[1] = depth;
-    _clear.second[2] = stencil;
+    if(_active) {
+      _clear.first = true;
+      _clear.second[0] = color;
+      _clear.second[1] = depth;
+      _clear.second[2] = stencil;
+    }
+    else r->clear(color, depth, stencil);
   }
-  void exec(Renderer_impl *r)
+
+  void exec()
   {
     if(_clear.first) {
       r->clear(_clear.second[0], _clear.second[1], _clear.second[2]);
       _clear.first = false;
     }
+    _active = false;
   }
+
+  void defer() {_active = true;}
 };
 
 Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool premultipliedAlpha)
@@ -85,7 +98,7 @@ Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool
      _flareRenderer(this, _state, _textures, _capabilities),
      _pixelRatio(pixelRatio)
 {
-  _deferredCalls = new DeferredCalls();
+  _deferredCalls = new DeferredCalls(this);
 }
 
 Renderer_impl::~Renderer_impl()
@@ -122,6 +135,7 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
   if (stencil) bits |= GL_STENCIL_BUFFER_BIT;
 
   glClear( bits );
+  check_glerror(this);
 }
 
 Renderer_impl &Renderer_impl::setSize(size_t width, size_t height, bool viewport)
@@ -152,7 +166,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   if(renderTarget) renderTarget->init(this);
   check_glerror(this);
 
-  _deferredCalls->exec(this);
+  _deferredCalls->exec();
 
   RenderTarget::Ptr target = dynamic_pointer_cast<RenderTarget>(renderTarget);
 
@@ -230,6 +244,8 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _state.colorBuffer.setMask(true);
 
   state().reset();
+
+  _deferredCalls->defer();
 
   glFinish();
 }

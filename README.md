@@ -1,13 +1,13 @@
 # Three/cpp
-yet another C++ port of three.js, based on Three.js r86+ and a few of the Qt framework's OpenGL classes
+yet another C++ port of Three.js, based on Three.js r86+ and a few of the Qt framework's OpenGL classes
 
-Also comes with full integration into QML (aka QtQuick).
+May be used standalone (limited work required to remove the dependency on Qt's QOpenGLFunctions), or through the extensive QML (aka QtQuick) integration.
 
-Currently in alpha state. Code has largely been ported, and first examples can be executed.
+Currently in beta state. A number of examples demonstrate the functionality. Currently buildable under Linux/gcc 7.3 and sometimes under Android. Windows available soon.
 
-Contributors welcome anytime
+Contributors welcome
 
-## Samples
+## Some Samples (more in the code base)
 simple geometries with ambient light, spot light and shade:
 
 ![example 1](doc/example1.png "geometries, lights and shade") 

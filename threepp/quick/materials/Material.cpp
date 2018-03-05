@@ -23,11 +23,12 @@ void Material::setMap(Texture *map)
   }
 }
 
-void Material::setBaseProperties(three::Material::Ptr material)
+void Material::setBaseProperties(three::Material::Ptr material) const
 {
   material->wireframe = _wireframe;
   material->flatShading = _flatShading;
   material->visible = _visible;
+  material->name = _name.toStdString();
   if(_map) material->map = _map->getTexture();
 }
 
@@ -70,6 +71,7 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
 {
   three::Side side = (three::Side)_side;
 
+  three::ShaderMaterial::Ptr mat;
   if(!_shaderID.isEmpty()) {
     //predefined shader from library
     gl::ShaderID shaderId = gl::toShaderID(_shaderID.toStdString());
@@ -85,7 +87,7 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
       gl::UniformName name = gl::uniformname::get(key.toStdString());
       set_uniform(name, _uniforms[key], material->uniforms);
     }
-    return material;
+    mat = material;
   }
   else {
     //user-defined shader
@@ -100,8 +102,10 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
       gl::UniformName uname = material->uniforms.registered(name);
       set_uniform(uname, _uniforms[key], material->uniforms);
     }
-    return material;
+    mat = material;
   }
+  setBaseProperties(mat);
+  return mat;
 }
 
 void MeshPhongMaterial::addTo(ObjectRootContainer *container)

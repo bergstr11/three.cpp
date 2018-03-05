@@ -73,8 +73,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
       shadowMapSize.x() *= 4.0;
       shadowMapSize.y() *= 2.0;
-
-      check_glerror(&_renderer);
     }
 
     const Camera::Ptr shadowCamera = shadow->camera();
@@ -90,7 +88,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
     }
 
     shadow->update();
-    check_glerror(&_renderer);
 
     _lightPositionWorld = math::Vector3::fromMatrixPosition(light->matrixWorld());
     shadowCamera->position() = _lightPositionWorld;
@@ -129,11 +126,9 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     _renderer.setRenderTarget(shadow->map());
     _renderer.clear(true, true, true);
-    check_glerror(&_renderer);
 
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
-
     for (unsigned face = 0; face < faceCount; face++) {
 
       if (pointLight) {
@@ -153,7 +148,6 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       _frustum.set(_projScreenMatrix);
 
       // set object matrices & frustum culling
-
       renderObject(scene, camera, shadowCamera, (bool)pointLight);
       check_glerror(&_renderer);
     }
