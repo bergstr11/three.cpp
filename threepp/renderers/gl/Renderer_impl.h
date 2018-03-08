@@ -131,8 +131,8 @@ protected:
 
   unsigned _usedTextureUnits = 0;
 
-  size_t _width;
-  size_t _height;
+  float _width;
+  float _height;
 
   float _pixelRatio = 1;
 

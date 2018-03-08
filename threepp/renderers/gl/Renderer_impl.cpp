@@ -140,11 +140,11 @@ void Renderer_impl::clear(bool color, bool depth, bool stencil)
 
 Renderer_impl &Renderer_impl::setSize(size_t width, size_t height, bool viewport)
 {
-  _width = width;
-  _height = height;
+  _width = width * _pixelRatio;
+  _height = height * _pixelRatio;
 
   if(viewport) {
-    setViewport( 0, 0, width, height );
+    setViewport( 0, 0, _width, _height );
   }
   return *this;
 }
@@ -289,22 +289,25 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
     internalTarget = dynamic_pointer_cast<RenderTargetInternal>(renderTarget);
     externalTarget = dynamic_pointer_cast<RenderTargetExternal>(renderTarget);
 
-    if (cubeTarget) {
-      if(cubeTarget->frameBuffers.empty())
-        _textures.setupRenderTarget( *cubeTarget );
-      framebuffer = cubeTarget->frameBuffers[cubeTarget->activeCubeFace];
-    }
-    else if(internalTarget) {
-      if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
-      framebuffer = internalTarget->frameBuffer;
-    }
-    else if(externalTarget) {
+    if(externalTarget) {
       framebuffer = externalTarget->frameBuffer;
-    }
-    check_glerror(this);
 
-    _currentViewport = renderTarget->viewport();
-    _currentScissor = renderTarget->scissor();
+      _currentViewport = renderTarget->viewport() * _pixelRatio;
+      _currentScissor = renderTarget->scissor() * _pixelRatio;
+    }
+    else {
+      if (cubeTarget) {
+        if(cubeTarget->frameBuffers.empty())
+          _textures.setupRenderTarget( *cubeTarget );
+        framebuffer = cubeTarget->frameBuffers[cubeTarget->activeCubeFace];
+      }
+      else if(internalTarget) {
+      if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
+        framebuffer = internalTarget->frameBuffer;
+      }
+      _currentViewport = renderTarget->viewport();
+      _currentScissor = renderTarget->scissor();
+    }
     _currentScissorTest = renderTarget->scissorTest();
   }
   else {

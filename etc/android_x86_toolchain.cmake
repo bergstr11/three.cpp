@@ -1,5 +1,5 @@
 set(ENV{QT_OPENGL_ES_3_1} True)
-set(QT_TARGET $ENV{HOME}/Qt/5.9/android_x86)
+set(QT_TARGET $ENV{HOME}/Qt/5.10.1/android_x86)
 set(CMAKE_STAGING_PREFIX $ENV{HOME}/work/android-toolchain/x86_23)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_STAGING_PREFIX})
 set(CMAKE_SYSTEM_NAME Android)

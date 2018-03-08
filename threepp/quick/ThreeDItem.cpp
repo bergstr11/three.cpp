@@ -128,12 +128,13 @@ public:
 
   void updateGeometry(bool setViewport)
   {
+    _target->setSize(_item->width(), _item->height());
+    _renderer->setSize(_item->width(), _item->height(), setViewport);
+
     for(auto &scene : _scenes) {
       scene->camera()->setAspect(_item->width() / _item->height());
       scene->camera()->updateProjectionMatrix();
     }
-    _target->setSize(_item->width(), _item->height());
-    _renderer->setSize(_item->width(), _item->height(), setViewport);
   }
 
   QRect viewport() {
