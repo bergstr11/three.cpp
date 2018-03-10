@@ -25,7 +25,7 @@ Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
-  Q_PROPERTY(float scale READ scale WRITE setScale NOTIFY scaleChanged)
+  Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
   Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
   Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
@@ -42,7 +42,7 @@ protected:
 
   QVector3D _rotation {0, 0, 0};
 
-  float _scale = 1.0f;
+  QVector3D _scale {1, 1, 1};
 
   bool _castShadow = false, _receiveShadow = false, _visible = true, _matrixAutoUpdate = true;
 
@@ -73,7 +73,7 @@ protected:
 public:
   QVector3D position() const {return _position;}
   QVector3D rotation() const {return _rotation;}
-  float scale() const {return _scale;}
+  QVector3D scale() const {return _scale;}
 
   void setObject(three::Object3D::Ptr object);
 
@@ -99,7 +99,7 @@ public:
     }
   }
 
-  void setScale(float scale) {
+  void setScale(QVector3D scale) {
     if(_scale != scale) {
       _scale = scale;
       emit scaleChanged();

@@ -94,7 +94,7 @@ Window {
                 type: ModelRef.Node
                 castShadow: true
                 receiveShadow: true
-                scale: 0.035
+                scale: Three.scale(0.035)
                 position: "30,-5,0"
                 rotation: "-1.62716,-0.0526228,-2.53596"
             }
@@ -150,7 +150,7 @@ Window {
                 far: 10000
                 position: "0,0,250"
 
-                lookAt: scene.position
+                target: scene.position
 
                 controller: OrbitController {
                     minDistance: 50

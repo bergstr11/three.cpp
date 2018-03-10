@@ -22,7 +22,7 @@ class Scene;
 class Camera : public ThreeQObject
 {
   Q_OBJECT
-  Q_PROPERTY(QVector3D lookAt READ lookAt WRITE setLookAt NOTIFY lookAtChanged)
+  Q_PROPERTY(QVector3D target READ target WRITE setTarget NOTIFY targetChanged)
   Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::Light> lights READ lights)
   Q_PROPERTY(CameraHelper *helper READ helper)
@@ -32,7 +32,7 @@ class Camera : public ThreeQObject
 
   static const float infinity;
 
-  QVector3D _lookAt {infinity, infinity, infinity};
+  QVector3D _target {infinity, infinity, infinity};
 
   QList<Light *> _lights;
 
@@ -84,11 +84,11 @@ public:
     }
   }
 
-  QVector3D lookAt() const {return _lookAt;}
+  QVector3D target() const {return _target;}
 
-  void setLookAt(QVector3D lookAt) {
-    if(_lookAt != lookAt) {
-      _lookAt = lookAt;
+  void setTarget(QVector3D target) {
+    if(_target != target) {
+      _target = target;
 
       if(_camera) {
         updateControllerValues();
@@ -98,7 +98,7 @@ public:
         emit rotationChanged();
       }
 
-      emit lookAtChanged();
+      emit targetChanged();
     }
   }
 
@@ -135,7 +135,7 @@ public:
 signals:
   void nearChanged();
   void farChanged();
-  void lookAtChanged();
+  void targetChanged();
   void controllerChanged();
 };
 

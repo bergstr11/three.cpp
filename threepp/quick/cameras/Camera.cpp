@@ -12,8 +12,8 @@ const float Camera::infinity = std::numeric_limits<float>::infinity();
 
 void Camera::_post_create(Scene *scene)
 {
-  if(_lookAt.x() != infinity) {
-    _camera->lookAt(math::Vector3(_lookAt.x(), _lookAt.y(), _lookAt.z()));
+  if(_target.x() != infinity) {
+    _camera->lookAt(math::Vector3(_target.x(), _target.y(), _target.z()));
     updateControllerValues();
   }
   if(_qhelper.configured()) {

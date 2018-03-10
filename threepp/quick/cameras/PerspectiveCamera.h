@@ -57,7 +57,6 @@ public:
 signals:
   void fovChanged();
   void aspectChanged();
-  void distanceChanged();
 };
 
 }

@@ -168,7 +168,7 @@ void ModelRef::updateScene()
   if(!_position.isNull())
     node->position().set(_position.x(), _position.y(), _position.z());
 
-  node->scale().set(_scale, _scale, _scale);
+  node->scale().set(_scale.x(), _scale.y(), _scale.z());
 
   if(!_name.isEmpty())
     node->setName(_name.toStdString());

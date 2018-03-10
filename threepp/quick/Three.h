@@ -58,7 +58,9 @@ public:
 
   Q_INVOKABLE QVariant raycaster(QVariant camera);
   Q_INVOKABLE QVariant color(QString hex);
+  Q_INVOKABLE QVariant randomColor(int hex);
   Q_INVOKABLE float randFloatSpread(float range);
+  Q_INVOKABLE QVariant scale(qreal scale);
 };
 
 class Scene;

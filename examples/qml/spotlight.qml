@@ -145,7 +145,7 @@ Window {
 
                 position: "65,8,-10"
 
-                lookAt: scene.position
+                target: scene.position
 
                 controller: OrbitController {
                     minDistance: 20

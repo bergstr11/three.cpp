@@ -179,7 +179,7 @@ Window {
 
                 position: "0,0,1000"
 
-                lookAt: scene.position
+                target: scene.position
 
                 controller: OrbitController {
                     minDistance: 500

@@ -62,7 +62,7 @@ Window {
 
                 position: "0,0,500"
 
-                lookAt: scene.position
+                target: scene.position
 
                 controller: OrbitController {
                     enablePan: true

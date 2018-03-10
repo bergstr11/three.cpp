@@ -102,7 +102,7 @@ Window {
 
                 position: "-30,40,30"
 
-                lookAt: scene.position
+                target: scene.position
             }
         }
     }

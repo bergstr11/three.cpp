@@ -106,7 +106,7 @@ Window {
                 near: 1
                 far: 10000
 
-                lookAt: scene.position
+                target: scene.position
 
                 position: "500,800,1300"
 

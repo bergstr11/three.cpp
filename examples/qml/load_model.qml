@@ -135,6 +135,8 @@ Window {
         anchors.fill: parent
         autoClear: false
         samples: 24
+        property real frustumSize: 500
+        property real aspect: width / height
 
         Model {
             id: threeDModel
@@ -147,8 +149,12 @@ Window {
 
             HemisphereLight {
                 id: hemisphereLight
-                skyColor: "#ababab"
-                intensity: 0.4
+                skyColor: Qt.hsla(0.6, 1, 0.6, 1)
+                groundColor: Qt.hsla(0.095, 1, 0.75, 1)
+                intensity: 0.6
+                position.y: 250
+
+                helper.size: 10
             }
 
             ModelRef {
@@ -172,7 +178,7 @@ Window {
 
                 position: "0,0,1000"
 
-                lookAt: scene.position
+                target: scene.position
 
                 controller: OrbitController {
                     id: orbitController
@@ -180,21 +186,13 @@ Window {
                     enablePan: false
                 }
 
-                PointLight {
-                    color: "#ffffff"
+                DirectionalLight {
+                    color: Qt.hsla(0.1, 1, 0.95, 1)
+                    position: Qt.vector3d(-1.3,1.75,1).times(130)
                     intensity: 0.5
-                    position: Qt.vector3d(12,15,1).times(30)
+
+                    helper.size: 10
                 }
-                PointLight {
-                    color: "#ffffff"
-                    intensity: 0.75
-                    position: Qt.vector3d(-12, 17.6, 2.4).times(30)
-                }
-                /*DirectionalLight {
-                    color: "#cccccc"
-                    position: "0,0,400"
-                    intensity: 0.2
-                }*/
             }
         }
     }

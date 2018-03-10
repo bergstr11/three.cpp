@@ -124,9 +124,23 @@ random_device rdevice;
 mt19937 random_gen(rdevice());
 uniform_real_distribution<float> urealdist(0, 1.0f);
 
+QVariant Three::randomColor(int hex)
+{
+  QVariant var;
+  var.setValue(QColor(hex * urealdist(random_gen)));
+  return var;
+}
+
 float Three::randFloatSpread(float range)
 {
   return range * ( 0.5f - urealdist(random_gen) );
+}
+
+QVariant Three::scale(qreal scale)
+{
+  QVariant var;
+  var.setValue(QVector3D(scale, scale, scale));
+  return var;
 }
 
 }
