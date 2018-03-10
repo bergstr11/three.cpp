@@ -3,14 +3,13 @@
 //
 
 #include "Lights.h"
-#include <sstream>
 
 namespace three {
 namespace gl {
 
 using namespace std;
 
-void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
+void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera::Ptr camera )
 {
   Color ambient {0, 0, 0};
 
@@ -162,12 +161,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, Camera::Ptr camera )
   }
 
   state.ambient = ambient;
-
-  // TODO (sam-g-steel) why aren't we using join
-  stringstream ss;
-  ss << state.directional.size() << ',' << state.point.size() << ',' << state.spot.size() << ','
-     << state.rectArea.size() << ',' << state.hemi.size();
-  state.hash = ss.str();
+  state.storeHash(numShadows);
 }
 
 }

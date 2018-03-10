@@ -41,7 +41,7 @@ public:
     std::memcpy(_elements, matrix._elements, sizeof(_elements));
   }
 
-  Matrix4(const Vector3 &eye, const Vector3 &target, const Vector3 &up) {
+  Matrix4(const Vector3 &eye, const Vector3 &target, const Vector3 &up) : Matrix4() {
     lookAt(eye, target, up);
   }
 
@@ -278,7 +278,7 @@ public:
     float det = n11 * t11 + n21 * t12 + n31 * t13 + n41 * t14;
 
     if (det == 0) {
-      throw new std::invalid_argument("Matrix4: cannnot invert, determinant is 0");
+      throw std::invalid_argument("Matrix4: cannnot invert, determinant is 0");
     }
 
     float detInv = 1.0f / det;

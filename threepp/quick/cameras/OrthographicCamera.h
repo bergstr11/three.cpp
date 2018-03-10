@@ -31,7 +31,9 @@ protected:
   }
 
 public:
-  OrthographicCamera(QObject *parent = nullptr) : Camera(parent) {}
+  OrthographicCamera(QObject *parent = nullptr) : Camera(parent) {
+    _near = 0.5f;
+  }
 
   OrthographicCamera(three::OrthographicCamera::Ptr camera, QObject *parent = nullptr)
   : Camera(camera, parent), _orthographicCamera(camera) {}

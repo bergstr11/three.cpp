@@ -205,7 +205,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   _shadowMap.render(_shadowsArray, scene, camera);
 
-  _lights.setup(_lightsArray, camera);
+  _lights.setup(_lightsArray, _shadowsArray.size(), camera);
 
   if (_clippingEnabled) _clipping.endShadows();
 
@@ -302,7 +302,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
         framebuffer = cubeTarget->frameBuffers[cubeTarget->activeCubeFace];
       }
       else if(internalTarget) {
-      if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
+        if(!internalTarget->frameBuffer) _textures.setupRenderTarget(*internalTarget);
         framebuffer = internalTarget->frameBuffer;
       }
       _currentViewport = renderTarget->viewport();

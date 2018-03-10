@@ -128,6 +128,29 @@ using CachedRectareaLights = std::vector<lights::Entry<RectAreaLight>::Ptr>;
 using CachedPointLights = std::vector<lights::Entry<PointLight>::Ptr>;
 using CachedHemisphereLights = std::vector<lights::Entry<HemisphereLight>::Ptr>;
 
+struct LightsHash {
+  unsigned directionalLength=0, pointLength=0, spotLength=0, rectAreaLength=0, hemiLength=0, shadowsLength=0;
+
+  LightsHash() {}
+  LightsHash(unsigned directionalLength, unsigned pointLength,
+             unsigned spotLength, unsigned rectAreaLength, unsigned hemiLength, unsigned shadowsLength)
+     : directionalLength(directionalLength), pointLength(pointLength), spotLength(spotLength),
+       rectAreaLength(rectAreaLength), hemiLength(hemiLength), shadowsLength(shadowsLength) {}
+
+  bool operator ==(const LightsHash &other)
+  {
+    return directionalLength == other.directionalLength &&
+       pointLength == other.pointLength &&
+       spotLength == other.spotLength &&
+       rectAreaLength == other.rectAreaLength &&
+       hemiLength == other.hemiLength &&
+       shadowsLength == other.shadowsLength;
+  }
+  bool operator !=(const LightsHash &other)
+  {
+    return !this->operator==(other);
+  }
+};
 struct Lights
 {
   UniformsCache cache;
@@ -145,9 +168,14 @@ struct Lights
     CachedPointLights point;
     CachedHemisphereLights hemi;
     Color ambient = Color::null();
-    std::string hash;
+    LightsHash hash;
 
-    void clear() {
+    void storeHash(unsigned numShadows) {
+      hash = LightsHash(directional.size(), point.size(), spot.size(), rectArea.size(), hemi.size(), numShadows);
+    }
+
+    void clear()
+    {
       directional.clear();
       point.clear();
       spot.clear();
@@ -163,7 +191,7 @@ struct Lights
   } state;
 
 public:
-  void setup(const std::vector<Light::Ptr> &lights, Camera::Ptr camera );
+  void setup(const std::vector<Light::Ptr> &lights, unsigned numShadows, Camera::Ptr camera );
 };
 
 }

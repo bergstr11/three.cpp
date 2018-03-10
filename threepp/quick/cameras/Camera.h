@@ -32,8 +32,6 @@ class Camera : public ThreeQObject
 
   static const float infinity;
 
-  float _near=0.1f, _far=2000;
-
   QVector3D _lookAt {infinity, infinity, infinity};
 
   QList<Light *> _lights;
@@ -59,6 +57,8 @@ protected:
   QQmlListProperty<Light> lights();
 
 public:
+  float _near=0.1f, _far=2000;
+
   Camera(QObject *parent=nullptr) : ThreeQObject(parent) {}
   Camera(three::Camera::Ptr camera, QObject *parent=nullptr)
      : ThreeQObject(camera, parent), _camera(camera) {}

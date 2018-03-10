@@ -279,15 +279,7 @@ void Uniform::setValue(const GLint * array, size_t size) {
 
 void Uniform::setValue(const std::vector<math::Matrix4> &matrices)
 {
-  auto *data = new float[matrices.size() * sizeof(math::Matrix4)];
-
-  unsigned offset = 0;
-  for(const auto &mat : matrices) {
-    mat.writeTo(data, offset);
-    offset += sizeof(math::Matrix4);
-  }
-  _renderer.glUniformMatrix4fv( _addr, matrices.size(), GL_FALSE, data);
-  delete[] data;
+  _renderer.glUniformMatrix4fv( _addr, matrices.size(), GL_FALSE, reinterpret_cast<const GLfloat *>(matrices.data()));
   check_glerror(&_renderer);
 }
 

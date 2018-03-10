@@ -144,8 +144,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       }
 
       // update camera matrices and frustum
-      _projScreenMatrix.multiply(shadowCamera->projectionMatrix(), shadowCamera->matrixWorldInverse());
-      _frustum.set(_projScreenMatrix);
+      _frustum.set(shadowCamera->projectionMatrix() * shadowCamera->matrixWorldInverse());
 
       // set object matrices & frustum culling
       renderObject(scene, camera, shadowCamera, (bool)pointLight);

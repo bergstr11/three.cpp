@@ -31,7 +31,7 @@ struct MaterialProperties
   Program::Ptr program;
   Fog::Ptr fog;
   std::vector<float> clippingState;
-  std::string lightsHash;
+  LightsHash lightsHash;
   size_t numClippingPlanes = 0;
   size_t numIntersection = 0;
   ShaderID shaderID = ShaderID::undefined;

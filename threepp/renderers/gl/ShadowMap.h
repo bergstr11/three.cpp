@@ -28,7 +28,6 @@ class Renderer_impl;
 class ShadowMap
 {
   math::Frustum _frustum;
-  math::Matrix4 _projScreenMatrix;
 
   math::Vector3 _lookTarget;
   math::Vector3 _lightPositionWorld;

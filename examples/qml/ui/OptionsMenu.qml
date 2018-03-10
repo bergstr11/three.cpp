@@ -137,14 +137,14 @@ Rectangle {
                 Label {
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
-                    width: 60
+                    width: 80
                     text: prop.name
                     font.bold: true
                     color: textColor
                 }
                 Slider {
                     id: float_slider
-                    width: parent.width - 70
+                    width: parent.width - 80
                     from: from
                     to: to
                     value: target.value
@@ -156,9 +156,9 @@ Rectangle {
                     handle: Rectangle {
                         x: float_slider.leftPadding + float_slider.visualPosition * (float_slider.availableWidth - width)
                         y: float_slider.topPadding + float_slider.availableHeight / 2 - height / 2
-                        implicitWidth: 30
+                        implicitWidth: 60
                         implicitHeight: 30
-                        radius: 15
+                        radius: 20
                         color: float_slider.pressed ? "#f0f0f0" : "#f6f6f6"
                         border.color: "#bdbebf"
 
