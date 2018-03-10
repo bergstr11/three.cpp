@@ -61,9 +61,9 @@ inline float hue2rgb(float p, float q, float t)
 {
   if ( t < 0 ) t += 1;
   if ( t > 1 ) t -= 1;
-  if ( t < 1 / 6 ) return p + ( q - p ) * 6 * t;
-  if ( t < 1 / 2 ) return q;
-  if ( t < 2 / 3 ) return p + ( q - p ) * 6 * ( 2 / 3 - t );
+  if ( t < 1.0f / 6 ) return p + ( q - p ) * 6 * t;
+  if ( t < 1.0f / 2 ) return q;
+  if ( t < 2.0f / 3 ) return p + ( q - p ) * 6 * ( 2 / 3 - t );
   return p;
 }
 
