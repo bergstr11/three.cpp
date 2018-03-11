@@ -16,7 +16,7 @@ namespace helper {
 
 struct Maker {
   enum PointID {n1, n2, n3, n4, f1, f2, f3, f4, p, u1, u2, u3, c, t, cn1, cn2, cn3, cn4, cf1, cf2, cf3, cf4};
-  std::unordered_map<PointID, std::vector<float>> pointMap;
+  enum_map<PointID, std::vector<float>> pointMap;
 
   BufferGeometry::Ptr _helperGeometry;
 

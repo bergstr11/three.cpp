@@ -12,7 +12,7 @@ using namespace math;
 template <typename ID>
 void setPoint(ID point, float x, float y, float z,
               const Matrix4 &projection, const Matrix4 &world,
-              std::unordered_map<ID, std::vector<float>> &pointMap,
+              enum_map<ID, std::vector<float>> &pointMap,
               BufferAttributeT<float>::Ptr position)
 {
   Vector3 vector( x, y, z );
@@ -30,7 +30,7 @@ void setPoint(ID point, float x, float y, float z,
 template <typename ID>
 void addPoint(ID id, const Color &color,
               attribute::prealloc_t<float, Vector3> vertices, attribute::prealloc_t<float, Color> colors,
-              std::unordered_map<ID, std::vector<float>> &pointMap)
+              enum_map<ID, std::vector<float>> &pointMap)
 {
   vertices->next() = {0, 0, 0};
   colors->next() = {color.r, color.g, color.b};
@@ -41,7 +41,7 @@ void addPoint(ID id, const Color &color,
 template <typename ID>
 void addLine(ID a, ID b, const Color &color,
              attribute::prealloc_t<float, Vector3> vertices, attribute::prealloc_t<float, Color> colors,
-             std::unordered_map<ID, std::vector<float>> &pointMap)
+             enum_map<ID, std::vector<float>> &pointMap)
 {
   addPoint( a, color, vertices, colors, pointMap);
   addPoint( b, color, vertices, colors, pointMap);
