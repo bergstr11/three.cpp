@@ -46,8 +46,16 @@ Window {
         threeD: threeD
 
         FloatValue {
+            label: "hemisphere"
             name: "intensity"
             target: hemisphereLight
+            from: 0
+            to: 2
+        }
+        FloatValue {
+            label: "directional"
+            name: "intensity"
+            target: directionalLight
             from: 0
             to: 2
         }
@@ -154,7 +162,7 @@ Window {
                 intensity: 0.6
                 position.y: 250
 
-                helper.size: 10
+                //helper.size: 20
             }
 
             ModelRef {
@@ -187,11 +195,12 @@ Window {
                 }
 
                 DirectionalLight {
+                    id: directionalLight
                     color: Qt.hsla(0.1, 1, 0.95, 1)
                     position: Qt.vector3d(-1.3,1.75,1).times(130)
                     intensity: 0.5
 
-                    helper.size: 10
+                    //helper.size: 20
                 }
             }
         }

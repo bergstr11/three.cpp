@@ -4,6 +4,7 @@ QtObject {
     id: main
     property string type: "float"
     property string name
+    property string label
     property real from: 0
     property real to: 100
     property QtObject target

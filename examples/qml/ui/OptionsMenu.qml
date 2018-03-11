@@ -135,16 +135,17 @@ Rectangle {
                 spacing: 10
 
                 Label {
+                    id: float_control_label
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
-                    width: 80
-                    text: prop.name
+                    width: implicitWidth
+                    text: prop.label !== undefined ? prop.label : prop.name
                     font.bold: true
                     color: textColor
                 }
                 Slider {
                     id: float_slider
-                    width: parent.width - 80
+                    width: parent.width - float_control_label.width
                     from: from
                     to: to
                     value: target.value
