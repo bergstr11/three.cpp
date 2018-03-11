@@ -50,12 +50,12 @@ struct Refresh<material::LightMap>
   }
 };
 template <>
-struct Refresh<material::EmissiveMap>
+struct Refresh<material::Emissive>
 {
-  static void handle(UniformValues &uniforms, MaterialT<material::EmissiveMap> &material) {
+  static void handle(UniformValues &uniforms, MaterialT<material::Emissive> &material) {
     mixin(uniforms, material);
   }
-  static void mixin(UniformValues &uniforms, material::EmissiveMap &material) {
+  static void mixin(UniformValues &uniforms, material::Emissive &material) {
     uniforms[UniformName::emissiveMap] = material.emissiveMap;
     uniforms[UniformName::emissive] = material.emissive * material.emissiveIntensity;
   }
@@ -111,12 +111,12 @@ struct Refresh<material::SpecularMap>
   }
 };
 template <>
-struct Refresh<material::PhongSpecular>
+struct Refresh<material::Specular>
 {
-  static void handle(UniformValues &uniforms, MaterialT<material::PhongSpecular> &material) {
+  static void handle(UniformValues &uniforms, MaterialT<material::Specular> &material) {
     mixin(uniforms, material);
   }
-  static void mixin(UniformValues &uniforms, material::PhongSpecular &material) {
+  static void mixin(UniformValues &uniforms, material::Specular &material) {
     uniforms[UniformName::shininess] = std::max( material.shininess, 1e-4f ); // to prevent pow( 0.0, 0.0 )
     uniforms[UniformName::specular] = material.specular;
     uniforms[UniformName::specularMap] = material.specularMap;

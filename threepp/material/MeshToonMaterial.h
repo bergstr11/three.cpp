@@ -29,6 +29,8 @@ protected:
   MeshToonMaterial()
      : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}
 
+  void callback(const material::Selector &selector) override;
+
 public:
   using Ptr = std::shared_ptr<MeshToonMaterial>;
   static Ptr make(const Color &color, bool dithering) {

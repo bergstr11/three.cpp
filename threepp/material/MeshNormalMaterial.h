@@ -51,6 +51,9 @@ protected:
     morphNormals = false;
   }
 
+protected:
+  void callback(const material::Selector &selector) override;
+
 public:
   using Ptr = std::shared_ptr<MeshNormalMaterial>;
   static Ptr make() {

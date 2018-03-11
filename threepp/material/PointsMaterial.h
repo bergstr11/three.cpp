@@ -34,6 +34,8 @@ protected:
     lights = false;
   }
 
+  void callback(const material::Selector &selector) override;
+
 public:
   using Ptr = std::shared_ptr<PointsMaterial>;
   static Ptr make(Color color, float opacity, Texture::Ptr map) {

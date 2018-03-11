@@ -65,7 +65,7 @@ struct MeshStandardMaterial : public MaterialT<
    material::Colored,
    material::LightMap,
    material::AoMap,
-   material::EmissiveMap,
+   material::Emissive,
    material::BumpMap,
    material::NormalMap,
    material::DisplacementMap,
@@ -79,6 +79,8 @@ struct MeshStandardMaterial : public MaterialT<
 protected:
   MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
   MeshStandardMaterial() : MaterialT(material::ResolverT<MeshStandardMaterial>::make(*this)) {}
+
+  void callback(const material::Selector &selector) override;
 
 public:
   using Ptr = std::shared_ptr<MeshStandardMaterial>;

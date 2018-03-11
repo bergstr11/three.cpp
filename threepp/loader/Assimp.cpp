@@ -241,10 +241,10 @@ struct ReadMaterial<material::LightMap>
   }
 };
 template <>
-struct ReadMaterial<material::EmissiveMap>
+struct ReadMaterial<material::Emissive>
 {
-  FORWARD_MIXIN(material::EmissiveMap)
-  static void mixin(material::EmissiveMap &material, const aiMaterial *ai, Access *access) {
+  FORWARD_MIXIN(material::Emissive)
+  static void mixin(material::Emissive &material, const aiMaterial *ai, Access *access) {
     material.emissiveMap = access->loadTexture(aiTextureType_EMISSIVE, 0, ai);
     read_color(AI_MATKEY_COLOR_EMISSIVE, ai, material.emissive);
   }
@@ -284,10 +284,10 @@ struct ReadMaterial<material::SpecularMap>
   }
 };
 template <>
-struct ReadMaterial<material::PhongSpecular>
+struct ReadMaterial<material::Specular>
 {
-  FORWARD_MIXIN(material::PhongSpecular)
-  static void mixin(material::PhongSpecular &material, const aiMaterial *ai, Access *access) {
+  FORWARD_MIXIN(material::Specular)
+  static void mixin(material::Specular &material, const aiMaterial *ai, Access *access) {
     material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
     read_color(AI_MATKEY_COLOR_SPECULAR, ai, material.specular);
     ai->Get(AI_MATKEY_SHININESS, material.shininess);

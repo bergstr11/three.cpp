@@ -62,6 +62,9 @@ private:
   MeshBasicMaterial() : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this))
   {}
 
+protected:
+  void callback(const material::Selector &selector) override;
+
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
 

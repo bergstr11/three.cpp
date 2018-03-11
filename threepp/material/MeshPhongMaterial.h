@@ -64,11 +64,11 @@ struct MeshPhongMaterial : public MaterialT<
    material::Colored,
    material::LightMap,
    material::AoMap,
-   material::EmissiveMap,
+   material::Emissive,
    material::BumpMap,
    material::NormalMap,
    material::DisplacementMap,
-   material::PhongSpecular,
+   material::Specular,
    material::AlphaMap,
    material::EnvMap>
 {
@@ -92,6 +92,9 @@ protected:
 
   MeshPhongMaterial()
      : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+
+protected:
+  void callback(const material::Selector &selector) override;
 
 public:
   using Ptr = std::shared_ptr<MeshPhongMaterial>;

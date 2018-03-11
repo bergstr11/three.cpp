@@ -52,12 +52,15 @@ struct MeshLambertMaterial : public MaterialT<
    material::Colored,
    material::AoMap,
    material::LightMap,
-   material::EmissiveMap,
+   material::Emissive,
    material::EnvMap,
    material::SpecularMap,
    material::AlphaMap>
 {
   MeshLambertMaterial() : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
+
+protected:
+  void callback(const material::Selector &selector) override;
 
 public:
   using Ptr = std::shared_ptr<MeshLambertMaterial>;
