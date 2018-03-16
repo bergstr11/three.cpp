@@ -93,7 +93,7 @@ public:
 
   void identify(MeshCreator &creator) override
   {
-    creator.material(createMaterial());
+    creator.material(_material ? _material : createMaterial());
   }
 
 signals:

@@ -48,6 +48,7 @@ public:
   void setWidth(unsigned width) {
     if(_width != width) {
       _width = width;
+      if(_creator.geometry) _creator.geometry->setWidth(width);
       emit widthChanged();
     }
   }
@@ -55,6 +56,7 @@ public:
   void setHeight(unsigned height) {
     if(_height != height) {
       _height = height;
+      if(_creator.geometry) _creator.geometry->setHeight(height);
       emit heightChanged();
     }
   }
@@ -62,6 +64,7 @@ public:
   void setDepth(unsigned depth) {
     if(_depth != depth) {
       _depth = depth;
+      if(_creator.geometry) _creator.geometry->setDepth(depth);
       emit depthChanged();
     }
   }

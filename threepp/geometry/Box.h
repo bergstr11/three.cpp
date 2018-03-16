@@ -13,8 +13,8 @@ namespace geometry {
 
 class Box : public LinearGeometry
 {
-  unsigned const _width, _height, _depth;
-  unsigned const _widthSegments, _heightSegments, _depthSegments;
+  unsigned _width, _height, _depth;
+  unsigned _widthSegments, _heightSegments, _depthSegments;
 
 protected:
   Box(unsigned width, unsigned height, unsigned depth,
@@ -28,6 +28,10 @@ public:
                   unsigned depthSegments=1) {
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   }
+
+  void setWidth(unsigned width) {_width = width;}
+  void setHeight(unsigned height) {_height = height;}
+  void setDepth(unsigned depth) {_depth = depth;}
 };
 
 namespace buffer {

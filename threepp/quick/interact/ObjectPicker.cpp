@@ -67,28 +67,28 @@ QVariant ObjectPicker::intersect(unsigned index)
 {
   if(_intersects.size() > index) {
     shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
-    _currentObject.setObject(obj);
-    if(_currentObject.material()) _currentObject.material()->deleteLater();
+    _prototype->setObject(obj);
+    if(_prototype->material()) _prototype->material()->deleteLater();
 
     if(obj->material()) {
       material::Dispatch dispatch;
 
       dispatch.func<three::MeshPhongMaterial>() = [&] (three::MeshPhongMaterial &mat) {
         three::MeshPhongMaterial::Ptr m(&mat, _no_delete);
-        _currentObject.setMaterial(new MeshPhongMaterial(m));
+        _prototype->setMaterial(new MeshPhongMaterial(m));
       };
       dispatch.func<three::MeshLambertMaterial>() = [&] (three::MeshLambertMaterial &mat) {
         three::MeshLambertMaterial::Ptr m(&mat, _no_delete);
-        _currentObject.setMaterial(new MeshLambertMaterial(m));
+        _prototype->setMaterial(new MeshLambertMaterial(m));
       };
       dispatch.func<three::MeshBasicMaterial>() = [&] (three::MeshBasicMaterial &mat) {
         three::MeshBasicMaterial::Ptr m(&mat, _no_delete);
-        _currentObject.setMaterial(new MeshBasicMaterial(m));
+        _prototype->setMaterial(new MeshBasicMaterial(m));
       };
 
       obj->material()->resolver->material::DispatchResolver::getValue(dispatch);
     }
-    _currentIntersect.set(&_currentObject, _intersects[index]);
+    _currentIntersect.set(_prototype, _intersects[index]);
     QVariant var;
     var.setValue(&_currentIntersect);
     return var;
@@ -107,18 +107,17 @@ bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 }
 
 ObjectPicker::ObjectPicker(QObject *parent)
-   : Controller(parent), _currentIntersect(this), _currentObject(this)
+   : Controller(parent), _currentIntersect(this), _prototype(nullptr)
 {
   QObject::connect(this, &Controller::cameraChanged, [this]() {
     _raycaster.setCamera(_camera);
   });
   QQmlEngine::setObjectOwnership(&_currentIntersect, QQmlEngine::CppOwnership);
-  QQmlEngine::setObjectOwnership(&_currentObject, QQmlEngine::CppOwnership);
+  QQmlEngine::setObjectOwnership(_prototype, QQmlEngine::CppOwnership);
 }
 
 ObjectPicker::~ObjectPicker() {
-  _currentIntersect.deleteLater();
-  _currentObject.deleteLater();
+  _prototype->deleteLater();
 }
 
 void ObjectPicker::setItem(ThreeDItem *item)
@@ -127,6 +126,7 @@ void ObjectPicker::setItem(ThreeDItem *item)
     _item = item;
     Controller::setItem(item);
   }
+  if(!_prototype) _prototype = new ThreeQObject();
 }
 
 QVariantList ObjectPicker::objects()

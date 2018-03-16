@@ -47,6 +47,7 @@ Window {
             camera: scene.camera
             objects: [scene]
             recurse: true
+            prototype: Box {}
 
             onObjectsClicked: {
                 var intersected = intersect(0).object

@@ -26,6 +26,7 @@ Q_OBJECT
   Q_PROPERTY(QVariantList objects READ objects WRITE setObjects NOTIFY objectsChanged)
   Q_PROPERTY(bool recurse READ recurse WRITE setRecurse NOTIFY recurseChanged)
   Q_PROPERTY(unsigned intersectCount READ intersectCount NOTIFY intersectCountChanged)
+  Q_PROPERTY(ThreeQObject *prototype READ prototype WRITE setPrototype NOTIFY prototypeChanged)
 
   ThreeDItem *_item = nullptr;
   RayCaster _raycaster;
@@ -45,7 +46,7 @@ Q_OBJECT
   std::vector<ThreeQObject *> _threeQObjects;
 
   Intersect _currentIntersect;
-  ThreeQObject _currentObject;
+  ThreeQObject *_prototype;
 
 public:
   explicit ObjectPicker(QObject *parent = nullptr);
@@ -78,6 +79,16 @@ protected:
     }
   }
 
+  ThreeQObject *prototype() {return _prototype;}
+
+  void setPrototype(ThreeQObject *prototype)
+  {
+    if(_prototype != prototype) {
+      _prototype = prototype;
+      emit prototypeChanged();
+    }
+  }
+
   bool enabled() override {
     return _enabled;
   }
@@ -90,6 +101,7 @@ signals:
   void objectsChanged();
   void recurseChanged();
   void intersectCountChanged();
+  void prototypeChanged();
 
   void objectsClicked();
   void objectsDoubleClicked();
