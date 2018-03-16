@@ -83,8 +83,7 @@ public:
     if(position != _position) {
       _position = position;
 
-      if(propagate)
-        if(_object) _object->position().set(_position.x(), _position.y(), _position.z());
+      if(propagate && _object) _object->position().set(_position.x(), _position.y(), _position.z());
 
       emit positionChanged();
     }
@@ -101,9 +100,10 @@ public:
     }
   }
 
-  void setScale(QVector3D scale) {
+  void setScale(QVector3D scale, bool propagate=true) {
     if(_scale != scale) {
       _scale = scale;
+      if(propagate && _object) _object->scale().set(scale.x(), scale.x(), scale.z());
       emit scaleChanged();
     }
   }

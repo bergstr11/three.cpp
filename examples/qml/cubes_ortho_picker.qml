@@ -49,10 +49,13 @@ Window {
             recurse: true
 
             onObjectsClicked: {
-                if ( intersectCount > 0 ) {
-                    var intersected = intersect(0).object
-                    intersected.material.emissive = "#ff0000"
-				}
+                var intersected = intersect(0).object
+                intersected.material.emissive = "#ff0000"
+            }
+            onObjectsDoubleClicked: {
+                var intersected = intersect(0).object
+                intersected.material.emissive = "#0000dd"
+                intersected.scale = "1.5,1.5,1.5"
             }
         }
 

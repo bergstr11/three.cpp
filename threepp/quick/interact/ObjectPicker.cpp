@@ -27,6 +27,10 @@ using namespace std;
 
 bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 {
+  if(_lastX == event->x() && _lastY == event->y())  return false;
+  _lastX = event->x();
+  _lastY = event->y();
+
   _mouse = nullptr;
   if(_camera && _item && event->button() == Qt::LeftButton) {
     QVector2D m(((float)event->x() / (float)_item->width()) * 2 - 1,
@@ -94,6 +98,11 @@ QVariant ObjectPicker::intersect(unsigned index)
 
 bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
+  if(!_intersects.empty()) {
+    _mouse = event;
+
+    emit objectsDoubleClicked();
+  }
   return false;
 }
 
@@ -105,6 +114,11 @@ ObjectPicker::ObjectPicker(QObject *parent)
   });
   QQmlEngine::setObjectOwnership(&_currentIntersect, QQmlEngine::CppOwnership);
   QQmlEngine::setObjectOwnership(&_currentObject, QQmlEngine::CppOwnership);
+}
+
+ObjectPicker::~ObjectPicker() {
+  _currentIntersect.deleteLater();
+  _currentObject.deleteLater();
 }
 
 void ObjectPicker::setItem(ThreeDItem *item)

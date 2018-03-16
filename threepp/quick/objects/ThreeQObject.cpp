@@ -77,6 +77,9 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
   setReceiveShadow(object->castShadow, false);
   setVisible(object->visible(), false);
   setMatrixAutoUpdate(object->matrixAutoUpdate, false);
+
+  const math::Vector3 &s = object->scale();
+  setScale(QVector3D(s.x(), s.y(), s.z()), false);
 }
 
 void ThreeQObject::rotateX(float angle)

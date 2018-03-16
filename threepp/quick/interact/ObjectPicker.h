@@ -30,6 +30,8 @@ Q_OBJECT
   ThreeDItem *_item = nullptr;
   RayCaster _raycaster;
 
+  int _lastX=-1, _lastY=-1;
+
   QList<ThreeQObject *> _objects;
   Scene *_scene = nullptr;
   QMouseEvent *_mouse = nullptr;
@@ -47,6 +49,8 @@ Q_OBJECT
 
 public:
   explicit ObjectPicker(QObject *parent = nullptr);
+
+  ~ObjectPicker();
 
   RayCaster *raycaster() {return &_raycaster;}
 
@@ -88,7 +92,7 @@ signals:
   void intersectCountChanged();
 
   void objectsClicked();
-  void objectDoubleClicked();
+  void objectsDoubleClicked();
 };
 
 }
