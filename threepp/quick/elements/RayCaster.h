@@ -46,19 +46,45 @@ public:
     faceNormal.setY(intersection.face.normal.y());
     faceNormal.setZ(intersection.face.normal.z());
   }
+
+  Intersect(QObject * parent) : QObject(parent) {}
+
+  void set(ThreeQObject * object, const Intersection &intersection)
+  {
+    this->object = object;
+    this->intersection = intersection;
+
+    point.setX(intersection.point.x());
+    point.setY(intersection.point.y());
+    point.setZ(intersection.point.z());
+
+    uv.setX(intersection.uv.x());
+    uv.setY(intersection.uv.y());
+
+    faceNormal.setX(intersection.face.normal.x());
+    faceNormal.setY(intersection.face.normal.y());
+    faceNormal.setZ(intersection.face.normal.z());
+  }
 };
 
 class RayCaster : public QObject
 {
 Q_OBJECT
-  three::Raycaster raycaster;
+  three::Raycaster _raycaster;
   Camera *_camera;
 
 public:
   Q_INVOKABLE QVariantList intersectObjects(const QVariantList &objects);
   Q_INVOKABLE void set(const QVector2D &position);
 
+  RayCaster(QObject *parent=nullptr) : QObject(parent), _camera(nullptr) {}
   RayCaster(Camera *camera, QObject *parent=nullptr) : QObject(parent), _camera(camera) {}
+
+  void setCamera(Camera *camera) {
+    _camera = camera;
+  }
+
+  three::Raycaster &raycaster() {return _raycaster;}
 };
 
 }

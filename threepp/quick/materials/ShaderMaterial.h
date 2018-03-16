@@ -98,11 +98,6 @@ public:
     return _material;
   }
 
-  void addTo(ObjectRootContainer *container) override
-  {
-    container->addMaterial(this);
-  }
-
   void identify(MeshCreator &creator) override
   {
     creator.material(getMaterial());

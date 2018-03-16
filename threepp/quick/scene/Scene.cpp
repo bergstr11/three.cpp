@@ -52,8 +52,9 @@ void Scene::updateCamera()
 {
   if(!_quickCamera->camera()) _quickCamera->create(this);
 
-  if(_quickCamera->controller())
-    _item->addController(_quickCamera->controller());
+  if(_quickCamera->controller()) {
+    _quickCamera->controller()->setItem(_item);
+  }
 
   //cameras with children need to be parented to the scene!
   if(!_quickCamera->camera()->children().empty())
@@ -116,9 +117,9 @@ void Scene::remove(ThreeQObject *object)
   }
 }
 
-void Scene::addTo(ObjectRootContainer *container)
+void Scene::setItem(ThreeDItem *item)
 {
-  _item = container->threeDItem();
+  _item = item;
 
   _scene = _background.isValid() ?
            three::SceneT<Color>::make(_name.toStdString(), Color(_background.redF(), _background.greenF(), _background.blueF()))
@@ -137,7 +138,7 @@ void Scene::addTo(ObjectRootContainer *container)
     auto obj = object->create(this);
     if(obj) _scene->add(obj);
   }
-  container->addScene(this);
+  item->addScene(this);
 }
 
 }

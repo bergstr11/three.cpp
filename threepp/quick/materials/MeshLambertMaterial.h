@@ -17,9 +17,10 @@ class MeshLambertMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(QColor emissive READ emissive WRITE setEmissive NOTIFY emissiveChanged)
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
 
-  QColor _color;
+  QColor _color, _emissive;
   Texture *_envMap = nullptr;
 
   three::MeshLambertMaterial::Ptr _material;
@@ -28,7 +29,7 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent)
+  MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent=nullptr)
      : Material(parent), _material(mat) {}
 
   MeshLambertMaterial(QObject *parent=nullptr)
@@ -39,7 +40,24 @@ public:
   void setColor(const QColor &color) {
     if(_color != color) {
       _color = color;
+      if(_material) {
+        _material->color.set(color.redF(), color.greenF(), color.blueF());
+        _material->needsUpdate = true;
+      }
       emit colorChanged();
+    }
+  }
+
+  QColor emissive() const {return _emissive;}
+
+  void setEmissive(const QColor &emissive) {
+    if(_emissive != emissive) {
+      _emissive = emissive;
+      if(_material) {
+        _material->emissive.set(emissive.redF(), emissive.greenF(), emissive.blueF());
+        _material->needsUpdate = true;
+      }
+      emit emissiveChanged();
     }
   }
 
@@ -73,8 +91,6 @@ public:
     return _material;
   }
 
-  void addTo(ObjectRootContainer *container) override;
-
   void identify(MeshCreator &creator) override
   {
     creator.material(createMaterial());
@@ -82,6 +98,7 @@ public:
 
 signals:
   void colorChanged();
+  void emissiveChanged();
   void envMapChanged();
 };
 

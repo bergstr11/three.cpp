@@ -33,7 +33,8 @@ protected:
   void run() override;
 
 public:
-  FileSystemLoader(three::Loader &assimp, const QUrl &url, const std::unordered_map<std::string, std::string> &replacements);
+  FileSystemLoader(three::Loader &assimp, const QUrl &url,
+                   const std::unordered_map<std::string, std::string> &replacements=std::unordered_map<std::string, std::string>());
 
   bool exists(const char *path) override;
 

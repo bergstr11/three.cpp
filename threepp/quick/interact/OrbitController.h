@@ -6,7 +6,6 @@
 #define THREEPPQ_ORBITCONTROLLERITEM_H
 
 #include <QObject>
-#include <threepp/quick/Three.h>
 #include "Controller.h"
 #include "OrbitControls.h"
 
@@ -15,6 +14,10 @@ namespace quick {
 
 class OrbitController : public Controller
 {
+public:
+  enum Movement {Pan, Rotate, Zoom};
+
+private:
   Q_OBJECT
   Q_PROPERTY(float distance READ distance NOTIFY distanceChanged)
   Q_PROPERTY(float minDistance READ minDistance WRITE setMinDistance NOTIFY minDistanceChanged)
@@ -22,14 +25,32 @@ class OrbitController : public Controller
   Q_PROPERTY(float maxPolarAngle READ maxPolarAngle WRITE setMaxPolarAngle NOTIFY maxPolarAngleChanged)
   Q_PROPERTY(bool enablePan READ enablePan WRITE setEnablePan NOTIFY enablePanChanged)
   Q_PROPERTY(bool enableRotate READ enableRotate WRITE setEnableRotate NOTIFY enableRotateChanged)
+  Q_PROPERTY(Qt::CursorShape rotateCursor READ rotateCursor WRITE setRotateCursor NOTIFY rotateCursorChanged)
+  Q_PROPERTY(Qt::CursorShape zoomCursor READ zoomCursor WRITE setZoomCursor NOTIFY zoomCursorChanged)
+  Q_PROPERTY(Qt::CursorShape panCursor READ panCursor WRITE setPanCursor NOTIFY panCursorChanged)
+
+  Q_ENUM(Movement)
 
   float _minDistance=0, _maxDistance=std::numeric_limits<float>::infinity();
   float _maxPolarAngle = (float) M_PI;
-  bool _enablePan = true, _enableRotate = true;
+  bool _enablePan = true, _enableRotate = true, _moving=false, _enabled=true;
+
+  Qt::CursorShape _rotateCursor=Qt::ArrowCursor, _panCursor=Qt::DragMoveCursor, _zoomCursor=Qt::SizeBDiagCursor;
 
   OrbitControls::Ptr _controls;
 
 protected:
+  bool enabled() override
+  {
+    return _controls ? _controls->enabled : _enabled;
+  }
+
+  void setEnabled(bool enabled) override
+  {
+    _enabled = enabled;
+    if(_controls) _controls->enabled = enabled;
+  }
+
   float minDistance() const { return _minDistance; }
 
   void setMinDistance(float minDistance)
@@ -82,12 +103,45 @@ protected:
     }
   }
 
+  Qt::CursorShape zoomCursor() const { return _zoomCursor; }
+
+  void setZoomCursor(Qt::CursorShape cursor)
+  {
+    if (_zoomCursor != cursor) {
+      _zoomCursor = cursor;
+      if(_controls) _controls->setZoomCursor(cursor);
+      emit zoomCursorChanged();
+    }
+  }
+
+  Qt::CursorShape panCursor() const { return _panCursor; }
+
+  void setPanCursor(Qt::CursorShape cursor)
+  {
+    if (_panCursor != cursor) {
+      _panCursor = cursor;
+      if(_controls) _controls->setPanCursor(cursor);
+      emit panCursorChanged();
+    }
+  }
+
+  Qt::CursorShape rotateCursor() const { return _rotateCursor; }
+
+  void setRotateCursor(Qt::CursorShape cursor)
+  {
+    if (_rotateCursor != cursor) {
+      _rotateCursor = cursor;
+      if(_controls) _controls->setRotateCursor(cursor);
+      emit rotateCursorChanged();
+    }
+  }
+
   float distance() {
     return _controls ? _controls->getDistance() : 0.0f;
   }
 
 public:
-  void setItem(QQuickItem *item) override
+  void setItem(ThreeDItem *item) override
   {
     _controls = OrbitControls::make(item, _camera->camera());
     _controls->minDistance = _minDistance;
@@ -95,16 +149,42 @@ public:
     _controls->maxPolarAngle = _maxPolarAngle;
     _controls->enablePan = _enablePan;
     _controls->enableRotate = _enableRotate;
+    _controls->enabled = _enabled;
 
-    _controls->onChanged.connect([this]() {
+    _controls->setPanCursor(_panCursor);
+    _controls->setZoomCursor(_zoomCursor);
+    _controls->setRotateCursor(_rotateCursor);
+
+    _controls->onChanged.connect([this](OrbitControls::State state) {
       emit changed();
       emit distanceChanged();
+
+      if(!_moving) {
+        _moving = true;
+        switch(state) {
+          case OrbitControls::State::PAN:
+          case OrbitControls::State::TOUCH_PAN:
+            emit moveStarted(Movement::Pan);
+          case OrbitControls::State::ROTATE:
+          case OrbitControls::State::TOUCH_ROTATE:
+            emit moveStarted(Movement::Rotate);
+          case OrbitControls::State::DOLLY:
+          case OrbitControls::State::TOUCH_DOLLY:
+            emit moveStarted(Movement::Zoom);
+        }
+      }
     });
+    Controller::setItem(item);
   }
 
   bool handleMousePressed(QMouseEvent *event) override
   {
     return _controls->handleMousePressed(event);
+  }
+
+  bool handleMouseDoubleClicked(QMouseEvent *event) override
+  {
+    return false;
   }
 
   bool handleMouseMoved(QMouseEvent *event) override
@@ -114,6 +194,10 @@ public:
 
   bool handleMouseReleased(QMouseEvent *event) override
   {
+    if(_moving) {
+      _moving = false;
+      emit moveStopped();
+    }
     return _controls->handleMouseReleased(event);
   }
 
@@ -133,6 +217,12 @@ signals:
   void enablePanChanged();
   void enableRotateChanged();
   void distanceChanged();
+  void rotateCursorChanged();
+  void zoomCursorChanged();
+  void panCursorChanged();
+
+  void moveStarted(Movement);
+  void moveStopped();
 };
 
 }

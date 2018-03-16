@@ -39,6 +39,11 @@ void Camera::updateProjectionMatrix()
   if(_camera) _camera->updateProjectionMatrix();
 }
 
+void Camera::updateMatrixWorld()
+{
+  if(_camera) _camera->updateMatrixWorld(true);
+}
+
 void Camera::append_light(QQmlListProperty<Light> *list, Light *obj)
 {
   Camera *item = qobject_cast<Camera *>(list->object);

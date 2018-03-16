@@ -84,7 +84,7 @@ public:
 
   Q_INVOKABLE void remove(ThreeQObject *object);
 
-  void addTo(ObjectRootContainer *container) override;
+  void setItem(ThreeDItem *item) override;
 
   ThreeDItem *item() {return _item;}
 

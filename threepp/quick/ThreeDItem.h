@@ -17,7 +17,7 @@ namespace quick {
 class ThreeQObject;
 class ThreeQObjectRoot;
 
-class ThreeDItem : public QQuickFramebufferObject, private ObjectRootContainer
+class ThreeDItem : public QQuickFramebufferObject
 {
 Q_OBJECT
   friend class FramebufferObjectRenderer;
@@ -33,6 +33,7 @@ private:
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged FINAL)
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
+  Q_PROPERTY(unsigned fps READ fps WRITE setFps NOTIFY fpsChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -62,6 +63,7 @@ private:
   QTimer *_timer = nullptr;
   QJSValue _animateFunc;
   QJSValue _jsInstance;
+  unsigned _fps = 60;
 
   three::OpenGLRenderer::Ptr _renderer;
 
@@ -79,11 +81,9 @@ public:
 
   Renderer *createRenderer() const override;
 
-  ThreeDItem *threeDItem() override;
+  void addScene(three::quick::Scene *scene);
 
-  void addScene(three::quick::Scene *scene) override;
-
-  void addController(Controller *controller) override;
+  void addController(Controller *controller);
 
   void removeController(Controller *controller);
 
@@ -122,6 +122,10 @@ public:
   QJSValue animate() {return _animateFunc;}
 
   void setAnimate(QJSValue animate);
+
+  unsigned fps() const {return _fps;}
+
+  void setFps(unsigned fps);
 
   Q_INVOKABLE void clear();
 
@@ -165,6 +169,7 @@ signals:
   void geometryChanged();
   void animateChanged();
   void viewportChanged();
+  void fpsChanged();
 };
 
 }

@@ -35,7 +35,7 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent)
+  MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent=nullptr)
      : Material(parent), _material(mat) {}
 
   MeshPhongMaterial(QObject *parent=nullptr)
@@ -102,8 +102,6 @@ public:
 
     return _material;
   }
-
-  void addTo(ObjectRootContainer *container) override;
 
   void identify(MeshCreator &creator) override
   {

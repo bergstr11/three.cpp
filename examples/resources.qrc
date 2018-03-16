@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="ThreeDItem.qml">qml/ThreeDItem.qml</file>
         <file alias="geometries.qml">qml/geometries.qml</file>
         <file alias="spotlight.qml">qml/spotlight.qml</file>
         <file alias="hemisphere.qml">qml/hemisphere.qml</file>
         <file alias="cameras.qml">qml/cameras.qml</file>
+        <file alias="cubes_ortho_picker.qml">qml/cubes_ortho_picker.qml</file>
         <file alias="orthographic_camera.qml">qml/orthographic_camera.qml</file>
         <file alias="orbit_controls.qml">qml/orbit_controls.qml</file>
         <file alias="material_envmap.qml">qml/material_envmap.qml</file>

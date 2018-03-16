@@ -27,6 +27,12 @@ namespace control {
 //
 class Orbit
 {
+public:
+  enum class State
+  {
+    NONE = -1, ROTATE = 0, DOLLY = 1, PAN = 2, TOUCH_ROTATE = 3, TOUCH_DOLLY = 4, TOUCH_PAN = 5
+  };
+
 protected:
   Camera::Ptr _camera;
 
@@ -35,12 +41,7 @@ protected:
   math::Vector3 _position0;
   float _zoom0;
 
-  enum class State
-  {
-    NONE = -1, ROTATE = 0, DOLLY = 1, PAN = 2, TOUCH_ROTATE = 3, TOUCH_DOLLY = 4, TOUCH_PAN = 5
-  };
-
-  State state = State::NONE;
+  State _state = State::NONE;
 
   // current position in spherical coordinates
   math::Spherical _spherical;
@@ -111,7 +112,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<Orbit>;
 
-  Signal<void()> onChanged;
+  Signal<void(State)> onChanged;
 
   // Set to false to disable this control
   bool enabled = true;
@@ -225,11 +226,11 @@ public:
     _camera->setZoom(_zoom0);
     _camera->updateProjectionMatrix();
 
-    onChanged.emitSignal();
+    onChanged.emitSignal(_state);
 
     update();
 
-    state = State::NONE;
+    _state = State::NONE;
   }
 
   bool handleMove(unsigned x, unsigned y);

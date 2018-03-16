@@ -6,6 +6,7 @@
 #define THREEPPQ_ORBITCONTROLLER_H
 
 #include <QQuickItem>
+#include <QCursor>
 #include <QMouseEvent>
 #include <threepp/controls/Orbit.h>
 
@@ -14,15 +15,19 @@ namespace quick {
 
 class OrbitControls : public control::Orbit
 {
-  const QQuickItem * const _item;
+  QQuickItem * const _item;
+  QCursor _rotateCursor {Qt::ArrowCursor}, _panCursor {Qt::DragMoveCursor}, _zoomCursor {Qt::SizeBDiagCursor};
+
+  QPoint _startingPos;
+  Qt::MouseButton _eventButton;
 
 protected:
-  explicit OrbitControls(const QQuickItem *item, three::Camera::Ptr camera)
+  explicit OrbitControls(QQuickItem *item, three::Camera::Ptr camera)
      : control::Orbit(camera), _item(item) {}
 
 public:
   using Ptr = std::shared_ptr<OrbitControls>;
-  static Ptr make(const QQuickItem *item, three::Camera::Ptr camera) {
+  static Ptr make(QQuickItem *item, three::Camera::Ptr camera) {
     return Ptr(new OrbitControls(item, camera));
   }
 
@@ -38,36 +43,60 @@ protected:
   }
 
 public:
+  void setZoomCursor(Qt::CursorShape cursor) {
+    _zoomCursor.setShape(cursor);
+  }
+
+  void setPanCursor(Qt::CursorShape cursor) {
+    _panCursor.setShape(cursor);
+  }
+
+  void setRotateCursor(Qt::CursorShape cursor) {
+    _rotateCursor.setShape(cursor);
+  }
+
   bool handleMousePressed(QMouseEvent *event)
   {
-    if ( !enabled  ) return false;
-
-    switch ( event->button() ) {
-
-      case Qt::LeftButton:
-        if ( !OrbitControls::enableRotate ) return false;
-        startRotate(event->x(), event->y());
-        event->setAccepted(true);
-        break;
-
-      case Qt::MidButton:
-        if ( !OrbitControls::enableZoom ) return false;
-        startZoom(event->x(), event->y());
-        event->setAccepted(true);
-        break;
-
-      case Qt::RightButton:
-        if ( !OrbitControls::enablePan ) return false;
-        startPan(event->x(), event->y());
-        event->setAccepted(true);
-        break;
+    if ( enabled  ) {
+      _startingPos= event->pos();
+      _eventButton= event->button();
     }
     return false;
   }
 
   bool handleMouseMoved(QMouseEvent *event)
   {
-    if(handleMove(event->x(), event->y())) {
+    if(_state == State::NONE) {
+
+      QPoint point = event->pos() - _startingPos;
+      if (point.manhattanLength() > 5) {
+
+        switch (_eventButton) {
+
+          case Qt::LeftButton:
+            if (!OrbitControls::enableRotate) return false;
+            _item->setCursor(_rotateCursor);
+            startRotate(event->x(), event->y());
+            event->setAccepted(true);
+            break;
+
+          case Qt::MidButton:
+            if (!OrbitControls::enableZoom) return false;
+            _item->setCursor(_zoomCursor);
+            startZoom(event->x(), event->y());
+            event->setAccepted(true);
+            break;
+
+          case Qt::RightButton:
+            if (!OrbitControls::enablePan) return false;
+            _item->setCursor(_panCursor);
+            startPan(event->x(), event->y());
+            event->setAccepted(true);
+            break;
+        }
+      }
+    }
+    else if(handleMove(event->x(), event->y())) {
       event->setAccepted(true);
       return true;
     }
@@ -76,6 +105,7 @@ public:
 
   bool handleMouseReleased(QMouseEvent *event)
   {
+    _item->unsetCursor();
     if(resetState()) {
       event->setAccepted(true);
       return true;

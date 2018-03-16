@@ -6,7 +6,6 @@
 #include "shader/UniformsLib.h"
 #include "Renderer_impl.h"
 #include <regex>
-#include <QDebug>
 
 namespace three {
 namespace gl {

@@ -15,6 +15,7 @@ set(THREEQ_HDRDIRS
         materials
         objects
         scene
+        loader
         textures)
 
 file(GLOB_RECURSE SOURCE_FILES *.cpp)

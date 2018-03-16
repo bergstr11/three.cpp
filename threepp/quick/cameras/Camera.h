@@ -131,6 +131,7 @@ public:
   CameraHelper *helper() {return &_qhelper;}
 
   Q_INVOKABLE void updateProjectionMatrix();
+  Q_INVOKABLE void updateMatrixWorld();
 
 signals:
   void nearChanged();

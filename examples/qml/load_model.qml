@@ -161,8 +161,6 @@ Window {
                 groundColor: Qt.hsla(0.095, 1, 0.75, 1)
                 intensity: 0.6
                 position.y: 250
-
-                //helper.size: 20
             }
 
             ModelRef {
@@ -192,6 +190,8 @@ Window {
                     id: orbitController
                     maxPolarAngle: Math.PI;
                     enablePan: false
+                    rotateCursor: Qt.ClosedHandCursor
+                    panCursor: Qt.SizeAllCursor
                 }
 
                 DirectionalLight {
@@ -199,8 +199,6 @@ Window {
                     color: Qt.hsla(0.1, 1, 0.95, 1)
                     position: Qt.vector3d(-1.3,1.75,1).times(130)
                     intensity: 0.5
-
-                    //helper.size: 20
                 }
             }
         }

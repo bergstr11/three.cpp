@@ -8,32 +8,57 @@
 #include <QObject>
 #include <QQuickItem>
 #include <QMouseEvent>
+#include <threepp/quick/ThreeQObjectRoot.h>
 
 namespace three {
 namespace quick {
 
 class Camera;
 
-class Controller : public QObject
+class Controller : public ThreeQObjectRoot
 {
   friend class Camera;
 Q_OBJECT
+  Q_PROPERTY(three::quick::Camera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
+  Q_PROPERTY(bool enabled READ p_enabled WRITE p_setEnabled NOTIFY enabledChanged)
 
 protected:
   Camera *_camera = nullptr;
 
+  virtual bool enabled() = 0;
+  virtual void setEnabled(bool enabled) = 0;
+
+  bool p_enabled() {return enabled();}
+
+  void p_setEnabled(bool _enabled) {
+    if(_enabled != enabled()) {
+      setEnabled(_enabled);
+      emit enabledChanged();
+    }
+  }
+
 public:
-  virtual void setItem(QQuickItem *item) = 0;
+  Controller(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
 
-  virtual bool handleMousePressed(QMouseEvent *event) = 0;
+  Camera *camera() const {return _camera;}
 
-  virtual bool handleMouseMoved(QMouseEvent *event) = 0;
+  void setCamera(three::quick::Camera *camera);
 
-  virtual bool handleMouseReleased(QMouseEvent *event) = 0;
+  void setItem(ThreeDItem *item) override;
 
-  virtual bool handleMouseWheel(QWheelEvent *event) = 0;
+  virtual bool handleMousePressed(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseDoubleClicked(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseMoved(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseReleased(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseWheel(QWheelEvent *event) {return false;}
 
 signals:
+  void cameraChanged();
+  void enabledChanged();
   void changed();
 };
 

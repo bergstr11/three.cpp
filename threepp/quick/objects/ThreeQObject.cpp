@@ -63,7 +63,7 @@ QQmlListProperty<ThreeQObject> ThreeQObject::objects()
                                         &ThreeQObject::clear_objects);
 }
 
-void ThreeQObject::setObject(three::Object3D::Ptr object)
+void ThreeQObject::setObject(const three::Object3D::Ptr object)
 {
   _object = object;
   const math::Vector3 pos = _object ? _object->position() : math::Vector3();

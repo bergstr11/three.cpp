@@ -5,8 +5,8 @@
 #include "Model.h"
 
 #include <threepp/loader/Assimp.h>
-#include <threepp/quick/qutil/FileSystemLoader.h>
-#include <threepp/quick/qutil/QtResourceLoader.h>
+#include <threepp/quick/loader/FileSystemLoader.h>
+#include <threepp/quick/loader/QtResourceLoader.h>
 
 namespace three {
 namespace quick {
@@ -51,7 +51,7 @@ void Model::setFile(const QString &file)
     _file = file;
     emit fileChanged();
 
-    if(_container) loadFile(file);
+    if(_item) loadFile(file);
   }
 }
 
@@ -66,11 +66,10 @@ three::Scene::Ptr Model::scene() {
   return _assimp ? _assimp->scene() : nullptr;
 }
 
-void Model::addTo(ObjectRootContainer *container)
+void Model::setItem(ThreeDItem *item)
 {
-  _container = container;
-
-  if(!(_file.isNull() || _file.isEmpty())) loadFile(_file);
+  _item = item;
+  if(_item && (!(_file.isNull() || _file.isEmpty()))) loadFile(_file);
 }
 
 }

@@ -125,11 +125,6 @@ public:
     }
   }
 
-  void addTo(ObjectRootContainer *container) override
-  {
-    container->addTexture(this);
-  }
-
   void setUniform(gl::UniformValues &uniforms, gl::UniformName name) override
   {
     three::Texture::Ptr tex = getTexture();

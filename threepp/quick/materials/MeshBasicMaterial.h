@@ -28,7 +28,7 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  MeshBasicMaterial(three::MeshBasicMaterial::Ptr mat, QObject *parent)
+  MeshBasicMaterial(three::MeshBasicMaterial::Ptr mat, QObject *parent=nullptr)
   : Material(parent), _material(mat) {}
 
   MeshBasicMaterial(QObject *parent=nullptr)
@@ -63,8 +63,6 @@ public:
 
     return _material;
   }
-
-  void addTo(ObjectRootContainer *container) override;
 
   void identify(MeshCreator &creator) override
   {

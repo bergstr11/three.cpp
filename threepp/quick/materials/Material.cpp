@@ -108,20 +108,5 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
   return mat;
 }
 
-void MeshPhongMaterial::addTo(ObjectRootContainer *container)
-{
-  container->addMaterial(this);
-}
-
-void MeshLambertMaterial::addTo(ObjectRootContainer *container)
-{
-  container->addMaterial(this);
-}
-
-void MeshBasicMaterial::addTo(ObjectRootContainer *container)
-{
-  container->addMaterial(this);
-}
-
 }
 }

@@ -4,7 +4,6 @@
 
 #include "GridLines.h"
 #include <threepp/quick/elements/RayCaster.h>
-#include <QDebug>
 
 namespace three {
 namespace quick {

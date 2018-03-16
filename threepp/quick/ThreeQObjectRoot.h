@@ -10,7 +10,6 @@
 namespace three {
 namespace quick {
 
-class ObjectRootContainer;
 class ThreeDItem;
 
 class ThreeQObjectRoot : public QObject
@@ -23,7 +22,7 @@ protected:
 public:
   virtual ~ThreeQObjectRoot() {}
 
-  virtual void addTo(ObjectRootContainer * container) = 0;
+  virtual void setItem(ThreeDItem * item) {}
 };
 
 }

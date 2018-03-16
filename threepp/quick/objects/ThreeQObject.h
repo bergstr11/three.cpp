@@ -21,6 +21,8 @@ class ObjectContainer;
 
 class ThreeQObject : public QObject
 {
+  friend class ObjectPicker;
+
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
@@ -54,7 +56,7 @@ protected:
 
   three::Object3D::Ptr _object;
 
-  virtual three::Object3D::Ptr _create(Scene *scene) = 0;
+  virtual three::Object3D::Ptr _create(Scene *scene) {return nullptr;}
   virtual void _post_create(Scene *scene) {}
 
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
@@ -70,12 +72,12 @@ protected:
 
   QQmlListProperty<ThreeQObject> objects();
 
+  void setObject(const three::Object3D::Ptr object);
+
 public:
   QVector3D position() const {return _position;}
   QVector3D rotation() const {return _rotation;}
   QVector3D scale() const {return _scale;}
-
-  void setObject(three::Object3D::Ptr object);
 
   void setPosition(const QVector3D &position, bool propagate=true) {
     if(position != _position) {

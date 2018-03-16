@@ -35,6 +35,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
 #include "interact/OrbitController.h"
+#include "interact/ObjectPicker.h"
 
 namespace three {
 namespace quick {
@@ -98,6 +99,7 @@ void init()
   qmlRegisterType<three::quick::ImageCubeTexture>("three.quick", 1, 0, "ImageCubeTexture");
   qmlRegisterUncreatableType<three::quick::Controller>("three.quick", 1, 0, "Controller", "abstract class");
   qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");
+  qmlRegisterType<three::quick::ObjectPicker>("three.quick", 1, 0, "ObjectPicker");
 }
 
 using namespace std;

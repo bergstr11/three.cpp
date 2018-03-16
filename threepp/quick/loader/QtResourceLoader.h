@@ -30,7 +30,8 @@ protected:
   void run() override;
 
 public:
-  QtResourceLoader(three::Loader &assimp, const QString &url, const std::unordered_map<std::string, std::string> &replacements);
+  QtResourceLoader(three::Loader &assimp, const QString &url,
+                   const std::unordered_map<std::string, std::string> &replacements=std::unordered_map<std::string, std::string>());
 
   bool exists(const char *path) override;
 

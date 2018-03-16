@@ -10,6 +10,7 @@
 #include <QScreen>
 #include <QTimer>
 #include <threepp/quick/scene/Scene.h>
+#include <threepp/quick/cameras/Camera.h>
 
 namespace three {
 namespace quick {
@@ -243,10 +244,31 @@ void ThreeDItem::setAnimate(QJSValue animate)
   _jsInstance = qmlEngine(this)->newQObject(this);
 }
 
+void ThreeDItem::setFps(unsigned fps)
+{
+  if(_fps != fps) {
+    _fps = fps;
+    emit fpsChanged();
+  }
+}
+
 void ThreeDItem::addController(Controller *controller)
 {
-  controller->setItem(this);
   _controllers.push_back(controller);
+}
+
+void Controller::setItem(ThreeDItem *item)
+{
+  item->addController(this);
+}
+
+void Controller::setCamera(Camera *camera)
+{
+  if(_camera != camera) {
+    _camera = camera;
+    _camera->setController(this);
+    emit cameraChanged();
+  }
 }
 
 void ThreeDItem::removeController(Controller *controller)
@@ -280,7 +302,8 @@ void ThreeDItem::mousePressEvent(QMouseEvent *event)
   }
 }
 
-void ThreeDItem::mouseReleaseEvent(QMouseEvent *event) {
+void ThreeDItem::mouseReleaseEvent(QMouseEvent *event)
+{
   for (auto contrl : _controllers) {
     if (contrl->handleMouseReleased(event)) {
       update();
@@ -289,11 +312,18 @@ void ThreeDItem::mouseReleaseEvent(QMouseEvent *event) {
   }
 }
 
-void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event) {
-  update();
+void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  for (auto contrl : _controllers) {
+    if (contrl->handleMouseDoubleClicked(event)) {
+      update();
+      return;
+    }
+  }
 }
 
-void ThreeDItem::wheelEvent(QWheelEvent *event) {
+void ThreeDItem::wheelEvent(QWheelEvent *event)
+{
   for (auto contrl : _controllers) {
     if (contrl->handleMouseWheel(event)) {
       update();
@@ -349,7 +379,7 @@ void ThreeDItem::componentComplete()
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
 
   for(const auto &object : _objects) {
-    object->addTo(this);
+    object->setItem(this);
   }
 
   if(_animateFunc.isCallable()) {
@@ -357,13 +387,13 @@ void ThreeDItem::componentComplete()
       //no need to start timer if script fails on first call
       _timer = new QTimer(this);
       connect(_timer, &QTimer::timeout, this, &ThreeDItem::execAnimate, Qt::QueuedConnection);
-      _timer->start(15);
+      _timer->start(1000.0f / _fps);
     }
   }
   else if(_animateFunc.toBool()) {
     _timer = new QTimer(this);
     connect(_timer, &QTimer::timeout, this, &QQuickItem::update);
-    _timer->start(15);
+    _timer->start(1000.0f / _fps);
   }
 }
 
@@ -395,11 +425,6 @@ QQmlListProperty<ThreeQObjectRoot> ThreeDItem::objects()
                                             &ThreeDItem::count_objects,
                                             &ThreeDItem::object_at,
                                             &ThreeDItem::clear_objects);
-}
-
-ThreeDItem *ThreeDItem::threeDItem()
-{
-  return this;
 }
 
 void ThreeDItem::addScene(Scene *scene)

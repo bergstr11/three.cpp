@@ -6,7 +6,6 @@
 #include <threepp/textures/DataTexture.h>
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/util/Resolver.h>
-#include <QDebug>
 
 namespace three {
 namespace gl {

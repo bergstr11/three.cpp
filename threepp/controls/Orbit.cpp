@@ -23,7 +23,7 @@ bool Orbit::update()
   // angle from z-axis around y-axis
   _spherical.setFromVector3(_offset);
 
-  if (autoRotate && state == State::NONE) {
+  if (autoRotate && _state == State::NONE) {
 
     rotateLeft(getAutoRotationAngle());
   }
@@ -78,7 +78,7 @@ bool Orbit::update()
       lastPosition.distanceToSquared(_camera->position()) > EPS ||
       8 * (1 - lastQuaternion.dot(_camera->quaternion())) > EPS) {
 
-    onChanged.emitSignal();
+    onChanged.emitSignal(_state);
 
     lastPosition = _camera->position();
     lastQuaternion = _camera->quaternion();
@@ -169,27 +169,27 @@ void Orbit::startRotate(unsigned x, unsigned y)
 {
   _rotateStart.set(x, y);
 
-  state = State::ROTATE;
+  _state = State::ROTATE;
 }
 
 void Orbit::startZoom(unsigned x, unsigned y)
 {
   _dollyStart.set(x, y);
 
-  state = State::DOLLY;
+  _state = State::DOLLY;
 }
 
 void Orbit::startPan(unsigned x, unsigned y)
 {
   _panStart.set(x, y);
 
-  state = State::PAN;
+  _state = State::PAN;
 }
 
 bool Orbit::resetState()
 {
-  if (state != State::NONE) {
-    state = State::NONE;
+  if (_state != State::NONE) {
+    _state = State::NONE;
     return true;
   }
   return false;
@@ -197,7 +197,7 @@ bool Orbit::resetState()
 
 bool Orbit::handleMove(unsigned x, unsigned y)
 {
-  switch (state) {
+  switch (_state) {
     case State::ROTATE:
       doRotate(x, y);
       return true;

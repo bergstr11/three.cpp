@@ -8,6 +8,7 @@
 #include <QVariant>
 #include <QObject>
 #include <threepp/Constants.h>
+#include <threepp/math/Math.h>
 
 namespace three {
 namespace quick {
@@ -56,28 +57,17 @@ public:
   };
   Q_ENUM(FrontFaceDirection)
 
+  Q_PROPERTY(qreal DEG2RAD READ deg2rad CONSTANT)
+  Q_PROPERTY(qreal RAD2DEG READ rad2deg CONSTANT)
+
   Q_INVOKABLE QVariant raycaster(QVariant camera);
   Q_INVOKABLE QVariant color(QString hex);
   Q_INVOKABLE QVariant randomColor(int hex);
   Q_INVOKABLE float randFloatSpread(float range);
   Q_INVOKABLE QVariant scale(qreal scale);
-};
 
-class Scene;
-class Material;
-class Texture;
-class Controller;
-class RayCaster;
-class ThreeDItem;
-
-class ObjectRootContainer
-{
-public:
-  virtual ThreeDItem *threeDItem() = 0;
-  virtual void addMaterial(Material *material) {}
-  virtual void addTexture(Texture *texture) {}
-  virtual void addController(Controller* controller) {}
-  virtual void addScene(Scene *scene) {}
+  qreal deg2rad() {return three::math::DEG2RAD;}
+  qreal rad2deg() {return three::math::RAD2DEG;}
 };
 
 }

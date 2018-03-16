@@ -38,9 +38,10 @@ Q_OBJECT
 
   QString _file;
   QString _name;
-  ObjectRootContainer *_container = nullptr;
 
   QVariantMap _replacements;
+
+  ThreeDItem *_item = nullptr;
 
   std::shared_ptr<loader::Assimp> _assimp;
 
@@ -61,7 +62,7 @@ public:
 
   void setFile(const QString &file);
 
-  void addTo(ObjectRootContainer *container) override;
+  void setItem(ThreeDItem *item) override;
 
   three::Scene::Ptr scene();
 

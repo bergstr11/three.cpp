@@ -10,7 +10,9 @@ using namespace std;
 
 void RayCaster::set(const QVector2D &position)
 {
-  _camera->camera()->setup(raycaster.ray(), position.x(), position.y());
+  if(_camera && _camera->camera()) {
+    _camera->camera()->setup(_raycaster.ray(), position.x(), position.y());
+  }
 }
 
 QVariantList RayCaster::intersectObjects(const QVariantList &objects)
@@ -22,7 +24,7 @@ QVariantList RayCaster::intersectObjects(const QVariantList &objects)
     ThreeQObject *o = var.value<ThreeQObject *>();
     objs.push_back(o->object());
   }
-  vector<Intersection> intersects = raycaster.intersectObjects(objs);
+  vector<Intersection> intersects = _raycaster.intersectObjects(objs);
 
   for(const Intersection &isect : intersects) {
 
