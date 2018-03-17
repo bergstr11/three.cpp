@@ -53,8 +53,6 @@ enum class UniformsID {
   points
 };
 
-class Uniform;
-
 namespace uniformslib {
 
 struct UniformValue

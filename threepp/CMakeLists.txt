@@ -98,4 +98,13 @@ foreach(DIR in ${THREE_HDRDIRS})
 endforeach(DIR in ${THREE_HDRDIRS})
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 install(FILES ${HEADERS} DESTINATION include/threepp)
-install(FILES renderers/gl/shader/ShaderID.h DESTINATION include/threepp/renderers/gl/shader)
+
+install(FILES
+        renderers/gl/shader/ShaderLib.h
+        renderers/gl/shader/ShaderID.h
+        renderers/gl/shader/UniformsLib.h
+        DESTINATION include/threepp/renderers/gl/shader)
+install(FILES
+        renderers/gl/Uniforms.h
+        renderers/gl/Lights.h
+        DESTINATION include/threepp/renderers/gl)

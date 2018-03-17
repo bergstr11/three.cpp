@@ -81,7 +81,7 @@ struct Clearable
 
 class Dispatcher {
 protected:
-  std::set<Clearable *> _clearables;
+  std::vector<Clearable *> _clearables;
 
 public:
   void clear() {
@@ -266,7 +266,7 @@ using Cls##Resolver = resolver::Resolve<Cls>;
 #define PUT_FUNCTABLE(Cls, Type) \
 template <> inline resolver::FuncAssoc<Type> &Cls::func() { \
 thread_local static resolver::FuncAssoc<Type> f; \
-_clearables.insert(&f); \
+_clearables.push_back(&f); \
 return f; \
 } \
 template <> inline bool Cls::value(Type &t) {return func<Type>()(t);}

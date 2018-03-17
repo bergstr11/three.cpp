@@ -21,8 +21,6 @@
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/textures/DataTexture.h>
 #include <threepp/Constants.h>
-#include "Helpers.h"
-#include "Lights.h"
 
 namespace three {
 namespace gl {

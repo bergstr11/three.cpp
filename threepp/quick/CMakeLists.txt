@@ -14,6 +14,8 @@ set(THREEQ_HDRDIRS
         interact
         materials
         objects
+        lights
+        qutil
         scene
         loader
         textures)
