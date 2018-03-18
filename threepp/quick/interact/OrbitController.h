@@ -140,10 +140,11 @@ protected:
     return _controls ? _controls->getDistance() : 0.0f;
   }
 
-public:
-  void setItem(ThreeDItem *item) override
+  void createControls()
   {
-    _controls = OrbitControls::make(item, _camera->camera());
+    if(!_camera->camera()) return;
+
+    _controls = OrbitControls::make(_item, _camera->camera());
     _controls->minDistance = _minDistance;
     _controls->maxDistance = _maxDistance;
     _controls->maxPolarAngle = _maxPolarAngle;
@@ -174,7 +175,18 @@ public:
         }
       }
     });
+  }
+
+public:
+  OrbitController(QObject *parent = nullptr) : Controller(parent)
+  {
+    QObject::connect(this, &Controller::cameraChanged, this, &OrbitController::createControls);
+  }
+
+  void setItem(ThreeDItem *item) override
+  {
     Controller::setItem(item);
+    if(_camera) createControls();
   }
 
   bool handleMousePressed(QMouseEvent *event) override

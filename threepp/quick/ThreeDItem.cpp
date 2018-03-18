@@ -259,7 +259,9 @@ void ThreeDItem::addController(Controller *controller)
 
 void Controller::setItem(ThreeDItem *item)
 {
-  item->addController(this);
+  if(_item) _item->removeController(this);
+  _item = item;
+  _item->addController(this);
 }
 
 void Controller::setCamera(Camera *camera)
@@ -375,11 +377,15 @@ void ThreeDItem::componentComplete()
 {
   QQuickItem::componentComplete();
 
-  //window()->screen()->devicePixelRatio() QML's sizes are already adjusted
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
 
   for(const auto &object : _objects) {
-    object->setItem(this);
+    Scene *scene = dynamic_cast<Scene *>(object);
+    if(scene) scene->setItem(this);
+  }
+  for(const auto &object : _objects) {
+    Scene *scene = dynamic_cast<Scene *>(object);
+    if(!scene) object->setItem(this);
   }
 
   if(_animateFunc.isCallable()) {

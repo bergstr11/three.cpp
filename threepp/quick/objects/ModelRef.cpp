@@ -3,6 +3,7 @@
 //
 
 #include "ModelRef.h"
+#include "ModelRefExternal.h"
 #include <threepp/quick/objects/Mesh.h>
 #include <threepp/quick/lights/AmbientLight.h>
 #include <threepp/quick/lights/HemisphereLight.h>
@@ -203,6 +204,26 @@ void ModelRef::updateScene()
 
   emit objectChanged();
   emit _scene->sceneChanged();
+}
+
+void ModelRefExternal::setReplace(bool replace)
+{
+  if(_replace != replace) {
+    _replace = replace;
+    emit replaceChanged();
+  }
+}
+
+void ModelRefExternal::setObject(ThreeQObject *object)
+{
+  if(_threeQObject != object) {
+    if(_scene && _threeQObject) _scene->remove(_threeQObject);
+
+    _threeQObject = object;
+
+    if(_scene) _scene->add(_threeQObject);
+    emit objectChanged();
+  }
 }
 
 }

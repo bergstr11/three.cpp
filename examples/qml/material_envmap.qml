@@ -87,12 +87,12 @@ Window {
             flipY: false
             type: Texture.UnsignedByte
             images: [
-                Image {url: ":/cube_bridge2_posx.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_negx.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_posy.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_negy.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_posz.jpg"; format: Image.RGBA8888},
-                Image {url: ":/cube_bridge2_negz.jpg"; format: Image.RGBA8888}
+                ThreeImage {url: ":/cube_bridge2_posx.jpg"; format: Image.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negx.jpg"; format: Image.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_posy.jpg"; format: Image.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negy.jpg"; format: Image.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_posz.jpg"; format: Image.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negz.jpg"; format: Image.RGBA8888}
             ]
         }
         ImageTexture {

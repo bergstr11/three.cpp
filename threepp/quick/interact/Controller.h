@@ -23,6 +23,7 @@ Q_OBJECT
   Q_PROPERTY(bool enabled READ p_enabled WRITE p_setEnabled NOTIFY enabledChanged)
 
 protected:
+  ThreeDItem *_item = nullptr;
   Camera *_camera = nullptr;
 
   virtual bool enabled() = 0;

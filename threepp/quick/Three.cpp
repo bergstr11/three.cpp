@@ -11,6 +11,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include <threepp/quick/scene/Scene.h>
 #include <threepp/quick/scene/Model.h>
 #include <threepp/quick/objects/ModelRef.h>
+#include <threepp/quick/objects/ModelRefExternal.h>
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
 #include "cameras/CameraHelper.h"
@@ -82,6 +83,7 @@ void init()
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
   qmlRegisterType<three::quick::Cylinder>("three.quick", 1, 0, "Cylinder");
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
+  qmlRegisterType<three::quick::ModelRefExternal>("three.quick", 1, 0, "ModelRefExternal");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::PointLight>("three.quick", 1, 0, "PointLight");
@@ -94,7 +96,7 @@ void init()
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
   qmlRegisterType<three::quick::OrthographicCamera>("three.quick", 1, 0, "OrthographicCamera");
   qmlRegisterUncreatableType<three::quick::Texture>("three.quick", 1, 0, "Texture", "abstract class");
-  qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "Image");
+  qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "ThreeImage");
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");
   qmlRegisterType<three::quick::ImageCubeTexture>("three.quick", 1, 0, "ImageCubeTexture");
   qmlRegisterUncreatableType<three::quick::Controller>("three.quick", 1, 0, "Controller", "abstract class");
