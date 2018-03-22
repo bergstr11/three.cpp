@@ -10,6 +10,7 @@
 #include <threepp/quick/materials/MeshPhongMaterial.h>
 #include <threepp/quick/materials/MeshLambertMaterial.h>
 #include <threepp/quick/materials/MeshBasicMaterial.h>
+#include <threepp/quick/materials/ShaderMaterial.h>
 
 namespace three {
 namespace quick {
@@ -28,27 +29,29 @@ protected:
     return nullptr; //Mesh is not QML-creatable
   }
 
+  Mesh(three::Mesh::Ptr mesh, Material *material, QObject *parent = nullptr)
+     : ThreeQObject(mesh, material, parent), _mesh(mesh) {}
+
 public:
-  Mesh(three::Mesh::Ptr mesh, QObject *parent = nullptr)
-     : ThreeQObject(parent), _mesh(mesh)
+  static Mesh *create(three::Mesh::Ptr mesh, QObject *parent = nullptr)
   {
     three::MeshPhongMaterial::Ptr meshPhong = dynamic_pointer_cast<three::MeshPhongMaterial>(mesh->material());
     if(meshPhong) {
-      _material = new MeshPhongMaterial(meshPhong, this);
-      return;
+      return new Mesh(mesh, new MeshPhongMaterial(meshPhong, parent), parent);
     }
     three::MeshLambertMaterial::Ptr meshLambert = dynamic_pointer_cast<three::MeshLambertMaterial>(mesh->material());
     if(meshLambert) {
-      _material = new MeshLambertMaterial(meshLambert, this);
-      return;
+      return new Mesh(mesh, new MeshLambertMaterial(meshLambert, parent), parent);
     }
     three::MeshBasicMaterial::Ptr meshBasic = dynamic_pointer_cast<three::MeshBasicMaterial>(mesh->material());
     if(meshBasic) {
-      _material = new MeshBasicMaterial(meshBasic, this);
-      return;
+      return new Mesh(mesh, new MeshBasicMaterial(meshBasic, parent), parent);
     }
-    //three::MeshToonMaterial::Ptr meshToon = dynamic_pointer_cast<three::MeshToonMaterial>(mesh);
-    //_material(new Material(mesh->material()), this)
+    three::ShaderMaterial::Ptr shader = dynamic_pointer_cast<three::ShaderMaterial>(mesh);
+    if(shader) {
+      return new Mesh(mesh, new ShaderMaterial(shader, parent), parent);
+    }
+    return nullptr;
   }
 };
 

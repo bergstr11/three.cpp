@@ -117,6 +117,13 @@ void Scene::remove(ThreeQObject *object)
   }
 }
 
+void Scene::clear()
+{
+  if(_scene) {
+    _scene->removeAll();
+  }
+}
+
 void Scene::setItem(ThreeDItem *item)
 {
   _item = item;

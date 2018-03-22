@@ -87,12 +87,12 @@ Window {
             flipY: false
             type: Texture.UnsignedByte
             images: [
-                ThreeImage {url: ":/cube_bridge2_posx.jpg"; format: Image.RGBA8888},
-                ThreeImage {url: ":/cube_bridge2_negx.jpg"; format: Image.RGBA8888},
-                ThreeImage {url: ":/cube_bridge2_posy.jpg"; format: Image.RGBA8888},
-                ThreeImage {url: ":/cube_bridge2_negy.jpg"; format: Image.RGBA8888},
-                ThreeImage {url: ":/cube_bridge2_posz.jpg"; format: Image.RGBA8888},
-                ThreeImage {url: ":/cube_bridge2_negz.jpg"; format: Image.RGBA8888}
+                ThreeImage {url: ":/cube_bridge2_posx.jpg"; format: ThreeImage.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negx.jpg"; format: ThreeImage.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_posy.jpg"; format: ThreeImage.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negy.jpg"; format: ThreeImage.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_posz.jpg"; format: ThreeImage.RGBA8888},
+                ThreeImage {url: ":/cube_bridge2_negz.jpg"; format: ThreeImage.RGBA8888}
             ]
         }
         ImageTexture {
@@ -100,7 +100,7 @@ Window {
             format: Texture.RGBA
             mapping: Texture.SphericalReflection
             image: ":/metal.jpg"
-            imageFormat: Image.RGBA8888
+            imageFormat: ThreeImage.RGBA8888
         }
         ImageTexture {
             id: textureEquirec
@@ -109,7 +109,7 @@ Window {
             magFilter: Texture.Linear
             minFilter: Texture.LinearMipMapLinear
             image: ":/2294472375_24a3b8ef46_o.jpg"
-            imageFormat: Image.RGBA8888
+            imageFormat: ThreeImage.RGBA8888
         }
 
         ShaderMaterial {

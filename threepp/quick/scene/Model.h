@@ -20,6 +20,9 @@ class Assimp;
 
 namespace quick {
 
+class ThreeQObject;
+class Intersect;
+
 /**
  * represents a complete 3D scene loaded from a file
  *
@@ -56,15 +59,17 @@ public:
 
   const QString &file() const {return _file;}
 
+  void setFile(const QString &file);
+
   const QVariantMap &replacements() const {return _replacements;}
 
   void setReplacements(const QVariantMap &replacements);
 
-  void setFile(const QString &file);
-
   void setItem(ThreeDItem *item) override;
 
-  three::Scene::Ptr scene();
+  three::Scene::Ptr importedScene();
+
+  Q_INVOKABLE ThreeQObject *createObject(QByteArray name, Intersect *intersect, const QVariantMap &arguments);
 
 signals:
   void fileChanged();

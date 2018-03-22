@@ -22,6 +22,7 @@ class ObjectContainer;
 class ThreeQObject : public QObject
 {
   friend class ObjectPicker;
+  friend class Model;
 
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
@@ -62,6 +63,8 @@ protected:
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
   ThreeQObject(three::Object3D::Ptr object, QObject *parent = nullptr)
      : QObject(parent), _object(object) {}
+  ThreeQObject(three::Object3D::Ptr object, Material *material, QObject *parent = nullptr)
+     : QObject(parent), _object(object), _material(material) {}
 
   virtual void updateMaterial() {}
 

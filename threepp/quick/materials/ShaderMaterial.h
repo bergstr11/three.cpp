@@ -41,6 +41,8 @@ protected:
 
 public:
   ShaderMaterial(QObject *parent = nullptr) : Material(parent) {}
+  ShaderMaterial(three::ShaderMaterial::Ptr material, QObject *parent = nullptr)
+     : Material(parent), _material(material) {}
 
   QString shaderID() const {return _shaderID;}
   QByteArray vertexShader() const {return _vertexShader;}

@@ -106,7 +106,7 @@ Window {
                 position: "0,0,2500"
             }
 
-            Group {
+            Node {
                 id: cameraRig
                 Sphere {
                     id: sphere3

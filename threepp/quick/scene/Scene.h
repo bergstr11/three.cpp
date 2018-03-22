@@ -84,6 +84,8 @@ public:
 
   Q_INVOKABLE void remove(ThreeQObject *object);
 
+  Q_INVOKABLE void clear();
+
   void setItem(ThreeDItem *item) override;
 
   ThreeDItem *item() {return _item;}

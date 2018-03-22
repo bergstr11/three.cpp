@@ -3,7 +3,6 @@
 //
 
 #include "ModelRef.h"
-#include "ModelRefExternal.h"
 #include <threepp/quick/objects/Mesh.h>
 #include <threepp/quick/lights/AmbientLight.h>
 #include <threepp/quick/lights/HemisphereLight.h>
@@ -51,7 +50,7 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       if (m) {
         parent->add(m);
         if(setObject)
-          _threeQObject = new three::quick::Mesh(m, this);
+          _threeQObject = three::quick::Mesh::create(m, this);
       }
       break;
     }
@@ -182,11 +181,11 @@ void ModelRef::updateScene()
     auto begin = selectors.begin();
     auto end = selectors.end();
 
-    evaluateSelector(begin, end, node, _model->scene()->children());
+    evaluateSelector(begin, end, node, _model->importedScene()->children());
   }
   else {
     //must copy the list, as the children are in effect moved (reparented)
-    const std::vector<Object3D::Ptr> children = _model->scene()->children();
+    const std::vector<Object3D::Ptr> children = _model->importedScene()->children();
 
     for(Object3D::Ptr child : children)  {
       node->add(child);
@@ -204,26 +203,6 @@ void ModelRef::updateScene()
 
   emit objectChanged();
   emit _scene->sceneChanged();
-}
-
-void ModelRefExternal::setReplace(bool replace)
-{
-  if(_replace != replace) {
-    _replace = replace;
-    emit replaceChanged();
-  }
-}
-
-void ModelRefExternal::setObject(ThreeQObject *object)
-{
-  if(_threeQObject != object) {
-    if(_scene && _threeQObject) _scene->remove(_threeQObject);
-
-    _threeQObject = object;
-
-    if(_scene) _scene->add(_threeQObject);
-    emit objectChanged();
-  }
 }
 
 }

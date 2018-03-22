@@ -10,8 +10,6 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "ThreeDItem.h"
 #include <threepp/quick/scene/Scene.h>
 #include <threepp/quick/scene/Model.h>
-#include <threepp/quick/objects/ModelRef.h>
-#include <threepp/quick/objects/ModelRefExternal.h>
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
 #include "cameras/CameraHelper.h"
@@ -26,7 +24,8 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Ring.h"
 #include "objects/Torus.h"
 #include "objects/Points.h"
-#include "objects/Group.h"
+#include "objects/ModelRef.h"
+#include "objects/Node.h"
 #include "objects/Box.h"
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
@@ -76,14 +75,13 @@ void init()
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Points>("three.quick", 1, 0, "Points");
-  qmlRegisterType<three::quick::Group>("three.quick", 1, 0, "Group");
   qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");
   qmlRegisterType<three::quick::Torus>("three.quick", 1, 0, "Torus");
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
   qmlRegisterType<three::quick::Cylinder>("three.quick", 1, 0, "Cylinder");
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
-  qmlRegisterType<three::quick::ModelRefExternal>("three.quick", 1, 0, "ModelRefExternal");
+  qmlRegisterType<three::quick::Node>("three.quick", 1, 0, "Node");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");
   qmlRegisterType<three::quick::SpotLight>("three.quick", 1, 0, "SpotLight");
   qmlRegisterType<three::quick::PointLight>("three.quick", 1, 0, "PointLight");
