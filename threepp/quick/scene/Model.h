@@ -69,7 +69,8 @@ public:
 
   three::Scene::Ptr importedScene();
 
-  Q_INVOKABLE ThreeQObject *createObject(QByteArray name, Intersect *intersect, const QVariantMap &arguments);
+  Q_INVOKABLE three::quick::ThreeQObject *createObject(
+     QByteArray name, three::quick::Intersect *intersect, const QVariantMap &arguments);
 
 signals:
   void fileChanged();

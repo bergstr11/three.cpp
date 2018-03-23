@@ -31,7 +31,6 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
   _lastX = event->x();
   _lastY = event->y();
 
-  _mouse = nullptr;
   if(_camera && _item && event->button() == Qt::LeftButton) {
     QVector2D m(((float)event->x() / (float)_item->width()) * 2 - 1,
                 -((float)event->y() / (float)_item->height()) * 2 + 1);
@@ -53,7 +52,6 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
               [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
 
     if(!_intersects.empty()) {
-      _mouse = event;
 
       if(prevCount != _intersects.size())
          emit intersectCountChanged();
@@ -98,11 +96,7 @@ QVariant ObjectPicker::intersect(unsigned index)
 
 bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
-  if(!_intersects.empty()) {
-    _mouse = event;
-
-    emit objectsDoubleClicked();
-  }
+  if(!_intersects.empty()) emit objectsDoubleClicked();
   return false;
 }
 

@@ -84,4 +84,20 @@ void PerspectiveCamera::setup(math::Ray &ray, float x, float y)
   ray.direction().normalize();
 }
 
+void PerspectiveCamera::clone_setup(PerspectiveCamera &clone)
+{
+  clone._focus  = _focus;
+  clone._filmGauge = _filmGauge;
+  clone._filmOffset = _filmOffset;
+
+  Camera::clone_setup(clone);
+}
+
+Object3D::Ptr PerspectiveCamera::cloned()
+{
+  Ptr clone = make(_fov, _aspect, _near, _far);
+  clone_setup(*clone);
+  return clone;
+}
+
 }

@@ -22,11 +22,15 @@ protected:
 
   PerspectiveCamera( float fov, float aspect, float near, float far);
 
+  void clone_setup(PerspectiveCamera &clone);
+
 public:
   using Ptr = std::shared_ptr<PerspectiveCamera>;
   static Ptr make(float fov, float aspect, float near, float far) {
     return Ptr(new PerspectiveCamera(fov, aspect, near, far));
   }
+
+  Object3D::Ptr cloned() override;
 
   /**
    * Sets the FOV by focal length in respect to the current .filmGauge.

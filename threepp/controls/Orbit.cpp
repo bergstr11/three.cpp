@@ -90,7 +90,7 @@ bool Orbit::update()
   return false;
 }
 
-void Orbit::pan(float deltaX, float deltaY)
+void Orbit::_pan(float deltaX, float deltaY)
 {
   camera::Dispatch dispatch;
   dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
@@ -123,7 +123,7 @@ void Orbit::pan(float deltaX, float deltaY)
   }
 }
 
-void Orbit::dollyIn(float dollyScale)
+void Orbit::_dollyIn(float dollyScale)
 {
   camera::Dispatch dispatch;
   dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
@@ -144,7 +144,7 @@ void Orbit::dollyIn(float dollyScale)
   }
 }
 
-void Orbit::dollyOut(float dollyScale)
+void Orbit::_dollyOut(float dollyScale)
 {
   camera::Dispatch dispatch;
   dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
@@ -215,11 +215,11 @@ bool Orbit::handleMove(unsigned x, unsigned y)
 bool Orbit::handleDelta(int delta)
 {
   if ( delta < 0 ) {
-    dollyOut( getZoomScale() );
+    _dollyOut(getZoomScale());
     return true;
   }
   else if ( delta > 0 ) {
-    dollyIn( getZoomScale() );
+    _dollyIn(getZoomScale());
     return true;
   }
 }
@@ -248,12 +248,12 @@ void Orbit::doDolly(unsigned x, unsigned y)
 
   if (_dollyDelta.y() > 0) {
 
-    dollyIn(getZoomScale());
+    _dollyIn(getZoomScale());
 
   }
   else if (_dollyDelta.y() < 0) {
 
-    dollyOut(getZoomScale());
+    _dollyOut(getZoomScale());
   }
 
   _dollyStart = _dollyEnd;
@@ -267,10 +267,16 @@ void Orbit::doPan(unsigned x, unsigned y)
 
   _panDelta = _panEnd - _panStart;
 
-  pan(_panDelta.x(), _panDelta.y());
+  _pan(_panDelta.x(), _panDelta.y());
 
   _panStart = _panEnd;
 
+  update();
+}
+
+void Orbit::pan(unsigned deltaX, unsigned deltaY)
+{
+  _pan(deltaX, deltaY);
   update();
 }
 

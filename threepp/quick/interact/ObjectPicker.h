@@ -33,9 +33,7 @@ Q_OBJECT
 
   int _lastX=-1, _lastY=-1;
 
-  QList<ThreeQObject *> _objects;
   Scene *_scene = nullptr;
-  QMouseEvent *_mouse = nullptr;
 
   bool _recurse = true;
 

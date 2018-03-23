@@ -55,6 +55,8 @@ protected:
 
   virtual ~Camera() {}
 
+  void clone_setup(Camera &cloned);
+
 public:
   using Ptr = std::shared_ptr<Camera>;
 

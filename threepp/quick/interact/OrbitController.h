@@ -218,6 +218,9 @@ public:
     return _controls->handleMouseWheel(event);
   }
 
+  Q_INVOKABLE void pan(float deltaX, float deltaY) {
+    if(_controls) _controls->pan(deltaX, deltaY);
+  }
   Q_INVOKABLE void reset() {
     if(_controls) _controls->reset();
   }

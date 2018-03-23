@@ -143,8 +143,6 @@ Window {
         anchors.fill: parent
         autoClear: false
         samples: 24
-        property real frustumSize: 500
-        property real aspect: width / height
 
         Model {
             id: threeDModel

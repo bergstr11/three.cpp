@@ -89,11 +89,11 @@ protected:
   virtual unsigned clientHeight() = 0;
 
   // deltaX and deltaY are in pixels; right and down are positive
-  void pan(float deltaX, float deltaY);
+  void _pan(float deltaX, float deltaY);
 
-  void dollyIn(float dollyScale);
+  void _dollyIn(float dollyScale);
 
-  void dollyOut(float dollyScale);
+  void _dollyOut(float dollyScale);
 
   bool update();
 
@@ -113,6 +113,12 @@ public:
   using Ptr = std::shared_ptr<Orbit>;
 
   Signal<void(State)> onChanged;
+
+  /**
+   * @param deltaX X movement in screen pixels, positive value moves right
+   * @param deltaY Y movement in screen pixels, positive value moves down
+   */
+  void pan(unsigned deltaX, unsigned deltaY);
 
   // Set to false to disable this control
   bool enabled = true;

@@ -211,6 +211,6 @@ signals:
 
 }
 }
-
+Q_DECLARE_METATYPE(three::quick::ThreeQObject *)
 
 #endif //THREEPPQ_THREEDOBJECT_H

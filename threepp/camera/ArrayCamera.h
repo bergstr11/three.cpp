@@ -45,7 +45,10 @@ public:
     return Ptr(new ArrayCameraI(fov, aspect, near, far));
   }
 
-  const unsigned cameraCount = _sz;
+  Object3D::Ptr cloned() override
+  {
+    Ptr clone = make(fov(), aspect(), near(), far());
+  }
 
   PerspectiveCamera::Ptr operator[](unsigned index)
   {

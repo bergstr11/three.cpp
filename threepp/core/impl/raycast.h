@@ -72,11 +72,13 @@ inline bool checkBufferGeometryIntersection(const Object3D &object,
 
   if (checkIntersection(object, object.material(), raycaster, ray, vA, vB, vC, intersection)) {
 
-    math::Vector2 uvA = math::Vector2::fromBufferAttribute(*uv, a);
-    math::Vector2 uvB = math::Vector2::fromBufferAttribute(*uv, b);
-    math::Vector2 uvC = math::Vector2::fromBufferAttribute(*uv, c);
+    if(uv) {
+      math::Vector2 uvA = math::Vector2::fromBufferAttribute(*uv, a);
+      math::Vector2 uvB = math::Vector2::fromBufferAttribute(*uv, b);
+      math::Vector2 uvC = math::Vector2::fromBufferAttribute(*uv, c);
 
-    intersection.uv = uvIntersection(intersection.point, vA, vB, vC, uvA, uvB, uvC);
+      intersection.uv = uvIntersection(intersection.point, vA, vB, vC, uvA, uvB, uvC);
+    }
 
     intersection.face = Face3(a, b, c, math::Triangle::normal(vA, vB, vC));
     intersection.faceIndex = a;

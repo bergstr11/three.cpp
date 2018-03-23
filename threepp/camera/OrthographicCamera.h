@@ -31,6 +31,8 @@ public:
     return std::shared_ptr<OrthographicCamera>(new OrthographicCamera(left, right, top, bottom, near, far));
   }
 
+  Object3D::Ptr cloned() override;
+
   void setup(math::Ray &ray, float x, float y) override;
 
   void updateProjectionMatrix() override;

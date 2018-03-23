@@ -75,11 +75,15 @@ protected:
 
   explicit Object3D(const object::Resolver::Ptr resolver);
 
+  void clone_setup(Object3D &cloned);
+
 public:
   virtual ~Object3D() {}
 
   void visit(bool (*f)(Object3D *));
   void visit(std::function<bool(Object3D *)> f);
+
+  virtual Ptr cloned() = 0;
 
   const object::Resolver::Ptr objectResolver;
 

@@ -83,6 +83,11 @@ public:
   {
     return Ptr(new DirectionalLight(light, size, color));
   }
+
+  Object3D::Ptr cloned() override
+  {
+    return nullptr;
+  }
 };
 
 }

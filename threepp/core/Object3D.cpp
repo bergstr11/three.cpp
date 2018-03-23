@@ -163,4 +163,38 @@ void Object3D::updateMatrixWorld(bool force)
   }
 }
 
+void Object3D::clone_setup(Object3D &clone)
+{
+  clone._name = _name;
+
+  for(auto child : _children) clone.add(child->cloned());
+
+  clone._up = _up;
+  clone._position = _position;
+  clone._rotation = _rotation;
+  clone._quaternion = _quaternion;
+  clone._scale = _scale;
+
+  clone._matrix = _matrix;
+  clone._matrixWorld = _matrixWorld;
+
+  clone._matrixWorldNeedsUpdate = _matrixWorldNeedsUpdate;
+
+  clone._layers = _layers;
+  clone._visible = _visible;
+
+  clone._renderOrder = _renderOrder;
+
+  clone.modelViewMatrix = modelViewMatrix;
+  clone.normalMatrix = normalMatrix;
+
+  clone.castShadow = castShadow;
+  clone.receiveShadow = receiveShadow;
+  clone.frustumCulled = frustumCulled;
+  clone.matrixAutoUpdate = matrixAutoUpdate;
+
+  clone.customDepthMaterial = customDepthMaterial;
+  clone.customDistanceMaterial = customDistanceMaterial;
+}
+
 }
