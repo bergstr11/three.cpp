@@ -20,6 +20,10 @@ public:
   static Ptr make(float radius, unsigned detail) {
     return Ptr(new Octahedron(radius, detail));
   }
+
+  Octahedron *cloned() const override {
+    return new Octahedron(*this);
+  }
 };
 
 namespace buffer {
@@ -37,6 +41,10 @@ public:
   using Ptr = std::shared_ptr<Octahedron>;
   static Ptr make(float radius, unsigned detail) {
     return Ptr(new Octahedron(radius, detail));
+  }
+
+  Octahedron *cloned() const override {
+    return new Octahedron(*this);
   }
 };
 

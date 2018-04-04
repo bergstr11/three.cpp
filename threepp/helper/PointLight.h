@@ -38,6 +38,13 @@ protected:
       material<0>().color() = _light->color();
     }
   }
+
+public:
+  Object3D::Ptr cloned() override
+  {
+    //not me!
+    return nullptr;
+  }
 };
 
 }

@@ -69,6 +69,12 @@ public:
   static Ptr make(const three::HemisphereLight::Ptr &light, float radius, const Color &color) {
     return Ptr(new HemisphereLight(light, radius, color));
   }
+
+  HemisphereLight *cloned() const override
+  {
+    //not me!
+    return nullptr;
+  }
 };
 
 }

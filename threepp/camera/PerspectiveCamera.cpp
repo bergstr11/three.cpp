@@ -8,20 +8,20 @@
 namespace three {
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far, camera::Resolver::Ptr resolver)
-   : Camera(resolver), _fov(fov), _aspect(aspect)
+   : Camera(resolver, near, far), _fov(fov), _aspect(aspect)
 {
-  _near = near;
-  _far = far;
   updateProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far)
-   : Camera(camera::ResolverT<PerspectiveCamera>::make(*this)), _fov(fov), _aspect(aspect)
+   : Camera(camera::ResolverT<PerspectiveCamera>::make(*this), near, far), _fov(fov), _aspect(aspect)
 {
-  _near = near;
-  _far = far;
   updateProjectionMatrix();
 }
+
+PerspectiveCamera::PerspectiveCamera(const PerspectiveCamera &camera)
+   : Camera(*this, camera::ResolverT<PerspectiveCamera>::make(*this)), _fov(camera._fov), _aspect(camera._aspect)
+{}
 
 void PerspectiveCamera::setFocalLength(float focalLength )
 {
@@ -82,22 +82,6 @@ void PerspectiveCamera::setup(math::Ray &ray, float x, float y)
   ray.direction().set(x, y, 0.5).unproject(*this);
   ray.direction() -= ray.origin();
   ray.direction().normalize();
-}
-
-void PerspectiveCamera::clone_setup(PerspectiveCamera &clone)
-{
-  clone._focus  = _focus;
-  clone._filmGauge = _filmGauge;
-  clone._filmOffset = _filmOffset;
-
-  Camera::clone_setup(clone);
-}
-
-Object3D::Ptr PerspectiveCamera::cloned()
-{
-  Ptr clone = make(_fov, _aspect, _near, _far);
-  clone_setup(*clone);
-  return clone;
 }
 
 }

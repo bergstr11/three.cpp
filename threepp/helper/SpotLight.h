@@ -84,6 +84,12 @@ public:
       _coneMaterial->color = _color;
     }
   }
+
+  SpotLight *cloned() const override
+  {
+    //not me!
+    return nullptr;
+  }
 };
 
 }

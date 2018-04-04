@@ -29,6 +29,11 @@ protected:
   LineBasicMaterial() : MaterialT(material::ResolverT<LineBasicMaterial>::make(*this)) {}
   LineBasicMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
 
+  LineBasicMaterial(const LineBasicMaterial &material)
+     : MaterialT(material, material::ResolverT<LineBasicMaterial>::make(*this)) {}
+  LineBasicMaterial(const LineBasicMaterial &material, material::Resolver::Ptr resolver)
+     : MaterialT(material, resolver) {}
+
 public:
   unsigned linewidth = 1;
   LineCap linecap = LineCap::round;
@@ -41,6 +46,10 @@ public:
     Ptr p(new LineBasicMaterial());
     p->vertexColors = colors;
     return p;
+  }
+
+  LineBasicMaterial *cloned() const override {
+    return new LineBasicMaterial(*this);
   }
 };
 
@@ -62,6 +71,8 @@ class LineDashedMaterial : public LineBasicMaterial
 {
 protected:
   LineDashedMaterial() : LineBasicMaterial(material::ResolverT<LineDashedMaterial>::make(*this)) {}
+  LineDashedMaterial(const LineDashedMaterial &material)
+     : LineBasicMaterial(material, material::ResolverT<LineDashedMaterial>::make(*this)) {}
 
 public:
   float scale = 1;
@@ -71,6 +82,10 @@ public:
   using Ptr = std::shared_ptr<LineDashedMaterial>;
   static Ptr make() {
     return Ptr(new LineDashedMaterial());
+  }
+
+  LineDashedMaterial *cloned() const override {
+    return new LineDashedMaterial(*this);
   }
 };
 

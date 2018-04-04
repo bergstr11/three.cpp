@@ -79,6 +79,8 @@ struct MeshStandardMaterial : public MaterialT<
 protected:
   MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
   MeshStandardMaterial() : MaterialT(material::ResolverT<MeshStandardMaterial>::make(*this)) {}
+  MeshStandardMaterial(const MeshStandardMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshStandardMaterial>::make(*this)) {}
 
   void callback(const material::Selector &selector) override;
 
@@ -86,6 +88,10 @@ public:
   using Ptr = std::shared_ptr<MeshStandardMaterial>;
   static Ptr make() {
     return Ptr(new MeshStandardMaterial());
+  }
+
+  MeshStandardMaterial *cloned() const override {
+    return new MeshStandardMaterial(*this);
   }
 };
 

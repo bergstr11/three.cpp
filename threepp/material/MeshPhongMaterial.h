@@ -93,6 +93,9 @@ protected:
   MeshPhongMaterial()
      : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this)) {}
 
+  MeshPhongMaterial(const MeshPhongMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+
 protected:
   void callback(const material::Selector &selector) override;
 
@@ -105,6 +108,10 @@ public:
 
   static Ptr make() {
     return Ptr(new MeshPhongMaterial());
+  }
+
+  MeshPhongMaterial *cloned() const override {
+    return new MeshPhongMaterial(*this);
   }
 };
 

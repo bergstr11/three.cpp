@@ -101,8 +101,8 @@ protected:
     }
   }
 
-  explicit BufferGeometry() {}
-  explicit BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
+  BufferGeometry() {}
+  BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
 
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
@@ -111,6 +111,10 @@ public:
   }
   static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry) {
     return Ptr(new BufferGeometry(object, geometry));
+  }
+
+  BufferGeometry *cloned() const override {
+    return new BufferGeometry(*this);
   }
 
   BufferGeometry &operator =(const BufferGeometry &geom) {

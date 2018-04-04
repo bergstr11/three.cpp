@@ -48,6 +48,8 @@ public:
   virtual const Camera::Ptr camera() const = 0;
 
   virtual void update() {}
+
+  virtual LightShadow *cloned() const = 0;
 };
 
 template <typename tCamera>
@@ -70,6 +72,10 @@ public:
   const Camera::Ptr camera() const override {return _camera;}
 
   const typename tCamera::Ptr camera_t() const {return _camera;}
+
+  LightShadowT *cloned() const override {
+    return new LightShadowT(*this);
+  }
 };
 
 }

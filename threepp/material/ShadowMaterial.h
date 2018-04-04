@@ -29,11 +29,19 @@ private:
     this->transparent = true;
   }
 
+  ShadowMaterial(const ShadowMaterial &material) : MaterialT(material, material::ResolverT<ShadowMaterial>::make(*this))
+  {
+  }
+
 public:
   using Ptr = std::shared_ptr<ShadowMaterial>;
 
   static Ptr make() {
     return Ptr(new ShadowMaterial());
+  }
+
+  ShadowMaterial *cloned() const override {
+    return new ShadowMaterial(*this);
   }
 };
 

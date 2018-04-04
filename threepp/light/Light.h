@@ -24,6 +24,13 @@ protected:
        _intensity(intensity)
   {}
 
+  Light(const Light &light, light::Resolver::Ptr resolver)
+     : Object3D(light, object::ResolverT<Light>::make(*this)),
+       lightResolver(resolver),
+       _color(light._color),
+       _intensity(light._intensity)
+  {}
+
 public:
   using Ptr = std::shared_ptr<Light>;
 

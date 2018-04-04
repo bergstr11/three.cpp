@@ -13,10 +13,18 @@ namespace three {
 class Bone : public Object3D_G<Geometry>
 {
   Bone(Geometry::Ptr geometry) : Object3D(object::Resolver::makeNull()), Object3D_G(geometry, nullptr) {}
+  Bone(const Bone &bone)
+     : Object3D(bone, object::Resolver::makeNull()),
+       Object3D_G(typename Geometry::Ptr(bone.geometry_t()->cloned()), nullptr) {}
+
 public:
   using Ptr = std::shared_ptr<Bone>;
   static Ptr make(Geometry::Ptr geometry) {
     return Ptr(new Bone(geometry));
+  }
+
+  Bone *cloned() const override {
+    return new Bone(*this);
   }
 };
 

@@ -84,6 +84,14 @@ protected:
   {
   }
 
+  ShaderMaterial(const ShaderMaterial &material)
+     : Material(material, material::ResolverT<ShaderMaterial>::make(*this)),
+       defines(material.defines), uniforms(material.uniforms),
+       clipping(material.clipping), morphNormals(material.morphNormals),
+       vertexShader(material.vertexShader), fragmentShader(material.fragmentShader)
+  {
+  }
+
   ShaderMaterial(bool morphTargets, bool skinning)
      : Material(material::ResolverT<ShaderMaterial>::make(*this))
   {
@@ -125,6 +133,10 @@ public:
                   bool fog = true)
   {
     return Ptr(new ShaderMaterial(uniforms, vertexShader, fragmentShader, side, depthTest, depthWrite, fog));
+  }
+
+  ShaderMaterial *cloned() const override {
+    return new ShaderMaterial(*this);
   }
 };
 

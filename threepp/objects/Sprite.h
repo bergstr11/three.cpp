@@ -29,6 +29,10 @@ class Sprite : public Object3D_GM<BufferGeometry, SpriteMaterial>
      : Object3D(object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, material)
   {}
 
+  Sprite(const Sprite &sprite)
+     : Object3D(*this, object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, SpriteMaterial::Ptr(material<0>()->cloned()))
+  {}
+
 public:
   using Ptr = std::shared_ptr<Sprite>;
   static Ptr make(SpriteMaterial::Ptr material = SpriteMaterial::make()) {
@@ -52,6 +56,11 @@ public:
     if (distance < raycaster.near() || distance > raycaster.far()) return;
 
     intersects.emplace_back(distance, intersectPoint, nullptr, *this);
+  }
+
+  Sprite *cloned() const override
+  {
+    return new Sprite(*this);
   }
 };
 

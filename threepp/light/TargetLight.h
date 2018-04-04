@@ -22,6 +22,12 @@ public:
   using Ptr = std::shared_ptr<TargetLight>;
 
   const Object3D::Ptr target() const {return _target;}
+
+  TargetLight *cloned() const override
+  {
+    //not easily done!
+    return nullptr;
+  }
 };
 
 }

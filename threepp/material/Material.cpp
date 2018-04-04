@@ -102,4 +102,69 @@ void PointsMaterial::callback(const material::Selector &selector)
 {
   ResolveT::handle(*this, selector);
 }
+
+Material::Material(const Material &material, material::Resolver::Ptr resolver)
+   : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver)
+{
+  fog = material.fog;
+  lights = material.lights;
+
+  ambientColor = material.ambientColor;
+
+  blending = material.blending;
+  side = material.side;
+  flatShading = material.flatShading;
+  vertexColors = material.vertexColors;
+
+  transparent = material.transparent;
+
+  blendSrc = material.blendSrc;
+  blendDst = material.blendDst;
+  blendEquation = material.blendEquation;
+
+  blendSrcAlpha = material.blendSrcAlpha;
+  blendDstAlpha = material.blendDstAlpha;
+  blendEquationAlpha = material.blendEquationAlpha;
+
+  depthFunc = material.depthFunc;
+  depthTest = material.depthTest;
+  depthWrite = material.depthWrite;
+
+  clippingPlanes = material.clippingPlanes;
+  clipIntersection = material.clipIntersection;
+  clipShadows = material.clipShadows;
+
+  colorWrite = material.colorWrite;
+
+  wireframe = material.wireframe;
+  wireframeLineWidth = material.wireframeLineWidth;
+  wireframeLineCap = material.wireframeLineCap;
+  wireframeLineJoin = material.wireframeLineJoin;
+
+  precision = material.precision;
+
+  polygonOffset = material.polygonOffset;
+  polygonOffsetFactor = material.polygonOffsetFactor;
+  polygonOffsetUnits = material.polygonOffsetUnits;
+
+  dithering = material.dithering;
+
+  alphaTest = material.alphaTest;
+  premultipliedAlpha = material.premultipliedAlpha;
+
+  map = material.map;
+
+  skinning = material.skinning;
+  morphTargets = material.morphTargets;
+  numSupportedMorphTargets = material.numSupportedMorphTargets;
+  morphNormals = material.morphNormals;
+  numSupportedMorphNormals = material.numSupportedMorphNormals;
+
+  overdraw = material.overdraw;
+
+  visible = material.visible;
+
+  needsUpdate = material.needsUpdate;
+}
+
 }

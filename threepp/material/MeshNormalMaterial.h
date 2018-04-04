@@ -51,6 +51,10 @@ protected:
     morphNormals = false;
   }
 
+  MeshNormalMaterial(const MeshNormalMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshNormalMaterial>::make(*this))
+  {}
+
 protected:
   void callback(const material::Selector &selector) override;
 
@@ -58,6 +62,10 @@ public:
   using Ptr = std::shared_ptr<MeshNormalMaterial>;
   static Ptr make() {
     return Ptr(new MeshNormalMaterial());
+  }
+
+  MeshNormalMaterial *cloned() const override {
+    return new MeshNormalMaterial(*this);
   }
 };
 

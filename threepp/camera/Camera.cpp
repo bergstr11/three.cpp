@@ -27,17 +27,4 @@ void Camera::clearViewOffset()
   updateProjectionMatrix();
 }
 
-void Camera::clone_setup(Camera &clone)
-{
-  Object3D::clone_setup(clone);
-
-  clone._matrixWorldInverse = _matrixWorldInverse;
-  clone._projectionMatrix = _projectionMatrix;
-  clone._zoom = _zoom;
-  clone._near = _near;
-  clone._far = _far;
-
-  clone._view = _view;
-}
-
 }

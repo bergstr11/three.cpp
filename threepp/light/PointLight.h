@@ -26,6 +26,11 @@ protected:
     _shadow = PointLightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
+  PointLight(const PointLight &light)
+     : Light(light, light::ResolverT<PointLight>::make(*this)),
+       _distance(light.distance()), _decay(light.decay()), _shadow(light._shadow->cloned())
+  { }
+
 public:
   using Ptr = std::shared_ptr<PointLight>;
   static Ptr make(const Color &color, float intensity, float distance, float decay)
@@ -57,6 +62,11 @@ public:
 
   void setPower(float power) {
     _intensity = power / ( 4 * (float)M_PI );
+  }
+
+  PointLight *cloned() const override
+  {
+    return new PointLight(*this);
   }
 };
 

@@ -37,6 +37,10 @@ public:
   static Ptr make(const RingParams &params=RingParams()) {
     return Ptr(new Ring(params));
   }
+
+  Ring *cloned() const override {
+    return new Ring(*this);
+  }
 };
 
 namespace buffer {
@@ -53,6 +57,10 @@ public:
 
   static Ptr make(const RingParams &params=RingParams()) {
     return Ptr(new Ring(params));
+  }
+
+  Ring *cloned() const override {
+    return new Ring(*this);
   }
 };
 

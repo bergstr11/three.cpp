@@ -36,9 +36,17 @@ protected:
   virtual Geometry &apply(const math::Matrix4 &matrix) = 0;
 
   Geometry() : id(id_count++) {}
-  virtual ~Geometry() {}
+
+  Geometry(const Geometry &geometry) : id(id_count++)
+  {
+    _boundingBox = geometry._boundingBox;
+    _boundingSphere = geometry._boundingSphere;
+    _groups = geometry._groups;
+  }
 
 public:
+  virtual ~Geometry() {}
+
   const size_t id;
 
   using OnDispose = Signal<void(Geometry *)>;
@@ -121,6 +129,8 @@ public:
 
     apply(math::Matrix4::rotation(q));
   }
+
+  virtual Geometry *cloned() const = 0;
 
   virtual void dispose() {
     onDispose.emitSignal(this);

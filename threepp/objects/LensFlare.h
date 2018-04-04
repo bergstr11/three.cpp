@@ -22,7 +22,7 @@ public:
     float scale;          // scale
     float rotation;       // rotation
     float opacity;        // opacity
-    const Color color;    // color
+    Color color;          // color
     Blending blending;    // blending
 
     Flare(Texture::Ptr texture, size_t size, float distance, unsigned int x, unsigned int y,
@@ -39,11 +39,15 @@ private:
 
   LensFlare() : Object3D(object::ResolverT<LensFlare>::make(*this)) {}
 
+  LensFlare(const LensFlare &lf) : Object3D(lf, object::ResolverT<LensFlare>::make(*this)), _flares(lf._flares) {}
+
 public:
   using Ptr = std::shared_ptr<LensFlare>;
   static Ptr make(const Texture::Ptr texture, size_t size, float distance, Blending blending, const Color &color, float opacity)
   {
-    return Ptr(new LensFlare());
+    Ptr l(new LensFlare());
+    l->add(texture, size, distance, blending, color, opacity);
+    return l;
   }
 
   std::function<void(LensFlare *)> customUpdateCallback;
@@ -89,6 +93,10 @@ public:
 
       flare.rotation += ( flare.x * M_PI * 0.25 - flare.rotation ) * 0.25;
     }
+  }
+
+  LensFlare *cloned() const override {
+    return new LensFlare(*this);
   }
 };
 

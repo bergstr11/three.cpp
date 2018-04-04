@@ -31,6 +31,10 @@ public:
   static Ptr make(const TorusParams &params=TorusParams()) {
     return Ptr(new Torus(params));
   }
+
+  Torus *cloned() const override {
+    return new Torus(*this);
+  }
 };
 
 namespace buffer {
@@ -47,6 +51,10 @@ public:
 
   static Ptr make(const TorusParams &params=TorusParams()) {
     return Ptr(new Torus(params));
+  }
+
+  Torus *cloned() const override {
+    return new Torus(*this);
   }
 };
 

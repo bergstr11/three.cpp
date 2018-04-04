@@ -111,6 +111,10 @@ public:
   {
     return Ptr(new Plane(width, height, widthSegments, heightSegments));
   }
+
+  Plane *cloned() const override {
+    return new Plane(*this);
+  }
 };
 
 }

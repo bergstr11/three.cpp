@@ -56,6 +56,10 @@ public:
     return Ptr(new Cylinder(params.radiusTop, params.radiusBottom, params.height, params.heightSegments,
                             params.radialSegments, params.openEnded, params.thetaStart, params.thetaLength));
   }
+
+  Cylinder *cloned() const override {
+    return new Cylinder(*this);
+  }
 };
 
 namespace buffer {
@@ -80,6 +84,10 @@ public:
   static Ptr make(const CylinderParams &params=CylinderParams()) {
     return Ptr(new Cylinder(params.radiusTop, params.radiusBottom, params.height, params.heightSegments,
                             params.radialSegments, params.openEnded, params.thetaStart, params.thetaLength));
+  }
+
+  Cylinder *cloned() const override {
+    return new Cylinder(*this);
   }
 };
 

@@ -34,6 +34,12 @@ protected:
     lights = false;
   }
 
+  PointsMaterial(const PointsMaterial &material) : MaterialT(material, material::ResolverT<PointsMaterial>::make(*this))
+  {
+    size = material.size;
+    sizeAttenuation = material.sizeAttenuation;
+  }
+
   void callback(const material::Selector &selector) override;
 
 public:
@@ -53,6 +59,10 @@ public:
     p->size = size;
     p->sizeAttenuation = sizeAttenuation;
     return p;
+  }
+
+  PointsMaterial *cloned() const override {
+    return new PointsMaterial(*this);
   }
 };
 

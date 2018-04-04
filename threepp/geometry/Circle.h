@@ -37,6 +37,10 @@ public:
   static Ptr make(const CircleParams &params=CircleParams()) {
     return Ptr(new Circle(params.radius, params.segments, params.thetaStart, params.thetaLength));
   }
+
+  Circle *cloned() const override {
+    return new Circle(*this);
+  }
 };
 
 namespace buffer {
@@ -56,6 +60,10 @@ public:
 
   static Ptr make(const CircleParams &params=CircleParams()) {
     return Ptr(new Circle(params.radius, params.segments, params.thetaStart, params.thetaLength));
+  }
+
+  Circle *cloned() const override {
+    return new Circle(*this);
   }
 };
 

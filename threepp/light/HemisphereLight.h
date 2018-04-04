@@ -23,6 +23,13 @@ protected:
     _position = math::Vector3(0, 1, 0);
   }
 
+  HemisphereLight(const HemisphereLight &light)
+     : Light(light, light::ResolverT<HemisphereLight>::make(*this)),
+       _groundColor(light.groundColor())
+  {
+    updateMatrix();
+  }
+
 public:
   using Ptr = std::shared_ptr<HemisphereLight>;
   static Ptr make(const Color &skyColor,
@@ -37,6 +44,11 @@ public:
 
   Color &skyColor() {return _color;}
   Color &groundColor() {return _groundColor;}
+
+  HemisphereLight *cloned() const override
+  {
+    return new HemisphereLight(*this);
+  }
 };
 
 }

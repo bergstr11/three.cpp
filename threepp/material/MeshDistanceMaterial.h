@@ -45,6 +45,11 @@ class MeshDistanceMaterial : public MaterialT<
     this->skinning = skinning;
   }
 
+  MeshDistanceMaterial(const MeshDistanceMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshDistanceMaterial>::make(*this))
+  {
+  }
+
 protected:
   void callback(const material::Selector &selector) override;
 
@@ -57,6 +62,10 @@ public:
   static Ptr make(bool morphing, bool skinning) {return Ptr(new MeshDistanceMaterial(morphing, skinning));}
 
   void setupPointLight(const math::Vector3 &position, float near, float far) override;
+
+  MeshDistanceMaterial *cloned() const override {
+    return new MeshDistanceMaterial(*this);
+  }
 };
 
 }

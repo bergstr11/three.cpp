@@ -30,6 +30,9 @@ class SpriteMaterial : public MaterialT<material::Colored>
     this->skinning = false;
   }
 
+  SpriteMaterial(const SpriteMaterial &material) : MaterialT(material, material::ResolverT<SpriteMaterial>::make(*this))
+  {}
+
 public:
   float rotation = 0;
 
@@ -41,7 +44,11 @@ public:
 
   bool fog = false;
   bool lights = false;
-  
+
+  SpriteMaterial *cloned() const override {
+    return new SpriteMaterial(*this);
+  }
 };
+
 }
 #endif //THREEPP_SPRITEMATERIAL_H

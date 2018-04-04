@@ -22,6 +22,11 @@ protected:
      : Object3D(object::ResolverT<Line>::make(*this)),
        Object3D_GM(geometry, nullptr, material), _steps(steps) {}
 
+  Line(const Line &line)
+     : Object3D(object::ResolverT<Line>::make(*this)),
+       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, LineBasicMaterial::Ptr(material<0>()->cloned())),
+       _steps(line._steps) {}
+
 public:
   using Ptr = std::shared_ptr<Line>;
   static Ptr make(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material) {
@@ -38,6 +43,11 @@ public:
   bool isShadowRenderable() const override {return true;}
 
   unsigned steps() const {return _steps;}
+
+  Line *cloned() const override
+  {
+    return new Line(*this);
+  }
 };
 
 class LineSegments : public Line
@@ -45,6 +55,10 @@ class LineSegments : public Line
 protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
      : Object3D(object::ResolverT<LineSegments>::make(*this)), Line(geometry, material, 2) {}
+
+  LineSegments(const LineSegments &segments)
+     : Object3D(object::ResolverT<LineSegments>::make(*this)),
+       Line(segments) {}
 
 public:
   using Ptr = std::shared_ptr<LineSegments>;
@@ -55,6 +69,11 @@ public:
     Ptr p(new LineSegments(geometry, material));
     p->_name = name;
     return p;
+  }
+
+  LineSegments *cloned() const override
+  {
+    return new LineSegments(*this);
   }
 };
 

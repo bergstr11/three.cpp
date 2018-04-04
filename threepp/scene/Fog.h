@@ -16,15 +16,18 @@ protected:
   Color _color;
 
   Fog(const Color &color, fog::Resolver::Ptr resolver) : _color(color), resolver(resolver) {}
-  virtual ~Fog() {}
 
 public:
+  virtual ~Fog() {}
+
   using Ptr = std::shared_ptr<Fog>;
 
   fog::Resolver::Ptr resolver;
 
   const Color &color() const {return _color;}
   Color &color() {return _color;}
+
+  virtual Fog *cloned() const = 0;
 };
 
 class DefaultFog : public Fog
@@ -35,10 +38,17 @@ class DefaultFog : public Fog
   DefaultFog(const Color &color, float near, float far)
      : Fog(color, fog::ResolverT<DefaultFog>::make(*this)), _near(near), _far(far) {}
 
+  DefaultFog(const DefaultFog &fog)
+     : Fog(fog._color, fog::ResolverT<DefaultFog>::make(*this)), _near(fog._near), _far(fog._far) {}
+
 public:
   using Ptr = std::shared_ptr<DefaultFog>;
   static Ptr make(const Color &color, float near, float far) {
     return Ptr(new DefaultFog(color, near, far));
+  }
+
+  DefaultFog *cloned() const override {
+    return new DefaultFog(*this);
   }
 
   const float near() const {return _near;}
@@ -55,10 +65,17 @@ class FogExp2 : public Fog
   FogExp2(const Color &color, float density = 0.00025f)
      : Fog(color, fog::ResolverT<FogExp2>::make(*this)), _density(density) {}
 
+  FogExp2(const FogExp2 &fog)
+     : Fog(fog._color, fog::ResolverT<FogExp2>::make(*this)), _density(fog._density) {}
+
 public:
   using Ptr = std::shared_ptr<FogExp2>;
   static Ptr make(const Color &color, float density) {
     return Ptr(new FogExp2(color, density));
+  }
+
+  FogExp2 *cloned() const override {
+    return new FogExp2(*this);
   }
 
   const float density() const {return _density;}

@@ -18,20 +18,26 @@ class OrthographicCamera : public Camera
 
 protected:
   OrthographicCamera(float left, float right, float top, float bottom, float near, float far)
-     : _left(left), _right(right), _top(top), _bottom(bottom)
+     : Camera(near, far), _left(left), _right(right), _top(top), _bottom(bottom)
   {
-       _near = near;
-       _far = far;
        updateProjectionMatrix();
+  }
+
+  OrthographicCamera(const OrthographicCamera &camera)
+     : Camera(camera), _left(camera._left), _right(camera._right), _top(camera._top), _bottom(camera._bottom)
+  {
+    updateProjectionMatrix();
   }
 
 public:
   using Ptr = std::shared_ptr<OrthographicCamera>;
   static Ptr make(float left, float right, float top, float bottom, float near=0.1f, float far=2000.0f) {
-    return std::shared_ptr<OrthographicCamera>(new OrthographicCamera(left, right, top, bottom, near, far));
+    return Ptr(new OrthographicCamera(left, right, top, bottom, near, far));
   }
 
-  Object3D::Ptr cloned() override;
+  OrthographicCamera *cloned() const override {
+    return new OrthographicCamera(*this);
+  }
 
   void setup(math::Ray &ray, float x, float y) override;
 

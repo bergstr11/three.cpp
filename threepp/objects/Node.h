@@ -19,6 +19,9 @@ protected:
     _name = name;
   }
 
+  Node(const Node &node) : Object3D(node, object::ResolverT<Node>::make(*this))
+  {}
+
 public:
   using Ptr = std::shared_ptr<Node>;
   static Ptr make(std::string name="") {
@@ -26,6 +29,10 @@ public:
   }
 
   bool isEmpty() {return _children.empty();}
+
+  Node *cloned() const override {
+    return new Node(*this);
+  }
 };
 
 }

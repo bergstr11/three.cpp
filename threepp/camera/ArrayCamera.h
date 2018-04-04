@@ -39,15 +39,23 @@ class ArrayCameraI : public ArrayCamera
     }
   }
 
+  ArrayCameraI(const ArrayCameraI &camera)
+     : ArrayCamera(camera)
+  {
+    for(unsigned i=0; i<_sz;i++) {
+      _cameras[i] = camera._cameras[i]->cloned();
+    }
+  }
+
 public:
   using Ptr = std::shared_ptr<ArrayCamera>;
   static Ptr make(float fov, float aspect, float near, float far) {
     return Ptr(new ArrayCameraI(fov, aspect, near, far));
   }
 
-  Object3D::Ptr cloned() override
+  ArrayCameraI *cloned() const override
   {
-    Ptr clone = make(fov(), aspect(), near(), far());
+    return new ArrayCameraI(*this);
   }
 
   PerspectiveCamera::Ptr operator[](unsigned index)

@@ -25,7 +25,14 @@ class Mesh : public virtual Object3D
 protected:
   Mesh() : Object3D(object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
   {}
+
   Mesh(object::Resolver::Ptr resolver) : Object3D(resolver), _drawMode(DrawMode::Triangles)
+  {}
+
+  Mesh(const Mesh &mesh) : Object3D(mesh, object::ResolverT<Mesh>::make(*this))
+  {}
+
+  Mesh(const Mesh &mesh, object::Resolver::Ptr resolver) : Object3D(mesh, resolver)
   {}
 
 public:
@@ -53,6 +60,10 @@ public:
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
 
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
+
+  Mesh *cloned() const override {
+    return new Mesh(*this);
+  }
 };
 
 /**
@@ -66,9 +77,6 @@ class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
 {
   friend class Mesh;
 
-  std::vector<float> _morphTargetInfluences;
-  std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
-
 protected:
   MeshT(const typename Geom::Ptr &geometry, object::Resolver::Ptr resolver, typename Mat::Ptr material)
      : Object3D(resolver), Object3D_GM<Geom, Mat>(geometry, resolver, material)
@@ -81,6 +89,13 @@ protected:
   {
     setDrawMode(DrawMode::Triangles);
   }
+
+  /*MeshT(const MeshT &mesh)
+     : Object3D(mesh, object::ResolverT<Mesh>::make(*this)),
+       Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()), nullptr, typename Mat::Ptr(mesh.material<0>()->cloned()))
+  {
+    setDrawMode(DrawMode::Triangles);
+  }*/
 
 public:
   using Ptr = std::shared_ptr<MeshT<Geom, Mat>>;
@@ -96,6 +111,10 @@ public:
     p->_name = name;
     return p;
   }
+
+  /*MeshT *cloned() const override {
+    return new MeshT(*this);
+  }*/
 };
 
 template <typename Geom, typename Mat>

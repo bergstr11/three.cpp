@@ -16,10 +16,19 @@ protected:
      : Light(light::ResolverT<AmbientLight>::make(*this), color, intensity)
   {}
 
+  AmbientLight(const AmbientLight &light)
+     : Light(light, light::ResolverT<AmbientLight>::make(*this))
+  {}
+
 public:
   using Ptr = std::shared_ptr<AmbientLight>;
   static Ptr make(const Color &color, float intensity=1.0f) {
     return Ptr(new AmbientLight(color, intensity));
+  }
+
+  AmbientLight *cloned() const override
+  {
+    return new AmbientLight(*this);
   }
 };
 

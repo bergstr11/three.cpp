@@ -58,6 +58,8 @@ struct MeshLambertMaterial : public MaterialT<
    material::AlphaMap>
 {
   MeshLambertMaterial() : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
+  MeshLambertMaterial(const MeshLambertMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshLambertMaterial>::make(*this)) {}
 
 protected:
   void callback(const material::Selector &selector) override;
@@ -66,6 +68,10 @@ public:
   using Ptr = std::shared_ptr<MeshLambertMaterial>;
   static Ptr make() {
     return Ptr(new MeshLambertMaterial());
+  }
+
+  MeshLambertMaterial *cloned() const override {
+    return new MeshLambertMaterial(*this);
   }
 };
 

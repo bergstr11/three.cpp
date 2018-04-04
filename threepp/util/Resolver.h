@@ -79,7 +79,8 @@ struct Clearable
   virtual void clear() = 0;
 };
 
-class Dispatcher {
+class Dispatcher
+{
 protected:
   std::vector<Clearable *> _clearables;
 

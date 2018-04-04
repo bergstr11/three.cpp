@@ -79,7 +79,7 @@ ThreeQObject *Model::createObject(QByteArray name, Intersect *intersect, const Q
 {
   Object3D::Ptr object = importedScene()->getChildByName(name.toStdString());
   if(object) {
-    Object3D::Ptr clone = object->clone();
+    Object3D::Ptr clone(object->cloned());
     three::Mesh::Ptr mesh = dynamic_pointer_cast<three::Mesh>(clone);
     ThreeQObject *three = mesh ? Mesh::create(mesh, this) : new ThreeQObject(clone, this);
 

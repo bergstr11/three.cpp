@@ -80,6 +80,10 @@ public:
     _boundingSphere.set(vertices);
     return *this;
   }
+
+  DirectGeometry *cloned() const override {
+    return new DirectGeometry(*this);
+  }
 };
 
 }

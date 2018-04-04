@@ -221,6 +221,7 @@ struct Material
 protected:
   Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver) {}
   Material() : uuid(sole::uuid0()), id(___material_id_count++), resolver(material::ResolverT<Material>::make(*this)) {}
+  Material(const Material &material, material::Resolver::Ptr resolver);
 
   virtual void callback(const material::Selector &selector) {};
 
@@ -239,6 +240,8 @@ public:
     onDispose.disconnectAll();
   }
 
+  virtual Material *cloned() const = 0;
+
   virtual void setupPointLight(const math::Vector3 &position, float near, float far) {}
 };
 
@@ -256,6 +259,7 @@ struct MaterialT<Map> : public Material, public Map
 protected:
   MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
   MaterialT() : Material() {}
+  MaterialT(const MaterialT &material,material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
 };
 
 template<>
@@ -264,6 +268,7 @@ struct MaterialT<> : public Material
 protected:
   MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
   MaterialT() : Material() {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Material(material, resolver) {}
 };
 
 template<typename Map, typename ... Maps>
@@ -274,6 +279,7 @@ struct MaterialT<Map, Maps...> : public Material, Map, Maps...
 protected:
   MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
   MaterialT() : Material() {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Material(material, resolver) {}
 };
 
 }

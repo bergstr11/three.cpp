@@ -62,6 +62,9 @@ private:
   MeshBasicMaterial() : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this))
   {}
 
+  MeshBasicMaterial(const MeshBasicMaterial &material) : MaterialT(*this, material::ResolverT<MeshBasicMaterial>::make(*this))
+  {}
+
 protected:
   void callback(const material::Selector &selector) override;
 
@@ -74,6 +77,10 @@ public:
 
   static Ptr make() {
     return Ptr(new MeshBasicMaterial());
+  }
+
+  MeshBasicMaterial *cloned() const override {
+    return new MeshBasicMaterial(*this);
   }
 };
 

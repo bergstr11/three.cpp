@@ -20,8 +20,12 @@ class Scene : public Object3D
 protected:
   Scene(const Fog::Ptr fog, scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
      : Object3D(nullptr), _fog(fog), _autoUpdate(true), backgroundResolver(resolver) {}
+
   Scene(scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
      : Object3D(nullptr), _fog(nullptr), _autoUpdate(true), backgroundResolver(resolver) {}
+
+  Scene(const Scene &scene, scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
+     : Object3D(scene, nullptr), _fog(Fog::Ptr(scene._fog->cloned())), _autoUpdate(scene._autoUpdate), backgroundResolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Scene>;
@@ -33,6 +37,10 @@ public:
     Ptr p(new Scene(scene::Resolver::makeNull()));
     p->_name = name;
     return p;
+  }
+
+  Scene *cloned() const override {
+    return new Scene(*this);
   }
 
   virtual bool hasBackground() const {return false;}
@@ -58,6 +66,8 @@ protected:
      : Scene(fog, scene::ResolverT<_Background>::make(_background)), _background(background) {}
   SceneT()
      : Scene(scene::ResolverT<_Background>::make(_background)) {}
+  SceneT(const SceneT &scene)
+     : Scene(scene, scene::ResolverT<_Background>::make(_background)) {}
 
 public:
   using Ptr = std::shared_ptr<SceneT<_Background>>;
@@ -65,6 +75,10 @@ public:
     Ptr p(new SceneT(background, fog));
     p->_name = name;
     return p;
+  }
+
+  SceneT *cloned() const override {
+    return new SceneT(*this);
   }
 
   bool hasBackground() const override {return true;}

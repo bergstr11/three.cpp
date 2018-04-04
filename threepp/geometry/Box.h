@@ -29,6 +29,10 @@ public:
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   }
 
+  Box *cloned() const override {
+    return new Box(*this);
+  }
+
   void setWidth(unsigned width) {_width = width;}
   void setHeight(unsigned height) {_height = height;}
   void setDepth(unsigned depth) {_depth = depth;}
@@ -52,6 +56,10 @@ public:
   static Ptr make(unsigned width, unsigned height, unsigned depth,
                   unsigned widthSegments=1, unsigned heightSegments=1, unsigned depthSegments=1) {
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
+  }
+
+  Box *cloned() const override {
+    return new Box(*this);
   }
 };
 

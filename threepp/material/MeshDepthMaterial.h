@@ -49,6 +49,11 @@ struct MeshDepthMaterial : public MaterialT<material::Colored, material::AlphaMa
     this->skinning = skinning;
   }
 
+  MeshDepthMaterial(const MeshDepthMaterial &material)
+     : MaterialT(material, material::ResolverT<MeshDepthMaterial>::make(*this)),
+       depthPacking(material.depthPacking), skinning(material.skinning)
+  {}
+
 protected:
   void callback(const material::Selector &selector) override;
 
@@ -57,10 +62,15 @@ public:
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {
     return Ptr(new MeshDepthMaterial(packing, morphing, skinning));
   }
+
   static Ptr make(std::string name, DepthPacking packing, bool morphing, bool skinning) {
     Ptr p(new MeshDepthMaterial(packing, morphing, skinning));
     p->name = name;
     return p;
+  }
+
+  MeshDepthMaterial *cloned() const override {
+    return new MeshDepthMaterial(*this);
   }
 };
 

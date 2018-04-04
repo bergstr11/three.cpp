@@ -29,6 +29,10 @@ public:
   static Ptr make(const PolyhedronParams &params) {
     return Ptr(new Polyhedron(params));
   }
+
+  Polyhedron *cloned() const override {
+    return new Polyhedron(*this);
+  }
 };
 
 namespace buffer {
@@ -46,6 +50,10 @@ public:
   using Ptr = std::shared_ptr<Polyhedron>;
   static Ptr make(const PolyhedronParams &params) {
     return Ptr(new Polyhedron(params));
+  }
+
+  Polyhedron *cloned() const override {
+    return new Polyhedron(*this);
   }
 };
 

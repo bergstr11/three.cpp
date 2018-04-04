@@ -57,13 +57,6 @@ void Object3D::onQuaternionChange(const math::Quaternion &quaternion)
   _rotation.set(_quaternion, Euler::RotationOrder::Default, false);
 }
 
-Object3D::Object3D(object::Resolver::Ptr resolver)
-   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
-{
-  _rotation.onChange.connect(*this, &Object3D::onRotationChange);
-  _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
-}
-
 void Object3D::apply(const Matrix4 &matrix)
 {
   _matrix.multiply(matrix, _matrix);
@@ -163,38 +156,49 @@ void Object3D::updateMatrixWorld(bool force)
   }
 }
 
-void Object3D::clone_setup(Object3D &clone)
+Object3D::Object3D(object::Resolver::Ptr resolver)
+   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
 {
-  clone._name = _name;
+  _rotation.onChange.connect(*this, &Object3D::onRotationChange);
+  _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
+}
 
-  for(auto child : _children) clone.add(child->cloned());
+Object3D::Object3D(const Object3D &clone, object::Resolver::Ptr resolver)
+   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
+{
+  _name = clone._name;
 
-  clone._up = _up;
-  clone._position = _position;
-  clone._rotation = _rotation;
-  clone._quaternion = _quaternion;
-  clone._scale = _scale;
+  for(auto child : clone._children) {
+    auto cloned = child->cloned();
+    if(cloned) add(Ptr(cloned));
+  }
 
-  clone._matrix = _matrix;
-  clone._matrixWorld = _matrixWorld;
+  _up = clone._up;
+  _position = clone._position;
+  _rotation = clone._rotation;
+  _quaternion = clone._quaternion;
+  _scale = clone._scale;
 
-  clone._matrixWorldNeedsUpdate = _matrixWorldNeedsUpdate;
+  _matrix = clone._matrix;
+  _matrixWorld = clone._matrixWorld;
 
-  clone._layers = _layers;
-  clone._visible = _visible;
+  _matrixWorldNeedsUpdate = clone._matrixWorldNeedsUpdate;
 
-  clone._renderOrder = _renderOrder;
+  _layers = clone._layers;
+  _visible = clone._visible;
 
-  clone.modelViewMatrix = modelViewMatrix;
-  clone.normalMatrix = normalMatrix;
+  _renderOrder = clone._renderOrder;
 
-  clone.castShadow = castShadow;
-  clone.receiveShadow = receiveShadow;
-  clone.frustumCulled = frustumCulled;
-  clone.matrixAutoUpdate = matrixAutoUpdate;
+  modelViewMatrix = clone.modelViewMatrix;
+  normalMatrix = clone.normalMatrix;
 
-  clone.customDepthMaterial = customDepthMaterial;
-  clone.customDistanceMaterial = customDistanceMaterial;
+  castShadow = clone.castShadow;
+  receiveShadow = clone.receiveShadow;
+  frustumCulled = clone.frustumCulled;
+  matrixAutoUpdate = clone.matrixAutoUpdate;
+
+  customDepthMaterial = clone.customDepthMaterial;
+  customDistanceMaterial = clone.customDistanceMaterial;
 }
 
 }

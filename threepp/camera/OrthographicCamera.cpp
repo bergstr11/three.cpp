@@ -40,12 +40,4 @@ void OrthographicCamera::updateProjectionMatrix()
   _projectionMatrix = math::Matrix4::orthographic( left, right, top, bottom, _near, _far );
 }
 
-Object3D::Ptr OrthographicCamera::cloned()
-{
-  Ptr clone = make(_left, _right, _top, _bottom, _near, _far);
-
-  Camera::clone_setup(*clone);
-  return clone;
-}
-
 }

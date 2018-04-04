@@ -35,6 +35,10 @@ public:
                           std::max(heightSegments, 2u),
                           phiStart, phiLength, thetaStart, thetaLength));
   }
+
+  Sphere *cloned() const override {
+    return new Sphere(*this);
+  }
 };
 
 namespace buffer {
@@ -64,6 +68,10 @@ public:
                           std::max(widthSegments, 3u),
                           std::max(heightSegments, 2u),
                           phiStart, phiLength, thetaStart, thetaLength));
+  }
+
+  Sphere *cloned() const override {
+    return new Sphere(*this);
   }
 };
 

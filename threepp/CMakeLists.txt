@@ -7,10 +7,11 @@ find_package(assimp REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-qt5_add_resources(SHADER_RESOURCES
+set(SHADER_RESOURCES
         renderers/gl/shader/ShaderLib/ShaderLib.qrc
         renderers/gl/shader/ShaderChunk/ShaderChunk.qrc
         renderers/gl/shader/Materials/Materials.qrc)
@@ -52,7 +53,7 @@ set(THREE_HDRDIRS
 
 CONFIGURE_FILE("${THREE_ROOT}/etc/threepp.pc.in" "threepp.pc" @ONLY)
 
-message("ASS: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
+message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
 add_subdirectory(quick)
 

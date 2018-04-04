@@ -39,23 +39,32 @@ class Camera : public Object3D
 protected:
   math::Matrix4 _matrixWorldInverse;
   math::Matrix4 _projectionMatrix;
+
   float _zoom   = 1;
   float _near   = 0.1;
   float _far    = 2000;
 
   Viewport _view;
 
-  Camera(camera::Resolver::Ptr resolver)
-    : Object3D(object::Resolver::makeNull()), cameraResolver(resolver), _projectionMatrix(math::Matrix4::identity()),
+  Camera(camera::Resolver::Ptr resolver, float near=0.1, float far=2000, float zoom=1)
+    : Object3D(object::Resolver::makeNull()), cameraResolver(resolver),
+      _near(near), _far(far), _zoom(zoom),
+      _projectionMatrix(math::Matrix4::identity()),
       _matrixWorldInverse(_matrixWorld.inverted()) {}
 
-  Camera()
+  Camera(float near=0.1, float far=2000, float zoom=1)
     : Object3D(object::Resolver::makeNull()), cameraResolver(camera::Resolver::makeNull()),
-      _projectionMatrix(math::Matrix4::identity()), _matrixWorldInverse(_matrixWorld.inverted()) {}
+      _near(near), _far(far), _zoom(zoom),
+      _projectionMatrix(math::Matrix4::identity()),
+      _matrixWorldInverse(_matrixWorld.inverted()) {}
+
+  Camera(const Camera &camera, camera::Resolver::Ptr resolver=camera::Resolver::makeNull())
+     : Object3D(object::Resolver::makeNull()), cameraResolver(resolver),
+       _near(camera._near), _far(camera._far), _zoom(camera._zoom),
+       _projectionMatrix(camera._projectionMatrix),
+       _matrixWorldInverse(camera._matrixWorldInverse) {}
 
   virtual ~Camera() {}
-
-  void clone_setup(Camera &cloned);
 
 public:
   using Ptr = std::shared_ptr<Camera>;
