@@ -56,7 +56,7 @@ Vector3 OrthographicTrackball::getMouseProjectionOnBall(unsigned x, unsigned y)
 
 void OrthographicTrackball::rotateCamera()
 {
-  float angle = acos(_rotateStart.dot(_rotateEnd) / _rotateStart.length() / _rotateEnd.length());
+  float angle = acos(dot(_rotateStart, _rotateEnd) / _rotateStart.length() / _rotateEnd.length());
 
   if (angle) {
     Vector3 axis = _rotateStart.cross(_rotateEnd).normalize();

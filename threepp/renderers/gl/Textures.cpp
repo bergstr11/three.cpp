@@ -469,7 +469,7 @@ void Textures::setupDepthTexture(GLuint framebuffer, RenderTargetInternal &rende
 
     renderTarget.depthTexture()->width() = (size_t)renderTarget.width();
     renderTarget.depthTexture()->height() = (size_t)renderTarget.height();
-    renderTarget.depthTexture()->needsUpdate(true);
+    renderTarget.depthTexture()->needsUpdate();
   }
 
   setTexture2D( renderTarget.depthTexture(), 0 );

@@ -45,7 +45,7 @@ public:
   Plane &setNormalAndCoplanarPoint(const Vector3 &normal, const Vector3 &point)
   {
     _normal = normal;
-    _constant = - point.dot( _normal );
+    _constant = - dot(point, _normal);
 
     return *this;
   }
@@ -81,7 +81,7 @@ public:
 
   float distanceToPoint(const Vector3 &point ) const
   {
-     return _normal.dot( point ) + _constant;
+     return dot(_normal, point) + _constant;
   }
 
   float distanceToSphere(const Sphere &sphere) const
@@ -100,7 +100,7 @@ public:
   {
     Vector3 direction = line.delta();
 
-    float denominator = _normal.dot( direction );
+    float denominator = dot(_normal, direction);
 
     if ( denominator == 0 ) {
 
@@ -115,7 +115,7 @@ public:
 
     }
 
-    float t = - ( line.start().dot( _normal ) + _constant ) / denominator;
+    float t = - (dot(line.start(), _normal ) + _constant ) / denominator;
 
     if ( t < 0 || t > 1 ) return false;
 
@@ -156,14 +156,14 @@ public:
     _normal.apply(normalMatrix);
     _normal.normalize();
 
-    _constant = - referencePoint.dot( _normal );
+    _constant = - dot(referencePoint, _normal);
 
     return *this;
   }
 
   Plane &translate(const Vector3 &offset )
   {
-     _constant -= offset.dot( _normal );
+     _constant -= dot(offset, _normal);
 
      return *this;
   }

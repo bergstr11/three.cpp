@@ -70,7 +70,8 @@ public:
   three::Scene::Ptr importedScene();
 
   Q_INVOKABLE three::quick::ThreeQObject *createObject(
-     QByteArray name, three::quick::Intersect *intersect, const QVariantMap &arguments);
+     const QByteArray &name, const QVector3D &position, const QVector3D &modelNormal, const QVector3D &faceNormal,
+     float scale, const QVariantMap &arguments);
 
 signals:
   void fileChanged();

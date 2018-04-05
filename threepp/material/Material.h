@@ -259,7 +259,7 @@ struct MaterialT<Map> : public Material, public Map
 protected:
   MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
   MaterialT() : Material() {}
-  MaterialT(const MaterialT &material,material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
 };
 
 template<>
@@ -279,7 +279,7 @@ struct MaterialT<Map, Maps...> : public Material, Map, Maps...
 protected:
   MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
   MaterialT() : Material() {}
-  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Material(material, resolver) {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
 };
 
 }

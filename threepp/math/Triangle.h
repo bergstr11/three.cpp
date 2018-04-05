@@ -38,11 +38,11 @@ public:
     Vector3 v1 = b - a;
     Vector3 v2 = point - a;
 
-    float dot00 = v0.dot( v0 );
-    float dot01 = v0.dot( v1 );
-    float dot02 = v0.dot( v2 );
-    float dot11 = v1.dot( v1 );
-    float dot12 = v1.dot( v2 );
+    float dot00 = dot(v0, v0);
+    float dot01 = dot(v0, v1);
+    float dot02 = dot(v0, v2);
+    float dot11 = dot(v1, v1);
+    float dot12 = dot(v1, v2);
 
     float denom = ( dot00 * dot11 - dot01 * dot01 );
 

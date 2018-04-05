@@ -68,7 +68,7 @@ public:
   Vector3 closestPointToPoint(const Vector3 &point) const
   {
     Vector3 result = point - _origin;
-    float directionDistance = result.dot(_direction);
+    float directionDistance = dot(result, _direction);
 
     if (directionDistance < 0) {
       return _origin;
@@ -78,7 +78,7 @@ public:
 
   float distanceSqToPoint(const Vector3 &point) const
   {
-    float directionDistance = (point - _origin).dot(_direction);
+    float directionDistance = dot((point - _origin), _direction);
 
     // point behind the ray
     if (directionDistance < 0) {
@@ -110,9 +110,9 @@ public:
     Vector3 diff = _origin - segCenter;
 
     float segExtent = v0.distanceTo(v1) * 0.5f;
-    float a01 = -_direction.dot(segDir);
-    float b0 = diff.dot(_direction);
-    float b1 = -diff.dot(segDir);
+    float a01 = -dot(_direction, segDir);
+    float b0 = dot(diff, _direction);
+    float b1 = -dot(diff, segDir);
     float c = diff.lengthSq();
     float det = std::abs(1 - a01 * a01);
     float s0, s1, sqrDist, extDet;
@@ -202,8 +202,8 @@ public:
   Vector3 intersectSphere(const Sphere &sphere)
   {
     Vector3 v1 = sphere.center() - _origin;
-    float tca = v1.dot(_direction);
-    float d2 = v1.dot(v1) - tca * tca;
+    float tca = dot(v1, _direction);
+    float d2 = dot(v1, v1) - tca * tca;
     float radius2 = sphere.radius() * sphere.radius();
 
     if (d2 > radius2) throw std::range_error("d2 > radius2");
@@ -235,7 +235,7 @@ public:
 
   bool distanceToPlane(const Plane &plane, float &distance)
   {
-    float denominator = plane.normal().dot(_direction);
+    float denominator = dot(plane.normal(), _direction);
 
     if (denominator == 0) {
       // line is coplanar, return origin
@@ -248,7 +248,7 @@ public:
       return false;
     }
 
-    float t = -(_origin.dot(plane.normal()) + plane.constant()) / denominator;
+    float t = -(dot(_origin, plane.normal()) + plane.constant()) / denominator;
 
     // Return if the ray never intersects the plane
     if (t >= 0) {
@@ -279,7 +279,7 @@ public:
     if (distToPoint == 0)
       return true;
 
-    float denominator = plane.normal().dot(_direction);
+    float denominator = dot(plane.normal(), _direction);
 
     if (denominator * distToPoint < 0) {
       return true;
@@ -395,7 +395,7 @@ public:
       origin = {500, -1300, 800};
     }
 
-    float DdN = direction.dot(normal);
+    float DdN = dot(direction, normal);
     float sign;
 
     if (DdN > 0) {
@@ -412,14 +412,14 @@ public:
     }
 
     Vector3 diff = origin - a;
-    float DdQxE2 = sign * direction.dot(cross(diff, edge2));
+    float DdQxE2 = sign * dot(direction, cross(diff, edge2));
 
     // b1 < 0, no intersection
     if (DdQxE2 < 0) {
       return;
     }
 
-    float DdE1xQ = sign * direction.dot(cross(edge1, diff));
+    float DdE1xQ = sign * dot(direction, cross(edge1, diff));
 
     // b2 < 0, no intersection
     if (DdE1xQ < 0) {
@@ -432,7 +432,7 @@ public:
     }
 
     // Line intersects triangle, check if ray does.
-    float QdN = -sign * diff.dot(normal);
+    float QdN = -sign * dot(diff, normal);
 
     // t < 0, no intersection
     if (QdN < 0) {
@@ -460,7 +460,7 @@ public:
     //   |Dot(D,N)|*b1 = sign(Dot(D,N))*Dot(D,Cross(Q,E2))
     //   |Dot(D,N)|*b2 = sign(Dot(D,N))*Dot(D,Cross(E1,Q))
     //   |Dot(D,N)|*t = -sign(Dot(D,N))*Dot(Q,N)
-    float DdN = _direction.dot(normal);
+    float DdN = dot(_direction, normal);
     float sign;
 
     if (DdN > 0) {
@@ -478,14 +478,14 @@ public:
     }
 
     Vector3 diff = _origin - a;
-    float DdQxE2 = sign * _direction.dot(cross(diff, edge2));
+    float DdQxE2 = sign * dot(_direction, cross(diff, edge2));
 
     // b1 < 0, no intersection
     if (DdQxE2 < 0) {
       return false;
     }
 
-    float DdE1xQ = sign * _direction.dot(cross(edge1, diff));
+    float DdE1xQ = sign * dot(_direction, cross(edge1, diff));
 
     // b2 < 0, no intersection
     if (DdE1xQ < 0) {
@@ -498,7 +498,7 @@ public:
     }
 
     // Line intersects triangle, check if ray does.
-    float QdN = -sign * diff.dot(normal);
+    float QdN = -sign * dot(diff, normal);
 
     // t < 0, no intersection
     if (QdN < 0) {

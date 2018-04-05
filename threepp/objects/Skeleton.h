@@ -101,7 +101,7 @@ public:
     }
 
     if (_boneTexture) {
-      _boneTexture->needsUpdate(true);
+      _boneTexture->needsUpdate();
     }
   }
 };

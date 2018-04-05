@@ -30,6 +30,7 @@ Vector3 operator *(const Vector3 &vector, float scalar);
 Vector3 operator *(const Vector3  &vector, const Matrix4 &matrix);
 Vector3 operator / (const Vector3 &vector, float scalar);
 Vector3 cross(const Vector3 &a, const Vector3 &b);
+float dot(const Vector3 &a, const Vector3 &b);
 
 class Matrix4;
 class Quaternion;
@@ -274,11 +275,6 @@ public:
     return *this;
   }
 
-  float dot(const Vector3 &v) const
-  {
-    return _x * v._x + _y * v._y + _z * v._z;
-  }
-
   float lengthSq() const
   {
     return _x * _x + _y * _y + _z * _z;
@@ -349,7 +345,7 @@ public:
 
   Vector3 &project(const Vector3 &vector)
   {
-    float scalar = vector.dot(*this) / vector.lengthSq();
+    float scalar = dot(vector, *this) / vector.lengthSq();
     *this = vector * scalar;
 
     return *this;
@@ -368,12 +364,12 @@ public:
   Vector3 &reflect(const Vector3 &normal) 
   {
     Vector3 v1(normal);
-    return *this -= (v1  * ( 2 * this->dot( normal ) ) );
+    return *this -= (v1  * ( 2 * dot(*this, normal) ) );
   }
 
   float angleTo(const Vector3 &v ) const
   {
-    float theta = dot( v ) / ( std::sqrt( lengthSq() * v.lengthSq() ) );
+    float theta = dot(*this, v) / ( std::sqrt( lengthSq() * v.lengthSq() ) );
 
     // clamp, to handle numerical problems
     return std::acos( math::clamp( theta, -1.0f, 1.0f ) );
@@ -475,6 +471,12 @@ inline Vector3 cross(const Vector3 &a, const Vector3 &b)
                  az * bx - ax * bz,
                  ax * by - ay * bx);
 }
+
+inline float dot(const Vector3 &a, const Vector3 &b)
+{
+  return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
+}
+
 
 }
 }

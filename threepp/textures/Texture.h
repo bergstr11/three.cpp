@@ -133,7 +133,7 @@ public:
 
   void transformUv(UV &uv);
 
-  void needsUpdate(bool value) {_version ++;}
+  void needsUpdate() {_version ++;}
 
   virtual bool isPowerOfTwo() const = 0;
 

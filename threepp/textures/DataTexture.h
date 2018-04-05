@@ -10,7 +10,7 @@
 namespace three {
 
 /**
- * template
+ * class DataTexture
  */
 class DataTexture : public Texture
 {
@@ -24,8 +24,9 @@ protected:
 
   DataTexture(const TextureOptions &options, const TextureData::Ptr data, size_t width, size_t height, bool compressed=false)
      : Texture(texture::ResolverT<DataTexture>::make(*this), options, false, 1),
-       _width(width), _height(height), _compressed(compressed)
+       _data(data), _width(width), _height(height), _compressed(compressed)
   {
+    needsUpdate();
   }
 
 public:
@@ -68,7 +69,7 @@ public:
     }
   }
 
-  bool compressed() const {_compressed;}
+  bool compressed() const {return _compressed;}
   size_t width() const {return _width;}
   size_t height() const {return _height;}
   const byte *bytes() const {return _data->bytes();}
@@ -79,7 +80,7 @@ public:
 };
 
 /**
- * class
+ * class DataCubeTexture
  */
 class DataCubeTexture : public CubeTexture
 {

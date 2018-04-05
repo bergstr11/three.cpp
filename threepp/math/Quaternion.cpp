@@ -149,7 +149,7 @@ Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
   // assumes direction vectors vFrom and vTo are normalized
   Vector3 v1;
 
-  float r = vFrom.dot( vTo ) + 1;
+  float r = math::dot(vFrom, vTo) + 1;
 
   if ( r < EPS ) {
     r = 0;

@@ -52,8 +52,8 @@ public:
     Vector3 startP = point - _start;
     Vector3 startEnd = _end - _start;
 
-    float startEnd2 = startEnd.dot( startEnd );
-    float startEnd_startP = startEnd.dot( startP );
+    float startEnd2 = dot(startEnd, startEnd );
+    float startEnd_startP = dot(startEnd, startP);
 
     float t = startEnd_startP / startEnd2;
 

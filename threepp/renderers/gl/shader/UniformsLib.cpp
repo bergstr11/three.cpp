@@ -73,8 +73,8 @@ void initRectAreaLight()
   options.format = TextureFormat::Alpha;
   LTC_MAG_TEXTURE = DataTexture::make(options, ltc_mag, 64, 64);
 
-  LTC_MAT_TEXTURE->needsUpdate(true);
-  LTC_MAG_TEXTURE->needsUpdate(true);
+  LTC_MAT_TEXTURE->needsUpdate();
+  LTC_MAG_TEXTURE->needsUpdate();
 
   // Add ltc tables to materials
 

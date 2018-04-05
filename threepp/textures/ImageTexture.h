@@ -25,7 +25,7 @@ public:
 
   static Ptr make(const TextureOptions &options, const QImage &image=QImage()) {
     Ptr p(new ImageTexture(options, image));
-    p->needsUpdate(!image.isNull());
+    if(!image.isNull()) p->needsUpdate();
     return p;
   }
 
@@ -67,7 +67,7 @@ public:
 
   static Ptr make(const TextureOptions &options, const std::array<QImage, 6> &images) {
     Ptr p(new ImageCubeTexture(options, images));
-    p->needsUpdate(true);
+    p->needsUpdate();
     return p;
   }
 

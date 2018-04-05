@@ -164,7 +164,7 @@ Material::Material(const Material &material, material::Resolver::Ptr resolver)
 
   visible = material.visible;
 
-  needsUpdate = material.needsUpdate;
+  needsUpdate = true;
 }
 
 }

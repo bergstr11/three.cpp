@@ -43,8 +43,11 @@ protected:
   {
     if(_qhelper.configured()) {
       _helper = helper::HemisphereLight::make(_light, _qhelper.size(), Color::null());
+      _helper->visible() = _qhelper.visible();
+
       QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
+
       scene->scene()->add(_helper);
     }
   }
