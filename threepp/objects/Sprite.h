@@ -30,7 +30,7 @@ class Sprite : public Object3D_GM<BufferGeometry, SpriteMaterial>
   {}
 
   Sprite(const Sprite &sprite)
-     : Object3D(*this, object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, SpriteMaterial::Ptr(material<0>()->cloned()))
+     : Object3D(*this, object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, SpriteMaterial::Ptr(sprite.material<0>()->cloned()))
   {}
 
 public:

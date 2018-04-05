@@ -91,6 +91,10 @@ public:
   static Ptr make(float width, float height, float widthSegments=1, float heightSegments=1) {
     return Ptr(new Plane(width, height, widthSegments, heightSegments));
   }
+
+  Plane *cloned() const override {
+    return new Plane(*this);
+  }
 };
 
 }

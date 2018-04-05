@@ -24,7 +24,7 @@ protected:
 
   Line(const Line &line)
      : Object3D(object::ResolverT<Line>::make(*this)),
-       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, LineBasicMaterial::Ptr(material<0>()->cloned())),
+       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, LineBasicMaterial::Ptr(line.material<0>()->cloned())),
        _steps(line._steps) {}
 
 public:

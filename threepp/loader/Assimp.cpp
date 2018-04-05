@@ -1,7 +1,6 @@
 //
 // Created by byter on 1/6/18.
 //
-
 #include "Assimp.h"
 
 #include <assimp/Importer.hpp>
@@ -12,7 +11,6 @@
 #include <assimp/scene.h>
 
 #include <threepp/core/BufferGeometry.h>
-#include <threepp/material/MeshPhongMaterial.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/material/MeshToonMaterial.h>
 #include <threepp/textures/ImageTexture.h>

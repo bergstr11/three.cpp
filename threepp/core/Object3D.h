@@ -395,6 +395,9 @@ public:
   template<int N>
   decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}
 
+  template<int N>
+  typename std::remove_reference<decltype(std::get<N>(_materialsTuple))>::type material() const {return std::get<N>(_materialsTuple);}
+
   template<int N, typename T=decltype(std::get<N>(_materialsTuple))>
   void setMaterial(T material) {
     std::get<N>(_materialsTuple) = material;

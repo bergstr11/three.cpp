@@ -90,12 +90,13 @@ protected:
     setDrawMode(DrawMode::Triangles);
   }
 
-  /*MeshT(const MeshT &mesh)
+  MeshT(const MeshT &mesh)
      : Object3D(mesh, object::ResolverT<Mesh>::make(*this)),
-       Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()), nullptr, typename Mat::Ptr(mesh.material<0>()->cloned()))
+       Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()), nullptr,
+                              typename Mat::Ptr(mesh.template material<0>()->cloned()))
   {
     setDrawMode(DrawMode::Triangles);
-  }*/
+  }
 
 public:
   using Ptr = std::shared_ptr<MeshT<Geom, Mat>>;
@@ -112,9 +113,9 @@ public:
     return p;
   }
 
-  /*MeshT *cloned() const override {
+  MeshT *cloned() const override {
     return new MeshT(*this);
-  }*/
+  }
 };
 
 template <typename Geom, typename Mat>

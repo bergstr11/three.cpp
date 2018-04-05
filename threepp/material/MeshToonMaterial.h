@@ -29,6 +29,9 @@ protected:
   MeshToonMaterial()
      : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}
 
+  MeshToonMaterial(const MeshToonMaterial &material)
+     : MeshPhongMaterial(material, material::ResolverT<MeshToonMaterial>::make(*this)) {}
+
   void callback(const material::Selector &selector) override;
 
 public:
@@ -39,6 +42,10 @@ public:
 
   static Ptr make() {
     return Ptr(new MeshToonMaterial());
+  }
+
+  MeshToonMaterial *cloned() const override {
+    return new MeshToonMaterial(*this);
   }
 };
 

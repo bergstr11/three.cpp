@@ -20,7 +20,7 @@ protected:
 
   Points(const Points &points)
      : Object3D(points, object::ResolverT<Points>::make(*this)),
-       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, PointsMaterial::Ptr(material<0>()->cloned()))
+       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, PointsMaterial::Ptr(points.material<0>()->cloned()))
   {}
 
 public:
