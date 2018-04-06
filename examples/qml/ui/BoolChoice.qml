@@ -5,4 +5,6 @@ QtObject {
     property string type: "bool"
     property string name
     property bool value
+
+    function reset() {}
 }

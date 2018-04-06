@@ -35,7 +35,7 @@ void ModelRef::setReplace(bool replace)
   }
 }
 
-void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject)
+void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj)
 {
   switch (_type) {
     case Node: {
@@ -49,8 +49,6 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       auto m = dynamic_pointer_cast<three::Mesh>(obj);
       if (m) {
         parent->add(m);
-        if(setObject)
-          _threeQObject = three::quick::Mesh::create(m, this);
       }
       break;
     }
@@ -58,25 +56,21 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       auto hl = dynamic_pointer_cast<three::HemisphereLight>(obj);
       if(hl) {
         parent->add(hl);
-        if(setObject) _threeQObject = new three::quick::HemisphereLight(hl, this);
       }
       else {
         auto dl = dynamic_pointer_cast<three::DirectionalLight>(obj);
         if(dl) {
           parent->add(dl);
-          if(setObject) _threeQObject = new three::quick::DirectionalLight(dl, this);
         }
         else {
           auto al = dynamic_pointer_cast<three::AmbientLight>(obj);
           if(al) {
             parent->add(al);
-            if(setObject) _threeQObject = new three::quick::AmbientLight(al, this);
           }
           else {
             auto sl = dynamic_pointer_cast<three::SpotLight>(obj);
             if(sl) {
               parent->add(sl);
-              if(setObject) _threeQObject = new three::quick::SpotLight(sl, this);
             }
           }
         }
@@ -84,10 +78,9 @@ void ModelRef::matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject
       break;
     }
     case Camera: {
-      auto pcam = dynamic_pointer_cast<three::PerspectiveCamera>(obj);
-      if (pcam) {
-        _scene->scene()->add(pcam);
-        if(setObject) _threeQObject = new three::quick::PerspectiveCamera(pcam, this);
+      auto cam = dynamic_pointer_cast<three::Camera>(obj);
+      if (cam) {
+        parent->add(cam);
       }
       break;
     }
@@ -113,7 +106,7 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
       for (auto chld : children) {
         if(chld->name() == nm) {
           if (e) {
-            matchType(parent, chld, true);
+            matchType(parent, chld);
             return true;
           }
           else {
@@ -140,7 +133,7 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
       ++iter;
     case Eval::collectLevels: {
       for (auto chld : children) {
-        matchType(parent, chld, false);
+        matchType(parent, chld);
 
         bool ret = evaluateSelector(iter, end, parent, chld->children(), ev);
         if(ret) return true;

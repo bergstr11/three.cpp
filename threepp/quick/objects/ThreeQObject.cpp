@@ -97,6 +97,10 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
 
   const math::Vector3 &s = object->scale();
   setScale(QVector3D(s.x(), s.y(), s.z()), false);
+
+  if(_normalsHelper) {
+    _normalsHelper->setObject(_object, _scene->scene());
+  }
 }
 
 void ThreeQObject::rotateX(float angle)

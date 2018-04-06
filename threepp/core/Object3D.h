@@ -233,7 +233,7 @@ public:
     translateOnAxis(math::Vector3( 0, 0, 1 ), distance );
   }
 
-  math::Vector3 localToWorld(const math::Vector3 &vector)
+  math::Vector3 localToWorld(const math::Vector3 &vector) const
   {
     return vector * _matrixWorld;
   }

@@ -20,7 +20,6 @@ Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)
   Q_PROPERTY(QString selector READ selector WRITE setSelector)
   Q_PROPERTY(Type type READ type WRITE setType)
-  Q_PROPERTY(QObject *object READ modelObject NOTIFY objectChanged)
   Q_PROPERTY(bool replace READ replace WRITE setReplace NOTIFY replaceChanged)
 
 public:
@@ -38,8 +37,6 @@ private:
   bool _replace = true;
   Scene *_scene = nullptr;
 
-  ThreeQObject *_threeQObject = nullptr;
-
 protected:
   Object3D::Ptr _create(Scene *scene) override
   {
@@ -47,7 +44,7 @@ protected:
     return nullptr;
   }
 
-  void matchType(Object3D::Ptr parent, Object3D::Ptr obj, bool setObject);
+  void matchType(Object3D::Ptr parent, Object3D::Ptr obj);
 
   enum class Eval {name, skipLevel, skipLevels, collectLevel, collectLevels};
   bool evaluateSelector(QStringList::iterator &iter,
@@ -62,8 +59,6 @@ public:
   Model *model() const {return _model;}
 
   void setModel(Model *model);
-
-  QObject *modelObject() const {return _threeQObject;}
 
   const QString &selector() const {return _selector;}
 
