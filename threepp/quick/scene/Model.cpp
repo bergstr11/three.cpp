@@ -98,14 +98,14 @@ ThreeQObject *Model::createObject(const QByteArray &name, const QVector3D &posit
 
     three->object()->scale() = scale;
 
+    math::Vector3 normal(faceNormal.x(), faceNormal.y(), faceNormal.z());
     three->object()->position().set(position.x(), position.y(), position.z());
-
+    three->object()->position() += normal;
 
     enum {X, Y, Z} m_up = modelNormal.x() ? X : (modelNormal.y() ? Y : Z);
 
     //calculate the rotation matrix for aligning the marker to the mesh surface
     math::Vector3 up(0, 0, 0);
-    math::Vector3 normal(faceNormal.x(), faceNormal.y(), faceNormal.z());
     math::Vector3 axis;
     switch(m_up) {
       case X:

@@ -17,17 +17,15 @@ class Triangle
 public:
   static Vector3 normal(const Vector3 &a, const Vector3 &b, const Vector3 &c)
   {
-    Vector3 result = c - b;
-    Vector3 v0 = a - b;
-    result.cross( v0 );
+    Vector3 v(cross(c - b, a - b));
 
-    float resultLengthSq = result.lengthSq();
+    float resultLengthSq = v.lengthSq();
     if ( resultLengthSq > 0 ) {
 
-      return result * ( 1 / std::sqrt( resultLengthSq ) );
+      return v * (1.0f / std::sqrt( resultLengthSq));
 
     }
-    return result.set( 0, 0, 0 );
+    return {0, 0, 0};
   }
 
   // static/instance method to calculate barycentric coordinates

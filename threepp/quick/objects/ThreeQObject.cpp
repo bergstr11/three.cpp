@@ -3,12 +3,27 @@
 //
 
 #include "ThreeQObject.h"
+#include <threepp/quick/scene/Scene.h>
 
 namespace three {
 namespace quick {
 
+VertexNormalsHelper *ThreeQObject::vertexNormals()
+{
+  if(!_normalsHelper) {
+    _normalsHelper = new VertexNormalsHelper(this);
+
+    if(_object) {
+      _normalsHelper->create(_object, _scene->scene(), true);
+    }
+  }
+  return _normalsHelper;
+}
+
 three::Object3D::Ptr ThreeQObject::create(Scene *scene)
 {
+  _scene = scene;
+
   _object = _create(scene);
   if(_object) {
     if(!_rotation.isNull())
@@ -28,6 +43,8 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene)
       three::Object3D::Ptr obj = o->create(scene);
       if(obj) _object->add(obj);
     }
+
+    if(_normalsHelper) _normalsHelper->create(_object, scene->scene());
   }
   _post_create(scene);
   return _object;

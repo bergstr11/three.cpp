@@ -13,19 +13,19 @@
 namespace three {
 namespace helper {
 
-class Axes : public LineSegments {
-
+class Axes : public LineSegments
+{
   static BufferGeometry::Ptr createGeometry(float size)
   {
     auto vertices = attribute::prealloc<float, Vertex>(
        {{0.0f, 0.0f, 0.0f}, {size, 0.0f, 0.0f},
         {0.0f, 0.0f, 0.0f}, {0.0f, size, 0.0f},
-        {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, size}}, true);
+        {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, size}});
 
     auto colors = attribute::prealloc<float, Color>(
        {{1.0f, 0.0f, 0.0f}, {1.0f, 0.6f, 0.0f},
         {0.0f, 1.0f, 0.0f}, {0.6f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f}, {0.0f, 0.6f, 1.0f}}, true);
+        {0.0f, 0.0f, 1.0f}, {0.0f, 0.6f, 1.0f}});
 
     BufferGeometry::Ptr geometry = BufferGeometry::make();
     geometry->setPosition(vertices);

@@ -74,6 +74,8 @@ public:
 
   virtual bool useMorphing() const = 0;
 
+  virtual size_t vertexCount() const = 0;
+
   Geometry &addGroup(uint32_t start, uint32_t count, uint32_t materialIndex=0)
   {
     _groups.emplace_back(start, count, materialIndex);

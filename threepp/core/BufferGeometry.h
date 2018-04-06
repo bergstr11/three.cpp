@@ -47,6 +47,8 @@ enum class AttributeName
 
 class BufferGeometry : public Geometry
 {
+  friend class BufferGeometryAccess;
+
   BufferAttributeT<uint32_t>::Ptr _index;
   BufferAttributeT<float>::Ptr _position;
   BufferAttributeT<float>::Ptr _normal;
@@ -279,6 +281,10 @@ public:
     computeBoundingSphere();
 
     return *this;
+  }
+
+  size_t vertexCount() const override {
+    return _position->itemCount();
   }
 
   void raycast(const Line &line,

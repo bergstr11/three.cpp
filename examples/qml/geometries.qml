@@ -12,6 +12,26 @@ Window {
 
     visible: true
 
+    OptionsMenu {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        color: "transparent"
+        width: 250
+        height: 100
+        z: 2
+
+        BoolChoice {
+            name: "VertexNormals"
+            value: false
+            onValueChanged: {
+                box.vertexNormals.visible = value
+                torus.vertexNormals.visible = value
+                sphere.vertexNormals.visible = value
+                threeD.update()
+            }
+        }
+    }
+
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -41,6 +61,7 @@ Window {
             }
 
             Box {
+                id: box
                 width: 4
                 height: 4
                 depth: 4
@@ -54,6 +75,7 @@ Window {
             }
 
             Torus {
+                id: torus
                 radius: 4
                 tube: 0.7
                 radialSegments: 8
@@ -69,6 +91,7 @@ Window {
             }
 
             Sphere {
+                id: sphere
                 radius: 4
                 widthSegments: 20
                 heightSegments: 20

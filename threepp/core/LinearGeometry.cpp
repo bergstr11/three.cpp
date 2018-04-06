@@ -19,12 +19,13 @@ struct array_hash {
   }
 };
 
-LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices)
+LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces,
+                                                   const std::vector<Vertex> &vertices)
 {
   for (Face3 & face : faces) {
-    Vertex &vA = vertices[ face.a ];
-    Vertex &vB = vertices[ face.b ];
-    Vertex &vC = vertices[ face.c ];
+    const Vertex &vA = vertices[ face.a ];
+    const Vertex &vB = vertices[ face.b ];
+    const Vertex &vC = vertices[ face.c ];
 
     Vertex cb = vC - vB;
     Vertex ab = vA - vB;
@@ -34,7 +35,8 @@ LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces, st
 }
 
 LinearGeometry &LinearGeometry::computeVertexNormals(std::vector<Face3> &faces,
-                                                     std::vector<Vertex> vertices, bool areaWeighted)
+                                                     const std::vector<Vertex> &vertices,
+                                                     bool areaWeighted)
 {
   std::vector<Vertex> verts(vertices.size());
 

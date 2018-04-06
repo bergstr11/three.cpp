@@ -41,6 +41,7 @@ class LinearGeometry : public Geometry
 {
   friend class DirectGeometry;
   friend class BufferGeometry;
+  friend class LinearGeometryAccess;
 
   std::vector<Vertex> _vertices;
   std::vector<Vertex> _normals;
@@ -70,9 +71,9 @@ class LinearGeometry : public Geometry
   bool _lineDistancesNeedUpdate = false;
   bool _groupsNeedUpdate = false;
 
-  static LinearGeometry &computeFaceNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices);
+  static LinearGeometry &computeFaceNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices);
 
-  static LinearGeometry &computeVertexNormals(std::vector<Face3> &faces, std::vector<Vertex> vertices,
+  static LinearGeometry &computeVertexNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices,
                                         bool areaWeighted=true);
 
 protected:
@@ -116,6 +117,10 @@ public:
   Vertex center() const
   {
     return _boundingBox.getCenter().negate();
+  }
+
+  void computeVertexNormals() {
+    computeVertexNormals(_faces, _vertices);
   }
 
 	LinearGeometry &setCenter()
@@ -215,6 +220,10 @@ public:
                const Raycaster &raycaster,
                const math::Ray &ray,
                std::vector<Intersection> &intersects) override;
+
+  size_t vertexCount() const override {
+    return _faces.size() * 3;
+  }
 };
 
 } //three

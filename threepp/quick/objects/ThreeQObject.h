@@ -12,12 +12,12 @@
 #include <threepp/scene/Scene.h>
 #include <threepp/quick/materials/Material.h>
 #include <threepp/quick/Three.h>
+#include <threepp/quick/objects/VertexNormalsHelper.h>
 
 namespace three {
 namespace quick {
 
 class Scene;
-class ObjectContainer;
 
 class ThreeQObject : public QObject
 {
@@ -36,6 +36,7 @@ Q_OBJECT
   Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
   Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
+  Q_PROPERTY(VertexNormalsHelper *vertexNormals READ vertexNormals CONSTANT)
   Q_CLASSINFO("DefaultProperty", "objects")
 
 protected:
@@ -47,6 +48,8 @@ protected:
 
   QVector3D _scale {1, 1, 1};
 
+  VertexNormalsHelper *_normalsHelper = nullptr;
+
   bool _castShadow = false, _receiveShadow = false, _visible = true, _matrixAutoUpdate = true;
 
   QList<ThreeQObject *> _objects;
@@ -56,6 +59,7 @@ protected:
   Material *_material = nullptr;
 
   three::Object3D::Ptr _object;
+  Scene *_scene = nullptr;
 
   virtual three::Object3D::Ptr _create(Scene *scene) {return nullptr;}
   virtual void _post_create(Scene *scene) {}
@@ -78,9 +82,15 @@ protected:
   void setObject(const three::Object3D::Ptr object);
 
 public:
+  ~ThreeQObject() {
+    if(_normalsHelper) _normalsHelper->deleteLater();
+  }
+
   QVector3D position() const {return _position;}
   QVector3D rotation() const {return _rotation;}
   QVector3D scale() const {return _scale;}
+
+  VertexNormalsHelper *vertexNormals();
 
   void setPosition(const QVector3D &position, bool propagate=true) {
     if(position != _position) {

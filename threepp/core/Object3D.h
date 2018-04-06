@@ -363,14 +363,13 @@ public:
 template <typename Geom=BufferGeometry, typename ... Mat>
 class Object3D_GM : public virtual Object3D
 {
-  using GeometryPtr = std::shared_ptr<Geom>;
-
-  GeometryPtr _geometry;
-
   std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
   std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
 
 protected:
+  using GeometryPtr = std::shared_ptr<Geom>;
+  GeometryPtr _geometry;
+
   explicit Object3D_GM(const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
      : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
   {}

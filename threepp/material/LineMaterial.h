@@ -35,7 +35,7 @@ protected:
      : MaterialT(material, resolver) {}
 
 public:
-  unsigned linewidth = 1;
+  float linewidth = 1;
   LineCap linecap = LineCap::round;
   LineJoin linejoin = LineJoin::round;
 
@@ -76,8 +76,8 @@ protected:
 
 public:
   float scale = 1;
-  unsigned dashSize = 3;
-  unsigned gapSize = 1;
+  float dashSize = 3;
+  float gapSize = 1;
 
   using Ptr = std::shared_ptr<LineDashedMaterial>;
   static Ptr make() {

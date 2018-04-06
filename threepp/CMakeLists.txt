@@ -83,6 +83,7 @@ foreach(DIR in ${THREE_SRCDIRS})
     file(GLOB HEADERS ${DIR}/*.h)
     target_sources(threepp PRIVATE ${HEADERS})
 endforeach(DIR in ${THREE_SRCDIRS})
+target_sources(threepp PRIVATE core/impl/raycast.h)
 
 install(TARGETS threepp
         EXPORT threepp

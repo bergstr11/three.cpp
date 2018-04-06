@@ -84,6 +84,10 @@ public:
   DirectGeometry *cloned() const override {
     return new DirectGeometry(*this);
   }
+
+  size_t vertexCount() const override {
+    return vertices.size();
+  }
 };
 
 }
