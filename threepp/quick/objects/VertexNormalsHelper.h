@@ -40,6 +40,7 @@ public:
       config.color.g = _color.greenF();
       config.color.b = _color.blueF();
       config.lineWidth = _lineWidth;
+      config.size = _size;
       normalsHelper = three::helper::VertexNormals::make(object, config);
 
       scene->add(normalsHelper);
