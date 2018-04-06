@@ -106,8 +106,9 @@ public:
     if(_rotation != rotation) {
       _rotation = rotation;
 
-      if(propagate)
-        if(_object) _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+      if(propagate && _object) {
+        _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+      }
 
       emit rotationChanged();
     }

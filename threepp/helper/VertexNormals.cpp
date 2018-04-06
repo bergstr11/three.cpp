@@ -93,8 +93,9 @@ void VertexNormals::update()
   normalMatrix = _object->matrixWorld().normalMatrix();
 
   LinearGeometry::Ptr linearGeometry = std::dynamic_pointer_cast<LinearGeometry>(_object->geometry());
-  if ( linearGeometry )
+  if ( linearGeometry ) {
     LinearGeometryAccess::update(*this, linearGeometry, _geometry->getPosition());
+  }
   else {
     BufferGeometry::Ptr bufferGeometry = std::dynamic_pointer_cast<BufferGeometry>(_object->geometry());
     if(bufferGeometry)

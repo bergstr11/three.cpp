@@ -82,7 +82,6 @@ Window {
                 tubularSegments: 24
 
                 position: "5,8,2"
-                rotation: "2,4,6"
 
                 material: MeshLambertMaterial {
                     color: "#36aa22"
