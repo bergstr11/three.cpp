@@ -17,7 +17,7 @@ using namespace impl;
 
 size_t Geometry::id_count = 0;
 
-void LinearGeometry::raycast(const Mesh &mesh,
+void LinearGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
                              std::vector<Intersection> &intersects)
@@ -79,7 +79,7 @@ void LinearGeometry::raycast(const Mesh &mesh,
   }
 }
 
-void LinearGeometry::raycast(const Line &line,
+void LinearGeometry::raycast(Line &line,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
                              std::vector<Intersection> &intersects)
@@ -113,7 +113,34 @@ void LinearGeometry::raycast(const Line &line,
   }
 }
 
-void BufferGeometry::raycast(const Mesh &mesh,
+math::Vector3 BufferGeometry::centroid(const Face3 &face)
+{
+  math::Vector3 vA = math::Vector3::fromBufferAttribute(*_position, face.a);
+  math::Vector3 vB = math::Vector3::fromBufferAttribute(*_position, face.b);
+  math::Vector3 vC = math::Vector3::fromBufferAttribute(*_position, face.c);
+
+  return (vA + vB + vC) / 3.0f;
+}
+
+math::Vector3 LinearGeometry::centroid(const Face3 &face)
+{
+  const Vertex &vA = _vertices[ face.a ];
+  const Vertex &vB = _vertices[ face.b ];
+  const Vertex &vC = _vertices[ face.c ];
+
+  return (vA + vB + vC) / 3.0f;
+}
+
+math::Vector3 DirectGeometry::centroid(const Face3 &face)
+{
+  const Vertex &vA = vertices[ face.a ];
+  const Vertex &vB = vertices[ face.b ];
+  const Vertex &vC = vertices[ face.c ];
+
+  return (vA + vB + vC) / 3.0f;
+}
+
+void BufferGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
                              const math::Ray &ray,
                              std::vector<Intersection> &intersects)
@@ -151,7 +178,7 @@ void BufferGeometry::raycast(const Mesh &mesh,
   }
 }
 
-void BufferGeometry::raycast(const Line &line,
+void BufferGeometry::raycast(Line &line,
                              const Raycaster &raycaster, const math::Ray &ray,
                              std::vector<Intersection> &intersects)
 {

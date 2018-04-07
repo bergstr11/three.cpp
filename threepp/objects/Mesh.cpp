@@ -10,7 +10,7 @@
 
 namespace three {
 
-void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const
+void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects)
 {
   if (materialCount() == 0) return;
 

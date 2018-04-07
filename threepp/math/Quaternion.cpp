@@ -76,7 +76,7 @@ Quaternion::Quaternion(const Vector3 &axis, float angle )
 
 Quaternion& Quaternion::set(const Vector3 &axis, float angle, bool emitSignal)
 {
-  float halfAngle = angle / 2, s = std::sin(halfAngle);
+  float halfAngle = angle / 2.0f, s = std::sin(halfAngle);
 
   _x = axis.x() * s;
   _y = axis.y() * s;

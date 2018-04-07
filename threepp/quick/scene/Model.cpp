@@ -77,65 +77,44 @@ void Model::setItem(ThreeDItem *item)
   if(_item && (!(_file.isNull() || _file.isEmpty()))) loadFile(_file);
 }
 
-ThreeQObject *Model::createObject(const QByteArray &name, const QVector3D &position,
-                                  const QVector3D &modelNormal, const QVector3D &faceNormal,
-                                  float scale, const QVariantMap &arguments)
+int Model::createObject(const QByteArray &modelName,
+                        const QByteArray &objectName,
+                        const QVector3D &modelUp,
+                        float modelHeight,
+                        float modelScale,
+                        three::quick::Intersect *intersect,
+                        const QVariantMap &arguments)
 {
-  Object3D::Ptr object = importedScene()->getChildByName(name.toStdString());
+  Object3D::Ptr object = importedScene()->getChildByName(modelName.toStdString());
   if(object) {
-    Object3D::Ptr clone(object->cloned());
-    ThreeQObject *three = nullptr;
+    Object3D::Ptr marker(object->cloned());
 
-    three::Mesh::Ptr mesh = dynamic_pointer_cast<three::Mesh>(clone);
-    if(mesh) {
-      three = Mesh::create(mesh, this);
-    }
-    else {
-      three::Node::Ptr node = dynamic_pointer_cast<three::Node>(clone);
-      if(node) three = new Node(node, this);
-    }
-    if(!three) return nullptr;
+    marker->setName(objectName.toStdString());
+    marker->scale() = modelScale;
 
-    three->object()->scale() = scale;
+    const math::Vector3 up(modelUp.x(), modelUp.y(), modelUp.z());
+    const Intersection &is = intersect->intersection;
+    const math::Vector3 &fnorm = is.face.normal;
 
-    math::Vector3 normal(faceNormal.x(), faceNormal.y(), faceNormal.z());
-    three->object()->position().set(position.x(), position.y(), position.z());
-    three->object()->position() += normal;
+    //calculate the rotation for aligning the marker to the mesh surface
+    math::Vector3 axis = fnorm.y() == 1 || fnorm.y() == -1 ?
+                         math::Vector3( 1, 0, 0 ) : math::cross( up, fnorm );
 
-    enum {X, Y, Z} m_up = modelNormal.x() ? X : (modelNormal.y() ? Y : Z);
+    float radians = acos( math::dot(fnorm, up) );
+    float rad2 = up.angleTo(fnorm);
+    float rad3 = fnorm.angleTo(up);
 
-    //calculate the rotation matrix for aligning the marker to the mesh surface
-    math::Vector3 up(0, 0, 0);
-    math::Vector3 axis;
-    switch(m_up) {
-      case X:
-        up.x() = 1;
-        axis = normal.x() == 1 || normal.x() == -1 ? math::Vector3( 0, 1, 0 ) : cross(up, normal);
-        break;
-      case Y:
-        up.y() = 1;
-        axis = normal.y() == 1 || normal.y() == -1 ? math::Vector3( 1, 0, 0 ) : cross(up, normal);
-        break;
-      case Z:
-        up.z() = 1;
-        axis = normal.z() == 1 || normal.z() == -1 ? math::Vector3( 1, 0, 0 ) : cross(up, normal);
-        break;
-    }
-    double angle = acos(dot(normal, up));
-    //GLC_Matrix4x4 rotation(axis, radians);
+    qDebug() << "setRotationFromAxisAngle" << QVector3D(axis.x(), axis.y(), axis.z()) << radians << rad2 << rad3;
 
-    //QVector3D axis = QVector3D::crossProduct(modelNormal, faceNormal).normalized();
-    //float angle = acos(QVector3D::dotProduct(modelNormal, faceNormal));
+    marker->setRotationFromAxisAngle( axis, M_PI_2 );
 
-    three->object()->setRotationFromAxisAngle(axis, angle);
-    three->object()->updateMatrix();
+    //position into the middle of the face
+    marker->position() = is.object->geometry()->centroid(is.face) + is.face.normal * modelHeight;
 
-    for(auto it = arguments.keyBegin(); it != arguments.keyEnd(); it++) {
-      three->setProperty(it->toLocal8Bit(), arguments[*it]);
-    }
-    return three;
+    // add the marker as a child of the intersected object so it will rotate with it
+    is.object->add(marker);
   }
-  return nullptr;
+  return 0;
 }
 
 }

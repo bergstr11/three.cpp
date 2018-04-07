@@ -57,7 +57,6 @@ public:
     _material = three::MeshBasicMaterial::make();
     _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
     _material->opacity = _opacity;
-    if(_opacity < 1.0f) _material->transparent = true;
 
     setBaseProperties(_material);
 

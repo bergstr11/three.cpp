@@ -26,7 +26,6 @@ private:
     this->color = 0x000000;
     this->opacity = 1.0f;
     this->lights = true;
-    this->transparent = true;
   }
 
   ShadowMaterial(const ShadowMaterial &material) : MaterialT(material, material::ResolverT<ShadowMaterial>::make(*this))
@@ -43,6 +42,8 @@ public:
   ShadowMaterial *cloned() const override {
     return new ShadowMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

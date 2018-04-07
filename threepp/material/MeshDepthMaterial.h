@@ -72,6 +72,8 @@ public:
   MeshDepthMaterial *cloned() const override {
     return new MeshDepthMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

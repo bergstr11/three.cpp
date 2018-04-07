@@ -95,7 +95,6 @@ public:
     _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
     _material->opacity = _opacity;
     _material->specular = Color(_specular.redF(), _specular.greenF(), _specular.blueF());
-    if(_opacity < 1.0f) _material->transparent = true;
     if(_normalMap) _material->normalMap = _normalMap->getTexture();
 
     setBaseProperties(_material);

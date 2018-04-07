@@ -116,8 +116,6 @@ Material::Material(const Material &material, material::Resolver::Ptr resolver)
   flatShading = material.flatShading;
   vertexColors = material.vertexColors;
 
-  transparent = material.transparent;
-
   blendSrc = material.blendSrc;
   blendDst = material.blendDst;
   blendEquation = material.blendEquation;

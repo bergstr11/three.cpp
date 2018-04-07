@@ -93,6 +93,8 @@ public:
   MeshStandardMaterial *cloned() const override {
     return new MeshStandardMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

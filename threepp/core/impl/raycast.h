@@ -14,7 +14,7 @@
 namespace three {
 namespace impl {
 
-inline bool checkIntersection(const Object3D &object,
+inline bool checkIntersection(Object3D &object,
                               const Material::Ptr &material,
                               const Raycaster &raycaster,
                               const math::Ray &ray,
@@ -57,7 +57,7 @@ inline math::Vector2 uvIntersection(const math::Vector3 &point,
   return (uv1 * barycoord.x()) + (uv2 * barycoord.y()) + (uv3 * barycoord.z());
 }
 
-inline bool checkBufferGeometryIntersection(const Object3D &object,
+inline bool checkBufferGeometryIntersection(Object3D &object,
                                             const Raycaster &raycaster,
                                             const math::Ray &ray,
                                             const BufferAttributeT<float>::Ptr &position,
@@ -80,7 +80,7 @@ inline bool checkBufferGeometryIntersection(const Object3D &object,
       intersection.uv = uvIntersection(intersection.point, vA, vB, vC, uvA, uvB, uvC);
     }
 
-    intersection.face = Face3(a, b, c, object.localToWorld(math::Triangle::normal(vA, vB, vC)));
+    intersection.face = Face3(a, b, c, math::Triangle::normal(vA, vB, vC));
     intersection.faceIndex = a;
 
     return true;

@@ -116,6 +116,8 @@ public:
   MeshPhongMaterial *cloned() const override {
     return new MeshPhongMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

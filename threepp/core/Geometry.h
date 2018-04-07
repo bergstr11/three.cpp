@@ -59,15 +59,17 @@ public:
   const math::Sphere &boundingSphere() const {return _boundingSphere;}
   math::Sphere &boundingSphere() {return _boundingSphere;}
 
+  virtual math::Vector3 centroid(const Face3 &face) = 0;
+
   virtual Geometry &computeBoundingBox() = 0;
 
   virtual Geometry &computeBoundingSphere() = 0;
 
-  virtual void raycast(const Line &line,
+  virtual void raycast(Line &line,
                        const Raycaster &raycaster, const math::Ray &ray,
                        std::vector<Intersection> &intersects) {}
 
-  virtual void raycast(const Mesh &mesh,
+  virtual void raycast(Mesh &mesh,
                        const Raycaster &raycaster,
                        const math::Ray &ray,
                        std::vector<Intersection> &intersects) {}

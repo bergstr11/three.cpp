@@ -64,6 +64,8 @@ public:
     return *this;
   }
 
+  math::Vector3 centroid(const Face3 &face);
+
   bool useMorphing() const override
   {
     return false;

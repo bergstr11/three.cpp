@@ -73,6 +73,8 @@ public:
   MeshLambertMaterial *cloned() const override {
     return new MeshLambertMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

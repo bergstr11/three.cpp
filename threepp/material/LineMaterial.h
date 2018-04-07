@@ -51,6 +51,8 @@ public:
   LineBasicMaterial *cloned() const override {
     return new LineBasicMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 /**

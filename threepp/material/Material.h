@@ -164,8 +164,6 @@ struct Material
   bool flatShading = false;
   Colors vertexColors = Colors::None;
 
-  bool transparent = false;
-
   BlendFunc blendSrc = BlendFunc::SrcAlpha;
   BlendFunc blendDst = BlendFunc::OneMinusSrcAlpha;
   BlendEq blendEquation = BlendEq::Add;
@@ -239,6 +237,8 @@ public:
     onDispose.emitSignal(this);
     onDispose.disconnectAll();
   }
+
+  virtual bool transparent() const {return false;}
 
   virtual Material *cloned() const = 0;
 

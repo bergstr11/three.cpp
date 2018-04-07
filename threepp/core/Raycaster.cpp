@@ -5,7 +5,7 @@
 
 namespace three {
 
-void intersectObject(const Object3D &object, const Raycaster &raycaster, std::vector<Intersection> &intersects, bool recursive )
+void intersectObject(Object3D &object, const Raycaster &raycaster, std::vector<Intersection> &intersects, bool recursive )
 {
   if (!object.visible()) return;
 
@@ -20,7 +20,7 @@ void intersectObject(const Object3D &object, const Raycaster &raycaster, std::ve
   }
 }
 
-std::vector<Intersection> Raycaster::intersectObject(const Object3D &object, bool recursive )
+std::vector<Intersection> Raycaster::intersectObject(Object3D &object, bool recursive )
 {
   std::vector<Intersection> intersects;
 

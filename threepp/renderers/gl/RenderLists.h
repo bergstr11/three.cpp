@@ -145,7 +145,7 @@ public:
   {
     _renderItems.emplace_back(object, geometry, material, z, group);
 
-    if(material->transparent)
+    if(material->transparent())
       _transparent.push_back(_renderItems.size() - 1);
     else
       _opaque.push_back(_renderItems.size() - 1);
@@ -156,7 +156,7 @@ public:
   {
     _renderItems.emplace_back(object, geometry, material, z, group);
 
-    if(material->transparent)
+    if(material->transparent())
       _transparent.insert(_transparent.begin(), _renderItems.size() - 1);
     else
       _opaque.insert(_opaque.begin(), _renderItems.size() - 1);

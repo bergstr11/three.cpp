@@ -22,13 +22,13 @@ struct Intersection
   float distance;
   math::Vector3 point;
   math::Vector2 uv;
-  const Object3D *object;
+  Object3D *object;
   Face3 face;
   unsigned faceIndex;
   unsigned index;
 };
 
-void intersectObject(const Object3D &object, const Raycaster &raycaster, std::vector<Intersection> &intersects, bool recursive);
+void intersectObject(Object3D &object, const Raycaster &raycaster, std::vector<Intersection> &intersects, bool recursive);
 
 class Raycaster
 {
@@ -56,7 +56,7 @@ public:
   const float near() const {return _near;}
   const float far() const {return _far;}
 
-  std::vector<Intersection> intersectObject(const Object3D &object, bool recursive );
+  std::vector<Intersection> intersectObject(Object3D &object, bool recursive );
 
   std::vector<Intersection> intersectObjects(std::vector<std::shared_ptr<Object3D>> objects,
                                              bool recursive=false);

@@ -287,11 +287,13 @@ public:
     return _position->itemCount();
   }
 
-  void raycast(const Line &line,
+  math::Vector3 centroid(const Face3 &face) override;
+
+  void raycast(Line &line,
                const Raycaster &raycaster, const math::Ray &ray,
                std::vector<Intersection> &intersects) override;
 
-  void raycast(const Mesh &mesh,
+  void raycast(Mesh &mesh,
                const Raycaster &raycaster,
                const math::Ray &ray,
                std::vector<Intersection> &intersects) override;

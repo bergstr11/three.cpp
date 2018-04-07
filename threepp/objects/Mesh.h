@@ -59,7 +59,7 @@ public:
 
   float morphTargetInfluence(unsigned index) const {return _morphTargetInfluences.at(index);}
 
-  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
+  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
 
   Mesh *cloned() const override {
     return new Mesh(*this);

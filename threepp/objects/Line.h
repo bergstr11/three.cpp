@@ -38,7 +38,7 @@ public:
     return ptr;
   }
 
-  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) const override;
+  void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
 
   bool isShadowRenderable() const override {return true;}
 

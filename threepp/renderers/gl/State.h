@@ -550,7 +550,7 @@ public:
 
     setFaceDirection(dir);
 
-    if (material->transparent)
+    if (material->transparent())
       setBlending(material->blending, material->blendEquation, material->blendSrc, material->blendDst,
                   material->blendEquationAlpha, material->blendSrcAlpha, material->blendDstAlpha, material->premultipliedAlpha);
     else
@@ -564,9 +564,6 @@ public:
     setPolygonOffset(material->polygonOffset, material->polygonOffsetFactor, material->polygonOffsetUnits);
   }
 
-  //
-
-  //setFlipSided
   State &setFaceDirection(FrontFaceDirection faceDirection)
   {
     if (currentFaceDirection != faceDirection) {

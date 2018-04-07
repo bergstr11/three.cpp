@@ -48,6 +48,8 @@ public:
   SpriteMaterial *cloned() const override {
     return new SpriteMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

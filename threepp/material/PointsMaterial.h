@@ -64,6 +64,8 @@ public:
   PointsMaterial *cloned() const override {
     return new PointsMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }
