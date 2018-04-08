@@ -182,7 +182,7 @@ Object3D::Object3D(const Object3D &clone, object::Resolver::Ptr resolver)
   _matrix = clone._matrix;
   _matrixWorld = clone._matrixWorld;
 
-  _matrixWorldNeedsUpdate = clone._matrixWorldNeedsUpdate;
+  _matrixWorldNeedsUpdate = true;
 
   _layers = clone._layers;
   _visible = clone._visible;

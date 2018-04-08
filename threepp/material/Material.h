@@ -145,10 +145,10 @@ struct Selector
 
 }
 
-static uint16_t ___material_id_count;
-
 struct Material
 {
+  static uint16_t ___material_id_count;
+
   const sole::uuid uuid;
   uint16_t id;
 

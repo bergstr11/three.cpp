@@ -79,8 +79,7 @@ void Model::setItem(ThreeDItem *item)
 
 int Model::createObject(const QByteArray &modelName,
                         const QByteArray &objectName,
-                        const QVector3D &modelUp,
-                        float modelHeight,
+                        three::quick::Model::UP modelUp,
                         float modelScale,
                         three::quick::Intersect *intersect,
                         const QVariantMap &arguments)
@@ -92,7 +91,23 @@ int Model::createObject(const QByteArray &modelName,
     marker->setName(objectName.toStdString());
     marker->scale() = modelScale;
 
-    const math::Vector3 up(modelUp.x(), modelUp.y(), modelUp.z());
+    math::Vector3 up {0, 0, 0};
+    math::Vector3 flip {0, 0, 0};
+    switch(modelUp) {
+      case UP_X:
+        up.x() = 1;
+        flip.y() = 1;
+        break;
+      case UP_Y:
+        up.y() = 1;
+        flip.x() = 1;
+        break;
+      case UP_Z:
+        up.z() = 1;
+        flip.x() = 1;
+        break;
+    }
+
     const Intersection &is = intersect->intersection;
     const math::Vector3 &fnorm = is.face.normal;
 
@@ -100,16 +115,13 @@ int Model::createObject(const QByteArray &modelName,
     math::Vector3 axis = fnorm.y() == 1 || fnorm.y() == -1 ?
                          math::Vector3( 1, 0, 0 ) : math::cross( up, fnorm );
 
-    float radians = acos( math::dot(fnorm, up) );
-    float rad2 = up.angleTo(fnorm);
-    float rad3 = fnorm.angleTo(up);
+    float radians = up.angleTo(fnorm);
+    marker->setRotationFromAxisAngle( axis, radians);
 
-    qDebug() << "setRotationFromAxisAngle" << QVector3D(axis.x(), axis.y(), axis.z()) << radians << rad2 << rad3;
-
-    marker->setRotationFromAxisAngle( axis, M_PI_2 );
+    marker->rotateOnAxis(flip, M_PI_2);
 
     //position into the middle of the face
-    marker->position() = is.object->geometry()->centroid(is.face) + is.face.normal * modelHeight;
+    marker->position() = is.object->geometry()->centroid(is.face);
 
     // add the marker as a child of the intersected object so it will rotate with it
     is.object->add(marker);

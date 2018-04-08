@@ -35,12 +35,18 @@ class Intersect;
 class Model : public ThreeQObjectRoot
 {
 Q_OBJECT
+public:
+  enum UP {UP_X, UP_Y, UP_Z};
+  Q_ENUM(UP)
+
+private:
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QString file READ file WRITE setFile NOTIFY fileChanged)
   Q_PROPERTY(QVariantMap replacements READ replacements WRITE setReplacements NOTIFY replacementsChanged)
 
   QString _file;
   QString _name;
+  UP _up = UP_Y;
 
   QVariantMap _replacements;
 
@@ -71,8 +77,7 @@ public:
 
   Q_INVOKABLE int createObject(const QByteArray &modelName,
                                const QByteArray &objectName,
-                               const QVector3D &modelUp,
-                               float modelHeight,
+                               three::quick::Model::UP modelUp,
                                float modelScale,
                                three::quick::Intersect *intersection,
                                const QVariantMap &arguments);
