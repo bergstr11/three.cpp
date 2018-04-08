@@ -75,13 +75,6 @@ public:
 
   three::Scene::Ptr importedScene();
 
-  Q_INVOKABLE int createObject(const QByteArray &modelName,
-                               const QByteArray &objectName,
-                               three::quick::Model::UP modelUp,
-                               float modelScale,
-                               three::quick::Intersect *intersection,
-                               const QVariantMap &arguments);
-
 signals:
   void fileChanged();
   void nameChanged();

@@ -77,57 +77,5 @@ void Model::setItem(ThreeDItem *item)
   if(_item && (!(_file.isNull() || _file.isEmpty()))) loadFile(_file);
 }
 
-int Model::createObject(const QByteArray &modelName,
-                        const QByteArray &objectName,
-                        three::quick::Model::UP modelUp,
-                        float modelScale,
-                        three::quick::Intersect *intersect,
-                        const QVariantMap &arguments)
-{
-  Object3D::Ptr object = importedScene()->getChildByName(modelName.toStdString());
-  if(object) {
-    Object3D::Ptr marker(object->cloned());
-
-    marker->setName(objectName.toStdString());
-    marker->scale() = modelScale;
-
-    math::Vector3 up {0, 0, 0};
-    math::Vector3 flip {0, 0, 0};
-    switch(modelUp) {
-      case UP_X:
-        up.x() = 1;
-        flip.y() = 1;
-        break;
-      case UP_Y:
-        up.y() = 1;
-        flip.x() = 1;
-        break;
-      case UP_Z:
-        up.z() = 1;
-        flip.x() = 1;
-        break;
-    }
-
-    const Intersection &is = intersect->intersection;
-    const math::Vector3 &fnorm = is.face.normal;
-
-    //calculate the rotation for aligning the marker to the mesh surface
-    math::Vector3 axis = fnorm.y() == 1 || fnorm.y() == -1 ?
-                         math::Vector3( 1, 0, 0 ) : math::cross( up, fnorm );
-
-    float radians = up.angleTo(fnorm);
-    marker->setRotationFromAxisAngle( axis, radians);
-
-    marker->rotateOnAxis(flip, M_PI_2);
-
-    //position into the middle of the face
-    marker->position() = is.object->geometry()->centroid(is.face);
-
-    // add the marker as a child of the intersected object so it will rotate with it
-    is.object->add(marker);
-  }
-  return 0;
-}
-
 }
 }
