@@ -157,14 +157,14 @@ void Object3D::updateMatrixWorld(bool force)
 }
 
 Object3D::Object3D(object::Resolver::Ptr resolver)
-   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
+   : objectResolver(resolver), _id(++__id_count)
 {
   _rotation.onChange.connect(*this, &Object3D::onRotationChange);
   _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
 }
 
 Object3D::Object3D(const Object3D &clone, object::Resolver::Ptr resolver)
-   : objectResolver(resolver), uuid(sole::uuid0()), _id(++__id_count)
+   : objectResolver(resolver), _id(++__id_count)
 {
   _name = clone._name;
 

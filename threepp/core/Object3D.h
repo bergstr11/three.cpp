@@ -44,11 +44,15 @@ class Object3D
   friend class three::loader::Access;
 
 public:
-  const sole::uuid uuid;
   using Ptr = std::shared_ptr<Object3D>;
 
 protected:
+  //automatically assigned, unique within process
   uint16_t _id;
+
+  //unique among children, 1-based, 0==undefined
+  uint16_t _childId;
+
   std::string _name;
 
   Object3D *_parent = nullptr;
@@ -79,6 +83,8 @@ protected:
 
 public:
   virtual ~Object3D() {}
+
+  uint16_t childId() const {return _childId;}
 
   void visit(bool (*f)(Object3D *));
   void visit(std::function<bool(Object3D *)> f);
@@ -262,6 +268,7 @@ public:
     }
 
     object->_parent = this;
+    object->_childId = _children.size()+1;
 
     _children.push_back( object );
   }
@@ -273,6 +280,7 @@ public:
     if (found != _children.end()) {
 
       (*found)->_parent = nullptr;
+      (*found)->_childId = 0;
 
       _children.erase(found);
     }
@@ -283,6 +291,7 @@ public:
     for(auto child : _children) {
 
       child->_parent = nullptr;
+      child->_childId = 0;
     }
     _children.clear();
   }
