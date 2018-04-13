@@ -40,7 +40,7 @@ class QtResource : public three::Resource, public streambuf
 
   QtResource(QString fileName, ios_base::openmode openmode)
      : _bytes(readAll(fileName, openmode)), _data(_bytes.data()), is(this)
-  {}
+  { }
 
 public:
   using Ptr = shared_ptr<QtResource>;
@@ -120,13 +120,16 @@ protected:
 
 QtResourceLoader::QtResourceLoader(three::Loader &loader, const QString &url,
                                    const unordered_map<string, string> &replacements) : loader(loader), file(url), _replacements(replacements) {
-  if(!file.exists()) qWarning() << "file " << file.fileName() << "does not exist";
+  if(!file.exists())
+    qWarning() << "file " << file.fileName() << "does not exist";
+  else
+    QObject::connect(this, &QThread::finished, this, &QtResourceLoader::sendResult, Qt::QueuedConnection);
 }
 
 void QtResourceLoader::run()
 {
   loader.load(file.fileName().toStdString(), *this);
-  emit loaded();
+  _loaded = true;
 }
 
 bool QtResourceLoader::exists(const char *path)
@@ -165,6 +168,12 @@ void QtResourceLoader::load(QImage &image, string &file)
   if(repl != _replacements.end()) lookFor = (*repl).second;
 
   image = QImage(QString::fromStdString(lookFor)).mirrored();
+}
+
+void QtResourceLoader::sendResult()
+{
+  if(_loaded) emit loaded();
+  deleteLater();
 }
 
 }

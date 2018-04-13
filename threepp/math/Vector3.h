@@ -393,12 +393,12 @@ public:
   }
 
   // Angle around the Y axis, counter-clockwise when looking from above.
-  float azimuth() {
+  float azimuth() const {
     return std::atan2(_z, -_x );
   }
 
   // Angle above the XZ plane.
-  float inclination() {
+  float inclination() const {
     return std::atan2( -_y, std::sqrt( ( _x * _x ) + ( _z * _z ) ) );
   }
 

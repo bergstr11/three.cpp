@@ -143,7 +143,7 @@ public:
   const math::Quaternion &quaternion() const {return _quaternion;}
   const math::Vector3 &scale() const {return _scale;}
 
-  const Object3D *parent() const {return _parent;}
+  Object3D *parent() const {return _parent;}
 
   int renderOrder() const {return _renderOrder;}
 

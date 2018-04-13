@@ -26,6 +26,7 @@ class FileSystemLoader : public QThread, public three::ResourceLoader
   three::Loader &loader;
   QFileInfo file;
   QDir dir;
+  bool _loaded = false;
 
   std::unordered_map<std::string, std::string> _replacements;
 
@@ -41,6 +42,9 @@ public:
   three::Resource::Ptr get(const char *path, std::ios_base::openmode openmode) override;
 
   void load(QImage &image, std::string &file) override;
+
+private slots:
+  void sendResult();
 
 signals:
   void loaded();

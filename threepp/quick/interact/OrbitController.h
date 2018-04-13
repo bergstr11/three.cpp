@@ -224,6 +224,9 @@ public:
   Q_INVOKABLE void reset() {
     if(_controls) _controls->reset();
   }
+  Q_INVOKABLE void lookAt(const QVector3D &position) {
+    if(_controls) _controls->lookAt(math::Vector3(position.x(), position.y(), position.z()));
+  }
 
 signals:
   void minDistanceChanged();

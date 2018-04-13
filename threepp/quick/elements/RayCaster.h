@@ -5,7 +5,7 @@
 #ifndef THREEPPQ_RAYCASTER_H
 #define THREEPPQ_RAYCASTER_H
 
-#include <QVariantList>
+#include <QVariant>
 #include <QVector2D>
 #include <threepp/core/Raycaster.h>
 #include <threepp/quick/cameras/Camera.h>
@@ -20,7 +20,7 @@ Q_OBJECT
   Q_PROPERTY(float distance READ distance CONSTANT)
   Q_PROPERTY(QVector3D point MEMBER point CONSTANT)
   Q_PROPERTY(QVector2D uv MEMBER uv CONSTANT)
-  Q_PROPERTY(ThreeQObject * object MEMBER object CONSTANT)
+  Q_PROPERTY(QVariant object MEMBER object CONSTANT)
   Q_PROPERTY(QVector3D faceNormal MEMBER faceNormal CONSTANT)
 
 public:
@@ -28,30 +28,20 @@ public:
   QVector3D point;
   QVector2D uv;
   QVector3D faceNormal;
-  ThreeQObject * object;
+  QVariant object;
 
   float distance() const {return intersection.distance;}
 
-  Intersect(ThreeQObject * object, const Intersection &intersection)
-     : QObject(object), object(object), intersection(intersection)
+  Intersect(QObject * qobject, const Intersection &intersection) : QObject(qobject)
   {
-    point.setX(intersection.point.x());
-    point.setY(intersection.point.y());
-    point.setZ(intersection.point.z());
-
-    uv.setX(intersection.uv.x());
-    uv.setY(intersection.uv.y());
-
-    faceNormal.setX(intersection.face.normal.x());
-    faceNormal.setY(intersection.face.normal.y());
-    faceNormal.setZ(intersection.face.normal.z());
+    object.setValue(qobject);
+    set(intersection);
   }
 
   Intersect(QObject * parent) : QObject(parent) {}
 
-  void set(ThreeQObject * object, const Intersection &intersection)
+  void set(const Intersection &intersection)
   {
-    this->object = object;
     this->intersection = intersection;
 
     point.setX(intersection.point.x());

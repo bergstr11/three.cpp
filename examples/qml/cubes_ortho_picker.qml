@@ -46,7 +46,6 @@ Window {
             id: objectPicker
             camera: scene.camera
             objects: [scene]
-            recurse: true
             prototype: Box {}
 
             onObjectsClicked: {

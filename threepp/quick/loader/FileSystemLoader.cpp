@@ -45,12 +45,15 @@ public:
 };
 
 FileSystemLoader::FileSystemLoader(three::Loader &loader, const QUrl &url, const unordered_map<std::string, std::string> &replacements)
-: loader(loader), file(url.toLocalFile()), dir(file.absoluteDir()), _replacements(replacements) {}
+: loader(loader), file(url.toLocalFile()), dir(file.absoluteDir()), _replacements(replacements)
+{
+  QObject::connect(this, &QThread::finished, this, &FileSystemLoader::sendResult, Qt::QueuedConnection);
+}
 
 void FileSystemLoader::run()
 {
   loader.load(file.fileName().toStdString(), *this);
-  emit loaded();
+  _loaded = true;
 }
 
 bool FileSystemLoader::exists(const char *path)
@@ -65,6 +68,12 @@ bool FileSystemLoader::exists(const char *path)
 
     return dir.exists(QString::fromStdString(lookFor));
   }
+}
+
+void FileSystemLoader::sendResult()
+{
+  if(_loaded) emit loaded();
+  deleteLater();
 }
 
 three::Resource::Ptr FileSystemLoader::get(const char *path, ios_base::openmode openmode)

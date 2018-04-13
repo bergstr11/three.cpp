@@ -24,6 +24,8 @@ class QtResourceLoader : public QThread, public three::ResourceLoader
   three::Loader &loader;
   QFile file;
 
+  bool _loaded = false;
+
   std::unordered_map<std::string, std::string> _replacements;
 
 protected:
@@ -38,6 +40,9 @@ public:
   three::Resource::Ptr get(const char *path, std::ios_base::openmode openmode) override;
 
   void load(QImage &image, std::string &file) override;
+
+private slots:
+  void sendResult();
 
 signals:
   void loaded();

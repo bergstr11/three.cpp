@@ -218,6 +218,8 @@ public:
 
   float getDistance();
 
+  void lookAt(const math::Vector3 &position);
+
   void saveState()
   {
     _target0 = target;

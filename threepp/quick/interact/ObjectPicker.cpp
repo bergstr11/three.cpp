@@ -39,23 +39,49 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 
     size_t prevCount = _intersects.size();
     _intersects.clear();
+    _currentIntersect.object.clear();
 
-    for (auto obj : _threeQObjects) {
-      three::intersectObject( *obj->object(), _raycaster.raycaster(), _intersects, _recurse );
-    }
-    if(_scene) {
-      for (auto obj : _scene->scene()->children()) {
-        three::intersectObject( *obj, _raycaster.raycaster(), _intersects, _recurse );
+    for (const auto &obj : _objects) {
+      Object3D::Ptr o3d;
+      ThreeQObject *to = obj.value<ThreeQObject *>();
+      if(to) o3d = to->object();
+      else {
+        Pickable * po = obj.value<Pickable *>();
+        if(po) o3d = po->object();
+      }
+      if(!o3d) continue;
+      if(_pickAll)
+        three::intersectObject( *o3d, _raycaster.raycaster(), _intersects, true );
+      else {
+        std::vector<Intersection> intersects;
+        three::intersectObject( *o3d, _raycaster.raycaster(), intersects, true );
+        if(!intersects.empty()) {
+          _currentIntersect.object = obj;
+          _currentIntersect.set(intersects[0]);
+
+          if(prevCount != 1) emit intersectCountChanged();
+          emit objectsClicked();
+          return  true;
+        }
       }
     }
-    std::sort(_intersects.begin(), _intersects.end(),
-              [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
-
+    if(_scene && _pickAll) {
+      for (auto obj : _scene->scene()->children()) {
+        three::intersectObject( *obj, _raycaster.raycaster(), _intersects, true );
+      }
+    }
     if(!_intersects.empty()) {
+      std::sort(_intersects.begin(), _intersects.end(),
+                [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
 
-      if(prevCount != _intersects.size())
-         emit intersectCountChanged();
+      if(prevCount != _intersects.size()) emit intersectCountChanged();
       emit objectsClicked();
+      return  true;
+    }
+    else {
+      for(const auto &picker : _pickers) {
+        if(picker->handleMousePressed(event)) return true;
+      }
     }
   }
   return false;
@@ -63,40 +89,65 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 
 QVariant ObjectPicker::intersect(unsigned index)
 {
-  if(_intersects.size() > index) {
-    shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
-    _prototype->setObject(obj);
-    if(_prototype->material()) _prototype->material()->deleteLater();
+  if(_pickAll) {
+    if(_intersects.size() > index) {
+      shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
+      _prototype->setObject(obj);
+      if(_prototype->material()) _prototype->material()->deleteLater();
 
-    if(obj->material()) {
-      material::Dispatch dispatch;
+      if(obj->material()) {
+        material::Dispatch dispatch;
 
-      dispatch.func<three::MeshPhongMaterial>() = [&] (three::MeshPhongMaterial &mat) {
-        three::MeshPhongMaterial::Ptr m(&mat, _no_delete);
-        _prototype->setMaterial(new MeshPhongMaterial(m));
-      };
-      dispatch.func<three::MeshLambertMaterial>() = [&] (three::MeshLambertMaterial &mat) {
-        three::MeshLambertMaterial::Ptr m(&mat, _no_delete);
-        _prototype->setMaterial(new MeshLambertMaterial(m));
-      };
-      dispatch.func<three::MeshBasicMaterial>() = [&] (three::MeshBasicMaterial &mat) {
-        three::MeshBasicMaterial::Ptr m(&mat, _no_delete);
-        _prototype->setMaterial(new MeshBasicMaterial(m));
-      };
+        dispatch.func<three::MeshPhongMaterial>() = [&] (three::MeshPhongMaterial &mat) {
+          three::MeshPhongMaterial::Ptr m(&mat, _no_delete);
+          _prototype->setMaterial(new MeshPhongMaterial(m));
+        };
+        dispatch.func<three::MeshLambertMaterial>() = [&] (three::MeshLambertMaterial &mat) {
+          three::MeshLambertMaterial::Ptr m(&mat, _no_delete);
+          _prototype->setMaterial(new MeshLambertMaterial(m));
+        };
+        dispatch.func<three::MeshBasicMaterial>() = [&] (three::MeshBasicMaterial &mat) {
+          three::MeshBasicMaterial::Ptr m(&mat, _no_delete);
+          _prototype->setMaterial(new MeshBasicMaterial(m));
+        };
 
-      obj->material()->resolver->material::DispatchResolver::getValue(dispatch);
+        obj->material()->resolver->material::DispatchResolver::getValue(dispatch);
+      }
+
+      _currentIntersect.object.setValue(_prototype);
+      _currentIntersect.set(_intersects[index]);
+
+      QVariant var;
+      var.setValue(&_currentIntersect);
+      return var;
     }
-    _currentIntersect.set(_prototype, _intersects[index]);
+  }
+  else if(index == 0 && !_currentIntersect.object.isNull()){
+    //_currentIntersect already set
     QVariant var;
     var.setValue(&_currentIntersect);
     return var;
   }
-  return QVariant();
+  throw std::out_of_range("intersect");
 }
 
 bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
-  if(!_intersects.empty()) emit objectsDoubleClicked();
+  if(_pickAll) {
+    if(!_intersects.empty()) {
+      emit objectsDoubleClicked();
+      return true;
+    }
+  }
+  else if(!_currentIntersect.object.isNull()) {
+    emit objectsDoubleClicked();
+    return true;
+  }
+  else {
+    for(const auto &picker : _pickers) {
+      if(picker->handleMouseDoubleClicked(event)) return true;
+    }
+  }
   return false;
 }
 
@@ -107,11 +158,10 @@ ObjectPicker::ObjectPicker(QObject *parent)
     _raycaster.setCamera(_camera);
   });
   QQmlEngine::setObjectOwnership(&_currentIntersect, QQmlEngine::CppOwnership);
-  QQmlEngine::setObjectOwnership(_prototype, QQmlEngine::CppOwnership);
 }
 
 ObjectPicker::~ObjectPicker() {
-  _prototype->deleteLater();
+  if(_prototype) _prototype->deleteLater();
 }
 
 void ObjectPicker::setItem(ThreeDItem *item)
@@ -120,31 +170,57 @@ void ObjectPicker::setItem(ThreeDItem *item)
     _item = item;
     Controller::setItem(item);
   }
-  if(!_prototype) _prototype = new ThreeQObject();
-}
-
-QVariantList ObjectPicker::objects()
-{
-  QVariantList objects;
-
-  for(auto obj : _threeQObjects) {
-    QVariant var;
-    var.setValue(obj);
-    objects.push_back(var);
+  if(_pickAll && !_prototype) {
+    _prototype = new ThreeQObject();
+    QQmlEngine::setObjectOwnership(_prototype, QQmlEngine::CppOwnership);
   }
-  return objects;
+
+  for(const auto &picker : _pickers) {
+    picker->setItem(item);
+  }
 }
 
-void ObjectPicker::setObjects(QVariantList objects)
+void ObjectPicker::setObjects(const QVariantList &objects)
 {
-  _threeQObjects.clear();
+  _objects.clear();
   _scene = nullptr;
 
   for(const QVariant &var : objects) {
-    ThreeQObject *o = var.value<ThreeQObject *>();
-    if(o) _threeQObjects.push_back(o);
-    else _scene = var.value<Scene *>();
+    _scene = var.value<Scene *>();
+    if(!_scene) {
+      _objects.push_back(var);
+    }
   }
+}
+
+void ObjectPicker::append_picker(QQmlListProperty<ObjectPicker> *list, ObjectPicker *obj)
+{
+  ObjectPicker *item = qobject_cast<ObjectPicker *>(list->object);
+  if (item) item->_pickers.append(obj);
+}
+int ObjectPicker::count_pickers(QQmlListProperty<ObjectPicker> *list)
+{
+  ObjectPicker *item = qobject_cast<ObjectPicker *>(list->object);
+  return item ? item->_pickers.size() : 0;
+}
+ObjectPicker *ObjectPicker::picker_at(QQmlListProperty<ObjectPicker> *list, int index)
+{
+  ObjectPicker *item = qobject_cast<ObjectPicker *>(list->object);
+  return item ? item->_pickers.at(index) : nullptr;
+}
+void ObjectPicker::clear_pickers(QQmlListProperty<ObjectPicker> *list)
+{
+  ObjectPicker *item = qobject_cast<ObjectPicker *>(list->object);
+  if(item) item->_pickers.clear();
+}
+
+QQmlListProperty<ObjectPicker> ObjectPicker::pickers()
+{
+  return QQmlListProperty<ObjectPicker>(this, nullptr,
+                                        &ObjectPicker::append_picker,
+                                        &ObjectPicker::count_pickers,
+                                        &ObjectPicker::picker_at,
+                                        &ObjectPicker::clear_pickers);
 }
 
 }

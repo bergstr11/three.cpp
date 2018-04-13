@@ -39,13 +39,11 @@ void Model::loadFile(const QString &file)
   if(info.isNativePath()) {
     FileSystemLoader *loader = new FileSystemLoader(*_assimp, file, replacements);
     QObject::connect(loader, &FileSystemLoader::loaded, this, &Model::modelLoaded);
-    QObject::connect(loader, &QThread::finished, loader, &QObject::deleteLater);
     loader->start();
   }
   else {
     QtResourceLoader *loader = new QtResourceLoader(*_assimp, file, replacements);
     QObject::connect(loader, &QtResourceLoader::loaded, this, &Model::modelLoaded);
-    QObject::connect(loader, &QThread::finished, loader, &QObject::deleteLater);
     loader->start();
   }
 }
