@@ -285,30 +285,21 @@ float Orbit::getDistance()
   return _camera ? _camera->position().distanceTo(target) : 0.0f;
 }
 
-void Orbit::lookAt(const math::Vector3 &position)
+void Orbit::set(float polar, float azimuth)
 {
-  math::Vector3 pos(position);
-  pos.project(*_camera);
+  _spherical.phi() = polar;
+  _spherical.theta() = azimuth;
 
-  _offset = _camera->position() - target;
-
-  _offset.apply(_quat);
-
-  _spherical.setFromVector3(_offset);
-
-  _spherical.phi() = pos.inclination();
-  _spherical.theta() = pos.azimuth();
   _spherical.makeSafe();
 
   _offset = math::Vector3::fromSpherical(_spherical);
 
+  // rotate offset back to "camera-up-vector-is-up" space
   _offset.apply(_quatInverse);
 
   _camera->position() = target + _offset;
 
   _camera->lookAt(target);
-  _camera->updateMatrixWorld(true);
-  _camera->updateProjectionMatrix();
 }
 
 }

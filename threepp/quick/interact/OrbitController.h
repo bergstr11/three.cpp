@@ -224,8 +224,14 @@ public:
   Q_INVOKABLE void reset() {
     if(_controls) _controls->reset();
   }
-  Q_INVOKABLE void lookAt(const QVector3D &position) {
-    if(_controls) _controls->lookAt(math::Vector3(position.x(), position.y(), position.z()));
+  Q_INVOKABLE void set(const QVector2D spherical) {
+    if(_controls) _controls->set(spherical.x(), spherical.y());
+  }
+  Q_INVOKABLE float polar() {
+    return _controls ? _controls->getPolarAngle() : 0.0f;
+  }
+  Q_INVOKABLE float azimuth() {
+    return _controls ? _controls->getAzimuthalAngle() : 0.0f;
   }
 
 signals:

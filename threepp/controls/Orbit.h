@@ -218,7 +218,7 @@ public:
 
   float getDistance();
 
-  void lookAt(const math::Vector3 &position);
+  void set(float polar, float azimuth);
 
   void saveState()
   {
