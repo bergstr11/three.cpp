@@ -8,6 +8,7 @@
 #include <vector>
 #include <istream>
 #include <string>
+#include <unordered_map>
 
 #include <threepp/material/Material.h>
 #include <threepp/objects/Mesh.h>
@@ -23,10 +24,24 @@ class Importer;
 namespace three {
 namespace loader {
 
+enum class ShadingModel {Phong, Toon, Gouraud, Flat};
+
+struct AssimpOptions
+{
+  enum_map<ShadingModel, ShadingModel> modelMap;
+
+  AssimpOptions() {
+    modelMap[ShadingModel::Phong] = ShadingModel::Phong;
+    modelMap[ShadingModel::Gouraud] = ShadingModel::Gouraud;
+    modelMap[ShadingModel::Toon] = ShadingModel::Toon;
+    modelMap[ShadingModel::Flat] = ShadingModel::Flat;
+  }
+};
+
 /**
  * Assimp-based scene Loader
  */
-class Assimp : public Loader
+class Assimp : public Loader, private AssimpOptions
 {
 protected:
   std::vector<Material::Ptr> _materials;
@@ -37,7 +52,13 @@ protected:
   void loadScene(std::string name, ResourceLoader &loader);
 
 public:
+  Assimp(const AssimpOptions &options = AssimpOptions()) : AssimpOptions(options) {}
   ~Assimp() override;
+
+  void substituteShading(ShadingModel old, ShadingModel subst)
+  {
+    modelMap[old] = subst;
+  }
 
   void load(std::string name, ResourceLoader &loader) override;
   void load(std::string name, Color background, ResourceLoader &loader) override;

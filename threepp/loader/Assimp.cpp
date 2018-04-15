@@ -185,13 +185,16 @@ struct Access
   Scene::Ptr scene;
   const aiScene * aiscene;
   ResourceLoader &loader;
+  enum_map<ShadingModel, ShadingModel> &modelMap;
 
   unordered_map<string, QImage> images;
   unordered_map<unsigned, Mesh::Ptr> meshes;
   unordered_map<unsigned, MeshMaker::Ptr> makers;
 
-  Access(Scene::Ptr scene, const aiScene * aiscene, ResourceLoader &loader)
-     : scene(scene), aiscene(aiscene), loader(loader) {}
+  Access(Scene::Ptr scene, const aiScene * aiscene,
+         ResourceLoader &loader,
+         enum_map<ShadingModel, ShadingModel> &modelMap)
+     : scene(scene), aiscene(aiscene), loader(loader), modelMap(modelMap) {}
 
   void readMaterial(unsigned materialIndex);
 
@@ -718,17 +721,32 @@ void Access::readMaterial(unsigned materialIndex)
   int shadingModel;
   if(ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
 
+    ShadingModel targetModel;
     switch(shadingModel) {
       case aiShadingMode_Phong:
-        maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
+        targetModel = modelMap[ShadingModel::Phong];
         break;
       case aiShadingMode_Toon:
-        maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
+        targetModel = modelMap[ShadingModel::Toon];
         break;
       case aiShadingMode_Gouraud:
-        maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+        targetModel = modelMap[ShadingModel::Gouraud];
         break;
       case aiShadingMode_Flat:
+        targetModel = modelMap[ShadingModel::Flat];
+        break;
+    }
+    switch(targetModel) {
+      case ShadingModel::Phong:
+        maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
+        break;
+      case ShadingModel::Toon:
+        maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
+        break;
+      case ShadingModel::Gouraud:
+        maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+        break;
+      case ShadingModel::Flat:
         maker = MeshMakerT<MeshBasicMaterial>::make(this, ai);
         break;
     }
@@ -771,7 +789,7 @@ void Assimp::loadScene(string name, ResourceLoader &loader)
     return;
   }
 
-  Access access(_scene, aiscene, loader);
+  Access access(_scene, aiscene, loader, modelMap);
   access.readScene();
 }
 
