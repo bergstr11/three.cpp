@@ -36,6 +36,7 @@ public:
 
   const light::Resolver::Ptr lightResolver;
 
+  Color &color() {return _color;}
   const Color &color() const {return _color;}
   float intensity() const {return _intensity;}
   float &intensity() {return _intensity;}

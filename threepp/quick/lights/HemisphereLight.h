@@ -66,6 +66,7 @@ public:
   void setGroundColor(const QColor &color) {
     if(_groundColor != color) {
       _groundColor = color;
+      if(_light) _light->groundColor().set(_groundColor.redF(), _groundColor.greenF(), _groundColor.blueF());
       emit groundColorChanged();
     }
   }

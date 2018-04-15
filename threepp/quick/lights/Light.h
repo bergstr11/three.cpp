@@ -36,6 +36,7 @@ public:
   void setColor(const QColor &color) {
     if(_color != color) {
       _color = color;
+      if(light()) light()->color().set(_color.redF(), _color.greenF(), _color.blueF());
       emit colorChanged();
     }
   }

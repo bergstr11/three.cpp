@@ -35,6 +35,28 @@ Window {
             console.log(dlabel.text, rlabel.text)
         }
     }
+
+    ColorDialog {
+        id: colorDialog
+        title: "Please choose a color"
+        visible: false
+
+        property Light light
+        property string colorName: "color"
+
+        onVisibleChanged: {
+            if(visible) {
+                color = light[colorName]
+            }
+        }
+        onAccepted: {
+            if(light) {
+                light[colorName] = colorDialog.color
+                threeD.update()
+            }
+        }
+    }
+
     OptionsMenu {
         id: lightControls
         title: "light"
@@ -58,6 +80,33 @@ Window {
             target: directionalLight
             from: 0
             to: 2
+        }
+        MenuChoice {
+            name: "hemisphere sky color"
+            isAction: true
+            onSelected: {
+                colorDialog.light = hemisphereLight
+                colorDialog.colorName = "skyColor"
+                colorDialog.visible = true
+            }
+        }
+        MenuChoice {
+            name: "hemisphere ground color"
+            isAction: true
+            onSelected: {
+                colorDialog.light = hemisphereLight
+                colorDialog.colorName = "groundColor"
+                colorDialog.visible = true
+            }
+        }
+        MenuChoice {
+            name: "directional color"
+            isAction: true
+            onSelected: {
+                colorDialog.light = directionalLight
+                colorDialog.colorName = "color"
+                colorDialog.visible = true
+            }
         }
     }
     OptionsMenu {

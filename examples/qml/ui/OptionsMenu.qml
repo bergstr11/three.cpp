@@ -86,10 +86,17 @@ Rectangle {
             property QtObject prop
             property QtObject target
 
-            color: target.value ? "lightgray" : "transparent"
+            color: target.value ? target.selectedColor : target.color
 
             function reset() {
-                menu_label.color = target.value ? "green" : textColor
+                color = target.color
+            }
+            Rectangle {
+                border.width: 0.5
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 0.5
             }
             Label {
                 id: menu_label
@@ -97,8 +104,6 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 text: prop.name
-                color: target.value ? "green" : textColor
-                font.bold: true
 
                 MouseArea {
                     anchors.fill: parent

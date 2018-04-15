@@ -15,11 +15,11 @@ namespace three {
 namespace gl {
 
 class Renderer_impl;
+class SpriteRendererData;
 
 class SpriteRenderer
 {
-  class Data;
-  Data *_data = nullptr;
+  SpriteRendererData *_data = nullptr;
 
   Renderer_impl &_r;
   State &_state;

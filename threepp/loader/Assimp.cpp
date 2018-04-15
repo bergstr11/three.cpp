@@ -118,6 +118,38 @@ public:
   }
 };
 
+const char *to_string(aiTextureType type)
+{
+  switch(type) {
+    case aiTextureType_DIFFUSE:
+      return "diffuse";
+    case aiTextureType_SPECULAR:
+      return "specular";
+    case aiTextureType_AMBIENT:
+      return "ambient";
+    case aiTextureType_EMISSIVE:
+      return "emissive";
+    case aiTextureType_HEIGHT:
+      return "height";
+    case aiTextureType_NORMALS:
+      return "normals";
+    case aiTextureType_SHININESS:
+      return "shininess";
+    case aiTextureType_OPACITY:
+      return "opacity";
+    case aiTextureType_DISPLACEMENT:
+      return "displacement";
+    case aiTextureType_LIGHTMAP:
+      return "lightmap";
+    case aiTextureType_REFLECTION:
+      return "reflection";
+    case aiTextureType_UNKNOWN:
+      return "unknown";
+    default:
+      return "undefined";
+  }
+}
+
 class ProgressHandler : public as::ProgressHandler
 {
 public:
@@ -376,11 +408,13 @@ protected:
     if(ai->Get(AI_MATKEY_BLEND_FUNC, blendFunc) == AI_SUCCESS) {
       switch(blendFunc) {
         case aiBlendMode_Default:
+          material.blending = Blending::Normal;
           material.blendSrcAlpha = BlendFunc::SrcAlpha;
           material.blendDstAlpha = BlendFunc::OneMinusSrcAlpha;
           material.blendEquationAlpha = BlendEq::Add;
           break;
         case aiBlendMode_Additive:
+          material.blending = Blending::Additive;
           material.blendSrcAlpha = BlendFunc::None;
           material.blendDstAlpha = BlendFunc::None;
           material.blendEquationAlpha = BlendEq::Add;
@@ -420,8 +454,8 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
 
   if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
 
-    if(uvindex != numeric_limits<unsigned>::max()) {
-      qWarning() << "explicit UV index not used";
+    if(uvindex != numeric_limits<unsigned>::max() && uvindex > 0) {
+      qWarning() << "UV index" << uvindex << "not used";
     }
     if(path.data[0] == '*') {
       unsigned index = atoi(path.data + 1);
@@ -440,48 +474,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         loader.load(image, imageFile);
         images[imageFile] = image;
       }
-      const char *textype;
-      switch(type) {
-        case aiTextureType_DIFFUSE:
-          textype = "diffuse";
-          break;
-        case aiTextureType_SPECULAR:
-          textype = "specular";
-          break;
-        case aiTextureType_AMBIENT:
-          textype = "ambient";
-          break;
-        case aiTextureType_EMISSIVE:
-          textype = "emissive";
-          break;
-        case aiTextureType_HEIGHT:
-          textype = "height";
-          break;
-        case aiTextureType_NORMALS:
-          textype = "normals";
-          break;
-        case aiTextureType_SHININESS:
-          textype = "shininess";
-          break;
-        case aiTextureType_OPACITY:
-          textype = "opacity";
-          break;
-        case aiTextureType_DISPLACEMENT:
-          textype = "displacement";
-          break;
-        case aiTextureType_LIGHTMAP:
-          textype = "lightmap";
-          break;
-        case aiTextureType_REFLECTION:
-          textype = "reflection";
-          break;
-        case aiTextureType_UNKNOWN:
-          textype = "unknown";
-          break;
-        default:
-          textype = "undefined";
-      }
-      qDebug() << "loaded texture " << imageFile.c_str() << "(" << textype << ")";
+      qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
       TextureOptions options = ImageTexture::options();
 
       switch(mapping) {
@@ -727,14 +720,16 @@ void Access::readMaterial(unsigned materialIndex)
 
     switch(shadingModel) {
       case aiShadingMode_Phong:
-      case aiShadingMode_Gouraud:
         maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
         break;
       case aiShadingMode_Toon:
         maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
         break;
-      default:
+      case aiShadingMode_Gouraud:
         maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+        break;
+      case aiShadingMode_Flat:
+        maker = MeshMakerT<MeshBasicMaterial>::make(this, ai);
         break;
     }
   }

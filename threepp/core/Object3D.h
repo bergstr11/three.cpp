@@ -336,7 +336,7 @@ public:
 
   virtual void updateMatrixWorld(bool force);
 
-  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) {};
+  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) {}
 };
 
 /**

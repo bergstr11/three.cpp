@@ -12,7 +12,7 @@ namespace gl {
 
 using namespace std;
 
-struct SpriteRenderer::Data
+struct SpriteRendererData
 {
   GLint position_att;
   GLint uv_att;
@@ -29,7 +29,7 @@ struct SpriteRenderer::Data
   GLint fogType, fogDensity, fogNear, fogFar, fogColor, fogDepth;
   GLint alphaTest;
 
-  Data(QOpenGLFunctions *f, GLuint program)
+  SpriteRendererData(QOpenGLFunctions *f, GLuint program)
   {
     position_att = f->glGetAttribLocation(program, "position");
     uv_att = f->glGetAttribLocation(program, "uv");

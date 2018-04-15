@@ -28,6 +28,7 @@ struct TextureOptions
   TextureFilter magFilter = TextureFilter::Linear;
   TextureFilter minFilter = TextureFilter::LinearMipMapLinear;
 
+  //unused
   Blending blending = Blending::Normal;
 
   float anisotropy = 1;
