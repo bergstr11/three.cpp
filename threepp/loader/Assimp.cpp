@@ -723,16 +723,22 @@ void Access::readMaterial(unsigned materialIndex)
 
     ShadingModel targetModel;
     switch(shadingModel) {
+      case aiShadingMode_Fresnel:
+      case aiShadingMode_CookTorrance:
+      case aiShadingMode_Blinn:
       case aiShadingMode_Phong:
         targetModel = modelMap[ShadingModel::Phong];
         break;
       case aiShadingMode_Toon:
         targetModel = modelMap[ShadingModel::Toon];
         break;
+      case aiShadingMode_OrenNayar:
+      case aiShadingMode_Minnaert:
       case aiShadingMode_Gouraud:
         targetModel = modelMap[ShadingModel::Gouraud];
         break;
       case aiShadingMode_Flat:
+    case aiShadingMode_NoShading:
         targetModel = modelMap[ShadingModel::Flat];
         break;
     }
@@ -760,6 +766,8 @@ void Access::readMaterial(unsigned materialIndex)
       maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
     }
   }
+  if(!maker)
+    throw out_of_range("unknown shading model");
 
   makers[materialIndex] = maker;
 }
