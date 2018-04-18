@@ -415,25 +415,6 @@ class SpriteMaterial;
 
 namespace material {
 
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, Material)
-PUT_FUNCTABLE(Dispatch, ShaderMaterial)
-PUT_FUNCTABLE(Dispatch, RawShaderMaterial)
-PUT_FUNCTABLE(Dispatch, LineBasicMaterial)
-PUT_FUNCTABLE(Dispatch, LineDashedMaterial)
-PUT_FUNCTABLE(Dispatch, MeshPhongMaterial)
-PUT_FUNCTABLE(Dispatch, MeshDepthMaterial)
-PUT_FUNCTABLE(Dispatch, MeshDistanceMaterial)
-PUT_FUNCTABLE(Dispatch, MeshStandardMaterial)
-PUT_FUNCTABLE(Dispatch, MeshLambertMaterial)
-PUT_FUNCTABLE(Dispatch, MeshBasicMaterial)
-PUT_FUNCTABLE(Dispatch, MeshNormalMaterial)
-PUT_FUNCTABLE(Dispatch, MeshPhysicalMaterial)
-PUT_FUNCTABLE(Dispatch, MeshToonMaterial)
-PUT_FUNCTABLE(Dispatch, PointsMaterial)
-PUT_FUNCTABLE(Dispatch, ShadowMaterial)
-PUT_FUNCTABLE(Dispatch, SpriteMaterial)
-
 DEF_VALUETABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)
 PUT_VALUETABLE(ShaderIDs, MeshDepthMaterial, gl::ShaderID, gl::ShaderID::depth)
 PUT_VALUETABLE(ShaderIDs, MeshDistanceMaterial, gl::ShaderID, gl::ShaderID::distanceRGBA)
@@ -467,11 +448,12 @@ PUT_STRINGTABLE(ShaderNames, RawShaderMaterial, "RawShaderMaterial")
 PUT_STRINGTABLE(ShaderNames, ShadowMaterial, "ShadowMaterial")
 PUT_STRINGTABLE(ShaderNames, SpriteMaterial, "SpriteMaterial")
 
-DEF_RESOLVER_3(Dispatch, ShaderIDs, ShaderNames)
+DEF_RESOLVER_2(ShaderIDs, ShaderNames)
 
 }
 
 #define CAST(x, y, Cls) auto y = std::dynamic_pointer_cast<Cls>(x)
+#define CAST2(x, Cls) std::dynamic_pointer_cast<Cls>(x)
 }
 
 #endif //THREEPP_RESOLVER_H

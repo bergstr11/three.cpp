@@ -96,22 +96,16 @@ QVariant ObjectPicker::intersect(unsigned index)
       if(_prototype->material()) _prototype->material()->deleteLater();
 
       if(obj->material()) {
-        material::Dispatch dispatch;
 
-        dispatch.func<three::MeshPhongMaterial>() = [&] (three::MeshPhongMaterial &mat) {
-          three::MeshPhongMaterial::Ptr m(&mat, _no_delete);
-          _prototype->setMaterial(new MeshPhongMaterial(m));
-        };
-        dispatch.func<three::MeshLambertMaterial>() = [&] (three::MeshLambertMaterial &mat) {
-          three::MeshLambertMaterial::Ptr m(&mat, _no_delete);
-          _prototype->setMaterial(new MeshLambertMaterial(m));
-        };
-        dispatch.func<three::MeshBasicMaterial>() = [&] (three::MeshBasicMaterial &mat) {
-          three::MeshBasicMaterial::Ptr m(&mat, _no_delete);
-          _prototype->setMaterial(new MeshBasicMaterial(m));
-        };
-
-        obj->material()->resolver->material::DispatchResolver::getValue(dispatch);
+        if(CAST(obj, mat, three::MeshPhongMaterial)) {
+          _prototype->setMaterial(new MeshPhongMaterial(mat));
+        }
+        else if(CAST(obj, mat, three::MeshLambertMaterial)) {
+          _prototype->setMaterial(new MeshLambertMaterial(mat));
+        }
+        else if(CAST(obj, mat, three::MeshBasicMaterial)) {
+          _prototype->setMaterial(new MeshBasicMaterial(mat));
+        }
       }
 
       _currentIntersect.object.setValue(_prototype);

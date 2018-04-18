@@ -1118,36 +1118,25 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     // load material specific uniforms
     // (shader material also gets them for the sake of genericity)
 
-    material::Dispatch dispatch;
-    resolver::FuncAssoc<Material> assoc = [&] (Material &mat) {
+    if(CAST2(material, MeshPhongMaterial)
+       || CAST2(material, MeshLambertMaterial)
+       || CAST2(material, MeshBasicMaterial)
+       || CAST2(material, MeshStandardMaterial)
+       || CAST2(material, ShaderMaterial)) {
 
       if(prg_uniforms->get(UniformName::cameraPosition)) {
         _vector3 = camera->matrixWorld().getPosition();
         prg_uniforms->set(UniformName::cameraPosition, _vector3);
         check_glerror(this);
       }
-    };
-    dispatch.func<MeshPhongMaterial>() = assoc;
-    dispatch.func<MeshLambertMaterial>() = assoc;
-    dispatch.func<MeshBasicMaterial>() = assoc;
-    dispatch.func<MeshStandardMaterial>() = assoc;
-    dispatch.func<ShaderMaterial>() = assoc;
-
-    material->resolver->material::DispatchResolver::getValue(dispatch);
-
-    assoc = [&] (Material &mat) {
 
       prg_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
       check_glerror(this);
-    };
-    dispatch.func<MeshPhongMaterial>() = assoc;
-    dispatch.func<MeshLambertMaterial>() = assoc;
-    dispatch.func<MeshBasicMaterial>() = assoc;
-    dispatch.func<MeshStandardMaterial>() = assoc;
-    dispatch.func<ShaderMaterial>() = assoc;
+    }
+    else if(material->skinning) {
 
-    if(!material->resolver->material::DispatchResolver::getValue(dispatch) && material->skinning) {
-      assoc(*material.get());
+      prg_uniforms->set( UniformName::viewMatrix, camera->matrixWorldInverse() );
+      check_glerror(this);
     }
   }
 
@@ -1230,57 +1219,59 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniforms( mat_uniforms, *fog );
     }
 
-    material::Dispatch dispatch;
-    dispatch.func<MeshBasicMaterial>() = [&](MeshBasicMaterial &material) {
-      refresh( mat_uniforms, material );
-    };
-    dispatch.func<MeshDepthMaterial>() = [&](MeshDepthMaterial &material) {
-      refresh( mat_uniforms, material);
-    };
-    dispatch.func<MeshDistanceMaterial>() = [&](MeshDistanceMaterial &material) {
-      refresh( mat_uniforms, material);
-      mat_uniforms[UniformName::referencePosition] = material.referencePosition;
-      mat_uniforms[UniformName::nearDistance] = material.nearDistance;
-      mat_uniforms[UniformName::farDistance] = material.farDistance;
-    };
-    dispatch.func<LineBasicMaterial>() = [&](LineBasicMaterial &material) {
-      refresh( mat_uniforms, material);
-    };
-    dispatch.func<LineDashedMaterial>() = [&](LineDashedMaterial &material) {
-      refresh( mat_uniforms, material );
-      mat_uniforms[UniformName::dashSize] = material.dashSize;
-      mat_uniforms[UniformName::totalSize] = material.dashSize + material.gapSize;
-      mat_uniforms[UniformName::scale] = material.scale;
-    };
-    dispatch.func<MeshStandardMaterial>() = [&] (MeshStandardMaterial &material) {
-      refresh( mat_uniforms, material);
-    };
-    dispatch.func<MeshLambertMaterial>() = [&] (MeshLambertMaterial &material) {
-      refresh( mat_uniforms, material);
-    };
-    dispatch.func<MeshPhongMaterial>() = [&](MeshPhongMaterial &material) {
-      refresh( mat_uniforms, material );
-    };
-    dispatch.func<MeshToonMaterial>() = [&](MeshToonMaterial &material) {
-      refresh( mat_uniforms, material );
-    };
-    dispatch.func<MeshPhysicalMaterial>() = [&](MeshPhysicalMaterial &material) {
-      refresh( mat_uniforms, material );
-      mat_uniforms[UniformName::clearCoat] = material.clearCoat;
-      mat_uniforms[UniformName::clearCoatRoughness] = material.clearCoatRoughness;
-    };
-    dispatch.func<MeshNormalMaterial>() = [&](MeshNormalMaterial &material) {
-      refresh( mat_uniforms, material );
-    };
-    dispatch.func<PointsMaterial>() = [&] (PointsMaterial &material) {
-      refresh( mat_uniforms, material );
-      mat_uniforms[UniformName::size] = material.size * _pixelRatio;
+    if(CAST(material, mat, MeshBasicMaterial)) {
+      refresh( mat_uniforms, *mat );
+    }
+    else if(CAST(material, mat, MeshDepthMaterial)) {
+      refresh( mat_uniforms, *mat);
+    }
+    else if(CAST(material, mat, MeshDistanceMaterial)) {
+
+      refresh( mat_uniforms, *mat);
+      mat_uniforms[UniformName::referencePosition] = mat->referencePosition;
+      mat_uniforms[UniformName::nearDistance] = mat->nearDistance;
+      mat_uniforms[UniformName::farDistance] = mat->farDistance;
+    }
+    else if(CAST(material, mat, LineBasicMaterial)) {
+
+      refresh( mat_uniforms, *mat);
+
+      if(CAST(material, mat, LineDashedMaterial)) {
+        mat_uniforms[UniformName::dashSize] = mat->dashSize;
+        mat_uniforms[UniformName::totalSize] = mat->dashSize + mat->gapSize;
+        mat_uniforms[UniformName::scale] = mat->scale;
+      }
+    }
+    else if(CAST(material, mat, MeshStandardMaterial)) {
+      refresh( mat_uniforms, *mat);
+    }
+    else if(CAST(material, mat, MeshLambertMaterial)) {
+      refresh( mat_uniforms, *mat);
+    }
+    else if(CAST(material, mat, MeshPhongMaterial)) {
+      refresh( mat_uniforms, *mat);
+    }
+    else if(CAST(material, mat, MeshToonMaterial)) {
+      refresh( mat_uniforms, *mat);
+    }
+    else if(CAST(material, mat, MeshPhysicalMaterial)) {
+
+      refresh( mat_uniforms, *mat );
+      mat_uniforms[UniformName::clearCoat] = mat->clearCoat;
+      mat_uniforms[UniformName::clearCoatRoughness] = mat->clearCoatRoughness;
+    }
+    else if(CAST(material, mat, MeshNormalMaterial)) {
+      refresh( mat_uniforms, *mat );
+    }
+    else if(CAST(material, mat, PointsMaterial)) {
+
+      refresh( mat_uniforms, *mat );
+      mat_uniforms[UniformName::size] = mat->size * _pixelRatio;
       mat_uniforms[UniformName::scale] = _height * 0.5f;
-    };
-    dispatch.func<ShadowMaterial>() = [&] (ShadowMaterial &material) {
-      refresh(mat_uniforms, material);
-    };
-    material->resolver->material::DispatchResolver::getValue(dispatch);
+    }
+    else if(CAST(material, mat, ShadowMaterial)) {
+      refresh( mat_uniforms, *mat );
+    }
     check_glerror(this);
 
     // RectAreaLight Texture

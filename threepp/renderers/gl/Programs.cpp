@@ -60,104 +60,111 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->mapEncoding = getTextureEncoding(material->map, _renderer.gammaInput);
   parameters->vertexColors = material->vertexColors;
 
-  material::Dispatch dispatch;
-  dispatch.func<MeshBasicMaterial>() = [&parameters] (MeshBasicMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->envMap = mat.envMap;
-    parameters->specularMap = mat.specularMap;
-    parameters->combine = mat.combine;
-  };
-  dispatch.func<MeshDistanceMaterial>() = [&parameters] (MeshDistanceMaterial &mat) {
-  };
-  dispatch.func<MeshDepthMaterial>() = [&parameters] (MeshDepthMaterial &mat) {
-    parameters->alphaMap = mat.alphaMap;
-    parameters->depthPacking = mat.depthPacking;
-  };
-  dispatch.func<ShaderMaterial>() = [&parameters] (ShaderMaterial &mat) {
-    if(mat.use_derivatives)
+  if(CAST(material, mat, MeshBasicMaterial)) {
+
+    parameters->aoMap = mat->aoMap;
+    parameters->envMap = mat->envMap;
+    parameters->specularMap = mat->specularMap;
+    parameters->combine = mat->combine;
+  }
+  else if(CAST(material, mat, MeshDistanceMaterial)) {
+
+  }
+  else if(CAST(material, mat, MeshDepthMaterial)) {
+
+    parameters->alphaMap = mat->alphaMap;
+    parameters->depthPacking = mat->depthPacking;
+  }
+  else if(CAST(material, mat, ShaderMaterial)) {
+
+    if(mat->use_derivatives)
       parameters->extensions.add(Extension::OES_standard_derivatives);
-    if(mat.use_drawBuffers)
+    if(mat->use_drawBuffers)
       parameters->extensions.add(Extension::GLEXT_draw_buffers);
-    if(mat.use_fragDepth)
+    if(mat->use_fragDepth)
       parameters->extensions.add(Extension::EXT_frag_depth);
-    if(mat.use_shaderTextureLOD)
+    if(mat->use_shaderTextureLOD)
       parameters->extensions.add(Extension::EXT_shader_texture_lod);
 
-    parameters->defines = mat.defines;
+    parameters->defines = mat->defines;
     parameters->shaderMaterial = ShaderMaterialKind::shader;
-    parameters->fragmentShader = mat.fragmentShader;
-    parameters->vertexShader = mat.vertexShader;
-    parameters->shaderMaterialClipping = mat.clipping;
-    parameters->index0AttributeName = mat.index0AttributeName;
-  };
-  dispatch.func<RawShaderMaterial>() = [&] (RawShaderMaterial &mat) {
-    dispatch.func<ShaderMaterial>()(mat);
-    parameters->shaderMaterial = ShaderMaterialKind::raw;
-    parameters->fragmentShader = mat.fragmentShader;
-    parameters->vertexShader = mat.vertexShader;
-  };
-  dispatch.func<PointsMaterial>() = [&parameters] (PointsMaterial &mat) {
-    parameters->sizeAttenuation = (bool)mat.sizeAttenuation;
-  };
-  dispatch.func<MeshPhongMaterial>() = [&parameters, this] (MeshPhongMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->bumpMap = mat.bumpMap;
-    parameters->normalMap = mat.normalMap;
-    parameters->alphaMap = mat.alphaMap;
-    parameters->envMap = mat.envMap;
-    parameters->envMapEncoding = getTextureEncoding(mat.envMap, _renderer.gammaInput);
-    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat.envMap &&
-                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = mat.lightMap;
-    parameters->emissiveMap = mat.emissiveMap;
-    parameters->emissiveMapEncoding = getTextureEncoding(mat.emissiveMap, _renderer.gammaInput);
-    parameters->displacementMap = mat.displacementMap;
-  };
-  dispatch.func<MeshToonMaterial>() = [&parameters] (MeshToonMaterial &mat) {
-    parameters->gradientMap = mat.gradientMap;
-    parameters->defines = mat.defines;
-  };
-  dispatch.func<MeshStandardMaterial>() = [&parameters] (MeshStandardMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->bumpMap = mat.bumpMap;
-    parameters->normalMap = mat.normalMap;
-    parameters->roughnessMap = mat.roughnessMap;
-    parameters->metalnessMap = mat.metalnessMap;
-    parameters->alphaMap = mat.alphaMap;
-    parameters->defines = mat.defines;
-    parameters->envMap = mat.envMap;
-    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
-    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat.envMap &&
-                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = mat.lightMap;
-  };
-  dispatch.func<MeshPhysicalMaterial>() = [&] (MeshPhysicalMaterial &mat) {
-    dispatch.func<MeshStandardMaterial>()(mat);
-    parameters->defines = mat.defines;
-  };
-  dispatch.func<MeshNormalMaterial>() = [&parameters] (MeshNormalMaterial &mat) {
-    parameters->bumpMap = mat.bumpMap;
-    parameters->normalMap = mat.normalMap;
-  };
-  dispatch.func<MeshLambertMaterial>() = [&parameters] (MeshLambertMaterial &mat) {
-    parameters->aoMap = mat.aoMap;
-    parameters->alphaMap = mat.alphaMap;
-    parameters->envMap = mat.envMap;
-    parameters->envMapEncoding = mat.envMap ? mat.envMap->encoding() : Encoding::Linear;
-    parameters->envMapMode = mat.envMap ? mat.envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat.envMap &&
-                               (mat.envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat.envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->specularMap = mat.specularMap;
-    parameters->emissiveMapEncoding = mat.emissiveMap ? mat.emissiveMap->encoding() : Encoding::Linear;
-    parameters->combine = mat.combine;
-    parameters->lightMap = mat.lightMap;
-  };
-  material->resolver->material::DispatchResolver::getValue(dispatch);
+    parameters->fragmentShader = mat->fragmentShader;
+    parameters->vertexShader = mat->vertexShader;
+    parameters->shaderMaterialClipping = mat->clipping;
+    parameters->index0AttributeName = mat->index0AttributeName;
+
+    if(CAST(material, mat, RawShaderMaterial)) {
+      parameters->shaderMaterial = ShaderMaterialKind::raw;
+      parameters->fragmentShader = mat->fragmentShader;
+      parameters->vertexShader = mat->vertexShader;
+    }
+  }
+  else if(CAST(material, mat, PointsMaterial)) {
+    parameters->sizeAttenuation = (bool)mat->sizeAttenuation;
+  }
+  else if(CAST(material, mat, MeshPhongMaterial)) {
+
+    parameters->aoMap = mat->aoMap;
+    parameters->bumpMap = mat->bumpMap;
+    parameters->normalMap = mat->normalMap;
+    parameters->alphaMap = mat->alphaMap;
+    parameters->envMap = mat->envMap;
+    parameters->envMapEncoding = getTextureEncoding(mat->envMap, _renderer.gammaInput);
+    parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat->envMap &&
+                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->lightMap = mat->lightMap;
+    parameters->emissiveMap = mat->emissiveMap;
+    parameters->emissiveMapEncoding = getTextureEncoding(mat->emissiveMap, _renderer.gammaInput);
+    parameters->displacementMap = mat->displacementMap;
+  }
+  else if(CAST(material, mat, MeshToonMaterial)) {
+
+    parameters->gradientMap = mat->gradientMap;
+    parameters->defines = mat->defines;
+  }
+  else if(CAST(material, mat, MeshStandardMaterial)) {
+
+    parameters->aoMap = mat->aoMap;
+    parameters->bumpMap = mat->bumpMap;
+    parameters->normalMap = mat->normalMap;
+    parameters->roughnessMap = mat->roughnessMap;
+    parameters->metalnessMap = mat->metalnessMap;
+    parameters->alphaMap = mat->alphaMap;
+    parameters->defines = mat->defines;
+    parameters->envMap = mat->envMap;
+    parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
+    parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat->envMap &&
+                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->lightMap = mat->lightMap;
+
+    if(CAST(material, mat, MeshPhysicalMaterial)) {
+      parameters->defines = mat->defines;
+    }
+  }
+  else if(CAST(material, mat, MeshNormalMaterial)) {
+
+    parameters->bumpMap = mat->bumpMap;
+    parameters->normalMap = mat->normalMap;
+  }
+  else if(CAST(material, mat, MeshLambertMaterial)) {
+
+    parameters->aoMap = mat->aoMap;
+    parameters->alphaMap = mat->alphaMap;
+    parameters->envMap = mat->envMap;
+    parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
+    parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
+    parameters->envMapCubeUV = mat->envMap &&
+                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
+                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
+    parameters->specularMap = mat->specularMap;
+    parameters->emissiveMapEncoding = mat->emissiveMap ? mat->emissiveMap->encoding() : Encoding::Linear;
+    parameters->combine = mat->combine;
+    parameters->lightMap = mat->lightMap;
+  }
 
   parameters->fog = (bool)fog;
   parameters->useFog = material->fog;
