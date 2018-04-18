@@ -78,16 +78,13 @@ protected:
   // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
   const unsigned _unpackAlignment = 4;
 
-  Texture(texture::Resolver::Ptr resolver,
-          const TextureOptions &options,
+  Texture(const TextureOptions &options,
           bool generateMipMaps=true, unsigned unpackAlignment=4);
 
 public:
   static TextureOptions options() {return TextureOptions();}
 
   using Ptr = std::shared_ptr<Texture>;
-
-  texture::Resolver::Ptr resolver;
 
   const sole::uuid uuid;
   Signal<void(Texture &)> onDispose;
@@ -150,9 +147,9 @@ public:
 class CubeTexture : public Texture
 {
 protected:
-  CubeTexture(texture::Resolver::Ptr resolver, const TextureOptions &options, bool generateMipMaps=true,
+  CubeTexture(const TextureOptions &options, bool generateMipMaps=true,
               unsigned unpackAlignment=4)
-     : Texture(resolver, options, generateMipMaps, unpackAlignment) {}
+     : Texture(options, generateMipMaps, unpackAlignment) {}
 
 public:
   static constexpr unsigned num_faces = 6;

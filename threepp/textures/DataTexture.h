@@ -23,8 +23,7 @@ protected:
   bool _compressed;
 
   DataTexture(const TextureOptions &options, const TextureData::Ptr data, size_t width, size_t height, bool compressed=false)
-     : Texture(texture::ResolverT<DataTexture>::make(*this), options, false, 1),
-       _data(data), _width(width), _height(height), _compressed(compressed)
+     : Texture(options, false, 1), _data(data), _width(width), _height(height), _compressed(compressed)
   {
     needsUpdate();
   }
@@ -89,8 +88,7 @@ class DataCubeTexture : public CubeTexture
 protected:
   DataCubeTexture(const TextureOptions &options, const std::array<TextureData::Ptr, CubeTexture::num_faces> &datas,
                   size_t width, size_t height, bool compressed)
-     : CubeTexture(texture::ResolverT<DataCubeTexture>::make(*this), options, false, 1),
-       _datas(datas), _width(width), _height(height), _compressed(compressed)
+     : CubeTexture(options, false, 1),_datas(datas), _width(width), _height(height), _compressed(compressed)
   {
   }
 

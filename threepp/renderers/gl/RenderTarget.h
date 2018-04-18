@@ -48,7 +48,7 @@ class RenderTargetExternal : public RenderTarget
     const GLsizei width, height;
 
     ExternalTexture(GLuint handle, GLsizei width, GLsizei height)
-       : Texture(texture::Resolver::makeNull(), Texture::options(), false, false), handle(handle), width(width), height(height)
+       : Texture(Texture::options(), false, false), handle(handle), width(width), height(height)
     {}
 
     bool isPowerOfTwo() const override {
@@ -104,7 +104,7 @@ class RenderTargetTexture : public Texture
 
 protected:
   RenderTargetTexture(const TextureOptions &options, GLsizei width, GLsizei height)
-     : Texture(texture::Resolver::makeNull(), options, false, 1), _width(width), _height(height)
+     : Texture(options, false, 1), _width(width), _height(height)
   {}
 
 public:

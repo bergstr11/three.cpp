@@ -32,7 +32,7 @@ class Textures
 
   void setTextureCubeDynamic( Texture::Ptr texture, unsigned slot );
   void setTextureParameters(TextureTarget textureTarget, Texture &texture);
-  void uploadTexture(GlProperties &textureProperties, Texture &texture, unsigned slot );
+  void uploadTexture(GlProperties &textureProperties, Texture::Ptr texture, unsigned slot );
   void setupFrameBufferTexture(GLuint framebuffer, const Renderer::Target &renderTarget, GLenum attachment, TextureTarget textureTarget);
   void setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget &renderTarget );
   void setupDepthTexture(GLuint framebuffer, RenderTargetInternal &renderTarget);

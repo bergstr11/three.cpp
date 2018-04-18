@@ -326,26 +326,6 @@ DEF_RESOLVER_1(BackgroundDispatch)
 
 }
 
-class Texture;
-class ImageTexture;
-class ImageCubeTexture;
-class DataTexture;
-class DataCubeTexture;
-class DepthTexture;
-
-namespace texture {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, Texture)
-PUT_FUNCTABLE(Dispatch, ImageTexture)
-PUT_FUNCTABLE(Dispatch, ImageCubeTexture)
-PUT_FUNCTABLE(Dispatch, DataTexture)
-PUT_FUNCTABLE(Dispatch, DataCubeTexture)
-PUT_FUNCTABLE(Dispatch, DepthTexture)
-
-DEF_RESOLVER_1(Dispatch)
-}
-
 class Light;
 class Sprite;
 class LensFlare;

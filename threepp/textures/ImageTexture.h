@@ -18,7 +18,7 @@ protected:
   QImage _image;
 
   ImageTexture(const TextureOptions &options, const QImage image)
-     : Texture(texture::ResolverT<ImageTexture>::make(*this), options), _image(options.flipY ? image.mirrored() : image) {}
+     : Texture(options), _image(options.flipY ? image.mirrored() : image) {}
 
 public:
   using Ptr = std::shared_ptr<ImageTexture>;
@@ -51,7 +51,7 @@ class ImageCubeTexture : public CubeTexture
 protected:
 
   ImageCubeTexture(const TextureOptions &options, const std::array<QImage, CubeTexture::num_faces> &images)
-     : CubeTexture(texture::ResolverT<ImageCubeTexture>::make(*this), options), _images(images)
+     : CubeTexture(options), _images(images)
   {
   }
 
