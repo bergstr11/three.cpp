@@ -326,46 +326,6 @@ DEF_RESOLVER_1(BackgroundDispatch)
 
 }
 
-class InterleavedBufferAttribute;
-
-namespace bufferattribute {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, InterleavedBufferAttribute)
-
-DEF_RESOLVER_1(Dispatch)
-
-}
-
-class DefaultFog;
-class FogExp2;
-
-namespace fog {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, DefaultFog)
-PUT_FUNCTABLE(Dispatch, FogExp2)
-
-DEF_RESOLVER_1(Dispatch)
-
-}
-
-class Camera;
-class ArrayCamera;
-class OrthographicCamera;
-class PerspectiveCamera;
-
-namespace camera {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, ArrayCamera)
-PUT_FUNCTABLE(Dispatch, OrthographicCamera)
-PUT_FUNCTABLE(Dispatch, PerspectiveCamera)
-
-DEF_RESOLVER_1(Dispatch)
-
-}
-
 class Material;
 class ShaderMaterial;
 class RawShaderMaterial;

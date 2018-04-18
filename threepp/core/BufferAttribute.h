@@ -82,13 +82,8 @@ protected:
 
   UpdateRange _updateRange;
 
-  explicit BufferAttribute(bufferattribute::Resolver::Ptr resolver, unsigned itemSize, bool normalized)
-     : uuid(sole::uuid0()), resolver(resolver), _itemSize(itemSize), _normalized(normalized)
-  {}
-
-  BufferAttribute(unsigned itemSize, bool normalized)
-     : uuid(sole::uuid0()), resolver(bufferattribute::Resolver::makeNull()), _itemSize(itemSize),
-       _normalized(normalized)
+  explicit BufferAttribute(unsigned itemSize, bool normalized)
+     : uuid(sole::uuid0()), _itemSize(itemSize), _normalized(normalized)
   {}
 
 public:
@@ -97,8 +92,6 @@ public:
   bool dynamic = false;
 
   using Ptr = std::shared_ptr<BufferAttribute>;
-
-  const bufferattribute::Resolver::Ptr resolver;
 
   Signal<void(const BufferAttribute &)> onUpload;
 
@@ -135,9 +128,8 @@ protected:
   Type *_data;
   size_t _size = 0;
 
-  explicit BufferAttributeT(bufferattribute::Resolver::Ptr resolver, Type *data, size_t size,
-                            unsigned itemSize, bool normalized)
-  : BufferAttribute(resolver, itemSize, normalized), _data(data), _size(size)
+  explicit BufferAttributeT(Type *data, size_t size, unsigned itemSize, bool normalized)
+  : BufferAttribute(itemSize, normalized), _data(data), _size(size)
   {}
 
   BufferAttributeT(size_t size, unsigned itemSize, bool normalized)

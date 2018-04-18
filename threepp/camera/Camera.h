@@ -46,21 +46,13 @@ protected:
 
   Viewport _view;
 
-  Camera(camera::Resolver::Ptr resolver, float near=0.1, float far=2000, float zoom=1)
-    : Object3D(), cameraResolver(resolver),
-      _near(near), _far(far), _zoom(zoom),
-      _projectionMatrix(math::Matrix4::identity()),
-      _matrixWorldInverse(_matrixWorld.inverted()) {}
-
   Camera(float near=0.1, float far=2000, float zoom=1)
-    : Object3D(), cameraResolver(camera::Resolver::makeNull()),
-      _near(near), _far(far), _zoom(zoom),
+    : Object3D(), _near(near), _far(far), _zoom(zoom),
       _projectionMatrix(math::Matrix4::identity()),
       _matrixWorldInverse(_matrixWorld.inverted()) {}
 
-  Camera(const Camera &camera, camera::Resolver::Ptr resolver=camera::Resolver::makeNull())
-     : Object3D(), cameraResolver(resolver),
-       _near(camera._near), _far(camera._far), _zoom(camera._zoom),
+  Camera(const Camera &camera)
+     : Object3D(), _near(camera._near), _far(camera._far), _zoom(camera._zoom),
        _projectionMatrix(camera._projectionMatrix),
        _matrixWorldInverse(camera._matrixWorldInverse) {}
 
@@ -68,8 +60,6 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<Camera>;
-
-  camera::Resolver::Ptr cameraResolver;
 
   /**
    * Sets an offset in a larger frustum. This is useful for multi-window or

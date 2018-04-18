@@ -345,13 +345,13 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
     const RenderItem &renderItem = *renderIterator;
     Material::Ptr material = overrideMaterial ? overrideMaterial : renderItem.material;
 
-    camera::Dispatch dispatch;
-    dispatch.func<ArrayCamera>() = [&](ArrayCamera &acamera) {
-      _currentArrayCamera = dynamic_pointer_cast<ArrayCamera>(camera);
+    if(CAST(camera, acamera, ArrayCamera)) {
 
-      for ( unsigned j = 0; j < acamera.cameraCount; j ++ ) {
+      _currentArrayCamera = acamera;
 
-        PerspectiveCamera::Ptr camera2 = acamera[ j ];
+      for ( unsigned j = 0; j < acamera->cameraCount; j ++ ) {
+
+        PerspectiveCamera::Ptr camera2 = (*acamera)[ j ];
 
         if ( renderItem.object->layers().test( camera2->layers() ) ) {
 
@@ -367,8 +367,8 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
           renderObject( renderItem.object, scene, camera2, renderItem.geometry, material, renderItem.group );
         }
       }
-    };
-    if(!camera->cameraResolver->getValue(dispatch)) {
+    }
+    else {
       _currentArrayCamera = nullptr;
       renderObject( renderItem.object, scene, camera, renderItem.geometry, material, renderItem.group );
     }
@@ -754,13 +754,11 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
         GLenum type = attribute.type;
         unsigned bytesPerElement = attribute.bytesPerElement;
 
-        bufferattribute::Dispatch dispatch;
+        if(CAST(geometryAttribute, iba, InterleavedBufferAttribute)) {
 
-        dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {
-
-          auto &data = att.buffer();
+          auto &data = iba->buffer();
           GLsizei stride = (GLsizei) data.stride();
-          GLsizei offset = (GLsizei) att.offset();
+          GLsizei offset = (GLsizei) iba->offset();
 
           /*if ( data && data.isInstancedInterleavedBuffer ) {
 
@@ -782,9 +780,8 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
           glVertexAttribPointer(programAttribute, size, type, normalized, stride * bytesPerElement,
                                 (void *) ((startIndex * stride + offset) * bytesPerElement));
           check_glerror(this);
-        };
-
-        if (!geometryAttribute->resolver->bufferattribute::DispatchResolver::getValue(dispatch)) {
+        }
+        else {
           /*if ( geometryAttribute.isInstancedBufferAttribute ) {
 
             state.enableAttributeAndDivisor( programAttribute, geometryAttribute.meshPerAttribute );
@@ -973,16 +970,13 @@ void refreshUniforms(UniformValues &uniforms, Fog &fog)
 {
   uniforms.set(UniformName::fogColor, fog.color());
 
-  fog::Dispatch dispatch;
-
-  dispatch.func<DefaultFog>() = [&] (DefaultFog &fog) {
-    uniforms.set(UniformName::fogNear, fog.near());
-    uniforms.set(UniformName::fogFar, fog.far());
-  };
-  dispatch.func<FogExp2>() = [&] (FogExp2 &fog) {
-    uniforms.set(UniformName::fogDensity, fog.density());
-  };
-  fog.resolver->fog::DispatchResolver::getValue(dispatch);
+  if(DefaultFog *f = dynamic_cast<DefaultFog *>(&fog)) {
+    uniforms.set(UniformName::fogNear, f->near());
+    uniforms.set(UniformName::fogFar, f->far());
+  }
+  else if(FogExp2 *f = dynamic_cast<FogExp2 *>(&fog)) {
+    uniforms.set(UniformName::fogDensity, f->density());
+  }
 }
 
 void markUniformsLightsNeedsUpdate(UniformValues &uniforms, bool refreshLights )

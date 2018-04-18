@@ -15,14 +15,12 @@ class Fog
 protected:
   Color _color;
 
-  Fog(const Color &color, fog::Resolver::Ptr resolver) : _color(color), resolver(resolver) {}
+  Fog(const Color &color) : _color(color) {}
 
 public:
   virtual ~Fog() {}
 
   using Ptr = std::shared_ptr<Fog>;
-
-  fog::Resolver::Ptr resolver;
 
   const Color &color() const {return _color;}
   Color &color() {return _color;}
@@ -36,10 +34,10 @@ class DefaultFog : public Fog
   float _far;
 
   DefaultFog(const Color &color, float near, float far)
-     : Fog(color, fog::ResolverT<DefaultFog>::make(*this)), _near(near), _far(far) {}
+     : Fog(color), _near(near), _far(far) {}
 
   DefaultFog(const DefaultFog &fog)
-     : Fog(fog._color, fog::ResolverT<DefaultFog>::make(*this)), _near(fog._near), _far(fog._far) {}
+     : Fog(fog._color), _near(fog._near), _far(fog._far) {}
 
 public:
   using Ptr = std::shared_ptr<DefaultFog>;
@@ -63,10 +61,10 @@ class FogExp2 : public Fog
   float _density;
 
   FogExp2(const Color &color, float density = 0.00025f)
-     : Fog(color, fog::ResolverT<FogExp2>::make(*this)), _density(density) {}
+     : Fog(color), _density(density) {}
 
   FogExp2(const FogExp2 &fog)
-     : Fog(fog._color, fog::ResolverT<FogExp2>::make(*this)), _density(fog._density) {}
+     : Fog(fog._color), _density(fog._density) {}
 
 public:
   using Ptr = std::shared_ptr<FogExp2>;

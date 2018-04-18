@@ -18,8 +18,6 @@ class PerspectiveCamera : public Camera
   unsigned int _filmOffset = 0;
 
 protected:
-  PerspectiveCamera( float fov, float aspect, float near, float far, camera::Resolver::Ptr resolver);
-
   PerspectiveCamera( float fov, float aspect, float near, float far);
 
   PerspectiveCamera(const PerspectiveCamera &camera);

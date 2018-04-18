@@ -33,15 +33,14 @@ void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometr
 
   BufferAttributeT<float>::Ptr position = geometry->position();
 
-  bufferattribute::Dispatch dispatch;
-  dispatch.func<InterleavedBufferAttribute>() = [&](InterleavedBufferAttribute &att) {
+  if(CAST(position, ila, InterleavedBufferAttribute)) {
 
-    count = att.count();
+    count = ila->count();
     _fx->glDrawArraysInstanced((GLenum)_mode, 0, count, geometry->maxInstancedCount());
-  };
-
-  if(!position->resolver->getValue(dispatch))
+  }
+  else {
     _fx->glDrawArraysInstanced((GLenum)_mode, start, count, geometry->maxInstancedCount() );
+  }
 
   _renderInfo.calls ++;
   _renderInfo.vertices += count * geometry->maxInstancedCount();

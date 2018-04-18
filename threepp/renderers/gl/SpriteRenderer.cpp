@@ -242,30 +242,29 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
     _r.glUniform3f( _data->fogColor, fog->color().r, fog->color().g, fog->color().b );
 
-    fog::Dispatch dispatch;
-    dispatch.func<DefaultFog>() = [&](DefaultFog &df) {
+    if(CAST(fog, f, DefaultFog)) {
 
-      _r.glUniform1f( _data->fogNear, df.near() );
-      _r.glUniform1f( _data->fogFar, df.far() );
+      _r.glUniform1f( _data->fogNear, f->near() );
+      _r.glUniform1f( _data->fogFar, f->far() );
 
       _r.glUniform1i( _data->fogType, 1 );
       oldFogType = 1;
       sceneFogType = 1;
-    };
-    dispatch.func<FogExp2>() = [&] (FogExp2 &fe) {
-      _r.glUniform1f( _data->fogDensity, fe.density() );
+    }
+    else if(CAST(fog, f, FogExp2)) {
+
+      _r.glUniform1f( _data->fogDensity, f->density() );
 
       _r.glUniform1i( _data->fogType, 2 );
       oldFogType = 2;
       sceneFogType = 2;
-    };
+    }
   }
   else {
 
     _r.glUniform1i( _data->fogType, 0 );
     oldFogType = 0;
     sceneFogType = 0;
-
   }
 
 

@@ -7,20 +7,14 @@
 
 namespace three {
 
-PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far, camera::Resolver::Ptr resolver)
-   : Camera(resolver, near, far), _fov(fov), _aspect(aspect)
-{
-  updateProjectionMatrix();
-}
-
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far)
-   : Camera(camera::ResolverT<PerspectiveCamera>::make(*this), near, far), _fov(fov), _aspect(aspect)
+   : Camera(near, far), _fov(fov), _aspect(aspect)
 {
   updateProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera(const PerspectiveCamera &camera)
-   : Camera(*this, camera::ResolverT<PerspectiveCamera>::make(*this)), _fov(camera._fov), _aspect(camera._aspect)
+   : Camera(*this), _fov(camera._fov), _aspect(camera._aspect)
 {}
 
 void PerspectiveCamera::setFocalLength(float focalLength )

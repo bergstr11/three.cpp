@@ -92,32 +92,30 @@ bool Orbit::update()
 
 void Orbit::_pan(float deltaX, float deltaY)
 {
-  camera::Dispatch dispatch;
-  dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
+  if(CAST(_camera, pcamera, PerspectiveCamera)) {
 
     // perspective
     math::Vector3 offset = _camera->position() - target;
     float targetDistance = offset.length();
 
     // half of the fov is center to top of screen
-    targetDistance *= tan((camera.fov() / 2.0f) * M_PI / 180.0f);
+    targetDistance *= tan((pcamera->fov() / 2.0f) * M_PI / 180.0f);
 
     // we actually don't use screenWidth, since perspective camera is fixed to screen height
     if (deltaX != 0)
-      panLeft(2.0f * deltaX * targetDistance / clientHeight(), camera.matrix());
+      panLeft(2.0f * deltaX * targetDistance / clientHeight(), pcamera->matrix());
     if (deltaY != 0)
-      panUp(2.0f * deltaY * targetDistance / clientHeight(), camera.matrix());
+      panUp(2.0f * deltaY * targetDistance / clientHeight(), pcamera->matrix());
   };
-  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
+  if(CAST(_camera, ocamera, OrthographicCamera)) {
 
     // orthographic
     if (deltaX != 0)
-      panLeft(deltaX * (camera.right() - camera.left()) / camera.zoom() / clientWidth(), camera.matrix());
+      panLeft(deltaX * (ocamera->right() - ocamera->left()) / ocamera->zoom() / clientWidth(), ocamera->matrix());
     if (deltaY != 0)
-      panUp(deltaY * (camera.top() - camera.bottom()) / camera.zoom() / clientHeight(), camera.matrix());
-  };
-
-  if (!_camera->cameraResolver->getValue(dispatch)) {
+      panUp(deltaY * (ocamera->top() - ocamera->bottom()) / ocamera->zoom() / clientHeight(), ocamera->matrix());
+  }
+  else {
     // camera neither orthographic nor perspective
     enablePan = false;
   }
@@ -125,20 +123,18 @@ void Orbit::_pan(float deltaX, float deltaY)
 
 void Orbit::_dollyIn(float dollyScale)
 {
-  camera::Dispatch dispatch;
-  dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
+  if(CAST(_camera, pcamera, PerspectiveCamera)) {
 
     scale /= dollyScale;
     update();
-  };
-  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
+  }
+  else if(CAST(_camera, ocamera, OrthographicCamera)) {
 
-    camera.setZoom(std::max(minZoom, std::min(maxZoom, camera.zoom() * dollyScale)));
-    camera.updateProjectionMatrix();
+    ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() * dollyScale)));
+    ocamera->updateProjectionMatrix();
     _zoomChanged = true;
-  };
-
-  if (!_camera->cameraResolver->getValue(dispatch)) {
+  }
+  else {
     // camera neither orthographic nor perspective
     enableZoom = false;
   }
@@ -146,20 +142,18 @@ void Orbit::_dollyIn(float dollyScale)
 
 void Orbit::_dollyOut(float dollyScale)
 {
-  camera::Dispatch dispatch;
-  dispatch.func<PerspectiveCamera>() = [&](PerspectiveCamera &camera) {
+  if(CAST(_camera, pcamera, PerspectiveCamera)) {
 
     scale *= dollyScale;
     update();
-  };
-  dispatch.func<OrthographicCamera>() = [&](OrthographicCamera &camera) {
+  }
+  else if(CAST(_camera, ocamera, OrthographicCamera)) {
 
-    camera.setZoom(std::max(minZoom, std::min(maxZoom, camera.zoom() / dollyScale)));
-    camera.updateProjectionMatrix();
+    ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() / dollyScale)));
+    ocamera->updateProjectionMatrix();
     _zoomChanged = true;
-  };
-
-  if (!_camera->cameraResolver->getValue(dispatch)) {
+  }
+  else {
     // camera neither orthographic nor perspective
     enableZoom = false;
   }
