@@ -32,6 +32,9 @@
 #include <QOpenGLShaderProgram>
 
 namespace three {
+
+class ImmediateRenderObject;
+
 namespace gl {
 
 class DeferredCalls;

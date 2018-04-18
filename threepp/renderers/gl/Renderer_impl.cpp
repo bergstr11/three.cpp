@@ -6,6 +6,7 @@
 #include <threepp/core/InterleavedBufferAttribute.h>
 #include <threepp/objects/Line.h>
 #include <threepp/objects/Points.h>
+#include <threepp/objects/ImmediateRenderObject.h>
 #include <threepp/material/MeshStandardMaterial.h>
 #include <threepp/material/MeshPhongMaterial.h>
 #include <threepp/material/MeshNormalMaterial.h>
@@ -383,17 +384,17 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   object->modelViewMatrix.multiply(camera->matrixWorldInverse(), object->matrixWorld());
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
-  object::Dispatch dispatch;
-  dispatch.func<ImmediateRenderObject>() = [&] (ImmediateRenderObject &iro) {
+  if(CAST(object, iro, ImmediateRenderObject)) {
+
     _state.setMaterial( material, object->frontFaceCW() );
 
     Program::Ptr program = setProgram( camera, scene->fog(), material, object );
 
     _currentGeometryProgram = no_program;
 
-    renderObjectImmediate( iro, program, material );
-  };
-  if(!object->objectResolver->getValue(dispatch)) {
+    renderObjectImmediate( *iro, program, material );
+  }
+  else {
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   }
 
@@ -405,37 +406,39 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   if (!object->visible()) return;
 
   bool visible = object->layers().test(camera->layers());
-  if (visible && object->objectResolver) {
+  if (visible ) {
 
-    object::Dispatch dispatch;
+    if(CAST(object, light, Light)) {
 
-    dispatch.func<Light>() = [&] (Light &light) {
-      Light::Ptr lp = dynamic_pointer_cast<Light>(object);
-      _lightsArray.push_back(lp);
+      _lightsArray.push_back(light);
 
-      if ( light.castShadow ) {
-        _shadowsArray.push_back( lp );
+      if ( light->castShadow ) {
+        _shadowsArray.push_back( light );
       }
-    };
-    dispatch.func<Sprite>() = [&](Sprite &sprite) {
-      Sprite::Ptr sp = dynamic_pointer_cast<Sprite>(object);
-      if ( ! sprite.frustumCulled || _frustum.intersectsSprite(*sp) ) {
-        _spritesArray.push_back( sp );
+    }
+    else if(CAST(object, sprite, Sprite)) {
+
+      if ( ! sprite->frustumCulled || _frustum.intersectsSprite(*sprite) ) {
+        _spritesArray.push_back( sprite );
       }
-    };
-    dispatch.func<LensFlare>() = [&](LensFlare &flare) {
-      LensFlare::Ptr fp = dynamic_pointer_cast<LensFlare>(object);
-      _flaresArray.push_back( fp );
-    };
-    dispatch.func<ImmediateRenderObject>() = [&](ImmediateRenderObject &iro) {
+    }
+    else if(CAST(object, lflare, LensFlare)) {
+
+      _flaresArray.push_back( lflare );
+    }
+    else if(CAST(object, iro, ImmediateRenderObject)) {
+
       if ( sortObjects ) {
 
         _vector3 = object->matrixWorld().getPosition().apply( _projScreenMatrix );
       }
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
-    };
-    resolver::FuncAssoc<Object3D> assoc = [&](Object3D &obj) {
+    }
+    else if(CAST2(object, Mesh) || CAST2(object, Line) || CAST2(object, Points)) {
 
+      if(CAST(object, skmesh, SkinnedMesh)) {
+        skmesh->skeleton()->update();
+      }
       if ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) {
 
         if ( sortObjects ) {
@@ -463,17 +466,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
             _currentRenderList->push_back( object, geometry, material, _vector3.z(), nullptr);
         }
       }
-    };
-    dispatch.func<SkinnedMesh>() = [&](SkinnedMesh &sk) {
-      sk.skeleton()->update();
-      assoc(sk);
-    };
-    dispatch.func<Mesh>() = assoc;
-    dispatch.func<Line>() = assoc;
-    dispatch.func<LineSegments>() = assoc;
-    dispatch.func<Points>() = assoc;
-
-    object->objectResolver->getValue(dispatch);
+    }
   }
 
   for (Object3D::Ptr child : object->children()) {
@@ -666,8 +659,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   if ( drawCount == 0 ) return;
 
   //
-  object::Dispatch dispatch;
-  dispatch.func<Mesh>() = [&] (Mesh &mesh) {
+  if(CAST(object, mesh, Mesh)) {
     if ( material->wireframe ) {
 
       _state.setLineWidth( material->wireframeLineWidth * getTargetPixelRatio() );
@@ -675,14 +667,18 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
     } else {
 
-      renderer->setMode(mesh.drawMode());
+      renderer->setMode(mesh->drawMode());
     }
-  };
-  dispatch.func<Line>() = [&] (Line &line) {
-    //var lineWidth = material.linewidth;
-    //if ( lineWidth === undefined ) lineWidth = 1; // Not using Line*Material
+  }
+  else if(CAST(object, segments, LineSegments)) {
 
-    _state.setLineWidth(line.material<0>()->linewidth * getTargetPixelRatio());
+    _state.setLineWidth( segments->material<0>()->linewidth * getTargetPixelRatio() );
+
+    renderer->setMode(DrawMode::Lines);
+  }
+  else if(CAST(object, line, Line)) {
+
+    _state.setLineWidth(line->material<0>()->linewidth * getTargetPixelRatio());
 
     renderer->setMode(DrawMode::LineStrip);
 
@@ -692,18 +688,10 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       renderer.setMode( _gl.LINE_LOOP );
 
     }*/
-  };
-  dispatch.func<LineSegments>() = [&] (LineSegments &line) {
-
-    _state.setLineWidth( line.material<0>()->linewidth * getTargetPixelRatio() );
-
-    renderer->setMode(DrawMode::Lines);
-  };
-  dispatch.func<Points>() = [&](Points &points) {
-
+  }
+  else if(CAST2(object, Points)) {
     renderer->setMode(DrawMode::Points);
-  };
-  object->objectResolver->object::DispatchResolver::getValue(dispatch);
+  }
 
   InstancedBufferGeometry::Ptr ibg = dynamic_pointer_cast<InstancedBufferGeometry>(geometry);
   if (ibg) {
@@ -1146,16 +1134,16 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   if ( material->skinning ) {
 
-    object::Dispatch dispatch;
-    dispatch.func<SkinnedMesh>() = [&] (SkinnedMesh &m) {
-      prg_uniforms->set(UniformName::bindMatrix, m.bindMatrix());
-      prg_uniforms->set(UniformName::bindMatrixInverse, m.bindMatrixInverse());
+    if(CAST(object, skinned, SkinnedMesh)) {
 
-      if (m.skeleton()) {
+      prg_uniforms->set(UniformName::bindMatrix, skinned->bindMatrix());
+      prg_uniforms->set(UniformName::bindMatrixInverse, skinned->bindMatrixInverse());
+
+      if (skinned->skeleton()) {
 
         if (_capabilities.floatVertexTextures ) {
 
-          if (m.skeleton()->boneTexture()) {
+          if (skinned->skeleton()->boneTexture()) {
 
             // layout (1 matrix = 4 pixels)
             //      RGBA RGBA RGBA RGBA (=> column1, column2, column3, column4)
@@ -1165,33 +1153,32 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
             //       64x64 pixel texture max 1024 bones * 4 pixels = (64 * 64)
 
 
-            auto &bones = m.skeleton()->bones();
+            auto &bones = skinned->skeleton()->bones();
             float size = sqrt( bones.size() * 4 ); // 4 pixels needed for 1 matrix
             size = math::ceilPowerOfTwo( size );
             size = max( size, 4.0f );
 
-            m.skeleton()->boneMatrices().resize(size * size * 4); // 4 floats per RGBA pixel
+            skinned->skeleton()->boneMatrices().resize(size * size * 4); // 4 floats per RGBA pixel
 
             auto ops = DataTexture::options();
             ops.format = TextureFormat::RGBA;
             ops.type = TextureType::Float;
-            DataTexture::Ptr boneTexture = nullptr;//DataTexture::make(ops, m.skeleton()->boneMatrices(), size, size);
+            DataTexture::Ptr boneTexture = nullptr;//DataTexture::make(ops, skinned->skeleton()->boneMatrices(), size, size);
 
-            m.skeleton()->setBoneTexture(boneTexture);
-            m.skeleton()->setBoneTextureSize(size);
+            skinned->skeleton()->setBoneTexture(boneTexture);
+            skinned->skeleton()->setBoneTextureSize(size);
           }
 
           //TODO texture
-          //p_uniforms->get("boneTexture")->setValue(m.skeleton()->boneTexture() );
-          //p_uniforms->get("boneTextureSize")->setValue(m.skeleton()->boneTextureSize() );
+          //p_uniforms->get("boneTexture")->setValue(skinned->skeleton()->boneTexture() );
+          //p_uniforms->get("boneTextureSize")->setValue(skinned->skeleton()->boneTextureSize() );
 
         } else {
-          if(!m.skeleton()->boneMatrices().empty())
-            prg_uniforms->set(UniformName::boneMatrices, m.skeleton()->boneMatrices().data());
+          if(!skinned->skeleton()->boneMatrices().empty())
+            prg_uniforms->set(UniformName::boneMatrices, skinned->skeleton()->boneMatrices().data());
         }
       }
-    };
-    object->objectResolver->getValue(dispatch);
+    }
   }
   if ( refreshMaterial ) {
 

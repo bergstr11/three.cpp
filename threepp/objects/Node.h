@@ -15,11 +15,11 @@ namespace three {
 class Node : public Object3D
 {
 protected:
-  Node(std::string name) : Object3D(object::ResolverT<Node>::make(*this)) {
+  Node(std::string name) : Object3D() {
     _name = name;
   }
 
-  Node(const Node &node) : Object3D(node, object::ResolverT<Node>::make(*this))
+  Node(const Node &node) : Object3D(node)
   {}
 
 public:

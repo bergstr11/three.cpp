@@ -326,35 +326,6 @@ DEF_RESOLVER_1(BackgroundDispatch)
 
 }
 
-class Light;
-class Sprite;
-class LensFlare;
-class Mesh;
-class SkinnedMesh;
-class Line;
-class LineSegments;
-class Node;
-class Points;
-class ImmediateRenderObject;
-
-namespace object {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, Light)
-PUT_FUNCTABLE(Dispatch, Sprite)
-PUT_FUNCTABLE(Dispatch, LensFlare)
-PUT_FUNCTABLE(Dispatch, Mesh)
-PUT_FUNCTABLE(Dispatch, Node)
-PUT_FUNCTABLE(Dispatch, SkinnedMesh)
-PUT_FUNCTABLE(Dispatch, Line)
-PUT_FUNCTABLE(Dispatch, LineSegments)
-PUT_FUNCTABLE(Dispatch, Points)
-PUT_FUNCTABLE(Dispatch, ImmediateRenderObject)
-
-DEF_RESOLVER_1(Dispatch)
-
-}
-
 class InterleavedBufferAttribute;
 
 namespace bufferattribute {

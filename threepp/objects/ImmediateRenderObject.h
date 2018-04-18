@@ -9,15 +9,23 @@
 
 namespace three {
 
-class ImmediateRenderObject : public Object3D_GM<Material>
+class ImmediateRenderObject : public Object3D_GM<BufferGeometry, Material>
 {
-  explicit ImmediateRenderObject(Material::Ptr material)
-     : Object3D_GM<Material>(object::ResolverT<ImmediateRenderObject>::make(*this), material) {}
+  explicit ImmediateRenderObject(BufferGeometry::Ptr geom, Material::Ptr material)
+     : Object3D_GM(geom, material) {}
+
+  explicit ImmediateRenderObject(const ImmediateRenderObject &obj)
+     : Object3D_GM(obj) {}
 
 public:
   using Ptr = std::shared_ptr<ImmediateRenderObject>;
-  static Ptr make(Material::Ptr material) {
-    return Ptr(new ImmediateRenderObject(material));
+  static Ptr make(BufferGeometry::Ptr geom, Material::Ptr material) {
+    return Ptr(new ImmediateRenderObject(geom, material));
+  }
+
+  Object3D *cloned() const override
+  {
+    return new ImmediateRenderObject(*this);
   }
 };
 

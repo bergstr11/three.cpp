@@ -26,11 +26,11 @@ struct Intersect
 class Sprite : public Object3D_GM<BufferGeometry, SpriteMaterial>
 {
   explicit Sprite(SpriteMaterial::Ptr material)
-     : Object3D(object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, material)
+     : Object3D(), Object3D_GM(material)
   {}
 
   Sprite(const Sprite &sprite)
-     : Object3D(*this, object::ResolverT<Sprite>::make(*this)), Object3D_GM(nullptr, SpriteMaterial::Ptr(sprite.material<0>()->cloned()))
+     : Object3D(sprite), Object3D_GM(SpriteMaterial::Ptr(sprite.material<0>()->cloned()))
   {}
 
 public:

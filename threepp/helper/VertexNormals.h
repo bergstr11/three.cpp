@@ -51,8 +51,7 @@ class VertexNormals : public LineSegments
   void update();
 
   VertexNormals(Object3D::Ptr object, const VertexNormalConfig &config)
-     : Object3D(object::ResolverT<LineSegments>::make(*this)),
-       LineSegments(createGeometry(object, config.size), createMaterial(config)),
+     : Object3D(), LineSegments(createGeometry(object, config.size), createMaterial(config)),
        _object(object), _config(config)
   {
     matrixAutoUpdate = false;

@@ -54,8 +54,7 @@ protected:
   }
 
   Grid(const Options &options)
-     : Object3D(object::ResolverT<LineSegments>::make(*this)),
-       LineSegments(createGeometry(options), LineBasicMaterial::make(Colors::Vertex))
+     : Object3D(), LineSegments(createGeometry(options), LineBasicMaterial::make(Colors::Vertex))
   {}
 
 public:

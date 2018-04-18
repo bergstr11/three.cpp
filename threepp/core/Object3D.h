@@ -77,9 +77,9 @@ protected:
   void onRotationChange(const math::Euler &rotation);
   void onQuaternionChange(const math::Quaternion &quaternion);
 
-  explicit Object3D(const object::Resolver::Ptr resolver);
+  Object3D();
 
-  Object3D(const Object3D &object, const object::Resolver::Ptr resolver);
+  Object3D(const Object3D &object);
 
 public:
   virtual ~Object3D() {}
@@ -90,8 +90,6 @@ public:
   void visit(std::function<bool(Object3D *)> f);
 
   virtual Object3D *cloned() const = 0;
-
-  const object::Resolver::Ptr objectResolver;
 
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
               Material::Ptr material, const Group *group)> onBeforeRender;
@@ -351,10 +349,10 @@ protected:
   using GeometryPtr = std::shared_ptr<Geom>;
   GeometryPtr _geometry;
 
-  Object3D_G(const object::Resolver::Ptr &resolver) : Object3D(resolver), _geometry(Geom::make())
+  Object3D_G() : Object3D(), _geometry(Geom::make())
   {}
-  Object3D_G(GeometryPtr geometry, const object::Resolver::Ptr &resolver)
-     : Object3D(resolver), _geometry(geometry)
+  Object3D_G(GeometryPtr geometry)
+     : Object3D(), _geometry(geometry)
   {}
 
 public:
@@ -379,12 +377,12 @@ protected:
   using GeometryPtr = std::shared_ptr<Geom>;
   GeometryPtr _geometry;
 
-  explicit Object3D_GM(const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
-     : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
+  explicit Object3D_GM(std::shared_ptr<Mat> ... args)
+     : Object3D(), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
   {}
 
-  explicit Object3D_GM(GeometryPtr geometry, const object::Resolver::Ptr resolver, std::shared_ptr<Mat> ... args)
-     : Object3D(resolver), _materialsTuple(args...), _materialsArray({args...}), _geometry(geometry)
+  explicit Object3D_GM(GeometryPtr geometry, std::shared_ptr<Mat> ... args)
+     : Object3D(), _materialsTuple(args...), _materialsArray({args...}), _geometry(geometry)
   {}
 
 public:

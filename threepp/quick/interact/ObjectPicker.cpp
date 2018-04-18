@@ -97,13 +97,13 @@ QVariant ObjectPicker::intersect(unsigned index)
 
       if(obj->material()) {
 
-        if(CAST(obj, mat, three::MeshPhongMaterial)) {
+        if(CAST(obj->material(), mat, three::MeshPhongMaterial)) {
           _prototype->setMaterial(new MeshPhongMaterial(mat));
         }
-        else if(CAST(obj, mat, three::MeshLambertMaterial)) {
+        else if(CAST(obj->material(), mat, three::MeshLambertMaterial)) {
           _prototype->setMaterial(new MeshLambertMaterial(mat));
         }
-        else if(CAST(obj, mat, three::MeshBasicMaterial)) {
+        else if(CAST(obj->material(), mat, three::MeshBasicMaterial)) {
           _prototype->setMaterial(new MeshBasicMaterial(mat));
         }
       }

@@ -19,13 +19,13 @@ class Scene : public Object3D
 
 protected:
   Scene(const Fog::Ptr fog, scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
-     : Object3D(nullptr), _fog(fog), _autoUpdate(true), backgroundResolver(resolver) {}
+     : Object3D(), _fog(fog), _autoUpdate(true), backgroundResolver(resolver) {}
 
   Scene(scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
-     : Object3D(nullptr), _fog(nullptr), _autoUpdate(true), backgroundResolver(resolver) {}
+     : Object3D(), _fog(nullptr), _autoUpdate(true), backgroundResolver(resolver) {}
 
   Scene(const Scene &scene, scene::Resolver::Ptr resolver=scene::Resolver::makeNull())
-     : Object3D(scene, nullptr), _fog(Fog::Ptr(scene._fog->cloned())), _autoUpdate(scene._autoUpdate), backgroundResolver(resolver) {}
+     : Object3D(scene), _fog(Fog::Ptr(scene._fog->cloned())), _autoUpdate(scene._autoUpdate), backgroundResolver(resolver) {}
 
 public:
   using Ptr = std::shared_ptr<Scene>;

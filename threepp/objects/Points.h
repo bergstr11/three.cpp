@@ -14,13 +14,11 @@ class Points : public Object3D_GM<BufferGeometry, PointsMaterial>
 {
 protected:
   Points(const BufferGeometry::Ptr &geometry, const PointsMaterial::Ptr &material)
-     : Object3D(object::ResolverT<Points>::make(*this)),
-       Object3D_GM(geometry, nullptr, material)
+     : Object3D(), Object3D_GM(geometry, material)
   {}
 
   Points(const Points &points)
-     : Object3D(points, object::ResolverT<Points>::make(*this)),
-       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), nullptr, PointsMaterial::Ptr(points.material<0>()->cloned()))
+     : Object3D(), Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), PointsMaterial::Ptr(points.material<0>()->cloned()))
   {}
 
 public:

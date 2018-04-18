@@ -22,7 +22,7 @@ class DirectionalLight : public Object3D
 
 protected:
   DirectionalLight(three::DirectionalLight::Ptr light, float size, const Color &color)
-     : Object3D(object::Resolver::makeNull()), _light(light), _color(color)
+     : Object3D(), _light(light), _color(color)
   {
     _light->updateMatrixWorld(true);
 

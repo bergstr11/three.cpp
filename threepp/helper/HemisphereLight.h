@@ -23,7 +23,7 @@ class HemisphereLight : public Object3D
 
 protected:
   HemisphereLight(const three::HemisphereLight::Ptr &light, float radius, const Color &color)
-     : Object3D(object::Resolver::makeNull()), _light(light), _color(color)
+     : Object3D(), _light(light), _color(color)
   {
     _light->updateMatrixWorld(true);
     _matrix = _light->matrixWorld();

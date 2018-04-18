@@ -23,16 +23,10 @@ class Mesh : public virtual Object3D
   std::unordered_map<std::string, MorphTarget> _morphTargetDictionary;
 
 protected:
-  Mesh() : Object3D(object::ResolverT<Mesh>::make(*this)), _drawMode(DrawMode::Triangles)
+  Mesh() : Object3D(), _drawMode(DrawMode::Triangles)
   {}
 
-  Mesh(object::Resolver::Ptr resolver) : Object3D(resolver), _drawMode(DrawMode::Triangles)
-  {}
-
-  Mesh(const Mesh &mesh) : Object3D(mesh, object::ResolverT<Mesh>::make(*this))
-  {}
-
-  Mesh(const Mesh &mesh, object::Resolver::Ptr resolver) : Object3D(mesh, resolver)
+  Mesh(const Mesh &mesh) : Object3D(mesh)
   {}
 
 public:
@@ -78,21 +72,14 @@ class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
   friend class Mesh;
 
 protected:
-  MeshT(const typename Geom::Ptr &geometry, object::Resolver::Ptr resolver, typename Mat::Ptr material)
-     : Object3D(resolver), Object3D_GM<Geom, Mat>(geometry, resolver, material)
-  {
-    setDrawMode(DrawMode::Triangles);
-  }
-
   MeshT(const typename Geom::Ptr &geometry, typename Mat::Ptr material)
-     : Object3D(object::ResolverT<Mesh>::make(*this)), Object3D_GM<Geom, Mat>(geometry, nullptr, material)
+     : Object3D(), Object3D_GM<Geom, Mat>(geometry, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
   MeshT(const MeshT &mesh)
-     : Object3D(mesh, object::ResolverT<Mesh>::make(*this)),
-       Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()), nullptr,
+     : Object3D(), Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()),
                               typename Mat::Ptr(mesh.template material<0>()->cloned()))
   {
     setDrawMode(DrawMode::Triangles);

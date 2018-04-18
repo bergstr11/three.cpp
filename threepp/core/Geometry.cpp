@@ -250,21 +250,15 @@ void BufferGeometry::raycast(Line &line,
 
 BufferGeometry::BufferGeometry(Object3D::Ptr object, LinearGeometry::Ptr geometry)
 {
-  object::Dispatch dispatch;
-
-  dispatch.func<Line>() = [this, geometry](Line &line) {
+  if(CAST(object, line, Line)) {
     setFromLinearGeometry(geometry);
-  };
-  dispatch.func<LineSegments>() = [this, geometry](LineSegments &lineSegments) {
+  }
+  else if(CAST(object, points, Points)) {
     setFromLinearGeometry(geometry);
-  };
-  dispatch.func<Points>() = [this, geometry](Points &points) {
-    setFromLinearGeometry(geometry);
-  };
-  dispatch.func<Mesh>() = [this, geometry](Mesh &mesh) {
+  }
+  else if(CAST(object, mesh, Mesh)) {
     setFromMeshGeometry(geometry);
-  };
-  object->objectResolver->object::DispatchResolver::getValue(dispatch);
+  }
 }
 
 void BufferGeometry::setFromLinearGeometry(LinearGeometry::Ptr geometry)

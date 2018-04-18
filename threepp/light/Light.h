@@ -18,15 +18,11 @@ protected:
   float _intensity = 1;
 
   Light(const Color &color, float intensity)
-     : Object3D(object::ResolverT<Light>::make(*this)),
-       _color(color),
-       _intensity(intensity)
+     : Object3D(), _color(color), _intensity(intensity)
   {}
 
   Light(const Light &light)
-     : Object3D(light, object::ResolverT<Light>::make(*this)),
-       _color(light._color),
-       _intensity(light._intensity)
+     : Object3D(light), _color(light._color), _intensity(light._intensity)
   {}
 
 public:
