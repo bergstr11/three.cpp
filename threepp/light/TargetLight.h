@@ -14,8 +14,8 @@ class TargetLight : public Light
 protected:
   Object3D::Ptr _target;
 
-  TargetLight(light::Resolver::Ptr resolver, Object3D::Ptr target, const Color &color, float intensity)
-     : Light(resolver, color, intensity), _target(target)
+  TargetLight(Object3D::Ptr target, const Color &color, float intensity)
+     : Light(color, intensity), _target(target)
   {}
 
 public:

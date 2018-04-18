@@ -17,24 +17,20 @@ protected:
   Color _color;
   float _intensity = 1;
 
-  Light(light::Resolver::Ptr resolver, const Color &color, float intensity)
+  Light(const Color &color, float intensity)
      : Object3D(object::ResolverT<Light>::make(*this)),
-       lightResolver(resolver),
        _color(color),
        _intensity(intensity)
   {}
 
-  Light(const Light &light, light::Resolver::Ptr resolver)
+  Light(const Light &light)
      : Object3D(light, object::ResolverT<Light>::make(*this)),
-       lightResolver(resolver),
        _color(light._color),
        _intensity(light._intensity)
   {}
 
 public:
   using Ptr = std::shared_ptr<Light>;
-
-  const light::Resolver::Ptr lightResolver;
 
   Color &color() {return _color;}
   const Color &color() const {return _color;}

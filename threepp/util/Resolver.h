@@ -170,9 +170,6 @@ public:
   }
 };
 
-struct NullFuncAssoc {
-  template <typename T> bool operator()(T &t) {}
-};
 template <typename T>
 using FuncAssoc = Assoc<T, Functor<T>>;
 template <typename T>
@@ -225,6 +222,18 @@ public:
 
 } //namespace: resolver
 
+#define DEF_THISTABLE(Cls, Btype) \
+struct Cls { \
+template <typename Ctype> Ctype * value(std::shared_ptr<Btype &b) const {return nullptr;}\
+}; \
+using Cls##Resolver = resolver::Resolve<Cls>;
+
+#define PUT_THISTABLE(Cls, Btype, Ctype) \
+template <> inline Btype * Cls::value(std::shared_ptr<Ctype> &ct) const { \
+static const resolver::Assoc<Btype, Ctype> sa {Val}; \
+return sa(t); \
+}
+
 #define DEF_VALUETABLE(Cls, Vtype, Dflt) \
 struct Cls { \
 using value_type = Vtype; \
@@ -247,7 +256,6 @@ static value_type getNull() {throw std::logic_error("callback not set");} \
 template <typename T> const char *value(T &t) const {return Dflt;} \
 }; \
 using Cls##Resolver = resolver::Resolve<Cls>;
-
 
 #define PUT_STRINGTABLE(Cls, Type, Val) \
 template <> inline const  char *Cls::value(Type &t) const { \
@@ -300,20 +308,6 @@ class HemisphereLight;
 class PointLight;
 class RectAreaLight;
 class SpotLight;
-
-namespace light {
-
-DEF_FUNCTABLE(Dispatch)
-PUT_FUNCTABLE(Dispatch, AmbientLight)
-PUT_FUNCTABLE(Dispatch, DirectionalLight)
-PUT_FUNCTABLE(Dispatch, HemisphereLight)
-PUT_FUNCTABLE(Dispatch, PointLight)
-PUT_FUNCTABLE(Dispatch, RectAreaLight)
-PUT_FUNCTABLE(Dispatch, SpotLight)
-
-DEF_RESOLVER_1(Dispatch)
-
-}
 
 class ImageCubeTexture;
 class ImageTexture;
@@ -497,6 +491,7 @@ DEF_RESOLVER_3(Dispatch, ShaderIDs, ShaderNames)
 
 }
 
+#define CAST(x, y, Cls) auto y = std::dynamic_pointer_cast<Cls>(x)
 }
 
 #endif //THREEPP_RESOLVER_H

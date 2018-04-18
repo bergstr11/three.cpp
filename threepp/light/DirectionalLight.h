@@ -18,7 +18,7 @@ protected:
   DirectionalLightShadow::Ptr _shadow;
 
   DirectionalLight(const Object3D::Ptr &target, const Color &color, float intensity)
-     : TargetLight(light::ResolverT<DirectionalLight>::make(*this),  target, color, intensity)
+     : TargetLight(target, color, intensity)
   {
     _position = math::Vector3( 0, 1, 0 );
     updateMatrix();

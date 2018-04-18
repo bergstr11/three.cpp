@@ -21,14 +21,13 @@ class PointLight : public Light
 
 protected:
   PointLight(const Color &color, float intensity, float distance, float decay)
-     : Light(light::ResolverT<PointLight>::make(*this), color, intensity), _distance(distance), _decay(decay)
+     : Light(color, intensity), _distance(distance), _decay(decay)
   {
     _shadow = PointLightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
   PointLight(const PointLight &light)
-     : Light(light, light::ResolverT<PointLight>::make(*this)),
-       _distance(light.distance()), _decay(light.decay()), _shadow(light._shadow->cloned())
+     : Light(light), _distance(light.distance()), _decay(light.decay()), _shadow(light._shadow->cloned())
   { }
 
 public:

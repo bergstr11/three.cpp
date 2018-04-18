@@ -13,11 +13,10 @@ class AmbientLight : public Light
 {
 protected:
   AmbientLight(const Color &color, float intensity)
-     : Light(light::ResolverT<AmbientLight>::make(*this), color, intensity)
+     : Light(color, intensity)
   {}
 
-  AmbientLight(const AmbientLight &light)
-     : Light(light, light::ResolverT<AmbientLight>::make(*this))
+  AmbientLight(const AmbientLight &light) : Light(light)
   {}
 
 public:

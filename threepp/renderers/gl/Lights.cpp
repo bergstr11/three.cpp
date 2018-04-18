@@ -22,20 +22,16 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
 
     Texture::Ptr shadowMap = light->shadow() && light->shadow()->map() ? light->shadow()->map()->texture() : nullptr;
 
-    light::Dispatch dispatch;
-
-    dispatch.func<AmbientLight>() = [&](AmbientLight &alight)
-    {
+    if(CAST(light, alight, AmbientLight)) {
       ambient += color * intensity;
-    };
-    dispatch.func<DirectionalLight>() = [&](DirectionalLight &directional)
-    {
-      lights::Entry<DirectionalLight>::Ptr uniforms = cache.get( &directional );
+    }
+    else if(CAST(light, dlight, DirectionalLight)) {
+      lights::Entry<DirectionalLight>::Ptr uniforms = cache.get( dlight.get() );
 
       uniforms->color = light->color() * light->intensity();
 
       uniforms->direction = math::Vector3::fromMatrixPosition(light->matrixWorld());
-      uniforms->direction -= math::Vector3::fromMatrixPosition(directional.target()->matrixWorld());
+      uniforms->direction -= math::Vector3::fromMatrixPosition(dlight->target()->matrixWorld());
       uniforms->direction.transformDirection( viewMatrix );
 
       uniforms->shadow = light->castShadow;
@@ -52,24 +48,23 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
         state.directionalShadowMatrix.push_back(light->shadow()->matrix());
       }
       state.directional.push_back(uniforms);
-    };
-    dispatch.func<SpotLight>() = [&](SpotLight &spot)
-    {
-      lights::Entry<SpotLight>::Ptr uniforms = cache.get( &spot );
+    }
+    else if(CAST(light, slight, SpotLight)) {
+      lights::Entry<SpotLight>::Ptr uniforms = cache.get( slight.get() );
 
       uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = color * intensity;
-      uniforms->distance = spot.distance();
+      uniforms->distance = slight->distance();
 
       uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
-      uniforms->direction -= math::Vector3::fromMatrixPosition( spot.target()->matrixWorld());
+      uniforms->direction -= math::Vector3::fromMatrixPosition( slight->target()->matrixWorld());
       uniforms->direction.transformDirection( viewMatrix );
 
-      uniforms->coneCos = cos( spot.angle() );
-      uniforms->penumbraCos = cos( spot.angle() * ( 1 - spot.penumbra() ) );
-      uniforms->decay = ( spot.distance() == 0 ) ? 0.0f : spot.decay();
+      uniforms->coneCos = cos( slight->angle() );
+      uniforms->penumbraCos = cos( slight->angle() * ( 1 - slight->penumbra() ) );
+      uniforms->decay = ( slight->distance() == 0 ) ? 0.0f : slight->decay();
 
       uniforms->shadow = light->castShadow;
 
@@ -85,13 +80,12 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       state.spotShadowMap.push_back(shadowMap);
       state.spotShadowMatrix.push_back(light->shadow()->matrix());
       state.spot.push_back(uniforms);
-    };
-    dispatch.func<RectAreaLight>() = [&](RectAreaLight &area)
-    {
-      lights::Entry<RectAreaLight>::Ptr uniforms = cache.get( &area );
+    }
+    else if(CAST(light, alight, RectAreaLight)) {
+      lights::Entry<RectAreaLight>::Ptr uniforms = cache.get( alight.get() );
 
       // (a) intensity controls irradiance of entire light
-      uniforms->color = color  * ( intensity / ( area.width() * area.height()));
+      uniforms->color = color  * ( intensity / ( alight->width() * alight->height()));
 
       // (b) intensity controls the radiance per light area
       // uniforms.color.copy( color ).multiplyScalar( intensity );
@@ -104,8 +98,8 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       matrix4.premultiply( viewMatrix );
       math::Matrix4 matrix42 = math::Matrix4 ::rotation( matrix4 );
 
-      uniforms->halfWidth = math::Vector3(area.width() * 0.5, 0.0, 0.0 );
-      uniforms->halfHeight = math::Vector3(0.0, area.height() * 0.5, 0.0 );
+      uniforms->halfWidth = math::Vector3(alight->width() * 0.5, 0.0, 0.0 );
+      uniforms->halfHeight = math::Vector3(0.0, alight->height() * 0.5, 0.0 );
 
       uniforms->halfWidth.apply( matrix42 );
       uniforms->halfHeight.apply( matrix42 );
@@ -114,23 +108,22 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       // uniforms.distance = distance;
 
       state.rectArea.push_back(uniforms);
-    };
-    dispatch.func<PointLight>() = [&](PointLight &point)
-    {
-      lights::Entry<PointLight>::Ptr uniforms = cache.get( &point );
+    }
+    else if(CAST(light, plight, PointLight)) {
+      lights::Entry<PointLight>::Ptr uniforms = cache.get( plight.get() );
 
       uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = light->color() * light->intensity();
-      uniforms->distance = point.distance();
-      uniforms->decay = (point.distance() == 0) ? 0.0f : point.decay();
+      uniforms->distance = plight->distance();
+      uniforms->decay = (plight->distance() == 0) ? 0.0f : plight->decay();
 
       uniforms->shadow = light->castShadow;
 
       if (light->castShadow) {
 
-        auto shadow = point.shadow();
+        auto shadow = plight->shadow();
 
         uniforms->shadowBias = shadow->bias();
         uniforms->shadowRadius = shadow->radius();
@@ -140,24 +133,21 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       }
 
       state.pointShadowMap.push_back(shadowMap);
-      state.pointShadowMatrix.push_back(point.shadow()->matrix());
+      state.pointShadowMatrix.push_back(plight->shadow()->matrix());
       state.point.push_back(uniforms);
-    };
-    dispatch.func<HemisphereLight>() = [&](HemisphereLight &hemisphere)
-    {
-      lights::Entry<HemisphereLight>::Ptr uniforms = cache.get( &hemisphere );
+    }
+    else if(CAST(light, hlight, HemisphereLight)) {
+      lights::Entry<HemisphereLight>::Ptr uniforms = cache.get( hlight.get() );
 
       uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
       uniforms->direction.transformDirection( viewMatrix );
       uniforms->direction.normalize();
 
       uniforms->skyColor = light->color() * intensity;
-      uniforms->groundColor = hemisphere.groundColor() * intensity;
+      uniforms->groundColor = hlight->groundColor() * intensity;
 
       state.hemi.push_back(uniforms);
-    };
-
-    light->lightResolver->getValue(dispatch);
+    }
   }
 
   state.ambient = ambient;
