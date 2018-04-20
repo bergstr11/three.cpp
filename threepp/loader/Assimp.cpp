@@ -719,10 +719,10 @@ void Access::readMaterial(unsigned materialIndex)
   const aiMaterial *ai = aiscene->mMaterials[materialIndex];
 
   int shadingModel;
-  if(ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
+  if (ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
 
     ShadingModel targetModel;
-    switch(shadingModel) {
+    switch (shadingModel) {
       case aiShadingMode_Fresnel:
       case aiShadingMode_CookTorrance:
       case aiShadingMode_Blinn:
@@ -738,11 +738,11 @@ void Access::readMaterial(unsigned materialIndex)
         targetModel = modelMap[ShadingModel::Gouraud];
         break;
       case aiShadingMode_Flat:
-    case aiShadingMode_NoShading:
+      case aiShadingMode_NoShading:
         targetModel = modelMap[ShadingModel::Flat];
         break;
     }
-    switch(targetModel) {
+    switch (targetModel) {
       case ShadingModel::Phong:
         maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
         break;
@@ -759,14 +759,14 @@ void Access::readMaterial(unsigned materialIndex)
   }
   else {
     float shininess;
-    if(ai->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f) {
+    if (ai->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f) {
       maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
     }
     else {
       maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
     }
   }
-  if(!maker)
+  if (!maker)
     throw out_of_range("unknown shading model");
 
   makers[materialIndex] = maker;

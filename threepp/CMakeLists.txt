@@ -57,7 +57,9 @@ message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
 add_subdirectory(quick)
 
-add_library(threepp SHARED Constants.h ${SHADER_RESOURCES})
+add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
+add_dependencies(threepp tinyxml2)
+
 target_include_directories(threepp PUBLIC
         $<BUILD_INTERFACE:${THREE_ROOT}>
         $<INSTALL_INTERFACE:include>)
