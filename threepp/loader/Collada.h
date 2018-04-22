@@ -24,17 +24,26 @@ namespace collada {
 
 struct Source
 {
-
+  std::vector<float> float_array;
+  std::vector<std::string> name_array;
+  unsigned stride;
 };
 using SourceMap = std::unordered_map<std::string, Source>;
 
 struct AnimationSampler
 {
-
+  std::unordered_map<std::string, std::string> inputs;
 };
 struct AnimationChannel
 {
+  enum class Syntax {array, member};
 
+  std::string id;
+  std::string sid;
+  std::string member;
+  std::string sampler;
+  Syntax syntax;
+  std::vector<unsigned> indices;
 };
 struct Animation
 {
@@ -51,10 +60,16 @@ struct Clip
    std::vector<std::string> animations;
 };
 
+struct Skin
+{
+  math::Matrix4 bindShapeMatrix;
+  SourceMap sources;
+};
+
 struct Controller
 {
   std::string id;
-  std::unordered_map<std::string, SourceMap> skinSources;
+  Skin skin;
 };
 
 struct EffectProfile

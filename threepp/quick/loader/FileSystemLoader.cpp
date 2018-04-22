@@ -94,10 +94,8 @@ void FileSystemLoader::load(QImage &image, string &file)
 {
   QString path = dir.absoluteFilePath(QString::fromStdString(file));
   QImage img(path);
-  if(img.isNull())
-    qWarning() << "error loading image from " << path;
-  else
-    image = img.mirrored();
+
+  if(!img.isNull()) image = img.mirrored();
 }
 
 }

@@ -7,6 +7,8 @@
 #include <3rdparty/tinyxml2/tinyxml2.h>
 #include <QString>
 #include <QFile>
+#include <cerrno>
+#include <cstdlib>
 
 namespace three {
 namespace loader {
@@ -48,6 +50,142 @@ inline bool has_name(XMLElement *element, const char *name) {
   return !strcmp(element->Name(), name);
 }
 
+void parseFloatArray(const char *text, vector<float> data)
+{
+  const char *p = text;
+  char *end;
+  data.clear();
+
+  for (double f = std::strtod(p, &end); p != end; f = std::strtod(p, &end))
+  {
+    p = end;
+    if (errno == ERANGE){
+      errno = 0;
+      throw range_error(text);
+    }
+    data.push_back(f);
+  }
+}
+
+void parseMatrix(const char *text, math::Matrix4 &matrix)
+{
+  const char *p = text;
+  char *end;
+
+  unsigned i=0;
+  for (double f = std::strtod(p, &end); p != end && i < 16; f = std::strtod(p, &end))
+  {
+    p = end;
+    if (errno == ERANGE){
+      errno = 0;
+      throw range_error(text);
+    }
+    matrix.elements()[i++] = (float)f;
+  }
+}
+
+void parseStringArray(const char *text, const char *delim, vector<string> data)
+{
+  const char *str = text, *pos;
+
+  do {
+    pos = str;
+    auto sz = strcspn(str, delim);
+    if (sz) data.push_back(string(str, sz));
+    str += strspn(pos + sz, delim);
+  } while(str != pos);
+}
+
+void parseSource(XMLElement *xml, Source &source)
+{
+  XMLElement *floatarray = xml->FirstChildElement("float_array");
+  if(floatarray)
+    parseFloatArray(floatarray->GetText(), source.float_array);
+  XMLElement *namearray = xml->FirstChildElement("Name_array");
+  if(namearray)
+    parseStringArray(namearray->GetText(), " \t", source.name_array);
+  XMLElement *technique = xml->FirstChildElement("technique_common");
+  if(technique) {
+    XMLElement *accessor = technique->FirstChildElement("accessor");
+    if ( accessor )
+      source.stride = strtoul( accessor->Attribute( "stride" ), nullptr, 10 );
+  }
+}
+
+void parseAnimationSampler(XMLElement *xml, AnimationSampler &sampler)
+{
+  XMLElement *input = xml->FirstChildElement("input");
+  while(input) {
+
+    string id = parseId( input->Attribute( "source" ) );
+    string semantic = input->Attribute( "semantic" );
+    sampler.inputs[ semantic ] = id;
+
+    input = input->NextSiblingElement("input");
+  }
+}
+
+void parseAnimationChannel(XMLElement *xml, AnimationChannel &sampler)
+{
+  const char *target = xml->Attribute( "target" );
+
+  // parsing SID Addressing Syntax
+  vector<string> parts;
+  parseStringArray(target, "/", parts);
+
+  sampler.id = parts[0];
+  string sid = parts[1];
+
+  // check selection syntax
+
+  if(( sid.find( '(' ) >= 0)) {
+    sampler.syntax = AnimationChannel::Syntax::array;
+
+    // array-access syntax. can be used to express fields in one-dimensional vectors or two-dimensional matrices.
+    vector<string> indices;
+    parseStringArray(sid.c_str(), "(", parts);
+    sid = indices[0];
+
+    for (unsigned i = 1; i < indices.size(); i ++ ) {
+      sampler.indices.push_back(strtoul(indices[ i ].c_str(), NULL, 10));
+    }
+  }
+  else if( sid.find( '.' ) >= 0 ) {
+    sampler.syntax = AnimationChannel::Syntax::member;
+
+    //  member selection access
+    parseStringArray(sid.c_str(), ".", parts);
+    sid = parts[0];
+    sampler.member = parts[1];
+  }
+
+  sampler.sid = sid;
+
+  sampler.sampler = parseId( xml->Attribute( "source" ) );
+}
+
+void parseSkin(XMLElement *xml, Skin &skin)
+{
+  XMLElement *child = xml->FirstChildElement();
+
+  while(child) {
+    if(has_name(child, "bind_shape_matrix")) {
+      parseMatrix(child->GetText(), skin.bindShapeMatrix);
+    }
+    else if(has_name(child, "source")) {
+      string id = child->Attribute("id");
+      parseSource(child, skin.sources[id]);
+    }
+    else if(has_name(child, "joints")) {
+      //parseJoints(child, skin.joints);
+    }
+    else if(has_name(child, "vertex_weights")) {
+      //parseVertexWeights(child, skin.vertexWeights);
+    }
+    child = child->NextSiblingElement();
+  }
+}
+
 template <>
 struct ParseLibrary<animations> : public Builder
 {
@@ -64,15 +202,15 @@ struct ParseLibrary<animations> : public Builder
 
       if(has_name(child, "source")) {
         const char *id = child->Attribute( "id" );
-        //parseSource( child, data.sources[ id ] );
+        parseSource( child, data.sources[ id ] );
       }
       else if(has_name(child, "sampler")) {
         const char *id = child->Attribute( "id" );
-        //parseAnimationSampler( child, data.samplers[ id ] );
+        parseAnimationSampler( child, data.samplers[ id ] );
       }
       else if(has_name(child, "channel")) {
         const char *id = child->Attribute( "target" );
-        //parseAnimationChannel( child, data.channels[ id ] );
+        parseAnimationChannel( child, data.channels[ id ] );
       }
       child = child->NextSiblingElement();
     }
@@ -122,20 +260,18 @@ struct ParseLibrary<controllers> : public Builder
     string id(xml->Attribute( "id" ));
     Controller &data = controllers[id];
 
-    XMLElement *child = xml->FirstChildElement();
-    while(child) {
-
-      if(has_name(child, "skin")) {
-        // there is exactly one skin per controller
-        data.id = parseId( child->Attribute( "source" ) );
-        //parseSkin( child, data.skinSources );
-      }
-      else if(has_name(child, "morph")) {
-
-        data.id = parseId( child->Attribute( "source" ) );
+    XMLElement *skin = xml->FirstChildElement("skin");
+    if(skin) {
+      // there is exactly one skin per controller
+      data.id = parseId( skin->Attribute( "source" ) );
+      parseSkin(skin, data.skin);
+    }
+    else {
+      XMLElement *morph = xml->FirstChildElement("morph");
+      if(morph) {
+        data.id = parseId( morph->Attribute( "source" ) );
         qWarning() << "ColladaLoader: Morph target animation not supported yet";
       }
-      child = child->NextSiblingElement();
     }
   }
 
@@ -339,7 +475,7 @@ struct ParseLibrary<nodes> : public Builder
       }
       else if(has_name(child, "matrix")) {
         math::Matrix4 matrix;
-        //parseMatrix(child->GetText(), matrix);
+        parseMatrix(child->GetText(), matrix);
         node.matrix *= matrix.transpose();
         node.transforms[child->Attribute("sid")] = child->Name();
       }

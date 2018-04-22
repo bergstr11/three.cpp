@@ -477,7 +477,11 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         loader.load(image, imageFile);
         images[imageFile] = image;
       }
-      qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
+      if(image.isNull())
+        qWarning() << "error loading image" << imageFile.c_str();
+      else
+        qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
+
       TextureOptions options = ImageTexture::options();
 
       switch(mapping) {
