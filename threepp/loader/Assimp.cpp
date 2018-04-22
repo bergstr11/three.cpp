@@ -248,11 +248,11 @@ static void read(MaterialT<x> &material, const aiMaterial *ai, Access *access) {
 
 inline void read_color(const char* pKey,unsigned int type, unsigned int idx, const aiMaterial *ai, Color &color)
 {
-  aiColor4D c4D;
-  if(ai->Get(pKey, type, idx, c4D) == AI_SUCCESS) {
-    color.r = c4D.r;
-    color.g = c4D.g;
-    color.b = c4D.b;
+  aiColor4D c3D;
+  if(ai->Get(pKey, type, idx, c3D) == AI_SUCCESS) {
+    color.r = c3D.r;
+    color.g = c3D.g;
+    color.b = c3D.b;
   }
 }
 
@@ -262,7 +262,17 @@ struct ReadMaterial<material::Colored>
   FORWARD_MIXIN(material::Colored)
   static void mixin(material::Colored &material, const aiMaterial *ai, Access *access) {
     read_color(AI_MATKEY_COLOR_DIFFUSE, ai, material.color);
-    ai->Get(AI_MATKEY_OPACITY, material.opacity);
+    aiReturn opret = ai->Get(AI_MATKEY_OPACITY, material.opacity);
+
+    aiColor3D clr;
+    if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, clr) == AI_SUCCESS) {
+      if(opret == AI_SUCCESS) {
+        if (clr.r != 1 || clr.g != 1 || clr.b != 1)
+          qWarning() << "COLOR_TRANSPARENT unused:" << clr.r << clr.g << clr.b;
+      }
+      else
+        material.opacity = qGray(clr.r, clr.g, clr.b) / 255;
+    }
   }
 };
 template <>
@@ -330,10 +340,15 @@ struct ReadMaterial<material::Specular>
   static void mixin(material::Specular &material, const aiMaterial *ai, Access *access) {
     material.specularMap = access->loadTexture(aiTextureType_SPECULAR, 0, ai);
     read_color(AI_MATKEY_COLOR_SPECULAR, ai, material.specular);
-    ai->Get(AI_MATKEY_SHININESS, material.shininess);
+    if(ai->Get(AI_MATKEY_SHININESS, material.shininess) == AI_SUCCESS) {
 
-    float scale;
-    if(ai->Get(AI_MATKEY_SHININESS_STRENGTH, scale) == AI_SUCCESS) material.specular *= scale;
+      float scale;
+      if(ai->Get(AI_MATKEY_SHININESS_STRENGTH, scale) == AI_SUCCESS) material.specular *= scale;
+    }
+    aiString dummy;
+    if(ai->GetTexture(aiTextureType_SHININESS, 0, &dummy, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+      qWarning() << "found SHININESS texture (unused). Preset shininess: " << material.shininess;
+    }
   }
 };
 template <>
@@ -378,8 +393,6 @@ protected:
 
     aiColor4D tmp_c;
     aiString tmp_s;
-    if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, tmp_c) == AI_SUCCESS)
-      qWarning() << "COLOR_TRANSPARENT found, currently not used";
     if(ai->Get(AI_MATKEY_GLOBAL_BACKGROUND_IMAGE, tmp_s) == AI_SUCCESS)
       qWarning() << "GLOBAL_BACKGROUND_IMAGE found, currently not used";
 
@@ -395,9 +408,6 @@ protected:
          || transform.mTranslation.x != 0 || transform.mTranslation.y != 0)
       qWarning() << "UVTRANSFORM_DIFFUSE found, currently not supported";
     }
-
-    auto tex = access->loadTexture(aiTextureType_SHININESS, 0, ai);
-    if(tex) qWarning() << "found SHININESS texture, currently not supported";
 
     aiString name;
     ai->Get(AI_MATKEY_NAME, name);
@@ -477,12 +487,25 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
         loader.load(image, imageFile);
         images[imageFile] = image;
       }
-      if(image.isNull())
-        qWarning() << "error loading image" << imageFile.c_str();
-      else
-        qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
 
       TextureOptions options = ImageTexture::options();
+
+      if(image.isNull())
+        qWarning() << "error loading image" << imageFile.c_str();
+      else {
+        switch(image.format()) {
+          case QImage::Format_RGBA8888:
+            options.format = TextureFormat::RGBA;
+            break;
+          case QImage::Format_RGB888:
+            options.format = TextureFormat::RGB;
+            break;
+          default:
+            image = image.convertToFormat(QImage::Format_RGB888);
+            options.format = TextureFormat::RGB;
+        }
+        qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
+      }
 
       switch(mapping) {
         case aiTextureMapping_UV:
