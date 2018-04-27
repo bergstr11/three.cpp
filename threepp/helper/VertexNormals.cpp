@@ -15,8 +15,6 @@ struct LinearGeometryAccess
     const auto &vertices = geometry->_vertices;
     const auto &faces = geometry->_faces;
 
-    math::Matrix3 normalMatrix = helper._object->matrixWorld().normalMatrix();
-
     unsigned idx = 0;
 
     for(unsigned i = 0, l = faces.size(); i < l; i ++ ) {
@@ -36,8 +34,6 @@ struct LinearGeometryAccess
         auto normal = face.vertexNormals[ j ];
 
         vertex.apply( helper._object->matrixWorld() );
-
-        normal.apply( normalMatrix ).normalize();
         normal.apply( math::Matrix4::rotation(helper._object->rotation()) );
 
         normal *= helper._config.size;
@@ -63,8 +59,6 @@ struct BufferGeometryAccess
     const auto &objPos = geometry->position();
     const auto &objNorm = geometry->normal();
 
-    math::Matrix3 normalMatrix = helper._object->matrixWorld().normalMatrix();
-
     unsigned idx = 0;
 
     // for simplicity, ignore index and drawcalls, and render every normal
@@ -74,7 +68,6 @@ struct BufferGeometryAccess
       vertex.apply( helper._object->matrixWorld() );
 
       math::Vector3 normal( objNorm->get_x( j ), objNorm->get_y( j ), objNorm->get_z( j ) );
-      normal.apply( normalMatrix ).normalize();
       normal.apply( math::Matrix4::rotation(helper._object->rotation()) );
       normal *= helper._config.size;
       normal += vertex;

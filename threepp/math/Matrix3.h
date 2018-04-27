@@ -140,10 +140,9 @@ public:
     return Matrix3(*this).invert();
   }
 
-  Matrix3 invert()
+  Matrix3 &invert()
   {
-    Matrix3 matrix;
-    float *me = matrix._elements,
+    float *me = _elements,
 
        n11 = me[0], n21 = me[1], n31 = me[2],
        n12 = me[3], n22 = me[4], n32 = me[5],
@@ -173,7 +172,7 @@ public:
     me[7] = (n21 * n13 - n23 * n11) * detInv;
     me[8] = (n22 * n11 - n21 * n12) * detInv;
 
-    return matrix;
+    return *this;
   }
 
   Matrix3 &transpose()
