@@ -436,7 +436,6 @@ QQmlListProperty<ThreeQObjectRoot> ThreeDItem::objects()
 void ThreeDItem::addScene(Scene *scene)
 {
   _scenes.push_back(scene);
-  QObject::connect(scene, &Scene::sceneChanged, this, &QQuickItem::update);
 }
 
 }

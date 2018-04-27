@@ -19,7 +19,7 @@ class Node : public ThreeQObject
   three::Node::Ptr _node;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
     if(!_node) _node = three::Node::make(_name.toStdString());
     return _node;

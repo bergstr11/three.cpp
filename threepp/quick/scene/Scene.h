@@ -96,7 +96,6 @@ signals:
   void cameraChanged();
   void fogChanged();
   void positionChanged();
-  void sceneChanged();
 };
 
 }

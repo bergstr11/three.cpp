@@ -25,10 +25,8 @@ class GridLines : public ThreeQObject
   QColor _color1, _color2;
   helper::Grid::Ptr _grid;
 
-  Scene *_scene = nullptr;
-
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override;
+  three::Object3D::Ptr _create() override;
 
 public:
   GridLines(QObject *parent = nullptr)

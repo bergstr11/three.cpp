@@ -21,7 +21,7 @@ class Axes : public ThreeQObject
   helper::Axes::Ptr _axes;
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _axes = helper::Axes::make("axes", _size);
 

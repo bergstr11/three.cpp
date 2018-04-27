@@ -28,17 +28,17 @@ class Sphere : public ThreeQObject
   MeshCreator::Ptr _creator;
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     switch(_geometryType) {
       case Three::DefaultGeometry: {
-        auto creator = MeshCreatorG<geometry::Sphere>::make("plane");
+        auto creator = MeshCreatorG<geometry::Sphere>::make("sphere");
         creator->set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
         _creator = creator;
         break;
       }
       case Three::BufferGeometry: {
-        auto creator = MeshCreatorG<geometry::buffer::Sphere>::make("plane");
+        auto creator = MeshCreatorG<geometry::buffer::Sphere>::make("sphere");
         creator->set(geometry::buffer::Sphere::make(_radius, _widthSegments, _heightSegments));
         _creator = creator;
         break;

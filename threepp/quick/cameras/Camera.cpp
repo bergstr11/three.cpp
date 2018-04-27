@@ -10,7 +10,7 @@ namespace quick {
 
 const float Camera::infinity = std::numeric_limits<float>::infinity();
 
-void Camera::_post_create(Scene *scene)
+void Camera::_post_create()
 {
   if(_target.x() != infinity) {
     _camera->lookAt(math::Vector3(_target.x(), _target.y(), _target.z()));
@@ -18,16 +18,16 @@ void Camera::_post_create(Scene *scene)
   }
   if(_qhelper.configured()) {
     auto helper = _qhelper.create(_camera);
-    scene->scene()->add(helper);
+    _parentObject->add(helper);
   }
 }
 
-three::Object3D::Ptr Camera::_create(Scene *scene)
+three::Object3D::Ptr Camera::_create()
 {
   _camera = _createCamera(_near, _far);
 
   for(auto &light :_lights) {
-    auto l = light->create(scene);
+    auto l = light->create(_scene, _object);
     if(l) _camera->add(l);
   }
 

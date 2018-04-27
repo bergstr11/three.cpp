@@ -50,9 +50,9 @@ class Camera : public ThreeQObject
 protected:
   virtual three::Camera::Ptr _createCamera(float near, float far) {return nullptr;};
 
-  three::Object3D::Ptr _create(Scene *scene) override;
+  three::Object3D::Ptr _create() override;
 
-  void _post_create(Scene *scene) override;
+  void _post_create() override;
 
   QQmlListProperty<Light> lights();
 

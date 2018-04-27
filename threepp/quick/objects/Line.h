@@ -38,7 +38,7 @@ private:
   three::Line::Ptr _line;
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     BufferGeometry::Ptr geometry = BufferGeometry::make();
 

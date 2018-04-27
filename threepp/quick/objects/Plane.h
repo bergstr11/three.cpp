@@ -26,7 +26,7 @@ class Plane : public ThreeQObject
   MeshCreator::Ptr _creator;
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     switch(_geometryType) {
       case Three::DefaultGeometry: {

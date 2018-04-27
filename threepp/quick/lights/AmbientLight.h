@@ -8,6 +8,7 @@
 #include <threepp/light/AmbientLight.h>
 #include <threepp/quick/scene/Scene.h>
 #include <threepp/quick/lights/Light.h>
+#include <threepp/quick/ThreeDItem.h>
 
 namespace three {
 namespace quick {
@@ -16,12 +17,10 @@ class AmbientLight : public Light
 {
 Q_OBJECT
   three::AmbientLight::Ptr _light;
-  Scene *_scene = nullptr;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
-    _scene = scene;
     _light = three::AmbientLight::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity);
 
     QObject::connect(this, &Light::intensityChanged, [this]() {_scene->scene()->updateMaterials();});

@@ -50,7 +50,7 @@ void Scene::setFog(FogBase *fog)
 
 void Scene::updateCamera()
 {
-  if(!_quickCamera->camera()) _quickCamera->create(this);
+  if(!_quickCamera->camera()) _quickCamera->create(this, _scene);
 
   if(_quickCamera->controller()) {
     _quickCamera->controller()->setItem(_item);
@@ -102,7 +102,7 @@ void Scene::add(ThreeQObject *object)
 {
   if(_scene) {
     auto obj = object->object();
-    if(!obj) obj = object->create(this);
+    if(!obj) obj = object->create(this, _scene);
     if(obj) {
       _scene->add(obj);
       obj->updateMatrix();
@@ -142,7 +142,7 @@ void Scene::setItem(ThreeDItem *item)
   if(_quickCamera) updateCamera();
 
   for(auto &object :_objects) {
-    auto obj = object->create(this);
+    auto obj = object->create(this, _scene);
     if(obj) _scene->add(obj);
   }
   item->addScene(this);

@@ -23,7 +23,7 @@ class PointLight : public Light
   three::PointLight::Ptr _light;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
     _light = three::PointLight::make(
        Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity, _distance, _decay);

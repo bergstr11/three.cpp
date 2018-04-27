@@ -31,7 +31,7 @@ protected:
   three::PointsMaterial::Ptr _material;
 
 
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _points = three::Points::make();
 

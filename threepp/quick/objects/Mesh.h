@@ -24,7 +24,7 @@ Q_OBJECT
   three::Mesh::Ptr _mesh;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
     return nullptr; //Mesh is not QML-creatable
   }

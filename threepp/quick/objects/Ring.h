@@ -29,7 +29,7 @@ Q_OBJECT
   MeshCreatorG<geometry::Ring> _creator {"ring"};
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _creator.set(geometry::Ring::make(_params));
     material()->identify(_creator);

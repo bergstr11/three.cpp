@@ -28,9 +28,9 @@ Q_OBJECT
   LightShadowOC _shadow;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
-    Object3D::Ptr target = _target ? _target->object() : scene->scene();
+    Object3D::Ptr target = _target ? _target->object() : _parentObject;
     _light = three::DirectionalLight::make(target,
                                            Color(_color.redF(), _color.greenF(), _color.blueF()),
                                            _intensity);
@@ -51,7 +51,7 @@ protected:
 
   three::Light::Ptr light() override {return _light;}
 
-  void _post_create(Scene *scene) override
+  void _post_create() override
   {
     if(_qhelper.configured()) {
       _helper = helper::DirectionalLight::make(_light, _qhelper.size());
@@ -60,7 +60,7 @@ protected:
       QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
 
-      scene->scene()->add(_helper);
+      _parentObject->add(_helper);
     }
   }
 
