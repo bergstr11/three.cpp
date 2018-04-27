@@ -26,7 +26,7 @@ class Box : public ThreeQObject
   MeshCreatorG<geometry::Box> _creator {"box"};
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _creator.set(geometry::Box::make(_width, _height, _depth));
     material()->identify(_creator);

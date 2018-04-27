@@ -32,7 +32,6 @@ class SpotLight : public TargetLight
   float _decay;
   float _distance;
   float _angle;
-  Object3D::Ptr _target;
 
   SpotLightShadow::Ptr _shadow;
 

@@ -195,7 +195,7 @@ void ModelRef::updateScene()
   _scene->scene()->add(_object);
 
   emit objectChanged();
-  emit _scene->sceneChanged();
+  _scene->item()->update();
 }
 
 }

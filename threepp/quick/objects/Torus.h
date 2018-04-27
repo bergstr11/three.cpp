@@ -28,7 +28,7 @@ Q_OBJECT
   MeshCreatorG<geometry::Torus> _creator {"torus"};
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _creator.set(geometry::Torus::make(_params));
     material()->identify(_creator);

@@ -27,7 +27,7 @@ Q_OBJECT
   helper::HemisphereLight::Ptr _helper;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
     _light = three::HemisphereLight::make(
        Color(_color.redF(), _color.greenF(), _color.blueF()),
@@ -39,7 +39,7 @@ protected:
 
   three::Light::Ptr light() override {return _light;}
 
-  void _post_create(Scene *scene) override
+  void _post_create() override
   {
     if(_qhelper.configured()) {
       _helper = helper::HemisphereLight::make(_light, _qhelper.size(), Color::null());
@@ -48,7 +48,7 @@ protected:
       QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
 
-      scene->scene()->add(_helper);
+      _parentObject->add(_helper);
     }
   }
 

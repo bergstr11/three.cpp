@@ -23,6 +23,11 @@ public:
 
   const Object3D::Ptr target() const {return _target;}
 
+  void setTarget(const Object3D::Ptr &target)
+  {
+    _target = target;
+  }
+
   TargetLight *cloned() const override
   {
     //not easily done!

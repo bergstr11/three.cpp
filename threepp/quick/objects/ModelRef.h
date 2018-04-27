@@ -35,12 +35,10 @@ private:
   QMetaObject::Connection _fileConnection;
 
   bool _replace = true;
-  Scene *_scene = nullptr;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
-    _scene = scene;
     return nullptr;
   }
 

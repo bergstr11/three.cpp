@@ -32,7 +32,7 @@ Q_OBJECT
 public:
   VertexNormalsHelper(QObject *parent = nullptr) {}
 
-  void create(Object3D::Ptr object, Scene::Ptr scene, bool force=false)
+  void create(Object3D::Ptr object, Object3D::Ptr parent, bool force=false)
   {
     if(_configured || force) {
       three::helper::VertexNormalConfig config;
@@ -43,14 +43,14 @@ public:
       config.size = _size;
       normalsHelper = three::helper::VertexNormals::make(object, config);
 
-      scene->add(normalsHelper);
+      parent->add(normalsHelper);
     }
   }
 
-  void setObject(Object3D::Ptr object, Scene::Ptr scene)
+  void setObject(Object3D::Ptr object, Object3D::Ptr parentObject)
   {
-    if(normalsHelper) scene->remove(normalsHelper);
-    create(object, scene, true);
+    if(normalsHelper) parentObject->remove(normalsHelper);
+    create(object, parentObject, true);
   }
 
   unsigned size() const {return _size;}

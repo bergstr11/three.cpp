@@ -8,12 +8,11 @@
 namespace three {
 namespace quick {
 
-three::Object3D::Ptr GridLines::_create(Scene *scene)
+three::Object3D::Ptr GridLines::_create()
 {
   _options.color1.set(_color1.redF(), _color1.greenF(), _color1.blueF());
   _options.color2.set(_color1.redF(), _color1.greenF(), _color1.blueF());
   _grid = helper::Grid::make(_options);
-  _scene = scene;
 
   return _grid;
 }

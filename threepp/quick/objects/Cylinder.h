@@ -31,7 +31,7 @@ class Cylinder : public ThreeQObject
   MeshCreatorG<geometry::Cylinder> _creator {"cylinder"};
 
 protected:
-  three::Object3D::Ptr _create(Scene *scene) override
+  three::Object3D::Ptr _create() override
   {
     _creator.set(geometry::Cylinder::make(_params));
     material()->identify(_creator);

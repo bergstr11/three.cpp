@@ -9,7 +9,6 @@
 #include <QQmlListProperty>
 #include <QVector3D>
 #include <QVector4D>
-#include <threepp/scene/Scene.h>
 #include <threepp/quick/materials/Material.h>
 #include <threepp/quick/Three.h>
 #include <threepp/quick/objects/VertexNormalsHelper.h>
@@ -59,10 +58,11 @@ protected:
   Material *_material = nullptr;
 
   three::Object3D::Ptr _object;
-  Scene *_scene = nullptr;
+  three::Object3D::Ptr _parentObject;
+  Scene *_scene;
 
-  virtual three::Object3D::Ptr _create(Scene *scene) {return nullptr;}
-  virtual void _post_create(Scene *scene) {}
+  virtual three::Object3D::Ptr _create() {return nullptr;}
+  virtual void _post_create() {}
 
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
   ThreeQObject(three::Object3D::Ptr object, QObject *parent = nullptr)
@@ -199,7 +199,7 @@ public:
 
   three::Object3D::Ptr object() const {return _object;}
 
-  three::Object3D::Ptr create(Scene *scene);
+  three::Object3D::Ptr create(quick::Scene *scene, Object3D::Ptr parent);
 
   Q_INVOKABLE void rotateX(float angle);
   Q_INVOKABLE void rotateY(float angle);

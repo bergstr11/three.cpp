@@ -21,15 +21,18 @@ Q_OBJECT
   Q_PROPERTY(qreal angle READ angle WRITE setAngle NOTIFY angleChanged)
   Q_PROPERTY(qreal penumbra READ penumbra WRITE setPenumbra NOTIFY penumbraChanged)
   Q_PROPERTY(qreal decay READ decay WRITE setDecay NOTIFY decayChanged)
+  Q_PROPERTY(ThreeQObject *target READ target WRITE setTarget NOTIFY targetChanged)
 
   three::SpotLight::Ptr _light;
   helper::SpotLight::Ptr _helper;
   LightShadowPC _shadow;
+  ThreeQObject *_target = nullptr;
 
 protected:
-  Object3D::Ptr _create(Scene *scene) override
+  Object3D::Ptr _create() override
   {
-    _light = three::SpotLight::make(scene->scene(), Color(_color.redF(), _color.greenF(), _color.blueF()));
+    Object3D::Ptr target = _target ? _target->object() : _parentObject;
+    _light = three::SpotLight::make(target, Color(_color.redF(), _color.greenF(), _color.blueF()));
     _light->intensity() = _intensity;
     _light->distance() = _distance;
     _light->angle() = _angle;
@@ -47,13 +50,13 @@ protected:
 
   three::Light::Ptr light() override {return _light;}
 
-  void _post_create(Scene *scene) override
+  void _post_create() override
   {
     if(_qhelper.configured()) {
       _helper = helper::SpotLight::make("spotlight_helper", _light);
       QObject::connect(&_qhelper, &LightHelper::visibleChanged,
                        [&]() {_helper->visible() = _qhelper.visible();});
-      scene->scene()->add(_helper);
+      _parentObject->add(_helper);
     }
   }
 
@@ -103,11 +106,21 @@ public:
     }
   }
 
+  ThreeQObject *target() const {return _target;}
+  void setTarget(ThreeQObject *target) {
+    if(_target != target) {
+      _target = target;
+      if(_light) _light->setTarget(target->object());
+      emit targetChanged();
+    }
+  }
+
 signals:
   void distanceChanged();
   void angleChanged();
   void penumbraChanged();
   void decayChanged();
+  void targetChanged();
 };
 
 }

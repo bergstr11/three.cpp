@@ -14,17 +14,18 @@ VertexNormalsHelper *ThreeQObject::vertexNormals()
     _normalsHelper = new VertexNormalsHelper(this);
 
     if(_object) {
-      _normalsHelper->create(_object, _scene->scene(), true);
+      _normalsHelper->create(_object, _parentObject, true);
     }
   }
   return _normalsHelper;
 }
 
-three::Object3D::Ptr ThreeQObject::create(Scene *scene)
+three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 {
   _scene = scene;
+  _parentObject = parent;
 
-  _object = _create(scene);
+  _object = _create();
   if(_object) {
     if(!_rotation.isNull())
       _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
@@ -40,13 +41,13 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene)
     _object->visible() = _visible;
 
     for(auto o : _objects) {
-      three::Object3D::Ptr obj = o->create(scene);
+      three::Object3D::Ptr obj = o->create(_scene, _object);
       if(obj) _object->add(obj);
     }
 
-    if(_normalsHelper) _normalsHelper->create(_object, scene->scene());
+    if(_normalsHelper) _normalsHelper->create(_object, _parentObject);
   }
-  _post_create(scene);
+  _post_create();
   return _object;
 }
 
@@ -99,7 +100,7 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
   setScale(QVector3D(s.x(), s.y(), s.z()), false);
 
   if(_normalsHelper) {
-    _normalsHelper->setObject(_object, _scene->scene());
+    _normalsHelper->setObject(_object, _parentObject);
   }
 }
 
