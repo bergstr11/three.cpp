@@ -20,8 +20,8 @@ void ModelRef::setModel(Model *model)
     if(_fileConnection) QObject::disconnect(_fileConnection);
     _model = model;
     if(_model) {
-      _fileConnection = QObject::connect(_model, &Model::fileChanged, this, &ModelRef::cleanupScene);
-      _loadedConnection = QObject::connect(_model, &Model::modelLoaded, this, &ModelRef::updateScene);
+      _fileConnection = QObject::connect(_model, &Model::fileChanged, this, &ModelRef::cleanup);
+      _loadedConnection = QObject::connect(_model, &Model::modelLoaded, this, &ModelRef::update);
     }
     emit modelChanged();
   }
@@ -144,15 +144,15 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
   return false;
 }
 
-void ModelRef::cleanupScene()
+void ModelRef::cleanup()
 {
   if(_replace && _object) {
-    _scene->scene()->remove(_object);
+    _parentObject->remove(_object);
     _object->dispose();
   }
 }
 
-void ModelRef::updateScene()
+void ModelRef::update()
 {
   auto node = three::Node::make(_model->name().toStdString());
   if(!_rotation.isNull())
@@ -192,10 +192,35 @@ void ModelRef::updateScene()
   });
 
   setObject(node);
-  _scene->scene()->add(_object);
+  _parentObject->add(_object);
 
   emit objectChanged();
   _scene->item()->update();
+}
+
+ThreeQObject *ModelRef::getThreeQObject()
+{
+  if(_threeQObject) return _threeQObject;
+  if(!_object || _object->children().size() != 1) return nullptr;
+
+  Material *material = nullptr;
+  Object3D::Ptr obj = _object->children().at(0);
+
+  three::MeshBasicMaterial::Ptr basic = dynamic_pointer_cast<three::MeshBasicMaterial>(obj->material());
+  if(basic)
+    material = new MeshBasicMaterial(basic);
+  else {
+    three::MeshLambertMaterial::Ptr lambert = dynamic_pointer_cast<three::MeshLambertMaterial>(obj->material());
+    if(lambert)
+      material = new MeshLambertMaterial(lambert);
+    else {
+      three::MeshPhongMaterial::Ptr phong = dynamic_pointer_cast<three::MeshPhongMaterial>(obj->material());
+      if(phong)
+        material = new MeshPhongMaterial(phong);
+    }
+  }
+  _threeQObject = new ThreeQObject(obj, material, this);
+  return _threeQObject;
 }
 
 }

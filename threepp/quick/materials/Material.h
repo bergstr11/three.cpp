@@ -20,7 +20,7 @@ Q_OBJECT
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
   Q_PROPERTY(QByteArray name READ name WRITE setName NOTIFY nameChanged)
-  Q_PROPERTY(Texture *map READ map WRITE setMap NOTIFY mapChanged)
+  Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
 
 protected:
   bool _wireframe = false;

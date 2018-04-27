@@ -42,7 +42,7 @@ Window {
             id: normalTexture
             format: Texture.RGBA
             image: ":/portalgun_normal.jpg"
-            imageFormat: Image.RGBA8888
+            imageFormat: ThreeImage.RGBA8888
         }
 
         Scene {

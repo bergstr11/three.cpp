@@ -22,13 +22,14 @@ class ThreeQObject : public QObject
 {
   friend class ObjectPicker;
   friend class Model;
+  friend class ModelRef;
 
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QVector3D rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
-  Q_PROPERTY(Material * material READ material WRITE setMaterial NOTIFY materialChanged)
+  Q_PROPERTY(three::quick::Material * material READ material WRITE setMaterial NOTIFY materialChanged)
   Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)

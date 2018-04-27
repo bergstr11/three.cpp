@@ -32,7 +32,7 @@ struct AssimpOptions
 
   AssimpOptions() {
     modelMap[ShadingModel::Phong] = ShadingModel::Phong;
-    modelMap[ShadingModel::Gouraud] = ShadingModel::Gouraud;
+    modelMap[ShadingModel::Gouraud] = ShadingModel::Phong;
     modelMap[ShadingModel::Toon] = ShadingModel::Toon;
     modelMap[ShadingModel::Flat] = ShadingModel::Flat;
   }

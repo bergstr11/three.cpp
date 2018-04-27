@@ -27,6 +27,7 @@ Window {
         MenuChoice {
             name: "Cube"
             value: true
+            textColor: "white"
             onSelected: {
                 skyBox.material = cubeMaterial
 				skyBox.visible = true
@@ -38,6 +39,7 @@ Window {
         }
         MenuChoice {
             name: "Equirectangular"
+            textColor: "white"
             onSelected: {
                 skyBox.material = equirectMaterial
                 skyBox.visible = true
@@ -49,6 +51,7 @@ Window {
         }
         MenuChoice {
             name: "Spherical"
+            textColor: "white"
             onSelected: {
                 skyBox.visible = false
                 sphere.material.envMap = textureSphere

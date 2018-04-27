@@ -20,6 +20,7 @@ Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)
   Q_PROPERTY(QString selector READ selector WRITE setSelector)
   Q_PROPERTY(Type type READ type WRITE setType)
+  Q_PROPERTY(three::quick::ThreeQObject *object READ threeQObject NOTIFY objectChanged)
   Q_PROPERTY(bool replace READ replace WRITE setReplace NOTIFY replaceChanged)
 
 public:
@@ -34,6 +35,7 @@ private:
   QMetaObject::Connection _loadedConnection;
   QMetaObject::Connection _fileConnection;
 
+  ThreeQObject *_threeQObject = nullptr;
   bool _replace = true;
 
 protected:
@@ -51,12 +53,18 @@ protected:
                         const std::vector<Object3D::Ptr> &children,
                         Eval wildcard=Eval::name);
 
+  ThreeQObject *getThreeQObject();
+
 public:
   ModelRef(QObject *parent=nullptr) : ThreeQObject(parent) {}
+
+  ~ModelRef() {if(_threeQObject) _threeQObject->deleteLater();}
 
   Model *model() const {return _model;}
 
   void setModel(Model *model);
+
+  ThreeQObject *threeQObject() {return getThreeQObject();}
 
   const QString &selector() const {return _selector;}
 
@@ -76,8 +84,8 @@ signals:
   void replaceChanged();
 
 private slots:
-  void cleanupScene();
-  void updateScene();
+  void cleanup();
+  void update();
 };
 
 }

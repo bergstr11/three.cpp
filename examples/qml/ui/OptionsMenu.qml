@@ -104,6 +104,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 text: prop.name
+                color: prop.textColor
 
                 MouseArea {
                     anchors.fill: parent

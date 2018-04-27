@@ -785,7 +785,7 @@ void Access::readMaterial(unsigned materialIndex)
     }
   }
   else {
-    float shininess;
+    float shininess = 0;
     if (ai->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f) {
       maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
     }
