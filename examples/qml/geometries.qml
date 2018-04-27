@@ -126,6 +126,10 @@ Window {
                 position: "-30,40,30"
 
                 target: scene.position
+
+                controller: OrbitController {
+                    enablePan: false
+                }
             }
         }
     }

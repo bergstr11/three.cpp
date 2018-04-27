@@ -300,7 +300,7 @@ size_t LinearGeometry::mergeVertices()
     if (verticesMap.count(key) == 0) {
       verticesMap[key] = i;
       unique.push_back( _vertices[i] );
-      changes[i] = (unsigned)unique.size() - 1;
+      changes[i] = unique.size() - 1;
     }
     else {
       //console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);

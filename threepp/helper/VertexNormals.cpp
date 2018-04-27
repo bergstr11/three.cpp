@@ -15,6 +15,8 @@ struct LinearGeometryAccess
     const auto &vertices = geometry->_vertices;
     const auto &faces = geometry->_faces;
 
+    math::Matrix3 normalMatrix = helper._object->matrixWorld().normalMatrix();
+
     unsigned idx = 0;
 
     for(unsigned i = 0, l = faces.size(); i < l; i ++ ) {
@@ -35,7 +37,9 @@ struct LinearGeometryAccess
 
         vertex.apply( helper._object->matrixWorld() );
 
-        normal.apply( helper.normalMatrix ).normalize();
+        normal.apply( normalMatrix ).normalize();
+        normal.apply( math::Matrix4::rotation(helper._object->rotation()) );
+
         normal *= helper._config.size;
         normal += vertex;
 
@@ -59,24 +63,27 @@ struct BufferGeometryAccess
     const auto &objPos = geometry->position();
     const auto &objNorm = geometry->normal();
 
+    math::Matrix3 normalMatrix = helper._object->matrixWorld().normalMatrix();
+
     unsigned idx = 0;
 
     // for simplicity, ignore index and drawcalls, and render every normal
     for ( unsigned j = 0, jl = objPos->itemCount(); j < jl; j ++ ) {
 
-      math::Vector3 v1( objPos->get_x( j ), objPos->get_y( j ), objPos->get_z( j ) );
-      v1.apply( helper._object->matrixWorld() );
+      math::Vector3 vertex( objPos->get_x( j ), objPos->get_y( j ), objPos->get_z( j ) );
+      vertex.apply( helper._object->matrixWorld() );
 
-      math::Vector3 v2( objNorm->get_x( j ), objNorm->get_y( j ), objNorm->get_z( j ) );
-      v2.apply( helper.normalMatrix ).normalize();
-      v2 *= helper._config.size;
-      v2 += v1;
+      math::Vector3 normal( objNorm->get_x( j ), objNorm->get_y( j ), objNorm->get_z( j ) );
+      normal.apply( normalMatrix ).normalize();
+      normal.apply( math::Matrix4::rotation(helper._object->rotation()) );
+      normal *= helper._config.size;
+      normal += vertex;
 
-      position->setXYZ( idx, v1.x(), v1.y(), v1.z() );
+      position->setXYZ( idx, vertex.x(), vertex.y(), vertex.z() );
 
       idx = idx + 1;
 
-      position->setXYZ( idx, v2.x(), v2.y(), v2.z() );
+      position->setXYZ( idx, normal.x(), normal.y(), normal.z() );
 
       idx = idx + 1;
 
@@ -90,8 +97,6 @@ namespace helper {
 void VertexNormals::update()
 {
   _object->updateMatrixWorld( true );
-
-  normalMatrix = _object->matrixWorld().normalMatrix();
 
   LinearGeometry::Ptr linearGeometry = std::dynamic_pointer_cast<LinearGeometry>(_object->geometry());
   if ( linearGeometry ) {

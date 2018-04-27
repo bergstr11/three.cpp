@@ -25,7 +25,7 @@ Matrix3 Matrix4::normalMatrix() const
      me[ 1 ], me[ 5 ], me[  9 ],
      me[ 2 ], me[ 6 ], me[ 10 ]
 
-  ).inverted().transpose();
+  ).invert().transpose();
 }
 
 Matrix4 &Matrix4::scale(const Vector3 &v)

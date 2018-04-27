@@ -109,7 +109,6 @@ public:
 
   Matrix3 &operator*=(float scalar)
   {
-
     float *te = _elements;
 
     te[0] *= scalar;
@@ -136,11 +135,15 @@ public:
     return a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
   }
 
-  Matrix3 inverted()
+  Matrix3 inverted() const
+  {
+    return Matrix3(*this).invert();
+  }
+
+  Matrix3 invert()
   {
     Matrix3 matrix;
-    float *me = _elements,
-       *te = matrix._elements,
+    float *me = matrix._elements,
 
        n11 = me[0], n21 = me[1], n31 = me[2],
        n12 = me[3], n22 = me[4], n32 = me[5],
@@ -156,19 +159,19 @@ public:
       throw std::invalid_argument("can't invert matrix, determinant is 0");
     }
 
-    float detInv = 1 / det;
+    float detInv = 1.0f / det;
 
-    te[0] = t11 * detInv;
-    te[1] = (n31 * n23 - n33 * n21) * detInv;
-    te[2] = (n32 * n21 - n31 * n22) * detInv;
+    me[0] = t11 * detInv;
+    me[1] = (n31 * n23 - n33 * n21) * detInv;
+    me[2] = (n32 * n21 - n31 * n22) * detInv;
 
-    te[3] = t12 * detInv;
-    te[4] = (n33 * n11 - n31 * n13) * detInv;
-    te[5] = (n31 * n12 - n32 * n11) * detInv;
+    me[3] = t12 * detInv;
+    me[4] = (n33 * n11 - n31 * n13) * detInv;
+    me[5] = (n31 * n12 - n32 * n11) * detInv;
 
-    te[6] = t13 * detInv;
-    te[7] = (n21 * n13 - n23 * n11) * detInv;
-    te[8] = (n22 * n11 - n21 * n12) * detInv;
+    me[6] = t13 * detInv;
+    me[7] = (n21 * n13 - n23 * n11) * detInv;
+    me[8] = (n22 * n11 - n21 * n12) * detInv;
 
     return matrix;
   }
