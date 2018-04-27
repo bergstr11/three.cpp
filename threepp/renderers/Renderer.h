@@ -9,6 +9,7 @@
 #include <threepp/scene/Scene.h>
 #include <threepp/camera/Camera.h>
 #include <threepp/util/sole.h>
+#include <threepp/math/Vector4.h>
 
 namespace three {
 

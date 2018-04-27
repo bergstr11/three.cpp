@@ -64,8 +64,6 @@ public:
     return *this;
   }
 
-  math::Vector3 centroid(const Face3 &face);
-
   bool useMorphing() const override
   {
     return false;
@@ -89,6 +87,15 @@ public:
 
   size_t vertexCount() const override {
     return vertices.size();
+  }
+
+  math::Vector3 centroid(const Face3 &face)
+  {
+    const Vertex &vA = vertices[ face.a ];
+    const Vertex &vB = vertices[ face.b ];
+    const Vertex &vC = vertices[ face.c ];
+
+    return (vA + vB + vC) / 3.0f;
   }
 };
 

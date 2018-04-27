@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 #include <threepp/core/Object3D.h>
-#include <threepp/core/Geometry.h>
+#include <threepp/core/LinearGeometry.h>
 #include <threepp/core/BufferGeometry.h>
 #include "Attributes.h"
 

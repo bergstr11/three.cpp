@@ -6,6 +6,7 @@
 #define THREEPP_POINTS_H
 
 #include <threepp/core/Object3D.h>
+#include <threepp/core/BufferGeometry.h>
 #include <threepp/material/PointsMaterial.h>
 
 namespace three {

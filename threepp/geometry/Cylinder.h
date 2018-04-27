@@ -46,8 +46,13 @@ protected:
 public:
   using Ptr = std::shared_ptr<Cylinder>;
 
-  static Ptr make(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
-                  unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength) {
+  static Ptr make(float radiusTop, float radiusBottom, float height,
+                  unsigned heightSegments=1,
+                  unsigned radialSegments=8,
+                  bool openEnded=false,
+                  float thetaStart=0.0f,
+                  float thetaLength=(float)M_PI * 2)
+  {
     return Ptr(new Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments,
                             openEnded, thetaStart, thetaLength));
   }

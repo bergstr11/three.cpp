@@ -19,7 +19,7 @@
 #include <threepp/math/Matrix4.h>
 #include <threepp/material/Material.h>
 #include <threepp/util/Resolver.h>
-#include "LinearGeometry.h"
+#include "Geometry.h"
 
 namespace three {
 

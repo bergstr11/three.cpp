@@ -3,10 +3,11 @@
 //
 
 #include <vector>
-#include <threepp/objects/Mesh.h>
-#include <threepp/objects/Line.h>
 #include <threepp/objects/Points.h>
+#include <threepp/objects/Line.h>
+#include <threepp/objects/Mesh.h>
 
+#include "BufferGeometry.h"
 #include "DirectGeometry.h"
 #include "impl/raycast.h"
 
@@ -17,125 +18,12 @@ using namespace impl;
 
 size_t Geometry::id_count = 0;
 
-void LinearGeometry::raycast(Mesh &mesh,
-                             const Raycaster &raycaster,
-                             const math::Ray &ray,
-                             std::vector<Intersection> &intersects)
-{
-  std::vector<UV_Array> &faceVertexUvs = _faceVertexUvs[0];
-
-  for (size_t f=0, fl=_faces.size(); f < fl; f++) {
-
-    const Face3 &face = _faces[f];
-    Material::Ptr faceMaterial = mesh.materialCount() > 1 ? mesh.material(face.materialIndex) : mesh.material();
-
-    if (!faceMaterial) continue;
-
-    Vector3 fvA(_vertices[face.a]);
-    Vector3 fvB(_vertices[face.b]);
-    Vector3 fvC(_vertices[face.c]);
-
-    if (faceMaterial->morphTargets) {
-
-      math::Vector3 vA(0, 0, 0);
-      math::Vector3 vB(0, 0, 0);
-      math::Vector3 vC(0, 0, 0);
-
-      for (size_t t = 0, tl = _morphTargets.size(); t < tl; t++) {
-
-        float influence = mesh.morphTargetInfluence(t);
-
-        if (influence == 0) continue;
-
-        const std::vector<math::Vector3> &targets = _morphTargets[t].vertices;
-
-        vA += (targets[face.a] - fvA) * influence;
-        vB += (targets[face.b] - fvB) * influence;
-        vC += (targets[face.c] - fvC) * influence;
-      }
-
-      fvA += vA;
-      fvB += vB;
-      fvC += vC;
-    }
-
-    Intersection intersection;
-    if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
-
-      if (faceVertexUvs.size() > f) {
-
-        UV_Array &uvs_f = faceVertexUvs[f];
-        Vector2 uvA(uvs_f[0]);
-        Vector2 uvB(uvs_f[1]);
-        Vector2 uvC(uvs_f[2]);
-
-        intersection.uv = uvIntersection(intersection.point, fvA, fvB, fvC, uvA, uvB, uvC);
-      }
-
-      intersection.face = face;
-      intersection.faceIndex = (unsigned)f;
-      intersects.push_back(intersection);
-    }
-  }
-}
-
-void LinearGeometry::raycast(Line &line,
-                             const Raycaster &raycaster,
-                             const math::Ray &ray,
-                             std::vector<Intersection> &intersects)
-{
-  Vector3 interSegment;
-  Vector3 interRay;
-  unsigned step = line.steps();
-
-  float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
-
-  for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
-
-    float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
-
-    if (distSq > precisionSq) continue;
-
-    interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
-
-    float distance = raycaster.ray().origin().distanceTo(interRay);
-
-    if (distance < raycaster.near() || distance > raycaster.far()) continue;
-
-    intersects.emplace_back();
-    Intersection &intersect = intersects.back();
-    intersect.distance = distance;
-    // What do we want? intersection point on the ray or on the segment??
-    // point: raycaster.ray.at( distance ),
-    intersect.point = interSegment.apply(line.matrixWorld());
-    intersect.index = i;
-    intersect.object = &line;
-  }
-}
 
 math::Vector3 BufferGeometry::centroid(const Face3 &face)
 {
   math::Vector3 vA = math::Vector3::fromBufferAttribute(*_position, face.a);
   math::Vector3 vB = math::Vector3::fromBufferAttribute(*_position, face.b);
   math::Vector3 vC = math::Vector3::fromBufferAttribute(*_position, face.c);
-
-  return (vA + vB + vC) / 3.0f;
-}
-
-math::Vector3 LinearGeometry::centroid(const Face3 &face)
-{
-  const Vertex &vA = _vertices[ face.a ];
-  const Vertex &vB = _vertices[ face.b ];
-  const Vertex &vC = _vertices[ face.c ];
-
-  return (vA + vB + vC) / 3.0f;
-}
-
-math::Vector3 DirectGeometry::centroid(const Face3 &face)
-{
-  const Vertex &vA = vertices[ face.a ];
-  const Vertex &vB = vertices[ face.b ];
-  const Vertex &vC = vertices[ face.c ];
 
   return (vA + vB + vC) / 3.0f;
 }
@@ -460,12 +348,7 @@ void BufferGeometry::normalizeNormals()
 
 void BufferGeometry::computeVertexNormals()
 {
-  //var index = this.index;
-  //var attributes = this.attributes;
-  //var groups = this.groups;
-
   if(_position) {
-    //var positions = _position->.array;
 
     if (_normal)
       // reset existing normals to zero

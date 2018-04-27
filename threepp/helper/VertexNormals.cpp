@@ -3,6 +3,7 @@
 //
 
 #include "VertexNormals.h"
+#include <threepp/core/LinearGeometry.h>
 #include <threepp/core/BufferAttribute.h>
 
 namespace three {

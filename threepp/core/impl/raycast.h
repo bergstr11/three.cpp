@@ -9,6 +9,7 @@
 #include <threepp/core/Object3D.h>
 #include <threepp/core/Raycaster.h>
 #include <threepp/core/Face3.h>
+#include <threepp/core/BufferAttribute.h>
 #include <threepp/material/Material.h>
 
 namespace three {

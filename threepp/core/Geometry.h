@@ -21,6 +21,17 @@ class Intersection;
 
 class BufferGeometry;
 
+struct MorphTarget {
+  std::string name;
+  std::vector<Vertex> vertices;
+};
+struct MorphNormal {
+  std::vector<Vertex> faceNormals;
+  std::vector<std::array<Vertex, 3>> vertexNormals;
+
+  bool isEmpty() {return faceNormals.empty();}
+};
+
 class Geometry
 {
   friend class BufferGeometry;

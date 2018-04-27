@@ -26,17 +26,6 @@ namespace three {
 
 class DirectGeometry;
 
-struct MorphTarget {
-  std::string name;
-  std::vector<Vertex> vertices;
-};
-struct MorphNormal {
-  std::vector<Vertex> faceNormals;
-  std::vector<std::array<Vertex, 3>> vertexNormals;
-
-  bool isEmpty() {return faceNormals.empty();}
-};
-
 class LinearGeometry : public Geometry
 {
   friend class DirectGeometry;
@@ -119,8 +108,10 @@ public:
     return _boundingBox.getCenter().negate();
   }
 
-  void computeVertexNormals() {
+  void computeVertexNormals()
+  {
     computeVertexNormals(_faces, _vertices);
+    _normalsNeedUpdate = !_faces.empty();
   }
 
 	LinearGeometry &setCenter()
