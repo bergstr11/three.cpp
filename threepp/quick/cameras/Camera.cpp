@@ -27,7 +27,7 @@ three::Object3D::Ptr Camera::_create()
   _camera = _createCamera(_near, _far);
 
   for(auto &light :_lights) {
-    auto l = light->create(_scene, _object);
+    auto l = light->create(_scene, _parentObject);
     if(l) _camera->add(l);
   }
 
