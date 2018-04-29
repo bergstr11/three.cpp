@@ -53,16 +53,12 @@ struct MeshBasicMaterial : public MaterialT<
    material::SpecularMap>
 {
 private:
-  MeshBasicMaterial(bool morphTargets, bool skinning)
-  {
-    this->morphTargets = morphTargets;
-    this->skinning = skinning;
-  }
-
-  MeshBasicMaterial() : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this))
+  MeshBasicMaterial()
+     : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this), material::Typer(this))
   {}
 
-  MeshBasicMaterial(const MeshBasicMaterial &material) : MaterialT(*this, material::ResolverT<MeshBasicMaterial>::make(*this))
+  MeshBasicMaterial(const MeshBasicMaterial &material)
+     : MaterialT(*this, material::ResolverT<MeshBasicMaterial>::make(*this), material::Typer(this))
   {}
 
 protected:
@@ -70,10 +66,6 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
-
-  static Ptr make(bool morphTargets, bool skinning) {
-    return Ptr(new MeshBasicMaterial(morphTargets, skinning));
-  }
 
   static Ptr make() {
     return Ptr(new MeshBasicMaterial());

@@ -20,7 +20,9 @@ class SkinnedMesh : public MeshT<BufferGeometry, Material>
 
 protected:
   SkinnedMesh(const BufferGeometry::Ptr &geometry, const Material::Ptr &material)
-     : Object3D(), MeshT(geometry, material) {}
+     : Object3D(), MeshT(geometry, material) {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<SkinnedMesh>;

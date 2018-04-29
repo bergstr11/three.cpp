@@ -24,10 +24,14 @@ class Mesh : public virtual Object3D
 
 protected:
   Mesh() : Object3D(), _drawMode(DrawMode::Triangles)
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
   Mesh(const Mesh &mesh) : Object3D(mesh)
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<Mesh>;
@@ -73,13 +77,13 @@ class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
 
 protected:
   MeshT(const typename Geom::Ptr &geometry, typename Mat::Ptr material)
-     : Object3D(), Object3D_GM<Geom, Mat>(geometry, material)
+     : Mesh(), Object3D_GM<Geom, Mat>(geometry, material)
   {
     setDrawMode(DrawMode::Triangles);
   }
 
   MeshT(const MeshT &mesh)
-     : Object3D(), Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()),
+     : Mesh(), Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()),
                               typename Mat::Ptr(mesh.template material<0>()->cloned()))
   {
     setDrawMode(DrawMode::Triangles);

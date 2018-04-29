@@ -345,9 +345,9 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
     const RenderItem &renderItem = *renderIterator;
     Material::Ptr material = overrideMaterial ? overrideMaterial : renderItem.material;
 
-    if(CAST(camera, acamera, ArrayCamera)) {
+    if(ArrayCamera *acamera = camera->typer) {
 
-      _currentArrayCamera = acamera;
+      _currentArrayCamera = CAST2(camera, ArrayCamera);
 
       for ( unsigned j = 0; j < acamera->cameraCount; j ++ ) {
 
@@ -384,7 +384,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   object->modelViewMatrix.multiply(camera->matrixWorldInverse(), object->matrixWorld());
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
 
-  if(CAST(object, iro, ImmediateRenderObject)) {
+  if(ImmediateRenderObject *iro = object->typer) {
 
     _state.setMaterial( material, object->frontFaceCW() );
 
@@ -408,25 +408,25 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   bool visible = object->layers().test(camera->layers());
   if (visible ) {
 
-    if(CAST(object, light, Light)) {
+    if(Light *light = object->typer) {
 
-      _lightsArray.push_back(light);
+      _lightsArray.push_back(CAST2(object, Light));
 
       if ( light->castShadow ) {
-        _shadowsArray.push_back( light );
+        _shadowsArray.push_back( CAST2(object, Light) );
       }
     }
-    else if(CAST(object, sprite, Sprite)) {
+    else if(Sprite *sprite = object->typer) {
 
       if ( ! sprite->frustumCulled || _frustum.intersectsSprite(*sprite) ) {
-        _spritesArray.push_back( sprite );
+        _spritesArray.push_back( CAST2(object, Sprite));
       }
     }
-    else if(CAST(object, lflare, LensFlare)) {
+    else if(LensFlare *lflare = object->typer) {
 
-      _flaresArray.push_back( lflare );
+      _flaresArray.push_back(CAST2(object, LensFlare));
     }
-    else if(CAST(object, iro, ImmediateRenderObject)) {
+    else if(ImmediateRenderObject *iro = object->typer) {
 
       if ( sortObjects ) {
 
@@ -434,9 +434,9 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
       }
       _currentRenderList->push_back(object, nullptr, object->material(), _vector3.z(), nullptr );
     }
-    else if(CAST2(object, Mesh) || CAST2(object, Line) || CAST2(object, Points)) {
+    else if(object->is<Mesh>() || object->is<Line>() || object->is<Points>()) {
 
-      if(CAST(object, skmesh, SkinnedMesh)) {
+      if(SkinnedMesh *skmesh = object->typer) {
         skmesh->skeleton()->update();
       }
       if ( ! object->frustumCulled || _frustum.intersectsObject( *object ) ) {
@@ -595,7 +595,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     updateBuffers = true;
   }
 
-  Mesh::Ptr mesh = dynamic_pointer_cast<Mesh>(object);
+  Mesh *mesh = object->typer;
   if ( mesh && !mesh->morphTargetInfluences().empty() ) {
 
     _morphTargets.update( mesh, geometry, material, program );
@@ -658,8 +658,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
   if ( drawCount == 0 ) return;
 
-  //
-  if(CAST(object, mesh, Mesh)) {
+  if(Mesh *mesh = object->typer) {
     if ( material->wireframe ) {
 
       _state.setLineWidth( material->wireframeLineWidth * getTargetPixelRatio() );
@@ -670,13 +669,13 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       renderer->setMode(mesh->drawMode());
     }
   }
-  else if(CAST(object, segments, LineSegments)) {
+  else if(LineSegments *segments = object->typer) {
 
     _state.setLineWidth( segments->material<0>()->linewidth * getTargetPixelRatio() );
 
     renderer->setMode(DrawMode::Lines);
   }
-  else if(CAST(object, line, Line)) {
+  else if(Line *line = object->typer) {
 
     _state.setLineWidth(line->material<0>()->linewidth * getTargetPixelRatio());
 
@@ -689,7 +688,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
     }*/
   }
-  else if(CAST2(object, Points)) {
+  else if(object->is<Points>()) {
     renderer->setMode(DrawMode::Points);
   }
 
@@ -805,7 +804,7 @@ void Renderer_impl::setupVertexAttributes(Material::Ptr material,
       }
       else {
 
-        ShaderMaterial::Ptr shaderMat = dynamic_pointer_cast<ShaderMaterial>(material);
+        ShaderMaterial *shaderMat = material->typer;
         if (shaderMat) {
 
           switch (name) {
@@ -879,7 +878,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
       materialProperties.shader = Shader(name, shaderlib::get(*parameters->shaderID));
     }
     else {
-      ShaderMaterial::Ptr sm = dynamic_pointer_cast<ShaderMaterial>(material);
+      ShaderMaterial *sm = material->typer;
       if(sm)
         materialProperties.shader = Shader(name, sm->uniforms, sm->vertexShader, sm->fragmentShader);
       else
@@ -1100,11 +1099,11 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     // load material specific uniforms
     // (shader material also gets them for the sake of genericity)
 
-    if(CAST2(material, MeshPhongMaterial)
-       || CAST2(material, MeshLambertMaterial)
-       || CAST2(material, MeshBasicMaterial)
-       || CAST2(material, MeshStandardMaterial)
-       || CAST2(material, ShaderMaterial)) {
+    if(material->is<MeshPhongMaterial>()
+       || material->is<MeshLambertMaterial>()
+       || material->is<MeshBasicMaterial>()
+       || material->is<MeshStandardMaterial>()
+       || material->is<ShaderMaterial>()) {
 
       if(prg_uniforms->get(UniformName::cameraPosition)) {
         _vector3 = camera->matrixWorld().getPosition();
@@ -1128,7 +1127,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
   if ( material->skinning ) {
 
-    if(CAST(object, skinned, SkinnedMesh)) {
+    if(SkinnedMesh *skinned = object->typer) {
 
       prg_uniforms->set(UniformName::bindMatrix, skinned->bindMatrix());
       prg_uniforms->set(UniformName::bindMatrixInverse, skinned->bindMatrixInverse());
@@ -1200,57 +1199,57 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
       refreshUniforms( mat_uniforms, *fog );
     }
 
-    if(CAST(material, mat, MeshBasicMaterial)) {
+    if(MeshBasicMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat );
     }
-    else if(CAST(material, mat, MeshDepthMaterial)) {
+    else if(MeshDepthMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat);
     }
-    else if(CAST(material, mat, MeshDistanceMaterial)) {
+    else if(MeshDistanceMaterial *mat = material->typer) {
 
       refresh( mat_uniforms, *mat);
       mat_uniforms[UniformName::referencePosition] = mat->referencePosition;
       mat_uniforms[UniformName::nearDistance] = mat->nearDistance;
       mat_uniforms[UniformName::farDistance] = mat->farDistance;
     }
-    else if(CAST(material, mat, LineBasicMaterial)) {
+    else if(LineBasicMaterial *mat = material->typer) {
 
       refresh( mat_uniforms, *mat);
 
-      if(CAST(material, mat, LineDashedMaterial)) {
+      if(LineDashedMaterial *mat = material->typer) {
         mat_uniforms[UniformName::dashSize] = mat->dashSize;
         mat_uniforms[UniformName::totalSize] = mat->dashSize + mat->gapSize;
         mat_uniforms[UniformName::scale] = mat->scale;
       }
     }
-    else if(CAST(material, mat, MeshStandardMaterial)) {
+    else if(MeshStandardMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat);
     }
-    else if(CAST(material, mat, MeshLambertMaterial)) {
+    else if(MeshLambertMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat);
     }
-    else if(CAST(material, mat, MeshPhongMaterial)) {
+    else if(MeshPhongMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat);
     }
-    else if(CAST(material, mat, MeshToonMaterial)) {
+    else if(MeshToonMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat);
     }
-    else if(CAST(material, mat, MeshPhysicalMaterial)) {
+    else if(MeshPhysicalMaterial *mat = material->typer) {
 
       refresh( mat_uniforms, *mat );
       mat_uniforms[UniformName::clearCoat] = mat->clearCoat;
       mat_uniforms[UniformName::clearCoatRoughness] = mat->clearCoatRoughness;
     }
-    else if(CAST(material, mat, MeshNormalMaterial)) {
+    else if(MeshNormalMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat );
     }
-    else if(CAST(material, mat, PointsMaterial)) {
+    else if(PointsMaterial *mat = material->typer) {
 
       refresh( mat_uniforms, *mat );
       mat_uniforms[UniformName::size] = mat->size * _pixelRatio;
       mat_uniforms[UniformName::scale] = _height * 0.5f;
     }
-    else if(CAST(material, mat, ShadowMaterial)) {
+    else if(ShadowMaterial *mat = material->typer) {
       refresh( mat_uniforms, *mat );
     }
     check_glerror(this);

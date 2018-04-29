@@ -13,10 +13,10 @@ class AmbientLight : public Light
 {
 protected:
   AmbientLight(const Color &color, float intensity)
-     : Light(color, intensity)
+     : Light(object::Typer(this), color, intensity)
   {}
 
-  AmbientLight(const AmbientLight &light) : Light(light)
+  AmbientLight(const AmbientLight &light) : Light(light, object::Typer(this))
   {}
 
 public:

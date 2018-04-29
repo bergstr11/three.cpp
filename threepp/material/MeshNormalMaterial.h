@@ -38,7 +38,8 @@ struct MeshNormalMaterial: public MaterialT<material::DisplacementMap, material:
 {
 
 protected:
-  MeshNormalMaterial() : MaterialT(material::ResolverT<MeshNormalMaterial>::make(*this))
+  MeshNormalMaterial()
+     : MaterialT(material::ResolverT<MeshNormalMaterial>::make(*this), material::Typer(this))
   {
     wireframe = false;
     wireframeLineWidth = 1;
@@ -52,7 +53,7 @@ protected:
   }
 
   MeshNormalMaterial(const MeshNormalMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshNormalMaterial>::make(*this))
+     : MaterialT(material, material::ResolverT<MeshNormalMaterial>::make(*this), material::Typer(this))
   {}
 
 protected:

@@ -23,14 +23,16 @@ namespace three {
  */
 class SpriteMaterial : public MaterialT<material::Colored>
 {
-  SpriteMaterial() : MaterialT(material::ResolverT<SpriteMaterial>::make(*this))
+  SpriteMaterial()
+     : MaterialT(material::ResolverT<SpriteMaterial>::make(*this), material::Typer(this))
   {
     this->morphTargets = false;
     this->morphNormals = false;
     this->skinning = false;
   }
 
-  SpriteMaterial(const SpriteMaterial &material) : MaterialT(material, material::ResolverT<SpriteMaterial>::make(*this))
+  SpriteMaterial(const SpriteMaterial &material)
+     : MaterialT(material, material::ResolverT<SpriteMaterial>::make(*this), material::Typer(this))
   {}
 
 public:

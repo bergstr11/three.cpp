@@ -12,6 +12,7 @@
 #include <set>
 
 #include <threepp/renderers/gl/shader/ShaderID.h>
+#include "Typer.h"
 
 namespace resolver {
 
@@ -222,18 +223,6 @@ public:
 
 } //namespace: resolver
 
-#define DEF_THISTABLE(Cls, Btype) \
-struct Cls { \
-template <typename Ctype> Ctype * value(std::shared_ptr<Btype &b) const {return nullptr;}\
-}; \
-using Cls##Resolver = resolver::Resolve<Cls>;
-
-#define PUT_THISTABLE(Cls, Btype, Ctype) \
-template <> inline Btype * Cls::value(std::shared_ptr<Ctype> &ct) const { \
-static const resolver::Assoc<Btype, Ctype> sa {Val}; \
-return sa(t); \
-}
-
 #define DEF_VALUETABLE(Cls, Vtype, Dflt) \
 struct Cls { \
 using value_type = Vtype; \
@@ -302,16 +291,18 @@ using Resolver = resolver::Resolvers<Map1, Map2, Map3, Map4>;
 
 namespace three {
 
-class AmbientLight;
-class DirectionalLight;
-class HemisphereLight;
-class PointLight;
-class RectAreaLight;
-class SpotLight;
-
 class ImageCubeTexture;
 class ImageTexture;
+class DataTexture;
+class DataCubeTexture;
+class DepthTexture;
 class Texture;
+
+namespace texture {
+using Typer = three::Typer<ImageCubeTexture,
+   DepthTexture, ImageTexture, ImageCubeTexture, DataTexture, DataCubeTexture>;
+}
+
 class Color;
 
 namespace scene {
@@ -324,6 +315,33 @@ PUT_FUNCTABLE(BackgroundDispatch, Color)
 
 DEF_RESOLVER_1(BackgroundDispatch)
 
+}
+
+class Camera;
+class ArrayCamera;
+class OrthographicCamera;
+class PerspectiveCamera;
+class Light;
+class AmbientLight;
+class DirectionalLight;
+class HemisphereLight;
+class PointLight;
+class RectAreaLight;
+class SpotLight;
+class TargetLight;
+class Line;
+class LineSegments;
+class Points;
+class Mesh;
+class SkinnedMesh;
+class Sprite;
+class ImmediateRenderObject;
+class LensFlare;
+
+namespace object {
+using Typer = three::Typer<Camera, ArrayCamera, OrthographicCamera, PerspectiveCamera,
+   Light, AmbientLight, DirectionalLight, HemisphereLight, PointLight, RectAreaLight, SpotLight, TargetLight,
+   Line, LineSegments, Mesh, Sprite, ImmediateRenderObject, Points, SkinnedMesh, LensFlare>;
 }
 
 class Material;
@@ -345,6 +363,12 @@ class ShadowMaterial;
 class SpriteMaterial;
 
 namespace material {
+
+using Typer = three::Typer<Material, ShaderMaterial, RawShaderMaterial, LineBasicMaterial,
+   LineDashedMaterial, MeshPhongMaterial, MeshToonMaterial, MeshDepthMaterial, MeshNormalMaterial,
+   MeshStandardMaterial, MeshPhysicalMaterial, MeshDistanceMaterial, MeshLambertMaterial,
+   MeshBasicMaterial, PointsMaterial, ShadowMaterial, SpriteMaterial>;
+
 
 DEF_VALUETABLE(ShaderIDs, gl::ShaderID, gl::ShaderID::undefined)
 PUT_VALUETABLE(ShaderIDs, MeshDepthMaterial, gl::ShaderID, gl::ShaderID::depth)

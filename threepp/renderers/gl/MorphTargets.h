@@ -28,7 +28,7 @@ class MorphTargets
 public:
   MorphTargets(QOpenGLFunctions *fn) : _fn(fn) {}
 
-  void update(Mesh::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, Program::Ptr program)
+  void update(Mesh *object, BufferGeometry::Ptr geometry, Material::Ptr material, Program::Ptr program)
   {
     auto objectInfluences = object->morphTargetInfluences();
 

@@ -97,6 +97,8 @@ public:
   Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
               Material::Ptr material, const Group *group)> onAfterRender;
 
+  object::Typer typer;
+
   math::Matrix4 modelViewMatrix;
   math::Matrix3 normalMatrix;
 
@@ -107,6 +109,10 @@ public:
 
   Material::Ptr customDepthMaterial;
   Material::Ptr customDistanceMaterial;
+
+  template <typename Mat> bool is() {
+    return (bool)((Mat *)typer);
+  }
 
   uint16_t id() const {return _id;}
   const Layers &layers() const {return _layers;}

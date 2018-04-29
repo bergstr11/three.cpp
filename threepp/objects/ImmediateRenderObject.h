@@ -12,10 +12,14 @@ namespace three {
 class ImmediateRenderObject : public Object3D_GM<BufferGeometry, Material>
 {
   explicit ImmediateRenderObject(BufferGeometry::Ptr geom, Material::Ptr material)
-     : Object3D_GM(geom, material) {}
+     : Object3D_GM(geom, material) {
+    Object3D::typer = object::Typer(this);
+  }
 
   explicit ImmediateRenderObject(const ImmediateRenderObject &obj)
-     : Object3D_GM(obj) {}
+     : Object3D_GM(obj) {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<ImmediateRenderObject>;

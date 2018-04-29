@@ -14,9 +14,11 @@ class TargetLight : public Light
 protected:
   Object3D::Ptr _target;
 
-  TargetLight(Object3D::Ptr target, const Color &color, float intensity)
-     : Light(color, intensity), _target(target)
-  {}
+  TargetLight(Object3D::Ptr target, const Color &color, float intensity, const object::Typer &typer)
+     : Light(typer, color, intensity), _target(target)
+  {
+    Object3D::typer.allow<TargetLight>();
+  }
 
 public:
   using Ptr = std::shared_ptr<TargetLight>;

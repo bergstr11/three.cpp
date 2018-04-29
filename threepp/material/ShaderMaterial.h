@@ -50,14 +50,14 @@ public:
   const math::Vector2 default_uv2 = {0.0f, 0.0f};
 
 protected:
-  ShaderMaterial(material::Resolver::Ptr resolver,
+  ShaderMaterial(material::Resolver::Ptr resolver, const material::Typer &typer,
                  const gl::UniformValues &uniforms,
                  const char *vertexShader,
                  const char *fragmentShader,
                  Side side, bool depthTest,
                  bool depthWrite,
                  bool fog)
-     : Material(resolver),
+     : Material(resolver, typer),
        vertexShader(vertexShader), fragmentShader(fragmentShader), uniforms(uniforms)
   {
     this->depthTest = depthTest;
@@ -73,19 +73,19 @@ protected:
                  bool depthTest,
                  bool depthWrite,
                  bool fog)
-     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), uniforms, vertexShader, fragmentShader,
-       side, depthTest, depthWrite, fog)
+     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), material::Typer(this),
+                      uniforms, vertexShader, fragmentShader, side, depthTest, depthWrite, fog)
   {
   }
 
   ShaderMaterial(Shader &shader, Side side, bool depthTest, bool depthWrite, bool fog)
-     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), shader.uniforms(),
-                      shader.vertexShader(), shader.fragmentShader(), side, depthTest, depthWrite, fog)
+     : ShaderMaterial(material::ResolverT<ShaderMaterial>::make(*this), material::Typer(this),
+                      shader.uniforms(), shader.vertexShader(), shader.fragmentShader(), side, depthTest, depthWrite, fog)
   {
   }
 
   ShaderMaterial(const ShaderMaterial &material)
-     : Material(material, material::ResolverT<ShaderMaterial>::make(*this)),
+     : Material(material, material::ResolverT<ShaderMaterial>::make(*this), material::Typer(this)),
        defines(material.defines), uniforms(material.uniforms),
        clipping(material.clipping), morphNormals(material.morphNormals),
        vertexShader(material.vertexShader), fragmentShader(material.fragmentShader)
@@ -93,7 +93,7 @@ protected:
   }
 
   ShaderMaterial(bool morphTargets, bool skinning)
-     : Material(material::ResolverT<ShaderMaterial>::make(*this))
+     : Material(material::ResolverT<ShaderMaterial>::make(*this), material::Typer(this))
   {
     unsigned linewidth = 1;
 

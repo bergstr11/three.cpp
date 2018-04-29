@@ -73,31 +73,38 @@ struct MeshPhongMaterial : public MaterialT<
    material::EnvMap>
 {
 protected:
-  MeshPhongMaterial(material::Resolver::Ptr resolver, const Color &color, bool dithering)
-     : MaterialT(resolver)
+  MeshPhongMaterial(material::Resolver::Ptr resolver, material::Typer typer, const Color &color, bool dithering)
+     : MaterialT(resolver, typer)
   {
+    typer.allow<MeshPhongMaterial>();
     this->color = color;
     this->dithering = dithering;
   }
 
-  MeshPhongMaterial(material::Resolver::Ptr resolver)
-     : MaterialT(resolver) {}
+  MeshPhongMaterial(material::Resolver::Ptr resolver, material::Typer typer)
+     : MaterialT(resolver, typer)
+  {
+    typer.allow<MeshPhongMaterial>();
+  }
 
   MeshPhongMaterial(const Color &color, bool dithering)
-     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this))
+     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this))
   {
     this->color = color;
     this->dithering = dithering;
   }
 
   MeshPhongMaterial()
-     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this)) {}
 
   MeshPhongMaterial(const MeshPhongMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshPhongMaterial>::make(*this)) {}
+     : MaterialT(material, material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this)) {}
 
-  MeshPhongMaterial(const MeshPhongMaterial &material, material::Resolver::Ptr resolver)
-     : MaterialT(material, resolver) {}
+  MeshPhongMaterial(const MeshPhongMaterial &material, material::Resolver::Ptr resolver, material::Typer typer)
+     : MaterialT(material, resolver, typer)
+  {
+    typer.allow<MeshPhongMaterial>();
+  }
 
 protected:
   void callback(const material::Selector &selector) override;

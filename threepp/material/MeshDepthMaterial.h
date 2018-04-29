@@ -36,22 +36,14 @@ struct MeshDepthMaterial : public MaterialT<material::Colored, material::AlphaMa
 {
   DepthPacking depthPacking = DepthPacking::Basic;
 
-  bool skinning = false;
-
-  bool fog = false;
-  bool lights = false;
-
-  MeshDepthMaterial(DepthPacking packing, bool morphing, bool skinning)
-     : MaterialT(material::ResolverT<MeshDepthMaterial>::make(*this)), depthPacking(packing)
+  MeshDepthMaterial(DepthPacking packing)
+     : MaterialT(material::ResolverT<MeshDepthMaterial>::make(*this), material::Typer(this)), depthPacking(packing)
   {
-    this->morphTargets = morphing;
-    this->morphNormals = morphing;
-    this->skinning = skinning;
   }
 
   MeshDepthMaterial(const MeshDepthMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshDepthMaterial>::make(*this)),
-       depthPacking(material.depthPacking), skinning(material.skinning)
+     : MaterialT(material, material::ResolverT<MeshDepthMaterial>::make(*this), material::Typer(this)),
+       depthPacking(material.depthPacking)
   {}
 
 protected:
@@ -60,11 +52,15 @@ protected:
 public:
   using Ptr = std::shared_ptr<MeshDepthMaterial>;
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {
-    return Ptr(new MeshDepthMaterial(packing, morphing, skinning));
+    Ptr p(new MeshDepthMaterial(packing));
+    p->morphTargets = morphing;
+    p->morphNormals = morphing;
+    p->skinning = skinning;
+    return p;
   }
 
-  static Ptr make(std::string name, DepthPacking packing, bool morphing, bool skinning) {
-    Ptr p(new MeshDepthMaterial(packing, morphing, skinning));
+  static Ptr make(std::string name, DepthPacking packing) {
+    Ptr p(new MeshDepthMaterial(packing));
     p->name = name;
     return p;
   }

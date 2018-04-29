@@ -26,7 +26,9 @@ struct MeshPhysicalMaterial: public MeshStandardMaterial
   float clearCoatRoughness = 0.0;
 
 protected:
-  MeshPhysicalMaterial() : MeshStandardMaterial(material::ResolverT<MeshPhysicalMaterial>::make(*this)) {}
+  MeshPhysicalMaterial()
+     : MeshStandardMaterial(material::ResolverT<MeshPhysicalMaterial>::make(*this), material::Typer(this))
+  {}
 
 public:
   using Ptr = std::shared_ptr<MeshPhysicalMaterial>;

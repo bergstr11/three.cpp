@@ -6,9 +6,10 @@
 
 namespace three {
 
-Texture::Texture(const TextureOptions &options,
+Texture::Texture(const TextureOptions &options, const texture::Typer &typer,
                  bool generateMipMaps, unsigned unpackAlignment)
    : TextureOptions(options),
+     typer(typer),
      _generateMipmaps(generateMipMaps),
      _unpackAlignment(unpackAlignment),
      uuid(sole::uuid0())
@@ -16,7 +17,7 @@ Texture::Texture(const TextureOptions &options,
 }
 
 DepthTexture::DepthTexture(const TextureOptions &options, size_t width, size_t height)
-   : Texture(options, false, false), _width(width), _height(height)
+   : Texture(options, texture::Typer(this), false, false), _width(width), _height(height)
 {
   if(options.format != TextureFormat::Depth && options.format != TextureFormat::DepthStencil )
     throw std::invalid_argument("DepthTexture format must be either Depth or DepthStencil");

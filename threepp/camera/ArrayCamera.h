@@ -14,7 +14,7 @@ class ArrayCamera : public PerspectiveCamera
 {
 protected:
   ArrayCamera(float fov, float aspect, float near, float far, unsigned cameraCount)
-     : PerspectiveCamera(fov, aspect, near, far), cameraCount(cameraCount)
+     : PerspectiveCamera(fov, aspect, near, far, object::Typer(this)), cameraCount(cameraCount)
   {
   }
 

@@ -29,12 +29,14 @@ struct PointsMaterial : public MaterialT<material::Colored>
   bool sizeAttenuation = true;
 
 protected:
-  PointsMaterial() : MaterialT(material::ResolverT<PointsMaterial>::make(*this))
+  PointsMaterial()
+     : MaterialT(material::ResolverT<PointsMaterial>::make(*this), material::Typer(this))
   {
     lights = false;
   }
 
-  PointsMaterial(const PointsMaterial &material) : MaterialT(material, material::ResolverT<PointsMaterial>::make(*this))
+  PointsMaterial(const PointsMaterial &material)
+     : MaterialT(material, material::ResolverT<PointsMaterial>::make(*this), material::Typer(this))
   {
     size = material.size;
     sizeAttenuation = material.sizeAttenuation;

@@ -46,15 +46,21 @@ protected:
 
   Viewport _view;
 
-  Camera(float near=0.1, float far=2000, float zoom=1)
+  Camera(const object::Typer &typer, float near=0.1, float far=2000, float zoom=1)
     : Object3D(), _near(near), _far(far), _zoom(zoom),
       _projectionMatrix(math::Matrix4::identity()),
-      _matrixWorldInverse(_matrixWorld.inverted()) {}
+      _matrixWorldInverse(_matrixWorld.inverted())
+  {
+    Object3D::typer = typer;
+  }
 
-  Camera(const Camera &camera)
+  Camera(const Camera &camera, const object::Typer &typer)
      : Object3D(), _near(camera._near), _far(camera._far), _zoom(camera._zoom),
        _projectionMatrix(camera._projectionMatrix),
-       _matrixWorldInverse(camera._matrixWorldInverse) {}
+       _matrixWorldInverse(camera._matrixWorldInverse)
+  {
+    Object3D::typer = typer;
+  }
 
   virtual ~Camera() {}
 

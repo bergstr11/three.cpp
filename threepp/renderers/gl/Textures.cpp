@@ -136,7 +136,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
 
       setTextureParameters(TextureTarget::cubeMap, texture);
     };
-    if(CAST(texture, dctex, DataCubeTexture)) {
+    if(DataCubeTexture *dctex = texture->typer) {
       baseFunc(*dctex);
 
       for (unsigned i = 0; i < 6; i ++) {
@@ -172,7 +172,7 @@ void Textures::setTextureCube(Texture::Ptr texture, unsigned slot)
         }
       }
     }
-    else if(CAST(texture, ictex, ImageCubeTexture)) {
+    else if(ImageCubeTexture *ictex = texture->typer) {
       baseFunc(*ictex);
 
       for (unsigned i = 0; i < CubeTexture::num_faces; i ++ ) {
@@ -274,7 +274,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture::Ptr textu
 
   setTextureParameters(TextureTarget::twoD, *texture );
 
-  if(CAST(texture, dtex, DepthTexture)) {
+  if(DepthTexture *dtex = texture->typer) {
     // populate depth texture with dummy data
 
     TextureFormat internalFormat = TextureFormat::DepthComponent;
@@ -321,7 +321,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture::Ptr textu
 
     _state.texImage2D(TextureTarget::twoD, 0, internalFormat, dtex->width(), dtex->height(), dtex->format(), dtex->type());
   }
-  else if(CAST(texture, dtex, DataTexture)) {
+  else if(DataTexture *dtex = texture->typer) {
 
     if(dtex->compressed()) {
       for ( size_t i = 0, il = dtex->mipmaps().size(); i < il; i ++ ) {
@@ -367,7 +367,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture::Ptr textu
       }
     }
   }
-  else if(CAST(texture, itex, ImageTexture)) {
+  else if(ImageTexture *itex = texture->typer) {
     // regular Texture (image, video, canvas)
     QImage image = clampToMaxSize( itex->image(), _capabilities.maxTextureSize, false);
 

@@ -18,13 +18,13 @@ class OrthographicCamera : public Camera
 
 protected:
   OrthographicCamera(float left, float right, float top, float bottom, float near, float far)
-     : Camera(near, far), _left(left), _right(right), _top(top), _bottom(bottom)
+     : Camera(object::Typer(this), near, far), _left(left), _right(right), _top(top), _bottom(bottom)
   {
        updateProjectionMatrix();
   }
 
   OrthographicCamera(const OrthographicCamera &camera)
-     : Camera(camera), _left(camera._left), _right(camera._right), _top(camera._top), _bottom(camera._bottom)
+     : Camera(camera, object::Typer(this)), _left(camera._left), _right(camera._right), _top(camera._top), _bottom(camera._bottom)
   {
     updateProjectionMatrix();
   }

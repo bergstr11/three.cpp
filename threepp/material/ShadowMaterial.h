@@ -21,14 +21,16 @@ namespace three {
 class ShadowMaterial : public MaterialT<material::Colored>
 {
 private:
-  ShadowMaterial() : MaterialT(material::ResolverT<ShadowMaterial>::make(*this))
+  ShadowMaterial()
+     : MaterialT(material::ResolverT<ShadowMaterial>::make(*this), material::Typer(this))
   {
     this->color = 0x000000;
     this->opacity = 1.0f;
     this->lights = true;
   }
 
-  ShadowMaterial(const ShadowMaterial &material) : MaterialT(material, material::ResolverT<ShadowMaterial>::make(*this))
+  ShadowMaterial(const ShadowMaterial &material)
+     : MaterialT(material, material::ResolverT<ShadowMaterial>::make(*this), material::Typer(this))
   {
   }
 

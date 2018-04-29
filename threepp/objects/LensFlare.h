@@ -37,9 +37,13 @@ private:
 
   std::vector<Flare> _flares;
 
-  LensFlare() : Object3D() {}
+  LensFlare() : Object3D() {
+    Object3D::typer = object::Typer(this);
+  }
 
-  LensFlare(const LensFlare &lf) : Object3D(lf), _flares(lf._flares) {}
+  LensFlare(const LensFlare &lf) : Object3D(lf), _flares(lf._flares) {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<LensFlare>;

@@ -57,9 +57,10 @@ struct MeshLambertMaterial : public MaterialT<
    material::SpecularMap,
    material::AlphaMap>
 {
-  MeshLambertMaterial() : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this)) {}
+  MeshLambertMaterial()
+     : MaterialT(material::ResolverT<MeshLambertMaterial>::make(*this), material::Typer(this)) {}
   MeshLambertMaterial(const MeshLambertMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshLambertMaterial>::make(*this)) {}
+     : MaterialT(material, material::ResolverT<MeshLambertMaterial>::make(*this), material::Typer(this)) {}
 
 protected:
   void callback(const material::Selector &selector) override;

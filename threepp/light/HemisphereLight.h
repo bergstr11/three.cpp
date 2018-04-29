@@ -15,7 +15,7 @@ class HemisphereLight : public Light
 
 protected:
   HemisphereLight(const Color &skyColor, const Color &groundColor, float intensity)
-     : Light(skyColor, intensity),
+     : Light(object::Typer(this), skyColor, intensity),
        _groundColor(groundColor)
   {
     updateMatrix();
@@ -24,7 +24,7 @@ protected:
   }
 
   HemisphereLight(const HemisphereLight &light)
-     : Light(light), _groundColor(light.groundColor())
+     : Light(light, object::Typer(this)), _groundColor(light.groundColor())
   {
     updateMatrix();
   }

@@ -21,13 +21,13 @@ class PointLight : public Light
 
 protected:
   PointLight(const Color &color, float intensity, float distance, float decay)
-     : Light(color, intensity), _distance(distance), _decay(decay)
+     : Light(object::Typer(this), color, intensity), _distance(distance), _decay(decay)
   {
     _shadow = PointLightShadow::make(PerspectiveCamera::make( 90, 1, 0.5, 500));
   }
 
   PointLight(const PointLight &light)
-     : Light(light), _distance(light.distance()), _decay(light.decay()), _shadow(light._shadow->cloned())
+     : Light(light, object::Typer(this)), _distance(light.distance()), _decay(light.decay()), _shadow(light._shadow->cloned())
   { }
 
 public:

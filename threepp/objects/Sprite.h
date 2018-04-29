@@ -27,11 +27,15 @@ class Sprite : public Object3D_GM<BufferGeometry, SpriteMaterial>
 {
   explicit Sprite(SpriteMaterial::Ptr material)
      : Object3D(), Object3D_GM(material)
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
   Sprite(const Sprite &sprite)
      : Object3D(sprite), Object3D_GM(SpriteMaterial::Ptr(sprite.material<0>()->cloned()))
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<Sprite>;

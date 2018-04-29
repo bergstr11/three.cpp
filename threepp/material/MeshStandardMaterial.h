@@ -77,10 +77,16 @@ struct MeshStandardMaterial : public MaterialT<
   std::unordered_map<std::string, std::string> defines {{ "STANDARD", "" }};
 
 protected:
-  MeshStandardMaterial(material::Resolver::Ptr resolver) : MaterialT(resolver) {}
-  MeshStandardMaterial() : MaterialT(material::ResolverT<MeshStandardMaterial>::make(*this)) {}
+  MeshStandardMaterial(material::Resolver::Ptr resolver, material::Typer typer)
+     : MaterialT(resolver, typer)
+  {
+    typer.allow<MeshStandardMaterial>();
+  }
+
+  MeshStandardMaterial() : MaterialT(material::ResolverT<MeshStandardMaterial>::make(*this), material::Typer(this)) {}
+
   MeshStandardMaterial(const MeshStandardMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshStandardMaterial>::make(*this)) {}
+     : MaterialT(material, material::ResolverT<MeshStandardMaterial>::make(*this), material::Typer(this)) {}
 
   void callback(const material::Selector &selector) override;
 

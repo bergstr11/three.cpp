@@ -17,13 +17,19 @@ protected:
   Color _color;
   float _intensity = 1;
 
-  Light(const Color &color, float intensity)
+  Light(const object::Typer &typer, const Color &color, float intensity)
      : Object3D(), _color(color), _intensity(intensity)
-  {}
+  {
+    Object3D::typer = typer;
+    Object3D::typer.allow<Light>();
+  }
 
-  Light(const Light &light)
+  Light(const Light &light, const object::Typer &typer)
      : Object3D(light), _color(light._color), _intensity(light._intensity)
-  {}
+  {
+    Object3D::typer = typer;
+    Object3D::typer.allow<Light>();
+  }
 
 public:
   using Ptr = std::shared_ptr<Light>;

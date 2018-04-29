@@ -104,8 +104,8 @@ void PointsMaterial::callback(const material::Selector &selector)
   ResolveT::handle(*this, selector);
 }
 
-Material::Material(const Material &material, material::Resolver::Ptr resolver)
-   : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver)
+Material::Material(const Material &material, material::Resolver::Ptr resolver, const material::Typer &typer)
+   : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver), typer(typer)
 {
   fog = material.fog;
   lights = material.lights;

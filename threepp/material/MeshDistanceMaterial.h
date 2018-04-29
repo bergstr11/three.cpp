@@ -37,18 +37,13 @@ class MeshDistanceMaterial : public MaterialT<
    material::DisplacementMap,
    material::AlphaMap>
 {
-  MeshDistanceMaterial(bool morphing, bool skinning)
-     : MaterialT(material::ResolverT<MeshDistanceMaterial>::make(*this))
-  {
-    this->morphTargets = morphing;
-    this->morphNormals = morphing;
-    this->skinning = skinning;
-  }
+  MeshDistanceMaterial()
+     : MaterialT(material::ResolverT<MeshDistanceMaterial>::make(*this), material::Typer(this))
+  {}
 
   MeshDistanceMaterial(const MeshDistanceMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshDistanceMaterial>::make(*this))
-  {
-  }
+     : MaterialT(material, material::ResolverT<MeshDistanceMaterial>::make(*this), material::Typer(this))
+  {}
 
 protected:
   void callback(const material::Selector &selector) override;
@@ -59,7 +54,13 @@ public:
   float farDistance = 1000;
 
   using Ptr = std::shared_ptr<MeshDistanceMaterial>;
-  static Ptr make(bool morphing, bool skinning) {return Ptr(new MeshDistanceMaterial(morphing, skinning));}
+  static Ptr make(bool morphing, bool skinning) {
+    Ptr p(new MeshDistanceMaterial());
+    p->morphTargets = morphing;
+    p->morphNormals = morphing;
+    p->skinning = skinning;
+    return p;
+  }
 
   void setupPointLight(const math::Vector3 &position, float near, float far) override;
 

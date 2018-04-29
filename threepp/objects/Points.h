@@ -16,11 +16,15 @@ class Points : public Object3D_GM<BufferGeometry, PointsMaterial>
 protected:
   Points(const BufferGeometry::Ptr &geometry, const PointsMaterial::Ptr &material)
      : Object3D(), Object3D_GM(geometry, material)
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
   Points(const Points &points)
      : Object3D(), Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), PointsMaterial::Ptr(points.material<0>()->cloned()))
-  {}
+  {
+    Object3D::typer = object::Typer(this);
+  }
 
 public:
   using Ptr = std::shared_ptr<Points>;

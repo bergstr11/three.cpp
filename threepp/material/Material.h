@@ -213,13 +213,18 @@ struct Material
   bool needsUpdate = true;
 
   material::Resolver::Ptr resolver;
+  material::Typer typer;
 
   Signal<void(Material *)> onDispose;
 
 protected:
-  Material(material::Resolver::Ptr resolver) : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver) {}
-  Material() : uuid(sole::uuid0()), id(___material_id_count++), resolver(material::ResolverT<Material>::make(*this)) {}
-  Material(const Material &material, material::Resolver::Ptr resolver);
+  Material(material::Resolver::Ptr resolver, const material::Typer &typer)
+     : uuid(sole::uuid0()), id(___material_id_count++), resolver(resolver), typer(typer) {}
+  Material()
+     : uuid(sole::uuid0()), id(___material_id_count++),
+       resolver(material::ResolverT<Material>::make(*this)), typer(this) {}
+
+  Material(const Material &material, material::Resolver::Ptr resolver, const material::Typer &typer);
 
   virtual void callback(const material::Selector &selector) {};
 
@@ -236,6 +241,10 @@ public:
   virtual void dispose() {
     onDispose.emitSignal(this);
     onDispose.disconnectAll();
+  }
+
+  template <typename Mat> bool is() {
+    return (bool)((Mat *)typer);
   }
 
   virtual bool transparent() const {return false;}
@@ -257,18 +266,18 @@ struct MaterialT<Map> : public Material, public Map
   using ResolveT = MixinResolve<Map>;
 
 protected:
-  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
-  MaterialT() : Material() {}
-  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
+  MaterialT(material::Resolver::Ptr resolver, const material::Typer &typer) : Material(resolver, typer) {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver, const material::Typer &typer)
+     : Map(material), Material(material, resolver, typer) {}
 };
 
 template<>
 struct MaterialT<> : public Material
 {
 protected:
-  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
-  MaterialT() : Material() {}
-  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Material(material, resolver) {}
+  MaterialT(material::Resolver::Ptr resolver, const material::Typer &typer) : Material(resolver, typer) {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver, const material::Typer &typer)
+     : Material(material, resolver, typer) {}
 };
 
 template<typename Map, typename ... Maps>
@@ -277,9 +286,9 @@ struct MaterialT<Map, Maps...> : public Material, Map, Maps...
   using ResolveT = MixinResolve<Map, Maps...>;
 
 protected:
-  MaterialT(material::Resolver::Ptr resolver) : Material(resolver) {}
-  MaterialT() : Material() {}
-  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver) : Map(material), Material(material, resolver) {}
+  MaterialT(material::Resolver::Ptr resolver, const material::Typer &typer) : Material(resolver, typer) {}
+  MaterialT(const MaterialT &material, material::Resolver::Ptr resolver, const material::Typer &typer)
+     : Map(material), Material(material, resolver, typer) {}
 };
 
 }

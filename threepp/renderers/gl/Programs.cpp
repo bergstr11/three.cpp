@@ -41,7 +41,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   // heuristics to create shader parameters according to lights in the scene
   // (not to blow over maxLights budget)
 
-  SkinnedMesh::Ptr skinnedMesh = dynamic_pointer_cast<SkinnedMesh>(object);
+  SkinnedMesh *skinnedMesh = object->typer;
 
   size_t maxBones = skinnedMesh ? allocateBones( skinnedMesh ) : 0;
   parameters->precision = _capabilities.precision;
@@ -60,22 +60,22 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   parameters->mapEncoding = getTextureEncoding(material->map, _renderer.gammaInput);
   parameters->vertexColors = material->vertexColors;
 
-  if(CAST(material, mat, MeshBasicMaterial)) {
+  if(MeshBasicMaterial *mat = material->typer) {
 
     parameters->aoMap = mat->aoMap;
     parameters->envMap = mat->envMap;
     parameters->specularMap = mat->specularMap;
     parameters->combine = mat->combine;
   }
-  else if(CAST(material, mat, MeshDistanceMaterial)) {
+  else if(MeshDistanceMaterial *mat = material->typer) {
 
   }
-  else if(CAST(material, mat, MeshDepthMaterial)) {
+  else if(MeshDepthMaterial *mat = material->typer) {
 
     parameters->alphaMap = mat->alphaMap;
     parameters->depthPacking = mat->depthPacking;
   }
-  else if(CAST(material, mat, ShaderMaterial)) {
+  else if(ShaderMaterial *mat = material->typer) {
 
     if(mat->use_derivatives)
       parameters->extensions.add(Extension::OES_standard_derivatives);
@@ -93,16 +93,17 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->shaderMaterialClipping = mat->clipping;
     parameters->index0AttributeName = mat->index0AttributeName;
 
-    if(CAST(material, mat, RawShaderMaterial)) {
+    if(RawShaderMaterial *mat = material->typer) {
+
       parameters->shaderMaterial = ShaderMaterialKind::raw;
       parameters->fragmentShader = mat->fragmentShader;
       parameters->vertexShader = mat->vertexShader;
     }
   }
-  else if(CAST(material, mat, PointsMaterial)) {
+  else if(PointsMaterial *mat = material->typer) {
     parameters->sizeAttenuation = (bool)mat->sizeAttenuation;
   }
-  else if(CAST(material, mat, MeshPhongMaterial)) {
+  else if(MeshPhongMaterial *mat = material->typer) {
 
     parameters->aoMap = mat->aoMap;
     parameters->bumpMap = mat->bumpMap;
@@ -118,13 +119,14 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->emissiveMap = mat->emissiveMap;
     parameters->emissiveMapEncoding = getTextureEncoding(mat->emissiveMap, _renderer.gammaInput);
     parameters->displacementMap = mat->displacementMap;
-  }
-  else if(CAST(material, mat, MeshToonMaterial)) {
 
-    parameters->gradientMap = mat->gradientMap;
-    parameters->defines = mat->defines;
+    if(MeshToonMaterial *mat = material->typer) {
+
+      parameters->gradientMap = mat->gradientMap;
+      parameters->defines = mat->defines;
+    }
   }
-  else if(CAST(material, mat, MeshStandardMaterial)) {
+  else if(MeshStandardMaterial *mat = material->typer) {
 
     parameters->aoMap = mat->aoMap;
     parameters->bumpMap = mat->bumpMap;
@@ -141,16 +143,17 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                 || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = mat->lightMap;
 
-    if(CAST(material, mat, MeshPhysicalMaterial)) {
+    if(MeshPhysicalMaterial *mat = material->typer) {
+
       parameters->defines = mat->defines;
     }
   }
-  else if(CAST(material, mat, MeshNormalMaterial)) {
+  else if(MeshNormalMaterial *mat = material->typer) {
 
     parameters->bumpMap = mat->bumpMap;
     parameters->normalMap = mat->normalMap;
   }
-  else if(CAST(material, mat, MeshLambertMaterial)) {
+  else if(MeshLambertMaterial *mat = material->typer) {
 
     parameters->aoMap = mat->aoMap;
     parameters->alphaMap = mat->alphaMap;

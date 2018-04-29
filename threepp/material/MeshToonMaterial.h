@@ -24,13 +24,13 @@ struct MeshToonMaterial : public MeshPhongMaterial
 
 protected:
   MeshToonMaterial(const Color &color, bool dithering)
-     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this), color, dithering) {}
+     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this), material::Typer(this), color, dithering) {}
 
   MeshToonMaterial()
-     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this)) {}
+     : MeshPhongMaterial(material::ResolverT<MeshToonMaterial>::make(*this), material::Typer(this)) {}
 
   MeshToonMaterial(const MeshToonMaterial &material)
-     : MeshPhongMaterial(material, material::ResolverT<MeshToonMaterial>::make(*this)) {}
+     : MeshPhongMaterial(material, material::ResolverT<MeshToonMaterial>::make(*this), material::Typer(this)) {}
 
   void callback(const material::Selector &selector) override;
 

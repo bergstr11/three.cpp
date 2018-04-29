@@ -28,9 +28,9 @@ public:
   Programs(Renderer_impl &renderer, Extensions &extensions, Capabilities &capabilities)
      : _renderer(renderer), _extensions(extensions), _capabilities(capabilities) {}
 
-  unsigned allocateBones(SkinnedMesh::Ptr object) 
+  unsigned allocateBones(SkinnedMesh *skinnedMesh)
   {
-    const Skeleton::Ptr skeleton = object->skeleton();
+    const Skeleton::Ptr skeleton = skinnedMesh->skeleton();
     const std::vector<Bone::Ptr> bones = skeleton->bones();
 
     if (_capabilities.floatVertexTextures ) {

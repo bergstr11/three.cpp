@@ -213,7 +213,7 @@ void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
 
 BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr geometry)
 {
-  Mesh::Ptr mesh = std::dynamic_pointer_cast<Mesh>(object);
+  Mesh *mesh = object->typer;
   if ( mesh ) {
 
     DirectGeometry::Ptr direct = geometry->_directGeometry;

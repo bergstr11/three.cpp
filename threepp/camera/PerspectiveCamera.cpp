@@ -7,14 +7,20 @@
 
 namespace three {
 
+PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far, const object::Typer &typer)
+   : Camera(typer, near, far), _fov(fov), _aspect(aspect)
+{
+  updateProjectionMatrix();
+}
+
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far)
-   : Camera(near, far), _fov(fov), _aspect(aspect)
+   : Camera(object::Typer(this), near, far), _fov(fov), _aspect(aspect)
 {
   updateProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera(const PerspectiveCamera &camera)
-   : Camera(*this), _fov(camera._fov), _aspect(camera._aspect)
+   : Camera(*this, object::Typer(this)), _fov(camera._fov), _aspect(camera._aspect)
 {}
 
 void PerspectiveCamera::setFocalLength(float focalLength )
