@@ -828,7 +828,7 @@ void Assimp::loadScene(string name, ResourceLoader &loader)
   access.readScene();
 }
 
-void Assimp::load(std::string name, Color background, ResourceLoader &loader)
+void Assimp::load(std::string name, const Color &background, ResourceLoader &loader)
 {
   _scene = SceneT<Color>::make(name, background);
   loadScene(name, loader);

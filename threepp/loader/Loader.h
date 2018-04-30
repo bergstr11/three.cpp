@@ -41,7 +41,7 @@ public:
   Signal<void(std::string message)> onError;
 
   virtual void load(std::string name, ResourceLoader &loader) = 0;
-  virtual void load(std::string name, Color background, ResourceLoader &loader) = 0;
+  virtual void load(std::string name, const Color &background, ResourceLoader &loader) = 0;
   virtual void load(std::string name, Texture::Ptr background, ResourceLoader &loader) = 0;
 
   const Scene::Ptr scene() const {return _scene;}

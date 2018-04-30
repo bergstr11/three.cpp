@@ -75,48 +75,6 @@ public:
 
 static const nullptr_t null = nullptr;
 
-struct Clearable
-{
-  virtual void clear() = 0;
-};
-
-class Dispatcher
-{
-protected:
-  std::vector<Clearable *> _clearables;
-
-public:
-  void clear() {
-    for(auto clearable : _clearables) clearable->clear();
-    _clearables.clear();
-  }
-
-protected:
-  ~Dispatcher() {
-    clear();
-  }
-};
-
-template<typename T>
-struct Functor
-{
-  virtual void operator()(T &t) const = 0;
-  virtual ~Functor() {}
-};
-
-template<typename T, typename F>
-struct FunctorT : public Functor<T>
-{
-  const F &f;
-
-  FunctorT(const F &f) : f(f) {}
-
-  void operator()(T &s) const override
-  {
-    f(s);
-  }
-};
-
 template <typename T, typename V>
 class Assoc
 {
@@ -132,47 +90,6 @@ public:
   }
 };
 
-template<typename T>
-class Assoc<T, Functor<T>> : public Clearable
-{
-  Functor<T> * ft = nullptr;
-
-public:
-  template <typename F>
-  Assoc(F&& f) : ft(new FunctorT<T, F>(f)) {}
-  Assoc() : ft(nullptr) {}
-  Assoc(Assoc &&ass) : ft(ass.ft) {
-    ass.ft = nullptr;
-  }
-
-  template <typename F>
-  void operator =(F&& f) {
-    clear();
-    ft = new FunctorT<T, F>(f);
-  }
-
-  bool operator()(T &t) {
-    if(ft) {
-      (*ft)(t);
-      return true;
-    }
-    return false;
-  }
-
-  void clear() override {
-    if(ft) {
-      delete ft;
-      ft = nullptr;
-    }
-  }
-
-  ~Assoc() {
-    clear();
-  }
-};
-
-template <typename T>
-using FuncAssoc = Assoc<T, Functor<T>>;
 template <typename T>
 using StringAssoc = Assoc<T, std::string>;
 
@@ -252,23 +169,6 @@ static const resolver::Assoc<Type, const char *> sa {Val}; \
 return sa(t); \
 }
 
-#define DEF_FUNCTABLE(Cls) \
-struct Cls : public resolver::Dispatcher { \
-using value_type = bool; \
-static value_type getNull() {return false;} \
-template <typename T> resolver::FuncAssoc<T> &func() = delete; \
-template <typename T> bool value(T &t) = delete; \
-}; \
-using Cls##Resolver = resolver::Resolve<Cls>;
-
-#define PUT_FUNCTABLE(Cls, Type) \
-template <> inline resolver::FuncAssoc<Type> &Cls::func() { \
-thread_local static resolver::FuncAssoc<Type> f; \
-_clearables.push_back(&f); \
-return f; \
-} \
-template <> inline bool Cls::value(Type &t) {return func<Type>()(t);}
-
 #define DEF_RESOLVER_1(Map) \
 template <typename Obj> \
 using ResolverT = resolver::ResolversT<Obj, Map>; \
@@ -305,16 +205,11 @@ using Typer = three::Typer<ImageCubeTexture,
 
 class Color;
 
-namespace scene {
+template <typename T>
+class Background;
 
-DEF_FUNCTABLE(BackgroundDispatch)
-PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<Texture>)
-PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageCubeTexture>)
-PUT_FUNCTABLE(BackgroundDispatch, std::shared_ptr<ImageTexture>)
-PUT_FUNCTABLE(BackgroundDispatch, Color)
-
-DEF_RESOLVER_1(BackgroundDispatch)
-
+namespace background {
+using Typer = three::Typer<Background<std::shared_ptr<Texture>>, Background<Color>>;
 }
 
 class Camera;

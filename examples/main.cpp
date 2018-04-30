@@ -20,10 +20,10 @@ int main(int argc, char *argv[]) {
   //maincomponent.loadUrl(QUrl("qrc:///3ds_model.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///orthographic_camera.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///cubes_ortho_picker.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///voxelpainter.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///hemisphere.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///cameras.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///cameras.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();

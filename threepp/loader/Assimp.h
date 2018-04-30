@@ -61,7 +61,7 @@ public:
   }
 
   void load(std::string name, ResourceLoader &loader) override;
-  void load(std::string name, Color background, ResourceLoader &loader) override;
+  void load(std::string name, const Color &background, ResourceLoader &loader) override;
   void load(std::string name, Texture::Ptr background, ResourceLoader &loader) override;
 };
 

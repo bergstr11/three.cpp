@@ -654,7 +654,7 @@ void Collada::loadScene(string name, ResourceLoader &loader)
   //Access access(_scene, aiscene, loader, modelMap);
 }
 
-void Collada::load(std::string name, Color background, ResourceLoader &loader)
+void Collada::load(std::string name, const Color &background, ResourceLoader &loader)
 {
   _scene = SceneT<Color>::make(name, background);
   loadScene(name, loader);

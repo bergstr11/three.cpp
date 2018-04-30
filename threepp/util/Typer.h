@@ -85,7 +85,43 @@ struct variadic_index<Target, variadic_union<Head, Tail...>>
 
 /**
  * stores a pointer to an object of one of the types listed in the template parameter types,
- * and allows safely retrieving the pointer through an (implicit) cast
+ * and allows safely retrieving the pointer through an (implicit) cast, like so:
+ * <pre>
+ * using MyTyper = three::Typer<A, B, C>;
+ *
+ * class A {
+ * protected:
+ *    A(const MyTyper &typer) : typer(typer) {}
+ *
+ * public:
+ *    A() : typer(MyTyper(this)) {}
+ *    MyTyper typer;
+ *    ...
+ * };
+ *
+ * class B : public A {
+ * public:
+ *    B() : A(MyTyper(this)) {}
+ *    ...
+ * }
+ *
+ * class C : public B {
+ * public:
+ *    C() : B(MyTyper(this).allow<B>()) {}
+ *    ...
+ * }
+ *
+ * A *ab = get_A_which_happens_to_be_a_B();
+ *
+ * B *b = ab->typer; //implicit cast, returns non-null if ab is a non-null pointer to B
+ * C *c = ab->typer; //implicit cast, returns null because ab is not a pointer to C
+ *
+ * A *ac = get_A_which_happens_to_be_a_C();
+ *
+ * B *b = ac->typer; //implicit cast, returns non-null because ac allows casting to B
+ * C *c = ac->typer; //implicit cast, returns non-null because ac is a pointer to C
+ *
+ * </pre>
  *
  * @tparam Ts list of types pointer storeable in this object
  */
@@ -108,7 +144,7 @@ public:
 
   /**
    * declare the given type's pointer to be reinterpret_cast-compatible with the pointer already stored
-   * in this object
+   * in this object. This should be used for superclasses only, as shown in the class comment
    *
    * @tparam T
    */
@@ -125,7 +161,7 @@ public:
    * @return the pointer, if such a pointer was stored through the constructor, or nullptr otherwise
    */
   template<typename T>
-  operator T *()
+  operator T *() const
   {
     return (union_mask & (1 << _union::variadic_index<T, _union::variadic_union<Ts...>>::index))
            ? reinterpret_cast<T *>(data.data) : nullptr;
