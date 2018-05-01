@@ -23,6 +23,25 @@ namespace quick {
 class ThreeQObject;
 class Intersect;
 
+class Options : public QObject
+{
+  friend class Model;
+  Q_OBJECT
+  Q_PROPERTY(bool preferPhong READ preferPhong WRITE setPreferPhong NOTIFY preferPhongChanged);
+
+  bool _preferPhong = true;
+  std::shared_ptr<loader::Assimp> _assimp;
+
+  void setAssimp(std::shared_ptr<loader::Assimp> assimp);
+
+public:
+  bool preferPhong() const {return _preferPhong;}
+  void setPreferPhong(bool prefer);
+
+signals:
+  void preferPhongChanged();
+};
+
 /**
  * represents a complete 3D scene loaded from a file
  *
@@ -43,12 +62,15 @@ private:
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QString file READ file WRITE setFile NOTIFY fileChanged)
   Q_PROPERTY(QVariantMap replacements READ replacements WRITE setReplacements NOTIFY replacementsChanged)
+  Q_PROPERTY(QObject *options READ options CONSTANT)
 
   QString _file;
   QString _name;
   UP _up = UP_Y;
 
   QVariantMap _replacements;
+
+  Options _options;
 
   ThreeDItem *_item = nullptr;
 
@@ -57,7 +79,8 @@ private:
   void loadFile(const QString &file);
 
 public:
-  Model(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
+  Model(QObject *parent=nullptr) : ThreeQObjectRoot(parent)
+  {}
 
   const QString name() {return _name;}
 
@@ -72,6 +95,8 @@ public:
   void setReplacements(const QVariantMap &replacements);
 
   void setItem(ThreeDItem *item) override;
+
+  QObject *options() {return &_options;}
 
   three::Scene::Ptr importedScene();
 

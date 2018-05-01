@@ -153,6 +153,13 @@ Window {
             name: "enablePan"
             target: orbitController
         }
+        BoolChoice {
+            name: "Prefer Phong"
+            value: threeDModel.options.preferPhong
+            onValueChanged: {
+                threeDModel.options.preferPhong = value
+            }
+        }
     }
 
     FileDialog {

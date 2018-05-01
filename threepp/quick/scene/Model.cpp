@@ -26,6 +26,30 @@ void Model::setReplacements(const QVariantMap &replacements)
   }
 }
 
+void Options::setAssimp(std::shared_ptr<loader::Assimp> assimp)
+{
+  _assimp = assimp;
+
+  loader::ShadingModel newShading = _preferPhong ?
+                                    loader::ShadingModel::Phong : loader::ShadingModel::Gouraud;
+  _assimp->substituteShading(loader::ShadingModel::Gouraud, newShading);
+}
+
+void Options::setPreferPhong(bool prefer)
+{
+  if(_preferPhong != prefer) {
+    _preferPhong = prefer;
+
+    if(_assimp) {
+      loader::ShadingModel newShading = _preferPhong ?
+                                        loader::ShadingModel::Phong : loader::ShadingModel::Gouraud;
+      _assimp->substituteShading(loader::ShadingModel::Gouraud, newShading);
+    }
+
+    emit preferPhongChanged();
+  }
+}
+
 void Model::loadFile(const QString &file)
 {
   unordered_map<string, string> replacements;
@@ -34,6 +58,7 @@ void Model::loadFile(const QString &file)
   }
 
   _assimp = make_shared<loader::Assimp>();
+  _options.setAssimp(_assimp);
 
   QFileInfo info(file);
   if(info.isNativePath()) {
