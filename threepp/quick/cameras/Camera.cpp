@@ -18,7 +18,7 @@ void Camera::_post_create()
   }
   if(_qhelper.configured()) {
     auto helper = _qhelper.create(_camera);
-    _parentObject->add(helper);
+    _scene->scene()->add(helper);
   }
 }
 
