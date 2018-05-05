@@ -30,7 +30,7 @@ public:
   }
 
   Box *cloned() const override {
-    return new Box(*this);
+    return LinearGeometry::setTyper(new Box(*this));
   }
 
   void setWidth(unsigned width) {_width = width;}
@@ -59,7 +59,7 @@ public:
   }
 
   Box *cloned() const override {
-    return new Box(*this);
+    return BufferGeometry::setTyper(new Box(*this));
   }
 };
 

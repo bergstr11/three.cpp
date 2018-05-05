@@ -39,7 +39,7 @@ public:
   }
 
   Circle *cloned() const override {
-    return new Circle(*this);
+    return LinearGeometry::setTyper(new Circle(*this));
   }
 };
 
@@ -63,7 +63,7 @@ public:
   }
 
   Circle *cloned() const override {
-    return new Circle(*this);
+    return BufferGeometry::setTyper(new Circle(*this));
   }
 };
 

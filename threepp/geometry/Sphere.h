@@ -37,7 +37,7 @@ public:
   }
 
   Sphere *cloned() const override {
-    return new Sphere(*this);
+    return LinearGeometry::setTyper(new Sphere(*this));
   }
 };
 
@@ -71,7 +71,7 @@ public:
   }
 
   Sphere *cloned() const override {
-    return new Sphere(*this);
+    return BufferGeometry::setTyper(new Sphere(*this));
   }
 };
 

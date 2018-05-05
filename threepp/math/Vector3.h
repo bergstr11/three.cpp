@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <array>
 #include <vector>
 #include "Euler.h"
 #include "Math.h"
@@ -98,6 +99,30 @@ public:
   const float operator[] (Element element) const
   {
     return _elements[(size_t)element];
+  }
+
+  const float operator[] (unsigned index) const
+  {
+    return _elements[index];
+  }
+
+  float &operator[] (unsigned index)
+  {
+    return _elements[index];
+  }
+
+  using const_iterator = const float *;
+
+  const_iterator cbegin() const {
+    return &_elements[0];
+  }
+
+  const_iterator cend() const {
+    return &_elements[3];
+  }
+
+  float * end() {
+    return std::end(_elements);
   }
 
   Vector3 &operator +=(const Vector3 &vector)
@@ -477,7 +502,11 @@ inline float dot(const Vector3 &a, const Vector3 &b)
   return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
 }
 
-
 }
+}
+
+namespace std {
+inline three::math::Vector3::const_iterator begin(const three::math::Vector3 &vec) {return vec.cbegin();}
+inline three::math::Vector3::const_iterator end(const three::math::Vector3 &vec) {return vec.cend();}
 }
 #endif //THREEPP_VECTOR3_H

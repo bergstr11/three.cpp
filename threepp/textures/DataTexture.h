@@ -125,7 +125,7 @@ public:
     _datas[index] = data;
   }
 
-  bool compressed() const {_compressed;}
+  bool compressed() const {return _compressed;}
   size_t width() const {return _width;}
   size_t height() const {return _height;}
 };

@@ -10,7 +10,7 @@
 namespace three {
 namespace math {
 
-Euler & Euler::operator = (const Euler &euler)
+Euler &Euler::operator = (const Euler &euler)
 {
   _x = euler._x;
   _y = euler._y;
@@ -18,6 +18,7 @@ Euler & Euler::operator = (const Euler &euler)
   _order = euler._order;
 
   onChange.emitSignal(*this);
+  return *this;
 }
 
 void Euler::set(const Matrix4 &m, RotationOrder order, bool emitSignal)
@@ -153,6 +154,7 @@ Quaternion Euler::toQuaternion() const
   auto s3 = sin( _z / 2 );
 
   switch(_order) {
+    case Default:
     case XYZ: {
       auto x = s1 * c2 * c3 + c1 * s2 * s3;
       auto y = c1 * s2 * c3 - s1 * c2 * s3;
@@ -196,6 +198,7 @@ Quaternion Euler::toQuaternion() const
       return {(float)w, (float)x, (float)y, (float)z};
     }
   }
+  return Quaternion();
 }
 
 void Euler::reorder(RotationOrder order)

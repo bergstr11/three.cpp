@@ -30,6 +30,9 @@ protected:
 
   Mesh(const Mesh &mesh) : Object3D(mesh)
   {
+    _drawMode = mesh._drawMode;
+    _morphTargetInfluences = mesh._morphTargetInfluences;
+    _morphTargetDictionary = mesh._morphTargetDictionary;
     Object3D::typer = object::Typer(this);
   }
 

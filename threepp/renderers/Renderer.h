@@ -58,11 +58,13 @@ public:
 
       _viewport.set( 0, 0, width, height );
       _scissor.set( 0, 0, width, height );
+      return *this;
     }
 
     Target &setViewport(unsigned x, unsigned y, GLsizei width, GLsizei height)
     {
       _viewport.set( x, y, width, height );
+      return *this;
     }
   };
 

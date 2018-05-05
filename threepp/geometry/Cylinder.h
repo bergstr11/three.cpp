@@ -63,7 +63,7 @@ public:
   }
 
   Cylinder *cloned() const override {
-    return new Cylinder(*this);
+    return LinearGeometry::setTyper(new Cylinder(*this));
   }
 };
 
@@ -92,7 +92,7 @@ public:
   }
 
   Cylinder *cloned() const override {
-    return new Cylinder(*this);
+    return BufferGeometry::setTyper(new Cylinder(*this));
   }
 };
 

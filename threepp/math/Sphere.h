@@ -44,6 +44,7 @@ public:
   Sphere &set(const std::vector<Vector3> &points)
   {
     _radius = computeRadius(points, _center);
+    return *this;
   }
 
   const Vector3 &center() const {return _center;}

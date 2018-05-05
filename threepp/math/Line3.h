@@ -17,6 +17,7 @@ class Line3
   Vector3 _end;
 
 public:
+  Line3() = default;
   Line3(const Vector3 &start, const Vector3 &end) : _start(start), _end(end) {}
 
   const Vector3 &start() const {return _start;}

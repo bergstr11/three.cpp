@@ -22,7 +22,7 @@ public:
   }
 
   Octahedron *cloned() const override {
-    return new Octahedron(*this);
+    return LinearGeometry::setTyper(new Octahedron(*this));
   }
 };
 
@@ -44,7 +44,7 @@ public:
   }
 
   Octahedron *cloned() const override {
-    return new Octahedron(*this);
+    return BufferGeometry::setTyper(new Octahedron(*this));
   }
 };
 

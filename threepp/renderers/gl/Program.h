@@ -157,6 +157,7 @@ public:
 
   ProgramParameterT &operator =(const T &t) {
     this->t = t;
+    return *this;
   }
 
   operator T &() const {return t;}

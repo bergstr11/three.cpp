@@ -51,6 +51,7 @@ public:
     else {
       values[name] = uniformslib::UniformValueT<V>::make(name, v);
     }
+    return *this;
   }
 
   UniformName registered(std::string name) {

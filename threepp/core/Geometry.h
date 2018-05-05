@@ -11,6 +11,7 @@
 #include <threepp/math/Box3.h>
 #include <threepp/util/simplesignal.h>
 #include <threepp/util/Types.h>
+#include <threepp/util/Resolver.h>
 #include "Raycaster.h"
 
 namespace three {
@@ -46,7 +47,7 @@ protected:
 
   virtual Geometry &apply(const math::Matrix4 &matrix) = 0;
 
-  Geometry() : id(id_count++) {}
+  Geometry(const geometry::Typer &typer=geometry::Typer()) : id(id_count++), typer(typer) {}
 
   Geometry(const Geometry &geometry) : id(id_count++)
   {
@@ -59,6 +60,8 @@ public:
   virtual ~Geometry() {}
 
   const size_t id;
+
+  geometry::Typer typer;
 
   using OnDispose = Signal<void(Geometry *)>;
   OnDispose onDispose;
@@ -92,11 +95,13 @@ public:
   Geometry &addGroup(uint32_t start, uint32_t count, uint32_t materialIndex=0)
   {
     _groups.emplace_back(start, count, materialIndex);
+    return *this;
   }
 
   Geometry &clearGroups()
   {
     _groups.clear();
+    return *this;
   }
 
   const std::vector<Group> &groups() const {return _groups;}
@@ -128,12 +133,12 @@ public:
   // translate geometry
   Geometry &translate(float x, float y, float z)
   {
-    apply(math::Matrix4::translation(x, y, z));
+    return apply(math::Matrix4::translation(x, y, z));
   }
 
   Geometry &scale(float x, float y, float z)
   {
-    apply(math::Matrix4::scaling(x, y, z));
+    return apply(math::Matrix4::scaling(x, y, z));
   }
 
   Geometry &lookAt(const Vertex &vector)
@@ -142,7 +147,7 @@ public:
 
     math::Quaternion q(m1);
 
-    apply(math::Matrix4::rotation(q));
+    return apply(math::Matrix4::rotation(q));
   }
 
   virtual Geometry *cloned() const = 0;
@@ -151,6 +156,8 @@ public:
     onDispose.emitSignal(this);
   }
 };
+
+using Vertex_iterator = std::vector<math::Vector3>::const_iterator;
 
 }
 #endif //THREEPP_GEOMETRY_H

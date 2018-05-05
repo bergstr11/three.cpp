@@ -155,6 +155,11 @@ public:
 
   const Type operator [] (size_t index) {return _data[index];}
 
+  template <typename ItemType>
+  ItemType *data() {
+    return reinterpret_cast<ItemType *>(_data);
+  }
+
   BufferAttributeT &set(Type value, size_t offset=0)
   {
     _data[offset] = value;

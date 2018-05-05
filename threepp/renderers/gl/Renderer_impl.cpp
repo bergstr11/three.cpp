@@ -335,6 +335,7 @@ Renderer_impl& Renderer_impl::setRenderTarget(const Renderer::Target::Ptr render
                            textarget, cubeTarget->activeMipMapLevel );
     check_glerror(this);
   }
+  return *this;
 }
 
 void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Ptr scene, Camera::Ptr camera,

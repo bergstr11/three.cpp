@@ -130,7 +130,7 @@ void LinearGeometry::raycast(Line &line,
   }
 }
 
-LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces,
+void LinearGeometry::computeFaceNormals(std::vector<Face3> &faces,
                                                    const std::vector<Vertex> &vertices)
 {
   for (Face3 & face : faces) {
@@ -145,7 +145,7 @@ LinearGeometry &LinearGeometry::computeFaceNormals(std::vector<Face3> &faces,
   }
 }
 
-LinearGeometry &LinearGeometry::computeVertexNormals(std::vector<Face3> &faces,
+void LinearGeometry::computeVertexNormals(std::vector<Face3> &faces,
                                                      const std::vector<Vertex> &vertices,
                                                      bool areaWeighted)
 {

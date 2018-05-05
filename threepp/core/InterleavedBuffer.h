@@ -27,7 +27,7 @@ public:
 
   Signal<void()> onUpload;
 
-  bool invalidate() {_version++;}
+  void needsUpdate() {_version++;}
 
   size_t stride() const {return _stride;}
   size_t count() const {return _count;}

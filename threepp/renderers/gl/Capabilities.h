@@ -97,6 +97,7 @@ public:
       case Precision::mediump:
         return "mediump";
     }
+    throw std::invalid_argument("precision");
   }
 
   GLint getMaxAnisotropy()

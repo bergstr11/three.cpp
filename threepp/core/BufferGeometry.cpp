@@ -136,38 +136,39 @@ void BufferGeometry::raycast(Line &line,
   }
 }
 
-BufferGeometry::BufferGeometry(Object3D::Ptr object, LinearGeometry::Ptr geometry)
+BufferGeometry::BufferGeometry(Object3D::Ptr object, LinearGeometry &geometry)
+   : Geometry(geometry::Typer(this))
 {
-  if(CAST(object, line, Line)) {
+  if(Line *line = object->typer) {
     setFromLinearGeometry(geometry);
   }
-  else if(CAST(object, points, Points)) {
+  else if(Points *points = object->typer) {
     setFromLinearGeometry(geometry);
   }
-  else if(CAST(object, mesh, Mesh)) {
+  else if(Mesh *mesh = object->typer) {
     setFromMeshGeometry(geometry);
   }
 }
 
-void BufferGeometry::setFromLinearGeometry(LinearGeometry::Ptr geometry)
+void BufferGeometry::setFromLinearGeometry(const LinearGeometry &geometry)
 {
-  _position = attribute::copied<float, Vertex>(geometry->_vertices);
-  _color = attribute::copied<float, Color>(geometry->_colors);
+  _position = attribute::copied<float, Vertex>(geometry._vertices);
+  _color = attribute::copied<float, Color>(geometry._colors);
 
-  _boundingSphere = geometry->_boundingSphere;
-  _boundingBox = geometry->_boundingBox;
+  _boundingSphere = geometry._boundingSphere;
+  _boundingBox = geometry._boundingBox;
 
-  if (geometry->_lineDistances.size() == geometry->_vertices.size()) {
+  if (geometry._lineDistances.size() == geometry._vertices.size()) {
 
-    _lineDistances = attribute::copied<float>(geometry->_lineDistances);
+    _lineDistances = attribute::copied<float>(geometry._lineDistances);
   }
 }
 
-void BufferGeometry::setFromMeshGeometry(LinearGeometry::Ptr geometry)
+void BufferGeometry::setFromMeshGeometry(LinearGeometry &geometry)
 {
-  geometry->_directGeometry = DirectGeometry::make(*geometry);
+  geometry._directGeometry = DirectGeometry::make(geometry);
 
-  setFromDirectGeometry( geometry->_directGeometry );
+  setFromDirectGeometry( geometry._directGeometry );
 }
 
 void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
@@ -211,7 +212,7 @@ void BufferGeometry::setFromDirectGeometry(DirectGeometry::Ptr geometry)
   _boundingBox = geometry->boundingBox();
 }
 
-BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr geometry)
+BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry *geometry)
 {
   Mesh *mesh = object->typer;
   if ( mesh ) {
@@ -226,7 +227,7 @@ BufferGeometry &BufferGeometry::update(Object3D::Ptr object, LinearGeometry::Ptr
 
     if (!direct) {
 
-      setFromMeshGeometry(geometry);
+      setFromMeshGeometry(*geometry);
       return *this;
     }
 

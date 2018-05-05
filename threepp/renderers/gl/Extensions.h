@@ -52,6 +52,7 @@ public:
 
   UseExtension &add(Extension ext) {
     bits |= (uint16_t)ext;
+    return *this;
   }
 
   bool get(Extension ext) const {

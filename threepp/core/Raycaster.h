@@ -48,6 +48,7 @@ public:
   {
     // direction is assumed to be normalized (for accurate distance calculations)
     _ray.set( origin, direction );
+    return *this;
   }
 
   float linePrecision() const {return _linePrecision;}

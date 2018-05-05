@@ -39,10 +39,14 @@ public:
         _f->glColorMask(colorMask, colorMask, colorMask, colorMask);
         currentColorMask = colorMask;
       }
+      return *this;
     }
 
     ColorBuffer &setLocked(bool locked)
-    { this->locked = locked; }
+    {
+      this->locked = locked;
+      return *this;
+    }
 
     ColorBuffer &setClear(float r, float g, float b, float a, bool premultipliedAlpha = false)
     {
@@ -57,6 +61,7 @@ public:
         _f->glClearColor(r, g, b, a);
         currentColorClear = color;
       }
+      return *this;
     }
 
     ColorBuffer &reset()
@@ -65,6 +70,8 @@ public:
 
       currentColorMask = 0;
       currentColorClear.set(-1, 0, 0, 0); // set to invalid state
+
+      return *this;
     }
   };
 
@@ -394,6 +401,7 @@ public:
         enabledAttributes[i] = 0;
       }
     }
+    return *this;
   }
 
   void enable(GLenum id)
@@ -538,6 +546,7 @@ public:
 
     currentBlending = blending;
     currentPremultipledAlpha = premultipliedAlpha;
+    return *this;
   }
 
   State &setMaterial(const Material::Ptr material, bool frontFaceCW)
@@ -562,6 +571,7 @@ public:
     colorBuffer.setMask(material->colorWrite);
 
     setPolygonOffset(material->polygonOffset, material->polygonOffsetFactor, material->polygonOffsetUnits);
+    return *this;
   }
 
   State &setFaceDirection(FrontFaceDirection faceDirection)
@@ -573,6 +583,7 @@ public:
       }
       currentFaceDirection = faceDirection;
     }
+    return *this;
   }
 
   State &setCullFace(CullFace cullFace)
@@ -591,6 +602,7 @@ public:
     }
 
     currentCullFace = cullFace;
+    return *this;
   }
 
   State &setLineWidth(GLfloat width)
@@ -599,6 +611,7 @@ public:
       _f->glLineWidth(width);
       currentLineWidth = width;
     }
+    return *this;
   }
 
   State &setPolygonOffset(bool polygonOffset, GLfloat factor, GLfloat units)
@@ -617,6 +630,7 @@ public:
     else {
       disable(GL_POLYGON_OFFSET_FILL);
     }
+    return *this;
   }
 
   bool getScissorTest()
@@ -632,6 +646,8 @@ public:
       enable(GL_SCISSOR_TEST);
     else
       disable(GL_SCISSOR_TEST);
+
+    return *this;
   }
 
   // texture
@@ -643,6 +659,7 @@ public:
       _f->glActiveTexture( glSlot );
       currentTextureSlot = glSlot;
     }
+    return *this;
   }
 
   void bindTexture(TextureTarget target, GLint webglTexture=-1)

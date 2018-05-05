@@ -134,6 +134,7 @@ public:
   Vector2 &set(float x, float y) {
     _x = x;
     _y = y;
+    return *this;
   }
 
   Vector2 &clamp(const Vector2 &min, const Vector2 &max)

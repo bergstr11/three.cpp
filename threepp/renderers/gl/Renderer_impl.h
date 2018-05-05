@@ -250,6 +250,7 @@ public:
 
   Renderer_impl &setClearColor(const Color &color, float alpha) override {
     _background.setClearColor(color, alpha);
+    return *this;
   }
 
   void clear() override;

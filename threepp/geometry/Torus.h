@@ -33,7 +33,7 @@ public:
   }
 
   Torus *cloned() const override {
-    return new Torus(*this);
+    return LinearGeometry::setTyper(new Torus(*this));
   }
 };
 
@@ -54,7 +54,7 @@ public:
   }
 
   Torus *cloned() const override {
-    return new Torus(*this);
+    return BufferGeometry::setTyper(new Torus(*this));
   }
 };
 

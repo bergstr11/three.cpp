@@ -228,6 +228,7 @@ bool OrthographicTrackball::startPan(unsigned x, unsigned y)
 
   _panStart = getMouseOnScreen(x, y);
   _panEnd = _panStart;
+  return true;
 }
 
 bool OrthographicTrackball::handleMove(unsigned x, unsigned y)
@@ -235,22 +236,24 @@ bool OrthographicTrackball::handleMove(unsigned x, unsigned y)
   switch(_state) {
     case State::ROTATE: {
       _rotateEnd = getMouseProjectionOnBall(x, y);
-      break;
+      return true;
     }
     case State::PAN: {
       _panEnd = getMouseOnScreen(x, y);
-      break;
+      return true;
     }
     case State::ZOOM: {
       _zoomEnd = getMouseOnScreen(x, y);
-      break;
+      return true;
     }
   }
+  return false;
 }
 
 bool OrthographicTrackball::handleDelta(int delta)
 {
   _zoomStart.y() += delta * 0.01;
+  return false;
 }
 
 }

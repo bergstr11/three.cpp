@@ -60,10 +60,12 @@ public:
 
   Skeleton &setBoneTexture(Texture::Ptr texture) {
     _boneTexture = texture;
+    return *this;
   }
 
   Skeleton &setBoneTextureSize(size_t size) {
     _boneTextureSize = size;
+    return *this;
   }
 
   void pose()

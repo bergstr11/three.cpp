@@ -31,7 +31,7 @@ public:
   }
 
   Polyhedron *cloned() const override {
-    return new Polyhedron(*this);
+    return LinearGeometry::setTyper(new Polyhedron(*this));
   }
 };
 
@@ -53,7 +53,7 @@ public:
   }
 
   Polyhedron *cloned() const override {
-    return new Polyhedron(*this);
+    return BufferGeometry::setTyper(new Polyhedron(*this));
   }
 };
 

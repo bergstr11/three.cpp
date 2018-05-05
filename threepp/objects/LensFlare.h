@@ -97,6 +97,7 @@ public:
 
       flare.rotation += ( flare.x * M_PI * 0.25 - flare.rotation ) * 0.25;
     }
+    return *this;
   }
 
   LensFlare *cloned() const override {

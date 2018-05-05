@@ -35,7 +35,7 @@ public:
     // Update once per frame
     if (_updateList.count(buffergeometry->id) == 0 || _updateList[ buffergeometry->id] != frame ) {
 
-      LinearGeometry::Ptr linearGeom = std::dynamic_pointer_cast<LinearGeometry>(geometry);
+      LinearGeometry *linearGeom = geometry->typer;
       if (linearGeom) {
         buffergeometry->update( object, linearGeom );
       }

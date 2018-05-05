@@ -30,6 +30,7 @@ class Quaternion
   Quaternion &set(const Quaternion &q, bool emitSignal) {
     _x = q._x; _y = q._y; _z = q._z; _w = q._w;
     if(emitSignal) onChange.emitSignal(*this);
+    return *this;
   }
 
 public:
@@ -44,7 +45,7 @@ public:
   Quaternion(const Quaternion &q) : _x(q._x), _y(q._y), _z(q._z), _w(q._w) {}
 
   Quaternion &operator =(const Quaternion &q) {
-    set(q, true);
+    return set(q, true);
   }
 
   float operator[](unsigned index) const {return _elements[index];}

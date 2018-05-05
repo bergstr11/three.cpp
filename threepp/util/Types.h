@@ -32,6 +32,7 @@ public:
   optional &operator =(F&& f) {
     _t = f;
     _isSet = true;
+    return *this;
   }
 
   const T &get() const {

@@ -303,6 +303,7 @@ template <class Enumeration, class = typename std::enable_if<std::is_enum<Enumer
 std::ostream &operator<<(std::ostream &os, const Enumeration &_enum)
 {
   os << numeric(_enum);
+  return os;
 }
 
 }
@@ -322,6 +323,7 @@ inline std::ostream &operator<<(std::ostream &os, const TextureMapping &mapping)
     case TextureMapping::CubeUVReflection: os << "CubeUVReflection"; break;
     case TextureMapping::CubeUVRefraction: os << "CubeUVRefraction"; break;
   }
+  return os;
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Encoding &encoding)
@@ -337,6 +339,7 @@ inline std::ostream &operator<<(std::ostream &os, const Encoding &encoding)
     case Encoding::RGBM16: os << "RGBM16"; break;
     case Encoding::RGBD: os << "RGBD"; break;
   }
+  return os;
 }
 
 inline std::ostream &operator<<(std::ostream &stream, const DepthPacking &depthPacking)
@@ -347,6 +350,7 @@ inline std::ostream &operator<<(std::ostream &stream, const DepthPacking &depthP
     default:
       throw std::invalid_argument("unknown depthPacking");
   }
+  return stream;
 }
 
 inline std::ostream &operator<<(std::ostream &stream, const Precision &precision)
@@ -358,6 +362,7 @@ inline std::ostream &operator<<(std::ostream &stream, const Precision &precision
     default:
       throw std::invalid_argument("unknown precision");
   }
+  return stream;
 }
 
 }

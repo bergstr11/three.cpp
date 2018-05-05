@@ -42,22 +42,17 @@ public:
     return *this;
   }
 
-  Plane &setNormalAndCoplanarPoint(const Vector3 &normal, const Vector3 &point)
+  static Plane fromNormalAndCoplanarPoint(const Vector3 &normal, const Vector3 &point)
   {
-    _normal = normal;
-    _constant = - dot(point, _normal);
-
-    return *this;
+    return Plane(normal, dot(point, normal));
   }
 
-  Plane &setCoplanarPoints(const Vector3 &a, const Vector3 &b, const Vector3 &c)
+  static Plane fromCoplanarPoints(const Vector3 &a, const Vector3 &b, const Vector3 &c)
   {
     Vector3 normal = ((c - b).cross(a - b)).normalize();
 
     // Q: should an error be thrown if normal is zero (e.g. degenerate plane)?
-    setNormalAndCoplanarPoint( normal, a );
-
-    return *this;
+    return fromNormalAndCoplanarPoint( normal, a );
   }
 
   Plane &normalize()

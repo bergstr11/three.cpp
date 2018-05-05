@@ -239,6 +239,15 @@ using Typer = three::Typer<Camera, ArrayCamera, OrthographicCamera, PerspectiveC
    Line, LineSegments, Mesh, Sprite, ImmediateRenderObject, Points, SkinnedMesh, LensFlare>;
 }
 
+class LinearGeometry;
+class BufferGeometry;
+class InstancedBufferGeometry;
+class DirectGeometry;
+
+namespace geometry {
+using Typer = three::Typer<LinearGeometry, BufferGeometry, InstancedBufferGeometry, DirectGeometry>;
+}
+
 class Material;
 class ShaderMaterial;
 class RawShaderMaterial;

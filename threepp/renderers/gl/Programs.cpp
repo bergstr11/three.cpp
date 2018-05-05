@@ -22,6 +22,7 @@ Encoding getTextureEncoding(Texture::Ptr map, bool gammaOverrideLinear)
 
     enc = Encoding::Gamma;
   }
+  return enc;
 }
 
 ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,

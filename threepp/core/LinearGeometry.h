@@ -62,19 +62,35 @@ class LinearGeometry : public Geometry
   bool _lineDistancesNeedUpdate = false;
   bool _groupsNeedUpdate = false;
 
-  static LinearGeometry &computeFaceNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices);
+  static void computeFaceNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices);
 
-  static LinearGeometry &computeVertexNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices,
+  static void computeVertexNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices,
                                               bool areaWeighted = true);
 
 protected:
+  LinearGeometry(const LinearGeometry &geom) = default;
   std::shared_ptr<DirectGeometry> _directGeometry;
 
-  LinearGeometry()
+  explicit LinearGeometry() : Geometry(geometry::Typer(this))
   {}
+
+  LinearGeometry(const LinearGeometry &geom, const geometry::Typer &typer)
+     : LinearGeometry(geom)
+  {
+    Geometry::typer = typer;
+    Geometry::typer.allow<LinearGeometry>();
+  }
+
+  template <typename Sub>
+  static Sub *setTyper(Sub *sub) {
+    sub->typer = geometry::Typer(static_cast<LinearGeometry *>(sub));
+    return sub;
+  }
 
 public:
   using Ptr = std::shared_ptr<LinearGeometry>;
+
+  const std::vector<Vertex> vertices() const {return _vertices;}
 
   bool useMorphing() const override
   {
@@ -157,6 +173,7 @@ public:
     }
 
     _normalsNeedUpdate = !_faces.empty();
+    return *this;
   }
 
   LinearGeometry &computeMorphNormals();

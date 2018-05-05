@@ -39,7 +39,7 @@ public:
   }
 
   Ring *cloned() const override {
-    return new Ring(*this);
+    return LinearGeometry::setTyper(new Ring(*this));
   }
 };
 
@@ -60,7 +60,7 @@ public:
   }
 
   Ring *cloned() const override {
-    return new Ring(*this);
+    return BufferGeometry::setTyper(new Ring(*this));
   }
 };
 

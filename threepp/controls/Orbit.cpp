@@ -216,6 +216,7 @@ bool Orbit::handleDelta(int delta)
     _dollyIn(getZoomScale());
     return true;
   }
+  return false;
 }
 
 void Orbit::doRotate(unsigned x, unsigned y)

@@ -54,6 +54,8 @@ public:
     te[6] = n13;
     te[7] = n23;
     te[8] = n33;
+
+    return *this;
   }
 
   const float *elements() {return _elements;}

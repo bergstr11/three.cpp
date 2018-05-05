@@ -10,8 +10,8 @@ namespace geometry {
 
 Box::Box(unsigned width, unsigned height, unsigned depth,
          unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
-   : _width(width), _height(height), _depth(depth),
-     _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
+   : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments),
+     _heightSegments(heightSegments), _depthSegments(depthSegments)
 {
   set(buffer::Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   mergeVertices();
@@ -27,8 +27,8 @@ Box::Box(unsigned int width,
          unsigned widthSegments,
          unsigned heightSegments,
          unsigned depthSegments)
-   : _width(width), _height(height), _depth(depth),
-     _widthSegments(widthSegments), _heightSegments(heightSegments), _depthSegments(depthSegments)
+   : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments), _heightSegments(heightSegments),
+     _depthSegments(depthSegments)
 {
   if (_widthSegments == 0) _widthSegments = 1;
   if (_heightSegments == 0) _heightSegments = 1;

@@ -66,6 +66,24 @@ public:
 
     return (result.x() >= 0) && (result.y() >= 0) && ((result.x() + result.y()) <= 1);
   }
+
+  Triangle(const Vector3 &a, const Vector3 &b, const Vector3 &c) : a(a), b(b), c(c) {}
+
+  Vector3 getNormal() const {
+    return normal(a, b, c);
+  }
+
+  Vector3 getMidpoint() {
+    return (a + b + c) * 1.0f / 3.0f;
+  }
+
+  float getArea()
+  {
+    Vector3 v0 = c - b;
+    Vector3 v1 = a - b;
+
+    return cross(v0, v1).length() * 0.5f;
+  }
 };
 
 }

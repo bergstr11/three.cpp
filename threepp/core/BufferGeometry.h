@@ -69,11 +69,15 @@ class BufferGeometry : public Geometry
 
   UpdateRange _drawRange;
 
-  void setFromLinearGeometry(std::shared_ptr<LinearGeometry> geometry);
-  void setFromMeshGeometry(std::shared_ptr<LinearGeometry> geometry);
+  void setFromLinearGeometry(const LinearGeometry &geometry);
+  void setFromMeshGeometry(LinearGeometry &geometry);
   void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
 protected:
+  BufferGeometry(const BufferGeometry &geom) = default;
+  BufferGeometry() : Geometry(geometry::Typer(this))
+  {}
+
   BufferGeometry &computeBoundingBox() override
   {
     if (_position) {
@@ -82,6 +86,7 @@ protected:
     else {
       _boundingBox.makeEmpty();
     }
+    return *this;
   }
 
   BufferGeometry &computeBoundingSphere() override
@@ -101,17 +106,40 @@ protected:
 
       _boundingSphere = math::Sphere(center, std::sqrt(maxRadiusSq));
     }
+    return *this;
   }
 
-  BufferGeometry() {}
-  BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
+  BufferGeometry(std::shared_ptr<Object3D> object, LinearGeometry &geometry);
+
+  BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry, const geometry::Typer &typer)
+     : BufferGeometry(object, *geometry)
+  {
+    Geometry::typer = typer;
+    Geometry::typer.allow<BufferGeometry>();
+  }
+
+  explicit BufferGeometry(const geometry::Typer &typer) : Geometry(typer)
+  {}
+
+  BufferGeometry(const BufferGeometry &geom, const geometry::Typer &typer)
+     : BufferGeometry(geom)
+  {
+    Geometry::typer = typer;
+    Geometry::typer.allow<BufferGeometry>();
+  }
+
+  template <typename Sub>
+  static Sub *setTyper(Sub *sub) {
+    sub->typer = geometry::Typer(static_cast<BufferGeometry *>(sub));
+    return sub;
+  }
 
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
   static Ptr make() {
     return Ptr(new BufferGeometry());
   }
-  static Ptr make(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry) {
+  static Ptr make(std::shared_ptr<Object3D> object, LinearGeometry &geometry) {
     return Ptr(new BufferGeometry(object, geometry));
   }
 
@@ -134,9 +162,10 @@ public:
     _indexedAttributes = geom._indexedAttributes;
 
     _drawRange = geom._drawRange;
+    return *this;
   }
 
-  BufferGeometry &update(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry);
+  BufferGeometry &update(std::shared_ptr<Object3D> object, LinearGeometry *geometry);
 
   void computeVertexNormals();
   void normalizeNormals();
@@ -304,10 +333,11 @@ class InstancedBufferGeometry : public BufferGeometry
   unsigned _maxInstancedCount = 0;
 
 protected:
-  explicit InstancedBufferGeometry() : BufferGeometry() {}
+  explicit InstancedBufferGeometry()
+     : BufferGeometry(geometry::Typer(this)) {}
   explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object,
                                    std::shared_ptr<LinearGeometry> geometry)
-     : BufferGeometry(object, geometry) {}
+     : BufferGeometry(object, geometry, geometry::Typer(this)) {}
 
 public:
   using Ptr = std::shared_ptr<InstancedBufferGeometry>;
@@ -319,6 +349,11 @@ public:
   }
 
   unsigned maxInstancedCount() const {return _maxInstancedCount;}
+
+  InstancedBufferGeometry *cloned() const override
+  {
+    return BufferGeometry::setTyper(new InstancedBufferGeometry(*this));
+  }
 };
 
 }

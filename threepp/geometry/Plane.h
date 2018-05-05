@@ -93,7 +93,7 @@ public:
   }
 
   Plane *cloned() const override {
-    return new Plane(*this);
+    return BufferGeometry::setTyper(new Plane(*this));
   }
 };
 
@@ -117,7 +117,7 @@ public:
   }
 
   Plane *cloned() const override {
-    return new Plane(*this);
+    return LinearGeometry::setTyper(new Plane(*this));
   }
 };
 

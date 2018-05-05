@@ -76,17 +76,16 @@ public:
 
     geometry->onDispose.connect(*this, &Geometries::onGeometryDispose);
 
-    BufferGeometry::Ptr buffergeometry = std::dynamic_pointer_cast<BufferGeometry>(geometry);
+    BufferGeometry *buffergeometry = geometry->typer;
     if (!buffergeometry) {
-      LinearGeometry::Ptr lineargeometry = std::dynamic_pointer_cast<LinearGeometry>(geometry);
-      buffergeometry = BufferGeometry::make(object, lineargeometry);
+      LinearGeometry *lineargeometry = geometry->typer;
+      gi.geometry = BufferGeometry::make(object, *lineargeometry);
     }
-
-    gi.geometry = buffergeometry;
+    else gi.geometry = CAST2(geometry, BufferGeometry);
 
     geometryCount++;
 
-    return buffergeometry;
+    return gi.geometry;
   }
 
   void update(BufferGeometry::Ptr buffergeometry)
