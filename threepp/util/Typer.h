@@ -142,6 +142,12 @@ public:
 
   Typer() = default;
 
+  template<typename T>
+  static T *set(T *t) {
+    t->typer = Typer(t);
+    return t;
+  }
+
   /**
    * declare the given type's pointer to be reinterpret_cast-compatible with the pointer already stored
    * in this object. This should be used for superclasses only, as shown in the class comment

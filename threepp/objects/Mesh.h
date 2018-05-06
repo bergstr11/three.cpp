@@ -63,7 +63,7 @@ public:
   void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) override;
 
   Mesh *cloned() const override {
-    return new Mesh(*this);
+    return object::Typer::set(new Mesh(*this));
   }
 };
 

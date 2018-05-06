@@ -8,18 +8,23 @@
 #include <vector>
 #include <threepp/core/Object3D.h>
 
+struct qh_mesh_t;
+
 namespace three {
 
 class ConvexHull : public Object3D
 {
-  std::vector<Object3D::Ptr> _objects;
+  const Object3D::Ptr _object;
+  qh_mesh_t *mesh = nullptr;
 
-  explicit ConvexHull(const std::vector<Object3D::Ptr> &objects);
+  explicit ConvexHull(const Object3D::Ptr &object);
 
 public:
+  ~ConvexHull();
+
   using Ptr = std::shared_ptr<ConvexHull>;
-  Ptr make(const std::vector<Object3D::Ptr> &objects) {
-    return Ptr(new ConvexHull(objects));
+  Ptr make(const Object3D::Ptr &object) {
+    return Ptr(new ConvexHull(object));
   }
 
   ConvexHull *cloned() const override

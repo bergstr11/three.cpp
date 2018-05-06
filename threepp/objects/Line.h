@@ -68,7 +68,7 @@ public:
 
   Line *cloned() const override
   {
-    return new Line(*this);
+    return object::Typer::set(new Line(*this));
   }
 };
 
@@ -94,7 +94,9 @@ public:
 
   LineSegments *cloned() const override
   {
-    return new LineSegments(*this);
+    auto obj = object::Typer::set(new LineSegments(*this));
+    obj->typer.allow<Line>();
+    return obj;
   }
 };
 
