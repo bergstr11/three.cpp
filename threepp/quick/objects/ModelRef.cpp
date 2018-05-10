@@ -191,8 +191,11 @@ void ModelRef::update()
     return true;
   });
 
+  Object3D::Ptr prev = _object;
   setObject(node);
-  _parentObject->add(_object);
+  if(_parentObject) _parentObject->add(_object);
+
+  onObjectSet.emitSignal(prev, _object);
 
   emit objectChanged();
   _scene->item()->update();

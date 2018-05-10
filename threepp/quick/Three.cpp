@@ -31,6 +31,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Plane.h"
 #include "objects/Sphere.h"
 #include "objects/Cylinder.h"
+#include "objects/ConvexHull.h"
 #include "objects/Mesh.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
 #include "materials/ShaderMaterial.h"
@@ -84,6 +85,7 @@ void init()
   qmlRegisterType<three::quick::Plane>("three.quick", 1, 0, "Plane");
   qmlRegisterType<three::quick::Sphere>("three.quick", 1, 0, "Sphere");
   qmlRegisterType<three::quick::Cylinder>("three.quick", 1, 0, "Cylinder");
+  qmlRegisterType<three::quick::ConvexHull>("three.quick", 1, 0, "ConvexHull");
   qmlRegisterType<three::quick::ModelRef>("three.quick", 1, 0, "ModelRef");
   qmlRegisterType<three::quick::Node>("three.quick", 1, 0, "Node");
   qmlRegisterType<three::quick::AmbientLight>("three.quick", 1, 0, "AmbientLight");

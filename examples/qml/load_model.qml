@@ -149,9 +149,12 @@ Window {
                 base = value
             }
         }
-        BoolValue {
-            name: "enablePan"
-            target: orbitController
+        BoolChoice {
+            name: "Convex Hull"
+            value: convexHull.visible
+            onValueChanged: {
+                convexHull.visible = value
+            }
         }
         BoolChoice {
             name: "Prefer Phong"
@@ -217,16 +220,23 @@ Window {
                 position.y: 250
             }
 
-            ModelRef {
-                id: modelref
-                model: threeDModel
-                type: ModelRef.Node
-                replace: true
+            ConvexHull {
+                id: convexHull
+                visible: false
 
-                onObjectChanged: {
-                    orbitController.reset()
-                    objectControls.reset()
-                    lightControls.reset()
+                material: MeshBasicMaterial {color: "red"; wireframe: true}
+
+                ModelRef {
+                    id: modelref
+                    model: threeDModel
+                    type: ModelRef.Node
+                    replace: true
+
+                    onObjectChanged: {
+                        orbitController.reset()
+                        objectControls.reset()
+                        lightControls.reset()
+                    }
                 }
             }
 
@@ -243,7 +253,7 @@ Window {
                 controller: OrbitController {
                     id: orbitController
                     maxPolarAngle: Math.PI;
-                    enablePan: false
+                    enablePan: true
                     rotateCursor: Qt.ClosedHandCursor
                     panCursor: Qt.SizeAllCursor
                 }

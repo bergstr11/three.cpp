@@ -26,13 +26,13 @@ private:
   const Vertex *_data;
   size_t _dataCount = 0;
 
-  child_iterator _beginChildren;
+  child_iterator _iterChildren;
   child_iterator _endChildren;
   Ptr _childWalker;
 
   PointsWalker(Object3D::Ptr object, const Vertex *data, size_t dataCount)
      : _object(object),
-       _beginChildren(object->children().begin()),
+       _iterChildren(object->children().begin()),
        _endChildren(object->children().end()),
        _data(data),
        _dataCount(dataCount),
@@ -43,18 +43,20 @@ private:
 
   PointsWalker(Object3D::Ptr object, const child_iterator &beginChildren, Ptr walker)
      : _object(object),
-       _beginChildren(beginChildren),
+       _iterChildren(beginChildren),
        _endChildren(object->children().end()),
        _data(nullptr),
        _dataCount(0),
        _childWalker(walker)
   {
+    qDebug() << "PointsWalker#childWalker" << object->name().c_str();
     object->updateMatrixWorld( true );
   }
 
 public:
   PointsWalker(const child_iterator &end)
      : _object(nullptr),
+       _iterChildren(end),
        _endChildren(end),
        _data(nullptr),
        _dataCount(0),
@@ -81,13 +83,16 @@ public:
       }
     }
     if(dataCount) {
+      qDebug() << "PointsWalker" << object->name().c_str() << dataCount;
       return Ptr(new PointsWalker(object, data, dataCount));
     }
     else {
+      qDebug() << "PointsWalker##seekChildren" << object->name().c_str();
       auto beginChildren = object->children().begin();
       auto endChildren = object->children().end();
-      for(; beginChildren != endChildren; beginChildren++) {
+      while(beginChildren != endChildren) {
         Ptr ptr = make(*beginChildren);
+        ++beginChildren;
         if(ptr) return Ptr(new PointsWalker(object, beginChildren, ptr));
       }
     }
@@ -96,31 +101,40 @@ public:
 
   const Vertex operator*() const
   {
-    Vertex value = *_data;
-    return value.apply(_object->matrixWorld());
+    if(_dataCount) {
+      Vertex value = *_data;
+      return value.apply(_object->matrixWorld());
+    }
+    else if(_childWalker)
+      return *(*_childWalker);
+    else
+      throw std::out_of_range("PointsWalker");
   }
 
-  PointsWalker &operator++() {
-    if(_dataCount > 0) {
-      _dataCount--;
+  PointsWalker &operator++()
+  {
+    if(_dataCount > 0) _dataCount--;
+    if(_dataCount) {
       _data++;
+      return *this;
     }
-    else if(_childWalker && !_childWalker->atEnd()) {
+    if(_childWalker && !_childWalker->atEnd()) {
       ++(*_childWalker);
+      if(!_childWalker->atEnd())
+        return *this;
     }
-    else {
-      for(; _beginChildren != _endChildren; _beginChildren++) {
-        _childWalker = make(*_beginChildren);
-        if(_childWalker) break;
-      }
+    while(_iterChildren != _endChildren) {
+      _childWalker = make(*_iterChildren);
+      ++_iterChildren;
+      if(_childWalker) break;
     }
     return *this;
   }
 
   bool operator==(const PointsWalker& rhs) const
   {
-    return _dataCount == rhs._dataCount  &&
-           _beginChildren == rhs._beginChildren;
+    return _dataCount == rhs._dataCount && _iterChildren == rhs._iterChildren &&
+        (((!_childWalker || _childWalker->atEnd()) && !rhs._childWalker) || _childWalker == rhs._childWalker);
   }
 
   bool operator!=(const PointsWalker& rhs) const
@@ -128,8 +142,8 @@ public:
     return !(*this == rhs);
   }
 
-  bool atEnd() {
-    return _dataCount == 0 && _beginChildren == _endChildren;
+  bool atEnd() const {
+    return _dataCount == 0 && _iterChildren == _endChildren && (!_childWalker || _childWalker->atEnd());
   }
 };
 

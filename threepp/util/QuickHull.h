@@ -26,35 +26,61 @@ class QuickHull
     Face *face = nullptr; // the face that is able to see this vertex
 
     VertexNode(const Vertex &point) : point(point) {}
+
+    VertexNode(const VertexNode &node) = delete;
+    VertexNode(VertexNode &&node) = default;
   };
 
   struct HalfEdge
   {
-    VertexNode vertex;
     HalfEdge *prev = nullptr;
     HalfEdge *next = nullptr;
     HalfEdge *twin = nullptr;
-    Face *face;
 
-    HalfEdge(const VertexNode &vertex, Face &face) : vertex(vertex), face(&face) {}
+    VertexNode * const vertex;
+    Face * face;
 
-    HalfEdge &setTwin(HalfEdge &edge )
+    HalfEdge(VertexNode *vertex, Face *face) : vertex(vertex), face(face) {}
+
+    HalfEdge &setTwin(HalfEdge *edge )
     {
-      twin = &edge;
-      edge.twin = this;
+      twin = edge;
+      edge->twin = this;
 
       return *this;
     }
 
     VertexNode *head() {
 
-      return &vertex;
+      return vertex;
     }
 
     VertexNode *tail() {
 
-      return prev ? &prev->vertex : nullptr;
+      return prev ? prev->vertex : nullptr;
     }
+
+    float length()
+    {
+      if ( tail() ) {
+        return tail()->point.distanceTo( head()->point );
+      }
+
+      return -1;
+    }
+
+    float lengthSquared()
+    {
+      if ( tail() ) {
+        return tail()->point.distanceToSquared( head()->point );
+      }
+
+      return -1;
+    }
+
+  private:
+    friend struct Face;
+    HalfEdge(const HalfEdge &he) = default;
   };
 
   enum class Mark {Visible, Deleted};
@@ -71,26 +97,42 @@ class QuickHull
     VertexNode *outside = nullptr;
 
     Mark mark = Mark::Visible;
-    std::array<HalfEdge, 3> edges;
+    HalfEdge edge0, edge1, edge2;
 
-    Face(const VertexNode &a, const VertexNode &b, const VertexNode &c )
-       : edges({HalfEdge(a, *this), HalfEdge(b, *this), HalfEdge(c, *this)})
+    Face(VertexNode *a, VertexNode *b, VertexNode *c )
+       : edge0(a, this), edge1(b, this), edge2(c, this)
     {
       // join edges
-      edges[0].next = edges[2].prev = &edges[1];
-      edges[1].next = edges[0].prev = &edges[2];
-      edges[2].next = edges[1].prev = &edges[0];
+      edge0.next = edge2.prev = &edge1;
+      edge1.next = edge0.prev = &edge2;
+      edge2.next = edge1.prev = &edge0;
 
       compute();
     }
 
+    Face(const Face &&face) = delete;
+
+    Face(Face &face)
+       : normal(face.normal), midpoint(face.midpoint), constant(face.constant), outside(face.outside),
+         mark(face.mark), edge0(face.edge0), edge1(face.edge1), edge2(face.edge2)
+    {
+      adjustEdges();
+    }
+
+    Face(Face &&face)
+       : normal(face.normal), midpoint(face.midpoint), constant(face.constant), outside(face.outside),
+         mark(face.mark), edge0(face.edge0), edge1(face.edge1), edge2(face.edge2)
+    {
+      adjustEdges();
+    }
+
     void compute()
     {
-      VertexNode &a = edges[2].vertex;
-      VertexNode &b = edges[0].vertex;
-      VertexNode &c = edges[1].vertex;
+      VertexNode *a = edge0.tail();
+      VertexNode *b = edge0.head();
+      VertexNode *c = edge0.next->head();
 
-      math::Triangle triangle( a.point, b.point, c.point );
+      math::Triangle triangle( a->point, b->point, c->point );
 
       normal = triangle.getNormal();
       midpoint = triangle.getMidpoint();
@@ -98,15 +140,34 @@ class QuickHull
       constant = math::dot(normal, midpoint);
     }
 
-    HalfEdge &getEdge(int i) const
+    HalfEdge *getEdge(int i)
     {
-      int index = i % 3;
-      return i >= 0 ? (HalfEdge &)edges.at(index) : (HalfEdge &)edges.at(3 + index);
+      HalfEdge *edge = &edge0;
+
+      while ( i > 0 ) {
+        edge = edge->next;
+        i --;
+      }
+
+      while ( i < 0 ) {
+        edge = edge->prev;
+        i ++;
+      }
+
+      return edge;
     }
 
     float distanceToPoint(const Vertex &point) const
     {
       return math::dot(normal, point) - constant;
+    }
+
+  private:
+    void adjustEdges() {
+      edge0.face = edge1.face = edge2.face = this;
+      edge0.next = edge2.prev = &edge1;
+      edge1.next = edge0.prev = &edge2;
+      edge2.next = edge1.prev = &edge0;
     }
   };
 
@@ -293,20 +354,20 @@ private:
   /*
    * Adds a vertex to the 'assigned' list of vertices and assigns it to the given face
    */
-  void addVertexToFace(VertexNode &vertex, Face &face )
+  void addVertexToFace(VertexNode *vertex, Face *face )
   {
-    vertex.face = &face;
+    vertex->face = face;
 
-    if ( !face.outside ) {
+    if ( !face->outside ) {
 
-      assigned.append( vertex );
+      assigned.append( *vertex );
     }
     else {
 
-      assigned.insertBefore( *face.outside, vertex );
+      assigned.insertBefore( *face->outside, *vertex );
     }
 
-    face.outside = &vertex;
+    face->outside = vertex;
   }
 
   /**
@@ -315,7 +376,8 @@ private:
    * @param minVertices (out) indices into _vertices
    * @param maxVertices (out) indices into _vertices
    */
-  void computeExtremes(std::array<unsigned, 3> &minVertices, std::array<unsigned, 3> &maxVertices)
+  void computeExtremes(std::array<VertexNode *, 3> &minVertices,
+                       std::array<VertexNode *, 3> &maxVertices)
   {
     Vertex min(vertices[0].point);
     Vertex max(vertices[0].point);
@@ -332,7 +394,7 @@ private:
         if ( point[j] < min[j] ) {
 
           min[j] = point[j];
-          minVertices[ j ] = i;
+          minVertices[ j ] = &vertex;
         }
       }
 
@@ -342,7 +404,7 @@ private:
         if ( point[j] > max[j] ) {
 
           max[j] = point[j];
-          maxVertices[ j ] = i;
+          maxVertices[ j ] = &vertex;
         }
       }
     }
@@ -361,8 +423,8 @@ private:
    */
   void computeInitialHull()
   {
-    std::array<unsigned, 3> min {0, 0, 0};
-    std::array<unsigned, 3> max {0, 0, 0};
+    std::array<VertexNode *, 3> min {&vertices[0]};
+    std::array<VertexNode *, 3> max {&vertices[0]};
     computeExtremes(min, max);
 
     // 1. Find the two vertices 'v0' and 'v1' with the greatest 1d separation
@@ -375,7 +437,7 @@ private:
 
     for (unsigned i = 0; i < 3; i ++ ) {
 
-      float distance = vertices[max[i]].point[i] - vertices[min[i]].point[i];
+      float distance = max[i]->point[i] - min[i]->point[i];
       if ( distance > maxDistance ) {
 
         maxDistance = distance;
@@ -383,61 +445,58 @@ private:
       }
     }
 
-    VertexNode &v0 = vertices[min[ index ]];
-    VertexNode &v1 = vertices[max[ index ]];
+    VertexNode *v0 = min[index];
+    VertexNode *v1 = max[index];
 
     // 2. The next vertex 'v2' is the one farthest to the line formed by 'v0' and 'v1'
     maxDistance = 0;
-    unsigned v2Index;
-    math::Line3 line3( v0.point, v1.point );
+    math::Line3 line3( v0->point, v1->point );
+
+    VertexNode *v2 = nullptr;
 
     for (unsigned i = 0, l = vertices.size(); i < l; i ++ ) {
 
-      if (i != min[ index ] && i != max[ index ]) {
+      VertexNode *vertex = &vertices[ i ];
+      if (vertex != v0 && vertex != v1) {
 
-        VertexNode &vertex = vertices[ i ];
+        Vertex closestPoint = line3.closestPointToPoint( vertex->point, true );
 
-        Vertex closestPoint = line3.closestPointToPoint( vertex.point, true );
-
-        float distance = closestPoint.distanceToSquared( vertex.point );
+        float distance = closestPoint.distanceToSquared( vertex->point );
 
         if ( distance > maxDistance ) {
 
           maxDistance = distance;
-          v2Index = i;
+          v2 = vertex;
         }
       }
     }
-
-    VertexNode &v2 = vertices[v2Index];
 
     // 3. The next vertex 'v3' is the one farthest to the plane 'v0', 'v1', 'v2'
     maxDistance = - 1;
-    unsigned v3Index;
-    math::Plane plane = math::Plane::fromCoplanarPoints( v0.point, v1.point, v2.point );
+    math::Plane plane = math::Plane::fromCoplanarPoints( v0->point, v1->point, v2->point );
+
+    VertexNode *v3 = nullptr;
 
     for (unsigned i = 0, l = vertices.size(); i < l; i ++ ) {
 
-      if ( i != min[ index ] && i != max[ index ] && i != v2Index ) {
+      VertexNode *vertex = &vertices[ i ];
+      if (vertex != v0 && vertex != v1 && vertex != v2) {
 
-        VertexNode &vertex = vertices[ i ];
-
-        float distance = std::abs( plane.distanceToPoint( vertex.point ) );
+        float distance = std::abs( plane.distanceToPoint( vertex->point ) );
 
         if ( distance > maxDistance ) {
 
           maxDistance = distance;
-          v3Index = i;
+          v3 = vertex;
         }
       }
     }
 
-    VertexNode & v3 = vertices[v3Index];
-    std::vector<Face> faces;
-
-    if ( plane.distanceToPoint( v3.point ) < 0 ) {
+    // the initial hull is the tetrahedron
+    if ( plane.distanceToPoint( v3->point ) < 0 ) {
       // the face is not able to see the point so 'plane.normal' is pointing outside the tetrahedron
 
+      size_t offs = faces.size();
       faces.emplace_back(v0, v1, v2);
       faces.emplace_back(v3, v1, v0);
       faces.emplace_back(v3, v2, v1);
@@ -449,15 +508,16 @@ private:
         unsigned j = ( i + 1 ) % 3;
 
         // join face[ i ] i > 0, with the first face
-        faces[ i + 1 ].getEdge( 2 ).setTwin( faces[ 0 ].getEdge( j ) );
+        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces[ offs ].getEdge( j ) );
 
         // join face[ i ] with face[ i + 1 ], 1 <= i <= 3
-        faces[ i + 1 ].getEdge( 1 ).setTwin( faces[ j + 1 ].getEdge( 0 ) );
+        faces[ offs + i + 1 ].getEdge( 1 )->setTwin( faces[ offs + j + 1 ].getEdge( 0 ) );
       }
     }
     else {
       // the face is able to see the point so 'plane.normal' is pointing inside the tetrahedron
 
+      size_t offs = faces.size();
       faces.emplace_back( v0, v2, v1 );
       faces.emplace_back( v3, v0, v1 );
       faces.emplace_back( v3, v1, v2 );
@@ -470,31 +530,26 @@ private:
         unsigned j = ( i + 1 ) % 3;
 
         // join face[ i ] i > 0, with the first face
-        faces[ i + 1 ].getEdge( 2 ).setTwin( faces[ 0 ].getEdge( ( 3 - i ) % 3 ) );
+        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces[ offs ].getEdge( ( 3 - i ) % 3 ) );
 
         // join face[ i ] with face[ i + 1 ]
-        faces[ i + 1 ].getEdge( 0 ).setTwin( faces[ j + 1 ].getEdge( 1 ) );
+        faces[ offs + i + 1 ].getEdge( 0 )->setTwin( faces[ offs + j + 1 ].getEdge( 1 ) );
       }
-    }
-
-    // the initial hull is the tetrahedron
-    for (unsigned i = 0; i < 4; i ++ ) {
-      faces.push_back( faces[ i ] );
     }
 
     // initial assignment of vertices to the faces of the tetrahedron
     for (unsigned i = 0, l = vertices.size(); i < l; i ++ ) {
 
-      if ( i != min[ index ] && i != max[ index ] && i != v2Index && i != v3Index) {
+      VertexNode *vertex = &vertices[ i ];
+
+      if (vertex != v0 && vertex != v1 && vertex != v2 && vertex != v3) {
 
         maxDistance = tolerance;
         int maxFaceIndex = -1;
 
-        VertexNode &vertex = vertices[ i ];
-
         for (unsigned j = 0; j < 4; j ++ ) {
 
-          float distance = faces[ j ].distanceToPoint( vertex.point );
+          float distance = faces[ j ].distanceToPoint( vertex->point );
 
           if ( distance > maxDistance ) {
 
@@ -504,8 +559,7 @@ private:
         }
 
         if (maxFaceIndex >= 0) {
-
-          addVertexToFace( vertex, faces[maxFaceIndex] );
+          addVertexToFace( vertex, &faces[maxFaceIndex] );
         }
       }
     }
@@ -513,15 +567,15 @@ private:
 
   // Removes all the visible vertices that a given face is able to see which are stored in the 'assigned' vertext list
 
-  VertexNode *removeAllVerticesFromFace( Face &face ) {
+  VertexNode *removeAllVerticesFromFace( Face *face ) {
 
-    if ( face.outside ) {
+    if ( face->outside ) {
 
       // reference to the first and last vertex of this face
-      VertexNode *start = face.outside;
-      VertexNode *end = face.outside;
+      VertexNode *start = face->outside;
+      VertexNode *end = face->outside;
 
-      while ( end->next && end->next->face == &face ) {
+      while ( end->next && end->next->face == face ) {
 
         end = end->next;
       }
@@ -530,7 +584,7 @@ private:
 
       // fix references
       start->prev = end->next = nullptr;
-      face.outside = nullptr;
+      face->outside = nullptr;
 
       return start;
     }
@@ -540,7 +594,7 @@ private:
   /*
    * Removes all the visible vertices that 'face' is able to see
    */
-  QuickHull & deleteFaceVertices( Face &face, Face *absorbingFace )
+  QuickHull & deleteFaceVertices( Face *face, Face *absorbingFace )
   {
     VertexNode *faceVertices = removeAllVerticesFromFace( face );
 
@@ -566,7 +620,7 @@ private:
           // check if 'vertex' is able to see 'absorbingFace'
           if ( distance > tolerance ) {
 
-            addVertexToFace( *vertex, *absorbingFace );
+            addVertexToFace( vertex, absorbingFace );
           }
           else {
 
@@ -588,18 +642,18 @@ private:
    * For an edge to be part of the horizon it must join a face that can see
    * 'eyePoint' and a face that cannot see 'eyePoint'.
    */
-  QuickHull &computeHorizon( const Vertex &eyePoint, HalfEdge *crossEdge, Face &face,
+  QuickHull &computeHorizon( const Vertex &eyePoint, HalfEdge *crossEdge, Face *face,
                              std::vector<HalfEdge *> &horizon )
   {
     // moves face's vertices to the 'unassigned' vertex list
     deleteFaceVertices( face, nullptr );
 
-    face.mark = Mark::Deleted;
+    face->mark = Mark::Deleted;
 
     HalfEdge *edge;
     if ( !crossEdge ) {
 
-      edge = crossEdge = &face.getEdge( 0 );
+      edge = crossEdge = face->getEdge( 0 );
 
     } else {
 
@@ -618,7 +672,7 @@ private:
         if ( oppositeFace->distanceToPoint( eyePoint ) > tolerance ) {
 
           // the opposite face can see the vertex, so proceed with next edge
-          computeHorizon( eyePoint, twinEdge, *oppositeFace, horizon );
+          computeHorizon( eyePoint, twinEdge, oppositeFace, horizon );
         }
         else {
           // the opposite face can't see the vertex, so this edge is part of the horizon
@@ -694,14 +748,14 @@ private:
   /*
    * Creates a face with the vertices 'eyeVertex.point', 'horizonEdge.tail' and 'horizonEdge.head' in CCW order
    */
-  HalfEdge &addAdjoiningFace( VertexNode *eyeVertex, HalfEdge *horizonEdge )
+  HalfEdge *addAdjoiningFace( VertexNode *eyeVertex, HalfEdge *horizonEdge )
   {
     // all the half edges are created in ccw order thus the face is always pointing outside the hull
-    faces.emplace_back( *eyeVertex, *horizonEdge->tail(), *horizonEdge->head() );
+    faces.emplace_back( eyeVertex, horizonEdge->tail(), horizonEdge->head() );
     Face &face = faces.back();
 
     // join face.getEdge( - 1 ) with the horizon's opposite edge face.getEdge( - 1 ) = face.getEdge( 2 )
-    face.getEdge( -1 ).setTwin( *horizonEdge->twin );
+    face.getEdge( -1 )->setTwin( horizonEdge->twin );
 
     return face.getEdge( 0 ); // the half edge whose vertex is the eyeVertex
   }
@@ -719,25 +773,24 @@ private:
 
     for ( HalfEdge *horizonEdge : horizon ) {
       // returns the right side edge
-      HalfEdge &sideEdge = addAdjoiningFace( eyeVertex, horizonEdge );
+      HalfEdge *sideEdge = addAdjoiningFace( eyeVertex, horizonEdge );
 
       if ( !firstSideEdge ) {
 
-        firstSideEdge = &sideEdge;
+        firstSideEdge = sideEdge;
 
       } else {
 
         // joins face.getEdge( 1 ) with previousFace.getEdge( 0 )
-        sideEdge.next->setTwin( *previousSideEdge );
+        sideEdge->next->setTwin( previousSideEdge );
       }
 
-      newFaces.push_back( sideEdge.face );
-      previousSideEdge = &sideEdge;
-
+      newFaces.push_back( sideEdge->face );
+      previousSideEdge = sideEdge;
     }
 
     // perform final join of new faces
-    firstSideEdge->next->setTwin( *previousSideEdge );
+    firstSideEdge->next->setTwin( previousSideEdge );
   }
 
   /*
@@ -776,7 +829,7 @@ private:
         // 'maxFace' can be null e.g. if there are identical vertices
         if ( maxFace ) {
 
-          addVertexToFace( *vertex, *maxFace );
+          addVertexToFace( vertex, maxFace );
         }
 
         vertex = nextVertex;
@@ -790,7 +843,7 @@ private:
    */
   void reindexFaces()
   {
-    std::vector<Face> activeFaces;
+    /*std::vector<Face> activeFaces;
 
     for ( const Face &face : faces ) {
 
@@ -801,18 +854,18 @@ private:
 
     faces.clear();
     faces.insert(faces.begin(), activeFaces.begin(), activeFaces.end());
+    */
   }
 
   void addVertexToHull( VertexNode *eyeVertex )
   {
-    std::vector<HalfEdge *> horizon;
-
     unassigned.clear();
 
     // remove 'eyeVertex' from 'eyeVertex.face' so that it can't be added to the 'unassigned' vertex list
     removeVertexFromFace( eyeVertex, eyeVertex->face );
 
-    computeHorizon( eyeVertex->point, nullptr, *eyeVertex->face, horizon );
+    std::vector<HalfEdge *> horizon;
+    computeHorizon( eyeVertex->point, nullptr, eyeVertex->face, horizon );
 
     addNewFaces( eyeVertex, horizon );
 
@@ -829,6 +882,9 @@ private:
 
   void compute()
   {
+    qDebug() << "reserving" << vertices.size() / 3 << "faces";
+    faces.reserve(vertices.size() /  3);
+
     computeInitialHull();
 
     // add all available vertices gradually to the hull
@@ -837,8 +893,9 @@ private:
       addVertexToHull( vertex );
     }
 
-    reindexFaces();
+    //reindexFaces();
 
+    qDebug() << "got" << faces.size() << "faces";
     cleanup();
   }
 
@@ -876,8 +933,11 @@ public:
     clear();
 
     PointsWalker::Ptr begin = PointsWalker::make(object);
-    PointsWalker end(object->children().end());
-    return setFromPoints(*begin, end);
+    if(begin) {
+      PointsWalker end(object->children().end());
+      return *this;//setFromPoints(*begin, end);
+    }
+    return *this;
   }
 
   /**
@@ -888,8 +948,10 @@ public:
   explicit QuickHull (const Object3D::Ptr object)
   {
     PointsWalker::Ptr begin = PointsWalker::make(object);
-    PointsWalker end(object->children().end());
-    setFromPoints(*begin, end);
+    if(begin) {
+      PointsWalker end(object->children().end());
+      setFromPoints(*begin, end);
+    }
   }
 
   /**

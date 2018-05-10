@@ -5,7 +5,7 @@
 #ifndef THREE_PPQ_RING_H
 #define THREE_PPQ_RING_H
 
-#include <threepp/quick/scene/Scene.h>
+#include <threepp/quick/objects/ThreeQObject.h>
 #include <threepp/geometry/Ring.h>
 #include <threepp/material/MeshBasicMaterial.h>
 #include <threepp/material/MeshLambertMaterial.h>

@@ -25,7 +25,9 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
   _scene = scene;
   _parentObject = parent;
 
+  Object3D::Ptr prev = _object;
   _object = _create();
+
   if(_object) {
     if(!_rotation.isNull())
       _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
@@ -46,8 +48,17 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
     }
 
     if(_normalsHelper) _normalsHelper->create(_object, _parentObject);
+
+    _post_create();
+
+    if(_parentObject) _parentObject->add(_object);
+
+    onObjectSet.emitSignal(prev, _object);
+    _object->updateMatrix();
   }
-  _post_create();
+  else
+    onObjectSet.emitSignal(prev, nullptr);
+
   return _object;
 }
 

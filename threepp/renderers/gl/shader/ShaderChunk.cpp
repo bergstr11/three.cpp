@@ -20,6 +20,7 @@ const char *getShaderChunk(ShaderChunk chunk)
     case ShaderChunk::tonemapping_pars_fragment:
       return getShaderChunk("tonemapping_pars_fragment");
   }
+  return nullptr; //won't happen
 }
 
 const char *getShaderChunk(std::string chunk)

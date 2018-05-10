@@ -410,6 +410,12 @@ protected:
      : Super(0, itemSize, normalized), _array(value)
   {}
 
+  explicit GrowingBufferAttribute(size_t initialSize, bool normalized)
+     : Super(0, itemSize, normalized)
+  {
+    _array.reserve(initialSize * itemSize);
+  }
+
   GrowingBufferAttribute(const typename BufferAttributeT<ComponentType>::Ptr &attr)
      : Super(0, itemSize, attr->normalized())
   {

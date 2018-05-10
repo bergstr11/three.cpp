@@ -83,6 +83,9 @@ protected:
   void setObject(const three::Object3D::Ptr object);
 
 public:
+  Signal<void(Object3D::Ptr prev, Object3D::Ptr created)> onObjectSet;
+  using OnObjectSetConnection = decltype(onObjectSet)::ConnectionId;
+
   ~ThreeQObject() {
     if(_normalsHelper) _normalsHelper->deleteLater();
   }
