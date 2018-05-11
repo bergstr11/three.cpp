@@ -49,7 +49,7 @@ private:
        _dataCount(0),
        _childWalker(walker)
   {
-    qDebug() << "PointsWalker#childWalker" << object->name().c_str();
+    //qDebug() << "PointsWalker#childWalker" << object->name().c_str();
     object->updateMatrixWorld( true );
   }
 
@@ -83,11 +83,11 @@ public:
       }
     }
     if(dataCount) {
-      qDebug() << "PointsWalker" << object->name().c_str() << dataCount;
+      //qDebug() << "PointsWalker" << object->name().c_str() << dataCount;
       return Ptr(new PointsWalker(object, data, dataCount));
     }
     else {
-      qDebug() << "PointsWalker##seekChildren" << object->name().c_str();
+      //qDebug() << "PointsWalker##seekChildren" << object->name().c_str();
       auto beginChildren = object->children().begin();
       auto endChildren = object->children().end();
       while(beginChildren != endChildren) {

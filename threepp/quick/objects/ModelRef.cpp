@@ -147,7 +147,8 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
 void ModelRef::cleanup()
 {
   if(_replace && _object) {
-    _parentObject->remove(_object);
+    if(_parentObject) _parentObject->remove(_object);
+    onObjectChanged.emitSignal(_object, ObjectState::Removed);
     _object->dispose();
   }
 }
@@ -155,19 +156,7 @@ void ModelRef::cleanup()
 void ModelRef::update()
 {
   auto node = three::Node::make(_model->name().toStdString());
-  if(!_rotation.isNull())
-    node->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
 
-  if(!_position.isNull())
-    node->position().set(_position.x(), _position.y(), _position.z());
-
-  node->scale().set(_scale.x(), _scale.y(), _scale.z());
-
-  if(!_name.isEmpty())
-    node->setName(_name.toStdString());
-
-  node->matrixAutoUpdate = _matrixAutoUpdate;
-  
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
 
@@ -185,17 +174,17 @@ void ModelRef::update()
     }
   }
 
+  setObject(node);
+
+  //propagate shadow stuff down the tree
   node->visit([&](Object3D *o) {
     o->castShadow = _castShadow;
     o->receiveShadow = _receiveShadow;
     return true;
   });
 
-  Object3D::Ptr prev = _object;
-  setObject(node);
   if(_parentObject) _parentObject->add(_object);
-
-  onObjectSet.emitSignal(prev, _object);
+  onObjectChanged.emitSignal(_object, ObjectState::Added);
 
   emit objectChanged();
   _scene->item()->update();

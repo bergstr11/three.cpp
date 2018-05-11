@@ -24,7 +24,7 @@ Q_OBJECT
   MeshCreatorG<BufferGeometry> _creator {"convexHull"};
 
   ThreeQObject *_hulled = nullptr;
-  OnObjectSetConnection _hulledConnection = nullptr;
+  OnObjectChangedId _hulledConnection = nullptr;
 
 protected:
   three::Object3D::Ptr _create() override
@@ -42,12 +42,16 @@ protected:
     material()->identify(_creator);
   }
 
-  void updateHulled(Object3D::Ptr prev, Object3D::Ptr updated)
+  void updateHulled(Object3D::Ptr updated, ObjectState state)
   {
-    if(prev) _parentObject->remove(prev);
-    if(_hulled && _hulled->object()) _parentObject->remove(_hulled->object());
-
-    if(updated) {
+    if(state == ObjectState::Removed) {
+      if(updated) {
+        updated->remove(_object);
+        _parentObject->remove(updated);
+        _object->dispose();
+      }
+    }
+    else if(updated) {
       _parentObject->add(updated);
 
       updated->updateMatrix();
@@ -74,7 +78,7 @@ public:
   {
     if(_hulled != hulled) {
       if(_hulledConnection) {
-        _hulled->onObjectSet.disconnect(_hulledConnection);
+        _hulled->onObjectChanged.disconnect(_hulledConnection);
         _hulledConnection = nullptr;
       }
       _hulled = hulled;
@@ -82,11 +86,11 @@ public:
       if(_parentObject) {
         auto hulledObject = _hulled->create(_scene, nullptr);
         if(hulledObject) {
-          updateHulled(nullptr, hulledObject);
+          updateHulled(hulledObject, ObjectState::Added);
         }
       }
       else
-        _hulledConnection = _hulled->onObjectSet.connect(*this, &ConvexHull::updateHulled);
+        _hulledConnection = _hulled->onObjectChanged.connect(*this, &ConvexHull::updateHulled);
 
       emit hulledObjectChanged();
     }

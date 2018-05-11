@@ -53,11 +53,9 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 
     if(_parentObject) _parentObject->add(_object);
 
-    onObjectSet.emitSignal(prev, _object);
+    onObjectChanged.emitSignal(_object, ObjectState::Added);
     _object->updateMatrix();
   }
-  else
-    onObjectSet.emitSignal(prev, nullptr);
 
   return _object;
 }

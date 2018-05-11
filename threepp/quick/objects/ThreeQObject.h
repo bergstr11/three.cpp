@@ -83,8 +83,9 @@ protected:
   void setObject(const three::Object3D::Ptr object);
 
 public:
-  Signal<void(Object3D::Ptr prev, Object3D::Ptr created)> onObjectSet;
-  using OnObjectSetConnection = decltype(onObjectSet)::ConnectionId;
+  enum class ObjectState {Removed, Added};
+  Signal<void(Object3D::Ptr created, ObjectState state)> onObjectChanged;
+  using OnObjectChangedId = decltype(onObjectChanged)::ConnectionId;
 
   ~ThreeQObject() {
     if(_normalsHelper) _normalsHelper->deleteLater();

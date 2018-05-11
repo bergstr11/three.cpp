@@ -37,6 +37,7 @@ struct MeshCreatorG : public MeshCreator
 
   void set(std::shared_ptr<Geometry_t> geometry) {
     this->geometry = geometry;
+    this->mesh = nullptr;
   }
   void material(MeshBasicMaterial::Ptr material) override {
     if(mesh) {
