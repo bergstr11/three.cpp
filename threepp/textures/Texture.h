@@ -98,6 +98,7 @@ public:
   float rotation() const {return _rotation;}
 
   bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
+  void setMatrixAutoUpdate(bool autoUpdate) {_matrixAutoUpdate = autoUpdate;}
 
   const math::Matrix3 &matrix() const {return _matrix;}
   math::Matrix3 &matrix() {return _matrix;}

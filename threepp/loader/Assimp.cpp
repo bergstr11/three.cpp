@@ -402,13 +402,6 @@ protected:
     if(!material.map)
       material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
 
-    aiUVTransform transform;
-    if(ai->Get(AI_MATKEY_UVTRANSFORM_DIFFUSE(0), transform) == AI_SUCCESS) {
-      if(transform.mRotation != 0 || transform.mScaling.x != 1 || transform.mScaling.y != 1
-         || transform.mTranslation.x != 0 || transform.mTranslation.y != 0)
-      qWarning() << "UVTRANSFORM_DIFFUSE found, currently not supported";
-    }
-
     aiString name;
     ai->Get(AI_MATKEY_NAME, name);
     material.name = name.C_Str();
@@ -560,7 +553,18 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
             break;
         }
       }
-      return ImageTexture::make(options, image);
+
+      ImageTexture::Ptr texture = ImageTexture::make(options, image);
+
+      aiUVTransform transform;
+      if(material->Get(AI_MATKEY_UVTRANSFORM(type, 0), transform) == AI_SUCCESS) {
+        texture->matrix().setUvTransform(
+           transform.mTranslation.x, transform.mTranslation.y,
+           transform.mScaling.x, transform.mScaling.y,
+           transform.mRotation, 0, 0);
+        texture->setMatrixAutoUpdate(false);
+      }
+      return texture;
     }
   }
   return nullptr;
@@ -814,6 +818,7 @@ void Assimp::loadScene(string name, ResourceLoader &loader)
                                              aiProcess_OptimizeMeshes |
                                              aiProcess_GenNormals |
                                              aiProcess_FlipUVs |
+                                             aiProcess_TransformUVCoords |
                                              //aiProcess_RemoveComponent | //see AI_CONFIG_PP_RVC_FLAGS
                                              //aiProcess_OptimizeGraph |
                                              aiProcess_SortByPType);
