@@ -23,29 +23,59 @@ class QuickHull
     Vertex point;
     VertexNode *prev = nullptr;
     VertexNode *next = nullptr;
-    Face *face = nullptr; // the face that is able to see this vertex
+    size_t faceIndex; // the face that is able to see this vertex
 
     VertexNode(const Vertex &point) : point(point) {}
 
     VertexNode(const VertexNode &node) = delete;
     VertexNode(VertexNode &&node) = default;
+
+    Face *face(std::vector<Face> &faces);
   };
 
   struct HalfEdge
   {
+    struct Data {
+      const size_t he, prev, next, face;
+
+      Data(Face *faces, HalfEdge *he)
+         : he((char *)he - (char *)faces),
+           prev((char *)he->prev - (char *)faces),
+           next((char *)he->next - (char *)faces),
+           face((char *)he->face - (char *)faces) {}
+
+      void adjust(Face *faces) const
+      {
+        HalfEdge *edge = (HalfEdge *)((char *)faces + he);
+        edge->prev = (HalfEdge *)((char *)faces + prev);
+        edge->next = (HalfEdge *)((char *)faces + next);
+        edge->face = (Face *)((char *)faces + face);
+      }
+
+      VertexNode *head(const std::vector<Face> &faces) const {
+        return ((HalfEdge *)((char *)faces.data() + he))->head();
+      }
+
+      VertexNode *tail(const std::vector<Face> &faces) const {
+        return ((HalfEdge *)((char *)faces.data() + he))->tail();
+      }
+
+      HalfEdge *twin(const std::vector<Face> &faces) const {
+        return ((HalfEdge *)((char *)faces.data() + he))->twin(faces);
+      }
+    };
     HalfEdge *prev = nullptr;
     HalfEdge *next = nullptr;
-    HalfEdge *twin = nullptr;
 
-    VertexNode * const vertex;
     Face * face;
+    VertexNode * const vertex;
 
     HalfEdge(VertexNode *vertex, Face *face) : vertex(vertex), face(face) {}
 
-    HalfEdge &setTwin(HalfEdge *edge )
+    HalfEdge &setTwin(const std::vector<Face> &faces, HalfEdge *edge)
     {
-      twin = edge;
-      edge->twin = this;
+      _twin = ((char *)edge) - ((char *)faces.data());
+      edge->_twin = ((char *)this) - ((char *)faces.data());
 
       return *this;
     }
@@ -78,7 +108,12 @@ class QuickHull
       return -1;
     }
 
+    HalfEdge *twin(const std::vector<Face> &faces) {
+      return (HalfEdge *)((char *)faces.data() + _twin);
+    }
+
   private:
+    long _twin = -1;
     friend struct Face;
     HalfEdge(const HalfEdge &he) = default;
   };
@@ -356,7 +391,7 @@ private:
    */
   void addVertexToFace(VertexNode *vertex, Face *face )
   {
-    vertex->face = face;
+    vertex->faceIndex = face - faces.data();
 
     if ( !face->outside ) {
 
@@ -508,10 +543,10 @@ private:
         unsigned j = ( i + 1 ) % 3;
 
         // join face[ i ] i > 0, with the first face
-        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces[ offs ].getEdge( j ) );
+        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces, faces[ offs ].getEdge( j ) );
 
         // join face[ i ] with face[ i + 1 ], 1 <= i <= 3
-        faces[ offs + i + 1 ].getEdge( 1 )->setTwin( faces[ offs + j + 1 ].getEdge( 0 ) );
+        faces[ offs + i + 1 ].getEdge( 1 )->setTwin( faces, faces[ offs + j + 1 ].getEdge( 0 ) );
       }
     }
     else {
@@ -530,10 +565,10 @@ private:
         unsigned j = ( i + 1 ) % 3;
 
         // join face[ i ] i > 0, with the first face
-        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces[ offs ].getEdge( ( 3 - i ) % 3 ) );
+        faces[ offs + i + 1 ].getEdge( 2 )->setTwin( faces, faces[ offs ].getEdge( ( 3 - i ) % 3 ) );
 
         // join face[ i ] with face[ i + 1 ]
-        faces[ offs + i + 1 ].getEdge( 0 )->setTwin( faces[ offs + j + 1 ].getEdge( 1 ) );
+        faces[ offs + i + 1 ].getEdge( 0 )->setTwin( faces, faces[ offs + j + 1 ].getEdge( 1 ) );
       }
     }
 
@@ -575,7 +610,7 @@ private:
       VertexNode *start = face->outside;
       VertexNode *end = face->outside;
 
-      while ( end->next && end->next->face == face ) {
+      while ( end->next && end->next->face(faces) == face ) {
 
         end = end->next;
       }
@@ -643,7 +678,7 @@ private:
    * 'eyePoint' and a face that cannot see 'eyePoint'.
    */
   QuickHull &computeHorizon( const Vertex &eyePoint, HalfEdge *crossEdge, Face *face,
-                             std::vector<HalfEdge *> &horizon )
+                             std::vector<HalfEdge::Data> &horizon )
   {
     // moves face's vertices to the 'unassigned' vertex list
     deleteFaceVertices( face, nullptr );
@@ -664,7 +699,7 @@ private:
 
     do {
 
-      HalfEdge *twinEdge = edge->twin;
+      HalfEdge *twinEdge = edge->twin(faces);
       Face *oppositeFace = twinEdge->face;
 
       if ( oppositeFace->mark == Mark::Visible ) {
@@ -676,7 +711,7 @@ private:
         }
         else {
           // the opposite face can't see the vertex, so this edge is part of the horizon
-          horizon.push_back( edge );
+          horizon.emplace_back( faces.data(), edge );
         }
       }
 
@@ -699,7 +734,7 @@ private:
       float maxDistance = 0;
 
       // grab the first available face and start with the first visible vertex of that face
-      Face *eyeFace = assigned.head->face;
+      Face *eyeFace = assigned.head->face(faces);
       VertexNode *vertex = eyeFace->outside;
 
       // now calculate the farthest vertex that face can see
@@ -715,7 +750,7 @@ private:
 
         vertex = vertex->next;
 
-      } while ( vertex && vertex->face == eyeFace );
+      } while ( vertex && vertex->face(faces) == eyeFace );
 
       return eyeVertex;
     }
@@ -730,7 +765,7 @@ private:
     if ( vertex == face->outside ) {
 
       // fix face.outside link
-      if ( vertex->next && vertex->next->face == face) {
+      if ( vertex->next && vertex->next->face(faces) == face) {
 
         // face has at least 2 outside vertices, move the 'outside' reference
         face->outside = vertex->next;
@@ -748,14 +783,14 @@ private:
   /*
    * Creates a face with the vertices 'eyeVertex.point', 'horizonEdge.tail' and 'horizonEdge.head' in CCW order
    */
-  HalfEdge *addAdjoiningFace( VertexNode *eyeVertex, HalfEdge *horizonEdge )
+  HalfEdge *addAdjoiningFace( VertexNode *eyeVertex, const HalfEdge::Data &horizonEdge )
   {
     // all the half edges are created in ccw order thus the face is always pointing outside the hull
-    faces.emplace_back( eyeVertex, horizonEdge->tail(), horizonEdge->head() );
+    faces.emplace_back( eyeVertex, horizonEdge.tail(faces), horizonEdge.head(faces) );
     Face &face = faces.back();
 
     // join face.getEdge( - 1 ) with the horizon's opposite edge face.getEdge( - 1 ) = face.getEdge( 2 )
-    face.getEdge( -1 )->setTwin( horizonEdge->twin );
+    face.getEdge( -1 )->setTwin( faces, horizonEdge.twin(faces) );
 
     return face.getEdge( 0 ); // the half edge whose vertex is the eyeVertex
   }
@@ -764,14 +799,14 @@ private:
    * Adds 'horizon.length' faces to the hull, each face will be linked with the
    * horizon opposite face and the face on the left/right
    */
-  void addNewFaces( VertexNode *eyeVertex, std::vector<HalfEdge *> &horizon )
+  void addNewFaces( VertexNode *eyeVertex, std::vector<HalfEdge::Data> &horizon )
   {
     newFaces.clear();
 
     HalfEdge *firstSideEdge = nullptr;
     HalfEdge *previousSideEdge = nullptr;
 
-    for ( HalfEdge *horizonEdge : horizon ) {
+    for ( const HalfEdge::Data &horizonEdge : horizon ) {
       // returns the right side edge
       HalfEdge *sideEdge = addAdjoiningFace( eyeVertex, horizonEdge );
 
@@ -782,7 +817,7 @@ private:
       } else {
 
         // joins face.getEdge( 1 ) with previousFace.getEdge( 0 )
-        sideEdge->next->setTwin( previousSideEdge );
+        sideEdge->next->setTwin( faces, previousSideEdge );
       }
 
       newFaces.push_back( sideEdge->face );
@@ -790,7 +825,7 @@ private:
     }
 
     // perform final join of new faces
-    firstSideEdge->next->setTwin( previousSideEdge );
+    firstSideEdge->next->setTwin( faces, previousSideEdge );
   }
 
   /*
@@ -838,35 +873,20 @@ private:
     }
   }
 
-  /*
-   * Removes inactive faces
-   */
-  void reindexFaces()
-  {
-    /*std::vector<Face> activeFaces;
-
-    for ( const Face &face : faces ) {
-
-      if ( face.mark == Mark::Visible ) {
-        activeFaces.push_back( face );
-      }
-    }
-
-    faces.clear();
-    faces.insert(faces.begin(), activeFaces.begin(), activeFaces.end());
-    */
-  }
-
   void addVertexToHull( VertexNode *eyeVertex )
   {
     unassigned.clear();
 
     // remove 'eyeVertex' from 'eyeVertex.face' so that it can't be added to the 'unassigned' vertex list
-    removeVertexFromFace( eyeVertex, eyeVertex->face );
+    removeVertexFromFace( eyeVertex, eyeVertex->face(faces) );
 
-    std::vector<HalfEdge *> horizon;
-    computeHorizon( eyeVertex->point, nullptr, eyeVertex->face, horizon );
+    std::vector<HalfEdge::Data> horizon;
+    computeHorizon( eyeVertex->point, nullptr, eyeVertex->face(faces), horizon );
 
+    if(faces.capacity() < faces.size() + horizon.size()) {
+      faces.reserve(faces.size() + horizon.size());
+      for(const HalfEdge::Data &data : horizon) data.adjust(faces.data());
+    }
     addNewFaces( eyeVertex, horizon );
 
     // reassign 'unassigned' vertices to the new faces
@@ -882,8 +902,7 @@ private:
 
   void compute()
   {
-    qDebug() << "reserving" << vertices.size() / 3 << "faces";
-    faces.reserve(vertices.size() /  3);
+    faces.reserve(vertices.size() / 4); //random starting point
 
     computeInitialHull();
 
@@ -893,13 +912,31 @@ private:
       addVertexToHull( vertex );
     }
 
-    //reindexFaces();
-
-    qDebug() << "got" << faces.size() << "faces";
     cleanup();
   }
 
 public:
+  /*
+   * create a geometry with vertexes only
+   */
+  BufferGeometry::Ptr createGeometry()
+  {
+    auto vertices = attribute::growing<float, Vertex>();
+
+    for ( const Face &face : faces ) {
+
+      if ( face.mark == Mark::Visible ) {
+        vertices->next() = face.edge0.vertex->point;
+        vertices->next() = face.edge1.vertex->point;
+        vertices->next() = face.edge2.vertex->point;
+      }
+    }
+
+    BufferGeometry::Ptr geometry = BufferGeometry::make();
+    geometry->setPosition(vertices);
+    return geometry;
+  }
+
   /**
    * initialize this object from the given vertices
    *
@@ -969,6 +1006,11 @@ public:
 
   QuickHull() = default;
 };
+
+inline QuickHull::Face *QuickHull::VertexNode::face(std::vector<QuickHull::Face> &faces)
+{
+  return &faces[faceIndex];
+}
 
 }
 #endif //THREE_PP_QUICKHULL_H

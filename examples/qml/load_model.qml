@@ -154,6 +154,7 @@ Window {
             value: convexHull.visible
             onValueChanged: {
                 convexHull.visible = value
+                threeD.update()
             }
         }
         BoolChoice {
@@ -224,7 +225,7 @@ Window {
                 id: convexHull
                 visible: false
 
-                material: MeshBasicMaterial {color: "red"; wireframe: true}
+                material: MeshBasicMaterial {color: "green"; wireframe: true}
 
                 ModelRef {
                     id: modelref

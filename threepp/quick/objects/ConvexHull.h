@@ -23,16 +23,16 @@ Q_OBJECT
 
   MeshCreatorG<BufferGeometry> _creator {"convexHull"};
 
-  ThreeQObject *_hulledObject = nullptr;
-  OnObjectSetConnection hulledConnection = nullptr;
+  ThreeQObject *_hulled = nullptr;
+  OnObjectSetConnection _hulledConnection = nullptr;
 
 protected:
   three::Object3D::Ptr _create() override
   {
     BufferGeometry::Ptr geometry;
 
-    if(_hulledObject) {
-      _hulledObject->create(_scene, nullptr);
+    if(_hulled) {
+      _hulled->create(_scene, nullptr);
     }
 
     return nullptr;
@@ -45,47 +45,48 @@ protected:
   void updateHulled(Object3D::Ptr prev, Object3D::Ptr updated)
   {
     if(prev) _parentObject->remove(prev);
-    if(_object) _parentObject->remove(_object);
+    if(_hulled && _hulled->object()) _parentObject->remove(_hulled->object());
 
     if(updated) {
-      _object = updated;
-      _parentObject->add(_object);
+      _parentObject->add(updated);
 
       updated->updateMatrix();
       updated->updateMatrixWorld(true);
 
-      QuickHull hull(_object);
-      //geometry = hull.createGeometry();
+      QuickHull hull(updated);
+      BufferGeometry::Ptr geometry = hull.createGeometry();
 
-      //_creator.set(geometry);
-      //material()->identify(_creator);
+      _creator.set(geometry);
+      material()->identify(_creator);
 
-      //_parentObject->add(_creator.mesh);
+      _object = _creator.mesh;
+      _object->visible() = _visible;
+      updated->add(_object);
     }
   }
 
 public:
   ConvexHull(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
-  ThreeQObject *hulledObject() const {return _hulledObject;};
+  ThreeQObject *hulledObject() const {return _hulled;};
 
-  void setHulledObject(ThreeQObject *hulledObject)
+  void setHulledObject(ThreeQObject *hulled)
   {
-    if(_hulledObject != hulledObject) {
-      if(hulledConnection) {
-        _hulledObject->onObjectSet.disconnect(hulledConnection);
-        hulledConnection = nullptr;
+    if(_hulled != hulled) {
+      if(_hulledConnection) {
+        _hulled->onObjectSet.disconnect(_hulledConnection);
+        _hulledConnection = nullptr;
       }
-      _hulledObject = hulledObject;
+      _hulled = hulled;
 
       if(_parentObject) {
-        auto hulled = _hulledObject->create(_scene, nullptr);
-        if(hulled) {
-          updateHulled(nullptr, hulled);
+        auto hulledObject = _hulled->create(_scene, nullptr);
+        if(hulledObject) {
+          updateHulled(nullptr, hulledObject);
         }
       }
       else
-        hulledConnection = _hulledObject->onObjectSet.connect(*this, &ConvexHull::updateHulled);
+        _hulledConnection = _hulled->onObjectSet.connect(*this, &ConvexHull::updateHulled);
 
       emit hulledObjectChanged();
     }
