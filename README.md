@@ -1,9 +1,11 @@
 # Three::pp
-another C++ port of Three.js, based on Three.js r86+ and a few of the Qt framework's OpenGL classes
+C++ port of Three.js, based on Three.js r86+ and a few of the Qt framework's OpenGL classes
 
-May be used standalone (limited work required to remove the dependency on Qt's QOpenGLFunctions), or through the extensive QML (aka QtQuick) integration.
+Three::pp can be used directly as a C++ API that parallels Three.js's Javascript, or through the extensive QML (aka QtQuick) integration. The examples are mostly in QML
 
-Currently in beta state. Some examples demonstrate the functionality. Buildable under Linux/gcc 7.3 and sometimes under Android. Windows available soon.
+For the plain C++ API, a slight dependency on Qt remains (mostly convenience classes like QImage and OpenGLFunctions) which could be removed with limited effort.
+
+Currently in beta state. A number of examples demonstrate the functionality. Buildable under Linux/gcc 7.3 and sometimes under Android. Windows available soon.
 
 Contributors welcome
 

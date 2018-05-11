@@ -23,7 +23,6 @@ class QuickHull
     Vertex point;
     VertexNode *prev = nullptr;
     VertexNode *next = nullptr;
-    size_t faceIndex; // the face that is able to see this vertex
 
     VertexNode(const Vertex &point) : point(point) {}
 
@@ -31,10 +30,14 @@ class QuickHull
     VertexNode(VertexNode &&node) = default;
 
     Face *face(std::vector<Face> &faces);
+    size_t faceIndex; // the face that is able to see this vertex
   };
 
   struct HalfEdge
   {
+    /**
+     * relocation-stable internal representation
+     */
     struct Data {
       const size_t he, prev, next, face;
 

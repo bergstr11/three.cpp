@@ -15,6 +15,9 @@
 namespace three {
 namespace quick {
 
+/**
+ * creates a convex hull around the child object.
+ */
 class ConvexHull : public ThreeQObject
 {
 Q_OBJECT
