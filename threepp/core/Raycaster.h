@@ -121,7 +121,7 @@ public:
   std::vector<Intersection> intersectObject(Object3D &object, bool recursive=true, bool stopFirst=true );
 
   std::vector<Intersection> intersectObjects(std::vector<std::shared_ptr<Object3D>> objects,
-                                             bool recursive=true, bool stopfirst=true);
+                                             bool recursive=true, bool stopFirst=false);
 };
 
 }

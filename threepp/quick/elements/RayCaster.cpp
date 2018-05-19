@@ -25,7 +25,6 @@ QVariantList RayCaster::intersectObjects(const QVariantList &objects)
     objs.push_back(o->object());
   }
   vector<Intersection> intersects = _raycaster.intersectObjects(objs);
-
   for(const Intersection &isect : intersects) {
 
     auto found = find_if(objects.begin(), objects.end(),

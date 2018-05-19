@@ -32,19 +32,15 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Matrix4 inverseMatrix = _matrixWorld.inverted();
   std::vector<math::Ray> rays(raycaster.rays());
 
-  if (!geometry()->boundingBox().isEmpty()) {
-    // Check boundingBox before continuing
-    for(auto &ray : rays) {
-      ray.apply(inverseMatrix);
-      if (ray.intersectsBox(geometry()->boundingBox())) {
-        hit = true;
-        break;
-      }
-    }
-  }
-  if(!hit) return;
+  hit = geometry()->boundingBox().isEmpty();
+  for(auto &ray : rays) {
+    ray.apply(inverseMatrix);
 
-  geometry()->raycast(*this, raycaster, rays, intersects);
+    // Check boundingBox before continuing
+    hit = hit || ray.intersectsBox(geometry()->boundingBox());
+  }
+
+  if(hit) geometry()->raycast(*this, raycaster, rays, intersects);
 }
 
 }

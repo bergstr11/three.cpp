@@ -53,7 +53,7 @@ Window {
         ImageTexture {
             id: cubeTexture
             image: ":/square-outline-textured.png"
-            imageFormat: Image.RGBA8888
+            imageFormat: ThreeImage.RGBA8888
         }
         Scene {
             id: scene
@@ -150,11 +150,13 @@ Window {
             if (intersects.length > 0) {
                 var intersect = intersects[ 0 ];
 
-                if ( mouse.modifiers & Qt.ShiftModifier && intersect.object !== plane) {
+                if ( mouse.modifiers & Qt.ShiftModifier) {
 
-                    // delete cube
-                    scene.remove( intersect.object );
-                    threeD.objectList.splice( threeD.objectList.indexOf( intersect.object ), 1 );
+                    if(intersect.object !== plane) {
+                        // delete cube
+                        scene.remove( intersect.object );
+                        threeD.objectList.splice( threeD.objectList.indexOf( intersect.object ), 1 );
+                    }
 
                 } else if(intersect.object === plane) {
 
