@@ -57,10 +57,8 @@ public:
 
   bool handleMousePressed(QMouseEvent *event)
   {
-    if ( enabled  ) {
-      _startingPos= event->pos();
-      _eventButton= event->button();
-    }
+    _startingPos= event->pos();
+    _eventButton= event->button();
     return false;
   }
 

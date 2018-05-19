@@ -156,7 +156,7 @@ public:
 
   virtual void setAspect(float aspect) {}
 
-  virtual void setup(math::Ray &ray, float x, float y) = 0;
+  virtual math::Ray ray(float x, float y) const = 0;
 
   virtual void updateProjectionMatrix() = 0;
 };

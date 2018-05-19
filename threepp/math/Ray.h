@@ -23,6 +23,7 @@ class Ray
 public:
   Ray() {}
 
+  // direction is assumed to be normalized (for accurate distance calculations)
   Ray(const Vector3 &origin, const Vector3 &direction) : _origin(origin), _direction(direction)
   {}
 

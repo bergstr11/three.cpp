@@ -13,6 +13,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "elements/LightShadow.h"
 #include "elements/RayCaster.h"
 #include "cameras/CameraHelper.h"
+#include "cameras/CameraController.h"
 #include "threepp/quick/lights/AmbientLight.h"
 #include "threepp/quick/lights/SpotLight.h"
 #include "threepp/quick/lights/PointLight.h"
@@ -70,7 +71,13 @@ void init()
   qmlRegisterUncreatableType<three::quick::Mesh>("three.quick", 1, 0, "Mesh", "internal class");
   qmlRegisterUncreatableType<three::quick::LightHelper>("three.quick", 1, 0, "LightHelper", "internal class");
   qmlRegisterUncreatableType<three::quick::CameraHelper>("three.quick", 1, 0, "CameraHelper", "internal class");
+  qmlRegisterUncreatableType<three::quick::CameraController>("three.quick", 1, 0, "CameraController", "abstract class");
   qmlRegisterUncreatableType<three::quick::VertexNormalsHelper>("three.quick", 1, 0, "VertexNormalsHelper", "internal class");
+  qmlRegisterUncreatableType<three::quick::Rays>("three.quick", 1, 0, "Rays", "abstract class");
+  qmlRegisterType<three::quick::SingleRay>("three.quick", 1, 0, "SingleRay");
+  qmlRegisterType<three::quick::CircularRays>("three.quick", 1, 0, "CircularRays");
+  qmlRegisterType<three::quick::SquareRays>("three.quick", 1, 0, "SquareRays");
+  qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
   qmlRegisterType<three::quick::Intersect>();
   qmlRegisterType<three::quick::RayCaster>();
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
@@ -103,7 +110,6 @@ void init()
   qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "ThreeImage");
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");
   qmlRegisterType<three::quick::ImageCubeTexture>("three.quick", 1, 0, "ImageCubeTexture");
-  qmlRegisterUncreatableType<three::quick::Controller>("three.quick", 1, 0, "Controller", "abstract class");
   qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");
   qmlRegisterType<three::quick::ObjectPicker>("three.quick", 1, 0, "ObjectPicker");
 }

@@ -92,7 +92,7 @@ bool Orbit::update()
 
 void Orbit::_pan(float deltaX, float deltaY)
 {
-  if(CAST(_camera, pcamera, PerspectiveCamera)) {
+  if(PerspectiveCamera *pcamera = _camera->typer) {
 
     // perspective
     math::Vector3 offset = _camera->position() - target;
@@ -106,8 +106,8 @@ void Orbit::_pan(float deltaX, float deltaY)
       panLeft(2.0f * deltaX * targetDistance / clientHeight(), pcamera->matrix());
     if (deltaY != 0)
       panUp(2.0f * deltaY * targetDistance / clientHeight(), pcamera->matrix());
-  };
-  if(CAST(_camera, ocamera, OrthographicCamera)) {
+  }
+  else if(OrthographicCamera *ocamera = _camera->typer) {
 
     // orthographic
     if (deltaX != 0)
@@ -123,12 +123,12 @@ void Orbit::_pan(float deltaX, float deltaY)
 
 void Orbit::_dollyIn(float dollyScale)
 {
-  if(CAST(_camera, pcamera, PerspectiveCamera)) {
+  if(PerspectiveCamera *pcamera = _camera->typer) {
 
     scale /= dollyScale;
     update();
   }
-  else if(CAST(_camera, ocamera, OrthographicCamera)) {
+  else if(OrthographicCamera *ocamera = _camera->typer) {
 
     ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() * dollyScale)));
     ocamera->updateProjectionMatrix();
@@ -142,12 +142,12 @@ void Orbit::_dollyIn(float dollyScale)
 
 void Orbit::_dollyOut(float dollyScale)
 {
-  if(CAST(_camera, pcamera, PerspectiveCamera)) {
+  if(PerspectiveCamera *pcamera = _camera->typer) {
 
     scale *= dollyScale;
     update();
   }
-  else if(CAST(_camera, ocamera, OrthographicCamera)) {
+  else if(OrthographicCamera *ocamera = _camera->typer) {
 
     ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() / dollyScale)));
     ocamera->updateProjectionMatrix();

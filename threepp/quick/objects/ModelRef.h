@@ -14,6 +14,8 @@
 namespace three {
 namespace quick {
 
+class ObjectPicker;
+
 class ModelRef : public ThreeQObject
 {
 Q_OBJECT
@@ -77,6 +79,8 @@ public:
   Type type() const {return _type;}
 
   void setType(Type type) {_type = type;}
+
+  Q_INVOKABLE void testMarker(three::quick::ObjectPicker *picker);
 
 signals:
   void modelChanged();

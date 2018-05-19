@@ -461,8 +461,8 @@ private:
    */
   void computeInitialHull()
   {
-    std::array<VertexNode *, 3> min {&vertices[0]};
-    std::array<VertexNode *, 3> max {&vertices[0]};
+    std::array<VertexNode *, 3> min {&vertices[0], &vertices[0], &vertices[0]};
+    std::array<VertexNode *, 3> max {&vertices[0], &vertices[0], &vertices[0]};
     computeExtremes(min, max);
 
     // 1. Find the two vertices 'v0' and 'v1' with the greatest 1d separation
@@ -924,8 +924,7 @@ public:
    */
   BufferGeometry::Ptr createGeometry()
   {
-    auto vertices = attribute::growing<float, Vertex>();
-
+    auto vertices = attribute::prealloc<float, Vertex>(faces.size() * 3, true);
     for ( const Face &face : faces ) {
 
       if ( face.mark == Mark::Visible ) {
@@ -972,10 +971,9 @@ public:
   {
     clear();
 
-    PointsWalker::Ptr begin = PointsWalker::make(object);
+    PointsWalker<>::Ptr begin = PointsWalker<>::make(object.get());
     if(begin) {
-      PointsWalker end(object->children().end());
-      return *this;//setFromPoints(*begin, end);
+      setFromPoints(*begin, begin->end());
     }
     return *this;
   }
@@ -987,10 +985,9 @@ public:
    */
   explicit QuickHull (const Object3D::Ptr object)
   {
-    PointsWalker::Ptr begin = PointsWalker::make(object);
+    PointsWalker<>::Ptr begin = PointsWalker<>::make(object.get());
     if(begin) {
-      PointsWalker end(object->children().end());
-      setFromPoints(*begin, end);
+      setFromPoints(*begin, begin->end());
     }
   }
 

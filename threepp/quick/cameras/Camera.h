@@ -10,9 +10,9 @@
 #include <QQmlListProperty>
 #include <threepp/camera/Camera.h>
 #include <threepp/quick/lights/Light.h>
-#include <threepp/quick/interact/Controller.h>
 #include <threepp/quick/Math.h>
 #include <threepp/quick/cameras/CameraHelper.h>
+#include <threepp/quick/cameras/CameraController.h>
 
 namespace three {
 namespace quick {
@@ -23,7 +23,7 @@ class Camera : public ThreeQObject
 {
   Q_OBJECT
   Q_PROPERTY(QVector3D target READ target WRITE setTarget NOTIFY targetChanged)
-  Q_PROPERTY(Controller * controller READ controller WRITE setController NOTIFY controllerChanged)
+  Q_PROPERTY(CameraController * controller READ controller WRITE setController NOTIFY controllerChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::Light> lights READ lights)
   Q_PROPERTY(CameraHelper *helper READ helper)
   Q_PROPERTY(float near READ near WRITE setNear NOTIFY nearChanged)
@@ -36,7 +36,7 @@ class Camera : public ThreeQObject
 
   QList<Light *> _lights;
 
-  Controller *_controller = nullptr;
+  CameraController *_controller = nullptr;
 
   CameraHelper _qhelper;
 
@@ -102,25 +102,9 @@ public:
     }
   }
 
-  void updateControllerValues()
-  {
-    const math::Vector3 &p = _camera->position();
-    setPosition(QVector3D(p.x(), p.y(), p.z()), false);
-    const math::Euler &r = _camera->rotation();
-    setRotation(QVector3D(r.x(), r.y(), r.z()), false);
-  }
+  CameraController *controller() const {return _controller;}
 
-  Controller *controller() const {return _controller;}
-
-  void setController(Controller *controller)
-  {
-    if(_controller != controller) {
-      _controller = controller;
-      _controller->_camera = this;
-      QObject::connect(_controller, &Controller::changed, this, &Camera::updateControllerValues);
-      emit controllerChanged();
-    }
-  }
+  void setController(CameraController *controller);
 
   QVector3D toQVector3D(const math::Vector3 &vector) {
     return QVector3D(vector.x(), vector.y(), vector.z());
@@ -138,6 +122,9 @@ signals:
   void farChanged();
   void targetChanged();
   void controllerChanged();
+
+public slots:
+  void updateControllerValues();
 };
 
 }

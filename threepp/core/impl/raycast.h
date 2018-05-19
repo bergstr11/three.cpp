@@ -35,7 +35,7 @@ inline bool checkIntersection(Object3D &object,
   result.point.apply(object.matrixWorld());
   const math::Matrix4 &m = object.matrixWorld();
 
-  float distance = raycaster.ray().origin().distanceTo(result.point);
+  float distance = raycaster.origin().distanceTo(result.point);
 
   if (distance < raycaster.near() || distance > raycaster.far()) return false;
 

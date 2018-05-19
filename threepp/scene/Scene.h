@@ -79,9 +79,7 @@ template <typename _BgData> struct Background
   Background(const Background &background)
      : data(background.data), typer(background::Typer(this)) {}
 
-  ~Background() {
-    qDebug() << "killl";
-  }
+  ~Background() = default;
 };
 
 /**

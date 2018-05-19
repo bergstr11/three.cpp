@@ -25,7 +25,7 @@ struct array_hash {
   }
 };
 
-math::Vector3 LinearGeometry::centroid(const Face3 &face)
+math::Vector3 LinearGeometry::centroid(const Face3 &face) const
 {
   const Vertex &vA = _vertices[ face.a ];
   const Vertex &vB = _vertices[ face.b ];
@@ -36,7 +36,7 @@ math::Vector3 LinearGeometry::centroid(const Face3 &face)
 
 void LinearGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
-                             const math::Ray &ray,
+                             const std::vector<math::Ray> &rays,
                              std::vector<Intersection> &intersects)
 {
   std::vector<UV_Array> &faceVertexUvs = _faceVertexUvs[0];
@@ -77,28 +77,30 @@ void LinearGeometry::raycast(Mesh &mesh,
     }
 
     Intersection intersection;
-    if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
+    for(const auto &ray : rays) {
+      if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
 
-      if (faceVertexUvs.size() > f) {
+        if (faceVertexUvs.size() > f) {
 
-        UV_Array &uvs_f = faceVertexUvs[f];
-        Vector2 uvA(uvs_f[0]);
-        Vector2 uvB(uvs_f[1]);
-        Vector2 uvC(uvs_f[2]);
+          UV_Array &uvs_f = faceVertexUvs[f];
+          Vector2 uvA(uvs_f[0]);
+          Vector2 uvB(uvs_f[1]);
+          Vector2 uvC(uvs_f[2]);
 
-        intersection.uv = uvIntersection(intersection.point, fvA, fvB, fvC, uvA, uvB, uvC);
+          intersection.uv = uvIntersection(intersection.point, fvA, fvB, fvC, uvA, uvB, uvC);
+        }
+
+        intersection.face = face;
+        intersection.faceIndex = (unsigned)f;
+        intersects.push_back(intersection);
       }
-
-      intersection.face = face;
-      intersection.faceIndex = (unsigned)f;
-      intersects.push_back(intersection);
     }
   }
 }
 
 void LinearGeometry::raycast(Line &line,
                              const Raycaster &raycaster,
-                             const math::Ray &ray,
+                             const std::vector<math::Ray> &rays,
                              std::vector<Intersection> &intersects)
 {
   Vector3 interSegment;
@@ -109,24 +111,26 @@ void LinearGeometry::raycast(Line &line,
 
   for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
 
-    float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
+    for(const auto &ray : rays) {
+      float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
 
-    if (distSq > precisionSq) continue;
+      if (distSq > precisionSq) continue;
 
-    interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
+      interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
 
-    float distance = raycaster.ray().origin().distanceTo(interRay);
+      float distance = raycaster.origin().distanceTo(interRay);
 
-    if (distance < raycaster.near() || distance > raycaster.far()) continue;
+      if (distance < raycaster.near() || distance > raycaster.far()) continue;
 
-    intersects.emplace_back();
-    Intersection &intersect = intersects.back();
-    intersect.distance = distance;
-    // What do we want? intersection point on the ray or on the segment??
-    // point: raycaster.ray.at( distance ),
-    intersect.point = interSegment.apply(line.matrixWorld());
-    intersect.index = i;
-    intersect.object = &line;
+      intersects.emplace_back();
+      Intersection &intersect = intersects.back();
+      intersect.distance = distance;
+      // What do we want? intersection point on the ray or on the segment??
+      // point: raycaster.ray.at( distance ),
+      intersect.point = interSegment.apply(line.matrixWorld());
+      intersect.index = i;
+      intersect.object = &line;
+    }
   }
 }
 

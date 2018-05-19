@@ -7,15 +7,53 @@
 
 #include <QQuickFramebufferObject>
 #include <QJSValue>
-#include <threepp/quick/cameras/Camera.h>
 #include <threepp/renderers/OpenGLRenderer.h>
 #include "Three.h"
 
 namespace three {
 namespace quick {
 
+class ThreeDItem;
 class ThreeQObject;
 class ThreeQObjectRoot;
+class Camera;
+class Scene;
+
+class Interactor
+{
+protected:
+  ThreeDItem *_item = nullptr;
+  bool _enabled = true;
+
+  virtual bool handleMousePressed(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseDoubleClicked(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseMoved(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseReleased(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseWheel(QWheelEvent *event) {return false;}
+
+public:
+  void setItem(ThreeDItem *item);
+
+  bool mousePressed(QMouseEvent *event) {
+    return _enabled ? handleMousePressed(event) : false;
+  }
+  bool mouseDoubleClicked(QMouseEvent *event) {
+    return _enabled ? handleMouseDoubleClicked(event) : false;
+  }
+  bool mouseMoved(QMouseEvent *event) {
+    return _enabled ? handleMouseMoved(event) : false;
+  }
+  bool mouseReleased(QMouseEvent *event) {
+    return _enabled ? handleMouseReleased(event) : false;
+  }
+  bool mouseWheel(QWheelEvent *event) {
+    return _enabled ? handleMouseWheel(event) : false;
+  }
+};
 
 class ThreeDItem : public QQuickFramebufferObject
 {
@@ -41,7 +79,7 @@ private:
 
   std::vector<three::quick::Scene *> _scenes;
 
-  std::vector<Controller *> _controllers;
+  std::vector<Interactor *> _interactors;
 
   struct RenderGroup {
     three::Scene::Ptr scene;
@@ -83,9 +121,9 @@ public:
 
   void addScene(three::quick::Scene *scene);
 
-  void addController(Controller *controller);
+  void addInteractor(Interactor *interactor);
 
-  void removeController(Controller *controller);
+  void removeInteractor(Interactor *controller);
 
   Three::ShadowType shadowType() const {return _shadowType;}
 

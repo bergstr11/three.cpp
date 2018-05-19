@@ -19,7 +19,7 @@ using namespace impl;
 size_t Geometry::id_count = 0;
 
 
-math::Vector3 BufferGeometry::centroid(const Face3 &face)
+math::Vector3 BufferGeometry::centroid(const Face3 &face) const
 {
   math::Vector3 vA = math::Vector3::fromBufferAttribute(*_position, face.a);
   math::Vector3 vB = math::Vector3::fromBufferAttribute(*_position, face.b);
@@ -30,7 +30,7 @@ math::Vector3 BufferGeometry::centroid(const Face3 &face)
 
 void BufferGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
-                             const math::Ray &ray,
+                             const std::vector<math::Ray> &rays,
                              std::vector<Intersection> &intersects)
 {
   if (_index != nullptr) {
@@ -43,9 +43,11 @@ void BufferGeometry::raycast(Mesh &mesh,
       uint32_t c = _index->get_x(i + 2);
 
       Intersection intersection;
-      if(checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-        intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in indices buffer semantics
-        intersects.push_back(intersection);
+      for(const auto &ray : rays) {
+        if(checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
+          intersection.faceIndex = (unsigned)std::floor(i / 3);
+          intersects.push_back(intersection);
+        }
       }
     }
   }
@@ -58,16 +60,19 @@ void BufferGeometry::raycast(Mesh &mesh,
       unsigned c = i + 2;
 
       Intersection intersection;
-      if (checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-        intersection.index = a; // triangle number in positions buffer semantics
-        intersects.push_back(intersection);
+      for(const auto &ray : rays) {
+        if (checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
+          intersection.index = a;
+          intersects.push_back(intersection);
+        }
       }
     }
   }
 }
 
 void BufferGeometry::raycast(Line &line,
-                             const Raycaster &raycaster, const math::Ray &ray,
+                             const Raycaster &raycaster,
+                             const std::vector<math::Ray> &rays,
                              std::vector<Intersection> &intersects)
 {
   float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
@@ -86,25 +91,27 @@ void BufferGeometry::raycast(Line &line,
       Vector3 vStart = Vector3::fromArray(_position->data_t(), a * 3 );
       Vector3 vEnd = Vector3::fromArray(_position->data_t(), b * 3 );
 
-      float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
+      for(const auto &ray : rays) {
+        float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
-      if ( distSq > precisionSq ) continue;
+        if ( distSq > precisionSq ) continue;
 
-      interRay.apply( line.matrixWorld() ); //Move back to world space for distance calculation
+        interRay.apply( line.matrixWorld() ); //Move back to world space for distance calculation
 
-      float distance = raycaster.ray().origin().distanceTo( interRay );
+        float distance = raycaster.origin().distanceTo( interRay );
 
-      if ( distance < raycaster.near() || distance > raycaster.far() ) continue;
+        if ( distance < raycaster.near() || distance > raycaster.far() ) continue;
 
-      intersects.emplace_back();
-      Intersection &intersection = intersects.back();
+        intersects.emplace_back();
+        Intersection &intersection = intersects.back();
 
-      intersection.distance = distance;
-      // What do we want? intersection point on the ray or on the segment??
-      // point: raycaster.ray.at( distance ),
-      intersection.point = interSegment.apply(line.matrixWorld());
-      intersection.index = i;
-      intersection.object = &line;
+        intersection.distance = distance;
+        // What do we want? intersection point on the ray or on the segment??
+        // point: raycaster.ray.at( distance ),
+        intersection.point = interSegment.apply(line.matrixWorld());
+        intersection.index = i;
+        intersection.object = &line;
+      }
     }
   } else {
 
@@ -113,25 +120,27 @@ void BufferGeometry::raycast(Line &line,
       Vector3 vStart = Vector3::fromArray(_position->data_t(), 3 * i );
       Vector3 vEnd = Vector3::fromArray(_position->data_t(), 3 * i + 3 );
 
-      float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
+      for(const auto &ray : rays) {
+        float distSq = ray.distanceSqToSegment(vStart, vEnd, &interRay, &interSegment);
 
-      if ( distSq > precisionSq ) continue;
+        if (distSq > precisionSq) continue;
 
-      interRay.apply( line.matrixWorld() ); //Move back to world space for distance calculation
+        interRay.apply(line.matrixWorld()); //Move back to world space for distance calculation
 
-      float distance = raycaster.ray().origin().distanceTo( interRay );
+        float distance = raycaster.origin().distanceTo(interRay);
 
-      if ( distance < raycaster.near() || distance > raycaster.far() ) continue;
+        if (distance < raycaster.near() || distance > raycaster.far()) continue;
 
-      intersects.emplace_back();
-      Intersection &intersection = intersects.back();
+        intersects.emplace_back();
+        Intersection &intersection = intersects.back();
 
-      intersection.distance = distance;
-      // What do we want? intersection point on the ray or on the segment??
-      // point: raycaster.ray.at( distance ),
-      intersection.point = interSegment.apply(line.matrixWorld());
-      intersection.index = i;
-      intersection.object = &line;
+        intersection.distance = distance;
+        // What do we want? intersection point on the ray or on the segment??
+        // point: raycaster.ray.at( distance ),
+        intersection.point = interSegment.apply(line.matrixWorld());
+        intersection.index = i;
+        intersection.object = &line;
+      }
     }
   }
 }

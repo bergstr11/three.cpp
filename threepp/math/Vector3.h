@@ -15,8 +15,6 @@
 
 namespace three {
 
-using Vertex = math::Vector3;
-
 class Camera;
 
 template<typename T>
@@ -300,6 +298,11 @@ public:
     return *this;
   }
 
+  Vector3 negated() const
+  {
+    return Vector3(-_x, -_y, -_z);
+  }
+
   float lengthSq() const
   {
     return _x * _x + _y * _y + _z * _z;
@@ -503,6 +506,9 @@ inline float dot(const Vector3 &a, const Vector3 &b)
 }
 
 }
+
+using Vertex = math::Vector3;
+
 }
 
 namespace std {

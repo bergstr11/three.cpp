@@ -13,13 +13,21 @@ void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Sphere sphere = geometry()->boundingSphere();
   sphere.apply(_matrixWorld);
 
-  if (!raycaster.ray().intersectsSphere(sphere)) return;
+  bool hit = false;
+  for(const auto &ray : raycaster.rays()) {
+    if (ray.intersectsSphere(sphere)) {
+      hit = true;
+      break;
+    }
+  }
+  if(!hit) return;
 
   math::Matrix4 inverseMatrix = _matrixWorld.inverted();
-  math::Ray ray = raycaster.ray();
-  ray.apply( inverseMatrix );
 
-  geometry()->raycast(*this, raycaster, ray, intersects);
+  std::vector<math::Ray> rays(raycaster.rays());
+  for(auto &ray : rays) ray.apply( inverseMatrix );
+
+  geometry()->raycast(*this, raycaster, rays, intersects);
 }
 
 }

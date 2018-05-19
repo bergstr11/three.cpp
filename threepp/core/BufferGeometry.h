@@ -168,6 +168,7 @@ public:
   BufferGeometry &update(std::shared_ptr<Object3D> object, LinearGeometry *geometry);
 
   void computeVertexNormals();
+
   void normalizeNormals();
 
   bool useMorphing() const override
@@ -316,15 +317,16 @@ public:
     return _position->itemCount();
   }
 
-  math::Vector3 centroid(const Face3 &face) override;
+  math::Vector3 centroid(const Face3 &face) const override;
 
   void raycast(Line &line,
-               const Raycaster &raycaster, const math::Ray &ray,
+               const Raycaster &raycaster,
+               const std::vector<math::Ray> &ray,
                std::vector<Intersection> &intersects) override;
 
   void raycast(Mesh &mesh,
                const Raycaster &raycaster,
-               const math::Ray &ray,
+               const std::vector<math::Ray> &ray,
                std::vector<Intersection> &intersects) override;
 };
 

@@ -120,9 +120,6 @@ public:
    */
   void pan(unsigned deltaX, unsigned deltaY);
 
-  // Set to false to disable this control
-  bool enabled = true;
-
   // "target" sets the location of focus, where the object orbits around
   math::Vector3 target;
 

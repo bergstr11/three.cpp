@@ -12,6 +12,8 @@
 #include <threepp/quick/materials/MeshPhongMaterial.h>
 #include <threepp/quick/materials/MeshLambertMaterial.h>
 #include <threepp/quick/materials/ShaderMaterial.h>
+#include <threepp/core/Raycaster.h>
+#include <threepp/math/Triangle.h>
 #include "ObjectPicker.h"
 
 namespace three {
@@ -25,6 +27,67 @@ struct no_delete
 
 using namespace std;
 
+void SingleRay::setIntersects(std::vector<Intersection> &intersects)
+{
+  //only sorty by distance
+  std::sort(intersects.begin(), intersects.end(),
+            [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
+}
+
+Raycaster SingleRay::raycaster(const math::Ray &cameraRay)
+{
+  _origin = cameraRay.origin();
+  _surfaceNormal = cameraRay.direction().negated();
+  return Raycaster(cameraRay);
+}
+
+math::Vector3 calculateSurfaceNormal(std::vector<Intersection> &intersects)
+{
+  float first=numeric_limits<unsigned>::max(), second=numeric_limits<unsigned>::max(), third=numeric_limits<unsigned>::max();
+  unsigned findex, sindex, tindex;
+
+  for(unsigned i=0; i<intersects.size(); i++) {
+    float dist = intersects[i].distance;
+
+    if(dist < first) {
+      first = dist;
+      findex = i;
+    }
+    if(dist >= first && dist < second) {
+      second = dist;
+      sindex = i;
+    }
+    if(dist >= first && dist >= second && dist < third) {
+      third = dist;
+      tindex = i;
+    }
+  }
+
+  return math::Triangle::normal(intersects[findex].point, intersects[sindex].point, intersects[tindex].point);
+}
+
+void CircularRays::setIntersects(std::vector<Intersection> &intersects)
+{
+  _surfaceNormal = calculateSurfaceNormal(intersects);
+}
+
+Raycaster CircularRays::raycaster(const math::Ray &cameraRay)
+{
+  _origin = cameraRay.origin();
+  return Raycaster(cameraRay.origin(), Raycaster::createCircularBundle(cameraRay, _radius, _segments));
+}
+
+Raycaster SquareRays::raycaster(const math::Ray &cameraRay)
+{
+  _origin = cameraRay.origin();
+  return Raycaster(cameraRay.origin(), Raycaster::createSquareBundle(cameraRay, _sideLength, _sideSegments));
+}
+
+void SquareRays::setIntersects(std::vector<Intersection> &intersects)
+{
+  _surfaceNormal = calculateSurfaceNormal(intersects);
+}
+
 bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 {
   if(_lastX == event->x() && _lastY == event->y())  return false;
@@ -32,17 +95,19 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
   _lastY = event->y();
 
   if(_camera && _item && event->button() == Qt::LeftButton) {
-    QVector2D m(((float)event->x() / (float)_item->width()) * 2 - 1,
-                -((float)event->y() / (float)_item->height()) * 2 + 1);
 
-    _raycaster.set(m);
+    float x = ((float)event->x() / (float)_item->width()) * 2 - 1;
+    float y = -((float)event->y() / (float)_item->height()) * 2 + 1;
 
-    size_t prevCount = _intersects.size();
+    const math::Ray cameraRay = _camera->camera()->ray(x, y);
+    Raycaster raycaster = _rays->raycaster(cameraRay);
+
     _intersects.clear();
     _currentIntersect.object.clear();
 
     for (const auto &obj : _objects) {
       Object3D::Ptr o3d;
+
       ThreeQObject *to = obj.value<ThreeQObject *>();
       if(to) o3d = to->object();
       else {
@@ -50,31 +115,24 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
         if(po) o3d = po->object();
       }
       if(!o3d) continue;
-      if(_pickAll)
-        three::intersectObject( *o3d, _raycaster.raycaster(), _intersects, true );
-      else {
-        std::vector<Intersection> intersects;
-        three::intersectObject( *o3d, _raycaster.raycaster(), intersects, true );
-        if(!intersects.empty()) {
-          _currentIntersect.object = obj;
-          _currentIntersect.set(intersects[0]);
 
-          if(prevCount != 1) emit intersectCountChanged();
-          emit objectsClicked();
-          return  true;
-        }
+      three::intersectObject( *o3d, raycaster, _intersects, true, _rays->pickFirst() );
+      if(_rays->pickFirst() && !_intersects.empty()) {
+        _currentIntersect.object = obj;
+        _currentIntersect.set(_intersects[0]);
+
+        break;
       }
     }
-    if(_scene && _pickAll) {
+    if(_scene && (!_rays->pickFirst()  || _intersects.empty())) {
       for (auto obj : _scene->scene()->children()) {
-        three::intersectObject( *obj, _raycaster.raycaster(), _intersects, true );
+        three::intersectObject( *obj, raycaster, _intersects, true, _rays->pickFirst() );
+        if(_rays->pickFirst() && !_intersects.empty()) break;
       }
     }
     if(!_intersects.empty()) {
-      std::sort(_intersects.begin(), _intersects.end(),
-                [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
+      _rays->setIntersects(_intersects);
 
-      if(prevCount != _intersects.size()) emit intersectCountChanged();
       emit objectsClicked();
       return  true;
     }
@@ -89,8 +147,8 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 
 QVariant ObjectPicker::intersect(unsigned index)
 {
-  if(_pickAll) {
-    if(_intersects.size() > index) {
+  if(_intersects.size() > index) {
+    if(_prototype) {
       shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
       _prototype->setObject(obj);
       if(_prototype->material()) _prototype->material()->deleteLater();
@@ -109,12 +167,12 @@ QVariant ObjectPicker::intersect(unsigned index)
       }
 
       _currentIntersect.object.setValue(_prototype);
-      _currentIntersect.set(_intersects[index]);
-
-      QVariant var;
-      var.setValue(&_currentIntersect);
-      return var;
     }
+    _currentIntersect.set(_intersects[index]);
+
+    QVariant var;
+    var.setValue(&_currentIntersect);
+    return var;
   }
   else if(index == 0 && !_currentIntersect.object.isNull()){
     //_currentIntersect already set
@@ -127,13 +185,11 @@ QVariant ObjectPicker::intersect(unsigned index)
 
 bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
-  if(_pickAll) {
-    if(!_intersects.empty()) {
-      emit objectsDoubleClicked();
-      return true;
-    }
+  if(!_currentIntersect.object.isNull()) {
+    emit objectsDoubleClicked();
+    return true;
   }
-  else if(!_currentIntersect.object.isNull()) {
+  else if(!_intersects.empty()) {
     emit objectsDoubleClicked();
     return true;
   }
@@ -146,11 +202,8 @@ bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 }
 
 ObjectPicker::ObjectPicker(QObject *parent)
-   : Controller(parent), _currentIntersect(this), _prototype(nullptr)
+   : ThreeQObjectRoot(parent), _currentIntersect(this), _prototype(nullptr), _rays(new SingleRay())
 {
-  QObject::connect(this, &Controller::cameraChanged, [this]() {
-    _raycaster.setCamera(_camera);
-  });
   QQmlEngine::setObjectOwnership(&_currentIntersect, QQmlEngine::CppOwnership);
 }
 
@@ -162,15 +215,29 @@ void ObjectPicker::setItem(ThreeDItem *item)
 {
   if(_item != item) {
     _item = item;
-    Controller::setItem(item);
-  }
-  if(_pickAll && !_prototype) {
-    _prototype = new ThreeQObject();
-    QQmlEngine::setObjectOwnership(_prototype, QQmlEngine::CppOwnership);
+    Interactor::setItem(item);
   }
 
   for(const auto &picker : _pickers) {
     picker->setItem(item);
+  }
+}
+
+void ObjectPicker::setRays(Rays *rays)
+{
+  if(_rays != rays) {
+    if(_rays) _rays->deleteLater();
+
+    _rays = rays;
+    emit raysChanged();
+  }
+}
+
+void ObjectPicker::setCamera(Camera *camera)
+{
+  if(_camera != camera) {
+    _camera = camera;
+    emit cameraChanged();
   }
 }
 

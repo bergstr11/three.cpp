@@ -27,7 +27,6 @@ void Scene::setQuickCamera(Camera *camera)
 {
   if(_quickCamera != camera) {
     if(_quickCamera) {
-      if(_quickCamera->controller()) _item->removeController(_quickCamera->controller());
       if(_quickCamera->camera()) _scene->remove(_quickCamera->camera());
     }
     _quickCamera = camera;
@@ -51,10 +50,6 @@ void Scene::setFog(FogBase *fog)
 void Scene::updateCamera()
 {
   if(!_quickCamera->camera()) _quickCamera->create(this, _scene);
-
-  if(_quickCamera->controller()) {
-    _quickCamera->controller()->setItem(_item);
-  }
 
   //cameras with children need to be parented to the scene!
   if(!_quickCamera->camera()->children().empty())

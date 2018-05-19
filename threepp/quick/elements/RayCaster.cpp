@@ -11,7 +11,7 @@ using namespace std;
 void RayCaster::set(const QVector2D &position)
 {
   if(_camera && _camera->camera()) {
-    _camera->camera()->setup(_raycaster.ray(), position.x(), position.y());
+    _raycaster.set(_camera->camera()->ray(position.x(), position.y()));
   }
 }
 

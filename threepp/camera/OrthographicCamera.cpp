@@ -6,10 +6,14 @@
 
 namespace three {
 
-void OrthographicCamera::setup(math::Ray &ray, float x, float y)
+math::Ray OrthographicCamera::ray(float x, float y) const
 {
-  ray.origin().set(x, y, (_near + _far) / (_near - _far)).unproject(*this); // set origin in plane of camera
-  ray.direction().set( 0, 0, - 1 ).transformDirection( _matrixWorld );
+  math::Vector3 origin(x, y, (_near + _far) / (_near - _far));
+  origin.unproject(*this);  // set origin in plane of camera
+  math::Vector3 direction( 0, 0, - 1 );
+  direction.transformDirection( _matrixWorld );
+
+  return math::Ray(origin, direction);
 }
 
 void OrthographicCamera::updateProjectionMatrix()

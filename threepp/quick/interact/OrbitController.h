@@ -6,19 +6,22 @@
 #define THREEPPQ_ORBITCONTROLLERITEM_H
 
 #include <QObject>
-#include "Controller.h"
+#include <threepp/quick/cameras/CameraController.h>
 #include "OrbitControls.h"
 
 namespace three {
 namespace quick {
 
-class OrbitController : public Controller
+class Camera;
+
+class OrbitController : public CameraController, public Interactor
 {
 public:
   enum Movement {Pan, Rotate, Zoom};
 
 private:
   Q_OBJECT
+  Q_PROPERTY(three::quick::Camera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
   Q_PROPERTY(float distance READ distance NOTIFY distanceChanged)
   Q_PROPERTY(float minDistance READ minDistance WRITE setMinDistance NOTIFY minDistanceChanged)
   Q_PROPERTY(float maxDistance READ maxDistance WRITE setMaxDistance NOTIFY maxDistanceChanged)
@@ -31,26 +34,17 @@ private:
 
   Q_ENUM(Movement)
 
+  Camera *_camera = nullptr;
+
   float _minDistance=0, _maxDistance=std::numeric_limits<float>::infinity();
   float _maxPolarAngle = (float) M_PI;
-  bool _enablePan = true, _enableRotate = true, _moving=false, _enabled=true;
+  bool _enablePan = true, _enableRotate = true, _moving=false;
 
   Qt::CursorShape _rotateCursor=Qt::ArrowCursor, _panCursor=Qt::DragMoveCursor, _zoomCursor=Qt::SizeBDiagCursor;
 
   OrbitControls::Ptr _controls;
 
 protected:
-  bool enabled() override
-  {
-    return _controls ? _controls->enabled : _enabled;
-  }
-
-  void setEnabled(bool enabled) override
-  {
-    _enabled = enabled;
-    if(_controls) _controls->enabled = enabled;
-  }
-
   float minDistance() const { return _minDistance; }
 
   void setMinDistance(float minDistance)
@@ -136,6 +130,11 @@ protected:
     }
   }
 
+  void _setEnabled(bool enabled) override
+  {
+    Interactor::_enabled = enabled;
+  }
+
   float distance() {
     return _controls ? _controls->getDistance() : 0.0f;
   }
@@ -150,14 +149,13 @@ protected:
     _controls->maxPolarAngle = _maxPolarAngle;
     _controls->enablePan = _enablePan;
     _controls->enableRotate = _enableRotate;
-    _controls->enabled = _enabled;
 
     _controls->setPanCursor(_panCursor);
     _controls->setZoomCursor(_zoomCursor);
     _controls->setRotateCursor(_rotateCursor);
 
     _controls->onChanged.connect([this](OrbitControls::State state) {
-      emit changed();
+      emit CameraController::changed();
       emit distanceChanged();
 
       if(!_moving) {
@@ -177,15 +175,32 @@ protected:
     });
   }
 
-public:
-  OrbitController(QObject *parent = nullptr) : Controller(parent)
+  Camera *camera() const {return _camera;}
+
+  void setCamera(Camera *camera, ThreeDItem *item) override
   {
-    QObject::connect(this, &Controller::cameraChanged, this, &OrbitController::createControls);
+    Interactor::setItem(item);
+    setCamera(camera);
   }
+
+  void setCamera(Camera *camera)
+  {
+    if(_camera != camera) {
+      _camera = camera;
+
+      createControls();
+      QObject::connect(this, &CameraController::changed, _camera, &Camera::updateControllerValues);
+
+      emit cameraChanged();
+    }
+  }
+
+public:
+  explicit OrbitController(QObject *parent = nullptr) : CameraController(parent) {}
 
   void setItem(ThreeDItem *item) override
   {
-    Controller::setItem(item);
+    Interactor::setItem(item);
     if(_camera) createControls();
   }
 
@@ -218,7 +233,7 @@ public:
     return _controls->handleMouseWheel(event);
   }
 
-  Q_INVOKABLE void pan(float deltaX, float deltaY) {
+  Q_INVOKABLE void pan(unsigned deltaX, unsigned deltaY) {
     if(_controls) _controls->pan(deltaX, deltaY);
   }
   Q_INVOKABLE void reset() {
@@ -244,6 +259,7 @@ signals:
   void rotateCursorChanged();
   void zoomCursorChanged();
   void panCursorChanged();
+  void cameraChanged();
 
   void moveStarted(Movement);
   void moveStopped();

@@ -11,8 +11,6 @@
 
 namespace three {
 
-using Vertex = math::Vector3;
-
 struct Face3
 {
   union {

@@ -57,7 +57,7 @@ public:
 
   void updateProjectionMatrix() override;
 
-  void setup(math::Ray &ray, float x, float y) override;
+  math::Ray ray(float x, float y) const override;
 
   float fov() const {return _fov;}
 

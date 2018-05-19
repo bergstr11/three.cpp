@@ -190,7 +190,7 @@ public:
     return *this;
   }
 
-  math::Vector3 centroid(const Face3 &face) override;
+  math::Vector3 centroid(const Face3 &face) const override;
 
   LinearGeometry &computeBoundingBox() override
   {
@@ -226,12 +226,12 @@ public:
 
   void raycast(Line &line,
                const Raycaster &raycaster,
-               const math::Ray &ray,
+               const std::vector<math::Ray> &ray,
                std::vector<Intersection> &intersects) override;
 
   void raycast(Mesh &mesh,
                const Raycaster &raycaster,
-               const math::Ray &ray,
+               const std::vector<math::Ray> &rays,
                std::vector<Intersection> &intersects) override;
 
   size_t vertexCount() const override

@@ -48,18 +48,22 @@ public:
     math::Vector3 intersectPoint;
 
     math::Vector3 worldPosition = math::Vector3::fromMatrixPosition(_matrixWorld);
-    intersectPoint = raycaster.ray().closestPointToPoint(worldPosition);
 
-    math::Vector3 worldScale = math::Vector3::fromMatrixScale(_matrixWorld);
-    float guessSizeSq = worldScale.x() * worldScale.y() / 4;
+    for(const auto &ray : raycaster.rays()) {
 
-    if (worldPosition.distanceToSquared(intersectPoint) > guessSizeSq) return;
+      intersectPoint = ray.closestPointToPoint(worldPosition);
 
-    float distance = raycaster.ray().origin().distanceTo(intersectPoint);
+      math::Vector3 worldScale = math::Vector3::fromMatrixScale(_matrixWorld);
+      float guessSizeSq = worldScale.x() * worldScale.y() / 4;
 
-    if (distance < raycaster.near() || distance > raycaster.far()) return;
+      if (worldPosition.distanceToSquared(intersectPoint) > guessSizeSq) return;
 
-    intersects.emplace_back(distance, intersectPoint, nullptr, *this);
+      float distance = raycaster.origin().distanceTo(intersectPoint);
+
+      if (distance < raycaster.near() || distance > raycaster.far()) return;
+
+      intersects.emplace_back(distance, intersectPoint, nullptr, *this);
+    }
   }
 
   Sprite *cloned() const override

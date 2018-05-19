@@ -252,31 +252,22 @@ void ThreeDItem::setFps(unsigned fps)
   }
 }
 
-void ThreeDItem::addController(Controller *controller)
+void ThreeDItem::addInteractor(Interactor *interactor)
 {
-  _controllers.push_back(controller);
+  _interactors.push_back(interactor);
 }
 
-void Controller::setItem(ThreeDItem *item)
+void Interactor::setItem(ThreeDItem *item)
 {
-  if(_item) _item->removeController(this);
+  if(_item) _item->removeInteractor(this);
   _item = item;
-  _item->addController(this);
+  _item->addInteractor(this);
 }
 
-void Controller::setCamera(Camera *camera)
+void ThreeDItem::removeInteractor(Interactor *controller)
 {
-  if(_camera != camera) {
-    _camera = camera;
-    _camera->setController(this);
-    emit cameraChanged();
-  }
-}
-
-void ThreeDItem::removeController(Controller *controller)
-{
-  auto found = std::find(_controllers.begin(), _controllers.end(), controller);
-  if(found != _controllers.end()) _controllers.erase(found);
+  auto found = std::find(_interactors.begin(), _interactors.end(), controller);
+  if(found != _interactors.end()) _interactors.erase(found);
 }
 
 QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
@@ -286,8 +277,8 @@ QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
 
 void ThreeDItem::mouseMoveEvent(QMouseEvent *event)
 {
-  for (auto contrl : _controllers) {
-    if (contrl->handleMouseMoved(event)) {
+  for (auto contrl : _interactors) {
+    if (contrl->mouseMoved(event)) {
       update();
       return;
     }
@@ -296,8 +287,8 @@ void ThreeDItem::mouseMoveEvent(QMouseEvent *event)
 
 void ThreeDItem::mousePressEvent(QMouseEvent *event)
 {
-  for (auto contrl : _controllers) {
-    if (contrl->handleMousePressed(event)) {
+  for (auto contrl : _interactors) {
+    if (contrl->mousePressed(event)) {
       update();
       return;
     }
@@ -306,8 +297,8 @@ void ThreeDItem::mousePressEvent(QMouseEvent *event)
 
 void ThreeDItem::mouseReleaseEvent(QMouseEvent *event)
 {
-  for (auto contrl : _controllers) {
-    if (contrl->handleMouseReleased(event)) {
+  for (auto contrl : _interactors) {
+    if (contrl->mouseReleased(event)) {
       update();
       return;
     }
@@ -316,8 +307,8 @@ void ThreeDItem::mouseReleaseEvent(QMouseEvent *event)
 
 void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  for (auto contrl : _controllers) {
-    if (contrl->handleMouseDoubleClicked(event)) {
+  for (auto contrl : _interactors) {
+    if (contrl->mouseDoubleClicked(event)) {
       update();
       return;
     }
@@ -326,8 +317,8 @@ void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event)
 
 void ThreeDItem::wheelEvent(QWheelEvent *event)
 {
-  for (auto contrl : _controllers) {
-    if (contrl->handleMouseWheel(event)) {
+  for (auto contrl : _interactors) {
+    if (contrl->mouseWheel(event)) {
       update();
       return;
     }

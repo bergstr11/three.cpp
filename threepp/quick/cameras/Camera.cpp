@@ -20,6 +20,7 @@ void Camera::_post_create()
     auto helper = _qhelper.create(_camera);
     _scene->scene()->add(helper);
   }
+  if(_controller) _controller->setCamera(this, _scene->item());
 }
 
 three::Object3D::Ptr Camera::_create()
@@ -44,6 +45,23 @@ void Camera::updateMatrixWorld()
   if(_camera) _camera->updateMatrixWorld(true);
 }
 
+void Camera::setController(CameraController *controller)
+{
+  if(_controller != controller) {
+    _controller = controller;
+    if(_scene && _controller) _controller->setCamera(this, _scene->item());
+    emit controllerChanged();
+  }
+}
+
+void Camera::updateControllerValues()
+{
+  const math::Vector3 &p = _camera->position();
+  setPosition(QVector3D(p.x(), p.y(), p.z()), false);
+  const math::Euler &r = _camera->rotation();
+  setRotation(QVector3D(r.x(), r.y(), r.z()), false);
+}
+
 void Camera::append_light(QQmlListProperty<Light> *list, Light *obj)
 {
   Camera *item = qobject_cast<Camera *>(list->object);
@@ -64,7 +82,6 @@ void Camera::clear_lights(QQmlListProperty<Light> *list)
   Camera *item = qobject_cast<Camera *>(list->object);
   if(item) item->_lights.clear();
 }
-
 
 QQmlListProperty<Light> Camera::lights()
 {

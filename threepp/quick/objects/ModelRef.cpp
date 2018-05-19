@@ -10,6 +10,14 @@
 #include <threepp/quick/lights/SpotLight.h>
 #include <threepp/quick/ThreeDItem.h>
 
+#include <threepp/quick/elements/RayCaster.h>
+#include <threepp/util/PointsWalker.h>
+#include <threepp/util/QuickHull.h>
+
+#include <threepp/quick/interact/ObjectPicker.h>
+#include <threepp/geometry/Circle.h>
+#include <threepp/material/MeshBasicMaterial.h>
+
 namespace three {
 namespace quick {
 
@@ -155,6 +163,10 @@ void ModelRef::cleanup()
 
 void ModelRef::update()
 {
+  if(_threeQObject) {
+    _threeQObject->deleteLater();
+    _threeQObject = nullptr;
+  }
   auto node = three::Node::make(_model->name().toStdString());
 
   if(!_selector.isEmpty()) {
@@ -193,7 +205,12 @@ void ModelRef::update()
 ThreeQObject *ModelRef::getThreeQObject()
 {
   if(_threeQObject) return _threeQObject;
-  if(!_object || _object->children().size() != 1) return nullptr;
+  if(!_object) return nullptr;
+
+  if(_object->children().size() != 1) {
+    _threeQObject = new ThreeQObject(_object, this);
+    return _threeQObject;
+  }
 
   Material *material = nullptr;
   Object3D::Ptr obj = _object->children().at(0);
@@ -213,6 +230,27 @@ ThreeQObject *ModelRef::getThreeQObject()
   }
   _threeQObject = new ThreeQObject(obj, material, this);
   return _threeQObject;
+}
+
+void ModelRef::testMarker(three::quick::ObjectPicker *picker)
+{
+  geometry::Circle::Ptr circle = geometry::Circle::make();
+  three::MeshBasicMaterial::Ptr mat =  three::MeshBasicMaterial::make();
+  mat->color = Color(ColorName::green);
+  mat->wireframe = true;
+  auto mesh = MeshT<geometry::Circle, three::MeshBasicMaterial>::make(circle, mat);
+
+  mesh->position() = picker->getRays().origin();
+
+  const math::Vector3 &fnorm = picker->getRays().surfaceNormal();
+
+  //calculate the rotation for aligning the marker to the mesh surface
+  math::Vector3 axis = fnorm.y() == 1 || fnorm.y() == -1 ?
+                       math::Vector3( 1, 0, 0 ) : math::cross( 2*M_PI, fnorm );
+
+  mesh->setRotationFromAxisAngle( axis, 2*M_PI);
+
+  picker->firstObject()->add(mesh);
 }
 
 }

@@ -14,7 +14,6 @@
 #include <threepp/quick/objects/ThreeQObject.h>
 #include <threepp/quick/cameras/Camera.h>
 #include <threepp/quick/elements/Fog.h>
-#include <threepp/quick/interact/Controller.h>
 
 namespace three {
 namespace quick {

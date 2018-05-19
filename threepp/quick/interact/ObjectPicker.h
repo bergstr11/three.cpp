@@ -8,16 +8,18 @@
 #include <QObject>
 #include <QVariantList>
 #include <vector>
-#include <threepp/quick/elements/RayCaster.h>
 #include <threepp/quick/cameras/Camera.h>
-#include <threepp/quick/objects/ThreeQObject.h>
-#include "Controller.h"
+#include <threepp/quick/ThreeQObjectRoot.h>
+#include <threepp/quick/ThreeDItem.h>
+#include <threepp/quick/elements/RayCaster.h>
 
 namespace three {
 namespace quick {
 
-class ThreeDItem;
 class Scene;
+class Camera;
+
+class ObjectPicker;
 
 class Pickable : public QObject
 {
@@ -30,19 +32,124 @@ public:
   Object3D::Ptr object() const {return _object;}
 };
 
-class ObjectPicker : public Controller
+/**
+ * abstract ray configuration class
+ */
+class Rays : public QObject
 {
 Q_OBJECT
-  Q_PROPERTY(RayCaster *raycaster READ raycaster CONSTANT)
+
+protected:
+  math::Vector3 _origin;
+  math::Vector3 _surfaceNormal;
+
+  bool _pickFirst;
+
+  Rays(bool pickFirst) : _pickFirst(pickFirst) {}
+
+public:
+  const math::Vector3 origin() const {return _origin;}
+  const math::Vector3 surfaceNormal() const {return _surfaceNormal;}
+
+  bool pickFirst() const {return _pickFirst;}
+
+  virtual Raycaster raycaster(const math::Ray &cameraRay) = 0;
+
+  virtual void setIntersects(std::vector<Intersection> &intersects) = 0;
+};
+
+/**
+ * single ray picker configuration
+ */
+class SingleRay : public Rays
+{
+Q_OBJECT
+  Q_PROPERTY(bool pickFirst READ pickFirst WRITE setPickFirst NOTIFY pickFirstChanged)
+
+public:
+  SingleRay() : Rays(false) {}
+
+  void setPickFirst(bool pickFirst)
+  {
+    if(_pickFirst != pickFirst) {
+      _pickFirst = pickFirst;
+      emit pickFirstChanged();
+    }
+  }
+
+  Raycaster raycaster(const math::Ray &cameraRay) override;
+
+  void setIntersects(std::vector<Intersection> &intersects) override;
+
+signals:
+  void pickFirstChanged();
+};
+
+/**
+ * circular multi-ray picker configuration
+ */
+class CircularRays : public Rays
+{
+Q_OBJECT
+  Q_PROPERTY(float radius MEMBER _radius NOTIFY radiusChanged)
+  Q_PROPERTY(unsigned segments MEMBER _segments NOTIFY segmentsChanged)
+
+  float _radius;
+  unsigned _segments;
+
+public:
+  CircularRays() : Rays(true) {}
+
+  Raycaster raycaster(const math::Ray &cameraRay) override;
+
+  void setIntersects(std::vector<Intersection> &intersects) override;
+
+signals:
+  void radiusChanged();
+  void segmentsChanged();
+};
+
+/**
+ * square multi-ray picker configuration
+ */
+class SquareRays : public Rays
+{
+Q_OBJECT
+  Q_PROPERTY(float sideLength MEMBER _sideLength NOTIFY sideLengthChanged)
+  Q_PROPERTY(unsigned sideSegments MEMBER _sideSegments NOTIFY sideSegmentsChanged)
+
+  float _sideLength;
+  unsigned _sideSegments;
+
+public:
+  SquareRays() : Rays(true) {}
+
+  Raycaster raycaster(const math::Ray &cameraRay) override;
+
+  void setIntersects(std::vector<Intersection> &intersects) override;
+
+signals:
+  void sideLengthChanged();
+  void sideSegmentsChanged();
+};
+
+/**
+ * a picker handles mouse events and determines, whether the mouse coordinates correspond with
+ * one or more objects in the 3D space.
+ */
+class ObjectPicker : public ThreeQObjectRoot, public Interactor
+{
+Q_OBJECT
+  Q_PROPERTY(three::quick::Camera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
   Q_PROPERTY(QVariantList objects READ objects WRITE setObjects NOTIFY objectsChanged)
-  Q_PROPERTY(bool pickAll READ pickAll WRITE setPickAll NOTIFY pickAllChanged)
-  Q_PROPERTY(unsigned intersectCount READ intersectCount NOTIFY intersectCountChanged)
+  Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+  Q_PROPERTY(Rays *rays READ rays WRITE setRays NOTIFY raysChanged)
   Q_PROPERTY(ThreeQObject *prototype READ prototype WRITE setPrototype NOTIFY prototypeChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ObjectPicker> pickers READ pickers)
   Q_CLASSINFO("DefaultProperty", "pickers")
 
   ThreeDItem *_item = nullptr;
-  RayCaster _raycaster;
+  Camera *_camera = nullptr;
 
   QList<ObjectPicker *> _pickers;
 
@@ -50,16 +157,14 @@ Q_OBJECT
 
   Scene *_scene = nullptr;
 
-  bool _pickAll = true;
-
-  bool _enabled = true;
-
   std::vector<Intersection> _intersects;
 
   QVariantList _objects;
 
   Intersect _currentIntersect;
-  ThreeQObject *_prototype;
+  Rays *_rays = nullptr;
+
+  ThreeQObject *_prototype = nullptr;
 
   static void append_picker(QQmlListProperty<ObjectPicker> *list, ObjectPicker *obj);
   static int count_pickers(QQmlListProperty<ObjectPicker> *);
@@ -71,11 +176,15 @@ Q_OBJECT
 public:
   explicit ObjectPicker(QObject *parent = nullptr);
 
-  ~ObjectPicker();
-
-  RayCaster *raycaster() {return &_raycaster;}
+  ~ObjectPicker() override;
 
   void setItem(ThreeDItem *item) override;
+
+  Object3D *firstObject() { return _intersects.empty() ? nullptr : _intersects[0].object; }
+
+  Camera *camera() const {return _camera;}
+
+  void setCamera(three::quick::Camera *camera);
 
   bool handleMousePressed(QMouseEvent *event) override;
   bool handleMouseDoubleClicked(QMouseEvent *event) override;
@@ -83,21 +192,13 @@ public:
   Q_INVOKABLE QVariant intersect(unsigned index);
 
 protected:
-  unsigned intersectCount() {return _intersects.size();}
-
   QVariantList objects() {return _objects;}
 
   void setObjects(const QVariantList &list);
 
-  bool pickAll() {return _pickAll;}
+  Rays *rays() {return _rays;}
 
-  void setPickAll(bool pickAll)
-  {
-    if(_pickAll != pickAll) {
-      _pickAll = pickAll;
-      emit pickAllChanged();
-    }
-  }
+  void setRays(Rays *rays);
 
   ThreeQObject *prototype() {return _prototype;}
 
@@ -109,19 +210,30 @@ protected:
     }
   }
 
-  bool enabled() override {
+  virtual bool enabled()
+  {
     return _enabled;
   }
-  void setEnabled(bool enabled) override
+
+  void setEnabled(bool enabled)
   {
-    _enabled = enabled;
+    if(_enabled !=enabled) {
+      _enabled = enabled;
+      emit enabledChanged();
+    }
   }
+
+public:
+  const std::vector<Intersection> &intersects() const {return _intersects;}
+
+  Rays &getRays() {return *_rays;}
 
 signals:
   void objectsChanged();
-  void pickAllChanged();
-  void intersectCountChanged();
   void prototypeChanged();
+  void cameraChanged();
+  void enabledChanged();
+  void raysChanged();
 
   void objectsClicked();
   void objectsDoubleClicked();

@@ -39,7 +39,7 @@ public:
     return new OrthographicCamera(*this);
   }
 
-  void setup(math::Ray &ray, float x, float y) override;
+  math::Ray ray(float x, float y) const override;
 
   void updateProjectionMatrix() override;
 

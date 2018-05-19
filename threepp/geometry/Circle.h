@@ -54,7 +54,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<Circle>;
-  static Ptr make(float radius, unsigned segments, float thetaStart, float thetaLength) {
+  static Ptr make(float radius, unsigned segments, float thetaStart=0, float thetaLength=(float)2*M_PI) {
     return Ptr(new Circle(radius, segments, thetaStart, thetaLength));
   }
 

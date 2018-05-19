@@ -73,19 +73,20 @@ public:
   const math::Sphere &boundingSphere() const {return _boundingSphere;}
   math::Sphere &boundingSphere() {return _boundingSphere;}
 
-  virtual math::Vector3 centroid(const Face3 &face) = 0;
+  virtual math::Vector3 centroid(const Face3 &face) const = 0;
 
   virtual Geometry &computeBoundingBox() = 0;
 
   virtual Geometry &computeBoundingSphere() = 0;
 
   virtual void raycast(Line &line,
-                       const Raycaster &raycaster, const math::Ray &ray,
+                       const Raycaster &raycaster,
+                       const std::vector<math::Ray> &ray,
                        std::vector<Intersection> &intersects) {}
 
   virtual void raycast(Mesh &mesh,
                        const Raycaster &raycaster,
-                       const math::Ray &ray,
+                       const std::vector<math::Ray> &ray,
                        std::vector<Intersection> &intersects) {}
 
   virtual bool useMorphing() const = 0;

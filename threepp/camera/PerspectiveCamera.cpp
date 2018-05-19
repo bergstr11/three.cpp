@@ -7,6 +7,8 @@
 
 namespace three {
 
+using namespace math;
+
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far, const object::Typer &typer)
    : Camera(typer, near, far), _fov(fov), _aspect(aspect)
 {
@@ -76,12 +78,15 @@ void PerspectiveCamera::updateProjectionMatrix()
   _projectionMatrix = math::Matrix4::perspective(left, left + width, top, top - height, _near, _far);
 }
 
-void PerspectiveCamera::setup(math::Ray &ray, float x, float y)
+math::Ray PerspectiveCamera::ray(float x, float y) const
 {
-  ray.origin() = math::Vector3::fromMatrixPosition(_matrixWorld);
-  ray.direction().set(x, y, 0.5).unproject(*this);
-  ray.direction() -= ray.origin();
-  ray.direction().normalize();
+  Vector3 origin = math::Vector3::fromMatrixPosition(_matrixWorld);
+  Vector3 direction(x, y, 0.5);
+  direction.unproject(*this);
+  direction -= origin;
+  direction.normalize();
+
+  return Ray(origin, direction);
 }
 
 }

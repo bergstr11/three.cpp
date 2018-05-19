@@ -31,7 +31,7 @@ Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLen
   normals->next() = {0, 0, 1};
   uvs->next() = {0.5, 0.5};
 
-  for (unsigned s = 0, i = 3; s <= segments; s ++, i += 3 ) {
+  for (unsigned s = 0; s <= segments; s ++ ) {
 
     float segment = thetaStart + s / segments * thetaLength;
 
