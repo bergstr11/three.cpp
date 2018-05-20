@@ -15,6 +15,11 @@ class Triangle
   Vector3 a, b, c;
   
 public:
+  static Vector3 midpoint(const Vector3 &a, const Vector3 &b, const Vector3 &c)
+  {
+    return Triangle(a, b, c).getMidpoint();
+  }
+
   static Vector3 normal(const Vector3 &a, const Vector3 &b, const Vector3 &c)
   {
     Vector3 v(cross(c - b, a - b));

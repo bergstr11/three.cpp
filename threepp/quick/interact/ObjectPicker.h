@@ -41,21 +41,20 @@ Q_OBJECT
 
 protected:
   math::Vector3 _origin;
-  math::Vector3 _surfaceNormal;
+  math::Vector3 _surfacePosition, _surfaceNormal;
 
-  bool _pickFirst;
-
-  Rays(bool pickFirst) : _pickFirst(pickFirst) {}
+  Object3D *_picked = nullptr;
 
 public:
   const math::Vector3 origin() const {return _origin;}
+  const math::Vector3 surfacePosition() const {return _surfacePosition;}
   const math::Vector3 surfaceNormal() const {return _surfaceNormal;}
-
-  bool pickFirst() const {return _pickFirst;}
 
   virtual Raycaster raycaster(const math::Ray &cameraRay) = 0;
 
   virtual void setIntersects(std::vector<Intersection> &intersects) = 0;
+
+  Object3D *picked() {return _picked;}
 };
 
 /**
@@ -64,25 +63,12 @@ public:
 class SingleRay : public Rays
 {
 Q_OBJECT
-  Q_PROPERTY(bool pickFirst READ pickFirst WRITE setPickFirst NOTIFY pickFirstChanged)
 
 public:
-  SingleRay() : Rays(false) {}
-
-  void setPickFirst(bool pickFirst)
-  {
-    if(_pickFirst != pickFirst) {
-      _pickFirst = pickFirst;
-      emit pickFirstChanged();
-    }
-  }
 
   Raycaster raycaster(const math::Ray &cameraRay) override;
 
   void setIntersects(std::vector<Intersection> &intersects) override;
-
-signals:
-  void pickFirstChanged();
 };
 
 /**
@@ -92,14 +78,24 @@ class CircularRays : public Rays
 {
 Q_OBJECT
   Q_PROPERTY(float radius MEMBER _radius NOTIFY radiusChanged)
-  Q_PROPERTY(unsigned segments MEMBER _segments NOTIFY segmentsChanged)
+  Q_PROPERTY(unsigned segments READ segments WRITE setSegments NOTIFY segmentsChanged)
 
-  float _radius;
-  unsigned _segments;
+  float _radius = 20;
+  unsigned _segments = 12;
 
+  unsigned segments() const {return _segments;}
+
+  void setSegments(unsigned segments) {
+    if(segments % 3) {
+      qWarning() << "CircularRays: segments should be multiple of 3";
+      if(segments < 3) segments = 3;
+    }
+    if(segments != _segments) {
+      _segments = segments;
+      emit segmentsChanged();
+    }
+  }
 public:
-  CircularRays() : Rays(true) {}
-
   Raycaster raycaster(const math::Ray &cameraRay) override;
 
   void setIntersects(std::vector<Intersection> &intersects) override;
@@ -110,32 +106,9 @@ signals:
 };
 
 /**
- * square multi-ray picker configuration
- */
-class SquareRays : public Rays
-{
-Q_OBJECT
-  Q_PROPERTY(float sideLength MEMBER _sideLength NOTIFY sideLengthChanged)
-  Q_PROPERTY(unsigned sideSegments MEMBER _sideSegments NOTIFY sideSegmentsChanged)
-
-  float _sideLength;
-  unsigned _sideSegments;
-
-public:
-  SquareRays() : Rays(true) {}
-
-  Raycaster raycaster(const math::Ray &cameraRay) override;
-
-  void setIntersects(std::vector<Intersection> &intersects) override;
-
-signals:
-  void sideLengthChanged();
-  void sideSegmentsChanged();
-};
-
-/**
  * a picker handles mouse events and determines, whether the mouse coordinates correspond with
- * one or more objects in the 3D space.
+ * one or more objects in the 3D space. It supports different ray configurations, ranging from
+ * single ray to multi-ray
  */
 class ObjectPicker : public ThreeQObjectRoot, public Interactor
 {
@@ -180,7 +153,7 @@ public:
 
   void setItem(ThreeDItem *item) override;
 
-  Object3D *firstObject() { return _intersects.empty() ? nullptr : _intersects[0].object; }
+  Object3D *pickedObject() { return _rays->picked(); }
 
   Camera *camera() const {return _camera;}
 

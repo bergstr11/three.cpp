@@ -48,6 +48,8 @@ public:
     return set(q, true);
   }
 
+  Quaternion &setFromUnitVectors(const Vector3 &from, const Vector3 &to);
+
   float operator[](unsigned index) const {return _elements[index];}
 
   Signal<void(const Quaternion &)> onChange;

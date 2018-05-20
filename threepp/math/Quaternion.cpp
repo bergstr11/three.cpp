@@ -144,7 +144,7 @@ Quaternion &Quaternion::set(const Matrix4 &m, bool emitSignal)
   return *this;
 }
 
-Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
+Quaternion & Quaternion::setFromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
 {
   // assumes direction vectors vFrom and vTo are normalized
   Vector3 v1;
@@ -165,7 +165,17 @@ Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
     v1 = cross( vFrom, vTo );
   }
 
-  return Quaternion(v1.x(), v1.y(), v1.z(), r).normalize();
+  _x = v1.x();
+  _y = v1.y();
+  _z = v1.z();
+  _w = r;
+
+  return normalize();
+}
+
+Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
+{
+  return Quaternion().setFromUnitVectors(vFrom, vTo);
 }
 
 }

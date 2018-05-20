@@ -204,19 +204,6 @@ Window {
         autoClear: false
         samples: 24
 
-        ObjectPicker
-        {
-            id: picker
-            camera: scene.camera
-            enabled: true
-
-            //rays: CircularRays {radius: 50; segments: 12}
-
-            onObjectsClicked: {
-                modelref.testMarker(picker)
-            }
-        }
-
         Model {
             id: threeDModel
             onFileChanged: holdon.visible = true
@@ -250,7 +237,7 @@ Window {
                         orbitController.reset()
                         objectControls.reset()
                         lightControls.reset()
-                        picker.objects = [modelref.object]
+                        //picker.objects = [modelref.object]
                     }
                 }
             }

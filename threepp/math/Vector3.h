@@ -50,7 +50,7 @@ public:
 
   Vector3() : _x(0.0f), _y(0.0f), _z(0.0f) {}
   Vector3(float x, float y, float z) : _x(x), _y(y), _z(z) {}
-  Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
+  explicit Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
   Vector3(const Vector3 &v) : _x(v._x), _y(v._y), _z(v._z) {}
 
   const float *elements() const {return _elements;}
@@ -503,6 +503,18 @@ inline Vector3 cross(const Vector3 &a, const Vector3 &b)
 inline float dot(const Vector3 &a, const Vector3 &b)
 {
   return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
+}
+
+inline Vector3 operator +(const Vector3 &vector, float scalar)
+{
+  Vector3 v(vector);
+  return v += scalar;
+}
+
+inline Vector3 operator *(float scalar, const Vector3 &vector)
+{
+  Vector3 v(vector);
+  return v *= scalar;
 }
 
 }

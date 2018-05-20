@@ -128,6 +128,7 @@ void LinearGeometry::raycast(Line &line,
       // What do we want? intersection point on the ray or on the segment??
       // point: raycaster.ray.at( distance ),
       intersect.point = interSegment.apply(line.matrixWorld());
+      intersect.direction = ray.direction();
       intersect.index = i;
       intersect.object = &line;
     }

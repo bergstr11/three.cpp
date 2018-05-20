@@ -26,66 +26,117 @@ struct no_delete
 } _no_delete;
 
 using namespace std;
+using namespace math;
 
 void SingleRay::setIntersects(std::vector<Intersection> &intersects)
 {
   //only sorty by distance
   std::sort(intersects.begin(), intersects.end(),
             [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
+
+  if(!intersects.empty()) _picked = intersects[0].object;
 }
 
-Raycaster SingleRay::raycaster(const math::Ray &cameraRay)
+Raycaster SingleRay::raycaster(const Ray &cameraRay)
 {
   _origin = cameraRay.origin();
   _surfaceNormal = cameraRay.direction().negated();
   return Raycaster(cameraRay);
 }
 
-math::Vector3 calculateSurfaceNormal(std::vector<Intersection> &intersects)
+float normal_distance(const Intersection &intersect)
 {
-  float first=numeric_limits<unsigned>::max(), second=numeric_limits<unsigned>::max(), third=numeric_limits<unsigned>::max();
-  unsigned findex, sindex, tindex;
+  //Gegenkathete b = c * sin(beta)
+  float b = intersect.distance * sin(intersect.direction.angleTo(intersect.face.normal));
 
-  for(unsigned i=0; i<intersects.size(); i++) {
-    float dist = intersects[i].distance;
+  //Ankathete a = sqrt(c*c - b*b)
+  return sqrt(pow(intersect.distance, 2.0f) - pow(b, 2.0f));
+}
 
-    if(dist < first) {
-      first = dist;
-      findex = i;
+Object3D *calculateSurface(std::vector<Intersection> &intersects,
+                           unsigned segments, Vector3 &position, Vector3 &normal)
+{
+  //find the bundle with the nearest point
+  float min_dist = intersects[0].distance;
+  Object3D *obj = intersects[0].object;
+  unsigned bundleStart = 0, bundlePos = 0, minPos = 0;
+
+  for(unsigned i=1; i<intersects.size(); i++) {
+    if(intersects[i].object != obj) {
+      bundleStart = i;
     }
-    if(dist >= first && dist < second) {
-      second = dist;
-      sindex = i;
-    }
-    if(dist >= first && dist >= second && dist < third) {
-      third = dist;
-      tindex = i;
+    if(intersects[i].distance < min_dist) {
+      min_dist = intersects[i].distance;
+      minPos = i;
+      bundlePos = bundleStart;
     }
   }
 
-  return math::Triangle::normal(intersects[findex].point, intersects[sindex].point, intersects[tindex].point);
+  Object3D *picked = intersects[minPos].object;
+  qDebug() << "nearest:" << picked->name().c_str() << picked->id();
+
+  //count the number of hits for this bundle
+  unsigned bundleSize = minPos - bundlePos;
+  for(unsigned i=minPos; i<intersects.size() && intersects[i].object == picked; i++) {
+    bundleSize++;
+  }
+
+  //if(bundleSize < 3) {
+    //not enough data. Use normal at minpos
+    position = intersects[minPos].point;
+    normal = intersects[minPos].face.normal;
+
+    return picked;
+  //}
+#if 0
+  Ray ray(intersects[minPos].point, intersects[minPos].face.normal);
+  Vector3 dir = ray.direction();
+  float angle1 = numeric_limits<float>::max();
+  float angle2 = numeric_limits<float>::max();
+  unsigned pos1, pos2;
+
+  unsigned mid = (float)bundleSize / 2;
+
+  for(unsigned i1=minPos-1, i2=minPos+1; mid > 0; mid--) {
+    ray.lookAt(intersects[i1].point);
+
+    float angl = ray.direction().angleTo(dir);
+    if(angl < angle1) {
+      angle1 = angl;
+      pos1 = i1;
+    }
+
+    ray.lookAt(intersects[i2].point);
+
+    angl = ray.direction().angleTo(dir);
+    if(angl < angle2) {
+      angle2 = angl;
+      pos2 = i2;
+    }
+
+    i1 = i1 == 0 ? bundlePos + bundleSize - 1 : i1 - 1;
+    i2++;
+  }
+
+  Triangle t(intersects[minPos].point, intersects[pos1].point, intersects[pos2].point);
+
+  normal = t.getNormal();
+  position = t.getMidpoint();
+
+  qDebug() << "surface:" << position.x() << position.y() << position.z() << "||" << normal.x() << normal.y() << normal.z();
+  return picked;
+#endif
 }
 
 void CircularRays::setIntersects(std::vector<Intersection> &intersects)
 {
-  _surfaceNormal = calculateSurfaceNormal(intersects);
+  _picked = calculateSurface(intersects, _segments, _surfacePosition, _surfaceNormal);
 }
 
-Raycaster CircularRays::raycaster(const math::Ray &cameraRay)
+Raycaster CircularRays::raycaster(const Ray &cameraRay)
 {
   _origin = cameraRay.origin();
-  return Raycaster(cameraRay.origin(), Raycaster::createCircularBundle(cameraRay, _radius, _segments));
-}
-
-Raycaster SquareRays::raycaster(const math::Ray &cameraRay)
-{
-  _origin = cameraRay.origin();
-  return Raycaster(cameraRay.origin(), Raycaster::createSquareBundle(cameraRay, _sideLength, _sideSegments));
-}
-
-void SquareRays::setIntersects(std::vector<Intersection> &intersects)
-{
-  _surfaceNormal = calculateSurfaceNormal(intersects);
+  return Raycaster::circular(cameraRay, _radius, _segments);
 }
 
 bool ObjectPicker::handleMousePressed(QMouseEvent *event)
@@ -99,7 +150,7 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
     float x = ((float)event->x() / (float)_item->width()) * 2 - 1;
     float y = -((float)event->y() / (float)_item->height()) * 2 + 1;
 
-    const math::Ray cameraRay = _camera->camera()->ray(x, y);
+    const Ray cameraRay = _camera->camera()->ray(x, y);
     Raycaster raycaster = _rays->raycaster(cameraRay);
 
     _intersects.clear();
@@ -116,18 +167,17 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
       }
       if(!o3d) continue;
 
-      three::intersectObject( *o3d, raycaster, _intersects, true, _rays->pickFirst() );
-      if(_rays->pickFirst() && !_intersects.empty()) {
+      three::intersectObject( *o3d, raycaster, _intersects, true);
+      if(!_intersects.empty()) {
         _currentIntersect.object = obj;
         _currentIntersect.set(_intersects[0]);
 
         break;
       }
     }
-    if(_scene && (!_rays->pickFirst()  || _intersects.empty())) {
+    if(_scene && _intersects.empty()) {
       for (auto obj : _scene->scene()->children()) {
-        three::intersectObject( *obj, raycaster, _intersects, true, _rays->pickFirst() );
-        if(_rays->pickFirst() && !_intersects.empty()) break;
+        three::intersectObject( *obj, raycaster, _intersects, true );
       }
     }
     if(!_intersects.empty()) {

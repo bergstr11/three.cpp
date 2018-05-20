@@ -17,9 +17,13 @@ namespace three {
 class Raycaster;
 class Object3D;
 
+/**
+ * describes a hit point of a ray
+ */
 struct Intersection
 {
   float distance;
+  math::Vector3 direction;
   math::Vector3 point;
   math::Vector2 uv;
   Object3D *object;
@@ -39,11 +43,10 @@ struct Intersection
 void intersectObject(Object3D &object,
                      const Raycaster &raycaster,
                      std::vector<Intersection> &intersects,
-                     bool recursive = true,
-                     bool stopFirst = false);
+                     bool recursive = true);
 
 /**
- * casts one ray, collecting objects along the path
+ * casts one or more rays, collecting objects along the path
  */
 class Raycaster
 {
@@ -54,28 +57,22 @@ class Raycaster
 
   math::Vector3 _origin;
 
+  static std::vector<math::Ray> createCircularBundle(const math::Ray &ray,
+                                                     float radius,
+                                                     unsigned radialSegments);
+
 public:
   /**
-   * create a circular bundle of rays
+   * create a raycaster with a circular bundle of rays
    *
    * @param cameraRay the ray around which the ray bundle will be arranged
    * @param radius the radius of the circle on which the rays are placed
    * @param radialSegments the number of rays to place
    */
-  static std::vector<math::Ray> createCircularBundle(const math::Ray &ray,
-                                                     float radius,
-                                                     unsigned radialSegments);
-
-  /**
-   * create a square bundle of rays
-   *
-   * @param cameraRay the ray around which the ray bundle will be arranged
-   * @param sideLength the side length of the square along which the rays are placed
-   * @param sideSegments the number of rays to place on one side
-   */
-  static std::vector<math::Ray> createSquareBundle(const math::Ray & ray,
-                                                   float sideLength,
-                                                   unsigned sideSegments);
+  static Raycaster circular(const math::Ray &cameraRay, float radius, unsigned radialSegments)
+  {
+    return Raycaster(cameraRay.origin(), Raycaster::createCircularBundle(cameraRay, radius, radialSegments));
+  }
 
   /**
    * create a ray bundle caster
@@ -118,10 +115,10 @@ public:
   const float far() const {return _far;}
   const math::Vector3 &origin() const {return _origin;}
 
-  std::vector<Intersection> intersectObject(Object3D &object, bool recursive=true, bool stopFirst=true );
+  std::vector<Intersection> intersectObject(Object3D &object, bool recursive=true);
 
   std::vector<Intersection> intersectObjects(std::vector<std::shared_ptr<Object3D>> objects,
-                                             bool recursive=true, bool stopFirst=false);
+                                             bool recursive=true);
 };
 
 }

@@ -16,6 +16,23 @@ class Line3
   Vector3 _start;
   Vector3 _end;
 
+  float _closestPointToPoint(const Vector3 &point, bool clampToLine) const
+  {
+    Vector3 startP = point - _start;
+    Vector3 startEnd = _end - _start;
+
+    float startEnd2 = dot(startEnd, startEnd );
+    float startEnd_startP = dot(startEnd, startP);
+
+    float t = startEnd_startP / startEnd2;
+
+    if ( clampToLine ) {
+      t = math::clamp(t, 0.0f, 1.0f);
+    }
+
+    return t;
+  }
+
 public:
   Line3() = default;
   Line3(const Vector3 &start, const Vector3 &end) : _start(start), _end(end) {}
@@ -48,21 +65,11 @@ public:
     return delta() * t + _start;
   }
 
-  Vector3 closestPointToPoint(const Vector3 &point, bool clampToLine) const
+  Vector3 closestPointToPoint( const Vector3 &point, bool clampToLine )
   {
-    Vector3 startP = point - _start;
-    Vector3 startEnd = _end - _start;
+    float t = _closestPointToPoint( point, clampToLine );
 
-    float startEnd2 = dot(startEnd, startEnd );
-    float startEnd_startP = dot(startEnd, startP);
-
-    float t = startEnd_startP / startEnd2;
-
-    if ( clampToLine ) {
-      t = math::clamp(t, 0.0f, 1.0f);
-    }
-
-    return t;
+    return delta() * t  + _start;
   }
 
   Line3 &apply(const Matrix4 &matrix )

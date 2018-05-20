@@ -76,7 +76,6 @@ void init()
   qmlRegisterUncreatableType<three::quick::Rays>("three.quick", 1, 0, "Rays", "abstract class");
   qmlRegisterType<three::quick::SingleRay>("three.quick", 1, 0, "SingleRay");
   qmlRegisterType<three::quick::CircularRays>("three.quick", 1, 0, "CircularRays");
-  qmlRegisterType<three::quick::SquareRays>("three.quick", 1, 0, "SquareRays");
   qmlRegisterType<three::quick::Fog>("three.quick", 1, 0, "Fog");
   qmlRegisterType<three::quick::Intersect>();
   qmlRegisterType<three::quick::RayCaster>();

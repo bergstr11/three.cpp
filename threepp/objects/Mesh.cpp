@@ -40,7 +40,9 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
     hit = hit || ray.intersectsBox(geometry()->boundingBox());
   }
 
-  if(hit) geometry()->raycast(*this, raycaster, rays, intersects);
+  if(hit) {
+    geometry()->raycast(*this, raycaster, rays, intersects);
+  }
 }
 
 }

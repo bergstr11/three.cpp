@@ -15,7 +15,7 @@
 #include <threepp/util/QuickHull.h>
 
 #include <threepp/quick/interact/ObjectPicker.h>
-#include <threepp/geometry/Circle.h>
+#include <threepp/geometry/Box.h>
 #include <threepp/material/MeshBasicMaterial.h>
 
 namespace three {
@@ -232,25 +232,39 @@ ThreeQObject *ModelRef::getThreeQObject()
   return _threeQObject;
 }
 
+/*
+        ObjectPicker
+        {
+            id: picker
+            camera: scene.camera
+            enabled: true
+
+            rays: CircularRays {radius: 5; segments: 24}
+
+            onObjectsClicked: {
+                modelref.testMarker(picker)
+                threeD.update()
+            }
+        }
+
+ *
+ */
 void ModelRef::testMarker(three::quick::ObjectPicker *picker)
 {
-  geometry::Circle::Ptr circle = geometry::Circle::make();
+  geometry::Box::Ptr box = geometry::Box::make(20, 20, 5);
   three::MeshBasicMaterial::Ptr mat =  three::MeshBasicMaterial::make();
   mat->color = Color(ColorName::green);
   mat->wireframe = true;
-  auto mesh = MeshT<geometry::Circle, three::MeshBasicMaterial>::make(circle, mat);
+  auto mesh = MeshT<geometry::Box, three::MeshBasicMaterial>::make(box, mat);
 
-  mesh->position() = picker->getRays().origin();
+  const math::Vector3 &snorm = picker->getRays().surfaceNormal();
 
-  const math::Vector3 &fnorm = picker->getRays().surfaceNormal();
+  math::Vector3 up(0, 0, 1);
+  mesh->quaternion().setFromUnitVectors(up, snorm);
 
-  //calculate the rotation for aligning the marker to the mesh surface
-  math::Vector3 axis = fnorm.y() == 1 || fnorm.y() == -1 ?
-                       math::Vector3( 1, 0, 0 ) : math::cross( 2*M_PI, fnorm );
+  mesh->position() = picker->pickedObject()->worldToLocal(picker->getRays().surfacePosition());
 
-  mesh->setRotationFromAxisAngle( axis, 2*M_PI);
-
-  picker->firstObject()->add(mesh);
+  picker->pickedObject()->add(mesh);
 }
 
 }

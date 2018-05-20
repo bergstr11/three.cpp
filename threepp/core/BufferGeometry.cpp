@@ -106,6 +106,7 @@ void BufferGeometry::raycast(Line &line,
         Intersection &intersection = intersects.back();
 
         intersection.distance = distance;
+        intersection.direction = ray.direction();
         // What do we want? intersection point on the ray or on the segment??
         // point: raycaster.ray.at( distance ),
         intersection.point = interSegment.apply(line.matrixWorld());
@@ -135,6 +136,7 @@ void BufferGeometry::raycast(Line &line,
         Intersection &intersection = intersects.back();
 
         intersection.distance = distance;
+        intersection.direction = ray.direction();
         // What do we want? intersection point on the ray or on the segment??
         // point: raycaster.ray.at( distance ),
         intersection.point = interSegment.apply(line.matrixWorld());
