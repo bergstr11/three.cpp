@@ -36,8 +36,6 @@ public:
 
   virtual ~Loader() = default;
 
-  Signal<void(Node::Ptr objects)> onLoaded;
-  Signal<void(unsigned percent)> onProgress;
   Signal<void(std::string message)> onError;
 
   virtual void load(std::string name, ResourceLoader &loader) = 0;

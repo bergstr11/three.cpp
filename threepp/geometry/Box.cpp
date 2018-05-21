@@ -67,7 +67,7 @@ void buildPlane(BuildData &data,
 
     for (unsigned ix = 0; ix < gridX1; ix++) {
 
-      float x = ix * segmentWidth - widthHalf;
+      float x = (float)ix * segmentWidth - widthHalf;
 
       // set values to correct vector component
       math::Vector3 vector;
@@ -90,7 +90,7 @@ void buildPlane(BuildData &data,
       data.uvs->next() = {(float)ix / gridX, 1.0f - ((float)iy / gridY)};
 
       // counters
-      vertexCounter += 1;
+      vertexCounter ++;
     }
   }
 

@@ -26,7 +26,8 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
         if (!boxMesh) {
 
-          geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(3, 3, 3);
+          //TODO: find out why we have to pass 100000 rather than 1 as in original code
+          geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(100000, 100000, 100000);
           ShaderInfo si = shaderlib::get(ShaderID::cube);
           ShaderMaterial::Ptr sm = ShaderMaterial::make(
              si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
@@ -53,7 +54,7 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
 
         if (!planeCamera) {
 
-          planeCamera = OrthographicCamera::make( - 1, 1, 1, - 1, 0, 1 );
+          planeCamera = OrthographicCamera::make( -1, 1, 1, -1, 0, 1 );
 
           MeshBasicMaterial::Ptr mat = MeshBasicMaterial::make();
           mat->depthTest = false;

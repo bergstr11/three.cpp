@@ -95,14 +95,14 @@ Window {
             metl: true
         }*/
 
-        /*Model {
+        Model {
             id: threeDModel
             onFileChanged: holdon.visible = true
             onModelLoaded: holdon.visible = false
 
             file: ":/pontiac/Pontiac-Lemans-1965.obj"
             resourcePrefix: ":/pontiac/"
-        }*/
+        }
 
         Scene {
             id: scene
@@ -124,21 +124,7 @@ Window {
                 color: "#050505"
             }
 
-            Box {
-                id: box
-                width: 10
-                height: 10
-                depth: 10
-
-                position: "-105,-78,-30"
-                scale: "30,30,30"
-
-                material: MeshLambertMaterial {
-                    color: "#ff0000"
-                }
-            }
-
-            /*ModelRef {
+            ModelRef {
                 id: modelref
                 model: threeDModel
                 type: ModelRef.Node
@@ -147,11 +133,11 @@ Window {
                 onObjectChanged: {
                     orbitController.reset()
 
-                    object.position = "0,-20,0"
-                    object.rotation = Qt.vector3d(1.55,3.2,2.55)
-                    object.scale = Qt.vector3d(1.2, 1.2, 1.2)
+                    object.position = "0,-25,-30"
+                    object.rotation = Qt.vector3d(1.60,3.2,3.35)
+                    object.scale = Qt.vector3d(1.9, 1.9, 1.9)
                 }
-            }*/
+            }
 
             camera: PerspectiveCamera {
                 id: sceneCamera

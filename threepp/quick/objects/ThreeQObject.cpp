@@ -34,6 +34,8 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 
     _object->position().set(_position.x(), _position.y(), _position.z());
 
+    _object->scale().set(_scale.x(), _scale.y(), _scale.z());
+
     if(!_name.isEmpty())
       _object->setName(_name.toStdString());
 
