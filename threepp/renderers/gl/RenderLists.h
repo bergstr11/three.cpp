@@ -22,10 +22,10 @@ struct RenderItem
   Material::Ptr material;
   Program::Ptr program;
   int renderOrder;
-  unsigned z;
+  float z;
   const Group *group;
 
-  RenderItem(Object3D::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, unsigned z, const Group *group,
+  RenderItem(Object3D::Ptr object, BufferGeometry::Ptr geometry, Material::Ptr material, float z, const Group *group,
              Program::Ptr program=nullptr)
      : object(object), geometry(geometry), material(material), program(program), renderOrder(object->renderOrder()),
        z(z), group(group)
@@ -169,12 +169,9 @@ public:
 
   RenderList &sort()
   {
-    if (!_opaque.empty())
-      std::sort(_opaque.begin(), _opaque.end(),
-                [this](size_t a, size_t b) {return painterSortStable(a, b);});
-    if (!_transparent.empty())
-      std::sort(_transparent.begin(), _transparent.end(),
-                [this](size_t a, size_t b) {return reversePainterSortStable(a, b);});
+    std::sort(_opaque.begin(), _opaque.end(), [this](size_t a, size_t b) {return painterSortStable(a, b);});
+    std::sort(_transparent.begin(), _transparent.end(),
+              [this](size_t a, size_t b) {return reversePainterSortStable(a, b);});
     return *this;
   }
 };

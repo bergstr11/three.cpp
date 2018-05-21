@@ -10,6 +10,7 @@
 
 #include "Scene.h"
 #include <threepp/quick/ThreeDItem.h>
+#include <threepp/textures/Texture.h>
 
 namespace three {
 namespace quick {
@@ -56,9 +57,16 @@ void Scene::updateCamera()
     _scene->add(_quickCamera->camera());
 }
 
-void Scene::setBackground(const QColor &background) {
-  if (_background != background) {
-    _background = background;
+void Scene::setBgColor(const QColor &background) {
+  if (_bgColor != background) {
+    _bgColor = background;
+    emit backgroundChanged();
+  }
+}
+
+void Scene::setBgTexture(Texture *background) {
+  if (_bgTexture != background) {
+    _bgTexture = background;
     emit backgroundChanged();
   }
 }
@@ -123,9 +131,15 @@ void Scene::setItem(ThreeDItem *item)
 {
   _item = item;
 
-  _scene = _background.isValid() ?
-           three::SceneT<Color>::make(_name.toStdString(), Color(_background.redF(), _background.greenF(), _background.blueF()))
-                                 : three::Scene::make(_name.toStdString());
+  if(_bgTexture) {
+    _scene = three::SceneT<three::Texture::Ptr>::make(_name.toStdString(), _bgTexture->getTexture());
+  }
+  else if(_bgColor.isValid()) {
+    _scene = three::SceneT<Color>::make(_name.toStdString(), Color(_bgColor.redF(), _bgColor.greenF(), _bgColor.blueF()));
+  }
+  else {
+    _scene = three::Scene::make(_name.toStdString());
+  }
 
   _position.setX(_scene->position().x());
   _position.setY(_scene->position().y());

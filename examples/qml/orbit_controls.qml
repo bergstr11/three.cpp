@@ -36,7 +36,7 @@ Window {
 
         Scene {
             id: scene
-            background: "#cccccc"
+            bgColor: "#cccccc"
             fog: FogExp2 {
                 color: "#cccccc"
                 density: 0.002

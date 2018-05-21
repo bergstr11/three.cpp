@@ -61,6 +61,7 @@ public:
 private:
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
   Q_PROPERTY(QString file READ file WRITE setFile NOTIFY fileChanged)
+  Q_PROPERTY(QString resourcePrefix READ resourcePrefix WRITE setResourcePrefix NOTIFY resourcePrefixChanged)
   Q_PROPERTY(QVariantMap replacements READ replacements WRITE setReplacements NOTIFY replacementsChanged)
   Q_PROPERTY(QObject *options READ options CONSTANT)
 
@@ -69,6 +70,8 @@ private:
   UP _up = UP_Y;
 
   QVariantMap _replacements;
+
+  QString _resourcePrefix;
 
   Options _options;
 
@@ -85,6 +88,10 @@ public:
   const QString name() {return _name;}
 
   void setName(const QString &name);
+
+  const QString resourcePrefix() {return _resourcePrefix;}
+
+  void setResourcePrefix(const QString &prefix);
 
   const QString &file() const {return _file;}
 
@@ -105,6 +112,7 @@ signals:
   void nameChanged();
   void modelLoaded();
   void replacementsChanged();
+  void resourcePrefixChanged();
 };
 
 }

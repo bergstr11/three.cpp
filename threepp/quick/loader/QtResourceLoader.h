@@ -28,6 +28,8 @@ class QtResourceLoader : public QThread, public three::ResourceLoader
 
   std::unordered_map<std::string, std::string> _replacements;
 
+  QString _resourcePrefix;
+
 protected:
   void run() override;
 
@@ -40,6 +42,10 @@ public:
   three::Resource::Ptr get(const char *path, std::ios_base::openmode openmode) override;
 
   void load(QImage &image, std::string &file) override;
+
+  void setResourcePrefix(QString prefix) {
+    _resourcePrefix = prefix;
+  }
 
 private slots:
   void sendResult();

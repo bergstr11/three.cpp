@@ -78,7 +78,7 @@ Window {
 
         Scene {
             id: scene
-            background: Qt.rgba(0.4,0.4,0.6)
+            bgColor: Qt.rgba(0.4,0.4,0.6)
 
             AmbientLight {
                 id: ambientLight

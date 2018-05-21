@@ -57,7 +57,7 @@ Window {
         }
         Scene {
             id: scene
-            background: "#f0f0f0"
+            bgColor: "#f0f0f0"
 
             AmbientLight {
                 id: ambientLight

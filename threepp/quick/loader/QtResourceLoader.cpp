@@ -167,7 +167,8 @@ void QtResourceLoader::load(QImage &image, string &file)
   auto repl = _replacements.find(lookFor);
   if(repl != _replacements.end()) lookFor = (*repl).second;
 
-  image = QImage(QString::fromStdString(lookFor)).mirrored();
+  QString name = _resourcePrefix + QString::fromStdString(lookFor);
+  image = QImage(name).mirrored();
 }
 
 void QtResourceLoader::sendResult()

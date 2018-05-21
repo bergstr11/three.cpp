@@ -113,6 +113,8 @@ public:
   bool use_drawBuffers = false; // set to use draw buffers
   bool use_shaderTextureLOD = false; // set to use shader texture LOD
 
+  bool uniformsNeedUpdate = false;
+
   std::string index0AttributeName;
 
   using Ptr = std::shared_ptr<ShaderMaterial>;

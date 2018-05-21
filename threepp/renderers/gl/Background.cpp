@@ -17,14 +17,16 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
       renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
     }
     else if(three::Background<Texture::Ptr> *bg = scene->background()) {
+
+      if ( renderer.autoClear || forceClear ) {
+        renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+      }
+
       if(ImageCubeTexture *ict = bg->data->typer) {
 
-        if ( renderer.autoClear || forceClear ) {
-          renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-        }
         if (!boxMesh) {
 
-          geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(1, 1, 1);
+          geometry::buffer::Box::Ptr box = geometry::buffer::Box::make(3, 3, 3);
           ShaderInfo si = shaderlib::get(ShaderID::cube);
           ShaderMaterial::Ptr sm = ShaderMaterial::make(
              si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
@@ -43,16 +45,12 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
           geometries.update(box);
         }
 
-        CubeTexture::Ptr ct = std::dynamic_pointer_cast<CubeTexture>(bg->data);
-        boxMesh->material<0>()->uniforms.set(UniformName::tCube, ct);
+        boxMesh->material<0>()->uniforms.set(UniformName::tCube, CAST2(bg->data, CubeTexture));
 
         renderList->push_front(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
       }
       else if(ImageTexture *ict = bg->data->typer) {
 
-        if ( renderer.autoClear || forceClear ) {
-          renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-        }
         if (!planeCamera) {
 
           planeCamera = OrthographicCamera::make( - 1, 1, 1, - 1, 0, 1 );

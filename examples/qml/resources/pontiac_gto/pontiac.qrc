@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/pontiac">
+        <file>generic_brakedisk_01.tga</file>
+        <file>generic_carpet_grey01.tga</file>
+        <file>generic_leather_white02.tga</file>
+        <file>generic_plastic_white02.tga</file>
+        <file>generic_reflection01.tga</file>
+        <file>generic_scrathes01.tga</file>
+        <file>generic_seatbelt.tga</file>
+        <file>generic_tire10.tga</file>
+        <file>generic_tread_00.tga</file>
+        <file>generic_wood06.tga</file>
+        <file>glassdam_1.tga</file>
+        <file>gto65_bodymisc.tga</file>
+        <file>gto65_dials.tga</file>
+        <file>gto65_engine.tga</file>
+        <file>gto65_extras.tga</file>
+        <file>gto65_interior.tga</file>
+        <file>gto65_wheel.tga</file>
+        <file>Pontiac-Lemans-1965.mtl</file>
+        <file>Pontiac-Lemans-1965.obj</file>
+        <file>remap_gto65.tga</file>
+        <file>underbody.tga</file>
+        <file>vehicle_generic_chromeprts.tga</file>
+        <file>vehicle_generic_doorshut2.tga</file>
+        <file>vehiclelights_dam.tga</file>
+        <file>vehiclelights_on.tga</file>
+        <file>vehiclelights.tga</file>
+        <file>pisa/nx.png</file>
+        <file>pisa/ny.png</file>
+        <file>pisa/nz.png</file>
+        <file>pisa/px.png</file>
+        <file>pisa/py.png</file>
+        <file>pisa/pz.png</file>
+    </qresource>
+</RCC>

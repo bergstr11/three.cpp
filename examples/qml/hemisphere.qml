@@ -77,7 +77,7 @@ Window {
         }
         Scene {
             id: scene
-            background: Qt.hsla(0.6,0,1,1)
+            bgColor: Qt.hsla(0.6,0,1,1)
             fog: Fog {near: 1; far: 5000; color: Qt.hsla(0.6,0,1,1)}
 
             Sphere {

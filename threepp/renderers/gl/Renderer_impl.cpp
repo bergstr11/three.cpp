@@ -1264,6 +1264,14 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     uploadUniforms(materialProperties.uniformsList, mat_uniforms);
   }
 
+  //probably obsolete, uniformsNeedUpdate is always false
+  ShaderMaterial *smat = material->typer;
+  if ( smat && smat->uniformsNeedUpdate ) {
+
+    uploadUniforms(materialProperties.uniformsList, mat_uniforms );
+    smat->uniformsNeedUpdate = false;
+  }
+
   // common matrices
   prg_uniforms->set(UniformName::modelViewMatrix, object->modelViewMatrix );
   prg_uniforms->set(UniformName::normalMatrix, object->normalMatrix );

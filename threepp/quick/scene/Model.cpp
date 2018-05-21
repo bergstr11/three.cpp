@@ -68,6 +68,7 @@ void Model::loadFile(const QString &file)
   }
   else {
     QtResourceLoader *loader = new QtResourceLoader(*_assimp, file, replacements);
+    if(!_resourcePrefix.isEmpty()) loader->setResourcePrefix(_resourcePrefix);
     QObject::connect(loader, &QtResourceLoader::loaded, this, &Model::modelLoaded);
     loader->start();
   }
@@ -87,6 +88,13 @@ void Model::setName(const QString &name) {
   if (_name != name) {
     _name = name;
     emit nameChanged();
+  }
+}
+
+void Model::setResourcePrefix(const QString &prefix) {
+  if (_resourcePrefix != prefix) {
+    _resourcePrefix = prefix;
+    emit resourcePrefixChanged();
   }
 }
 

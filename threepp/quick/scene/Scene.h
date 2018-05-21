@@ -22,7 +22,8 @@ class Scene : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-  Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
+  Q_PROPERTY(QColor bgColor READ bgColor WRITE setBgColor NOTIFY backgroundChanged)
+  Q_PROPERTY(Texture *bgTexture READ bgTexture WRITE setBgTexture NOTIFY backgroundChanged)
   Q_PROPERTY(Camera * camera READ quickCamera WRITE setQuickCamera NOTIFY cameraChanged)
   Q_PROPERTY(FogBase * fog READ fog WRITE setFog NOTIFY fogChanged)
   Q_PROPERTY(QVector3D position READ position NOTIFY positionChanged)
@@ -30,7 +31,8 @@ Q_OBJECT
   Q_CLASSINFO("DefaultProperty", "objects")
 
   QString _name;
-  QColor _background;
+  QColor _bgColor;
+  Texture *_bgTexture = nullptr;
 
   ThreeDItem * _item;
 
@@ -57,9 +59,13 @@ public:
 
   ~Scene() override {};
 
-  QColor background() { return _background; }
+  QColor bgColor() { return _bgColor; }
 
-  void setBackground(const QColor &background);
+  void setBgColor(const QColor &background);
+
+  Texture *bgTexture() { return _bgTexture; }
+
+  void setBgTexture(Texture *texture);
 
   QString name() {return _name;}
 
