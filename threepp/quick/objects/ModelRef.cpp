@@ -233,6 +233,7 @@ ThreeQObject *ModelRef::getThreeQObject()
 }
 
 /*
+ * ThreeD {
         ObjectPicker
         {
             id: picker
@@ -247,6 +248,7 @@ ThreeQObject *ModelRef::getThreeQObject()
             }
         }
 
+      ModelRef onObjectChanged: picker.objects = [modelref.object]
  *
  */
 void ModelRef::testMarker(three::quick::ObjectPicker *picker)

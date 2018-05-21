@@ -123,6 +123,12 @@ public:
     return std::end(_elements);
   }
 
+  Vector3 &operator =(float scalar)
+  {
+    _x = _y = _z = scalar;
+    return *this;
+  }
+
   Vector3 &operator +=(const Vector3 &vector)
   {
     _x += vector._x;

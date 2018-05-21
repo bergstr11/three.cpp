@@ -86,6 +86,13 @@ protected:
      : uuid(sole::uuid0()), _itemSize(itemSize), _normalized(normalized)
   {}
 
+  BufferAttribute(const BufferAttribute &att)
+     : uuid(sole::uuid0()),
+       _version(att._version),
+       _itemSize(att._itemSize),
+       _normalized(att._normalized),
+       _updateRange(att._updateRange) {}
+
 public:
   virtual ~BufferAttribute() = default;
 
@@ -114,6 +121,8 @@ public:
   virtual size_t byteCount() const = 0;
 
   virtual unsigned bytesPerElement() const = 0;
+
+  virtual BufferAttribute *clone() const = 0;
 };
 
 /**
@@ -317,6 +326,8 @@ public:
   size_t byteCount() const override {return _size * sizeof(Type);}
 
   const void *data(size_t offset) const override {return _data+offset;}
+
+  virtual BufferAttributeT *clone() const = 0;
 };
 
 /**
@@ -364,7 +375,15 @@ protected:
     Super::_data = reinterpret_cast<ComponentType *>(it);
   }
 
-public:
+  PreallocBufferAttribute(const PreallocBufferAttribute &attr)
+     : Super(attr)
+  {
+    it = new ItemType[attr.itemCount()];
+    Super::_data = reinterpret_cast<ComponentType *>(it);
+    memcpy(Super::_data, attr._data, attr.byteCount());
+  }
+
+  public:
   ItemType &next()
   {
     return it[_offset++];
@@ -381,6 +400,10 @@ public:
 
   ~PreallocBufferAttribute() {
     delete[] it;
+  }
+
+  PreallocBufferAttribute *clone() const override {
+    return new PreallocBufferAttribute(*this);
   }
 };
 
@@ -428,6 +451,9 @@ protected:
     }
   }
 
+  GrowingBufferAttribute(const GrowingBufferAttribute &att)
+     : BufferAttributeT<ComponentType>(att), _array(att._array) {}
+
 public:
   template<typename... _Args>
   void emplace_back(_Args&&... __args)
@@ -456,13 +482,17 @@ public:
     return _array.at(index);
   }
 
-  typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr clone() {
+  GrowingBufferAttribute *clone() const override {
+    return new GrowingBufferAttribute(*this);
+  }
+
+  /*typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr clone() {
     auto cloned = typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
        new PreallocBufferAttribute<ComponentType, ItemType>(this->itemCount(), this->normalized()));
 
     memcpy(cloned->_data, this->_data, this->byteCount());
     return cloned;
-  };
+  };*/
 
   using Ptr = std::shared_ptr<GrowingBufferAttribute>;
 };
@@ -488,6 +518,11 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<ExternalBufferAttribute>;
+
+  ExternalBufferAttribute *clone() const override
+  {
+    return new ExternalBufferAttribute(*this);
+  }
 };
 
 struct attribute {

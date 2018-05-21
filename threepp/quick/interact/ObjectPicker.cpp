@@ -73,7 +73,6 @@ Object3D *calculateSurface(std::vector<Intersection> &intersects,
   }
 
   Object3D *picked = intersects[minPos].object;
-  qDebug() << "nearest:" << picked->name().c_str() << picked->id();
 
   //count the number of hits for this bundle
   unsigned bundleSize = minPos - bundlePos;
@@ -188,7 +187,7 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
     }
     else {
       for(const auto &picker : _pickers) {
-        if(picker->handleMousePressed(event)) return true;
+        if(picker->enabled() && picker->handleMousePressed(event)) return true;
       }
     }
   }

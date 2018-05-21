@@ -141,7 +141,7 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
 
   // build non-indexed geometry
   setPosition(vertices);
-  setNormal(vertices->clone());
+  setNormal(BufferAttributeT<float>::Ptr(vertices->clone()));
   setUV(uvs);
 
   if (params.detail == 0)

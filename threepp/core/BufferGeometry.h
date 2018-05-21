@@ -74,7 +74,8 @@ class BufferGeometry : public Geometry
   void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
 protected:
-  BufferGeometry(const BufferGeometry &geom) = default;
+  BufferGeometry(const BufferGeometry &geom);
+
   BufferGeometry() : Geometry(geometry::Typer(this))
   {}
 

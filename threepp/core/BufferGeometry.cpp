@@ -18,6 +18,36 @@ using namespace impl;
 
 size_t Geometry::id_count = 0;
 
+BufferGeometry::BufferGeometry(const BufferGeometry &geom) : Geometry(geom)
+{
+  Geometry::typer = geometry::Typer(this);
+
+  if(geom._index) _index.reset(geom._index->clone());
+  if(geom._position) _position.reset(geom._position->clone());
+  if(geom._normal) _normal.reset(geom._normal->clone());
+  if(geom._color) _color.reset(geom._color->clone());
+  if(geom._uv) _uv.reset(geom._uv->clone());
+  if(geom._uv2) _uv2.reset(geom._uv2->clone());
+  if(geom._lineDistances) _lineDistances.reset(geom._lineDistances->clone());
+  if(geom._tangents) _tangents.reset(geom._tangents->clone());
+  if(geom._bitangents) _bitangents.reset(geom._bitangents->clone());
+
+  for(const auto &att : geom._morphAttributes_position) {
+    _morphAttributes_position.push_back(BufferAttributeT<float>::Ptr(att->clone()));
+  }
+  for(const auto &att : geom._morphAttributes_normal) {
+    _morphAttributes_normal.push_back(BufferAttributeT<float>::Ptr(att->clone()));
+  }
+
+  if(geom._skinIndices) _skinIndices.reset(geom._skinIndices->clone());
+  if(geom._skinWeight) _skinWeight.reset(geom._skinWeight->clone());
+
+  for(const auto &iatt : geom._indexedAttributes) {
+    //_indexedAttributes.insert(iatt.first, BufferAttributeT<float>::Ptr(iatt.second->clone()));
+  }
+
+  UpdateRange _drawRange;
+}
 
 math::Vector3 BufferGeometry::centroid(const Face3 &face) const
 {

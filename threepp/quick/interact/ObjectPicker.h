@@ -190,7 +190,7 @@ protected:
 
   void setEnabled(bool enabled)
   {
-    if(_enabled !=enabled) {
+    if(_enabled != enabled) {
       _enabled = enabled;
       emit enabledChanged();
     }
