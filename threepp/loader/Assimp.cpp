@@ -13,6 +13,7 @@
 #include <threepp/core/BufferGeometry.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/material/MeshToonMaterial.h>
+#include <threepp/material/MeshStandardMaterial.h>
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/textures/DataTexture.h>
 
@@ -176,6 +177,7 @@ public:
 
   virtual Mesh::Ptr makeMesh(BufferGeometry::Ptr geometry) = 0;
   virtual Material &material() = 0;
+  virtual Material::Ptr materialPtr() = 0;
 };
 
 struct Access
@@ -191,10 +193,13 @@ struct Access
   unordered_map<unsigned, Mesh::Ptr> meshes;
   unordered_map<unsigned, MeshMaker::Ptr> makers;
 
+  const AssimpMaterialHandler *materialHandler = nullptr;
+
   Access(Scene::Ptr scene, const aiScene * aiscene,
          ResourceLoader &loader,
-         enum_map<ShadingModel, ShadingModel> &modelMap)
-     : scene(scene), aiscene(aiscene), loader(loader), modelMap(modelMap) {}
+         enum_map<ShadingModel, ShadingModel> &modelMap,
+         const AssimpMaterialHandler *materialHandler)
+     : scene(scene), aiscene(aiscene), loader(loader), modelMap(modelMap), materialHandler(materialHandler) {}
 
   void readMaterial(unsigned materialIndex);
 
@@ -376,6 +381,20 @@ struct ReadMaterial<material::NormalMap>
     material.normalMap = access->loadTexture(aiTextureType_NORMALS, 0, ai);
   }
 };
+template <>
+struct ReadMaterial<material::RoughnessMap>
+{
+  FORWARD_MIXIN(material::RoughnessMap)
+  static void mixin(material::RoughnessMap &material, const aiMaterial *ai, Access *access) {
+  }
+};
+template <>
+struct ReadMaterial<material::MetalnessMap>
+{
+  FORWARD_MIXIN(material::MetalnessMap)
+  static void mixin(material::MetalnessMap &material, const aiMaterial *ai, Access *access) {
+  }
+};
 
 template <typename Mat>
 class MeshMakerT : public MeshMaker
@@ -401,10 +420,6 @@ protected:
     material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
     if(!material.map)
       material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
-
-    aiString name;
-    ai->Get(AI_MATKEY_NAME, name);
-    material.name = name.C_Str();
 
     int twosided;
     if(ai->Get(AI_MATKEY_TWOSIDED, twosided) == AI_SUCCESS)
@@ -432,17 +447,22 @@ protected:
   }
 
 public:
+  using Ptr = std::shared_ptr<MeshMakerT>;
+
   Mesh::Ptr makeMesh(BufferGeometry::Ptr geometry) override {
     Mesh::Ptr m = MeshT<BufferGeometry, Mat>::make(geometry, _material);
     m->setName(_material->name);
     return m;
   }
 
-  Material &material() override {return *_material;}
+  Mat &material() override {return *_material;}
 
-  static Ptr make(Access *access, const aiMaterial *ai)
+  Material::Ptr materialPtr() override {return _material;}
+
+  static Ptr make(Access *access, const std::string &name, const aiMaterial *ai)
   {
     auto material = Mat::make();
+    material->name = name;
     read(*material, ai, access);
 
     return Ptr(new MeshMakerT(material));
@@ -456,7 +476,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
   unsigned int uvindex = numeric_limits<unsigned>::max();
   ai_real blend;
   aiTextureOp op = (aiTextureOp)numeric_limits<int>::max();
-  aiTextureMapMode mapmode[3];
+  aiTextureMapMode mapmode[3] {aiTextureMapMode_Clamp, aiTextureMapMode_Clamp, aiTextureMapMode_Clamp};
 
   if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
 
@@ -749,8 +769,43 @@ void Access::readMaterial(unsigned materialIndex)
   MeshMaker::Ptr maker;
   const aiMaterial *ai = aiscene->mMaterials[materialIndex];
 
+  aiString ainame;
+  ai->Get(AI_MATKEY_NAME, ainame);
+  string name(ainame.C_Str());
+
   int shadingModel;
-  if (ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
+
+  //callback replacements anyone?
+  if(materialHandler) {
+
+    if(materialHandler->create<MeshPhongMaterial>(name)) {
+      auto mm = MeshMakerT<MeshPhongMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+    else if(materialHandler->create<MeshToonMaterial>(name)) {
+      auto mm = MeshMakerT<MeshToonMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+    else if(materialHandler->create<MeshLambertMaterial>(name)) {
+      auto mm = MeshMakerT<MeshLambertMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+    else if(materialHandler->create<MeshBasicMaterial>(name)) {
+      auto mm = MeshMakerT<MeshBasicMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+    else if(materialHandler->create<MeshStandardMaterial>(name)) {
+      auto mm = MeshMakerT<MeshStandardMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+  }
+  //regular mapping
+  if (!maker && ai->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS) {
 
     ShadingModel targetModel;
     switch (shadingModel) {
@@ -775,26 +830,27 @@ void Access::readMaterial(unsigned materialIndex)
     }
     switch (targetModel) {
       case ShadingModel::Phong:
-        maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
+        maker = MeshMakerT<MeshPhongMaterial>::make(this, name, ai);
         break;
       case ShadingModel::Toon:
-        maker = MeshMakerT<MeshToonMaterial>::make(this, ai);
+        maker = MeshMakerT<MeshToonMaterial>::make(this, name, ai);
         break;
       case ShadingModel::Gouraud:
-        maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+        maker = MeshMakerT<MeshLambertMaterial>::make(this, name, ai);
         break;
       case ShadingModel::Flat:
-        maker = MeshMakerT<MeshBasicMaterial>::make(this, ai);
+        maker = MeshMakerT<MeshBasicMaterial>::make(this, name, ai);
         break;
     }
   }
-  else {
+  //guesswork
+  if(!maker) {
     float shininess = 0;
     if (ai->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f) {
-      maker = MeshMakerT<MeshPhongMaterial>::make(this, ai);
+      maker = MeshMakerT<MeshPhongMaterial>::make(this, name, ai);
     }
     else {
-      maker = MeshMakerT<MeshLambertMaterial>::make(this, ai);
+      maker = MeshMakerT<MeshLambertMaterial>::make(this, name, ai);
     }
   }
   if (!maker)
@@ -829,7 +885,7 @@ void Assimp::loadScene(string name, ResourceLoader &loader)
     return;
   }
 
-  Access access(_scene, aiscene, loader, modelMap);
+  Access access(_scene, aiscene, loader, modelMap, _materialHandler);
   access.readScene();
 }
 

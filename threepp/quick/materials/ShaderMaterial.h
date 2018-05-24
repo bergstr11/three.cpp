@@ -35,14 +35,15 @@ Q_OBJECT
   three::ShaderMaterial::Ptr _material;
 
 protected:
-  virtual three::ShaderMaterial::Ptr createMaterial() const;
+  virtual three::ShaderMaterial::Ptr createMaterial();
 
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  ShaderMaterial(QObject *parent = nullptr) : Material(parent) {}
+  ShaderMaterial(QObject *parent = nullptr)
+     : Material(material::Typer(this), parent) {}
   ShaderMaterial(three::ShaderMaterial::Ptr material, QObject *parent = nullptr)
-     : Material(parent), _material(material) {}
+     : Material(material::Typer(this), parent), _material(material) {}
 
   QString shaderID() const {return _shaderID;}
   QByteArray vertexShader() const {return _vertexShader;}

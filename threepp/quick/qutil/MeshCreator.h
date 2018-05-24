@@ -6,6 +6,7 @@
 #define THREEPPQ_MESHCREATOR_H
 
 #include <threepp/objects/Mesh.h>
+#include <threepp/material/MeshStandardMaterial.h>
 #include <threepp/material/MeshBasicMaterial.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/material/MeshPhongMaterial.h>
@@ -19,6 +20,7 @@ struct MeshCreator
   virtual void material(MeshBasicMaterial::Ptr material) = 0;
   virtual void material(MeshLambertMaterial::Ptr material) = 0;
   virtual void material(MeshPhongMaterial::Ptr material) = 0;
+  virtual void material(MeshStandardMaterial::Ptr material) = 0;
   virtual void material(ShaderMaterial::Ptr material) = 0;
 
   virtual Mesh::Ptr getMesh() = 0;
@@ -62,6 +64,14 @@ struct MeshCreatorG : public MeshCreator
       if(mp) mp->template setMaterial<0>(material);
     }
     else mesh = MeshT<Geometry_t, MeshPhongMaterial>::make(name, geometry, material);
+  }
+  void material(MeshStandardMaterial::Ptr material) override {
+    if(mesh) {
+      typename MeshT<Geometry_t, MeshStandardMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, MeshStandardMaterial>>(mesh);
+      if(mp) mp->template setMaterial<0>(material);
+    }
+    else mesh = MeshT<Geometry_t, MeshStandardMaterial>::make(name, geometry, material);
   }
   void material(ShaderMaterial::Ptr material) override {
     if(mesh) {

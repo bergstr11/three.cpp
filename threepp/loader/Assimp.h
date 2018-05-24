@@ -38,21 +38,22 @@ struct AssimpOptions
   }
 };
 
+using AssimpMaterialHandler = loader::MaterialHandler<
+   MeshPhongMaterial, MeshToonMaterial, MeshLambertMaterial, MeshStandardMaterial, MeshBasicMaterial>;
+
 /**
  * Assimp-based scene Loader
  */
 class Assimp : public Loader, private AssimpOptions
 {
-protected:
-  std::vector<Material::Ptr> _materials;
-  std::vector<Mesh::Ptr> _meshes;
-
-  std::shared_ptr<::Assimp::Importer> _importer;
-
-  void loadScene(std::string name, ResourceLoader &loader);
-
 public:
-  Assimp(const AssimpOptions &options = AssimpOptions()) : AssimpOptions(options) {}
+  Assimp(const AssimpMaterialHandler *materialHandler, const AssimpOptions &options=AssimpOptions())
+     : AssimpOptions(options), _materialHandler(materialHandler)
+  {}
+
+  Assimp(const AssimpOptions &options=AssimpOptions()) : AssimpOptions(options)
+  {}
+
   ~Assimp() override;
 
   void substituteShading(ShadingModel old, ShadingModel subst)
@@ -63,6 +64,16 @@ public:
   void load(std::string name, ResourceLoader &loader) override;
   void load(std::string name, const Color &background, ResourceLoader &loader) override;
   void load(std::string name, Texture::Ptr background, ResourceLoader &loader) override;
+
+protected:
+  std::vector<Material::Ptr> _materials;
+  std::vector<Mesh::Ptr> _meshes;
+
+  std::shared_ptr<::Assimp::Importer> _importer;
+
+  const AssimpMaterialHandler *_materialHandler = nullptr;
+
+  void loadScene(std::string name, ResourceLoader &loader);
 };
 
 }

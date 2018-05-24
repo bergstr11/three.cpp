@@ -60,7 +60,7 @@ protected:
 
   Texture(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
 
-  virtual TextureOptions textureOptions() {
+  virtual TextureOptions textureOptions() const {
     return three::Texture::options();
   }
 
@@ -114,7 +114,7 @@ public:
     }
   }
 
-  TextureOptions createTextureOptions()
+  TextureOptions createTextureOptions() const
   {
     TextureOptions options = textureOptions();
     switch(_format) {

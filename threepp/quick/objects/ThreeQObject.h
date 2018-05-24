@@ -60,7 +60,7 @@ protected:
 
   three::Object3D::Ptr _object;
   three::Object3D::Ptr _parentObject;
-  Scene *_scene;
+  Scene *_scene = nullptr;
 
   virtual three::Object3D::Ptr _create() {return nullptr;}
   virtual void _post_create() {}

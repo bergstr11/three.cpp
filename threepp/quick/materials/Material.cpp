@@ -16,20 +16,20 @@ void Material::setMap(Texture *map)
   if(_map != map) {
     _map = map;
     if(material()) {
-      material()->map = _map->getTexture();
+      material()->map = _map ? _map().getTexture() : nullptr;
       material()->needsUpdate = true;
     }
     emit mapChanged();
   }
 }
 
-void Material::setBaseProperties(three::Material::Ptr material) const
+void Material::setBaseProperties(three::Material::Ptr material)
 {
   material->wireframe = _wireframe;
   material->flatShading = _flatShading;
   material->visible = _visible;
-  material->name = _name.toStdString();
-  if(_map) material->map = _map->getTexture();
+  material->name = _name().toStdString();
+  if(_map) material->map = _map().getTexture();
 }
 
 void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformValues &uniforms)
@@ -67,7 +67,7 @@ void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformVa
   }
 }
 
-three::ShaderMaterial::Ptr ShaderMaterial::createMaterial() const
+three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
 {
   three::Side side = (three::Side)_side;
 

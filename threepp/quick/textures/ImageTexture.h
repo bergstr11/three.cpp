@@ -77,7 +77,7 @@ Q_OBJECT
   three::ImageTexture::Ptr _texture;
 
 protected:
-  TextureOptions textureOptions() override {
+  TextureOptions textureOptions() const override {
     return three::ImageTexture::options();
   }
 

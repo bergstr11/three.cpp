@@ -8,8 +8,11 @@
 #include <threepp/quick/ThreeQObjectRoot.h>
 #include <threepp/quick/qutil/MeshCreator.h>
 #include <threepp/quick/textures/Texture.h>
+#include <threepp/quick/qutil/Resolver.h>
+#include <threepp/quick/qutil/TrackingProperty.h>
 
 namespace three {
+
 namespace quick {
 
 class Material : public ThreeQObjectRoot
@@ -23,13 +26,13 @@ Q_OBJECT
   Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
 
 protected:
-  bool _wireframe = false;
-  bool _flatShading = false;
-  bool _visible = true;
-  Texture *_map = nullptr;
-  QByteArray _name;
+  TrackingProperty<bool> _wireframe {false};
+  TrackingProperty<bool> _flatShading {false};
+  TrackingProperty<Texture *> _map {nullptr};
+  TrackingProperty<QByteArray> _name {QByteArray()};
+  TrackingProperty<bool> _visible {true};
 
-  Material(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
+  Material(const material::Typer &typer, QObject *parent = nullptr) : ThreeQObjectRoot(parent), typer(typer) {}
 
   virtual three::Material::Ptr material() const = 0;
 
@@ -43,9 +46,20 @@ protected:
     }
   }
 
-  void setBaseProperties(three::Material::Ptr material) const;
+  void setBaseProperties(three::Material::Ptr material);
 
 public:
+  const material::Typer typer;
+
+  virtual void setAndConfigureObject(three::Material::Ptr material)
+  {
+    if(_wireframe.isSet()) material->wireframe = _wireframe;
+    if(_flatShading.isSet()) material->flatShading = _flatShading;
+    if(_map.isSet()) material->map = _map().getTexture();
+    if(_name.isSet()) material->name = _name().toStdString();
+    if(_visible.isSet()) material->visible = _visible;
+  }
+
   bool visible() const {return _visible;}
 
   void setVisible(bool visible) {
@@ -76,7 +90,7 @@ public:
     }
   }
 
-  const QByteArray &name() const {return _name;}
+  const QByteArray &name() const {return _name();}
 
   void setName(const QByteArray &name) {
     if(_name != name) {

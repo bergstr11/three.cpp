@@ -55,14 +55,7 @@ Window {
             ]
         }
 
-        /*MeshStandardMaterial {
-            id: body
-            color: "#000000"
-            lightMap: ?
-            envMap: textureCube
-            metalness: 0.5
-            roughness: 0.3
-        }
+        /*
         MeshStandardMaterial {
             id: tire_car
             color: "#000000"
@@ -102,6 +95,20 @@ Window {
 
             file: ":/pontiac/Pontiac-Lemans-1965.obj"
             resourcePrefix: ":/pontiac/"
+
+            MaterialHandler {
+                materialNames: "Material__682,Material__681"
+                createAs: MeshStandardMaterial {
+                      color: "#000000"
+                      envMap: textureCube
+                      metalness: 0.5
+                      roughness: 0.3
+                }
+                onLoaded: {
+                    material.lightMap = material.map
+                    material.map = null
+                }
+            }
         }
 
         Scene {

@@ -35,6 +35,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/ConvexHull.h"
 #include "objects/Mesh.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
+#include "materials/MeshStandardMaterial.h"
 #include "materials/ShaderMaterial.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
@@ -59,6 +60,7 @@ void init()
   qmlRegisterType<three::quick::ThreeDItem>("three.quick", 1, 0, "ThreeD");
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
   qmlRegisterType<three::quick::Model>("three.quick", 1, 0, "Model");
+  qmlRegisterType<three::quick::MaterialHandler>("three.quick", 1, 0, "MaterialHandler");
   qmlRegisterUncreatableType<three::quick::ThreeQObjectRoot>("three.quick", 1, 0, "ThreeQObjectRoot", "abstract class");
   qmlRegisterUncreatableType<three::quick::ThreeQObject>("three.quick", 1, 0, "ThreeQObject", "abstract class");
   qmlRegisterUncreatableType<three::quick::Material>("three.quick", 1, 0, "Material", "abstract class");
@@ -102,6 +104,7 @@ void init()
   qmlRegisterType<three::quick::MeshBasicMaterial>("three.quick", 1, 0, "MeshBasicMaterial");
   qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
+  qmlRegisterType<three::quick::MeshStandardMaterial>("three.quick", 1, 0, "MeshStandardMaterial");
   qmlRegisterType<three::quick::ShaderMaterial>("three.quick", 1, 0, "ShaderMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
   qmlRegisterType<three::quick::OrthographicCamera>("three.quick", 1, 0, "OrthographicCamera");

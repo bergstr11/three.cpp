@@ -29,10 +29,10 @@ protected:
 
 public:
   MeshBasicMaterial(three::MeshBasicMaterial::Ptr mat, QObject *parent=nullptr)
-  : Material(parent), _material(mat) {}
+  : Material(material::Typer(this), parent), _material(mat) {}
 
   MeshBasicMaterial(QObject *parent=nullptr)
-  : Material(parent) {}
+  : Material(material::Typer(this), parent) {}
 
   QColor color() const {return _color;}
 

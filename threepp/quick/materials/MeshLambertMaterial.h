@@ -30,10 +30,10 @@ protected:
 
 public:
   MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent=nullptr)
-     : Material(parent), _material(mat) {}
+     : Material(material::Typer(this), parent), _material(mat) {}
 
   MeshLambertMaterial(QObject *parent=nullptr)
-     : Material(parent) {}
+     : Material(material::Typer(this), parent) {}
 
   QColor color() const {return _color;}
 
