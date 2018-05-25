@@ -20,14 +20,18 @@ Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+  Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(three::quick::Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
+  Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
 
   QColor _color {255, 255, 255}, _specular {0x111111};
   float _opacity = 1.0f;
+  float _shininess = 30;
   bool _dithering = false;
 
   Texture *_normalMap = nullptr;
+  TrackingProperty<Texture *> _envMap {nullptr};
 
   three::MeshPhongMaterial::Ptr _material;
 
@@ -64,6 +68,10 @@ public:
   void setDithering(bool dithering) {
     if(_dithering != dithering) {
       _dithering = dithering;
+      if(_material) {
+        _material->dithering = _dithering;
+        _material->needsUpdate = true;
+      }
       emit ditheringChanged();
     }
   }
@@ -73,7 +81,24 @@ public:
   void setOpacity(float opacity) {
     if(_opacity != opacity) {
       _opacity = opacity;
+      if(_material) {
+        _material->opacity = _opacity;
+        _material->needsUpdate = true;
+      }
       emit opacityChanged();
+    }
+  }
+
+  float shininess() const {return _shininess;}
+
+  void setShininess(float shininess) {
+    if(_shininess != shininess) {
+      _shininess = shininess;
+      if(_material) {
+        _material->shininess = _shininess;
+        _material->needsUpdate = true;
+      }
+      emit shininessChanged();
     }
   }
 
@@ -87,6 +112,19 @@ public:
         _material->needsUpdate = true;
       }
       emit normalMapChanged();
+    }
+  }
+
+  Texture *envMap() const {return _envMap;}
+
+  void setEnvMap(Texture *envMap) {
+    if(_envMap != envMap) {
+      _envMap = envMap;
+      if(_material) {
+        _material->envMap = _envMap ? _envMap().getTexture() : nullptr;
+        _material->needsUpdate = true;
+      }
+      emit envMapChanged();
     }
   }
 
@@ -113,6 +151,8 @@ signals:
   void ditheringChanged();
   void normalMapChanged();
   void opacityChanged();
+  void envMapChanged();
+  void shininessChanged();
 };
 
 }

@@ -55,39 +55,6 @@ Window {
             ]
         }
 
-        /*
-        MeshStandardMaterial {
-            id: tire_car
-            color: "#000000"
-            lightMap: ?
-            metalness: 0.1
-            roughness: 0.9
-        }
-        MeshStandardMaterial {
-            id: mirror
-            color: "#000000"
-            lightMap: ?
-            envMap: textureCube
-            metalness: 0.9
-            roughness: 0.5
-        }
-        MeshStandardMaterial {
-            id: glass
-            color: ?
-            envMap: textureCube
-            metalness: 1
-            roughness: 0.1
-            opacity: ?
-        }
-        MeshPhongMaterial {
-            id: mat01
-            color: "#404040"
-            map: ?
-            specularMap: ?
-            shininess: 30
-            metl: true
-        }*/
-
         Model {
             id: threeDModel
             onFileChanged: holdon.visible = true
@@ -97,16 +64,27 @@ Window {
             resourcePrefix: ":/pontiac/"
 
             MaterialHandler {
-                materialNames: "Material__682,Material__681"
+                materialNames: "chrome,Chrome1,chrome2,light_chrome"
                 createAs: MeshStandardMaterial {
-                      color: "#000000"
-                      envMap: textureCube
-                      metalness: 0.5
-                      roughness: 0.3
+                    color: "white"
+                    metalness: 1.0
+                    roughness: 1
+                    envMap: textureCube
                 }
-                onLoaded: {
-                    material.lightMap = material.map
-                    material.map = null
+            }
+            MaterialHandler {
+                materialNames: "Material__668,Material__681"
+                createAs: MeshStandardMaterial {
+                    color: "#C14200"
+                    roughness: 0
+                    envMap: textureCube
+                }
+            }
+            MaterialHandler {
+                materialNames: "Material__756"
+                createAs: MeshStandardMaterial {
+                    roughness: 0
+                    envMap: textureCube
                 }
             }
         }
@@ -140,7 +118,7 @@ Window {
                 onObjectChanged: {
                     orbitController.reset()
 
-                    object.position = "0,-25,-30"
+                    object.position = "0,-25,20"
                     object.rotation = Qt.vector3d(1.60,3.2,3.35)
                     object.scale = Qt.vector3d(1.9, 1.9, 1.9)
                 }
