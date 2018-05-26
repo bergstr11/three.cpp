@@ -42,7 +42,7 @@ class Polyhedron : public BufferGeometry
   friend class three::geometry::Polyhedron;
 
 protected:
-  Polyhedron(const PolyhedronParams &params);
+  explicit Polyhedron(const PolyhedronParams &params);
 
   void subdivideFace(const math::Vector3 &a, const math::Vector3 &b, const math::Vector3 &c, unsigned detail);
 

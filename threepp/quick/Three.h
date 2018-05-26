@@ -64,7 +64,6 @@ public:
   Q_INVOKABLE QVariant color(QString hex);
   Q_INVOKABLE QVariant randomColor(int hex);
   Q_INVOKABLE float randFloatSpread(float range);
-  Q_INVOKABLE QVariant scale(qreal scale);
 
   qreal deg2rad() {return three::math::DEG2RAD;}
   qreal rad2deg() {return three::math::RAD2DEG;}

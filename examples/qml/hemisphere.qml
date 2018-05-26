@@ -94,7 +94,7 @@ Window {
                 type: ModelRef.Node
                 castShadow: true
                 receiveShadow: true
-                scale: Three.scale(0.035)
+                scale: "0.035,0.035,0.035"
                 position: "30,-5,0"
                 rotation: "-1.62716,-0.0526228,-2.53596"
             }

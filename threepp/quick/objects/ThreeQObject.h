@@ -42,15 +42,17 @@ Q_OBJECT
 protected:
   QString _name;
 
-  QVector3D _position {0, 0, 0};
+  TrackingProperty<QVector3D> _position {QVector3D(0, 0, 0)};
 
-  QVector3D _rotation {0, 0, 0};
+  TrackingProperty<QVector3D> _rotation {QVector3D(0, 0, 0)};
 
-  QVector3D _scale {1, 1, 1};
+  TrackingProperty<QVector3D> _scale {QVector3D(1, 1, 1)};
 
   VertexNormalsHelper *_normalsHelper = nullptr;
 
-  bool _castShadow = false, _receiveShadow = false, _visible = true, _matrixAutoUpdate = true;
+  TrackingProperty<bool> _castShadow {false};
+  TrackingProperty<bool> _receiveShadow {false};
+  bool _visible = true, _matrixAutoUpdate = true;
 
   QList<ThreeQObject *> _objects;
 
@@ -101,7 +103,7 @@ public:
     if(position != _position) {
       _position = position;
 
-      if(propagate && _object) _object->position().set(_position.x(), _position.y(), _position.z());
+      if(propagate && _object) _object->position().set(_position().x(), _position().y(), _position().z());
 
       emit positionChanged();
     }
@@ -112,7 +114,7 @@ public:
       _rotation = rotation;
 
       if(propagate && _object) {
-        _object->rotation().set(_rotation.x(), _rotation.y(), _rotation.z());
+        _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
       }
 
       emit rotationChanged();

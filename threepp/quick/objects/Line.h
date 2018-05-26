@@ -44,7 +44,7 @@ protected:
 
     math::Vector3 dir(_direction.x(), _direction.y(), _direction.z());
     dir *= _length;
-    dir += math::Vector3(_position.x(), _position.y(), _position.z());
+    dir += math::Vector3(_position().x(), _position().y(), _position().z());
 
     auto vertices = attribute::prealloc<float, Vertex>(2);
     vertices->next() = {0.0f, 0.0f, 0.0f};

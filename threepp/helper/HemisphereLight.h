@@ -26,6 +26,7 @@ protected:
      : Object3D(), _light(light), _color(color)
   {
     _light->updateMatrixWorld(true);
+
     _matrix = _light->matrixWorld();
     matrixAutoUpdate = false;
 
@@ -35,9 +36,10 @@ protected:
     _material = MeshBasicMaterial::make();
     _material->wireframe = true;
 
-    if(!_color) _material->vertexColors = Colors::Vertex;
-
-    _geometry->setColor(attribute::prealloc<float, Color>(_geometry->position()->itemCount()));
+    if(!_color) {
+      _material->vertexColors = Colors::Vertex;
+      _geometry->setColor(attribute::prealloc<float, Color>(_geometry->position()->itemCount()));
+    }
 
     add(Mesh::make("hemi_helper", _geometry, _material));
     update();
@@ -50,7 +52,6 @@ protected:
       _material->color = _color;
     }
     else {
-
       for(unsigned i = 0, l = _geometry->color()->itemCount(); i < l; i ++ ) {
 
         auto &color = _geometry->color()->item_at<Color>(i);

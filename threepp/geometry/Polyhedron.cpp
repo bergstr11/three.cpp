@@ -92,7 +92,7 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
   // finally, create the uv data
   for (unsigned i = 0; i < vertices->itemCount(); i ++ ) {
 
-    Vector3 &vertex = vertices->at(i);
+    Vector3 &vertex = vertices->item(i);
 
     float u = vertex.azimuth() / 2.0f / (float)M_PI + 0.5f;
     float v = vertex.inclination() / (float)M_PI + 0.5f;
@@ -102,13 +102,13 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
   //correctUVs();
   for (unsigned i = 0; i < vertices->itemCount(); i += 3) {
 
-    Vector3 &a = vertices->at(i);
-    Vector3 &b = vertices->at(i+1);
-    Vector3 &c = vertices->at(i+2);
+    Vector3 &a = vertices->item(i);
+    Vector3 &b = vertices->item(i+1);
+    Vector3 &c = vertices->item(i+2);
 
-    UV &uvA = uvs->at(i);
-    UV &uvB = uvs->at(i+1);
-    UV &uvC = uvs->at(i+2);
+    UV &uvA = uvs->item(i);
+    UV &uvB = uvs->item(i+1);
+    UV &uvC = uvs->item(i+2);
 
     Vector3 centroid = (a + b + c) / 3;
 
@@ -123,9 +123,9 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
   for (unsigned i = 0; i < uvs->itemCount(); i += 3 ) {
 
     // uv data of a single face
-    UV &u0 = uvs->at(i);
-    UV &u1 = uvs->at(i+1);
-    UV &u2 = uvs->at(i+2);
+    UV &u0 = uvs->item(i);
+    UV &u1 = uvs->item(i+1);
+    UV &u2 = uvs->item(i+2);
 
     float xMax = std::max(std::max(u0.x(), u1.x()), u2.x());
     float xMin = std::min(std::min(u0.x(), u1.x()), u2.x());

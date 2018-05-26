@@ -118,8 +118,8 @@ Window {
                 onObjectChanged: {
                     orbitController.reset()
 
-                    object.position = "0,-25,20"
-                    object.rotation = Qt.vector3d(1.60,3.2,3.35)
+                    object.position = "40,-35,10"
+                    object.rotation = Qt.vector3d(1.60,3.1,3.35)
                     object.scale = Qt.vector3d(1.9, 1.9, 1.9)
                 }
             }
@@ -137,7 +137,7 @@ Window {
 
                 controller: OrbitController {
                     id: orbitController
-                    maxPolarAngle: Math.PI / 2;
+                    maxPolarAngle: Math.PI;
                     minDistance: 150
                     maxDistance: 500
                     rotateCursor: Qt.ClosedHandCursor

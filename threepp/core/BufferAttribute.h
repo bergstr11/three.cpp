@@ -383,7 +383,7 @@ protected:
     memcpy(Super::_data, attr._data, attr.byteCount());
   }
 
-  public:
+public:
   ItemType &next()
   {
     return it[_offset++];
@@ -431,28 +431,22 @@ protected:
 
   GrowingBufferAttribute(const std::initializer_list<ItemType> &value, bool normalized)
      : Super(0, itemSize, normalized), _array(value)
-  {}
+  {
+    Super::_data = reinterpret_cast<ComponentType *>(_array.data());
+  }
 
   explicit GrowingBufferAttribute(size_t initialSize, bool normalized)
      : Super(0, itemSize, normalized)
   {
     _array.reserve(initialSize * itemSize);
-  }
-
-  GrowingBufferAttribute(const typename BufferAttributeT<ComponentType>::Ptr &attr)
-     : Super(0, itemSize, attr->normalized())
-  {
-    auto itemCount = attr->size() / itemSize;
-    for(unsigned i=0; i<itemCount; i++) {
-      _array.emplace_back();
-      size_t index = i * itemSize;
-      ComponentType *dta = Super::data(0) + index;
-      for(unsigned i=0; i<itemSize; i++) dta[i] = attr->at(index+i);
-    }
+    Super::_data = reinterpret_cast<ComponentType *>(_array.data());
   }
 
   GrowingBufferAttribute(const GrowingBufferAttribute &att)
-     : BufferAttributeT<ComponentType>(att), _array(att._array) {}
+     : BufferAttributeT<ComponentType>(att), _array(att._array)
+  {
+    Super::_data = reinterpret_cast<ComponentType *>(_array.data());
+  }
 
 public:
   template<typename... _Args>
@@ -477,7 +471,7 @@ public:
     return _array.back();
   }
 
-  ItemType &at(size_t index)
+  ItemType &item(size_t index)
   {
     return _array.at(index);
   }
@@ -485,14 +479,6 @@ public:
   GrowingBufferAttribute *clone() const override {
     return new GrowingBufferAttribute(*this);
   }
-
-  /*typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr clone() {
-    auto cloned = typename PreallocBufferAttribute<ComponentType, ItemType>::Ptr(
-       new PreallocBufferAttribute<ComponentType, ItemType>(this->itemCount(), this->normalized()));
-
-    memcpy(cloned->_data, this->_data, this->byteCount());
-    return cloned;
-  };*/
 
   using Ptr = std::shared_ptr<GrowingBufferAttribute>;
 };

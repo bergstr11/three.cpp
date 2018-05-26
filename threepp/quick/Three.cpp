@@ -152,12 +152,5 @@ float Three::randFloatSpread(float range)
   return range * ( 0.5f - urealdist(random_gen) );
 }
 
-QVariant Three::scale(qreal scale)
-{
-  QVariant var;
-  var.setValue(QVector3D(scale, scale, scale));
-  return var;
-}
-
 }
 }
