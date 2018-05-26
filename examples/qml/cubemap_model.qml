@@ -64,6 +64,7 @@ Window {
             resourcePrefix: ":/pontiac/"
 
             MaterialHandler {
+                //chrome parts
                 materialNames: "chrome,Chrome1,chrome2,light_chrome"
                 createAs: MeshStandardMaterial {
                     color: "white"
@@ -73,6 +74,7 @@ Window {
                 }
             }
             MaterialHandler {
+                //body
                 materialNames: "Material__668,Material__681"
                 createAs: MeshStandardMaterial {
                     color: "#C14200"
@@ -81,7 +83,16 @@ Window {
                 }
             }
             MaterialHandler {
+                //wheels
                 materialNames: "Material__756"
+                createAs: MeshStandardMaterial {
+                    roughness: 0
+                    envMap: textureCube
+                }
+            }
+            MaterialHandler {
+                //windscreen / windows
+                materialNames: "Material__741"
                 createAs: MeshStandardMaterial {
                     roughness: 0
                     envMap: textureCube

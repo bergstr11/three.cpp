@@ -18,6 +18,6 @@ Environment Maps
 
 ![example 2](doc/sphere_envmap.png "environment mapping")
 
-Model Loading (3DS model through Assimp)
+Model loading (3DS model through Assimp) and postprocessing (apply environment map)
 
-![example 2](doc/MercedesGLE.png "3ds model")
+![example 2](doc/pontiac_gto.png "3ds model")
