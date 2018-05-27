@@ -5,7 +5,7 @@
 #ifndef THREE_PP_QUICKHULL_H
 #define THREE_PP_QUICKHULL_H
 
-#include <threepp/util/PointsWalker.h>
+#include <threepp/extras/PointsWalker.h>
 #include <threepp/math/Line3.h>
 #include <threepp/math/Plane.h>
 #include <threepp/math/Triangle.h>
@@ -13,6 +13,7 @@
 #include <limits>
 
 namespace three {
+namespace extras {
 
 class QuickHull
 {
@@ -1012,5 +1013,6 @@ inline QuickHull::Face *QuickHull::VertexNode::face(std::vector<QuickHull::Face>
   return &faces[faceIndex];
 }
 
+}
 }
 #endif //THREE_PP_QUICKHULL_H

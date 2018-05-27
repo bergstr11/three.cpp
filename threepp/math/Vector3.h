@@ -11,6 +11,7 @@
 #include <array>
 #include <vector>
 #include "Euler.h"
+#include "Vector2.h"
 #include "Math.h"
 
 namespace three {
@@ -49,6 +50,7 @@ public:
   enum class Element {x=0, y=1, z=2};
 
   Vector3() : _x(0.0f), _y(0.0f), _z(0.0f) {}
+  Vector3(const Vector2 &vector2) : _x(vector2.x()), _y(vector2.y()), _z(0) {}
   Vector3(float x, float y, float z) : _x(x), _y(y), _z(z) {}
   explicit Vector3(float scalar) : _x(scalar), _y(scalar), _z(scalar) {}
   Vector3(const Vector3 &v) : _x(v._x), _y(v._y), _z(v._z) {}

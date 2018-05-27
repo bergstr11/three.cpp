@@ -21,6 +21,9 @@ set(THREE_SRCDIRS
         controls
         core
         geometry
+        extras
+        extras/shape
+        extras/curve
         helper
         light
         loader
@@ -40,6 +43,9 @@ set(THREE_HDRDIRS
         controls
         core
         geometry
+        extras
+        extras/shape
+        extras/curve
         helper
         light
         loader

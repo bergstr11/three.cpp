@@ -10,7 +10,7 @@
 #include <threepp/material/MeshBasicMaterial.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/objects/Mesh.h>
-#include <threepp/util/QuickHull.h>
+#include <threepp/extras/QuickHull.h>
 
 namespace three {
 namespace quick {
@@ -60,7 +60,7 @@ protected:
       updated->updateMatrix();
       updated->updateMatrixWorld(true);
 
-      QuickHull hull(updated);
+      extras::QuickHull hull(updated);
       BufferGeometry::Ptr geometry = hull.createGeometry();
 
       _creator.set(geometry);

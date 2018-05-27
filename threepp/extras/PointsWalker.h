@@ -10,6 +10,7 @@
 #include <threepp/core/BufferGeometry.h>
 
 namespace three {
+namespace extras {
 
 namespace points_walker {
 
@@ -197,6 +198,7 @@ public:
   }
 };
 
+}
 }
 
 #endif //THREE_PP_POINTSWALKER_H

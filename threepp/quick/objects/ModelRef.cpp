@@ -11,8 +11,8 @@
 #include <threepp/quick/ThreeDItem.h>
 
 #include <threepp/quick/elements/RayCaster.h>
-#include <threepp/util/PointsWalker.h>
-#include <threepp/util/QuickHull.h>
+#include <threepp/extras/PointsWalker.h>
+#include <threepp/extras/QuickHull.h>
 
 #include <threepp/quick/interact/ObjectPicker.h>
 #include <threepp/geometry/Box.h>
