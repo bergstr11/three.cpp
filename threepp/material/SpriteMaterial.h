@@ -24,7 +24,7 @@ namespace three {
 class SpriteMaterial : public MaterialT<material::Colored>
 {
   SpriteMaterial()
-     : MaterialT(material::ResolverT<SpriteMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material::InfoT<SpriteMaterial>(), material::Typer(this))
   {
     this->morphTargets = false;
     this->morphNormals = false;
@@ -32,7 +32,7 @@ class SpriteMaterial : public MaterialT<material::Colored>
   }
 
   SpriteMaterial(const SpriteMaterial &material)
-     : MaterialT(material, material::ResolverT<SpriteMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material, material::InfoT<SpriteMaterial>(), material::Typer(this))
   {}
 
 public:

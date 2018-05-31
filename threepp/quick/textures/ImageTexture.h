@@ -13,10 +13,13 @@
 namespace three {
 namespace quick {
 
+class ImageTexture;
+
 class Image : public QObject {
 Q_OBJECT
 
-friend class ImageTexture;
+friend ImageTexture;
+
 public:
   enum Format {
     Invalid = QImage::Format_Invalid,

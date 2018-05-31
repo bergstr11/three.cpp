@@ -37,12 +37,12 @@ struct MeshDepthMaterial : public MaterialT<material::Colored, material::AlphaMa
   DepthPacking depthPacking = DepthPacking::Basic;
 
   MeshDepthMaterial(DepthPacking packing)
-     : MaterialT(material::ResolverT<MeshDepthMaterial>::make(*this), material::Typer(this)), depthPacking(packing)
+     : MaterialT(material::InfoT<MeshDepthMaterial>(), material::Typer(this)), depthPacking(packing)
   {
   }
 
   MeshDepthMaterial(const MeshDepthMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshDepthMaterial>::make(*this), material::Typer(this)),
+     : MaterialT(material, material::InfoT<MeshDepthMaterial>(), material::Typer(this)),
        depthPacking(material.depthPacking)
   {}
 

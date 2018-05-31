@@ -626,7 +626,7 @@ template <Library lib, typename Data> Builder::Ptr parse(XMLElement *xml, unorde
 
 void Collada::loadScene(string name, ResourceLoader &loader)
 {
-  XMLDocument doc;
+  tinyxml2::XMLDocument doc;
   doc.LoadFile( name.c_str() );
 
   XMLElement *collada = doc.FirstChildElement("COLLADA");

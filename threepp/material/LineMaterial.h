@@ -26,15 +26,15 @@ namespace three {
 class LineBasicMaterial : public MaterialT<material::Colored>
 {
 protected:
-  LineBasicMaterial() : MaterialT(material::ResolverT<LineBasicMaterial>::make(*this), material::Typer(this)) {}
+  LineBasicMaterial() : MaterialT(material::InfoT<LineBasicMaterial>(), material::Typer(this)) {}
 
-  LineBasicMaterial(material::Resolver::Ptr resolver, const material::Typer &typer) : MaterialT(resolver, typer) {}
+  LineBasicMaterial(material::Info info, const material::Typer &typer) : MaterialT(info, typer) {}
 
   LineBasicMaterial(const LineBasicMaterial &material)
-     : MaterialT(material, material::ResolverT<LineBasicMaterial>::make(*this), material::Typer(this)) {}
+     : MaterialT(material, material::InfoT<LineBasicMaterial>(), material::Typer(this)) {}
 
-  LineBasicMaterial(const LineBasicMaterial &material, material::Resolver::Ptr resolver, const material::Typer &typer)
-     : MaterialT(material, resolver, typer) {}
+  LineBasicMaterial(const LineBasicMaterial &material, const material::Info &info, const material::Typer &typer)
+     : MaterialT(material, info, typer) {}
 
 public:
   float linewidth = 1;
@@ -75,11 +75,11 @@ class LineDashedMaterial : public LineBasicMaterial
 {
 protected:
   LineDashedMaterial()
-     : LineBasicMaterial(material::ResolverT<LineDashedMaterial>::make(*this),
+     : LineBasicMaterial(material::InfoT<LineDashedMaterial>(),
                          material::Typer(this).allow<LineBasicMaterial>())
   {}
   LineDashedMaterial(const LineDashedMaterial &material)
-     : LineBasicMaterial(material, material::ResolverT<LineDashedMaterial>::make(*this),
+     : LineBasicMaterial(material, material::InfoT<LineDashedMaterial>(),
                          material::Typer(this).allow<LineBasicMaterial>())
   {}
 

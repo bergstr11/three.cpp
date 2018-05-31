@@ -7,8 +7,13 @@
 
 #include <stdexcept>
 #include <cstring>
-#include <cmath>
+#include <algorithm>
 #include "Matrix3.h"
+
+#ifdef near
+#undef near
+#undef far
+#endif
 
 namespace three {
 namespace math {

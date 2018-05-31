@@ -12,6 +12,11 @@
 #include <threepp/core/BufferAttribute.h>
 #include <threepp/material/Material.h>
 
+#ifdef near
+#undef near
+#undef far
+#endif
+
 namespace three {
 namespace impl {
 

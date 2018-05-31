@@ -15,6 +15,9 @@
 namespace three {
 namespace gl {
 
+class Textures;
+class Renderer_impl;
+
 class RenderTarget : public Renderer::Target
 {
 protected:
@@ -37,8 +40,8 @@ public:
 
 class RenderTargetExternal : public RenderTarget
 {
-  friend class Textures;
-  friend class Renderer_impl;
+  friend Textures;
+  friend Renderer_impl;
 
   class ExternalTexture : public Texture
   {
@@ -121,8 +124,8 @@ public:
 
 class RenderTargetInternal : public RenderTarget
 {
-  friend class Textures;
-  friend class Renderer_impl;
+  friend Textures;
+  friend Renderer_impl;
 
 public:
   struct Options : public TextureOptions
@@ -169,8 +172,8 @@ public:
 
 class RenderTargetCube : public RenderTarget
 {
-  friend class Textures;
-  friend class Renderer_impl;
+  friend Textures;
+  friend Renderer_impl;
 
   unsigned activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
   unsigned activeMipMapLevel = 0;

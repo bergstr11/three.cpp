@@ -382,7 +382,7 @@ public:
       edge1 = b - a;
       edge2 = c - a;
       normal = cross(edge1, edge2);
-      direction = {-0.378328, 0.788505, -0.484899};
+      direction = {-0.378328f, 0.788505f, -0.484899f};
       origin = {500, -1300, 800};
     }
     else {
@@ -392,7 +392,7 @@ public:
       edge1 = b - a;
       edge2 = c - a;
       normal = cross(edge1, edge2);
-      direction = {-0.37873, 0.788029, -0.485359};
+      direction = {-0.37873f, 0.788029f, -0.485359f};
       origin = {500, -1300, 800};
     }
 

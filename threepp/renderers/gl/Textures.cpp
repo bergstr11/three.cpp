@@ -565,7 +565,8 @@ void Textures::setupRenderTarget(RenderTargetCube &renderTarget)
   setTextureParameters(renderTarget.textureTarget, *renderTarget.texture());
 
   for ( unsigned i = 0; i < 6; i ++ ) {
-    setupFrameBufferTexture( renderTarget.frameBuffers[ i ], renderTarget, GL_COLOR_ATTACHMENT0, TextureTarget::cubeMapPositiveX + i);
+    setupFrameBufferTexture( renderTarget.frameBuffers[ i ], renderTarget, GL_COLOR_ATTACHMENT0,
+                             TextureTarget::cubeMapPositiveX + i);
   }
 
   if ( needsGenerateMipmaps(*renderTarget.texture()) ) _fn->glGenerateMipmap((GLenum)renderTarget.textureTarget);

@@ -12,6 +12,11 @@
 #include <threepp/math/Vector3.h>
 #include "Face3.h"
 
+#ifdef near
+#undef near
+#undef far
+#endif
+
 namespace three {
 
 class Raycaster;
@@ -111,8 +116,8 @@ public:
   float linePrecision() const {return _linePrecision;}
   const std::vector<math::Ray> &rays() const {return _rays;}
 
-  const float near() const {return _near;}
-  const float far() const {return _far;}
+  float near() const {return _near;}
+  float far() const {return _far;}
   const math::Vector3 &origin() const {return _origin;}
 
   std::vector<Intersection> intersectObject(Object3D &object, bool recursive=true);

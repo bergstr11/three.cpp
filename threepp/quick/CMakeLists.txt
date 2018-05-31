@@ -23,15 +23,21 @@ set(THREEQ_HDRDIRS
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h)
 
+add_library(threeppq_static STATIC ${SOURCE_FILES} ${HEADER_FILES})
 add_library(threeppq SHARED ${SOURCE_FILES} ${HEADER_FILES})
-target_include_directories(threeppq PUBLIC
-        $<BUILD_INTERFACE:${THREE_ROOT}>
-        $<INSTALL_INTERFACE:include>)
+
+foreach(TARGET threeppq_static threeppq)
+    target_include_directories(${TARGET} PUBLIC
+            $<BUILD_INTERFACE:${THREE_ROOT}>
+            $<INSTALL_INTERFACE:include>)
+endforeach(TARGET)
+
+target_link_libraries(threeppq_static PUBLIC threepp_static Qt5::Core Qt5::Gui Qt5::Quick)
 target_link_libraries(threeppq PUBLIC threepp Qt5::Core Qt5::Gui Qt5::Quick)
 
 set_target_properties(threeppq PROPERTIES SOVERSION ${THREE_VERSION})
 
-install(TARGETS threeppq
+install(TARGETS threeppq threeppq_static
         EXPORT threeppq
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib

@@ -73,35 +73,35 @@ struct MeshPhongMaterial : public MaterialT<
    material::EnvMap>
 {
 protected:
-  MeshPhongMaterial(material::Resolver::Ptr resolver, material::Typer typer, const Color &color, bool dithering)
-     : MaterialT(resolver, typer)
+  MeshPhongMaterial(const material::Info &info, material::Typer typer, const Color &color, bool dithering)
+     : MaterialT(info, typer)
   {
     typer.allow<MeshPhongMaterial>();
     this->color = color;
     this->dithering = dithering;
   }
 
-  MeshPhongMaterial(material::Resolver::Ptr resolver, material::Typer typer)
-     : MaterialT(resolver, typer)
+  MeshPhongMaterial(const material::Info &info, material::Typer typer)
+     : MaterialT(info, typer)
   {
     typer.allow<MeshPhongMaterial>();
   }
 
   MeshPhongMaterial(const Color &color, bool dithering)
-     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material::InfoT<MeshPhongMaterial>(), material::Typer(this))
   {
     this->color = color;
     this->dithering = dithering;
   }
 
   MeshPhongMaterial()
-     : MaterialT(material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this)) {}
+     : MaterialT(material::InfoT<MeshPhongMaterial>(), material::Typer(this)) {}
 
   MeshPhongMaterial(const MeshPhongMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshPhongMaterial>::make(*this), material::Typer(this)) {}
+     : MaterialT(material, material::InfoT<MeshPhongMaterial>(), material::Typer(this)) {}
 
-  MeshPhongMaterial(const MeshPhongMaterial &material, material::Resolver::Ptr resolver, material::Typer typer)
-     : MaterialT(material, resolver, typer)
+  MeshPhongMaterial(const MeshPhongMaterial &material, material::Info &info, material::Typer typer)
+     : MaterialT(material, info, typer)
   {
     typer.allow<MeshPhongMaterial>();
   }

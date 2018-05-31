@@ -27,7 +27,7 @@ struct MeshPhysicalMaterial: public MeshStandardMaterial
 
 protected:
   MeshPhysicalMaterial()
-     : MeshStandardMaterial(material::ResolverT<MeshPhysicalMaterial>::make(*this), material::Typer(this))
+     : MeshStandardMaterial(material::InfoT<MeshPhysicalMaterial>(), material::Typer(this))
   {}
 
 public:

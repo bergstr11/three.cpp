@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES tinyxml2.cpp tinyxml2.h)
 
 if(MSVC)
-    target_compile_definitions(tinyxml2 PUBLIC -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif(MSVC)
 
 add_library(tinyxml2 OBJECT ${SOURCE_FILES})

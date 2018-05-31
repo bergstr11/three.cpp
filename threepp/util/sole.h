@@ -133,9 +133,14 @@ namespace std {
 #include <vector>
 
 #if defined(_WIN32)
-#   include <winsock2.h>
-#   include <process.h>
+#   ifndef far
+#       define far
+#   endif
+#   include <Windows.h>
+#   include <winsock.h>
 #   include <iphlpapi.h>
+#   include <process.h>
+#   undef far
 #   ifdef _MSC_VER
 #   pragma comment(lib,"iphlpapi.lib")
 #   endif

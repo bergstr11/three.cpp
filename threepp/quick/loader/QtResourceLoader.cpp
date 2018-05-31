@@ -99,13 +99,13 @@ protected:
 
   int underflow() override
   {
-    if(_pos == _bytes.size() - 1) return traits_type::eof();
+    if(_pos == (streamoff)(_bytes.size() - 1)) return traits_type::eof();
     return _data[_pos];
   }
 
   int uflow() override
   {
-    if(_pos == _bytes.size() - 1) return traits_type::eof();
+    if(_pos == (streamoff)(_bytes.size() - 1)) return traits_type::eof();
     int ret = _data[_pos];
     _pos += 1;
     return ret;
@@ -113,7 +113,7 @@ protected:
 
   int pbackfail(int c) override
   {
-    if(_pos == 0) return traits_type::eof();
+    if(_pos == (streamoff)0) return traits_type::eof();
     return 1;
   }
 };

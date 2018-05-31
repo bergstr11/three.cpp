@@ -5,6 +5,11 @@
 #ifndef THREEPP_MATH_H
 #define THREEPP_MATH_H
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
+
 #include <cmath>
 #include <algorithm>
 #include <threepp/math/Matrix3.h>
@@ -104,17 +109,17 @@ inline bool isPowerOfTwo(int value )
 
 inline int nearestPowerOfTwo(int value)
 {
-  return std::pow( 2, round( std::log( value ) / M_LN2 ) );
+  return (int)std::pow( 2, round( std::log( value ) / M_LN2 ) );
 }
 
 inline int ceilPowerOfTwo(float value)
 {
-  return std::pow( 2, std::ceil( std::log( value ) / M_LN2 ) );
+  return (int)std::pow( 2, std::ceil( std::log( value ) / M_LN2 ) );
 }
 
 inline int floorPowerOfTwo(float value)
 {
-  return std::pow( 2, std::floor( std::log( value ) / M_LN2 ) );
+  return (int)std::pow( 2, std::floor( std::log( value ) / M_LN2 ) );
 }
 
 inline int nextPowerOfTwo(int value )

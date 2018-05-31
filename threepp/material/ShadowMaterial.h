@@ -22,7 +22,7 @@ class ShadowMaterial : public MaterialT<material::Colored>
 {
 private:
   ShadowMaterial()
-     : MaterialT(material::ResolverT<ShadowMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material::InfoT<ShadowMaterial>(), material::Typer(this))
   {
     this->color = 0x000000;
     this->opacity = 1.0f;
@@ -30,7 +30,7 @@ private:
   }
 
   ShadowMaterial(const ShadowMaterial &material)
-     : MaterialT(material, material::ResolverT<ShadowMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material, material::InfoT<ShadowMaterial>(), material::Typer(this))
   {
   }
 

@@ -34,10 +34,8 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                                size_t nClipIntersection,
                                                Object3D::Ptr object)
 {
-  static material::ShaderIDs shaderIds;
-
   ProgramParameters::Ptr parameters = ProgramParameters::make();
-  parameters->shaderID = material->resolver->material::ShaderIDsResolver::getValue(shaderIds);
+  parameters->shaderID = material->info.shaderId;
 
   // heuristics to create shader parameters according to lights in the scene
   // (not to blow over maxLights budget)

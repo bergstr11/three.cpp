@@ -16,8 +16,7 @@
 #include "Helpers.h"
 
 namespace three {
-namespace gl
-{
+namespace gl {
 
 class Textures
 {

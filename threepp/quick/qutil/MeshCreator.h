@@ -35,54 +35,54 @@ struct MeshCreatorG : public MeshCreator
 
   std::shared_ptr<Geometry_t> geometry;
 
-  Mesh::Ptr mesh;
+  three::Mesh::Ptr mesh;
 
   void set(std::shared_ptr<Geometry_t> geometry) {
     this->geometry = geometry;
     this->mesh = nullptr;
   }
-  void material(MeshBasicMaterial::Ptr material) override {
+  void material(three::MeshBasicMaterial::Ptr material) override {
     if(mesh) {
-      typename MeshT<Geometry_t, MeshBasicMaterial>::Ptr mp =
-         std::dynamic_pointer_cast<MeshT<Geometry_t, MeshBasicMaterial>>(mesh);
+      typename MeshT<Geometry_t, three::MeshBasicMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, three::MeshBasicMaterial>>(mesh);
       if(mp) mp->template setMaterial<0> (material);
     }
-    else mesh = MeshT<Geometry_t, MeshBasicMaterial>::make(name, geometry, material);
+    else mesh = MeshT<Geometry_t, three::MeshBasicMaterial>::make(name, geometry, material);
   }
-  void material(MeshLambertMaterial::Ptr material) override {
+  void material(three::MeshLambertMaterial::Ptr material) override {
     if(mesh) {
-      typename MeshT<Geometry_t, MeshLambertMaterial>::Ptr mp =
-         std::dynamic_pointer_cast<MeshT<Geometry_t, MeshLambertMaterial>>(mesh);
+      typename MeshT<Geometry_t, three::MeshLambertMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, three::MeshLambertMaterial>>(mesh);
       if(mp) mp->template setMaterial<0>(material);
     }
-    else mesh = MeshT<Geometry_t, MeshLambertMaterial>::make(name, geometry, material);
+    else mesh = MeshT<Geometry_t, three::MeshLambertMaterial>::make(name, geometry, material);
   }
-  void material(MeshPhongMaterial::Ptr material) override {
+  void material(three::MeshPhongMaterial::Ptr material) override {
     if(mesh) {
-      typename MeshT<Geometry_t, MeshPhongMaterial>::Ptr mp =
-         std::dynamic_pointer_cast<MeshT<Geometry_t, MeshPhongMaterial>>(mesh);
+      typename MeshT<Geometry_t, three::MeshPhongMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, three::MeshPhongMaterial>>(mesh);
       if(mp) mp->template setMaterial<0>(material);
     }
-    else mesh = MeshT<Geometry_t, MeshPhongMaterial>::make(name, geometry, material);
+    else mesh = MeshT<Geometry_t, three::MeshPhongMaterial>::make(name, geometry, material);
   }
-  void material(MeshStandardMaterial::Ptr material) override {
+  void material(three::MeshStandardMaterial::Ptr material) override {
     if(mesh) {
-      typename MeshT<Geometry_t, MeshStandardMaterial>::Ptr mp =
-         std::dynamic_pointer_cast<MeshT<Geometry_t, MeshStandardMaterial>>(mesh);
+      typename MeshT<Geometry_t, three::MeshStandardMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, three::MeshStandardMaterial>>(mesh);
       if(mp) mp->template setMaterial<0>(material);
     }
-    else mesh = MeshT<Geometry_t, MeshStandardMaterial>::make(name, geometry, material);
+    else mesh = MeshT<Geometry_t, three::MeshStandardMaterial>::make(name, geometry, material);
   }
-  void material(ShaderMaterial::Ptr material) override {
+  void material(three::ShaderMaterial::Ptr material) override {
     if(mesh) {
-      typename MeshT<Geometry_t, ShaderMaterial>::Ptr mp =
-         std::dynamic_pointer_cast<MeshT<Geometry_t, ShaderMaterial>>(mesh);
+      typename MeshT<Geometry_t, three::ShaderMaterial>::Ptr mp =
+         std::dynamic_pointer_cast<MeshT<Geometry_t, three::ShaderMaterial>>(mesh);
       if(mp) mp->template setMaterial<0>(material);
     }
-    else mesh = MeshT<Geometry_t, ShaderMaterial>::make(name, geometry, material);
+    else mesh = MeshT<Geometry_t, three::ShaderMaterial>::make(name, geometry, material);
   }
 
-  Mesh::Ptr getMesh() override
+  three::Mesh::Ptr getMesh() override
   {
     return mesh;
   }

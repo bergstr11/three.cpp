@@ -41,8 +41,8 @@ protected:
       double p1 = ( (double)i / l ) * M_PI * 2;
       double p2 = ( (double)j / l ) * M_PI * 2;
 
-      positions->emplace_back(std::cos( p1 ), std::sin( p1 ), 1);
-      positions->emplace_back(std::cos( p2 ), std::sin( p2 ), 1);
+      positions->emplace_back(std::cos( p1 ), std::sin( p1 ), 1.0f);
+      positions->emplace_back(std::cos( p2 ), std::sin( p2 ), 1.0f);
     }
 
     auto geometry = BufferGeometry::make();

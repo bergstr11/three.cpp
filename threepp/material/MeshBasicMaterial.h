@@ -54,11 +54,11 @@ struct MeshBasicMaterial : public MaterialT<
 {
 private:
   MeshBasicMaterial()
-     : MaterialT(material::ResolverT<MeshBasicMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material::InfoT<MeshBasicMaterial>(), material::Typer(this))
   {}
 
   MeshBasicMaterial(const MeshBasicMaterial &material)
-     : MaterialT(*this, material::ResolverT<MeshBasicMaterial>::make(*this), material::Typer(this))
+     : MaterialT(*this, material::InfoT<MeshBasicMaterial>(), material::Typer(this))
   {}
 
 protected:

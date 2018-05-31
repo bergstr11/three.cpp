@@ -841,8 +841,6 @@ void Renderer_impl::releaseMaterialProgramReference(Material &material)
 
 void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object)
 {
-  static material::ShaderNames shaderNames;
-
   MaterialProperties &materialProperties = _properties.get( *material );
 
   ProgramParameters::Ptr parameters = _programs.getParameters(*this,
@@ -873,7 +871,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
   if(programChange) {
 
-    const char *name = material->resolver->material::ShaderNamesResolver::getValue(shaderNames);
+    const char *name = material->info.shaderName;
     if(*parameters->shaderID != ShaderID::undefined) {
 
       materialProperties.shader = Shader(name, shaderlib::get(*parameters->shaderID));

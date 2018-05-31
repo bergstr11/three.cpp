@@ -421,6 +421,11 @@ Program::Program(Renderer_impl &renderer,
 
     //vertex prefix
     //=============
+#ifdef GL_ES_VERSION_3_0
+    ss << "#version 300" << endl;
+#else
+    ss << "#version 140" << endl;
+#endif
     ss << "#ifdef GL_ES" << endl;
     ss << "precision " << *parameters->precision << " float;" << endl;
     ss << "precision " << *parameters->precision << " int;" << endl;
@@ -527,6 +532,11 @@ Program::Program(Renderer_impl &renderer,
 
     //fragment prefix
     //===============
+#ifdef GL_ES_VERSION_3_0
+    ss << "#version 300" << endl;
+#else
+    ss << "#version 140" << endl;
+#endif
     ss << customExtensions;
 
     ss << "#ifdef GL_ES" << endl;

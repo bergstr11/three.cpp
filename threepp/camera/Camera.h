@@ -34,6 +34,11 @@ struct Viewport
 
 class Raycaster;
 
+#ifdef near
+#undef near
+#undef far
+#endif
+
 class Camera : public Object3D
 {
 protected:

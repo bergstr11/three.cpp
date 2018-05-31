@@ -63,37 +63,45 @@ message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
 add_subdirectory(quick)
 
+add_library(threepp_static STATIC Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
 add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
-add_dependencies(threepp tinyxml2)
 
-target_include_directories(threepp PUBLIC
-        $<BUILD_INTERFACE:${THREE_ROOT}>
-        $<INSTALL_INTERFACE:include>)
+foreach(TARGET threepp_static threepp)
+    target_include_directories(${TARGET} PUBLIC
+            $<BUILD_INTERFACE:${THREE_ROOT}>
+            $<INSTALL_INTERFACE:include>)
 
-if(ANDROID)
-    target_link_libraries(threepp PUBLIC
-            z
-            ${ASSIMP_LIBRARY_DIRS}/libassimpd.a
-            ${ASSIMP_LIBRARY_DIRS}/libIrrXMLd.a
-            Qt5::Core Qt5::Gui)
-else(ANDROID)
-    target_link_libraries(threepp PUBLIC assimp Qt5::Core Qt5::Gui)
-endif(ANDROID)
+    if(ANDROID)
+        target_link_libraries(${TARGET} PUBLIC
+                z
+                ${ASSIMP_LIBRARY_DIRS}/libassimpd.a
+                ${ASSIMP_LIBRARY_DIRS}/libIrrXMLd.a
+                Qt5::Core Qt5::Gui)
+    elseif(WIN32)
+        target_link_libraries(${TARGET} PUBLIC
+                ${ASSIMP_LIBRARY_DIRS}/${ASSIMP_LIBRARIES} opengl32.lib
+                Qt5::Core Qt5::Gui)
+    else(WIN32)
+        target_link_libraries(${TARGET} PUBLIC assimp Qt5::Core Qt5::Gui)
+    endif(ANDROID)
 
-target_include_directories(threepp PRIVATE ${ASSIMP_INCLUDE_DIRS})
+    target_include_directories(${TARGET} PRIVATE ${ASSIMP_INCLUDE_DIRS})
 
-set_target_properties(threepp PROPERTIES SOVERSION ${THREE_VERSION})
+    set_target_properties(${TARGET} PROPERTIES SOVERSION ${THREE_VERSION})
 
-foreach(DIR in ${THREE_SRCDIRS})
-    file(GLOB SOURCES ${DIR}/*.cpp)
-    target_sources(threepp PRIVATE ${SOURCES})
+    foreach(DIR in ${THREE_SRCDIRS})
+        file(GLOB SOURCES ${DIR}/*.cpp)
+        target_sources(${TARGET} PRIVATE ${SOURCES})
 
-    file(GLOB HEADERS ${DIR}/*.h)
-    target_sources(threepp PRIVATE ${HEADERS})
-endforeach(DIR in ${THREE_SRCDIRS})
-target_sources(threepp PRIVATE core/impl/raycast.h)
+        file(GLOB HEADERS ${DIR}/*.h)
+        target_sources(${TARGET} PRIVATE ${HEADERS})
+    endforeach(DIR in ${THREE_SRCDIRS})
+    target_sources(${TARGET} PRIVATE core/impl/raycast.h)
 
-install(TARGETS threepp
+    add_dependencies(${TARGET} tinyxml2)
+endforeach(TARGET)
+
+install(TARGETS threepp threepp_static
         EXPORT threepp
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

@@ -38,11 +38,11 @@ class MeshDistanceMaterial : public MaterialT<
    material::AlphaMap>
 {
   MeshDistanceMaterial()
-     : MaterialT(material::ResolverT<MeshDistanceMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material::InfoT<MeshDistanceMaterial>(), material::Typer(this))
   {}
 
   MeshDistanceMaterial(const MeshDistanceMaterial &material)
-     : MaterialT(material, material::ResolverT<MeshDistanceMaterial>::make(*this), material::Typer(this))
+     : MaterialT(material, material::InfoT<MeshDistanceMaterial>(), material::Typer(this))
   {}
 
 protected:

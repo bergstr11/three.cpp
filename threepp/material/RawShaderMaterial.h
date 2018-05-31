@@ -18,7 +18,7 @@ class RawShaderMaterial : public ShaderMaterial
                     const char *vertexShader,
                     const char *fragmentShader,
                     Side side, bool depthTest, bool depthWrite, bool fog)
-  : ShaderMaterial(material::ResolverT<RawShaderMaterial>::make(*this),
+  : ShaderMaterial(material::InfoT<RawShaderMaterial>(),
                    material::Typer(this).allow<ShaderMaterial>(),
                    uniforms, vertexShader, fragmentShader, side, depthTest, depthWrite, fog)
   {}

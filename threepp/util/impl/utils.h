@@ -27,10 +27,11 @@ inline std::string to_string(_Arg&& _arg)
 
 inline std::string replace_all(std::string target, const std::string &find, const std::string &replace)
 {
-  for(auto it = target.begin(), end = target.end()-find.length(); it < end; ) {
+  for(auto it = target.begin(), end = target.end(); it < end; ) {
     if(!strncmp(&(*it), find.data(), find.length())) {
       target.replace(it, it+find.length(), replace);
       it += replace.length();
+      end = target.end();
     }
     else it++;
   }
@@ -41,10 +42,11 @@ inline std::string replace_all(std::string target, const std::unordered_map<std:
 {
   for(auto &pair : values) {
     const std::string &find = pair.first, &replace = pair.second;
-    for(auto it = target.begin(), end = target.end()-find.length(); it < end; ) {
+    for(auto it = target.begin(), end = target.end(); it < end; ) {
       if(!strncmp(&(*it), find.data(), find.length())) {
         target.replace(it, it+find.length(), replace);
         it += replace.length();
+        end = target.end();
       }
       else it++;
     }
