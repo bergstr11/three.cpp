@@ -39,23 +39,20 @@ set_target_properties(threeppq PROPERTIES SOVERSION ${THREE_VERSION})
 
 install(TARGETS threeppq threeppq_static
         EXPORT threeppq
+        INCLUDES DESTINATION include
         LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        COMPONENT quick)
+        ARCHIVE DESTINATION lib)
 
 install(EXPORT threeppq
-        DESTINATION lib/cmake/threepp
-        FILE threeppq-config.cmake
-        COMPONENT quick)
+        DESTINATION lib/cmake/threeppq
+        FILE threeppq-config.cmake)
 
 foreach(DIR in ${THREEQ_HDRDIRS})
     file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${DIR}/*.h)
     install(FILES ${HEADERS}
-            DESTINATION include/threepp/quick/${DIR}
-            COMPONENT quick)
+            DESTINATION include/threepp/quick/${DIR})
 endforeach(DIR in ${THREE_HDRDIRS})
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 install(FILES ${HEADERS}
-        DESTINATION include/threepp/quick
-        COMPONENT quick)
+        DESTINATION include/threepp/quick)

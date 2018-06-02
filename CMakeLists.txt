@@ -12,6 +12,15 @@ if(WIN32)
         message(FATAL_ERROR "ASSIMP_PATH environment variable must point to a valid directory")
     endif(NOT IS_DIRECTORY ${ASSIMP_PREFIX})
     set(CMAKE_PREFIX_PATH "${ASSIMP_PREFIX};${CMAKE_PREFIX_PATH}")
+
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(THREEPP_DEST $ENV{THREEPP_DEST})
+        if(NOT IS_DIRECTORY ${THREEPP_DEST})
+            message(FATAL_ERROR "THREEPP_DEST environment variable must point to a valid directory")
+        endif(NOT IS_DIRECTORY ${THREEPP_DEST})
+
+        set(CMAKE_INSTALL_PREFIX "${THREEPP_DEST}" CACHE PATH "..." FORCE)
+    endif()
 endif(WIN32)
 
 add_subdirectory(threepp)

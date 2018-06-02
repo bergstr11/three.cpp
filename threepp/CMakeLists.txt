@@ -103,6 +103,7 @@ endforeach(TARGET)
 
 install(TARGETS threepp threepp_static
         EXPORT threepp
+        INCLUDES DESTINATION include
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 
