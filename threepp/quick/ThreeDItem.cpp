@@ -394,6 +394,18 @@ void ThreeDItem::componentComplete()
   }
 }
 
+void ThreeDItem::itemChange(ItemChange change, const ItemChangeData &data)
+{
+  if(change == QQuickItem::ItemVisibleHasChanged && _timer) {
+    if(data.boolValue) {
+      _timer->start(1000.0f / _fps);
+    }
+    else {
+      _timer->stop();
+    }
+  }
+}
+
 void ThreeDItem::append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj)
 {
   ThreeDItem *item = qobject_cast<ThreeDItem *>(list->object);
