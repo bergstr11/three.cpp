@@ -41,7 +41,7 @@ public:
 
   three::Resource::Ptr get(const char *path, std::ios_base::openmode openmode) override;
 
-  void load(QImage &image, std::string &file) override;
+  void load(QImage &image, const std::string &file) override;
 
 private slots:
   void sendResult();

@@ -219,7 +219,7 @@ bool Orbit::handleDelta(int delta)
   return false;
 }
 
-void Orbit::doRotate(unsigned x, unsigned y)
+void Orbit::doRotate(float x, float y)
 {
   _rotateEnd.set(x, y);
   _rotateDelta = _rotateEnd - _rotateStart;
@@ -269,7 +269,13 @@ void Orbit::doPan(unsigned x, unsigned y)
   update();
 }
 
-void Orbit::pan(unsigned deltaX, unsigned deltaY)
+void Orbit::rotate(float deltaX, float deltaY)
+{
+  doRotate(_rotateStart.x() + deltaX, _rotateStart.y() + deltaY);
+  update();
+}
+
+void Orbit::pan(float deltaX, float deltaY)
 {
   _pan(deltaX, deltaY);
   update();
