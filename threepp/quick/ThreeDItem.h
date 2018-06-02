@@ -196,6 +196,8 @@ protected:
 
   void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
+  void itemChange(ItemChange change, const ItemChangeData &data) override;
+
 signals:
   void shadowTypeChanged();
   void faceCullingChanged();

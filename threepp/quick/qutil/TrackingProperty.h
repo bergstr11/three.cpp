@@ -23,6 +23,7 @@ public:
   bool operator != (const Value &value) {return _value != value;}
 
   bool isSet() const {return _isSet;}
+  void unset() {_isSet = false;}
 };
 
 template <typename Value, typename Enable = void>

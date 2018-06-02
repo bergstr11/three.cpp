@@ -103,7 +103,7 @@ protected:
 
   void startPan(unsigned x, unsigned y);
 
-  void doRotate(unsigned x, unsigned y);
+  void doRotate(float x, float y);
 
   void doDolly(unsigned x, unsigned y);
 
@@ -115,10 +115,16 @@ public:
   Signal<void(State)> onChanged;
 
   /**
+   * @param deltaX X rotation in screen pixels, positive value moves right
+   * @param deltaY Y rotation in screen pixels, positive value moves down
+   */
+  void rotate(float deltaX, float deltaY);
+
+  /**
    * @param deltaX X movement in screen pixels, positive value moves right
    * @param deltaY Y movement in screen pixels, positive value moves down
    */
-  void pan(unsigned deltaX, unsigned deltaY);
+  void pan(float deltaX, float deltaY);
 
   // "target" sets the location of focus, where the object orbits around
   math::Vector3 target;

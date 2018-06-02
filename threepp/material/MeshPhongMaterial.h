@@ -100,7 +100,7 @@ protected:
   MeshPhongMaterial(const MeshPhongMaterial &material)
      : MaterialT(material, material::InfoT<MeshPhongMaterial>(), material::Typer(this)) {}
 
-  MeshPhongMaterial(const MeshPhongMaterial &material, material::Info &info, material::Typer typer)
+  MeshPhongMaterial(const MeshPhongMaterial &material, const material::Info &info, material::Typer typer)
      : MaterialT(material, info, typer)
   {
     typer.allow<MeshPhongMaterial>();

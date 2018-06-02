@@ -4,6 +4,8 @@
 
 #include "QtResourceLoader.h"
 
+#include <threepp/util/impl/utils.h>
+
 namespace three {
 namespace quick {
 
@@ -161,9 +163,12 @@ three::Resource::Ptr QtResourceLoader::get(const char *path, ios_base::openmode 
   }
 }
 
-void QtResourceLoader::load(QImage &image, string &file)
+void QtResourceLoader::load(QImage &image, const string &file)
 {
-  string lookFor = file;
+  //fix spurious backslashes
+  auto f = three::replace_all(file, "\\", "/");
+
+  string &lookFor = f;
   auto repl = _replacements.find(lookFor);
   if(repl != _replacements.end()) lookFor = (*repl).second;
 

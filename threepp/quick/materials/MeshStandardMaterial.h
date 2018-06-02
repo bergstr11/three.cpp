@@ -47,6 +47,9 @@ public:
     Material::setAndConfigureObject(material);
 
     _material = std::dynamic_pointer_cast<three::MeshStandardMaterial>(material);
+    if(!_material) {
+      qCritical() << "MaterialHandler: received incompatible material. Double handled?";
+    }
     if(_color.isSet()) _material->color = Color(_color().redF(), _color().greenF(), _color().blueF());
     if(_opacity.isSet()) _material->opacity = _opacity;
     if(_roughness.isSet()) _material->roughness = _roughness;

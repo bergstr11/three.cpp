@@ -506,6 +506,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
       if(image.isNull())
         qWarning() << "error loading image" << imageFile.c_str();
       else {
+        auto fmt = image.format();
         switch(image.format()) {
           case QImage::Format_RGBA8888:
             options.format = TextureFormat::RGBA;
@@ -513,11 +514,14 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
           case QImage::Format_RGB888:
             options.format = TextureFormat::RGB;
             break;
+          case QImage::Format_Grayscale8:
+            options.format = TextureFormat::Luminance;
+            break;
           default:
             image = image.convertToFormat(QImage::Format_RGB888);
             options.format = TextureFormat::RGB;
         }
-        qDebug() << "loaded texture " << imageFile.c_str() << "(" << to_string(type) << ")";
+        qDebug() << "loaded texture" << imageFile.c_str() << "(" << fmt << to_string(type) << ")";
       }
 
       switch(mapping) {

@@ -128,7 +128,7 @@ struct variadic_index<Target, variadic_union<Head, Tail...>>
 template <typename... Ts>
 class Typer
 {
-  _union::variadic_union<Ts...> data {nullptr};
+  _union::variadic_union<Ts...> data;
   _union::index_type union_mask {0};
 
 public:

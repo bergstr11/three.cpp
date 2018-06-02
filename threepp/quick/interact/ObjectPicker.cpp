@@ -197,8 +197,12 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 QVariant ObjectPicker::intersect(unsigned index)
 {
   if(_intersects.size() > index) {
-    if(_prototype) {
-      shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
+    if(!_prototype) {
+      _prototype = new ThreeQObject();
+    }
+    shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
+    if(obj != _prototype->object()) {
+
       _prototype->setObject(obj);
       if(_prototype->material()) _prototype->material()->deleteLater();
 
@@ -214,9 +218,9 @@ QVariant ObjectPicker::intersect(unsigned index)
           _prototype->setMaterial(new MeshBasicMaterial(mat));
         }
       }
-
-      _currentIntersect.object.setValue(_prototype);
     }
+
+    _currentIntersect.object.setValue(_prototype);
     _currentIntersect.set(_intersects[index]);
 
     QVariant var;

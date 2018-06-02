@@ -728,7 +728,7 @@ public:
                   TextureType type,
                   const unsigned char *pixels)
   {
-    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
+    _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, pixels);
     check_glerror(_f);
   }
 
@@ -740,7 +740,7 @@ public:
                   TextureFormat format,
                   TextureType type)
   {
-    glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
+    _f->glTexImage2D((GLenum)target, level, (GLint)internalFormat, width, height, 0, (GLenum)format, (GLenum)type, nullptr);
     check_glerror(_f);
   }
 

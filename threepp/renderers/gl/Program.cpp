@@ -424,7 +424,7 @@ Program::Program(Renderer_impl &renderer,
 #ifdef GL_ES_VERSION_3_0
     ss << "#version 300" << endl;
 #else
-    ss << "#version 140" << endl;
+    ss << "#version 120" << endl;
 #endif
     ss << "#ifdef GL_ES" << endl;
     ss << "precision " << *parameters->precision << " float;" << endl;
@@ -535,7 +535,7 @@ Program::Program(Renderer_impl &renderer,
 #ifdef GL_ES_VERSION_3_0
     ss << "#version 300" << endl;
 #else
-    ss << "#version 140" << endl;
+    ss << "#version 120" << endl;
 #endif
     ss << customExtensions;
 

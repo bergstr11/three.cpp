@@ -5,6 +5,8 @@
 #include "FileSystemLoader.h"
 #include <fstream>
 
+#include <threepp/util/impl/utils.h>
+
 namespace three {
 namespace quick {
 
@@ -90,9 +92,12 @@ three::Resource::Ptr FileSystemLoader::get(const char *path, ios_base::openmode 
   }
 }
 
-void FileSystemLoader::load(QImage &image, string &file)
+void FileSystemLoader::load(QImage &image, const string &file)
 {
-  QString path = dir.absoluteFilePath(QString::fromStdString(file));
+  //fix spurious backslashes
+  auto f = three::replace_all(file, "\\", "/");
+
+  QString path = dir.absoluteFilePath(QString::fromStdString(f));
   QImage img(path);
 
   if(!img.isNull()) image = img.mirrored();

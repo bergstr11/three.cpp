@@ -46,7 +46,6 @@ Window {
             id: objectPicker
             camera: scene.camera
             objects: [scene]
-            prototype: Box {}
 
             onObjectsClicked: {
                 var intersected = intersect(0).object
