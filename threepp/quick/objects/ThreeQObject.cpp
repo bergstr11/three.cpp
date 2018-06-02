@@ -102,6 +102,7 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
     else {
       const math::Vector3 pos = _object->position();
       setPosition(QVector3D(pos.x(), pos.y(), pos.z()), false);
+      _position.unset();
     }
 
     if(_rotation.isSet()) {
@@ -110,6 +111,7 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
     else {
       const math::Euler rot = _object->rotation();
       setRotation(QVector3D(rot.x(), rot.y(), rot.z()), false);
+      _rotation.unset();
     }
 
     setName(QString::fromStdString(_object->name()), false);
@@ -129,6 +131,7 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
     else {
       const math::Vector3 &s = _object->scale();
       setScale(QVector3D(s.x(), s.y(), s.z()), false);
+      _scale.unset();
     }
 
     if(_normalsHelper) {

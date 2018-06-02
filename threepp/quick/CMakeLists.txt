@@ -44,7 +44,7 @@ install(TARGETS threeppq threeppq_static
         COMPONENT quick)
 
 install(EXPORT threeppq
-        DESTINATION lib/cmake/threepp
+        DESTINATION lib/cmake/threeppq
         FILE threeppq-config.cmake
         COMPONENT quick)
 

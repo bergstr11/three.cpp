@@ -34,7 +34,7 @@ template <typename T>
 class Background;
 
 namespace background {
-using Typer = three::Typer<Background<std::shared_ptr<Texture>>, Background<Color>>;
+using Typer = three::Typer<Background<std::shared_ptr<Texture>>, Background<Color>, void>;
 }
 
 class Camera;

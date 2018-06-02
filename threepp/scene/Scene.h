@@ -24,25 +24,22 @@ protected:
   Scene(const Fog::Ptr fog)
      : Object3D(), _fog(fog), _autoUpdate(true) {}
 
-  Scene(const background::Typer &typer)
+  Scene()
      : Object3D(), _fog(nullptr), _autoUpdate(true) {}
 
-  Scene(const Scene &scene, const background::Typer &typer)
+  Scene(const Scene &scene)
      : Object3D(scene), _fog(Fog::Ptr(scene._fog->cloned())), _autoUpdate(scene._autoUpdate) {}
 
 public:
+  using Ptr = std::shared_ptr<Scene>;
+
   virtual const background::Typer &background() const {
-    static const background::Typer bg;
+    static const background::Typer bg {(void *)0};
     return bg;
   }
 
-  using Ptr = std::shared_ptr<Scene>;
-  static Ptr make() {
-    return Ptr(new Scene(background::Typer()));
-  }
-  
-  static Ptr make(std::string name) {
-    Ptr p(new Scene(background::Typer()));
+  static Ptr make(std::string name="") {
+    Ptr p(new Scene());
     p->_name = name;
     return p;
   }
