@@ -396,12 +396,23 @@ void ThreeDItem::componentComplete()
 
 void ThreeDItem::itemChange(ItemChange change, const ItemChangeData &data)
 {
-  if(change == QQuickItem::ItemVisibleHasChanged && _timer) {
-    if(data.boolValue) {
-      _timer->start(1000.0f / _fps);
+  if(_timer) {
+    enum {on, off, skip} state = skip;
+    switch(change) {
+      case QQuickItem::ItemVisibleHasChanged:
+        state = data.boolValue && isEnabled() ? on : off;
+        break;
+      case QQuickItem::ItemEnabledHasChanged:
+        state = data.boolValue && isVisible() ? on : off;
+        break;
     }
-    else {
-      _timer->stop();
+    if(state != skip) {
+      if(state == on && !_timer->isActive()) {
+        _timer->start(1000.0f / _fps);
+      }
+      else if(_timer->isActive()) {
+        _timer->stop();
+      }
     }
   }
 }
