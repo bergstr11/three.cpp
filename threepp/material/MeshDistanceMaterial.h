@@ -33,7 +33,7 @@ namespace three {
  *
  * }
  */
-class MeshDistanceMaterial : public MaterialT<
+class DLX MeshDistanceMaterial : public MaterialT<
    material::DisplacementMap,
    material::AlphaMap>
 {

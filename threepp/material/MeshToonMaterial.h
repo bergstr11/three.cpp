@@ -16,7 +16,7 @@ namespace three {
  *  gradientMap: new THREE.Texture( <Image> )
  * }
  */
-struct MeshToonMaterial : public MeshPhongMaterial
+struct DLX MeshToonMaterial : public MeshPhongMaterial
 {
   std::unordered_map<std::string, std::string> defines {{ "TOON", "" }};
 

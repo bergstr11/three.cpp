@@ -5,6 +5,7 @@
 #ifndef THREEPP_CAMERA
 #define THREEPP_CAMERA
 
+#include <threepp/util/osdecl.h>
 #include <threepp/math/Matrix4.h>
 #include <threepp/math/Vector3.h>
 #include <threepp/math/Quaternion.h>
@@ -39,7 +40,7 @@ class Raycaster;
 #undef far
 #endif
 
-class Camera : public Object3D
+class DLX Camera : public Object3D
 {
 protected:
   math::Matrix4 _matrixWorldInverse;

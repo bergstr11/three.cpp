@@ -44,7 +44,7 @@ namespace three {
  *  morphTargets: <bool>
  * }
  */
-struct MeshBasicMaterial : public MaterialT<
+struct DLX MeshBasicMaterial : public MaterialT<
    material::Colored,
    material::LightMap,
    material::AoMap,

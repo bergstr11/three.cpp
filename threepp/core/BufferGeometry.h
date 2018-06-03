@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <functional>
 #include <threepp/util/Types.h>
+#include <threepp/util/osdecl.h>
 #include "Geometry.h"
 #include "BufferAttribute.h"
 
@@ -45,7 +46,7 @@ enum class AttributeName
   index, color, position, normal, uv, uv2, lineDistances, unknown
 };
 
-class BufferGeometry : public Geometry
+class DLX BufferGeometry : public Geometry
 {
   friend class BufferGeometryAccess;
 

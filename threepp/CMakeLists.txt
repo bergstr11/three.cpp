@@ -64,7 +64,9 @@ message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 add_subdirectory(quick)
 
 add_library(threepp_static STATIC Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
-add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
+add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2> util/osdecl.h)
+
+target_compile_definitions(threepp PRIVATE -DCOMPILE_THREEPP_DLL)
 
 foreach(TARGET threepp_static threepp)
     target_include_directories(${TARGET} PUBLIC

@@ -11,7 +11,7 @@
 namespace three {
 namespace geometry {
 
-class Box : public LinearGeometry
+class DLX Box : public LinearGeometry
 {
   unsigned _width, _height, _depth;
   unsigned _widthSegments, _heightSegments, _depthSegments;
@@ -40,7 +40,7 @@ public:
 
 namespace buffer {
 
-class Box : public BufferGeometry
+class DLX Box : public BufferGeometry
 {
   friend class three::geometry::Box;
 

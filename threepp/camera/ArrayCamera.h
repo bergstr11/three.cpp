@@ -10,7 +10,7 @@
 
 namespace three {
 
-class ArrayCamera : public PerspectiveCamera
+class DLX ArrayCamera : public PerspectiveCamera
 {
 protected:
   ArrayCamera(float fov, float aspect, float near, float far, unsigned cameraCount)

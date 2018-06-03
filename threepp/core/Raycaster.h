@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include <threepp/util/osdecl.h>
 #include <threepp/math/Ray.h>
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>
@@ -45,15 +46,15 @@ struct Intersection
   unsigned index;
 };
 
-void intersectObject(Object3D &object,
-                     const Raycaster &raycaster,
-                     std::vector<Intersection> &intersects,
-                     bool recursive = true);
+void DLX intersectObject(Object3D &object,
+                         const Raycaster &raycaster,
+                         std::vector<Intersection> &intersects,
+                         bool recursive = true);
 
 /**
  * casts one or more rays, collecting objects along the path
  */
-class Raycaster
+class DLX Raycaster
 {
   std::vector<math::Ray> _rays;
   float _near=0, _far=std::numeric_limits<float>::infinity();

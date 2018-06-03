@@ -30,7 +30,7 @@ namespace three {
  *  morphNormals: <bool>
  * }
  */
-class ShaderMaterial : public Material
+class DLX ShaderMaterial : public Material
 {
 public:
   std::unordered_map<std::string, std::string> defines;

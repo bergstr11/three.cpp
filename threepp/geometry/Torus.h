@@ -20,7 +20,7 @@ struct TorusParams
   float arc = (float)M_PI * 2;
 };
 
-class Torus : public LinearGeometry, private TorusParams
+class DLX Torus : public LinearGeometry, private TorusParams
 {
 protected:
   Torus(const TorusParams &params);
@@ -39,7 +39,7 @@ public:
 
 namespace buffer {
 
-class Torus : public BufferGeometry, private TorusParams
+class DLX Torus : public BufferGeometry, private TorusParams
 {
   friend class geometry::Torus;
 

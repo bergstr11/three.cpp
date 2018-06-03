@@ -10,6 +10,7 @@
 #include <cmath>
 #include <array>
 #include <vector>
+#include <threepp/util/osdecl.h>
 #include "Euler.h"
 #include "Vector2.h"
 #include "Math.h"
@@ -37,7 +38,7 @@ class Quaternion;
 class Spherical;
 class Cylindrical;
 
-class Vector3
+class DLX Vector3
 {
   union {
     struct {

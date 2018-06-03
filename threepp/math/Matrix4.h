@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <algorithm>
+#include <threepp/util/osdecl.h>
 #include "Matrix3.h"
 
 #ifdef near
@@ -22,7 +23,7 @@ class Vector3;
 class Quaternion;
 class Euler;
 
-class Matrix4
+class DLX Matrix4
 {
   static const float IDENTITY[];
 

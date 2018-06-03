@@ -23,7 +23,7 @@ struct CylinderParams
   float thetaLength = (float)M_PI * 2;
 };
 
-class Cylinder : public LinearGeometry
+class DLX Cylinder : public LinearGeometry
 {
   float _radiusTop;
   float _radiusBottom;
@@ -69,7 +69,7 @@ public:
 
 namespace buffer {
 
-class Cylinder : public BufferGeometry
+class DLX Cylinder : public BufferGeometry
 {
   friend class three::geometry::Cylinder;
 

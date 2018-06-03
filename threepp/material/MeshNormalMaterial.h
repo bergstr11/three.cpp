@@ -34,7 +34,7 @@ namespace three {
  *  morphNormals: <bool>
  * }
  */
-struct MeshNormalMaterial: public MaterialT<material::DisplacementMap, material::BumpMap, material::NormalMap>
+struct DLX MeshNormalMaterial: public MaterialT<material::DisplacementMap, material::BumpMap, material::NormalMap>
 {
 
 protected:

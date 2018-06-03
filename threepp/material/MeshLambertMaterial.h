@@ -48,7 +48,7 @@ namespace three {
  * }
  */
 
-struct MeshLambertMaterial : public MaterialT<
+struct DLX MeshLambertMaterial : public MaterialT<
    material::Colored,
    material::AoMap,
    material::LightMap,

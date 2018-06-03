@@ -324,7 +324,7 @@ struct UniformValuesDelegate
   UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValueDelegate> add);
 };
 
-const LibUniformValues &get(UniformsID id);
+const DLX LibUniformValues &get(UniformsID id);
 
 UniformValuesDelegate merged(std::initializer_list<UniformsID> id);
 

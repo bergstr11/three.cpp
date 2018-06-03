@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include <threepp/util/osdecl.h>
 #include <threepp/objects/Line.h>
 #include <threepp/core/BufferAttribute.h>
 #include <threepp/camera/Camera.h>
@@ -14,7 +15,7 @@
 namespace three {
 namespace helper {
 
-struct Maker {
+struct DLX Maker {
   enum PointID {n1, n2, n3, n4, f1, f2, f3, f4, p, u1, u2, u3, c, t, cn1, cn2, cn3, cn4, cf1, cf2, cf3, cf4};
   enum_map<PointID, std::vector<float>> pointMap;
 
@@ -24,7 +25,7 @@ struct Maker {
   void update(const three::Camera::Ptr &camera);
 };
 
-class Camera : private Maker, public LineSegments
+class DLX Camera : private Maker, public LineSegments
 {
   three::Camera::Ptr _camera;
 

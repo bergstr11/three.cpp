@@ -21,7 +21,7 @@ struct VertexNormalConfig
   unsigned lineWidth = 1;
 };
 
-class VertexNormals : public LineSegments
+class DLX VertexNormals : public LineSegments
 {
   friend class three::LinearGeometryAccess;
   friend class three::BufferGeometryAccess;

@@ -11,6 +11,7 @@
 #include <tuple>
 #include <array>
 
+#include <threepp/util/osdecl.h>
 #include <threepp/util/sole.h>
 #include <threepp/util/simplesignal.h>
 #include <threepp/util/Types.h>
@@ -39,7 +40,7 @@ class Access;
 /**
  * 3D object without geometry or material
  */
-class Object3D
+class DLX Object3D
 {
   friend class three::loader::Access;
 

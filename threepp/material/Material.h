@@ -6,6 +6,7 @@
 #define THREEPP_MATERIAL_H
 
 #include <memory>
+#include <threepp/util/osdecl.h>
 #include <threepp/Constants.h>
 #include <threepp/textures/Texture.h>
 #include <threepp/util/sole.h>
@@ -145,7 +146,7 @@ struct Selector
 
 }
 
-struct Material
+struct DLX Material
 {
   static uint16_t ___material_id_count;
 

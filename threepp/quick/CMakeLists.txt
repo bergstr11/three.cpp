@@ -26,6 +26,8 @@ file(GLOB_RECURSE HEADER_FILES *.h)
 add_library(threeppq_static STATIC ${SOURCE_FILES} ${HEADER_FILES})
 add_library(threeppq SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
+target_compile_definitions(threeppq PRIVATE -DUSE_THREEPP_DLL)
+
 foreach(TARGET threeppq_static threeppq)
     target_include_directories(${TARGET} PUBLIC
             $<BUILD_INTERFACE:${THREE_ROOT}>

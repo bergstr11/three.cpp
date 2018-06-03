@@ -5,13 +5,14 @@
 #ifndef THREEPP_GRIDHELPER_H
 #define THREEPP_GRIDHELPER_H
 
+#include <threepp/util/osdecl.h>
 #include <threepp/objects/Line.h>
 #include <threepp/core/Color.h>
 
 namespace three {
 namespace helper {
 
-class Grid : public LineSegments
+class DLX Grid : public LineSegments
 {
 public:
   struct Options
@@ -59,9 +60,7 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<Grid>;
-  static Ptr make(const Options &options) {
-    return Ptr(new Grid(options));
-  }
+  static Ptr make(const Options &options);
 };
 
 }

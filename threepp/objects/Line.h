@@ -5,6 +5,7 @@
 #ifndef THREEPP_LINE_H
 #define THREEPP_LINE_H
 
+#include <threepp/util/osdecl.h>
 #include <threepp/core/Object3D.h>
 #include <threepp/core/Raycaster.h>
 #include <threepp/core/BufferGeometry.h>
@@ -13,7 +14,7 @@
 
 namespace three {
 
-class Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
+class DLX Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
 {
   const unsigned _steps;
 
@@ -72,7 +73,7 @@ public:
   }
 };
 
-class LineSegments : public Line
+class DLX LineSegments : public Line
 {
 protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)

@@ -11,7 +11,7 @@
 namespace three {
 namespace geometry {
 
-struct PolyhedronParams
+struct DLX PolyhedronParams
 {
   std::vector<Vertex> vertices;
   std::vector<unsigned> indices;
@@ -19,10 +19,10 @@ struct PolyhedronParams
   unsigned detail = 0;
 };
 
-class Polyhedron : public LinearGeometry, private PolyhedronParams
+class DLX Polyhedron : public LinearGeometry, private PolyhedronParams
 {
 protected:
-  Polyhedron(const PolyhedronParams &params);
+  explicit Polyhedron(const PolyhedronParams &params);
 
 public:
   using Ptr = std::shared_ptr<Polyhedron>;
@@ -37,7 +37,7 @@ public:
 
 namespace buffer {
 
-class Polyhedron : public BufferGeometry
+class DLX Polyhedron : public BufferGeometry
 {
   friend class three::geometry::Polyhedron;
 

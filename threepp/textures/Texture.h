@@ -10,6 +10,7 @@
 #include <threepp/math/Matrix3.h>
 #include <vector>
 #include <memory>
+#include <threepp/util/osdecl.h>
 #include <threepp/Constants.h>
 #include <threepp/util/simplesignal.h>
 #include <threepp/util/sole.h>
@@ -18,7 +19,7 @@
 
 namespace three {
 
-struct TextureOptions
+struct DLX TextureOptions
 {
   TextureMapping mapping = TextureMapping::UV;
 
@@ -51,7 +52,7 @@ protected:
   TextureOptions() {}
 };
 
-class Texture : public TextureOptions
+class DLX Texture : public TextureOptions
 {
   friend class Textures;
 

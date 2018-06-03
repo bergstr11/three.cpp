@@ -6,6 +6,7 @@
 #define THREEPP_SHADERID_H
 
 #include <string>
+#include <threepp/util/osdecl.h>
 
 namespace three {
 namespace gl {
@@ -29,7 +30,7 @@ enum class ShaderID : unsigned
   undefined=999
 };
 
-ShaderID toShaderID(std::string name);
+ShaderID DLX toShaderID(std::string name);
 
 }
 }

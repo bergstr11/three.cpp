@@ -10,7 +10,7 @@
 namespace three {
 namespace geometry {
 
-class Octahedron : public LinearGeometry
+class DLX Octahedron : public LinearGeometry
 {
 protected:
   Octahedron(float radius, unsigned detail);
@@ -28,7 +28,7 @@ public:
 
 namespace buffer {
 
-class Octahedron : public Polyhedron
+class DLX Octahedron : public Polyhedron
 {
   friend class three::geometry::Octahedron;
 

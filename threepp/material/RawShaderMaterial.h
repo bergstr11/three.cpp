@@ -12,7 +12,7 @@ namespace three {
 /**
  * @author mrdoob / http://mrdoob.com/
  */
-class RawShaderMaterial : public ShaderMaterial
+class DLX RawShaderMaterial : public ShaderMaterial
 {
   RawShaderMaterial(const gl::UniformValues &uniforms,
                     const char *vertexShader,

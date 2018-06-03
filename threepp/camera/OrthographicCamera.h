@@ -9,7 +9,7 @@
 
 namespace three {
 
-class OrthographicCamera : public Camera
+class DLX OrthographicCamera : public Camera
 {
   float _left;
   float _right;

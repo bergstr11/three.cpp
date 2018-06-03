@@ -14,7 +14,7 @@
 
 namespace three {
 
-struct OpenGLRendererOptions
+struct DLX OpenGLRendererOptions
 {
   bool alpha = false;
   bool depth = true;
@@ -24,7 +24,7 @@ struct OpenGLRendererOptions
   bool preserveDrawingBuffer = false;
 };
 
-class OpenGLRenderer : public Renderer, public OpenGLRendererOptions
+class DLX OpenGLRenderer : public Renderer, public OpenGLRendererOptions
 {
 protected:
   explicit OpenGLRenderer(const OpenGLRendererOptions &options=OpenGLRendererOptions())

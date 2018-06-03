@@ -21,7 +21,7 @@ namespace three {
  *	uvScale: new THREE.Vector2()
  * }
  */
-class SpriteMaterial : public MaterialT<material::Colored>
+class DLX SpriteMaterial : public MaterialT<material::Colored>
 {
   SpriteMaterial()
      : MaterialT(material::InfoT<SpriteMaterial>(), material::Typer(this))

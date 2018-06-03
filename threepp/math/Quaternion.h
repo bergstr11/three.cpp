@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <threepp/util/osdecl.h>
 #include "Math.h"
 #include <threepp/util/simplesignal.h>
 
@@ -18,7 +19,7 @@ class Euler;
 class Vector3;
 class Matrix4;
 
-class Quaternion
+class DLX Quaternion
 {
   union {
     struct {

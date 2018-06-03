@@ -5,6 +5,7 @@
 #ifndef THREEPP_ORBITCONTROLS_H
 #define THREEPP_ORBITCONTROLS_H
 
+#include <threepp/util/osdecl.h>
 #include <threepp/camera/Camera.h>
 #include <threepp/math/Spherical.h>
 #include <threepp/util/simplesignal.h>
@@ -25,7 +26,7 @@ namespace control {
 // This set of controls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
 //
-class Orbit
+class DLX Orbit
 {
 public:
   enum class State

@@ -60,7 +60,7 @@ namespace three {
  * }
  */
 
-struct MeshPhongMaterial : public MaterialT<
+struct DLX MeshPhongMaterial : public MaterialT<
    material::Colored,
    material::LightMap,
    material::AoMap,

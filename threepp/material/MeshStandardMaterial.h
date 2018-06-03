@@ -61,7 +61,7 @@ namespace three {
  * }
  */
 
-struct MeshStandardMaterial : public MaterialT<
+struct DLX MeshStandardMaterial : public MaterialT<
    material::Colored,
    material::LightMap,
    material::AoMap,

@@ -5,6 +5,7 @@
 #ifndef THREEPP_SHADERLIB_H
 #define THREEPP_SHADERLIB_H
 
+#include <threepp/util/osdecl.h>
 #include "ShaderID.h"
 #include "UniformsLib.h"
 
@@ -67,7 +68,7 @@ public:
   }
 };
 
-struct ShaderInfo
+struct DLX ShaderInfo
 {
   const UniformValues uniforms;
   const char * const vertexShader;
@@ -78,7 +79,7 @@ struct ShaderInfo
 
 namespace shaderlib {
 
-ShaderInfo get(ShaderID id);
+ShaderInfo DLX get(ShaderID id);
 
 }
 

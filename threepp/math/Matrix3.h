@@ -8,11 +8,12 @@
 #include <cstring>
 #include <stdexcept>
 #include <cmath>
+#include <threepp/util/osdecl.h>
 
 namespace three {
 namespace math {
 
-class Matrix3
+class DLX Matrix3
 {
   static const float IDENTITY[];
 

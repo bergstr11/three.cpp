@@ -2,6 +2,7 @@
 // Created by byter on 11/3/17.
 //
 
+#include <threepp/util/osdecl.h>
 #include "UniformsLib.h"
 #include "ShaderLib.h"
 

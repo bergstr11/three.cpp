@@ -26,7 +26,7 @@ struct RingParams
   }
 };
 
-class Ring : public LinearGeometry, private RingParams
+class DLX Ring : public LinearGeometry, private RingParams
 {
 protected:
   Ring(const RingParams &params);

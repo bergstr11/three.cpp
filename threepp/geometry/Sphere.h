@@ -11,7 +11,7 @@
 namespace three {
 namespace geometry {
 
-class Sphere : public LinearGeometry
+class DLX Sphere : public LinearGeometry
 {
   const unsigned _widthSegments, _heightSegments;
   const float _radius, _phiStart, _phiLength, _thetaStart, _thetaLength;
@@ -43,7 +43,7 @@ public:
 
 namespace buffer {
 
-class Sphere : public BufferGeometry
+class DLX Sphere : public BufferGeometry
 {
 friend class three::geometry::Sphere;
 

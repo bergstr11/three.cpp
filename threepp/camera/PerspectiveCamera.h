@@ -9,7 +9,7 @@
 
 namespace three {
 
-class PerspectiveCamera : public Camera
+class DLX PerspectiveCamera : public Camera
 {
   float _fov    = 50;
   float _aspect = 1;

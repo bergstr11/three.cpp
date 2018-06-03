@@ -44,7 +44,7 @@ using AssimpMaterialHandler = loader::MaterialHandler<
 /**
  * Assimp-based scene Loader
  */
-class Assimp : public Loader, private AssimpOptions
+class DLX Assimp : public Loader, private AssimpOptions
 {
 public:
   Assimp(const AssimpMaterialHandler *materialHandler, const AssimpOptions &options=AssimpOptions())

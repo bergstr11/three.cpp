@@ -5,6 +5,7 @@
 #ifndef THREEPP_RENDERER_H
 #define THREEPP_RENDERER_H
 
+#include <threepp/util/osdecl.h>
 #include <threepp/textures/Texture.h>
 #include <threepp/scene/Scene.h>
 #include <threepp/camera/Camera.h>
@@ -13,10 +14,10 @@
 
 namespace three {
 
-class Renderer
+class DLX Renderer
 {
 public:
-  class Target
+  class DLX Target
   {
   protected:
     Target(GLsizei width, GLsizei height)

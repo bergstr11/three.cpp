@@ -16,7 +16,7 @@ namespace three {
  *  reflectivity: <float>
  * }
  */
-struct MeshPhysicalMaterial: public MeshStandardMaterial
+struct DLX MeshPhysicalMaterial: public MeshStandardMaterial
 {
   std::unordered_map<std::string, std::string> defines {{ "PHYSICAL", "" }};
 

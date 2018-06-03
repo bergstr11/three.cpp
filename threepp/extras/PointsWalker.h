@@ -14,7 +14,7 @@ namespace extras {
 
 namespace points_walker {
 
-struct always_true
+struct DLX always_true
 {
   bool operator()(const Vertex &v)
   {

@@ -11,6 +11,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include <threepp/util/osdecl.h>
 #include <threepp/core/Color.h>
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>
@@ -162,7 +163,7 @@ static inline UniformName registered(unsigned count) {
   return (UniformName)regname;
 }
 
-UniformName get(std::string name, bool isIndex=false);
+UniformName DLX get(std::string name, bool isIndex=false);
 
 }
 
@@ -170,7 +171,7 @@ class UniformContainer;
 class Renderer_impl;
 class UniformValues;
 
-class Uniform
+class DLX Uniform
 {
 protected:
   const UniformName _id;

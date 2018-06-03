@@ -16,6 +16,7 @@
 #include <threepp/math/Vector4.h>
 #include <threepp/math/Matrix3.h>
 #include <threepp/util/Types.h>
+#include <threepp/util/osdecl.h>
 
 #include "Geometry.h"
 #include "BufferAttribute.h"
@@ -26,7 +27,7 @@ namespace three {
 
 class DirectGeometry;
 
-class LinearGeometry : public Geometry
+class DLX LinearGeometry : public Geometry
 {
   friend class DirectGeometry;
 

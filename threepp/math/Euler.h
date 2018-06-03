@@ -5,6 +5,7 @@
 #ifndef THREEPP_EULER
 #define THREEPP_EULER
 
+#include <threepp/util/osdecl.h>
 #include <threepp/math/Matrix4.h>
 #include <threepp/math/Quaternion.h>
 #include <threepp/math/Vector3.h>
@@ -13,7 +14,7 @@
 namespace three {
 namespace math {
 
-class Euler
+class DLX Euler
 {
 public:
   enum RotationOrder {XYZ, YZX, ZXY, XZY, YXZ, ZYX, Default};

@@ -15,7 +15,7 @@ namespace three {
 /**
  * a mesh without geometry and material
  */
-class Mesh : public virtual Object3D
+class DLX Mesh : public virtual Object3D
 {
   DrawMode _drawMode;
 

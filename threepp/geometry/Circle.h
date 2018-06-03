@@ -19,7 +19,7 @@ struct CircleParams
   float thetaLength = (float)M_PI * 2;
 };
 
-class Circle : public LinearGeometry
+class DLX Circle : public LinearGeometry
 {
   float _radius;
   unsigned _segments;
@@ -45,7 +45,7 @@ public:
 
 namespace buffer {
 
-class Circle : public BufferGeometry
+class DLX Circle : public BufferGeometry
 {
   friend class three::geometry::Circle;
 
