@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <unordered_map>
 #include <type_traits>
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector3.h>

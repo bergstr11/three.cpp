@@ -2,12 +2,13 @@
 // Created by byter on 10.09.17.
 //
 #include "impl/raycast.h"
+#include <threepp/math/Circle3.h>
 
 namespace three {
 
 void intersectObject(Object3D &object,
                      const Raycaster &raycaster,
-                     std::vector<Intersection> &intersects,
+                     IntersectList &intersects,
                      bool recursive )
 {
   if (!object.visible()) return;
@@ -23,30 +24,38 @@ void intersectObject(Object3D &object,
   }
 }
 
-std::vector<Intersection> Raycaster::intersectObject(Object3D &object, bool recursive )
+void IntersectList::prepare()
 {
-  std::vector<Intersection> intersects;
+  //throw out empty ray bins
+  for(auto iter = _intersections.end() - 1; iter >= _intersections.begin();) {
+    auto erase = iter;
+    iter--;
+    if(erase->empty()) _intersections.erase(erase);
+  }
 
-  three::intersectObject( object, *this, intersects, recursive );
-
-  std::sort(intersects.begin(), intersects.end(),
-            [](const Intersection &a, const Intersection &b) {return a.distance > b.distance;});
-
-  return intersects;
+  //sort each ray's bin so the closest intersection comes first
+  for(auto &intersects : _intersections) {
+    std::sort(intersects.begin(), intersects.end(), [this](const Intersection &a, const Intersection &b) {
+      return a.distance < b.distance;
+    });
+  }
 }
 
-std::vector<Intersection> Raycaster::intersectObjects(const std::vector<Object3D::Ptr> objects,
-                                                      bool recursive )
+void Raycaster::intersectObject(Object3D &object, IntersectList &intersects, bool recursive ) const
 {
-  std::vector<Intersection> intersects;
+  three::intersectObject( object, *this, intersects, recursive );
 
+  if(!intersects.empty()) intersects.prepare();
+}
+
+void Raycaster::intersectObjects(const std::vector<Object3D::Ptr> objects,
+                                 IntersectList &intersects,
+                                 bool recursive ) const
+{
   for (auto obj : objects) {
     three::intersectObject( *obj, *this, intersects, recursive );
   }
-  std::sort(intersects.begin(), intersects.end(),
-            [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
-
-  return intersects;
+  if(!intersects.empty()) intersects.prepare();
 }
 
 std::vector<math::Ray> Raycaster::createCircularBundle(
@@ -57,25 +66,66 @@ std::vector<math::Ray> Raycaster::createCircularBundle(
   //center ray first
   rays.push_back(ray);
 
-  const auto &center = ray.origin();
-  const auto &normal = ray.direction();
+  math::Circle3 circle(ray.origin(), ray.direction(), radius);
 
   //then the circle rays
-  float segment = 2.0f * (float)M_PI / radialSegments;
-  for (unsigned s = 0; s < radialSegments; s++ ) {
+  float delta = 2.0f * (float)M_PI / radialSegments;
+  for (unsigned seg = 0; seg < radialSegments; seg++ ) {
 
-    float alpha = (float)s * segment;
+    float theta = (float)seg * delta;
+    Vertex p = circle.pointAt(theta);
 
-    // unit vector in circle (degenerates if normal == y axis)
-    math::Vector3 v1(normal.z(), 0, -normal.x());
-    v1.normalize();
-
-    math::Vector3 v2 = cross(normal, v1);
-
-    Vertex p = center + radius * (cos(alpha) * v1 + sin(alpha) * v2);
     rays.emplace_back(p, ray.direction());
   }
   return rays;
+}
+
+IntersectList::iterator::iterator(IntersectList &list, bool end)
+   : _list(list),
+     _index(end ? list._intersections.size() : 0),
+     _begin(end ? list._intersections.back().end() : list._intersections.front().begin()),
+     _end(list._intersections.back().end())
+{
+}
+
+Intersection &IntersectList::iterator::operator*() const
+{
+  return *_begin;
+}
+
+IntersectList::iterator & IntersectList::iterator::operator++()
+{
+  if(_begin == _end) {
+    _index++;
+    _begin = _list._intersections[_index].begin();
+    _end = _list._intersections[_index].end();
+  }
+  else _begin++;
+  return *this;
+}
+
+IntersectList::iterator &IntersectList::iterator::operator++(int i)
+{
+  return ++(*this);
+}
+
+bool IntersectList::iterator::operator ==(const iterator & rhs) const
+{
+	return _index == rhs._index && _begin == rhs._begin;
+}
+
+bool IntersectList::iterator::operator !=(const iterator & rhs) const
+{
+  return !operator ==(rhs);
+}
+
+IntersectList::iterator IntersectList::begin()
+{
+  return IntersectList::iterator(*this, 0);
+}
+IntersectList::iterator IntersectList::end()
+{
+  return IntersectList::iterator(*this, true);
 }
 
 }

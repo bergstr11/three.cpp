@@ -224,7 +224,7 @@ public:
     math::Vector3 v( axis );
     v.apply(_quaternion);
 
-    _position += (v *= distance);
+    _position += (v * distance);
 
     return *this;
   }
@@ -323,6 +323,12 @@ public:
 
   void updateMaterials();
 
+  /**
+   * Computes the world-axis-aligned bounding box of an object (including its children),
+   * accounting for both the object's, and children's, world transforms
+   */
+  math::Box3 computeBoundingBox();
+
   math::Quaternion getWorldQuaternion() const;
 
   math::Euler getWorldRotation() const;
@@ -341,7 +347,7 @@ public:
 
   virtual void updateMatrixWorld(bool force);
 
-  virtual void raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects) {}
+  virtual void raycast(const Raycaster &raycaster, IntersectList &intersects) {}
 };
 
 /**

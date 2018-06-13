@@ -24,7 +24,8 @@ QVariantList RayCaster::intersectObjects(const QVariantList &objects)
     ThreeQObject *o = var.value<ThreeQObject *>();
     objs.push_back(o->object());
   }
-  vector<Intersection> intersects = _raycaster.intersectObjects(objs);
+  IntersectList intersects;
+  _raycaster.intersectObjects(objs, intersects);
   for(const Intersection &isect : intersects) {
 
     auto found = find_if(objects.begin(), objects.end(),
@@ -36,6 +37,7 @@ QVariantList RayCaster::intersectObjects(const QVariantList &objects)
       QVariant var;
       var.setValue(new Intersect(found->value<ThreeQObject *>(), isect));
       result.push_back(var);
+      break;
     }
   }
 

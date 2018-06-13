@@ -5,7 +5,7 @@
 
 namespace three {
 
-void Line::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects)
+void Line::raycast(const Raycaster &raycaster, IntersectList &intersects)
 {
   // Checking boundingSphere distance to ray
   if ( geometry()->boundingSphere().isEmpty()) geometry()->computeBoundingSphere();

@@ -3,6 +3,8 @@
 //
 
 #include "Object3D.h"
+#include "LinearGeometry.h"
+#include "BufferGeometry.h"
 
 namespace three {
 
@@ -61,6 +63,47 @@ void Object3D::apply(const Matrix4 &matrix)
 {
   _matrix.multiply(matrix, _matrix);
   math::decompose(_matrix, _position, _quaternion, _scale );
+}
+
+Box3 Object3D::computeBoundingBox()
+{
+  Box3 box;
+
+  updateMatrixWorld( true );
+
+  traverse([&box] (Object3D &node) {
+
+    auto geom = node.geometry();
+
+    if (geom) {
+
+      if (LinearGeometry *geometry = geom->typer) {
+
+        for (Vector3 vertex : geometry->vertices()) {
+
+          vertex.apply(node.matrixWorld());
+
+          box.expandByPoint( vertex );
+        }
+      }
+      else if (BufferGeometry *geometry = geom->typer) {
+
+        auto position = geometry->position();
+        if ( position ) {
+
+          for (unsigned i = 0, l = position->itemCount(); i < l; i ++ ) {
+
+            Vector3 vertex = position->item_at<Vector3>(i);
+            vertex.apply(node.matrixWorld());
+
+            box.expandByPoint(vertex);
+          }
+        }
+      }
+    }
+  });
+
+  return box;
 }
 
 Quaternion Object3D::getWorldQuaternion() const

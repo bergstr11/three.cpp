@@ -4,7 +4,6 @@
 
 #include "LinearGeometry.h"
 #include "BufferGeometry.h"
-#include <threepp/util/impl/utils.h>
 #include <threepp/objects/Mesh.h>
 #include <threepp/objects/Line.h>
 
@@ -37,7 +36,7 @@ math::Vector3 LinearGeometry::centroid(const Face3 &face) const
 void LinearGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
-                             std::vector<Intersection> &intersects)
+                             IntersectList &intersects)
 {
   std::vector<UV_Array> &faceVertexUvs = _faceVertexUvs[0];
 
@@ -77,6 +76,7 @@ void LinearGeometry::raycast(Mesh &mesh,
     }
 
     Intersection intersection;
+    unsigned rayIndex = 0;
     for(const auto &ray : rays) {
       if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
 
@@ -92,8 +92,9 @@ void LinearGeometry::raycast(Mesh &mesh,
 
         intersection.face = face;
         intersection.faceIndex = (unsigned)f;
-        intersects.push_back(intersection);
+        intersects.add(rayIndex, intersection);
       }
+      rayIndex++;
     }
   }
 }
@@ -101,7 +102,7 @@ void LinearGeometry::raycast(Mesh &mesh,
 void LinearGeometry::raycast(Line &line,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
-                             std::vector<Intersection> &intersects)
+                             IntersectList &intersects)
 {
   Vector3 interSegment;
   Vector3 interRay;
@@ -111,6 +112,7 @@ void LinearGeometry::raycast(Line &line,
 
   for (size_t i = 0; i < _vertices.size() - 1; i += step ) {
 
+    unsigned rayIndex = 0;
     for(const auto &ray : rays) {
       float distSq = ray.distanceSqToSegment(_vertices[i], _vertices[i + 1], &interRay, &interSegment);
 
@@ -122,9 +124,11 @@ void LinearGeometry::raycast(Line &line,
 
       if (distance < raycaster.near() || distance > raycaster.far()) continue;
 
-      intersects.emplace_back();
-      Intersection &intersect = intersects.back();
+      Intersection &intersect = intersects.add(rayIndex);
+      rayIndex++;
+
       intersect.distance = distance;
+
       // What do we want? intersection point on the ray or on the segment??
       // point: raycaster.ray.at( distance ),
       intersect.point = interSegment.apply(line.matrixWorld());

@@ -6,6 +6,7 @@
 #define THREEPP_SPHERE_H
 
 #include "Vector3.h"
+#include "Matrix4.h"
 #include <vector>
 
 namespace three {

@@ -72,6 +72,8 @@ public:
     return (result.x() >= 0) && (result.y() >= 0) && ((result.x() + result.y()) <= 1);
   }
 
+  Triangle() = default;
+
   Triangle(const Vector3 &a, const Vector3 &b, const Vector3 &c) : a(a), b(b), c(c) {}
 
   Vector3 getNormal() const {

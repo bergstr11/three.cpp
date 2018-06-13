@@ -3,6 +3,8 @@
 //
 
 #include <vector>
+#include <algorithm>
+
 #include <QMouseEvent>
 #include <QQmlEngine>
 #include <threepp/quick/ThreeDItem.h>
@@ -19,22 +21,20 @@
 namespace three {
 namespace quick {
 
+using namespace std;
+using namespace math;
+
+Object3D *calculateSurface(IntersectList &intersects, Vector3 &position, Vector3 &normal);
+
 struct no_delete
 {
   template <typename T>
   void operator () (const T *o) const {}
 } _no_delete;
 
-using namespace std;
-using namespace math;
-
-void SingleRay::setIntersects(std::vector<Intersection> &intersects)
+void SingleRay::setIntersects(IntersectList &intersects)
 {
-  //only sorty by distance
-  std::sort(intersects.begin(), intersects.end(),
-            [](const Intersection &a, const Intersection &b) {return a.distance < b.distance;});
-
-  if(!intersects.empty()) _picked = intersects[0].object;
+  if(!intersects.empty()) _picked = intersects.get(0, 0).object;
 }
 
 Raycaster SingleRay::raycaster(const Ray &cameraRay)
@@ -42,6 +42,37 @@ Raycaster SingleRay::raycaster(const Ray &cameraRay)
   _origin = cameraRay.origin();
   _surfaceNormal = cameraRay.direction().negated();
   return Raycaster(cameraRay);
+}
+
+void CircularRays::setSegments(unsigned segments)
+{
+  if(segments % 3) {
+    qWarning() << "CircularRays: segments should be multiple of 3";
+    if(segments < 3) segments = 3;
+  }
+  if(segments != _segments) {
+    _segments = segments;
+    emit segmentsChanged();
+  }
+}
+
+void CircularRays::setIntersects(IntersectList &intersects)
+{
+  Intersection &is = intersects.get(0, 0);
+
+  _picked = is.object;
+  _surfacePosition = is.point;
+  _surfaceNormal = is.face.normal;
+
+  //_picked = calculateSurface(intersects, _surfacePosition, _surfaceNormal);
+}
+
+Raycaster CircularRays::raycaster(const Ray &cameraRay)
+{
+  _origin = cameraRay.origin();
+
+  float scaled = _scaleTo / 100.0f * _radius;
+  return Raycaster::circular(cameraRay, scaled, _segments);
 }
 
 float normal_distance(const Intersection &intersect)
@@ -53,89 +84,172 @@ float normal_distance(const Intersection &intersect)
   return sqrt(pow(intersect.distance, 2.0f) - pow(b, 2.0f));
 }
 
-Object3D *calculateSurface(std::vector<Intersection> &intersects,
-                           unsigned segments, Vector3 &position, Vector3 &normal)
+class RingPos
 {
-  //find the bundle with the nearest point
-  float min_dist = intersects[0].distance;
-  Object3D *obj = intersects[0].object;
-  unsigned bundleStart = 0, bundlePos = 0, minPos = 0;
+  vector<array<Vector3, 2>> _targets;
 
-  for(unsigned i=1; i<intersects.size(); i++) {
-    if(intersects[i].object != obj) {
-      bundleStart = i;
+  bool _open = false;
+
+public:
+  Object3D * const picked;
+  Vector3 origin;
+
+  RingPos(const Intersection &intersect)
+     : picked(intersect.object), origin(intersect.point) {}
+
+  void setCurrent(const Intersection &is) {
+    if(_open) {
+      _targets.back()[1] = is.point;
     }
-    if(intersects[i].distance < min_dist) {
-      min_dist = intersects[i].distance;
-      minPos = i;
-      bundlePos = bundleStart;
+    else {
+      _open = true;
+      _targets.push_back({is.point, Vector3()});
     }
   }
 
-  Object3D *picked = intersects[minPos].object;
+  void closeCurrent() {_open = false;}
 
-  //count the number of hits for this bundle
-  unsigned bundleSize = minPos - bundlePos;
-  for(unsigned i=minPos; i<intersects.size() && intersects[i].object == picked; i++) {
-    bundleSize++;
+  bool empty() const {return _targets.empty();}
+
+  bool hasTriangle() const
+  {
+    for(const auto &target : _targets) {
+      if(!target[1].isNull()) return true;
+    }
+    return false;
   }
 
-  //if(bundleSize < 3) {
-    //not enough data. Use normal at minpos
-    position = intersects[minPos].point;
-    normal = intersects[minPos].face.normal;
+  Line3 getMaxLine() const
+  {
+    Line3 max;
+    for(const auto &target : _targets) {
 
-    return picked;
-  //}
-#if 0
-  Ray ray(intersects[minPos].point, intersects[minPos].face.normal);
-  Vector3 dir = ray.direction();
-  float angle1 = numeric_limits<float>::max();
-  float angle2 = numeric_limits<float>::max();
-  unsigned pos1, pos2;
+      float dist = origin.distanceTo(target[0]);
+      if(dist > max.distance()) max = Line3(origin, target[0]);
 
-  unsigned mid = (float)bundleSize / 2;
-
-  for(unsigned i1=minPos-1, i2=minPos+1; mid > 0; mid--) {
-    ray.lookAt(intersects[i1].point);
-
-    float angl = ray.direction().angleTo(dir);
-    if(angl < angle1) {
-      angle1 = angl;
-      pos1 = i1;
+      if(!target[1].isNull()) {
+        dist = origin.distanceTo(target[1]);
+        if(dist > max.distance()) max = Line3(origin, target[1]);
+      }
     }
-
-    ray.lookAt(intersects[i2].point);
-
-    angl = ray.direction().angleTo(dir);
-    if(angl < angle2) {
-      angle2 = angl;
-      pos2 = i2;
-    }
-
-    i1 = i1 == 0 ? bundlePos + bundleSize - 1 : i1 - 1;
-    i2++;
+    return max;
   }
 
-  Triangle t(intersects[minPos].point, intersects[pos1].point, intersects[pos2].point);
+  Triangle getMaxTriangle() const
+  {
+    Triangle max;
+    for(const auto &target : _targets) {
+      if(!target[1].isNull()) {
+        Triangle tri(origin, target[0], target[1]);
 
-  normal = t.getNormal();
-  position = t.getMidpoint();
+        if(tri.getArea() > max.getArea()) max = tri;
+      }
+    }
+    return max;
+  }
 
-  qDebug() << "surface:" << position.x() << position.y() << position.z() << "||" << normal.x() << normal.y() << normal.z();
-  return picked;
-#endif
+  Vector3 first() const {return _targets[0][0];}
+};
+
+inline size_t ringpos(unsigned rayCount, size_t pos)
+{
+  return pos - (pos / rayCount * rayCount);
 }
 
-void CircularRays::setIntersects(std::vector<Intersection> &intersects)
+Object3D *calculateSurface(IntersectList &intersects, Vector3 &position, Vector3 &normal)
 {
-  _picked = calculateSurface(intersects, _segments, _surfacePosition, _surfaceNormal);
+  Raycaster raycaster;
+  vector<RingPos> positions;
+
+  Object3D *object = nullptr;
+
+  const Intersection &center = intersects.get(0, 0);
+
+  //let every hit point in the ray bundle find the siblings he can see collision-free
+  for(unsigned pos=1, rayCount = intersects.rayCount(); pos < rayCount; pos++) {
+
+    const Intersection &is = intersects.get(pos, 0);
+
+    positions.emplace_back(is);
+    RingPos &ringPos = positions.back();
+    IntersectList collisions;
+
+    for(unsigned npos = ringpos(rayCount, pos+1); npos != pos; npos = ringpos(rayCount, npos+1)) {
+
+      if(npos == 0) continue;
+      const Intersection &nis = intersects.get(npos, 0);
+
+      Vector3 direction = (nis.point - ringPos.origin).normalized();
+      float distance = ringPos.origin.distanceTo(nis.point);
+
+      raycaster.set(Ray(ringPos.origin, direction));
+      nis.object->raycast(raycaster, collisions);
+
+      if(!collisions.hasIntersects(distance))
+        ringPos.setCurrent(nis);
+
+      else
+        ringPos.closeCurrent();
+    }
+
+    if(ringPos.empty())
+      //no collision-free sight, revert
+      positions.pop_back();
+  }
+
+  if(!positions.empty()) {
+    float maxArea = 0.0f;
+
+    //find the largest triangle
+    for(const RingPos &ringPos : positions) {
+      if(ringPos.hasTriangle()) {
+        Triangle tria = ringPos.getMaxTriangle();
+        float area = tria.getArea();
+        if(area > maxArea) {
+          maxArea = area;
+
+          //set the in/out parameter values
+          object = ringPos.picked;
+          normal = tria.getNormal();
+          position = tria.getMidpoint();
+        }
+      }
+    }
+    if(!object) {
+      //find the longest line
+      float maxLen = 0.0f;
+      for(const RingPos &ringPos : positions) {
+        Line3 line = ringPos.getMaxLine();
+        float dist = line.distance();
+        if(dist > maxLen) {
+          maxLen = dist;
+
+          //set the in/out parameter values
+          object = ringPos.picked;
+          position = line.getCenter();
+          normal = center.face.normal;
+        }
+      }
+    }
+  }
+  else {
+    //out of luck
+    object = center.object;
+    position = center.point;
+    normal = center.face.normal;
+  }
+
+  return object;
 }
 
-Raycaster CircularRays::raycaster(const Ray &cameraRay)
+void ObjectPicker::scaleTo(ThreeQObject *object)
 {
-  _origin = cameraRay.origin();
-  return Raycaster::circular(cameraRay, _radius, _segments);
+  if(object && object->object()) {
+    math::Box3 bbox = object->object()->computeBoundingBox();
+
+    _scaleSize = bbox.getBoundingSphere().radius() * 2;
+    if(_rays) _rays->scaleTo(_scaleSize);
+  }
 }
 
 bool ObjectPicker::handleMousePressed(QMouseEvent *event)
@@ -166,22 +280,22 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
       }
       if(!o3d) continue;
 
-      three::intersectObject( *o3d, raycaster, _intersects, true);
-      if(!_intersects.empty()) {
+      raycaster.intersectObject( *o3d, _intersects, true);
+      if(_rays->accept(_intersects)) {
         _currentIntersect.object = obj;
-        _currentIntersect.set(_intersects[0]);
+        _currentIntersect.set(_intersects.get(0, 0));
 
         break;
       }
     }
     if(_scene && _intersects.empty()) {
       for (auto obj : _scene->scene()->children()) {
-        three::intersectObject( *obj, raycaster, _intersects, true );
+        raycaster.intersectObject( *obj, _intersects, true );
       }
     }
     if(!_intersects.empty()) {
-      _rays->setIntersects(_intersects);
 
+      _rays->setIntersects(_intersects);
       emit objectsClicked();
       return  true;
     }
@@ -196,11 +310,11 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 
 QVariant ObjectPicker::intersect(unsigned index)
 {
-  if(_intersects.size() > index) {
+  if(index < _intersects.rayCount()) {
     if(!_prototype) {
       _prototype = new ThreeQObject();
     }
-    shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects[index].object), _no_delete);
+    shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects.get(index, 0).object), _no_delete);
     if(obj != _prototype->object()) {
 
       _prototype->setObject(obj);
@@ -221,7 +335,7 @@ QVariant ObjectPicker::intersect(unsigned index)
     }
 
     _currentIntersect.object.setValue(_prototype);
-    _currentIntersect.set(_intersects[index]);
+    _currentIntersect.set(_intersects.get(index, 0));
 
     QVariant var;
     var.setValue(&_currentIntersect);
@@ -282,6 +396,7 @@ void ObjectPicker::setRays(Rays *rays)
     if(_rays) _rays->deleteLater();
 
     _rays = rays;
+    _rays->scaleTo(_scaleSize);
     emit raysChanged();
   }
 }

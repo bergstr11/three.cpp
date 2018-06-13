@@ -91,25 +91,7 @@ protected:
     return *this;
   }
 
-  BufferGeometry &computeBoundingSphere() override
-  {
-    if (_position) {
-      math::Box3 box = _position->box3();
-      math::Vector3 center = box.getCenter();
-
-      // hoping to find a boundingSphere with a radius smaller than the
-      // boundingSphere of the boundingBox: sqrt(3) smaller in the best case
-      float maxRadiusSq = 0;
-
-      for (size_t i=0, il = _position->itemCount(); i < il; i ++ ) {
-        math::Vector3 v(_position->get_x(i), _position->get_y(i), _position->get_z(i));
-        maxRadiusSq = std::max(maxRadiusSq, center.distanceToSquared(v));
-      }
-
-      _boundingSphere = math::Sphere(center, std::sqrt(maxRadiusSq));
-    }
-    return *this;
-  }
+  BufferGeometry &computeBoundingSphere() override;
 
   BufferGeometry(std::shared_ptr<Object3D> object, LinearGeometry &geometry);
 
@@ -324,12 +306,12 @@ public:
   void raycast(Line &line,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
-               std::vector<Intersection> &intersects) override;
+               IntersectList &intersects) override;
 
   void raycast(Mesh &mesh,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
-               std::vector<Intersection> &intersects) override;
+               IntersectList &intersects) override;
 };
 
 class InstancedBufferGeometry : public BufferGeometry

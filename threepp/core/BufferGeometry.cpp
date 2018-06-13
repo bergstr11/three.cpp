@@ -58,10 +58,30 @@ math::Vector3 BufferGeometry::centroid(const Face3 &face) const
   return (vA + vB + vC) / 3.0f;
 }
 
+BufferGeometry &BufferGeometry::computeBoundingSphere()
+{
+  if (_position) {
+    math::Box3 box = _position->box3();
+    math::Vector3 center = box.getCenter();
+
+    // hoping to find a boundingSphere with a radius smaller than the
+    // boundingSphere of the boundingBox: sqrt(3) smaller in the best case
+    float maxRadiusSq = 0;
+
+    for (size_t i = 0, il = _position->itemCount(); i < il; i++) {
+      math::Vector3 v(_position->get_x(i), _position->get_y(i), _position->get_z(i));
+      maxRadiusSq = std::max(maxRadiusSq, center.distanceToSquared(v));
+    }
+
+    _boundingSphere = math::Sphere(center, std::sqrt(maxRadiusSq));
+  }
+  return *this;
+}
+
 void BufferGeometry::raycast(Mesh &mesh,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
-                             std::vector<Intersection> &intersects)
+                             IntersectList &intersects)
 {
   if (_index != nullptr) {
 
@@ -73,11 +93,13 @@ void BufferGeometry::raycast(Mesh &mesh,
       uint32_t c = _index->get_x(i + 2);
 
       Intersection intersection;
+      unsigned rayIndex = 0;
       for(const auto &ray : rays) {
         if(checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-          intersection.faceIndex = (unsigned)std::floor(i / 3);
-          intersects.push_back(intersection);
+          intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in indices buffer semantics
+          intersects.add(rayIndex, intersection);
         }
+        rayIndex++;
       }
     }
   }
@@ -90,11 +112,13 @@ void BufferGeometry::raycast(Mesh &mesh,
       unsigned c = i + 2;
 
       Intersection intersection;
+      unsigned rayIndex = 0;
       for(const auto &ray : rays) {
         if (checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-          intersection.index = a;
-          intersects.push_back(intersection);
+          intersection.index = a; // triangle number in positions buffer semantics
+          intersects.add(rayIndex, intersection);
         }
+        rayIndex++;
       }
     }
   }
@@ -103,7 +127,7 @@ void BufferGeometry::raycast(Mesh &mesh,
 void BufferGeometry::raycast(Line &line,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
-                             std::vector<Intersection> &intersects)
+                             IntersectList &intersects)
 {
   float precisionSq = raycaster.linePrecision() * raycaster.linePrecision();
   unsigned step = line.steps();
@@ -121,6 +145,7 @@ void BufferGeometry::raycast(Line &line,
       Vector3 vStart = Vector3::fromArray(_position->data_t(), a * 3 );
       Vector3 vEnd = Vector3::fromArray(_position->data_t(), b * 3 );
 
+      unsigned rayIndex = 0;
       for(const auto &ray : rays) {
         float distSq = ray.distanceSqToSegment( vStart, vEnd, &interRay, &interSegment );
 
@@ -132,8 +157,8 @@ void BufferGeometry::raycast(Line &line,
 
         if ( distance < raycaster.near() || distance > raycaster.far() ) continue;
 
-        intersects.emplace_back();
-        Intersection &intersection = intersects.back();
+        Intersection &intersection = intersects.add(rayIndex);
+        rayIndex++;
 
         intersection.distance = distance;
         intersection.direction = ray.direction();
@@ -151,6 +176,7 @@ void BufferGeometry::raycast(Line &line,
       Vector3 vStart = Vector3::fromArray(_position->data_t(), 3 * i );
       Vector3 vEnd = Vector3::fromArray(_position->data_t(), 3 * i + 3 );
 
+      unsigned rayIndex = 0;
       for(const auto &ray : rays) {
         float distSq = ray.distanceSqToSegment(vStart, vEnd, &interRay, &interSegment);
 
@@ -162,8 +188,7 @@ void BufferGeometry::raycast(Line &line,
 
         if (distance < raycaster.near() || distance > raycaster.far()) continue;
 
-        intersects.emplace_back();
-        Intersection &intersection = intersects.back();
+        Intersection &intersection = intersects.add(rayIndex);
 
         intersection.distance = distance;
         intersection.direction = ray.direction();

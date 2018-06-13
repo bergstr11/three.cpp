@@ -10,7 +10,7 @@
 
 namespace three {
 
-void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &intersects)
+void Mesh::raycast(const Raycaster &raycaster, IntersectList &intersects)
 {
   if (materialCount() == 0) return;
 
@@ -32,12 +32,12 @@ void Mesh::raycast(const Raycaster &raycaster, std::vector<Intersection> &inters
   math::Matrix4 inverseMatrix = _matrixWorld.inverted();
   std::vector<math::Ray> rays(raycaster.rays());
 
-  hit = geometry()->boundingBox().isEmpty();
+  bool empty = geometry()->boundingBox().isEmpty();
   for(auto &ray : rays) {
     ray.apply(inverseMatrix);
 
     // Check boundingBox before continuing
-    hit = hit || ray.intersectsBox(geometry()->boundingBox());
+    hit = hit || empty || ray.intersectsBox(geometry()->boundingBox());
   }
 
   if(hit) {

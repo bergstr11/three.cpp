@@ -52,7 +52,11 @@ public:
 
   virtual Raycaster raycaster(const math::Ray &cameraRay) = 0;
 
-  virtual void setIntersects(std::vector<Intersection> &intersects) = 0;
+  virtual void setIntersects(IntersectList &intersects) = 0;
+
+  virtual void scaleTo(float radius) {}
+
+  virtual bool accept(const IntersectList &list) const = 0;
 
   Object3D *picked() {return _picked;}
 };
@@ -68,7 +72,9 @@ public:
 
   Raycaster raycaster(const math::Ray &cameraRay) override;
 
-  void setIntersects(std::vector<Intersection> &intersects) override;
+  void setIntersects(IntersectList &intersects) override;
+
+  bool accept(const IntersectList &list) const override {return !list.empty();}
 };
 
 /**
@@ -80,25 +86,26 @@ Q_OBJECT
   Q_PROPERTY(float radius MEMBER _radius NOTIFY radiusChanged)
   Q_PROPERTY(unsigned segments READ segments WRITE setSegments NOTIFY segmentsChanged)
 
-  float _radius = 20;
+  float _radius = 20, _scaleTo = 100;
+
   unsigned _segments = 12;
 
   unsigned segments() const {return _segments;}
 
-  void setSegments(unsigned segments) {
-    if(segments % 3) {
-      qWarning() << "CircularRays: segments should be multiple of 3";
-      if(segments < 3) segments = 3;
-    }
-    if(segments != _segments) {
-      _segments = segments;
-      emit segmentsChanged();
-    }
-  }
+  void setSegments(unsigned segments);
+
 public:
   Raycaster raycaster(const math::Ray &cameraRay) override;
 
-  void setIntersects(std::vector<Intersection> &intersects) override;
+  void setIntersects(IntersectList &intersects) override;
+
+  void scaleTo(float scaleTo) override {
+    _scaleTo = scaleTo;
+  }
+
+  bool accept(const IntersectList &list) const override {
+    return list.rayCount() >= (float)_segments / 1.5f;
+  }
 
 signals:
   void radiusChanged();
@@ -130,7 +137,7 @@ Q_OBJECT
 
   Scene *_scene = nullptr;
 
-  std::vector<Intersection> _intersects;
+  IntersectList _intersects;
 
   QVariantList _objects;
 
@@ -138,6 +145,8 @@ Q_OBJECT
   Rays *_rays = nullptr;
 
   ThreeQObject *_prototype = nullptr;
+
+  float _scaleSize = 0;
 
   static void append_picker(QQmlListProperty<ObjectPicker> *list, ObjectPicker *obj);
   static int count_pickers(QQmlListProperty<ObjectPicker> *);
@@ -162,7 +171,11 @@ public:
   bool handleMousePressed(QMouseEvent *event) override;
   bool handleMouseDoubleClicked(QMouseEvent *event) override;
 
+  Q_INVOKABLE void scaleTo(ThreeQObject *object);
+
   Q_INVOKABLE QVariant intersect(unsigned index);
+
+  float scaleSize() const {return _scaleSize;}
 
 protected:
   QVariantList objects() {return _objects;}
@@ -197,7 +210,7 @@ protected:
   }
 
 public:
-  const std::vector<Intersection> &intersects() const {return _intersects;}
+  const IntersectList &intersects() const {return _intersects;}
 
   Rays &getRays() {return *_rays;}
 

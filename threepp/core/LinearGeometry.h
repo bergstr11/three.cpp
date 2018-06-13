@@ -228,12 +228,12 @@ public:
   void raycast(Line &line,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
-               std::vector<Intersection> &intersects) override;
+               IntersectList &intersects) override;
 
   void raycast(Mesh &mesh,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &rays,
-               std::vector<Intersection> &intersects) override;
+               IntersectList &intersects) override;
 
   size_t vertexCount() const override
   {

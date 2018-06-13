@@ -13,16 +13,16 @@ namespace geometry {
 
 class DLX Box : public LinearGeometry
 {
-  unsigned _width, _height, _depth;
+  float _width, _height, _depth;
   unsigned _widthSegments, _heightSegments, _depthSegments;
 
 protected:
-  Box(unsigned width, unsigned height, unsigned depth,
+  Box(float width, float height, float depth,
       unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
 
 public:
   using Ptr = std::shared_ptr<Box>;
-  static Ptr make(unsigned width, unsigned height, unsigned depth,
+  static Ptr make(float width, float height, float depth,
                   unsigned widthSegments=1,
                   unsigned heightSegments=1,
                   unsigned depthSegments=1) {
@@ -33,9 +33,9 @@ public:
     return LinearGeometry::setTyper(new Box(*this));
   }
 
-  void setWidth(unsigned width) {_width = width;}
-  void setHeight(unsigned height) {_height = height;}
-  void setDepth(unsigned depth) {_depth = depth;}
+  void setWidth(float width) {_width = width;}
+  void setHeight(float height) {_height = height;}
+  void setDepth(float depth) {_depth = depth;}
 };
 
 namespace buffer {
@@ -44,16 +44,16 @@ class DLX Box : public BufferGeometry
 {
   friend class three::geometry::Box;
 
-  unsigned const _width, _height, _depth;
+  float const _width, _height, _depth;
   unsigned _widthSegments, _heightSegments, _depthSegments;
 
 protected:
-  Box(unsigned int width, unsigned int height, unsigned int depth, unsigned widthSegments,
-            unsigned heightSegments, unsigned depthSegments);
+  Box(float width, float height, float depth,
+      unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
 
 public:
   using Ptr = std::shared_ptr<Box>;
-  static Ptr make(unsigned width, unsigned height, unsigned depth,
+  static Ptr make(float width, float height, float depth,
                   unsigned widthSegments=1, unsigned heightSegments=1, unsigned depthSegments=1) {
     return Ptr(new Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   }

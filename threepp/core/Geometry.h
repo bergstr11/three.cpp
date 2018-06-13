@@ -8,6 +8,7 @@
 #include <threepp/math/Vector3.h>
 #include <threepp/math/Matrix4.h>
 #include <threepp/math/Sphere.h>
+#include <threepp/math/Quaternion.h>
 #include <threepp/math/Box3.h>
 #include <threepp/util/simplesignal.h>
 #include <threepp/util/Types.h>
@@ -82,12 +83,12 @@ public:
   virtual void raycast(Line &line,
                        const Raycaster &raycaster,
                        const std::vector<math::Ray> &ray,
-                       std::vector<Intersection> &intersects) {}
+                       IntersectList &intersects) {}
 
   virtual void raycast(Mesh &mesh,
                        const Raycaster &raycaster,
                        const std::vector<math::Ray> &ray,
-                       std::vector<Intersection> &intersects) {}
+                       IntersectList &intersects) {}
 
   virtual bool useMorphing() const = 0;
 

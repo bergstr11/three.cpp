@@ -4,6 +4,7 @@
 
 #include "Matrix4.h"
 #include "Vector3.h"
+#include "Euler.h"
 #include "Quaternion.h"
 
 namespace three {

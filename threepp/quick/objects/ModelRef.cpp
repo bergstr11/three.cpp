@@ -253,7 +253,9 @@ ThreeQObject *ModelRef::getThreeQObject()
  */
 void ModelRef::testMarker(three::quick::ObjectPicker *picker)
 {
-  geometry::Box::Ptr box = geometry::Box::make(20, 20, 5);
+  float radius = picker->scaleSize() ? picker->scaleSize() / 100 * 2 : 5;
+  geometry::Box::Ptr box = geometry::Box::make(radius, radius, radius / 5);
+
   three::MeshBasicMaterial::Ptr mat =  three::MeshBasicMaterial::make();
   mat->color = Color(ColorName::green);
   mat->wireframe = true;
@@ -265,6 +267,7 @@ void ModelRef::testMarker(three::quick::ObjectPicker *picker)
   mesh->quaternion().setFromUnitVectors(up, snorm);
 
   mesh->position() = picker->pickedObject()->worldToLocal(picker->getRays().surfacePosition());
+  mesh->setName("TestMarker");
 
   picker->pickedObject()->add(mesh);
 }

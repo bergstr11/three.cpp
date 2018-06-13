@@ -3,12 +3,11 @@
 //
 
 #include "Box.h"
-#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace geometry {
 
-Box::Box(unsigned width, unsigned height, unsigned depth,
+Box::Box(float width, float height, float depth,
          unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
    : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments),
      _heightSegments(heightSegments), _depthSegments(depthSegments)
@@ -44,7 +43,7 @@ struct BuildData
 
 void buildPlane(BuildData &data,
                 El u, El v, El w, int udir, int vdir,
-                unsigned width, unsigned height, int depth,
+                float width, float height, float depth,
                 unsigned gridX, unsigned gridY, unsigned materialIndex)
 {
   float segmentWidth = (float)width / gridX;
@@ -132,9 +131,9 @@ void buildPlane(BuildData &data,
   data.numberOfVertices += vertexCounter;
 }
 
-Box::Box(unsigned int width,
-         unsigned int height,
-         unsigned int depth,
+Box::Box(float width,
+         float height,
+         float depth,
          unsigned widthSegments,
          unsigned heightSegments,
          unsigned depthSegments)

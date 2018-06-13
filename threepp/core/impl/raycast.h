@@ -38,7 +38,6 @@ inline bool checkIntersection(Object3D &object,
   if (!intersect) return false;
 
   result.point.apply(object.matrixWorld());
-  const math::Matrix4 &m = object.matrixWorld();
 
   float distance = raycaster.origin().distanceTo(result.point);
 

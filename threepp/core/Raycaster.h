@@ -46,10 +46,82 @@ struct Intersection
   unsigned index;
 };
 
-void DLX intersectObject(Object3D &object,
-                         const Raycaster &raycaster,
-                         std::vector<Intersection> &intersects,
-                         bool recursive = true);
+/**
+ * holds the intersections for each ray in a ray bundle
+ */
+class DLX IntersectList
+{
+  std::vector<std::vector<Intersection>> _intersections;
+
+  class iterator : public std::iterator<std::output_iterator_tag, int>
+  {
+  public:
+    explicit iterator(IntersectList &list, bool end=false);
+    Intersection &operator*() const;
+    iterator & operator++();
+    iterator & operator++(int);
+    bool operator ==(const iterator &) const;
+    bool operator !=(const iterator &) const;
+
+  private:
+    size_t _index;
+    std::vector<Intersection>::iterator _begin, _end;
+    IntersectList &_list;
+  };
+
+public:
+  IntersectList(const IntersectList &is) = delete;
+  IntersectList(const IntersectList &&is) = delete;
+
+  IntersectList() = default;
+
+  iterator begin();
+  iterator end();
+
+  void prepare();
+
+  unsigned rayCount() const {return _intersections.size();}
+
+  Intersection &add(unsigned rayIndex, const Intersection &intersection)
+  {
+    if(rayIndex >= _intersections.size()) _intersections.resize(rayIndex+1);
+    _intersections[rayIndex].push_back(intersection);
+    return _intersections[rayIndex].back();
+  }
+
+  Intersection &add(unsigned rayIndex)
+  {
+    if(rayIndex >= _intersections.size()) _intersections.resize(rayIndex+1);
+    _intersections[rayIndex].emplace_back();
+    return _intersections[rayIndex].back();
+  }
+
+  Intersection &get(unsigned rayIndex, unsigned intersectIndex)
+  {
+    return _intersections[rayIndex][intersectIndex];
+  }
+
+  bool hasIntersects(float distance)
+  {
+    for(const auto &intersects : _intersections) {
+      for (const auto &intersect : intersects) {
+        if (intersect.distance <= distance) return true;
+      }
+    }
+    return false;
+  }
+
+  void clear() {
+    _intersections.clear();
+  }
+
+  bool empty() const {
+    for(const auto &intersects : _intersections) {
+      if(!intersects.empty()) return false;
+    }
+    return true;
+  }
+};
 
 /**
  * casts one or more rays, collecting objects along the path
@@ -114,17 +186,23 @@ public:
     return *this;
   }
 
+  const math::Ray &centerRay() const {return _rays[0];}
+
   float linePrecision() const {return _linePrecision;}
+
   const std::vector<math::Ray> &rays() const {return _rays;}
 
   float near() const {return _near;}
   float far() const {return _far;}
   const math::Vector3 &origin() const {return _origin;}
 
-  std::vector<Intersection> intersectObject(Object3D &object, bool recursive=true);
+  void intersectObject(Object3D &object,
+                       IntersectList &intersects,
+                       bool recursive = true) const;
 
-  std::vector<Intersection> intersectObjects(std::vector<std::shared_ptr<Object3D>> objects,
-                                             bool recursive=true);
+  void intersectObjects(std::vector<std::shared_ptr<Object3D>> objects,
+                        IntersectList &intersects,
+                        bool recursive=true) const;
 };
 
 }

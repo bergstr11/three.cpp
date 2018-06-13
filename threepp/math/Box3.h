@@ -130,67 +130,6 @@ public:
     return *this;
   }
 
-  // Computes the world-axis-aligned bounding box of an object (including its children),
-  // accounting for both the object's, and children's, world transforms
-#if 0
-  static Box3 fromObject(const Object3D &object) {
-
-    Box3 box;
-    return box.expandByObject(object);
-  }
-
-  Box3 &expandByObject(Object3D &object)
-  {
-    //var scope = this;
-
-    object.updateMatrixWorld( true );
-
-    object.traverse([] (Object3D &node) {
-
-      var i, l;
-
-      var geometry = node.geometry;
-
-      if ( geometry !== undefined ) {
-
-        if ( geometry.isGeometry ) {
-
-          var vertices = geometry.vertices;
-
-          for ( i = 0, l = vertices.length; i < l; i ++ ) {
-
-            v1.copy( vertices[ i ] );
-            v1.applyMatrix4( node.matrixWorld );
-
-            scope.expandByPoint( v1 );
-
-          }
-
-        } else if ( geometry.isBufferGeometry ) {
-
-          var attribute = geometry.attributes.position;
-
-          if ( attribute !== undefined ) {
-
-            for ( i = 0, l = attribute.count; i < l; i ++ ) {
-
-              v1.fromBufferAttribute( attribute, i ).applyMatrix4( node.matrixWorld );
-
-              scope.expandByPoint( v1 );
-
-            }
-
-          }
-
-        }
-
-      }
-    });
-
-    return *this;
-  }
-#endif
-
   bool containsPoint(const Vector3 &point) const
   {
 
