@@ -64,7 +64,7 @@ void CircularRays::setIntersects(IntersectList &intersects)
   _surfacePosition = is.point;
   _surfaceNormal = is.face.normal;
 
-  //_picked = calculateSurface(intersects, _surfacePosition, _surfaceNormal);
+  _picked = calculateSurface(intersects, _surfacePosition, _surfaceNormal);
 }
 
 Raycaster CircularRays::raycaster(const Ray &cameraRay)
@@ -84,6 +84,12 @@ float normal_distance(const Intersection &intersect)
   return sqrt(pow(intersect.distance, 2.0f) - pow(b, 2.0f));
 }
 
+/*
+ * helper class that groups an originating point on the ray bundle perimeter together with
+ * target perimeter points that can be reached collision-free. Target points are collapsed
+ * while their predecessor is collision-free, thus building a triangle if two or more points
+ * are involved.
+ */
 class RingPos
 {
   vector<array<Vector3, 2>> _targets;
@@ -91,12 +97,14 @@ class RingPos
   bool _open = false;
 
 public:
-  Object3D * const picked;
+  Object3D * picked;
   Vector3 origin;
+  float distance;
 
   RingPos(const Intersection &intersect)
-     : picked(intersect.object), origin(intersect.point) {}
+     : picked(intersect.object), origin(intersect.point), distance(intersect.distance) {}
 
+  //add another intersection point
   void setCurrent(const Intersection &is) {
     if(_open) {
       _targets.back()[1] = is.point;
@@ -107,10 +115,13 @@ public:
     }
   }
 
+  //a collision was detected, close the target group
   void closeCurrent() {_open = false;}
 
+  //return truie if there are no collision free target points
   bool empty() const {return _targets.empty();}
 
+  //true if this RinPos contains at least one target group with 2 points
   bool hasTriangle() const
   {
     for(const auto &target : _targets) {
@@ -119,6 +130,7 @@ public:
     return false;
   }
 
+  //return the longest collision-free line
   Line3 getMaxLine() const
   {
     Line3 max;
@@ -135,6 +147,7 @@ public:
     return max;
   }
 
+  //return the collision-free triangle with the largest area
   Triangle getMaxTriangle() const
   {
     Triangle max;
@@ -148,6 +161,7 @@ public:
     return max;
   }
 
+  //return the target point
   Vector3 first() const {return _targets[0][0];}
 };
 
@@ -156,6 +170,9 @@ inline size_t ringpos(unsigned rayCount, size_t pos)
   return pos - (pos / rayCount * rayCount);
 }
 
+/*
+ * calculate the ideal resting surface for a planar marker
+ */
 Object3D *calculateSurface(IntersectList &intersects, Vector3 &position, Vector3 &normal)
 {
   Raycaster raycaster;
@@ -164,6 +181,10 @@ Object3D *calculateSurface(IntersectList &intersects, Vector3 &position, Vector3
   Object3D *object = nullptr;
 
   const Intersection &center = intersects.get(0, 0);
+
+  const Intersection &one = intersects.get(1, 0);
+  const Intersection &two = intersects.get(5, 0);
+  const Intersection &three = intersects.get(9, 0);
 
   //let every hit point in the ray bundle find the siblings he can see collision-free
   for(unsigned pos=1, rayCount = intersects.rayCount(); pos < rayCount; pos++) {
@@ -198,38 +219,27 @@ Object3D *calculateSurface(IntersectList &intersects, Vector3 &position, Vector3
   }
 
   if(!positions.empty()) {
-    float maxArea = 0.0f;
 
-    //find the largest triangle
-    for(const RingPos &ringPos : positions) {
-      if(ringPos.hasTriangle()) {
-        Triangle tria = ringPos.getMaxTriangle();
-        float area = tria.getArea();
-        if(area > maxArea) {
-          maxArea = area;
+    std::sort(positions.begin(), positions.end(), [](const RingPos &a, const RingPos &b) {
+      return a.distance < b.distance;
+    });
 
-          //set the in/out parameter values
-          object = ringPos.picked;
-          normal = tria.getNormal();
-          position = tria.getMidpoint();
-        }
-      }
+    const RingPos &ringPos = positions.front();
+    if(ringPos.hasTriangle()) {
+      Triangle tria = ringPos.getMaxTriangle();
+
+      //set the in/out parameter values
+      object = ringPos.picked;
+      position = tria.getMidpoint();
+      normal = object->worldToLocal(tria.getNormal());
     }
-    if(!object) {
-      //find the longest line
-      float maxLen = 0.0f;
-      for(const RingPos &ringPos : positions) {
-        Line3 line = ringPos.getMaxLine();
-        float dist = line.distance();
-        if(dist > maxLen) {
-          maxLen = dist;
+    else {
+      Line3 line = ringPos.getMaxLine();
 
-          //set the in/out parameter values
-          object = ringPos.picked;
-          position = line.getCenter();
-          normal = center.face.normal;
-        }
-      }
+      //set the in/out parameter values
+      object = ringPos.picked;
+      position = line.getCenter();
+      normal = center.face.normal;
     }
   }
   else {
@@ -280,20 +290,20 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
       }
       if(!o3d) continue;
 
-      raycaster.intersectObject( *o3d, _intersects, true);
-      if(_rays->accept(_intersects)) {
+      if(_currentIntersect.object.isNull())
         _currentIntersect.object = obj;
-        _currentIntersect.set(_intersects.get(0, 0));
 
-        break;
-      }
+      raycaster.intersectObject( *o3d, _intersects, true);
     }
     if(_scene && _intersects.empty()) {
+      //if scene was given, and no objects given or intersected, try scene's children
       for (auto obj : _scene->scene()->children()) {
         raycaster.intersectObject( *obj, _intersects, true );
       }
     }
-    if(!_intersects.empty()) {
+    if(!_intersects.empty() && _rays->accept(_intersects)) {
+
+      _currentIntersect.set(_intersects.get(0, 0));
 
       _rays->setIntersects(_intersects);
       emit objectsClicked();

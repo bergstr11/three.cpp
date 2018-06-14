@@ -104,7 +104,8 @@ public:
   }
 
   bool accept(const IntersectList &list) const override {
-    return list.rayCount() >= (float)_segments / 1.5f;
+    float required = (float)_segments / 1.7f;
+    return list.rayCount() >= required;
   }
 
 signals:
