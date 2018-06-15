@@ -114,7 +114,7 @@ signals:
 };
 
 /**
- * a picker handles mouse events and determines, whether the mouse coordinates correspond with
+ * a picker handles mouse events and determines, whether the mouse coordinates correspond to
  * one or more objects in the 3D space. It supports different ray configurations, ranging from
  * single ray to multi-ray
  */

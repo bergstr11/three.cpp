@@ -208,6 +208,11 @@ public:
 
   three::Object3D::Ptr create(quick::Scene *scene, Object3D::Ptr parent);
 
+  /**
+   * mark all tracking properties as 'not externally set'
+   */
+  virtual void unset();
+
   Q_INVOKABLE void rotateX(float angle);
   Q_INVOKABLE void rotateY(float angle);
   Q_INVOKABLE void rotateZ(float angle);

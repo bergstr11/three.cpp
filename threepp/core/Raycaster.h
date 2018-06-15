@@ -56,7 +56,8 @@ class DLX IntersectList
   class iterator : public std::iterator<std::output_iterator_tag, int>
   {
   public:
-    explicit iterator(IntersectList &list, bool end=false);
+    iterator(IntersectList &list, bool end);
+
     Intersection &operator*() const;
     iterator & operator++();
     iterator & operator++(int);
@@ -81,6 +82,16 @@ public:
   void prepare();
 
   unsigned rayCount() const {return _intersections.size();}
+
+  /**
+   * calculate the surface to place a planar, circular object of the same
+   * diameter as the ray bundle
+   *
+   * @param position (out) the center point of the surface
+   * @param normal (out) the normal of the surface
+   * @return the object owning the surface
+   */
+  Object3D *calculateSurface(math::Vector3 &position, math::Vector3 &normal);
 
   Intersection &add(unsigned rayIndex, const Intersection &intersection)
   {

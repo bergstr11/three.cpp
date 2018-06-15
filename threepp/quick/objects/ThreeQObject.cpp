@@ -96,6 +96,7 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
 {
   _object = object;
   if(_object) {
+
     if(_position.isSet()) {
       object->position().set(_position().x(), _position().y(), _position().z());
     }
@@ -138,6 +139,15 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
       _normalsHelper->setObject(_object, _parentObject);
     }
   }
+}
+
+void ThreeQObject::unset()
+{
+  _position.unset();
+  _rotation.unset();
+  _castShadow.unset();
+  _receiveShadow.unset();
+  _scale.unset();
 }
 
 void ThreeQObject::rotateX(float angle)
