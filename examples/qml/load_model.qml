@@ -210,20 +210,6 @@ Window {
             onModelLoaded: holdon.visible = false
         }
 
-        ObjectPicker
-        {
-            id: picker
-            camera: scene.camera
-            enabled: true
-
-            rays: CircularRays {radius: 0.5; segments: 9}
-
-            onObjectsClicked: {
-                modelref.testMarker(picker)
-                threeD.update()
-            }
-        }
-
         Scene {
             id: scene
 
