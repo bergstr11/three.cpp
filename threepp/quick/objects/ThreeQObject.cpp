@@ -20,6 +20,15 @@ VertexNormalsHelper *ThreeQObject::vertexNormals()
   return _normalsHelper;
 }
 
+BoundingBox *ThreeQObject::boundingBox()
+{
+  if(!_boundingBox && _object) {
+    auto bbox = _object->computeBoundingBox();
+    _boundingBox = new BoundingBox(bbox, this);
+  }
+  return _boundingBox;
+}
+
 three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 {
   _scene = scene;

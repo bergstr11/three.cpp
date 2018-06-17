@@ -2,8 +2,8 @@
 // Created by byter on 6/15/18.
 //
 
-#ifndef THREE_PP_LINE_H
-#define THREE_PP_LINE_H
+#ifndef THREEPP_EXTRAS_LINE_H
+#define THREEPP_EXTRAS_LINE_H
 
 #include <threepp/extras/core/Curve.h>
 
@@ -60,4 +60,4 @@ public:
 }
 }
 }
-#endif //THREE_PP_LINE_H
+#endif //THREEPP_EXTRAS_LINE_H

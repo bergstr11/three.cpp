@@ -34,6 +34,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/Cylinder.h"
 #include "objects/ConvexHull.h"
 #include "objects/Mesh.h"
+#include "threepp/quick/objects/Text3D.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
 #include "materials/MeshStandardMaterial.h"
 #include "materials/ShaderMaterial.h"
@@ -75,6 +76,7 @@ void init()
   qmlRegisterUncreatableType<three::quick::CameraHelper>("three.quick", 1, 0, "CameraHelper", "internal class");
   qmlRegisterUncreatableType<three::quick::CameraController>("three.quick", 1, 0, "CameraController", "abstract class");
   qmlRegisterUncreatableType<three::quick::VertexNormalsHelper>("three.quick", 1, 0, "VertexNormalsHelper", "internal class");
+  qmlRegisterUncreatableType<three::quick::BoundingBox>("three.quick", 1, 0, "BoundingBox", "internal class");
   qmlRegisterUncreatableType<three::quick::Rays>("three.quick", 1, 0, "Rays", "abstract class");
   qmlRegisterType<three::quick::SingleRay>("three.quick", 1, 0, "SingleRay");
   qmlRegisterType<three::quick::CircularRays>("three.quick", 1, 0, "CircularRays");
@@ -86,6 +88,7 @@ void init()
   qmlRegisterType<three::quick::Axes>("three.quick", 1, 0, "Axes");
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
+  qmlRegisterType<three::quick::Text3D>("three.quick", 1, 0, "Text3D");
   qmlRegisterType<three::quick::Line>("three.quick", 1, 0, "Line");
   qmlRegisterType<three::quick::Points>("three.quick", 1, 0, "Points");
   qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");

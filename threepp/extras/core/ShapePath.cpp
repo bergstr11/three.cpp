@@ -102,7 +102,7 @@ struct Change
   Change(unsigned from, unsigned to, unsigned hole) : from(from), to(to), hole(hole) {}
 };
 
-vector<Shape::Ptr> ShapePath::toShapes( bool isCCW, bool noHoles )
+vector<Shape::Ptr> ShapePath::toShapes( bool isCCW, bool noHoles ) const
 {
   if ( subPaths.empty() ) return vector<Shape::Ptr>();
 

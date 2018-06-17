@@ -18,6 +18,29 @@ namespace quick {
 
 class Scene;
 
+class BoundingBox : public QObject
+{
+  Q_OBJECT
+  Q_PROPERTY(QVector3D min READ min NOTIFY minChanged)
+  Q_PROPERTY(QVector3D max READ max NOTIFY maxChanged)
+
+  QVector3D _min, _max;
+
+public:
+  BoundingBox(const math::Box3 &bbox, QObject *parent=nullptr)
+     : QObject(parent),
+       _min(bbox.min().x(), bbox.min().y(), bbox.min().z()),
+       _max(bbox.max().x(), bbox.max().y(), bbox.max().z())
+  {}
+
+  QVector3D min() const {return _min;}
+  QVector3D max() const {return _max;}
+
+signals:
+  void minChanged();
+  void maxChanged();
+};
+
 class ThreeQObject : public QObject
 {
   friend class ObjectPicker;
@@ -36,6 +59,7 @@ Q_OBJECT
   Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
   Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
+  Q_PROPERTY(BoundingBox *boundingBox READ boundingBox CONSTANT)
   Q_PROPERTY(VertexNormalsHelper *vertexNormals READ vertexNormals CONSTANT)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -53,6 +77,8 @@ protected:
   TrackingProperty<bool> _castShadow {false};
   TrackingProperty<bool> _receiveShadow {false};
   bool _visible = true, _matrixAutoUpdate = true;
+
+  BoundingBox *_boundingBox = nullptr;
 
   QList<ThreeQObject *> _objects;
 
@@ -98,6 +124,8 @@ public:
   QVector3D scale() const {return _scale;}
 
   VertexNormalsHelper *vertexNormals();
+
+  BoundingBox *boundingBox();
 
   void setPosition(const QVector3D &position, bool propagate=true) {
     if(position != _position) {

@@ -4,137 +4,68 @@
  */
 
 #include "ShapePath.h"
+#include <threepp/math/Box2.h>
+#include <unordered_map>
 
-struct FontData
+namespace three {
+namespace extras {
+
+struct Glyph
 {
+  std::vector<uint16_t> outline;
+  unsigned ha;
+};
 
+class FontData
+{
+  Glyph unknown;
+  std::unordered_map<wchar_t, Glyph> glyphs;
+
+public:
+  float resolution;
+  math::Box2 boundingBox;
+  float underlineThickness;
+
+  const Glyph &glyphAt(wchar_t c) const
+  {
+    if(glyphs.count(c)) return glyphs.at(c);
+    return unknown;
+  }
 };
 
 class Font
 {
   FontData _data;
 
+  unsigned createPath( wchar_t c,
+                       unsigned divisions,
+                       float scale,
+                       float offsetX,
+                       float offsetY,
+                       std::vector<ShapePath> &paths) const;
+
+  std::vector<ShapePath> createPaths( const std::wstring &text,
+                                      float size,
+                                      unsigned divisions ) const;
+
 public:
-  Font(const FontData &data) : _data(data) {}
+  explicit Font(const FontData &data) : _data(data) {}
 
-  void generateShapes( text, size, divisions ) {
+  std::vector<Shape::Ptr> generateShapes( const std::wstring &text, float size, unsigned divisions ) const
+  {
+    const auto &paths = createPaths( text, size, divisions );
 
-    if ( size === undefined ) size = 100;
-    if ( divisions === undefined ) divisions = 4;
+    std::vector<Shape::Ptr> shapes;
 
-    var shapes = [];
-    var paths = createPaths( text, size, divisions, this.data );
+    for ( const auto &path : paths ) {
 
-    for ( var p = 0, pl = paths.length; p < pl; p ++ ) {
-
-      Array.prototype.push.apply( shapes, paths[ p ].toShapes() );
-
+      const auto &pshapes = path.toShapes();
+      shapes.insert(shapes.end(), pshapes.begin(), pshapes.end() );
     }
 
     return shapes;
   }
 };
 
-
-void createPaths( text, size, divisions, data ) {
-
-	var chars = Array.from ? Array.from( text ) : String( text ).split( '' ); // see #13988
-	var scale = size / data.resolution;
-	var line_height = ( data.boundingBox.yMax - data.boundingBox.yMin + data.underlineThickness ) * scale;
-
-	var paths = [];
-
-	var offsetX = 0, offsetY = 0;
-
-	for ( var i = 0; i < chars.length; i ++ ) {
-
-		var char = chars[ i ];
-
-		if ( char === '\n' ) {
-
-			offsetX = 0;
-			offsetY -= line_height;
-
-		} else {
-
-			var ret = createPath( char, divisions, scale, offsetX, offsetY, data );
-			offsetX += ret.offsetX;
-			paths.push( ret.path );
-
-		}
-
-	}
-
-	return paths;
 }
-
-void createPath( char, divisions, scale, offsetX, offsetY, data ) {
-
-	var glyph = data.glyphs[ char ] || data.glyphs[ '?' ];
-
-	if ( ! glyph ) return;
-
-	var path = new ShapePath();
-
-	var x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
-
-	if ( glyph.o ) {
-
-		var outline = glyph._cachedOutline || ( glyph._cachedOutline = glyph.o.split( ' ' ) );
-
-		for ( var i = 0, l = outline.length; i < l; ) {
-
-			var action = outline[ i ++ ];
-
-			switch ( action ) {
-
-				case 'm': // moveTo
-
-					x = outline[ i ++ ] * scale + offsetX;
-					y = outline[ i ++ ] * scale + offsetY;
-
-					path.moveTo( x, y );
-
-					break;
-
-				case 'l': // lineTo
-
-					x = outline[ i ++ ] * scale + offsetX;
-					y = outline[ i ++ ] * scale + offsetY;
-
-					path.lineTo( x, y );
-
-					break;
-
-				case 'q': // quadraticCurveTo
-
-					cpx = outline[ i ++ ] * scale + offsetX;
-					cpy = outline[ i ++ ] * scale + offsetY;
-					cpx1 = outline[ i ++ ] * scale + offsetX;
-					cpy1 = outline[ i ++ ] * scale + offsetY;
-
-					path.quadraticCurveTo( cpx1, cpy1, cpx, cpy );
-
-					break;
-
-				case 'b': // bezierCurveTo
-
-					cpx = outline[ i ++ ] * scale + offsetX;
-					cpy = outline[ i ++ ] * scale + offsetY;
-					cpx1 = outline[ i ++ ] * scale + offsetX;
-					cpy1 = outline[ i ++ ] * scale + offsetY;
-					cpx2 = outline[ i ++ ] * scale + offsetX;
-					cpy2 = outline[ i ++ ] * scale + offsetY;
-
-					path.bezierCurveTo( cpx1, cpy1, cpx2, cpy2, cpx, cpy );
-
-					break;
-
-			}
-
-		}
-
-	}
-
-	return { offsetX: glyph.ha * scale, path: path };
 }

@@ -22,10 +22,8 @@ public:
 
   Box2(float minScalar, float maxScalar) : _min(Vector2(minScalar)), _max(Vector2(maxScalar)) {}
 
-  static Box2 empty()
-  {
-    return Box2(+std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity());
-  }
+  Box2() : _min(+std::numeric_limits<float>::infinity()), _max(-std::numeric_limits<float>::infinity())
+  {}
 
   static Box2 fromPoints(std::vector<Vector2> points)
   {
@@ -42,6 +40,10 @@ public:
     Vector2 halfSize = size * 0.5;
     return Box2(center - halfSize, center + halfSize);
   }
+
+  const Vector2 &min() const {return _min;}
+
+  const Vector2 &max() const {return _max;}
 
   Box2 &set(const Box2 &box)
   {
@@ -123,16 +125,16 @@ public:
 
   Box2 &intersect(const Box2 &box)
   {
-    _min = max(_min, box._min);
-    _max = min(_max, box._max );
+    _min = math::max(_min, box._min);
+    _max = math::min(_max, box._max );
 
     return *this;
   }
 
   Box2 &setUnion(const Box2 &box)
   {
-     _min = min(_min, box._min);
-     _max = max(_max, box._max);
+     _min = math::min(_min, box._min);
+     _max = math::max(_max, box._max);
 
      return *this;
   }

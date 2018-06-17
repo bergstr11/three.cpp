@@ -4,6 +4,7 @@
         <file alias="spotlight.qml">qml/spotlight.qml</file>
         <file alias="hemisphere.qml">qml/hemisphere.qml</file>
         <file alias="cameras.qml">qml/cameras.qml</file>
+        <file alias="3D_text.qml">qml/3D_text.qml</file>
         <file alias="cubes_ortho_picker.qml">qml/cubes_ortho_picker.qml</file>
         <file alias="orthographic_camera.qml">qml/orthographic_camera.qml</file>
         <file alias="orbit_controls.qml">qml/orbit_controls.qml</file>
@@ -31,5 +32,11 @@
         <file alias="portalgun.3ds">qml/resources/portalgun/portalgun.3ds</file>
         <file alias="portalgun_color.jpg">qml/resources/portalgun/color.jpg</file>
         <file alias="portalgun_normal.jpg">qml/resources/portalgun/normal.jpg</file>
+        <file alias="gentilis_bold.typeface.json">fonts/gentilis_bold.typeface.json</file>
+        <file alias="gentilis_regular.typeface.json">fonts/gentilis_regular.typeface.json</file>
+        <file alias="helvetiker_regular.typeface.json">fonts/helvetiker_regular.typeface.json</file>
+        <file alias="helvetiker_bold.typeface.json">fonts/helvetiker_bold.typeface.json</file>
+        <file alias="optimer_regular.typeface.json">fonts/optimer_regular.typeface.json</file>
+        <file alias="optimer_bold.typeface.json">fonts/optimer_bold.typeface.json</file>
     </qresource>
 </RCC>

@@ -15,11 +15,10 @@ namespace extras {
 
 class DLX ShapePath
 {
-	Color _color;
-
 	std::vector<Path::Ptr> subPaths;
 	Path::Ptr currentPath;
 
+public:
   ShapePath &moveTo( float x, float y ) {
 
 		currentPath = Shape::make();
@@ -52,7 +51,7 @@ class DLX ShapePath
     return *this;
 	}
 
-	std::vector<Shape::Ptr> toShapes( bool isCCW, bool noHoles );
+	std::vector<Shape::Ptr> toShapes( bool isCCW=false, bool noHoles=false ) const;
 };
 
 }

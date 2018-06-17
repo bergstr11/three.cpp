@@ -1,4 +1,5 @@
-#pragma once
+#ifndef THREEPP_EXTRAS_PATH
+#define THREEPP_EXTRAS_PATH
 
 #include <threepp/math/Vector2.h>
 #include <threepp/extras/core/CurvePath.h>
@@ -160,3 +161,5 @@ public:
 
 }
 }
+
+#endif //THREEPP_EXTRAS_PATH
