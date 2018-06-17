@@ -137,6 +137,10 @@ inline int nextPowerOfTwo(int value )
 
 void decompose(const Matrix4 &matrix, Vector3 &position, Quaternion &quaternion, Vector3 &scale );
 
+template <typename T> int sgn(T val) {
+  return (T(0) < val) - (val < T(0));
+}
+
 }
 }
 #endif //THREEPP_MATH_H

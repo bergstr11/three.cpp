@@ -5,7 +5,7 @@
 #ifndef THREE_PP_ELLIPSE_H
 #define THREE_PP_ELLIPSE_H
 
-#include "Curve.h"
+#include "threepp/extras/core/Curve.h"
 
 namespace three {
 namespace extras {
@@ -16,32 +16,44 @@ struct EllipseConfig
   float aX = 0.0f, aY = 0.0f;
   float xRadius = 1.0f, yRadius = 1.0f;
 
-  float aStartAngle = 0, aEndAngle = 2 * M_PI;
+  float aStartAngle = 0, aEndAngle = 2.0f * (float)M_PI;
 
   bool aClockWise = false;
   float aRotation = 0.0f;
+
+  EllipseConfig() = default;
+
+  EllipseConfig( float aX, float aY,
+                 float xRadius, float yRadius,
+                 float aStartAngle, float aEndAngle,
+                 bool aClockwise, float aRotation ) :
+     aX(aX), aY(aY), xRadius(xRadius), yRadius(yRadius),
+     aStartAngle(aStartAngle), aEndAngle(aEndAngle),
+     aClockWise(aClockwise), aRotation(aRotation)
+  {
+  }
 };
 
 class Ellipse : public Curve
 {
   EllipseConfig config;
 
-  Ellipse( const EllipseConfig &config) : config(config) {}
+protected:
+  Ellipse( const EllipseConfig &config ) : config(config) {}
 
-  Ellipse( float aX, float aY, float xRadius, float yRadius, float aStartAngle, float aEndAngle,
-                bool aClockwise, float aRotation )
+  unsigned pathResolution(unsigned divisions) const override
   {
-    config.aX = aX;
-    config.aY = aY;
-    config.xRadius = xRadius;
-    config.yRadius = yRadius;
-    config.aStartAngle = aStartAngle;
-    config.aEndAngle = aEndAngle;
-    config.aClockWise = aClockwise;
-    config.aRotation = aRotation;
+    return divisions * 2;
   }
 
-  math::Vector2 getPoint( float t )
+public:
+  using Ptr = std::shared_ptr<Ellipse>;
+
+  static Ptr make(const EllipseConfig &config=EllipseConfig()) {
+    return Ptr(new Ellipse(config));
+  }
+
+  math::Vector2 getPoint( float t ) override
   {
     float twoPi = M_PI * 2;
     float deltaAngle = config.aEndAngle - config.aStartAngle;

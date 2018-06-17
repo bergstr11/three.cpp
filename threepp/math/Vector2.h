@@ -258,6 +258,11 @@ public:
     return vector._x == _x && vector._y == _y;
   }
 
+  bool operator != (const Vector2 &vector) const
+  {
+    return ! operator ==(vector);
+  }
+
   Vector2(const float *array, unsigned offset=0)
   {
     _x = array[offset];

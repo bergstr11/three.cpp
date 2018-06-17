@@ -7,6 +7,26 @@
 
 #include <vector>
 #include <threepp/math/Vector2.h>
+#include "Earcut.h"
+
+namespace mapbox {
+namespace util {
+
+template <>
+struct nth<0, three::math::Vector2> {
+  inline static float get(const three::math::Vector2 &t) {
+    return t.x();
+  };
+};
+template <>
+struct nth<1, three::math::Vector2> {
+  inline static float get(const three::math::Vector2 &t) {
+    return t.y();
+  };
+};
+
+} // util
+} // mapbox
 
 namespace three {
 namespace extras {
@@ -14,14 +34,16 @@ namespace extras {
 namespace shapeutils
 {
 
+using Face = std::array<uint32_t, 3>;
+
 // calculate area of the contour polygon
 
-float area(const std::vector<math::Vector2> &contour)
+inline float area(const std::vector<math::Vector2> &contour)
 {
    auto n = contour.size();
    float a = 0.0f;
 
-   for (auto p = n - 1, q = 0u; q < n; p = q++ ) {
+   for (unsigned p = n - 1, q = 0u; q < n; p = q++ ) {
 
      a += contour[ p ].x() * contour[ q ].y() - contour[ q ].x() * contour[ p ].y();
    }
@@ -29,74 +51,47 @@ float area(const std::vector<math::Vector2> &contour)
    return a * 0.5f;
 }
 
-bool isClockWise(const std::vector<math::Vector2> &pts)
+inline bool isClockWise(const std::vector<math::Vector2> &pts)
 {
    return area( pts ) < 0;
 }
 
-void triangulateShape(const std::vector<math::Vector2> &contour, holes )
-{
-var vertices = []; // flat array of vertices like [ x0,y0, x1,y1, x2,y2, ... ]
-var holeIndices = []; // array of hole indices
-var faces = []; // final array of vertex indices like [ [ a,b,d ], [ b,c,d ] ]
+inline void removeDupEndPts( std::vector<math::Vector2> &points ) {
 
-removeDupEndPts( contour );
-addContour( vertices, contour );
+  auto l = points.size();
 
-//
+  if ( l > 2 && points[ l - 1 ] == points[ 0 ]) {
 
-var holeIndex = contour.length;
-
-holes.forEach( removeDupEndPts );
-
-for ( var i = 0; i < holes.length; i ++ ) {
-
-holeIndices.push( holeIndex );
-holeIndex += holes[ i ].length;
-addContour( vertices, holes[ i ] );
-
-}
-
-//
-
-var triangles = Earcut.triangulate( vertices, holeIndices );
-
-//
-
-for ( var i = 0; i < triangles.length; i += 3 ) {
-
-faces.push( triangles.slice( i, i + 3 ) );
-
-}
-
-return faces;
-
-}
-
-function removeDupEndPts( points ) {
-
-  var l = points.length;
-
-  if ( l > 2 && points[ l - 1 ].equals( points[ 0 ] ) ) {
-
-    points.pop();
-
-  }
-
-}
-
-void addContour( vertices, contour )
-{
-  for ( var i = 0; i < contour.length; i ++ ) {
-
-    vertices.push( contour[ i ].x );
-    vertices.push( contour[ i ].y );
-
+    points.pop_back();
   }
 }
 
+inline std::vector<Face> triangulateShape(std::vector<math::Vector2> &contour,
+                                   std::vector<std::vector<math::Vector2>> &holes)
+{
+  std::vector<Face> faces;            // final array of vertex indices like [ [ a,b,d ], [ b,c,d ] ]
+  std::vector<std::vector<math::Vector2>> polygon;
+
+  removeDupEndPts( contour );
+  polygon.push_back(std::move(contour));
+
+  for(auto &hole : holes) {
+    removeDupEndPts(hole);
+    polygon.push_back(std::move(hole));
+  }
+
+  std::vector<uint32_t> triangles = mapbox::earcut<uint32_t>(polygon);
+
+  for ( unsigned i = 0; i < triangles.size(); i += 3 ) {
+
+    faces.push_back({triangles[i], triangles[i+1], triangles[i+2]});
+  }
+
+  return faces;
 }
 
+
+}
 }
 }
 #endif //THREE_PP_SHAPEUTILS_H

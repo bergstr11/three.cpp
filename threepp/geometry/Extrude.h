@@ -7,21 +7,63 @@
 
 #include <threepp/core/LinearGeometry.h>
 #include <threepp/core/BufferGeometry.h>
+#include <threepp/extras/ShapeUtils.h>
+#include <threepp/extras/core/Shape.h>
+#include <threepp/extras/core/CurvePath.h>
 
 namespace three {
 namespace geometry {
+
+struct UVGenerator
+{
+  using Ptr = std::shared_ptr<UVGenerator>;
+
+  virtual void generateTopUV(const attribute::growing_t<float, Vertex> &positions,
+                             attribute::growing_t<float, UV> &uvs,
+                             unsigned indexA,
+                             unsigned indexB,
+                             unsigned indexC) = 0;
+
+  virtual void generateSideWallUV(const attribute::growing_t<float, Vertex> &positions,
+                                  attribute::growing_t<float, UV> &uvs,
+                                  unsigned indexA,
+                                  unsigned indexB,
+                                  unsigned indexC,
+                                  unsigned indexD ) = 0;
+};
+
+struct WorldUVGenerator : public UVGenerator
+{
+  static Ptr make() {
+    return Ptr(new WorldUVGenerator());
+  }
+
+  void generateTopUV(const attribute::growing_t<float, Vertex> &positions,
+                     attribute::growing_t<float, UV> &uvs,
+                     unsigned indexA,
+                     unsigned indexB,
+                     unsigned indexC) override;
+
+  void generateSideWallUV(const attribute::growing_t<float, Vertex> &positions,
+                          attribute::growing_t<float, UV> &uvs,
+                          unsigned indexA,
+                          unsigned indexB,
+                          unsigned indexC,
+                          unsigned indexD ) override;
+};
 
 struct ExtrudeOptions
 {
   unsigned curveSegments = 12;
   unsigned steps = 1;
-  unsigned amount = 100;
+  float depth = 100;
   bool bevelEnabled = true;
-  unsigned bevelThickness = 6;
-  unsigned bevelSize = bevelThickness - 2;
+  float bevelThickness = 6;
+  float bevelSize = bevelThickness - 2;
   unsigned bevelSegments = 3;
-  //extrudePath;
-  //var uvgen = WorldUVGenerator;
+
+  extras::CurvePath::Ptr extrudePath = nullptr;
+  UVGenerator::Ptr uvGenerator = nullptr;
 };
 
 /**
@@ -46,18 +88,51 @@ struct ExtrudeOptions
  *
  * }
  */
-class Extrude : public LinearGeometry
+class DLX Extrude : public LinearGeometry
 {
 protected:
-  Extrude(const ExtrudeOptions &options);
+  std::vector<extras::Shape::Ptr> _shapes;
+  const ExtrudeOptions _options;
+
+  Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options);
+
+  Extrude(extras::Shape::Ptr shape, const ExtrudeOptions &options);
+
+public:
+  using Ptr = std::shared_ptr<Extrude>;
+
+  static Ptr make(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options) {
+    return Ptr(new Extrude(shapes, options));
+  }
+
+  static Ptr make(extras::Shape::Ptr shape, const ExtrudeOptions &options) {
+    return Ptr(new Extrude(shape, options));
+  }
+
+  Extrude *cloned() const override {
+    return LinearGeometry::setTyper(new Extrude(*this));
+  }
 };
 
 namespace buffer {
 
-class Extrude : public BufferGeometry
+class DLX Extrude : public BufferGeometry
 {
+  friend class three::geometry::Extrude;
+
 protected:
-  Extrude(const ExtrudeOptions &options);
+  Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options);
+
+public:
+  using Ptr = std::shared_ptr<Extrude>;
+
+  static Ptr make(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options) {
+    return Ptr(new Extrude(shapes, options));
+  }
+
+  Extrude *cloned() const override {
+    return BufferGeometry::setTyper(new Extrude(*this));
+  }
 };
 
 }

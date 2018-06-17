@@ -24,6 +24,7 @@ set(THREE_SRCDIRS
         extras
         extras/shape
         extras/curve
+        extras/core
         helper
         light
         loader
@@ -46,6 +47,7 @@ set(THREE_HDRDIRS
         extras
         extras/shape
         extras/curve
+        extras/core
         helper
         light
         loader
