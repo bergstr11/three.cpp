@@ -18,7 +18,7 @@ namespace extras {
  */
 class Glyph
 {
-  std::vector<uint16_t> data;
+  std::vector<int16_t> data;
 
 public:
   int ha;

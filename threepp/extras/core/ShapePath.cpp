@@ -123,13 +123,13 @@ vector<Shape::Ptr> ShapePath::toShapes( bool isCCW, bool noHoles ) const
 
   unsigned mainIdx = 0;
 
-  newShapes.emplace_back(NewShape());;
+  newShapes.emplace_back(NewShape());
   newShapeHoles.resize(mainIdx);
 
   for ( unsigned i = 0, l = subPaths.size(); i < l; i ++ ) {
 
     Path::Ptr tmpPath = subPaths[ i ];
-    vector<Vector2> tmpPoints = tmpPath->getPoints();
+    const vector<Vector2> &tmpPoints = tmpPath->getPoints();
     bool solid = shapeutils::isClockWise( tmpPoints );
     solid = isCCW ? ! solid : solid;
 
@@ -198,13 +198,12 @@ vector<Shape::Ptr> ShapePath::toShapes( bool isCCW, bool noHoles ) const
   }
 
   vector<Shape::Ptr> shapes;
-  vector<Hole> tmpHoles;
 
   for ( unsigned i = 0, il = newShapes.size(); i < il; i ++ ) {
 
     Shape::Ptr tmpShape = newShapes[ i ].s;
     shapes.push_back( tmpShape );
-    tmpHoles = newShapeHoles[ i ];
+    const vector<Hole> &tmpHoles = newShapeHoles[ i ];
 
     for ( unsigned j = 0, jl = tmpHoles.size(); j < jl; j ++ ) {
 
