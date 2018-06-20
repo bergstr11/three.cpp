@@ -67,17 +67,17 @@ inline void removeDupEndPts( std::vector<math::Vector2> &points ) {
 }
 
 inline std::vector<Face> triangulateShape(std::vector<math::Vector2> &contour,
-                                   std::vector<std::vector<math::Vector2>> &holes)
+                                          std::vector<std::vector<math::Vector2>> &holes)
 {
   std::vector<Face> faces;            // final array of vertex indices like [ [ a,b,d ], [ b,c,d ] ]
   std::vector<std::vector<math::Vector2>> polygon;
 
   removeDupEndPts( contour );
-  polygon.push_back(std::move(contour));
+  polygon.push_back(contour);
 
   for(auto &hole : holes) {
     removeDupEndPts(hole);
-    polygon.push_back(std::move(hole));
+    polygon.push_back(hole);
   }
 
   std::vector<uint32_t> triangles = mapbox::earcut<uint32_t>(polygon);

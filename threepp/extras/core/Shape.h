@@ -52,10 +52,9 @@ public:
   {
     for (const auto &hole : _holes) {
 
-      std::vector<math::Vector2> pts;
+      holesPts.emplace_back();
+      std::vector<math::Vector2> &pts = holesPts.back();
       hole->getPoints(divisions, pts);
-
-      holesPts.push_back(pts);
     }
 
     return holesPts;

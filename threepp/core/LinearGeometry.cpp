@@ -301,10 +301,10 @@ size_t LinearGeometry::mergeVertices()
   for (size_t i = 0, il = _vertices.size(); i < il; i ++ ) {
     const Vertex v = _vertices[ i ];
 
-    std::array<float, 3> key;
-    key[0] = round(v.x() * precision);
-    key[1] = round(v.y() * precision);
-    key[2] = round(v.z() * precision);
+    std::array<float, 3> key {
+      (float)round(v.x() * precision),
+      (float)round(v.y() * precision),
+      (float)round(v.z() * precision)};
 
     if (verticesMap.count(key) == 0) {
       verticesMap[key] = i;
@@ -312,7 +312,7 @@ size_t LinearGeometry::mergeVertices()
       changes[i] = unique.size() - 1;
     }
     else {
-      //console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
+      //Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
       changes[ i ] = changes[ verticesMap[ key ] ];
     }
   }

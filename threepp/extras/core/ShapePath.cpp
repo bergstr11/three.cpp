@@ -137,14 +137,15 @@ vector<Shape::Ptr> ShapePath::toShapes( bool isCCW, bool noHoles ) const
 
       if (( !holesFirst ) && ( newShapes[ mainIdx ].s ) )	mainIdx ++;
 
-      newShapes.resize(mainIdx);
+      newShapes.resize(mainIdx+1);
       newShapes.back() = { Shape::make(tmpPath->curves()), tmpPoints };
 
       if ( holesFirst )	mainIdx ++;
-      newShapeHoles.resize(mainIdx);
+      newShapeHoles.resize(mainIdx+1);
     }
     else {
 
+      newShapeHoles.resize(mainIdx+1);
       newShapeHoles[ mainIdx ].emplace_back( tmpPath, tmpPoints[ 0 ] );
     }
   }

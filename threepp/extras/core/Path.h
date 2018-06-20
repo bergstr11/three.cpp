@@ -23,7 +23,7 @@ protected:
 
 	Path(const std::vector<math::Vector2> &points)
   {
-    setFromPoints( points );
+    if(!points.empty()) setFromPoints( points );
   }
 
   Path(const std::vector<Curve::Ptr> &curves) : CurvePath(curves) {}
@@ -43,8 +43,9 @@ public:
   {
 		moveTo( points[ 0 ].x(), points[ 0 ].y() );
 
-		for ( const auto &point: points) {
+    for ( unsigned i=1, l = points.size(); i < l; i++) {
 
+      const auto &point = points[i];
 			lineTo( point.x(), point.y() );
 		}
 		return *this;

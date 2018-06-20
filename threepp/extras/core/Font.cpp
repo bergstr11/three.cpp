@@ -7,97 +7,137 @@
 namespace three {
 namespace extras {
 
-std::vector<ShapePath> Font::createPaths( const std::wstring &text, float size, unsigned divisions ) const
+std::vector<ShapePath> Font::createPaths(const std::wstring &text, float size, unsigned divisions) const
 {
   float scale = size / _data.resolution;
-  float line_height = ( _data.boundingBox.max().y() - _data.boundingBox.min().y() + _data.underlineThickness ) * scale;
+  float line_height = (_data.boundingBox.max().y() - _data.boundingBox.min().y() + _data.underlineThickness) * scale;
 
   std::vector<ShapePath> paths;
 
   float offsetX = 0, offsetY = 0;
 
-  for ( unsigned i = 0; i < text.length(); i ++ ) {
+  for (unsigned i = 0; i < text.length(); i++) {
 
     auto c = text.at(i);
 
-    if ( c == '\n' ) {
+    if (c == '\n') {
 
       offsetX = 0;
       offsetY -= line_height;
 
-    } else {
+    }
+    else {
 
-      offsetX += createPath( c, divisions, scale, offsetX, offsetY, paths );
+      offsetX += createPath(c, divisions, scale, offsetX, offsetY, paths);
     }
   }
 
   return paths;
 }
 
-unsigned Font::createPath( wchar_t c,
-                           unsigned divisions,
-                           float scale,
-                           float offsetX,
-                           float offsetY,
-                           std::vector<ShapePath> &paths) const
+float Font::createPath(wchar_t c,
+                          unsigned divisions,
+                          float scale,
+                          float offsetX,
+                          float offsetY,
+                          std::vector<ShapePath> &paths) const
 {
   Glyph glyph = _data.glyphAt(c);
 
   paths.emplace_back();
   ShapePath &path = paths.back();
 
+  glyph.apply(path, scale, offsetX, offsetY);
+  return glyph.ha * scale;
+}
+
+void Glyph::apply(ShapePath &path, float scale, float offsetX, float offsetY)
+{
   float x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
 
-  for ( unsigned i = 0, l = glyph.outline.size(); i < l; ) {
+  for (unsigned i = 0, l = data.size(); i < l;) {
 
-    uint16_t action = glyph.outline[ i ++ ];
+    uint16_t action = data[i++];
 
-    switch ( (char)action ) {
+    switch ((char) action) {
 
       case 'm': // moveTo
 
-        x = glyph.outline[ i ++ ] * scale + offsetX;
-        y = glyph.outline[ i ++ ] * scale + offsetY;
+        x = data[i++] * scale + offsetX;
+        y = data[i++] * scale + offsetY;
 
-        path.moveTo( x, y );
+        path.moveTo(x, y);
 
         break;
 
       case 'l': // lineTo
 
-        x = glyph.outline[ i ++ ] * scale + offsetX;
-        y = glyph.outline[ i ++ ] * scale + offsetY;
+        x = data[i++] * scale + offsetX;
+        y = data[i++] * scale + offsetY;
 
-        path.lineTo( x, y );
+        path.lineTo(x, y);
 
         break;
 
       case 'q': // quadraticCurveTo
 
-        cpx = glyph.outline[ i ++ ] * scale + offsetX;
-        cpy = glyph.outline[ i ++ ] * scale + offsetY;
-        cpx1 = glyph.outline[ i ++ ] * scale + offsetX;
-        cpy1 = glyph.outline[ i ++ ] * scale + offsetY;
+        cpx = data[i++] * scale + offsetX;
+        cpy = data[i++] * scale + offsetY;
+        cpx1 = data[i++] * scale + offsetX;
+        cpy1 = data[i++] * scale + offsetY;
 
-        path.quadraticCurveTo( cpx1, cpy1, cpx, cpy );
+        path.quadraticCurveTo(cpx1, cpy1, cpx, cpy);
 
         break;
 
       case 'b': // bezierCurveTo
 
-        cpx = glyph.outline[ i ++ ] * scale + offsetX;
-        cpy = glyph.outline[ i ++ ] * scale + offsetY;
-        cpx1 = glyph.outline[ i ++ ] * scale + offsetX;
-        cpy1 = glyph.outline[ i ++ ] * scale + offsetY;
-        cpx2 = glyph.outline[ i ++ ] * scale + offsetX;
-        cpy2 = glyph.outline[ i ++ ] * scale + offsetY;
+        cpx = data[i++] * scale + offsetX;
+        cpy = data[i++] * scale + offsetY;
+        cpx1 = data[i++] * scale + offsetX;
+        cpy1 = data[i++] * scale + offsetY;
+        cpx2 = data[i++] * scale + offsetX;
+        cpy2 = data[i++] * scale + offsetY;
 
-        path.bezierCurveTo( cpx1, cpy1, cpx2, cpy2, cpx, cpy );
+        path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, cpx, cpy);
 
         break;
     }
   }
-  return glyph.ha * scale;
+}
+
+void Glyph::moveTo(int x, int y)
+{
+  data.push_back('m');
+  data.push_back(x);
+  data.push_back(y);
+}
+
+void Glyph::lineTo(int x, int y)
+{
+  data.push_back('l');
+  data.push_back(x);
+  data.push_back(y);
+}
+
+void Glyph::quadraticCurveTo(int x1, int y1, int x2, int y2)
+{
+  data.push_back('q');
+  data.push_back(x1);
+  data.push_back(y1);
+  data.push_back(x2);
+  data.push_back(y2);
+}
+
+void Glyph::bezierCurveTo(int x1, int y1, int x2, int y2, int x3, int y3)
+{
+  data.push_back('b');
+  data.push_back(x1);
+  data.push_back(y1);
+  data.push_back(x2);
+  data.push_back(y2);
+  data.push_back(x3);
+  data.push_back(y3);
 }
 
 }

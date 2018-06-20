@@ -41,12 +41,13 @@ Window {
         Scene {
             id: scene
             bgColor: "#000000"
-            fog: Fog {color: "#000000" near: 250; far: 1400}
+            fog: Fog {color: "#000000"; near: 250; far: 1400}
 
             DirectionalLight {
                 color: "#ffffff"
                 intensity: 0.125
-				position: Qt.vector3d(0,0,1).normalize()
+				position: Qt.vector3d(0,0,1).normalized()
+            }
 
 			PointLight {
 			    color: "#f0f0f0"
@@ -59,9 +60,9 @@ Window {
 				width: 10000
 				height: 10000
 				position: "0,100,0"
-				rotation: Qt.vector3(- Math.PI / 2, 0, 0)
+				rotation: Qt.vector3d(- Math.PI / 2, 0, 0)
 
-				MeshBasicMaterial {
+				material: MeshBasicMaterial {
 				    color: "#ffffff"
 				    opacity: 0.5
 				}
@@ -70,6 +71,7 @@ Window {
             Text3D {
                 id: text3d
                 text: "Hello Three::pp"
+                type: Three.BufferGeometry
 				font: ":/optimer_bold.typeface.json"
 				size: 70
 				height: 20
@@ -78,22 +80,23 @@ Window {
 				bevelSize: 1.5
 				bevelEnabled: true
 
-				rotation: Qt.vector3(0,Math.PI * 2,0)
+				rotation: Qt.vector3d(0,Math.PI * 2,0)
 
-                MeshPhongMaterial{
-                    id: frontMaterial
-                    color: "#ffffff";
-                    flatShading: true
-                }
+                materials: [
+                    MeshPhongMaterial{
+                        id: frontMaterial
+                        color: "#ffffff";
+                        flatShading: true
+                    },
 
-                /*MeshPhongMaterial {
-                    id: sideMaterial
-                    color: "#ffffff"
-                }*/
-
+                    MeshPhongMaterial {
+                        id: sideMaterial
+                        color: "#ffffff"
+                    }
+                ]
 				Component.onCompleted: {
-                    centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
-				    text3d.position = Qt.vector3(centerOffset, 30, 0)
+                    var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
+				    text3d.position = Qt.vector3d(centerOffset, 30, 0)
 				}
             }
 

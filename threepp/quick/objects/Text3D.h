@@ -22,6 +22,7 @@ class Text3D : public ThreeQObject
   Q_PROPERTY(float bevelThickness READ bevelThickness WRITE setBevelThickness NOTIFY bevelThicknessChanged)
   Q_PROPERTY(float bevelSize READ bevelSize WRITE setBevelSize NOTIFY bevelSizeChanged)
   Q_PROPERTY(bool bevelEnabled READ bevelEnabled WRITE setBevelEnabled NOTIFY bevelEnabledChanged)
+  Q_PROPERTY(QQmlListProperty<three::quick::Material> materials READ materials)
 
   QString _text;
   QString _font;
@@ -32,16 +33,28 @@ class Text3D : public ThreeQObject
   float _bevelSize = 1.5;
   bool _bevelEnabled = true;
 
-  MeshCreatorG<geometry::Text> _creator {"text"};
+  QList<Material *> _materials;
+
+  static void append_material(QQmlListProperty<Material> *list, Material *obj);
+  static int count_materials(QQmlListProperty<Material> *);
+  static Material *material_at(QQmlListProperty<Material> *, int);
+  static void clear_materials(QQmlListProperty<Material> *);
+
+  QQmlListProperty<Material> materials();
+
+  MeshCreator *_creator = nullptr;
 
 protected:
   three::Object3D::Ptr _create() override;
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    if(_creator) material()->identify(*_creator);
   }
 
 public:
+  ~Text3D() {
+    if(_creator) delete _creator;
+  }
 
   QString text() const {return _text;}
   void setText(QString text) {

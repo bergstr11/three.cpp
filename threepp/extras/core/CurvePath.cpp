@@ -53,6 +53,7 @@ Vector2 CurvePath::getPoint( float t )
 
 void CurvePath::getPoints(unsigned divisions, vector<Vector2> &points)
 {
+  Vector2 last;
    for (unsigned i = 0, l = _curves.size(); i < l; i ++ ) {
 
      const Curve::Ptr &curve = _curves[ i ];
@@ -61,7 +62,6 @@ void CurvePath::getPoints(unsigned divisions, vector<Vector2> &points)
      vector<Vector2> pts;
      curve->getPoints( resolution, pts );
 
-     Vector2 last;
      for (const auto &point : pts) {
 
        if ( last == point) continue; // ensures no consecutive points are duplicates

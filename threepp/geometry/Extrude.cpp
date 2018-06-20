@@ -173,9 +173,7 @@ Vector2 getBevelVec( const Vector2 &inPt, const Vector2 &inPrev, const Vector2 &
       v_trans_x = v_prev_x;
       v_trans_y = v_prev_y;
       shrink_by = sqrt( v_prev_lensq / 2 );
-
     }
-
   }
 
   return Vector2( v_trans_x / shrink_by, v_trans_y / shrink_by );
@@ -183,10 +181,10 @@ Vector2 getBevelVec( const Vector2 &inPt, const Vector2 &inPrev, const Vector2 &
 
 void Builder::sidewalls( const vector<Vector2> &contour, unsigned layeroffset )
 {
-  for (unsigned i = contour.size(); -- i >= 0; ) {
+  for (int i = contour.size(); -- i >= 0; ) {
 
-    unsigned j = i;
-    unsigned k = i - 1;
+    int j = i;
+    int k = i - 1;
     if ( k < 0 ) k = contour.size() - 1;
 
     unsigned s = 0, sl = steps + bevelSegments * 2;
@@ -296,7 +294,11 @@ void Builder::f4( unsigned a, unsigned b, unsigned c, unsigned d ) {
 
 void Builder::addShape( Shape::Ptr shape )
 {
-  //var placeholder = [];
+  contour.clear();
+  vertices.clear();
+  placeholder.clear();
+  holes.clear();
+  faces.clear();
 
   std::vector<Vector3> splineTube_tangents;
   std::vector<Vector3> splineTube_normals;
@@ -315,12 +317,6 @@ void Builder::addShape( Shape::Ptr shape )
     // TODO1 - have a .isClosed in spline?
 
     extrudePath->computeFrenetFrames( steps, false, splineTube_tangents, splineTube_normals, splineTube_binormals );
-
-    // console.log(splineTube, 'splineTube', splineTube.normals.length, 'steps', steps, 'extrudePts', extrudePts.length);
-
-    Vector3 binormal;
-    Vector3 normal;
-    Vector3 position2;
   }
 
   // Safeguards if bevels are not enabled
@@ -334,8 +330,6 @@ void Builder::addShape( Shape::Ptr shape )
   }
 
   // Variables initialization
-
-  //var ahole, h, hl; // looping of holes
 
   shape->extractPoints( curveSegments, vertices, holes );
 
@@ -377,7 +371,7 @@ void Builder::addShape( Shape::Ptr shape )
     //  (j)---(i)---(k)
     // console.log('i,j,k', i, j , k)
 
-    contourMovements[ i ] = getBevelVec( contour[ i ], contour[ j ], contour[ k ] );
+    contourMovements.push_back(getBevelVec( contour[ i ], contour[ j ], contour[ k ] ));
   }
 
   vector<Vector2> verticesMovements = contourMovements;
@@ -395,7 +389,7 @@ void Builder::addShape( Shape::Ptr shape )
       if ( k == il ) k = 0;
 
       //  (j)---(i)---(k)
-      oneHoleMovements[ i ] = getBevelVec( ahole[ i ], ahole[ j ], ahole[ k ] );
+      oneHoleMovements.push_back(getBevelVec( ahole[ i ], ahole[ j ], ahole[ k ] ));
     }
 
     holesMovements.push_back( oneHoleMovements );
@@ -494,7 +488,7 @@ void Builder::addShape( Shape::Ptr shape )
   // Add bevel segments planes
 
   //for ( b = 1; b <= bevelSegments; b ++ ) {
-  for ( unsigned b = bevelSegments - 1; b >= 0; b -- ) {
+  for ( int b = bevelSegments - 1; b >= 0; b -- ) {
 
     float t = (float)b / bevelSegments;
     float z = bevelThickness * cos( t * (float)M_PI_2 );
@@ -580,17 +574,23 @@ void WorldUVGenerator::generateSideWallUV(const attribute::growing_t<float, Vert
 
   if ( abs( itemA.y() - itemB.y() ) < 0.01 ) {
 
-    uvs->next() = {itemA.x(), 1 - itemA.z()};
-    uvs->next() = {itemB.x(), 1 - itemB.z()};
-    uvs->next() = {itemC.x(), 1 - itemC.z()};
-    uvs->next() = {itemD.x(), 1 - itemD.z()};
+    uvs->next() = {itemA.x(), 1 - itemA.z()}; //0
+    uvs->next() = {itemB.x(), 1 - itemB.z()}; //1
+    uvs->next() = {itemD.x(), 1 - itemD.z()}; //3
+
+    uvs->next() = {itemB.x(), 1 - itemB.z()}; //1
+    uvs->next() = {itemC.x(), 1 - itemC.z()}; //2
+    uvs->next() = {itemD.x(), 1 - itemD.z()}; //3
   }
   else {
 
-    uvs->next() = {itemA.y(), 1 - itemA.z()};
-    uvs->next() = {itemB.y(), 1 - itemB.z()};
-    uvs->next() = {itemC.y(), 1 - itemC.z()};
-    uvs->next() = {itemD.y(), 1 - itemD.z()};
+    uvs->next() = {itemA.y(), 1 - itemA.z()}; //0
+    uvs->next() = {itemB.y(), 1 - itemB.z()}; //1
+    uvs->next() = {itemD.y(), 1 - itemD.z()}; //3
+
+    uvs->next() = {itemB.y(), 1 - itemB.z()}; //1
+    uvs->next() = {itemC.y(), 1 - itemC.z()}; //2
+    uvs->next() = {itemD.y(), 1 - itemD.z()}; //3
   }
 }
 
