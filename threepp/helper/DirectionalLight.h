@@ -64,13 +64,13 @@ protected:
 
     if ( _color ) {
 
-      _lightPlane->material<0>()->color = _color;
-      _targetLine->material<0>()->color = _color;
+      _lightPlane->lineMaterial()->color = _color;
+      _targetLine->lineMaterial()->color = _color;
     }
     else {
 
-      _lightPlane->material<0>()->color = _light->color();
-      _targetLine->material<0>()->color = _light->color();
+      _lightPlane->lineMaterial()->color = _light->color();
+      _targetLine->lineMaterial()->color = _light->color();
     }
 
     _targetLine->lookAt( v3 );

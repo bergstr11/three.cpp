@@ -28,19 +28,19 @@ class Cylinder : public ThreeQObject
 
   geometry::CylinderParams _params;
 
-  MeshCreatorG<geometry::Cylinder> _creator {"cylinder"};
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _creator.set(geometry::Cylinder::make(_params));
-    material()->identify(_creator);
+    _mesh = DynamicMesh::make(geometry::Cylinder::make(_params));
+    _mesh->setMaterial(material()->getMaterial());
 
-    return _creator.mesh;
+    return _mesh;
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
 public:

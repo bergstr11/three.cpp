@@ -14,42 +14,35 @@
 
 namespace three {
 
-class DLX Line : public Object3D_GM<BufferGeometry, LineBasicMaterial>
+class DLX Line : public Object3D
 {
   const unsigned _steps;
 
 protected:
   Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps, const object::Typer &typer)
-     : Object3D(),
-       Object3D_GM(geometry, material), _steps(steps)
+     : Object3D(geometry, material), _steps(steps)
   {
     Object3D::typer = typer;
     Object3D::typer.allow<Line>();
   }
 
-  Line(const Line &line, const object::Typer &typer)
-     : Object3D(),
-       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), LineBasicMaterial::Ptr(line.material<0>()->cloned())),
-       _steps(line._steps)
+  Line(const Line &line, const object::Typer &typer) : Object3D(line), _steps(line._steps)
   {
     Object3D::typer = typer;
     Object3D::typer.allow<Line>();
   }
 
   Line(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps)
-     : Object3D(),
-       Object3D_GM(geometry, material), _steps(steps)
+     : Object3D(geometry, material), _steps(steps)
   {
     Object3D::typer = object::Typer(this);
   }
 
-  Line(const Line &line)
-     : Object3D(),
-       Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), LineBasicMaterial::Ptr(line.material<0>()->cloned())),
-       _steps(line._steps)
+  Line(const Line &line) : Object3D(line), _steps(line._steps)
   {
     Object3D::typer = object::Typer(this);
   }
+
 public:
   using Ptr = std::shared_ptr<Line>;
   static Ptr make(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material, unsigned steps=1) {
@@ -67,6 +60,14 @@ public:
 
   unsigned steps() const {return _steps;}
 
+  BufferGeometry *bufferGeometry() const {
+    return (BufferGeometry *) _geometry->typer;
+  }
+
+  LineBasicMaterial *lineMaterial() const {
+    return (LineBasicMaterial *)_materials[0]->typer;
+  }
+
   Line *cloned() const override
   {
     return object::Typer::set(new Line(*this));
@@ -77,10 +78,10 @@ class DLX LineSegments : public Line
 {
 protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
-     : Object3D(), Line(geometry, material, 2, object::Typer(this)) {}
+     : Line(geometry, material, 2, object::Typer(this)) {}
 
   LineSegments(const LineSegments &segments)
-     : Object3D(), Line(segments, object::Typer(this)) {}
+     : Line(segments, object::Typer(this)) {}
 
 public:
   using Ptr = std::shared_ptr<LineSegments>;

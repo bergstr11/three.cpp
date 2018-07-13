@@ -4,9 +4,32 @@
 
 #include "Background.h"
 #include "Renderer_impl.h"
+#include <threepp/geometry/Box.h>
+#include <threepp/geometry/Plane.h>
+#include <threepp/material/ShaderMaterial.h>
 
 namespace three  {
 namespace gl {
+
+using namespace std;
+
+struct PlaneMesh : public Mesh
+{
+  geometry::buffer::Plane::Ptr plane;
+  MeshBasicMaterial::Ptr material;
+
+  PlaneMesh(geometry::buffer::Plane::Ptr plane, MeshBasicMaterial::Ptr material)
+     : Mesh(plane, {material}), plane(plane), material(material) {}
+};
+
+struct BoxMesh : public Mesh
+{
+  geometry::buffer::Box::Ptr box;
+  ShaderMaterial::Ptr material;
+
+  BoxMesh(geometry::buffer::Box::Ptr box, ShaderMaterial::Ptr material)
+     : Mesh(box, {material}), box(box), material(material) {}
+};
 
 void Background::render(RenderList *renderList, const Scene::Ptr scene, const Camera::Ptr camera, bool forceClear)
 {
@@ -32,23 +55,22 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
           ShaderMaterial::Ptr sm = ShaderMaterial::make(
              si.uniforms, si.vertexShader, si.fragmentShader, Side::Back, true, false, false);
 
-          boxMesh = MeshT<geometry::buffer::Box, ShaderMaterial>::make("background", box, sm);
+          boxMesh = make_shared<BoxMesh>(box, sm);
 
           box->setNormal(nullptr);
           box->setUV(nullptr);
 
           boxMesh->onBeforeRender.connect([&] (Renderer &renderer, ScenePtr scene, CameraPtr camera,
-                                               Geometry::Ptr geometry, Material::Ptr material,
-                                               const Group *group) {
+                                               Object3D &opbject, const Group *group) {
             boxMesh->matrixWorld().setPosition( camera->matrixWorld() );
           });
 
           geometries.update(box);
         }
 
-        boxMesh->material<0>()->uniforms.set(UniformName::tCube, CAST2(bg->data, CubeTexture));
+        boxMesh->material->uniforms.set(UniformName::tCube, CAST2(bg->data, CubeTexture));
 
-        renderList->push_front(boxMesh, boxMesh->geometry_t(), boxMesh->material(), 0, nullptr);
+        renderList->push_front(boxMesh, boxMesh->box, boxMesh->material, 0, nullptr);
       }
       else if(ImageTexture *ict = bg->data->typer) {
 
@@ -62,15 +84,15 @@ void Background::render(RenderList *renderList, const Scene::Ptr scene, const Ca
           mat->fog = false;
 
           auto planeGeom = geometry::buffer::Plane::make( 2, 2 );
-          planeMesh = MeshT<geometry::buffer::Plane, MeshBasicMaterial>::make(planeGeom, mat);
+          planeMesh = make_shared<PlaneMesh>(planeGeom, mat);
 
           geometries.update(planeGeom);
         }
 
-        planeMesh->material<0>()->map = bg->data;
+        planeMesh->material->map = bg->data;
 
         // TODO Push this to renderList
-        renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->geometry_t(), planeMesh->material(), planeMesh, nullptr);
+        renderer.renderBufferDirect( planeCamera, nullptr, planeMesh->plane, planeMesh->material, planeMesh, nullptr);
       }
     }
   }

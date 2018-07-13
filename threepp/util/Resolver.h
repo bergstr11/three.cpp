@@ -53,6 +53,7 @@ class Line;
 class LineSegments;
 class Points;
 class Mesh;
+class DynamicMesh;
 class SkinnedMesh;
 class Sprite;
 class ImmediateRenderObject;
@@ -61,7 +62,7 @@ class LensFlare;
 namespace object {
 using Typer = three::Typer<Camera, ArrayCamera, OrthographicCamera, PerspectiveCamera,
    Light, AmbientLight, DirectionalLight, HemisphereLight, PointLight, RectAreaLight, SpotLight, TargetLight,
-   Line, LineSegments, Mesh, Sprite, ImmediateRenderObject, Points, SkinnedMesh, LensFlare>;
+   Line, LineSegments, Mesh, DynamicMesh, Sprite, ImmediateRenderObject, Points, SkinnedMesh, LensFlare>;
 }
 
 class LinearGeometry;
@@ -70,7 +71,8 @@ class InstancedBufferGeometry;
 class DirectGeometry;
 
 namespace geometry {
-using Typer = three::Typer<LinearGeometry, BufferGeometry, InstancedBufferGeometry, DirectGeometry>;
+class Box;
+using Typer = three::Typer<LinearGeometry, BufferGeometry, InstancedBufferGeometry, DirectGeometry, Box>;
 }
 
 class Material;

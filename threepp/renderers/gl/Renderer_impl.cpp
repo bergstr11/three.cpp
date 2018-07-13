@@ -380,7 +380,7 @@ void Renderer_impl::renderObjects(RenderList::iterator renderIterator, Scene::Pt
 void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera::Ptr camera,
                                  BufferGeometry::Ptr geometry, Material::Ptr material, const Group *group)
 {
-  object->onBeforeRender.emitSignal(*this, scene, camera, geometry, material, group);
+  object->onBeforeRender.emitSignal(*this, scene, camera, *object, group);
 
   object->modelViewMatrix.multiply(camera->matrixWorldInverse(), object->matrixWorld());
   object->normalMatrix = object->modelViewMatrix.normalMatrix();
@@ -399,7 +399,7 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
     renderBufferDirect( camera, scene->fog(), geometry, material, object, group );
   }
 
-  object->onAfterRender.emitSignal(*this, scene, camera, geometry, material, group );
+  object->onAfterRender.emitSignal(*this, scene, camera, *object, group );
 }
 
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )
@@ -659,7 +659,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
 
   if ( drawCount == 0 ) return;
 
-  if(Mesh *mesh = object->typer) {
+  if(mesh) {
     if ( material->wireframe ) {
 
       _state.setLineWidth( material->wireframeLineWidth * getTargetPixelRatio() );
@@ -672,13 +672,13 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
   }
   else if(LineSegments *segments = object->typer) {
 
-    _state.setLineWidth( segments->material<0>()->linewidth * getTargetPixelRatio() );
+    _state.setLineWidth( segments->lineMaterial()->linewidth * getTargetPixelRatio() );
 
     renderer->setMode(DrawMode::Lines);
   }
   else if(Line *line = object->typer) {
 
-    _state.setLineWidth(line->material<0>()->linewidth * getTargetPixelRatio());
+    _state.setLineWidth(line->lineMaterial()->linewidth * getTargetPixelRatio());
 
     renderer->setMode(DrawMode::LineStrip);
 

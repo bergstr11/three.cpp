@@ -93,12 +93,12 @@ void VertexNormals::update()
 
   LinearGeometry::Ptr linearGeometry = std::dynamic_pointer_cast<LinearGeometry>(_object->geometry());
   if ( linearGeometry ) {
-    LinearGeometryAccess::update(*this, linearGeometry, _geometry->getPosition());
+    LinearGeometryAccess::update(*this, linearGeometry, bufferGeometry()->getPosition());
   }
   else {
-    BufferGeometry::Ptr bufferGeometry = std::dynamic_pointer_cast<BufferGeometry>(_object->geometry());
-    if(bufferGeometry)
-      BufferGeometryAccess::update(*this, bufferGeometry, _geometry->getPosition());
+    BufferGeometry::Ptr bGeometry = std::dynamic_pointer_cast<BufferGeometry>(_object->geometry());
+    if(bGeometry)
+      BufferGeometryAccess::update(*this, bGeometry, bufferGeometry()->getPosition());
   }
 }
 

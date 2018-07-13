@@ -298,11 +298,11 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
   for (Sprite::Ptr sprite : sprites) {
 
-    SpriteMaterial::Ptr material = sprite->material<0>();
+    SpriteMaterial *material = sprite->material()->typer;
 
     if (!material->visible) continue;
 
-    sprite->onBeforeRender.emitSignal(_r, scene, camera, nullptr, material, nullptr);
+    sprite->onBeforeRender.emitSignal(_r, scene, camera, *sprite, nullptr);
 
     _r.glUniform1f( _data->alphaTest, material->alphaTest );
     _r.glUniformMatrix4fv(_data->modelViewMatrix, 1, GL_FALSE, sprite->modelViewMatrix.elements() );
@@ -352,7 +352,7 @@ void SpriteRenderer::render(vector<Sprite::Ptr> &sprites, Scene::Ptr scene, Came
 
     _r.glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 
-    sprite->onAfterRender.emitSignal( _r, scene, camera, nullptr, material, nullptr );
+    sprite->onAfterRender.emitSignal( _r, scene, camera, *sprite, nullptr );
   }
 
   // restore gl

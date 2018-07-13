@@ -10,7 +10,7 @@
 
 namespace three {
 
-class SkinnedMesh : public MeshT<BufferGeometry, Material>
+class SkinnedMesh : public Mesh
 {
   //BindMode bindMode = BindMode::attached;
   math::Matrix4 _bindMatrix;
@@ -20,7 +20,8 @@ class SkinnedMesh : public MeshT<BufferGeometry, Material>
 
 protected:
   SkinnedMesh(const BufferGeometry::Ptr &geometry, const Material::Ptr &material)
-     : Object3D(), MeshT(geometry, material) {
+     : Mesh(geometry, {material})
+  {
     Object3D::typer = object::Typer(this);
   }
 

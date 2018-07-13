@@ -24,7 +24,7 @@ Q_OBJECT
   Q_PROPERTY(ThreeQObject *hulledObject READ hulledObject WRITE setHulledObject NOTIFY hulledObjectChanged)
   Q_CLASSINFO("DefaultProperty", "hulledObject")
 
-  MeshCreatorG<BufferGeometry> _creator {"convexHull"};
+  DynamicMesh::Ptr _mesh;
 
   ThreeQObject *_hulled = nullptr;
   OnObjectChangedId _hulledConnection = nullptr;
@@ -42,7 +42,7 @@ protected:
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
   void updateHulled(Object3D::Ptr updated, ObjectState state)
@@ -63,10 +63,10 @@ protected:
       extras::QuickHull hull(updated);
       BufferGeometry::Ptr geometry = hull.createGeometry();
 
-      _creator.set(geometry);
-      material()->identify(_creator);
+      _mesh = DynamicMesh::make(geometry);
+      _mesh->setMaterial(material()->getMaterial());
 
-      _object = _creator.mesh;
+      _object = _mesh;
       _object->visible() = _visible;
       updated->add(_object);
     }

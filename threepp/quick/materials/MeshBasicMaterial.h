@@ -63,9 +63,9 @@ public:
     return _material;
   }
 
-  void identify(MeshCreator &creator) override
+  three::Material::Ptr getMaterial() override
   {
-    creator.material(_material ? _material : createMaterial());
+    return _material ? _material : createMaterial();
   }
 
 signals:

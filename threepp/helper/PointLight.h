@@ -13,14 +13,14 @@
 namespace three {
 namespace helper {
 
-class PointLight : public MeshT<geometry::buffer::Sphere, MeshBasicMaterial>
+class PointLight : public Mesh
 {
   three::PointLight::Ptr _light;
   Color _color;
 
 protected:
   PointLight(three::PointLight::Ptr light, float sphereSize, const Color &color)
-     : MeshT(geometry::buffer::Sphere::make(sphereSize, 4, 2), MeshBasicMaterial::make()),
+     : Mesh(geometry::buffer::Sphere::make(sphereSize, 4, 2), {MeshBasicMaterial::make()}),
        _light(light), _color(color)
   {
     material()->wireframe = true;
@@ -31,16 +31,17 @@ protected:
 
   void update()
   {
+    MeshBasicMaterial *mat = material(0)->typer;
     if (_color) {
-      material<0>()->color() = _color;
+      mat->color = _color;
     }
     else {
-      material<0>().color() = _light->color();
+      mat->color = _light->color();
     }
   }
 
 public:
-  Object3D::Ptr cloned() override
+  Object3D *cloned() const override
   {
     //not me!
     return nullptr;

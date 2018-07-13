@@ -20,7 +20,7 @@ class Three : public QObject
 Q_OBJECT
 public:
   enum GeometryType {
-    DefaultGeometry,
+    LinearGeometry,
     BufferGeometry
   };
   Q_ENUM(GeometryType)

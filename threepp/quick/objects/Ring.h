@@ -26,19 +26,19 @@ Q_OBJECT
 
   geometry::RingParams _params;
 
-  MeshCreatorG<geometry::Ring> _creator {"ring"};
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _creator.set(geometry::Ring::make(_params));
-    material()->identify(_creator);
+    _mesh = DynamicMesh::make(geometry::Ring::make(_params));
+    _mesh->setMaterial(material()->getMaterial());
 
-    return _creator.mesh;
+    return _mesh;
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
 public:

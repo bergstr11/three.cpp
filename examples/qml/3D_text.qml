@@ -84,14 +84,13 @@ Window {
 
                 materials: [
                     MeshPhongMaterial{
-                        id: frontMaterial
                         color: "#ffffff";
                         flatShading: true
                     },
 
                     MeshPhongMaterial {
-                        id: sideMaterial
-                        color: "#ffffff"
+                        color: "yellow"
+                        flatShading: true
                     }
                 ]
 				Component.onCompleted: {

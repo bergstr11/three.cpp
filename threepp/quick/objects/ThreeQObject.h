@@ -82,7 +82,7 @@ protected:
 
   QList<ThreeQObject *> _objects;
 
-  Three::GeometryType _geometryType = Three::DefaultGeometry;
+  Three::GeometryType _geometryType = Three::LinearGeometry;
 
   Material *_material = nullptr;
 

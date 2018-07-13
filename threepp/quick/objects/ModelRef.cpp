@@ -259,7 +259,8 @@ void ModelRef::testMarker(three::quick::ObjectPicker *picker)
   three::MeshBasicMaterial::Ptr mat =  three::MeshBasicMaterial::make();
   mat->color = Color(ColorName::green);
   mat->wireframe = true;
-  auto mesh = MeshT<geometry::Box, three::MeshBasicMaterial>::make(box, mat);
+  auto mesh = DynamicMesh::make(box);
+  mesh->setMaterial(mat);
 
   const math::Vector3 &snorm = picker->getRays().surfaceNormal();
 

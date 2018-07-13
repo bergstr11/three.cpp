@@ -6,7 +6,6 @@
 #define THREEPPQ_MATERIAL_H
 
 #include <threepp/quick/ThreeQObjectRoot.h>
-#include <threepp/quick/qutil/MeshCreator.h>
 #include <threepp/quick/textures/Texture.h>
 #include <threepp/quick/qutil/Resolver.h>
 #include <threepp/quick/qutil/TrackingProperty.h>
@@ -103,7 +102,7 @@ public:
 
   void setMap(Texture *map);
 
-  virtual void identify(MeshCreator &creator) {}
+  virtual three::Material::Ptr getMaterial() = 0;
 
 signals:
   void wireframeChanged();

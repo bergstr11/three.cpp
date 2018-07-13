@@ -9,9 +9,6 @@
 #include <threepp/objects/Mesh.h>
 #include <threepp/scene/Scene.h>
 #include <threepp/camera/OrthographicCamera.h>
-#include <threepp/geometry/Box.h>
-#include <threepp/geometry/Plane.h>
-#include <threepp/material/ShaderMaterial.h>
 #include "State.h"
 #include "Geometries.h"
 #include "RenderLists.h"
@@ -22,14 +19,17 @@ namespace gl {
 
 class Renderer_impl;
 
+class BoxMesh;
+class PlaneMesh;
+
 class Background
 {
   Color clearColor;
   float clearAlpha;
 
   Camera::Ptr planeCamera;
-  MeshT<geometry::buffer::Plane, MeshBasicMaterial>::Ptr planeMesh;
-  MeshT<geometry::buffer::Box, ShaderMaterial>::Ptr boxMesh;
+  std::shared_ptr<PlaneMesh> planeMesh;
+  std::shared_ptr<BoxMesh> boxMesh;
 
   Renderer_impl &renderer;
   State &state;

@@ -25,19 +25,19 @@ Q_OBJECT
 
   geometry::TorusParams _params;
 
-  MeshCreatorG<geometry::Torus> _creator {"torus"};
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _creator.set(geometry::Torus::make(_params));
-    material()->identify(_creator);
+    _mesh = DynamicMesh::make(geometry::Torus::make(_params));
+    _mesh->setMaterial(material()->getMaterial());
 
-    return _creator.mesh;
+    return _mesh;
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
 public:

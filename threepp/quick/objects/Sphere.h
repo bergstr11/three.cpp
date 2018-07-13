@@ -24,34 +24,29 @@ class Sphere : public ThreeQObject
   qreal _radius = 1;
   unsigned _widthSegments=1, _heightSegments=1;
 
-  //MeshCreatorG<geometry::Sphere> _creator {"sphere"};
-  MeshCreator::Ptr _creator;
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
     switch(_geometryType) {
-      case Three::DefaultGeometry: {
-        auto creator = MeshCreatorG<geometry::Sphere>::make("sphere");
-        creator->set(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
-        _creator = creator;
+      case Three::LinearGeometry: {
+        _mesh = DynamicMesh::make(geometry::Sphere::make(_radius, _widthSegments, _heightSegments));
         break;
       }
       case Three::BufferGeometry: {
-        auto creator = MeshCreatorG<geometry::buffer::Sphere>::make("sphere");
-        creator->set(geometry::buffer::Sphere::make(_radius, _widthSegments, _heightSegments));
-        _creator = creator;
+        _mesh = DynamicMesh::make(geometry::buffer::Sphere::make(_radius, _widthSegments, _heightSegments));
         break;
       }
     }
 
-    material()->identify(*_creator);
+    _mesh->setMaterial(material()->getMaterial());
 
-    return _creator->getMesh();
+    return _mesh;
   }
 
   void updateMaterial() override {
-    material()->identify(*_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
 public:

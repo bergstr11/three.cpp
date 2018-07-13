@@ -44,6 +44,8 @@ class DLX Object3D
 {
   friend class three::loader::Access;
 
+  template <typename G, typename... M> friend class Object3D_GM;
+
 public:
   using Ptr = std::shared_ptr<Object3D>;
 
@@ -75,10 +77,17 @@ protected:
 
   int _renderOrder = 0;
 
+  Geometry::Ptr _geometry;
+  std::vector<Material::Ptr> _materials;
+
   void onRotationChange(const math::Euler &rotation);
   void onQuaternionChange(const math::Quaternion &quaternion);
 
   Object3D();
+
+  Object3D(const Geometry::Ptr &geometry, const Material::Ptr &material);
+
+  Object3D(const Geometry::Ptr &geometry, std::initializer_list<Material::Ptr> materials);
 
   Object3D(const Object3D &object);
 
@@ -92,11 +101,9 @@ public:
 
   virtual Object3D *cloned() const = 0;
 
-  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
-              Material::Ptr material, const Group *group)> onBeforeRender;
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Object3D &object, const Group *group)> onBeforeRender;
 
-  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Geometry::Ptr geometry,
-              Material::Ptr material, const Group *group)> onAfterRender;
+  Signal<void(Renderer &renderer, ScenePtr scene, CameraPtr camera, Object3D &object, const Group *group)> onAfterRender;
 
   object::Typer typer;
 
@@ -156,11 +163,20 @@ public:
 
   virtual bool frontFaceCW() const {return false;}
 
-  virtual const Material::Ptr material() const {return nullptr;}
-  virtual const Material::Ptr material(size_t index) const {return nullptr;}
-  virtual const size_t materialCount() const {return 0;}
+  const Material::Ptr material(size_t index=0) const
+  {
+    return index < _materials.size() ? _materials[index] : nullptr;
+  }
 
-  virtual const Geometry::Ptr geometry() const {return nullptr;}
+  const size_t materialCount() const
+  {
+    return _materials.size();
+  }
+
+  const Geometry::Ptr geometry() const
+  {
+    return _geometry;
+  }
 
   virtual void dispose();
 
@@ -348,80 +364,6 @@ public:
   virtual void updateMatrixWorld(bool force);
 
   virtual void raycast(const Raycaster &raycaster, IntersectList &intersects) {}
-};
-
-/**
- * 3D object with a geometry
- *
- * @tparam Geom
- */
-template <typename Geom=BufferGeometry>
-class Object3D_G : public virtual Object3D
-{
-protected:
-  using GeometryPtr = std::shared_ptr<Geom>;
-  GeometryPtr _geometry;
-
-  Object3D_G() : Object3D(), _geometry(Geom::make())
-  {}
-  Object3D_G(GeometryPtr geometry)
-     : Object3D(), _geometry(geometry)
-  {}
-
-public:
-  const Geometry::Ptr geometry() const override {return _geometry;}
-
-  const GeometryPtr geometry_t() const {return _geometry;}
-};
-
-/**
- * 3D object with geometry and material(s)
- *
- * @tparam Geom
- * @tparam Mat
- */
-template <typename Geom=BufferGeometry, typename ... Mat>
-class Object3D_GM : public virtual Object3D
-{
-  std::tuple<std::shared_ptr<Mat> ...> _materialsTuple;
-  std::array<Material::Ptr, sizeof ... (Mat)> _materialsArray;
-
-protected:
-  using GeometryPtr = std::shared_ptr<Geom>;
-  GeometryPtr _geometry;
-
-  explicit Object3D_GM(std::shared_ptr<Mat> ... args)
-     : Object3D(), _materialsTuple(args...), _materialsArray({args...}), _geometry(Geom::make())
-  {}
-
-  explicit Object3D_GM(GeometryPtr geometry, std::shared_ptr<Mat> ... args)
-     : Object3D(), _materialsTuple(args...), _materialsArray({args...}), _geometry(geometry)
-  {}
-
-public:
-  const Material::Ptr material() const override {return _materialsArray[0];}
-
-  const Material::Ptr material(size_t index) const override {
-    return _materialsArray.size() > index ? _materialsArray[index] : nullptr;
-  }
-
-  const size_t materialCount() const override {return sizeof ... (Mat);}
-
-  const Geometry::Ptr geometry() const override {return _geometry;}
-
-  const GeometryPtr geometry_t() const {return _geometry;}
-
-  template<int N>
-  decltype(std::get<N>(_materialsTuple)) material() {return std::get<N>(_materialsTuple);}
-
-  template<int N>
-  typename std::remove_reference<decltype(std::get<N>(_materialsTuple))>::type material() const {return std::get<N>(_materialsTuple);}
-
-  template<int N, typename T=decltype(std::get<N>(_materialsTuple))>
-  void setMaterial(T material) {
-    std::get<N>(_materialsTuple) = material;
-    _materialsArray[N] = material;
-  }
 };
 
 }

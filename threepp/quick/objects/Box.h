@@ -23,19 +23,19 @@ class Box : public ThreeQObject
 
   unsigned _width=0, _height=0, _depth=0;
 
-  MeshCreatorG<geometry::Box> _creator {"box"};
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _creator.set(geometry::Box::make(_width, _height, _depth));
-    material()->identify(_creator);
+    _mesh = DynamicMesh::make(geometry::Box::make(_width, _height, _depth));
+    _mesh->setMaterial(material()->getMaterial());
 
-    return _creator.mesh;
+    return _mesh;
   }
 
   void updateMaterial() override {
-    material()->identify(_creator);
+    _mesh->setMaterial(material()->getMaterial());
   }
 
 public:
@@ -48,7 +48,7 @@ public:
   void setWidth(unsigned width) {
     if(_width != width) {
       _width = width;
-      if(_creator.geometry) _creator.geometry->setWidth(width);
+      if(_mesh) _mesh->geometry_t<geometry::Box>()->setWidth(width);
       emit widthChanged();
     }
   }
@@ -56,7 +56,7 @@ public:
   void setHeight(unsigned height) {
     if(_height != height) {
       _height = height;
-      if(_creator.geometry) _creator.geometry->setHeight(height);
+      if(_mesh) _mesh->geometry_t<geometry::Box>()->setHeight(height);
       emit heightChanged();
     }
   }
@@ -64,7 +64,7 @@ public:
   void setDepth(unsigned depth) {
     if(_depth != depth) {
       _depth = depth;
-      if(_creator.geometry) _creator.geometry->setDepth(depth);
+      if(_mesh) _mesh->geometry_t<geometry::Box>()->setDepth(depth);
       emit depthChanged();
     }
   }

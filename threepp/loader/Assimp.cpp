@@ -450,7 +450,7 @@ public:
   using Ptr = std::shared_ptr<MeshMakerT>;
 
   Mesh::Ptr makeMesh(BufferGeometry::Ptr geometry) override {
-    Mesh::Ptr m = MeshT<BufferGeometry, Mat>::make(geometry, _material);
+    Mesh::Ptr m = DynamicMesh::make(geometry, _material);
     m->setName(_material->name);
     return m;
   }
@@ -646,7 +646,7 @@ Mesh::Ptr Access::readMesh(int index)
   }
   else {
     MeshLambertMaterial::Ptr mat = MeshLambertMaterial::make();
-    mesh = Mesh::make(geometry, mat);
+    mesh = DynamicMesh::make(geometry, mat);
   }
 
   if(mesh->_name.empty())

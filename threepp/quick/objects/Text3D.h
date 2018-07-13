@@ -7,6 +7,7 @@
 
 #include <threepp/quick/objects/ThreeQObject.h>
 #include <threepp/geometry/Text.h>
+#include <threepp/objects/Mesh.h>
 
 namespace three {
 namespace quick {
@@ -42,20 +43,16 @@ class Text3D : public ThreeQObject
 
   QQmlListProperty<Material> materials();
 
-  MeshCreator *_creator = nullptr;
+  DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override;
 
   void updateMaterial() override {
-    if(_creator) material()->identify(*_creator);
+    if(_mesh) _mesh->setMaterial(material()->getMaterial());
   }
 
 public:
-  ~Text3D() {
-    if(_creator) delete _creator;
-  }
-
   QString text() const {return _text;}
   void setText(QString text) {
     if(_text != text) {

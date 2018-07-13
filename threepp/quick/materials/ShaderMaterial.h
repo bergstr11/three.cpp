@@ -96,14 +96,10 @@ public:
     }
   }
 
-  three::ShaderMaterial::Ptr getMaterial() {
+  three::Material::Ptr getMaterial() override
+  {
     if(!_material) _material = createMaterial();
     return _material;
-  }
-
-  void identify(MeshCreator &creator) override
-  {
-    creator.material(getMaterial());
   }
 
 signals:

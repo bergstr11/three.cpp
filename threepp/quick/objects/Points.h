@@ -28,16 +28,12 @@ protected:
   bool _sizeAttenuation = true;
   QColor _color;
 
-  three::PointsMaterial::Ptr _material;
-
-
   three::Object3D::Ptr _create() override
   {
     _points = three::Points::make();
 
-    _points->geometry_t()->setPosition(_positions);
-    _points->material<0>()->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    _material = _points->material<0>();
+    _points->bufferGeometry()->setPosition(_positions);
+    _points->pointsMaterial()->color = Color(_color.redF(), _color.greenF(), _color.blueF());
 
     return _points;
   }
@@ -54,7 +50,7 @@ public:
   {
     if(_color != color) {
       _color = color;
-      if(_material) _material->color = Color(color.redF(), color.greenF(), color.blueF());
+      if(_points) _points->pointsMaterial()->color = Color(color.redF(), color.greenF(), color.blueF());
       emit colorChanged();
     }
   }
@@ -64,7 +60,7 @@ public:
   void setSize(float size) {
     if(_size != size) {
       _size = size;
-      if(_material) _material->size = _size;
+      if(_points) _points->pointsMaterial()->size = _size;
       emit sizeChanged();
     }
   }
@@ -74,7 +70,7 @@ public:
   void setSizeAttenuation(bool sizeAttenuation) {
     if(_sizeAttenuation != sizeAttenuation) {
       _sizeAttenuation = sizeAttenuation;
-      if(_material) _material->sizeAttenuation = _sizeAttenuation;
+      if(_points) _points->pointsMaterial()->sizeAttenuation = _sizeAttenuation;
       emit sizeAttenuationChanged();
     }
   }

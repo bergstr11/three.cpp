@@ -41,7 +41,7 @@ protected:
       _geometry->setColor(attribute::prealloc<float, Color>(_geometry->position()->itemCount()));
     }
 
-    add(Mesh::make("hemi_helper", _geometry, _material));
+    add(DynamicMesh::make(_geometry, _material));
     update();
   }
 

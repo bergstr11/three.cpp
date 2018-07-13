@@ -10,12 +10,13 @@
 
 namespace three {
 
-class Bone : public Object3D_G<Geometry>
+class Bone : public Object3D
 {
-  Bone(Geometry::Ptr geometry) : Object3D(), Object3D_G(geometry) {}
+  Geometry::Ptr _geometry;
+
+  Bone(Geometry::Ptr geometry) : Object3D(), _geometry(geometry) {}
   Bone(const Bone &bone)
-     : Object3D(bone),
-       Object3D_G(typename Geometry::Ptr(bone.geometry_t()->cloned())) {}
+     : Object3D(bone), _geometry(bone.geometry()->cloned()) {}
 
 public:
   using Ptr = std::shared_ptr<Bone>;

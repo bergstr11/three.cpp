@@ -34,7 +34,7 @@ class Axes : public LineSegments
   }
 
   Axes(size_t size)
-     : Object3D(), LineSegments(createGeometry(size), LineBasicMaterial::make(Colors::Vertex)) {}
+     : LineSegments(createGeometry(size), LineBasicMaterial::make(Colors::Vertex)) {}
 
 public:
   using Ptr = std::shared_ptr<Axes>;

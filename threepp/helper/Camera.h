@@ -30,7 +30,7 @@ class DLX Camera : private Maker, public LineSegments
   three::Camera::Ptr _camera;
 
   Camera(three::Camera::Ptr camera)
-     : Object3D(), Maker(camera), LineSegments(_helperGeometry, LineBasicMaterial::make(Colors::Face))
+     : Maker(camera), LineSegments(_helperGeometry, LineBasicMaterial::make(Colors::Face))
   {
     _camera = camera;
     _camera->updateProjectionMatrix();

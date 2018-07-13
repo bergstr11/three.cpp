@@ -127,31 +127,19 @@ three::Object3D::Ptr Text3D::_create()
   options.bevelEnabled = _bevelEnabled;
 
   switch(_geometryType) {
-    case Three::DefaultGeometry:
     case Three::BufferGeometry: {
-      auto creator = new MeshCreatorG<geometry::buffer::Text> {"text"};
-      creator->set(geometry::buffer::Text::make(_text.toStdWString(), options));
-      _creator = creator;
+      _mesh = DynamicMesh::make(geometry::buffer::Text::make(_text.toStdWString(), options));
       break;
     }
-    default: {
-      auto creator = new MeshCreatorG<geometry::Text> {"text"};
-      creator->set(geometry::Text::make(_text.toStdWString(), options));
-      _creator = creator;
+    case Three::LinearGeometry: {
+      _mesh = DynamicMesh::make(geometry::Text::make(_text.toStdWString(), options));
       break;
     }
   }
-
-  if(!_materials.empty()) {
-    quick::Material *m = _materials[0];
-
-    if(m) m->identify(*_creator);
-
-    //TODO: use other materials + implements groups in renderer
+  for(const auto &mat : _materials) {
+    _mesh->addMaterial(mat->getMaterial());
   }
-  else if(material()) material()->identify(*_creator);
-
-  return _creator->getMesh();
+  return _mesh;
 }
 
 }

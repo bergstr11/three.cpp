@@ -15,7 +15,7 @@ namespace three {
 /**
  * a mesh without geometry and material
  */
-class DLX Mesh : public virtual Object3D
+class DLX Mesh : public Object3D
 {
   DrawMode _drawMode;
 
@@ -36,14 +36,12 @@ protected:
     Object3D::typer = object::Typer(this);
   }
 
+  Mesh(Geometry::Ptr geometry, std::initializer_list<Material::Ptr> materials)
+     : Object3D(geometry, materials), _drawMode(DrawMode::Triangles)
+  {}
+
 public:
   using Ptr = std::shared_ptr<Mesh>;
-
-  template <typename Geom, typename Mat>
-  static Ptr make(std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat);
-
-  template <typename Geom, typename Mat>
-  static Ptr make(const std::string &name, std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat);
 
   DrawMode drawMode() const {return _drawMode;}
 
@@ -68,61 +66,56 @@ public:
 };
 
 /**
- * mesh template with geometry and material
- *
- * @tparam Geom
- * @tparam Mat
+ * a mesh which can by dynamically extended with materials and geometry
  */
-template <typename Geom, typename Mat>
-class MeshT : public Mesh, public Object3D_GM<Geom, Mat>
+class DLX DynamicMesh : public Mesh
 {
-  friend class Mesh;
-
 protected:
-  MeshT(const typename Geom::Ptr &geometry, typename Mat::Ptr material)
-     : Mesh(), Object3D_GM<Geom, Mat>(geometry, material)
+  DynamicMesh() : Mesh()
   {
-    setDrawMode(DrawMode::Triangles);
+    Object3D::typer = object::Typer(this);
+    typer.allow<Mesh>();
   }
 
-  MeshT(const MeshT &mesh)
-     : Mesh(), Object3D_GM<Geom, Mat>(typename Geom::Ptr(mesh.geometry_t()->cloned()),
-                              typename Mat::Ptr(mesh.template material<0>()->cloned()))
+  DynamicMesh(const DynamicMesh &mesh) : Mesh(mesh)
   {
-    setDrawMode(DrawMode::Triangles);
+    Object3D::typer = object::Typer(this);
+    typer.allow<Mesh>();
+  }
+
+  DynamicMesh(Geometry::Ptr geometry, Material::Ptr material) : Mesh(geometry, {})
+  {
+    Object3D::typer = object::Typer(this);
+    typer.allow<Mesh>();
+
+    if(material) setMaterial(material);
   }
 
 public:
-  using Ptr = std::shared_ptr<MeshT<Geom, Mat>>;
+  using Ptr = std::shared_ptr<DynamicMesh>;
 
-  static Ptr make(const typename Geom::Ptr &geometry, const std::shared_ptr<Mat> &material)
+  static Ptr make(Geometry::Ptr geometry, Material::Ptr material=nullptr)
   {
-    return Ptr(new MeshT(geometry, material));
+    return Ptr(new DynamicMesh(geometry, material));
+  };
+
+  void setGeometry(Geometry::Ptr geometry) {
+    _geometry = geometry;
   }
 
-  static Ptr make(std::string name, const typename Geom::Ptr &geometry, const std::shared_ptr<Mat> &material)
-  {
-    Ptr p(new MeshT(geometry, material));
-    p->_name = name;
-    return p;
+  void addMaterial(Material::Ptr material) {
+    _materials.push_back(material);
   }
 
-  MeshT *cloned() const override {
-    return new MeshT(*this);
+  void setMaterial(Material::Ptr material) {
+    _materials.resize(1);
+    _materials[0] = material;
+  }
+
+  template <typename Geom> Geom *geometry_t() {
+    return _geometry->typer;
   }
 };
-
-template <typename Geom, typename Mat>
-Mesh::Ptr Mesh::make(std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat) {
-  return Ptr(new MeshT<Geom, Mat>(geom, mat));
-}
-
-template <typename Geom, typename Mat>
-Mesh::Ptr Mesh::make(const std::string &name, std::shared_ptr<Geom> geom, std::shared_ptr<Mat> mat) {
-  auto ptr = Ptr(new MeshT<Geom, Mat>(geom, mat));
-  ptr->setName(name);
-  return ptr;
-}
 
 }
 

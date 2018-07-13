@@ -28,13 +28,19 @@ class LineBasicMaterial : public MaterialT<material::Colored>
 protected:
   LineBasicMaterial() : MaterialT(material::InfoT<LineBasicMaterial>(), material::Typer(this)) {}
 
-  LineBasicMaterial(material::Info info, const material::Typer &typer) : MaterialT(info, typer) {}
+  LineBasicMaterial(material::Info info, const material::Typer &typer) : MaterialT(info, typer)
+  {
+    this->typer.allow<LineBasicMaterial>();
+  }
 
   LineBasicMaterial(const LineBasicMaterial &material)
      : MaterialT(material, material::InfoT<LineBasicMaterial>(), material::Typer(this)) {}
 
   LineBasicMaterial(const LineBasicMaterial &material, const material::Info &info, const material::Typer &typer)
-     : MaterialT(material, info, typer) {}
+     : MaterialT(material, info, typer)
+  {
+    this->typer.allow<LineBasicMaterial>();
+  }
 
 public:
   float linewidth = 1;

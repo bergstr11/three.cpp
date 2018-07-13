@@ -11,17 +11,16 @@
 
 namespace three {
 
-class Points : public Object3D_GM<BufferGeometry, PointsMaterial>
+class Points : public Object3D
 {
 protected:
   Points(const BufferGeometry::Ptr &geometry, const PointsMaterial::Ptr &material)
-     : Object3D(), Object3D_GM(geometry, material)
+     : Object3D(geometry, material)
   {
     Object3D::typer = object::Typer(this);
   }
 
-  Points(const Points &points)
-     : Object3D(), Object3D_GM(BufferGeometry::Ptr(geometry_t()->cloned()), PointsMaterial::Ptr(points.material<0>()->cloned()))
+  Points(const Points &points) : Object3D(points)
   {
     Object3D::typer = object::Typer(this);
   }
@@ -33,6 +32,14 @@ public:
                   const PointsMaterial::Ptr &material=PointsMaterial::make(Color(0xffffff * 1.0f / rand())))
   {
     return Ptr(new Points(geometry, material));
+  }
+
+  BufferGeometry *bufferGeometry() const {
+    return (BufferGeometry *) _geometry->typer;
+  }
+
+  PointsMaterial *pointsMaterial() const {
+    return (PointsMaterial *)_materials[0]->typer;
   }
 
   bool isShadowRenderable() const override {return true;}
