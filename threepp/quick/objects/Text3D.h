@@ -46,6 +46,7 @@ class Text3D : public ThreeQObject
   DynamicMesh::Ptr _mesh;
 
 protected:
+  three::Object3D::Ptr _copy(Object3D::Ptr copyable) override;
   three::Object3D::Ptr _create() override;
 
   void updateMaterial() override {
@@ -54,68 +55,28 @@ protected:
 
 public:
   QString text() const {return _text;}
-  void setText(QString text) {
-    if(_text != text) {
-      _text = text;
-      emit textChanged();
-    }
-  }
+  void setText(QString text);
 
   QString font() const {return _font;}
-  void setFont(QString font) {
-    if(_font != font) {
-      _font = font;
-      emit fontChanged();
-    }
-  }
+  void setFont(QString font);
 
   float size() const {return _size;}
-  void setSize(float size) {
-    if(_size != size) {
-      _size = size;
-      emit sizeChanged();
-    }
-  }
+  void setSize(float size);
 
   float height() const {return _height;}
-  void setHeight(float height) {
-    if(_height != height) {
-      _height = height;
-      emit heightChanged();
-    }
-  }
+  void setHeight(float height);
 
   unsigned curveSegments() const {return _curveSegments;}
-  void setCurveSegments(unsigned curveSegments) {
-    if(_curveSegments != curveSegments) {
-      _curveSegments = curveSegments;
-      emit curveSegmentsChanged();
-    }
-  }
+  void setCurveSegments(unsigned curveSegments);
 
   float bevelThickness() const {return _bevelThickness;}
-  void setBevelThickness(float bevelThickness) {
-    if(_bevelThickness != bevelThickness) {
-      _bevelThickness = bevelThickness;
-      emit bevelThicknessChanged();
-    }
-  }
+  void setBevelThickness(float bevelThickness);
 
   float bevelSize() const {return _bevelSize;}
-  void setBevelSize(float bevelSize) {
-    if(_bevelSize != bevelSize) {
-      _bevelSize = bevelSize;
-      emit bevelSizeChanged();
-    }
-  }
+  void setBevelSize(float bevelSize);
 
   bool bevelEnabled() const {return _bevelEnabled;}
-  void setBevelEnabled(bool bevelEnabled) {
-    if(_bevelEnabled != bevelEnabled) {
-      _bevelEnabled = bevelEnabled;
-      emit bevelEnabledChanged();
-    }
-  }
+  void setBevelEnabled(bool bevelEnabled);
 
 signals:
   void textChanged();

@@ -61,7 +61,7 @@ public:
   void raycast(const Raycaster &raycaster, IntersectList &intersects) override;
 
   Mesh *cloned() const override {
-    return object::Typer::set(new Mesh(*this));
+    return new Mesh(*this);
   }
 };
 
@@ -114,6 +114,10 @@ public:
 
   template <typename Geom> Geom *geometry_t() {
     return _geometry->typer;
+  }
+
+  DynamicMesh *cloned() const override {
+    return new DynamicMesh(*this);
   }
 };
 

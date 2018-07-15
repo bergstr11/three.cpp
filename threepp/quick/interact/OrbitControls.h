@@ -22,13 +22,13 @@ class OrbitControls : public control::Orbit
   Qt::MouseButton _eventButton;
 
 protected:
-  explicit OrbitControls(QQuickItem *item, three::Camera::Ptr camera)
-     : control::Orbit(camera), _item(item) {}
+  OrbitControls(QQuickItem *item, three::Camera::Ptr camera, const math::Vector3 &target)
+     : control::Orbit(camera, target), _item(item) {}
 
 public:
   using Ptr = std::shared_ptr<OrbitControls>;
-  static Ptr make(QQuickItem *item, three::Camera::Ptr camera) {
-    return Ptr(new OrbitControls(item, camera));
+  static Ptr make(QQuickItem *item, three::Camera::Ptr camera, const math::Vector3 &target={0, 0, 0}) {
+    return Ptr(new OrbitControls(item, camera, target));
   }
 
 protected:

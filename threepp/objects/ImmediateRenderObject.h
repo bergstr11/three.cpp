@@ -29,7 +29,7 @@ public:
 
   Object3D *cloned() const override
   {
-    return object::Typer::set(new ImmediateRenderObject(*this));
+    return new ImmediateRenderObject(*this);
   }
 };
 

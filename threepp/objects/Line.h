@@ -70,7 +70,7 @@ public:
 
   Line *cloned() const override
   {
-    return object::Typer::set(new Line(*this));
+    return new Line(*this);
   }
 };
 
@@ -78,10 +78,16 @@ class DLX LineSegments : public Line
 {
 protected:
   LineSegments(BufferGeometry::Ptr geometry, LineBasicMaterial::Ptr material)
-     : Line(geometry, material, 2, object::Typer(this)) {}
+     : Line(geometry, material, 2, object::Typer(this))
+  {
+    typer.allow<Line>();
+  }
 
   LineSegments(const LineSegments &segments)
-     : Line(segments, object::Typer(this)) {}
+     : Line(segments, object::Typer(this))
+  {
+    typer.allow<Line>();
+  }
 
 public:
   using Ptr = std::shared_ptr<LineSegments>;
@@ -96,9 +102,7 @@ public:
 
   LineSegments *cloned() const override
   {
-    auto obj = object::Typer::set(new LineSegments(*this));
-    obj->typer.allow<Line>();
-    return obj;
+    return new LineSegments(*this);
   }
 };
 

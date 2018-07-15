@@ -46,7 +46,7 @@ public:
 
   Points *cloned() const override
   {
-    return object::Typer::set(new Points(*this));
+    return new Points(*this);
   }
 };
 

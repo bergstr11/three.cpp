@@ -58,10 +58,11 @@ Q_OBJECT
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
   Q_PROPERTY(bool matrixAutoUpdate READ matrixAutoUpdate WRITE setMatrixAutoUpdate NOTIFY matrixAutoUpdateChanged)
   Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
-  Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
   Q_PROPERTY(BoundingBox *boundingBox READ boundingBox CONSTANT)
   Q_PROPERTY(VertexNormalsHelper *vertexNormals READ vertexNormals CONSTANT)
-  Q_CLASSINFO("DefaultProperty", "objects")
+  Q_PROPERTY(ThreeQObject *copy READ copyable WRITE setCopyable)
+  Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> children READ children)
+  Q_CLASSINFO("DefaultProperty", "children")
 
 protected:
   QString _name;
@@ -76,11 +77,14 @@ protected:
 
   TrackingProperty<bool> _castShadow {false};
   TrackingProperty<bool> _receiveShadow {false};
-  bool _visible = true, _matrixAutoUpdate = true;
+  TrackingProperty<bool> _visible {true};
+  TrackingProperty<bool> _matrixAutoUpdate {true};
 
   BoundingBox *_boundingBox = nullptr;
 
-  QList<ThreeQObject *> _objects;
+  ThreeQObject *_copyable = nullptr;
+
+  QList<ThreeQObject *> _children;
 
   Three::GeometryType _geometryType = Three::LinearGeometry;
 
@@ -91,6 +95,9 @@ protected:
   Scene *_scene = nullptr;
 
   virtual three::Object3D::Ptr _create() {return nullptr;}
+
+  virtual three::Object3D::Ptr _copy(Object3D::Ptr copyable) {return nullptr;}
+
   virtual void _post_create() {}
 
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
@@ -101,14 +108,17 @@ protected:
 
   virtual void updateMaterial() {}
 
-  static void append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
-  static int count_objects(QQmlListProperty<ThreeQObject> *);
-  static ThreeQObject *object_at(QQmlListProperty<ThreeQObject> *, int);
-  static void clear_objects(QQmlListProperty<ThreeQObject> *);
+  static void append_child(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
+  static int count_children(QQmlListProperty<ThreeQObject> *);
+  static ThreeQObject *child_at(QQmlListProperty<ThreeQObject> *, int);
+  static void clear_children(QQmlListProperty<ThreeQObject> *);
 
-  QQmlListProperty<ThreeQObject> objects();
+  QQmlListProperty<ThreeQObject> children();
 
   void setObject(const three::Object3D::Ptr object);
+
+  void recreate();
+  void recopy();
 
 public:
   enum class ObjectState {Removed, Added};
@@ -127,114 +137,50 @@ public:
 
   BoundingBox *boundingBox();
 
-  void setPosition(const QVector3D &position, bool propagate=true) {
-    if(position != _position) {
-      _position = position;
-
-      if(propagate && _object) _object->position().set(_position().x(), _position().y(), _position().z());
-
-      emit positionChanged();
-    }
+  ThreeQObject *copyable() const {return _copyable;}
+  void setCopyable(ThreeQObject *copyable) {
+    _copyable = copyable;
   }
 
-  void setRotation(const QVector3D &rotation, bool propagate=true) {
-    if(_rotation != rotation) {
-      _rotation = rotation;
+  void setPosition(const QVector3D &position, bool propagate=true);
 
-      if(propagate && _object) {
-        _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
-      }
+  void setRotation(const QVector3D &rotation, bool propagate=true);
 
-      emit rotationChanged();
-    }
-  }
+  void setScale(QVector3D scale, bool propagate=true);
 
-  void setScale(QVector3D scale, bool propagate=true) {
-    if(_scale != scale) {
-      _scale = scale;
-      if(propagate && _object) _object->scale().set(scale.x(), scale.x(), scale.z());
-      emit scaleChanged();
-    }
-  }
   Material *material() const {return _material;}
 
-  void setMaterial(Material *material) {
-    if(_material != material) {
-      _material = material;
-      if(_object) updateMaterial();
-      emit materialChanged();
-    }
-  }
+  void setMaterial(Material *material);
 
   bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 
-  void setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate=true) {
-    if(_matrixAutoUpdate != matrixAutoUpdate) {
-      _matrixAutoUpdate = matrixAutoUpdate;
-      if(propagate && _object) _object->matrixAutoUpdate = _matrixAutoUpdate;
-      emit matrixAutoUpdateChanged();
-    }
-  }
+  void setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate=true);
 
   bool castShadow() const {return _castShadow;}
 
-  void setCastShadow(bool castShadow, bool propagate=true) {
-    if(_castShadow != castShadow) {
-      _castShadow = castShadow;
-      if(propagate && _object) {
-        _object->visit([&](Object3D *o) {o->castShadow = _castShadow; return true;});
-      }
-      emit castShadowChanged();
-    }
-  }
+  void setCastShadow(bool castShadow, bool propagate=true);
 
   bool receiveShadow() const {return _receiveShadow;}
 
-  void setReceiveShadow(bool receiveShadow, bool propagate=true) {
-    if(_receiveShadow != receiveShadow) {
-      _receiveShadow = receiveShadow;
-      if(propagate && _object) {
-        _object->visit([&](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
-      }
-      emit receiveShadowChanged();
-    }
-  }
+  void setReceiveShadow(bool receiveShadow, bool propagate=true);
 
   bool visible() const {return _visible;}
 
-  void setVisible(bool visible, bool propagate=true) {
-    if(_visible != visible) {
-      _visible = visible;
-
-      if(propagate && _object) _object->visible() = _visible;
-      emit visibleChanged();
-    }
-  }
+  void setVisible(bool visible, bool propagate=true);
 
   const QString &name() const {return _name;}
 
-  void setName(const QString &name, bool propagate=true)
-  {
-    if(_name != name) {
-      _name = name;
-      if(_object && propagate) _object->setName(_name.toStdString());
-
-      emit nameChanged();
-    }
-  }
+  void setName(const QString &name, bool propagate=true);
 
   Three::GeometryType geometryType() const {return _geometryType;}
 
-  void setGeometryType(Three::GeometryType geometryType) {
-    if(_geometryType != geometryType) {
-      _geometryType = geometryType;
-      emit geometryTypeChanged();
-    }
-  }
+  void setGeometryType(Three::GeometryType geometryType);
 
   three::Object3D::Ptr object() const {return _object;}
 
   three::Object3D::Ptr create(quick::Scene *scene, Object3D::Ptr parent);
+
+  three::Object3D::Ptr copy();
 
   /**
    * mark all tracking properties as 'not externally set'
@@ -258,6 +204,7 @@ signals:
   void matrixAutoUpdateChanged();
   void nameChanged();
   void geometryTypeChanged();
+  void objectCreated();
 };
 
 }

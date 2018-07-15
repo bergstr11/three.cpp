@@ -143,7 +143,8 @@ protected:
   {
     if(!_camera->camera()) return;
 
-    _controls = OrbitControls::make(_item, _camera->camera());
+    const auto &tg = _camera->target();
+    _controls = OrbitControls::make(_item, _camera->camera(), math::Vector3(tg.x(), tg.y(), tg.z()));
     _controls->minDistance = _minDistance;
     _controls->maxDistance = _maxDistance;
     _controls->maxPolarAngle = _maxPolarAngle;

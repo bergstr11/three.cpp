@@ -101,7 +101,7 @@ public:
   }
 
   LensFlare *cloned() const override {
-    return object::Typer::set(new LensFlare(*this));
+    return new LensFlare(*this);
   }
 };
 

@@ -206,14 +206,14 @@ Object3D::Object3D() : _id(++__id_count)
 }
 
 Object3D::Object3D(const Geometry::Ptr &geometry, const Material::Ptr &material)
-   : _geometry(geometry), _materials({material})
+   : _geometry(geometry), _materials({material}), _id(++__id_count)
 {
   _rotation.onChange.connect(*this, &Object3D::onRotationChange);
   _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
 }
 
 Object3D::Object3D(const Geometry::Ptr &geometry, std::initializer_list<Material::Ptr> materials)
-   : _geometry(geometry), _materials(materials)
+   : _geometry(geometry), _materials(materials), _id(++__id_count)
 {
   _rotation.onChange.connect(*this, &Object3D::onRotationChange);
   _quaternion.onChange.connect(*this, &Object3D::onQuaternionChange);
@@ -256,7 +256,7 @@ Object3D::Object3D(const Object3D &clone) : Object3D()
   customDistanceMaterial = clone.customDistanceMaterial;
 
   if(clone._geometry) _geometry = Geometry::Ptr(clone._geometry->cloned());
-  for(const auto &material : _materials) {
+  for(const auto &material : clone._materials) {
     _materials.push_back(Material::Ptr(material->cloned()));
   }
 }

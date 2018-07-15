@@ -12,6 +12,15 @@ Window {
 
     visible: true
 
+    property string fontName: "optimer"
+    property string fontWeight: "regular"
+
+    function setFont(fname) {
+        if(fname) fontName = fname
+        text3d.font = ":/" + fontName + "_" + fontWeight + ".typeface.json"
+        threeD.update()
+    }
+
     OptionsMenu {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -20,13 +29,41 @@ Window {
         height: 100
         z: 2
 
+        MenuChoice {
+            name: "Optimer"
+            value: true
+            textColor: "white"
+            onSelected: {
+                setFont("optimer")
+            }
+        }
+        MenuChoice {
+            name: "Gentilis"
+            textColor: "white"
+            onSelected: {
+                setFont("gentilis")
+            }
+        }
+        MenuChoice {
+            name: "Gentilis"
+            textColor: "white"
+            onSelected: {
+                setFont("helvetiker")
+            }
+        }
         BoolChoice {
-            name: "VertexNormals"
+            name: "Bold"
             value: false
             onValueChanged: {
-                box.vertexNormals.visible = value
-                torus.vertexNormals.visible = value
-                sphere.vertexNormals.visible = value
+                fontWeight = value ? "bold" : "regular"
+                setFont()
+            }
+        }
+        BoolChoice {
+            name: "Bevel"
+            value: false
+            onValueChanged: {
+                text3d.bevelEnabled = value
                 threeD.update()
             }
         }
@@ -49,13 +86,8 @@ Window {
 				position: Qt.vector3d(0,0,1).normalized()
             }
 
-			PointLight {
-			    color: "#f0f0f0"
-			    intensity: 1.5
-				position: "0,100,90";
-			}
-
             Plane {
+                name: "plane"
                 type: Three.BufferGeometry
 				width: 10000
 				height: 10000
@@ -68,35 +100,46 @@ Window {
 				}
 			}
 
-            Text3D {
-                id: text3d
-                text: "Hello Three::pp"
-                type: Three.BufferGeometry
-				font: ":/optimer_bold.typeface.json"
-				size: 70
-				height: 20
-				curveSegments: 4
-				bevelThickness: 2
-				bevelSize: 1.5
-				bevelEnabled: true
+            Node {
+                id: textsNode
+                position: "0,100,0"
 
-				rotation: Qt.vector3d(0,Math.PI * 2,0)
+                Text3D {
+                    id: text3d
+                    name: "text3d"
+                    text: "Hello Three::pp"
+                    type: Three.BufferGeometry
+                    size: 70
+                    height: 20
+                    curveSegments: 4
+                    bevelThickness: 2
+                    bevelSize: 1.5
+                    bevelEnabled: false
 
-                materials: [
-                    MeshPhongMaterial{
-                        color: "#ffffff";
-                        flatShading: true
-                    },
+                    rotation: Qt.vector3d(0, Math.PI * 2,0)
 
-                    MeshPhongMaterial {
-                        color: "yellow"
-                        flatShading: true
-                    }
-                ]
-				Component.onCompleted: {
+                    materials: [
+                      MeshPhongMaterial {color: "white"; flatShading: true},
+                      MeshPhongMaterial {color: "green"; flatShading: false}
+                    ]
+                }
+
+                Text3D {
+                    id: textMirror
+                    name: "textMirror"
+                    copy: text3d
+
+                    rotation: Qt.vector3d(Math.PI, Math.PI * 2, 0)
+                }
+
+                Component.onCompleted: {
+                    setFont()
+
                     var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
-				    text3d.position = Qt.vector3d(centerOffset, 30, 0)
-				}
+
+                    text3d.position = Qt.vector3d(centerOffset, 30, 0)
+                    textMirror.position = Qt.vector3d(centerOffset, -30, 20)
+                }
             }
 
             camera: PerspectiveCamera {
@@ -105,12 +148,18 @@ Window {
                 near: 1
                 far: 1500
 
-                position: "0,400,700"
+                position: "0,400,950"
 
                 target: "0,150,0"
 
                 controller: OrbitController {
                     enablePan: false
+                }
+
+                PointLight {
+                    color: Qt.hsla(1, 1, 0.5, 1)
+                    intensity: 1.5
+                    position: "0,100,800";
                 }
             }
         }

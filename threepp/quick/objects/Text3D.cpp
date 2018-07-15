@@ -111,6 +111,8 @@ QQmlListProperty<Material> Text3D::materials()
 
 three::Object3D::Ptr Text3D::_create()
 {
+  if(_font.isEmpty()) return nullptr;
+
   QFile file(_font);
   file.open(QIODevice::Text | QIODevice::ReadOnly);
   QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
@@ -140,6 +142,77 @@ three::Object3D::Ptr Text3D::_create()
     _mesh->addMaterial(mat->getMaterial());
   }
   return _mesh;
+}
+
+three::Object3D::Ptr Text3D::_copy(Object3D::Ptr copyable)
+{
+  DynamicMesh *mesh = copyable->typer;
+
+  _mesh = DynamicMesh::Ptr(mesh->cloned());
+
+  return _mesh;
+}
+
+void Text3D::setText(QString text) {
+  if(_text != text) {
+    _text = text;
+    emit textChanged();
+  }
+}
+
+void Text3D::setFont(QString font) {
+  if(_font != font) {
+    _font = font;
+    recreate();
+    emit fontChanged();
+  }
+}
+
+void Text3D::setSize(float size) {
+  if(_size != size) {
+    _size = size;
+    emit sizeChanged();
+  }
+}
+
+void Text3D::setHeight(float height) {
+  if(_height != height) {
+    _height = height;
+    recreate();
+    emit heightChanged();
+  }
+}
+
+void Text3D::setCurveSegments(unsigned curveSegments) {
+  if(_curveSegments != curveSegments) {
+    _curveSegments = curveSegments;
+    recreate();
+    emit curveSegmentsChanged();
+  }
+}
+
+void Text3D::setBevelThickness(float bevelThickness) {
+  if(_bevelThickness != bevelThickness) {
+    _bevelThickness = bevelThickness;
+    recreate();
+    emit bevelThicknessChanged();
+  }
+}
+
+void Text3D::setBevelSize(float bevelSize) {
+  if(_bevelSize != bevelSize) {
+    _bevelSize = bevelSize;
+    recreate();
+    emit bevelSizeChanged();
+  }
+}
+
+void Text3D::setBevelEnabled(bool bevelEnabled) {
+  if(_bevelEnabled != bevelEnabled) {
+    _bevelEnabled = bevelEnabled;
+    recreate();
+    emit bevelEnabledChanged();
+  }
 }
 
 }

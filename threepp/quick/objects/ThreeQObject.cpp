@@ -29,13 +29,80 @@ BoundingBox *ThreeQObject::boundingBox()
   return _boundingBox;
 }
 
+three::Object3D::Ptr ThreeQObject::copy()
+{
+  if(!_object && _copyable) {
+
+    if(_copyable->object())
+      _object = _copy(_copyable->object());
+    else
+      QObject::connect(_copyable, &ThreeQObject::objectCreated, this, &ThreeQObject::copy);
+
+    if(_object) {
+      if(_rotation.isSet())
+        _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
+      else
+        _object->rotation().set(_copyable->_rotation().x(), _copyable->_rotation().y(), _copyable->_rotation().z());
+
+      if(_position.isSet())
+        _object->position().set(_position().x(), _position().y(), _position().z());
+      else
+        _object->position().set(_copyable->_position().x(), _copyable->_position().y(), _copyable->_position().z());
+
+      if(_scale.isSet())
+        _object->scale().set(_scale().x(), _scale().y(), _scale().z());
+      else
+        _object->scale().set(_copyable->_scale().x(), _copyable->_scale().y(), _copyable->_scale().z());
+
+      if(_castShadow.isSet())
+        _object->castShadow = _castShadow;
+      else
+        _object->castShadow = _copyable->_castShadow;
+
+      if(_receiveShadow.isSet())
+        _object->receiveShadow = _receiveShadow;
+      else
+        _object->receiveShadow = _copyable->_receiveShadow;
+
+      if(_matrixAutoUpdate.isSet())
+        _object->matrixAutoUpdate = _matrixAutoUpdate;
+      else
+        _object->matrixAutoUpdate = _copyable->_matrixAutoUpdate;
+
+      if(_visible.isSet())
+        _object->visible() = _visible;
+      else
+        _object->visible() = _copyable->_visible;
+
+      if(!_name.isEmpty()) _object->setName(_name.toStdString());
+      if(_parentObject) _parentObject->add(_object);
+
+      QObject::connect(_copyable, &ThreeQObject::objectCreated, this, &ThreeQObject::recopy);
+
+      onObjectChanged.emitSignal(_object, ObjectState::Added);
+      _object->updateMatrix();
+    }
+  }
+  for(auto o : _children) {
+    three::Object3D::Ptr obj = o->copy();
+  }
+
+  return _object;
+}
+
+void ThreeQObject::recopy()
+{
+  if(_parentObject && _object) _parentObject->remove(_object);
+  _object = nullptr;
+  copy();
+}
+
 three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 {
   _scene = scene;
   _parentObject = parent;
 
-  Object3D::Ptr prev = _object;
-  _object = _create();
+  if(!_copyable) _object = _create();
 
   if(_object) {
     if(!_rotation().isNull())
@@ -45,18 +112,16 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 
     _object->scale().set(_scale().x(), _scale().y(), _scale().z());
 
-    if(!_name.isEmpty())
-      _object->setName(_name.toStdString());
-
     _object->castShadow = _castShadow;
     _object->receiveShadow = _receiveShadow;
     _object->matrixAutoUpdate = _matrixAutoUpdate;
     _object->visible() = _visible;
 
-    for(auto o : _objects) {
+    for(auto o : _children) {
       three::Object3D::Ptr obj = o->create(_scene, _object);
-      if(obj) _object->add(obj);
     }
+
+    if(!_name.isEmpty()) _object->setName(_name.toStdString());
 
     if(_normalsHelper) _normalsHelper->create(_object, _parentObject);
 
@@ -66,39 +131,49 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
 
     onObjectChanged.emitSignal(_object, ObjectState::Added);
     _object->updateMatrix();
+
+    emit objectCreated();
   }
 
   return _object;
 }
 
-void ThreeQObject::append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj)
+void ThreeQObject::append_child(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj)
 {
   ThreeQObject *item = qobject_cast<ThreeQObject *>(list->object);
-  if (item) item->_objects.append(obj);
+  if (item) item->_children.append(obj);
 }
-int ThreeQObject::count_objects(QQmlListProperty<ThreeQObject> *list)
+int ThreeQObject::count_children(QQmlListProperty<ThreeQObject> *list)
 {
   ThreeQObject *item = qobject_cast<ThreeQObject *>(list->object);
-  return item ? item->_objects.size() : 0;
+  return item ? item->_children.size() : 0;
 }
-ThreeQObject *ThreeQObject::object_at(QQmlListProperty<ThreeQObject> *list, int index)
+ThreeQObject *ThreeQObject::child_at(QQmlListProperty<ThreeQObject> *list, int index)
 {
   ThreeQObject *item = qobject_cast<ThreeQObject *>(list->object);
-  return item ? item->_objects.at(index) : nullptr;
+  return item ? item->_children.at(index) : nullptr;
 }
-void ThreeQObject::clear_objects(QQmlListProperty<ThreeQObject> *list)
+void ThreeQObject::clear_children(QQmlListProperty<ThreeQObject> *list)
 {
   ThreeQObject *item = qobject_cast<ThreeQObject *>(list->object);
-  if(item) item->_objects.clear();
+  if(item) item->_children.clear();
 }
 
-QQmlListProperty<ThreeQObject> ThreeQObject::objects()
+QQmlListProperty<ThreeQObject> ThreeQObject::children()
 {
   return QQmlListProperty<ThreeQObject>(this, nullptr,
-                                        &ThreeQObject::append_object,
-                                        &ThreeQObject::count_objects,
-                                        &ThreeQObject::object_at,
-                                        &ThreeQObject::clear_objects);
+                                        &ThreeQObject::append_child,
+                                        &ThreeQObject::count_children,
+                                        &ThreeQObject::child_at,
+                                        &ThreeQObject::clear_children);
+}
+
+void ThreeQObject::recreate()
+{
+  if(_parentObject) {
+    if(_object) _parentObject->remove(_object);
+    create(_scene, _parentObject);
+  }
 }
 
 void ThreeQObject::setObject(const three::Object3D::Ptr object)
@@ -200,6 +275,98 @@ void ThreeQObject::lookAt(const QVector3D &position)
 
     const math::Euler rot = _object->rotation();
     setRotation(QVector3D(rot.x(), rot.y(), rot.z()), false);
+  }
+}
+
+void ThreeQObject::setPosition(const QVector3D &position, bool propagate) {
+  if(position != _position) {
+    _position = position;
+
+    if(propagate && _object) _object->position().set(_position().x(), _position().y(), _position().z());
+
+    emit positionChanged();
+  }
+}
+
+void ThreeQObject::setRotation(const QVector3D &rotation, bool propagate) {
+  if(_rotation != rotation) {
+    _rotation = rotation;
+
+    if(propagate && _object) {
+      _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
+    }
+
+    emit rotationChanged();
+  }
+}
+
+void ThreeQObject::setScale(QVector3D scale, bool propagate) {
+  if(_scale != scale) {
+    _scale = scale;
+    if(propagate && _object) _object->scale().set(scale.x(), scale.x(), scale.z());
+    emit scaleChanged();
+  }
+}
+
+void ThreeQObject::setMaterial(Material *material) {
+  if(_material != material) {
+    _material = material;
+    if(_object) updateMaterial();
+    emit materialChanged();
+  }
+}
+
+void ThreeQObject::setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate) {
+  if(_matrixAutoUpdate != matrixAutoUpdate) {
+    _matrixAutoUpdate = matrixAutoUpdate;
+    if(propagate && _object) _object->matrixAutoUpdate = _matrixAutoUpdate;
+    emit matrixAutoUpdateChanged();
+  }
+}
+
+void ThreeQObject::setCastShadow(bool castShadow, bool propagate) {
+  if(_castShadow != castShadow) {
+    _castShadow = castShadow;
+    if(propagate && _object) {
+      _object->visit([&](Object3D *o) {o->castShadow = _castShadow; return true;});
+    }
+    emit castShadowChanged();
+  }
+}
+
+void ThreeQObject::setReceiveShadow(bool receiveShadow, bool propagate) {
+  if(_receiveShadow != receiveShadow) {
+    _receiveShadow = receiveShadow;
+    if(propagate && _object) {
+      _object->visit([&](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
+    }
+    emit receiveShadowChanged();
+  }
+}
+
+void ThreeQObject::setVisible(bool visible, bool propagate) {
+  if(_visible != visible) {
+    _visible = visible;
+
+    if(propagate && _object) _object->visible() = _visible;
+    emit visibleChanged();
+  }
+}
+
+void ThreeQObject::setName(const QString &name, bool propagate)
+{
+  if(_name != name) {
+    _name = name;
+    if(_object && propagate) _object->setName(_name.toStdString());
+
+    emit nameChanged();
+  }
+}
+
+void ThreeQObject::setGeometryType(Three::GeometryType geometryType) {
+  if(_geometryType != geometryType) {
+    _geometryType = geometryType;
+    emit geometryTypeChanged();
   }
 }
 
