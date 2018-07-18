@@ -80,7 +80,7 @@ public:
   {
     for (unsigned d = 0; d <= divisions; d++) {
 
-      points.push_back(getPoint(d / divisions));
+      points.push_back(getPoint((float)d / divisions));
     }
   }
 
@@ -96,7 +96,7 @@ public:
   {
     for (unsigned d = 0; d <= divisions; d++) {
 
-      points.push_back(getPointAt(d / divisions));
+      points.push_back(getPointAt((float)d / divisions));
     }
   }
 

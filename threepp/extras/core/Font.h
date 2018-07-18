@@ -72,23 +72,20 @@ class Font
   FontData _data;
 
   float createPath(wchar_t c,
-                   unsigned divisions,
                    float scale,
                    float offsetX,
                    float offsetY,
                    std::vector<ShapePath> &paths) const;
 
-  std::vector<ShapePath> createPaths(const std::wstring &text,
-                                     float size,
-                                     unsigned divisions) const;
+  std::vector<ShapePath> createPaths(const std::wstring &text, float size) const;
 
 public:
   explicit Font(const FontData &data) : _data(data)
   {}
 
-  std::vector<Shape::Ptr> generateShapes(const std::wstring &text, float size, unsigned divisions) const
+  std::vector<Shape::Ptr> generateShapes(const std::wstring &text, float size) const
   {
-    const auto &paths = createPaths(text, size, divisions);
+    const auto &paths = createPaths(text, size);
 
     std::vector<Shape::Ptr> shapes;
 

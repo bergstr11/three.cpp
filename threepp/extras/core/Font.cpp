@@ -7,7 +7,7 @@
 namespace three {
 namespace extras {
 
-std::vector<ShapePath> Font::createPaths(const std::wstring &text, float size, unsigned divisions) const
+std::vector<ShapePath> Font::createPaths(const std::wstring &text, float size) const
 {
   float scale = size / _data.resolution;
   float line_height = (_data.boundingBox.max().y() - _data.boundingBox.min().y() + _data.underlineThickness) * scale;
@@ -24,23 +24,17 @@ std::vector<ShapePath> Font::createPaths(const std::wstring &text, float size, u
 
       offsetX = 0;
       offsetY -= line_height;
-
     }
     else {
 
-      offsetX += createPath(c, divisions, scale, offsetX, offsetY, paths);
+      offsetX += createPath(c, scale, offsetX, offsetY, paths);
     }
   }
 
   return paths;
 }
 
-float Font::createPath(wchar_t c,
-                          unsigned divisions,
-                          float scale,
-                          float offsetX,
-                          float offsetY,
-                          std::vector<ShapePath> &paths) const
+float Font::createPath(wchar_t c, float scale, float offsetX, float offsetY, std::vector<ShapePath> &paths) const
 {
   Glyph glyph = _data.glyphAt(c);
 
@@ -55,16 +49,16 @@ void Glyph::apply(ShapePath &path, float scale, float offsetX, float offsetY)
 {
   float x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
 
-  for (unsigned i = 0, l = data.size(); i < l;) {
+  for (unsigned i = 0, l = data.size(); i < l; i++) {
 
-    uint16_t action = data[i++];
+    int16_t action = data[i];
 
     switch ((char) action) {
 
       case 'm': // moveTo
 
-        x = data[i++] * scale + offsetX;
-        y = data[i++] * scale + offsetY;
+        x = data[++i] * scale + offsetX;
+        y = data[++i] * scale + offsetY;
 
         path.moveTo(x, y);
 
@@ -72,8 +66,8 @@ void Glyph::apply(ShapePath &path, float scale, float offsetX, float offsetY)
 
       case 'l': // lineTo
 
-        x = data[i++] * scale + offsetX;
-        y = data[i++] * scale + offsetY;
+        x = data[++i] * scale + offsetX;
+        y = data[++i] * scale + offsetY;
 
         path.lineTo(x, y);
 
@@ -81,10 +75,10 @@ void Glyph::apply(ShapePath &path, float scale, float offsetX, float offsetY)
 
       case 'q': // quadraticCurveTo
 
-        cpx = data[i++] * scale + offsetX;
-        cpy = data[i++] * scale + offsetY;
-        cpx1 = data[i++] * scale + offsetX;
-        cpy1 = data[i++] * scale + offsetY;
+        cpx = data[++i] * scale + offsetX;
+        cpy = data[++i] * scale + offsetY;
+        cpx1 = data[++i] * scale + offsetX;
+        cpy1 = data[++i] * scale + offsetY;
 
         path.quadraticCurveTo(cpx1, cpy1, cpx, cpy);
 
@@ -92,12 +86,12 @@ void Glyph::apply(ShapePath &path, float scale, float offsetX, float offsetY)
 
       case 'b': // bezierCurveTo
 
-        cpx = data[i++] * scale + offsetX;
-        cpy = data[i++] * scale + offsetY;
-        cpx1 = data[i++] * scale + offsetX;
-        cpy1 = data[i++] * scale + offsetY;
-        cpx2 = data[i++] * scale + offsetX;
-        cpy2 = data[i++] * scale + offsetY;
+        cpx = data[++i] * scale + offsetX;
+        cpy = data[++i] * scale + offsetY;
+        cpx1 = data[++i] * scale + offsetX;
+        cpy1 = data[++i] * scale + offsetY;
+        cpx2 = data[++i] * scale + offsetX;
+        cpy2 = data[++i] * scale + offsetY;
 
         path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, cpx, cpy);
 

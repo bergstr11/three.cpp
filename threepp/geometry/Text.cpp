@@ -30,7 +30,7 @@ static inline ExtrudeOptions extrudeOptions(const TextOptions &textOptions)
 
 static inline std::vector<extras::Shape::Ptr> makeShapes(const std::wstring &text, const TextOptions &options)
 {
-  return options.font.generateShapes( text, options.size, options.curveSegments );
+  return options.font.generateShapes( text, options.size );
 }
 
 Text::Text(const std::wstring &text, const TextOptions &options)

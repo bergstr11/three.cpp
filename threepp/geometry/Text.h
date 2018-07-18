@@ -19,7 +19,7 @@ struct TextOptions
   extras::Font font;
   float size = 100;
   float height = 50;
-  unsigned curveSegments = 4;
+  unsigned curveSegments = 12;
 
   bool bevelEnabled = true;
   float bevelThickness = 10;

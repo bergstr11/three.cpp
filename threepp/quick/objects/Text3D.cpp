@@ -35,7 +35,7 @@ void loadFont(extras::FontData &fontData, const QJsonObject &json)
     QString ol = gl["o"].toString();
     const auto &outline = ol.split(' ', QString::SkipEmptyParts);
 
-    for(auto iter = outline.begin(); iter != outline.end(); ) {
+    for(auto iter = outline.begin(); iter != outline.end(); ++iter) {
 
       const auto &word = *iter;
 
@@ -73,8 +73,6 @@ void loadFont(extras::FontData &fontData, const QJsonObject &json)
 
         glyph.bezierCurveTo(x1, y1, x2, y2, x3, y3);
       }
-
-      iter++;
     }
   }
 }

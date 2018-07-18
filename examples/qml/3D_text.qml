@@ -45,7 +45,7 @@ Window {
             }
         }
         MenuChoice {
-            name: "Gentilis"
+            name: "Helvetiker"
             textColor: "white"
             onSelected: {
                 setFont("helvetiker")
@@ -61,7 +61,7 @@ Window {
         }
         BoolChoice {
             name: "Bevel"
-            value: false
+            value: true
             onValueChanged: {
                 text3d.bevelEnabled = value
                 threeD.update()
@@ -82,8 +82,8 @@ Window {
 
             DirectionalLight {
                 color: "#ffffff"
-                intensity: 0.125
-				position: Qt.vector3d(0,0,1).normalized()
+                intensity: 0.25
+                position: Qt.vector3d( 0, 0, 1 ).normalized();
             }
 
             Plane {
@@ -114,13 +114,15 @@ Window {
                     curveSegments: 4
                     bevelThickness: 2
                     bevelSize: 1.5
-                    bevelEnabled: false
+                    bevelEnabled: true
+                    castShadow: true
+                    receiveShadow: true
 
                     rotation: Qt.vector3d(0, Math.PI * 2,0)
 
                     materials: [
                       MeshPhongMaterial {color: "white"; flatShading: true},
-                      MeshPhongMaterial {color: "green"; flatShading: false}
+                      MeshPhongMaterial {color: "white"; flatShading: true}
                     ]
                 }
 
@@ -159,7 +161,7 @@ Window {
                 PointLight {
                     color: Qt.hsla(1, 1, 0.5, 1)
                     intensity: 1.5
-                    position: "0,100,800";
+                    position: "30,100,800";
                 }
             }
         }
