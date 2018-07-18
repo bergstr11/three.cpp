@@ -154,10 +154,6 @@ void Scene::setItem(ThreeDItem *item)
     auto obj = object->create(this, _scene);
     if(obj) _scene->add(obj);
   }
-  for(auto &object :_objects) {
-    auto obj = object->copy();
-    if(obj) _scene->add(obj);
-  }
   item->addScene(this);
 }
 

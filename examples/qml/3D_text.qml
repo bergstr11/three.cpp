@@ -18,6 +18,9 @@ Window {
     function setFont(fname) {
         if(fname) fontName = fname
         text3d.font = ":/" + fontName + "_" + fontWeight + ".typeface.json"
+
+        textMirror.copy(text3d)
+
         threeD.update()
     }
 
@@ -129,7 +132,6 @@ Window {
                 Text3D {
                     id: textMirror
                     name: "textMirror"
-                    copy: text3d
 
                     rotation: Qt.vector3d(Math.PI, Math.PI * 2, 0)
                 }

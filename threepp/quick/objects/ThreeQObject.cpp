@@ -29,72 +29,54 @@ BoundingBox *ThreeQObject::boundingBox()
   return _boundingBox;
 }
 
-three::Object3D::Ptr ThreeQObject::copy()
-{
-  if(!_object && _copyable) {
-
-    if(_copyable->object())
-      _object = _copy(_copyable->object());
-    else
-      QObject::connect(_copyable, &ThreeQObject::objectCreated, this, &ThreeQObject::copy);
-
-    if(_object) {
-      if(_rotation.isSet())
-        _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
-      else
-        _object->rotation().set(_copyable->_rotation().x(), _copyable->_rotation().y(), _copyable->_rotation().z());
-
-      if(_position.isSet())
-        _object->position().set(_position().x(), _position().y(), _position().z());
-      else
-        _object->position().set(_copyable->_position().x(), _copyable->_position().y(), _copyable->_position().z());
-
-      if(_scale.isSet())
-        _object->scale().set(_scale().x(), _scale().y(), _scale().z());
-      else
-        _object->scale().set(_copyable->_scale().x(), _copyable->_scale().y(), _copyable->_scale().z());
-
-      if(_castShadow.isSet())
-        _object->castShadow = _castShadow;
-      else
-        _object->castShadow = _copyable->_castShadow;
-
-      if(_receiveShadow.isSet())
-        _object->receiveShadow = _receiveShadow;
-      else
-        _object->receiveShadow = _copyable->_receiveShadow;
-
-      if(_matrixAutoUpdate.isSet())
-        _object->matrixAutoUpdate = _matrixAutoUpdate;
-      else
-        _object->matrixAutoUpdate = _copyable->_matrixAutoUpdate;
-
-      if(_visible.isSet())
-        _object->visible() = _visible;
-      else
-        _object->visible() = _copyable->_visible;
-
-      if(!_name.isEmpty()) _object->setName(_name.toStdString());
-      if(_parentObject) _parentObject->add(_object);
-
-      QObject::connect(_copyable, &ThreeQObject::objectCreated, this, &ThreeQObject::recopy);
-
-      onObjectChanged.emitSignal(_object, ObjectState::Added);
-      _object->updateMatrix();
-    }
-  }
-  for(auto o : _children) {
-    three::Object3D::Ptr obj = o->copy();
-  }
-
-  return _object;
-}
-
-void ThreeQObject::recopy()
+void ThreeQObject::copy(ThreeQObject *copyable)
 {
   if(_parentObject && _object) _parentObject->remove(_object);
-  _object = nullptr;
-  copy();
+
+  _object = _copy(copyable->object());
+
+  if(_object) {
+    if(_rotation.isSet())
+      _object->rotation().set(_rotation().x(), _rotation().y(), _rotation().z());
+    else
+      _object->rotation().set(copyable->_rotation().x(), copyable->_rotation().y(), copyable->_rotation().z());
+
+    if(_position.isSet())
+      _object->position().set(_position().x(), _position().y(), _position().z());
+    else
+      _object->position().set(copyable->_position().x(), copyable->_position().y(), copyable->_position().z());
+
+    if(_scale.isSet())
+      _object->scale().set(_scale().x(), _scale().y(), _scale().z());
+    else
+      _object->scale().set(copyable->_scale().x(), copyable->_scale().y(), copyable->_scale().z());
+
+    if(_castShadow.isSet())
+      _object->castShadow = _castShadow;
+    else
+      _object->castShadow = copyable->_castShadow;
+
+    if(_receiveShadow.isSet())
+      _object->receiveShadow = _receiveShadow;
+    else
+      _object->receiveShadow = copyable->_receiveShadow;
+
+    if(_matrixAutoUpdate.isSet())
+      _object->matrixAutoUpdate = _matrixAutoUpdate;
+    else
+      _object->matrixAutoUpdate = copyable->_matrixAutoUpdate;
+
+    if(_visible.isSet())
+      _object->visible() = _visible;
+    else
+      _object->visible() = copyable->_visible;
+
+    if(!_name.isEmpty()) _object->setName(_name.toStdString());
+    if(_parentObject) _parentObject->add(_object);
+
+    onObjectChanged.emitSignal(_object, ObjectState::Added);
+    _object->updateMatrix();
+  }
 }
 
 three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
@@ -102,7 +84,7 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
   _scene = scene;
   _parentObject = parent;
 
-  if(!_copyable) _object = _create();
+  _object = _create();
 
   if(_object) {
     if(!_rotation().isNull())

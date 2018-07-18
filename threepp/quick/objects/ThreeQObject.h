@@ -60,7 +60,6 @@ Q_OBJECT
   Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
   Q_PROPERTY(BoundingBox *boundingBox READ boundingBox CONSTANT)
   Q_PROPERTY(VertexNormalsHelper *vertexNormals READ vertexNormals CONSTANT)
-  Q_PROPERTY(ThreeQObject *copy READ copyable WRITE setCopyable)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> children READ children)
   Q_CLASSINFO("DefaultProperty", "children")
 
@@ -81,8 +80,6 @@ protected:
   TrackingProperty<bool> _matrixAutoUpdate {true};
 
   BoundingBox *_boundingBox = nullptr;
-
-  ThreeQObject *_copyable = nullptr;
 
   QList<ThreeQObject *> _children;
 
@@ -118,7 +115,6 @@ protected:
   void setObject(const three::Object3D::Ptr object);
 
   void recreate();
-  void recopy();
 
 public:
   enum class ObjectState {Removed, Added};
@@ -137,10 +133,7 @@ public:
 
   BoundingBox *boundingBox();
 
-  ThreeQObject *copyable() const {return _copyable;}
-  void setCopyable(ThreeQObject *copyable) {
-    _copyable = copyable;
-  }
+  Q_INVOKABLE void copy(ThreeQObject *copyable);
 
   void setPosition(const QVector3D &position, bool propagate=true);
 
@@ -179,8 +172,6 @@ public:
   three::Object3D::Ptr object() const {return _object;}
 
   three::Object3D::Ptr create(quick::Scene *scene, Object3D::Ptr parent);
-
-  three::Object3D::Ptr copy();
 
   /**
    * mark all tracking properties as 'not externally set'
