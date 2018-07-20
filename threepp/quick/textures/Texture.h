@@ -30,6 +30,13 @@ public:
   };
   Q_ENUM(Mapping)
 
+  enum Wrapping {
+    Repeat = (unsigned)three::TextureWrapping::Repeat,
+    MirroredRepeat = (unsigned)three::TextureWrapping::MirroredRepeat,
+    ClampToEdge = (unsigned)three::TextureWrapping::ClampToEdge,
+  };
+  Q_ENUM(Wrapping)
+
   enum Filter {
     Linear = (unsigned)three::TextureFilter::Linear,
     LinearMipMapLinear = (unsigned)three::TextureFilter::LinearMipMapLinear
@@ -47,6 +54,8 @@ private:
   Q_PROPERTY(Mapping mapping READ mapping WRITE setMapping NOTIFY mappingChanged)
   Q_PROPERTY(Filter minFilter READ minFilter WRITE setMinFilter NOTIFY minFilterChanged)
   Q_PROPERTY(Filter magFilter READ magFilter WRITE setMagFilter NOTIFY magFilterChanged)
+  Q_PROPERTY(Wrapping wrapS READ wrapS WRITE setWrapS NOTIFY wrapSChanged)
+  Q_PROPERTY(Wrapping wrapT READ wrapT WRITE setWrapT NOTIFY wrapTChanged)
   Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
   Q_PROPERTY(bool flipY READ flipY WRITE setFlipY NOTIFY flipYChanged)
 
@@ -55,6 +64,7 @@ protected:
   Mapping _mapping;
   Filter _minFilter;
   Filter _magFilter;
+  Wrapping _wrapS = ClampToEdge, _wrapT = ClampToEdge;
   Type _type;
   bool _flipY;
 
@@ -65,22 +75,18 @@ protected:
   }
 
 public:
-  Format format() const {return _format;}
-  Mapping mapping() const {return _mapping;}
-  Filter minFilter() const {return _minFilter;}
-  Filter magFilter() const {return _magFilter;}
-  Type type() const {return _type;}
-  bool flipY() const {return _flipY;}
 
   virtual three::Texture::Ptr getTexture() = 0;
   virtual three::CubeTexture::Ptr getCubeTexture() {return nullptr;}
 
+  Format format() const {return _format;}
   void setFormat(Format format) {
     if(_format != format) {
       _format = format;
       emit formatChanged();
     }
   }
+  Mapping mapping() const {return _mapping;}
   void setMapping(Mapping mapping) {
     if(_mapping != mapping) {
       _mapping = mapping;
@@ -89,77 +95,59 @@ public:
       emit mappingChanged();
     }
   }
+  Filter minFilter() const {return _minFilter;}
   void setMinFilter(Filter filter) {
     if(_minFilter != filter) {
       _minFilter = filter;
       emit minFilterChanged();
     }
   }
+  Filter magFilter() const {return _magFilter;}
   void setMagFilter(Filter filter) {
     if(_magFilter != filter) {
       _magFilter = filter;
       emit magFilterChanged();
     }
   }
+  Type type() const {return _type;}
   void setType(Type type) {
     if(_type != type) {
       _type = type;
       emit typeChanged();
     }
   }
+  bool flipY() const {return _flipY;}
   void setFlipY(bool flipY) {
     if(_flipY != flipY) {
       _flipY = flipY;
       emit flipYChanged();
     }
   }
+  Wrapping wrapS() const {return _wrapS;}
+  void setWrapS(Wrapping wrap) {
+    if(_wrapS != wrap) {
+      _wrapS = wrap;
+      emit wrapSChanged();
+    }
+  }
+  Wrapping wrapT() const {return _wrapT;}
+  void setWrapT(Wrapping wrap) {
+    if(_wrapT != wrap) {
+      _wrapT = wrap;
+      emit wrapTChanged();
+    }
+  }
 
   TextureOptions createTextureOptions() const
   {
     TextureOptions options = textureOptions();
-    switch(_format) {
-      case RGB:
-        options.format = TextureFormat::RGB;
-        break;
-      case RGBA:
-        options.format = TextureFormat::RGBA;
-        break;
-    }
-    switch(_mapping) {
-      case EquirectangularReflection:
-        options.mapping = TextureMapping::EquirectangularReflection;
-        break;
-      case SphericalReflection:
-        options.mapping = TextureMapping::SphericalReflection;
-        break;
-      case CubeReflection:
-        options.mapping = TextureMapping::CubeReflection;
-        break;
-    }
-    switch(_minFilter) {
-      case Linear:
-        options.minFilter = TextureFilter::Linear;
-        break;
-      case LinearMipMapLinear:
-        options.minFilter = TextureFilter::LinearMipMapLinear;
-        break;
-    }
-    switch(_magFilter) {
-      case Linear:
-        options.magFilter = TextureFilter::Linear;
-        break;
-      case LinearMipMapLinear:
-        options.magFilter = TextureFilter::LinearMipMapLinear;
-        break;
-    }
-    switch(_type) {
-      case UnsignedByte:
-        options.type = TextureType::UnsignedByte;
-        break;
-      case UnsignedShort:
-        options.type = TextureType::UnsignedShort;
-        break;
-    }
+    options.format = (TextureFormat)_format;
+    options.mapping = (TextureMapping)_mapping;
+    options.minFilter = (TextureFilter)_minFilter;
+    options.magFilter = (TextureFilter)_magFilter;
+    options.type = (TextureType)_type;
+    options.wrapS = (TextureWrapping)_wrapS;
+    options.wrapT = (TextureWrapping)_wrapT;
     options.flipY = _flipY;
 
     return options;
@@ -174,6 +162,8 @@ signals:
   void magFilterChanged();
   void typeChanged();
   void flipYChanged();
+  void wrapSChanged();
+  void wrapTChanged();
 };
 
 }

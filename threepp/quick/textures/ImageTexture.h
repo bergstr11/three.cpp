@@ -6,6 +6,7 @@
 #define THREEPPQ_IMAGETEXTURE_H
 
 #include <QUrl>
+#include <QVector2D>
 #include "Texture.h"
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/quick/Three.h>
@@ -74,8 +75,10 @@ class ImageTexture : public Texture
 Q_OBJECT
   Q_PROPERTY(QString image READ image WRITE setImage NOTIFY imageChanged)
   Q_PROPERTY(three::quick::Image::Format imageFormat READ imageFormat WRITE setImageFormat NOTIFY imageFormatChanged)
+  Q_PROPERTY(QVector2D repeat READ repeat WRITE setRepeat NOTIFY repeatChanged)
 
   Image _image;
+  QVector2D _repeat {1, 1};
 
   three::ImageTexture::Ptr _texture;
 
@@ -101,6 +104,7 @@ public:
     if(!_texture) {
       TextureOptions options = createTextureOptions();
       _texture = three::ImageTexture::make(options, _image.getImage());
+      _texture->repeat().set(_repeat.x(), _repeat.y());
     }
     return _texture;
   }
@@ -110,8 +114,7 @@ public:
     return getImageTexture();
   }
 
-  QString image() const {return _image._url;}
-
+  const QString &image() const {return _image._url;}
   void setImage(QString image) {
     if(_image._url != image) {
       _image._url = image;
@@ -119,12 +122,19 @@ public:
     }
   }
 
-  Image::Format imageFormat() const {return _image._format;}
-
+  const Image::Format &imageFormat() const {return _image._format;}
   void setImageFormat(Image::Format imageFormat) {
     if(_image._format != imageFormat) {
       _image._format = imageFormat;
       emit imageFormatChanged();
+    }
+  }
+
+  const QVector2D &repeat() const {return _repeat;}
+  void setRepeat(const QVector2D &repeat) {
+    if(_repeat != repeat) {
+      _repeat = repeat;
+      emit repeatChanged();
     }
   }
 
@@ -137,6 +147,7 @@ public:
 signals:
   void imageChanged();
   void imageFormatChanged();
+  void repeatChanged();
 };
 
 }

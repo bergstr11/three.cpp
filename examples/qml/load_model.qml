@@ -237,9 +237,6 @@ Window {
                         orbitController.reset()
                         objectControls.reset()
                         lightControls.reset()
-
-                        picker.objects = [modelref.object]
-                        picker.scaleTo(modelref.object)
                     }
                 }
             }

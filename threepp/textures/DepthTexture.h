@@ -1,11 +1,10 @@
 //
 // Created by byter on 11/19/17.
 //
-
-#include "Texture.h"
-
 #ifndef THREEPP_DEPTHTEXTURE_H
 #define THREEPP_DEPTHTEXTURE_H
+
+#include "Texture.h"
 
 namespace three
 {

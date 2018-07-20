@@ -98,6 +98,8 @@ public:
   const math::Vector2 &center() const {return _center;}
   float rotation() const {return _rotation;}
 
+  math::Vector2 &repeat() {return _repeat;}
+
   bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
   void setMatrixAutoUpdate(bool autoUpdate) {_matrixAutoUpdate = autoUpdate;}
 

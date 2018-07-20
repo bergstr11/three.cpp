@@ -17,10 +17,13 @@ namespace quick {
 class Plane : public ThreeQObject
 {
   Q_OBJECT
-  Q_PROPERTY(unsigned width READ width WRITE setWidth NOTIFY widthChanged)
-  Q_PROPERTY(unsigned height READ height WRITE setHeight NOTIFY heightChanged)
+  Q_PROPERTY(float width READ width WRITE setWidth NOTIFY widthChanged)
+  Q_PROPERTY(float height READ height WRITE setHeight NOTIFY heightChanged)
+  Q_PROPERTY(unsigned widthSegments READ widthSegments WRITE setWidthSegments NOTIFY widthSegmentsChanged)
+  Q_PROPERTY(unsigned heightSegments READ heightSegments WRITE setHeightSegments NOTIFY heightSegmentsChanged)
 
-  unsigned _width=1, _height=1;
+  float _width=1, _height=1;
+  unsigned _widthSegments=1, _heightSegments=1;
 
   DynamicMesh::Ptr _mesh;
 
@@ -29,11 +32,11 @@ protected:
   {
     switch(_geometryType) {
       case Three::LinearGeometry: {
-        _mesh = DynamicMesh::make(geometry::Plane::make(_width, _height, 1, 1));
+        _mesh = DynamicMesh::make(geometry::Plane::make(_width, _height, _widthSegments, _heightSegments));
         break;
       }
       case Three::BufferGeometry: {
-        _mesh = DynamicMesh::make(geometry::buffer::Plane::make(_width, _height, 1, 1));
+        _mesh = DynamicMesh::make(geometry::buffer::Plane::make(_width, _height, _widthSegments, _heightSegments));
         break;
       }
     }
@@ -50,25 +53,43 @@ protected:
 public:
   Plane(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
-  unsigned width() const {return _width;}
-  void setWidth(unsigned width) {
+  float width() const {return _width;}
+  void setWidth(float width) {
     if(_width != width) {
       _width = width;
       emit widthChanged();
     }
   }
 
-  unsigned height() const {return _height;}
-  void setHeight(unsigned height) {
+  float height() const {return _height;}
+  void setHeight(float height) {
     if(_height != height) {
       _height = height;
       emit heightChanged();
     }
   }
 
+  unsigned widthSegments() const {return _widthSegments;}
+  void setWidthSegments(unsigned segments) {
+    if(_widthSegments != segments) {
+      _widthSegments = segments;
+      emit widthSegmentsChanged();
+    }
+  }
+
+  unsigned heightSegments() const {return _heightSegments;}
+  void setHeightSegments(unsigned segments) {
+    if(_heightSegments != segments) {
+      _heightSegments = segments;
+      emit heightSegmentsChanged();
+    }
+  }
+
 signals:
   void widthChanged();
   void heightChanged();
+  void widthSegmentsChanged();
+  void heightSegmentsChanged();
 };
 
 }
