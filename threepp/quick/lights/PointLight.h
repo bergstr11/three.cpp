@@ -7,6 +7,7 @@
 
 #include <threepp/light/PointLight.h>
 #include <threepp/quick/lights/Light.h>
+#include <threepp/quick/elements/LightShadow.h>
 
 namespace three {
 namespace quick {
@@ -16,9 +17,11 @@ class PointLight : public Light
   Q_OBJECT
   Q_PROPERTY(float distance READ distance WRITE setDistance NOTIFY distanceChanged)
   Q_PROPERTY(float decay READ decay WRITE setDecay NOTIFY decayChanged)
+  Q_PROPERTY(LightShadowPC * shadow READ shadow CONSTANT)
 
   float _decay = 1.0f;
   float _distance = 0.0f;
+  LightShadowPC _shadow;
 
   three::PointLight::Ptr _light;
 
@@ -27,6 +30,12 @@ protected:
   {
     _light = three::PointLight::make(
        Color(_color.redF(), _color.greenF(), _color.blueF()), _intensity, _distance, _decay);
+    _light->shadow()->mapSize().x() = _shadow.mapSize().width();
+    _light->shadow()->mapSize().y() = _shadow.mapSize().height();
+    _light->shadow()->radius() = _shadow.radius();
+    _light->shadow()->bias() = _shadow.bias();
+    _light->shadow()->camera()->setNearFar(_shadow.camera()->near(), _shadow.camera()->far());
+    _light->shadow_t()->camera_t()->setFovAspect(_shadow.camera()->fov(), _shadow.camera()->aspect());
     return _light;
   }
 
@@ -35,6 +44,8 @@ protected:
 public:
   PointLight(QObject *parent=nullptr) : Light(parent) {}
   PointLight(three::Light::Ptr light, QObject *parent) : Light(light, parent) {}
+
+  LightShadowPC *shadow() {return &_shadow;}
 
   float distance() const {return _distance;}
 
