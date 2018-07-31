@@ -408,6 +408,7 @@ public:
   {
     if (capabilities.count(id) == 0 || !capabilities[id]) {
       _f->glEnable(id);
+      check_glerror(_f);
       capabilities[id] = true;
     }
   }

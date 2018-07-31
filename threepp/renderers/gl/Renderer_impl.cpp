@@ -164,6 +164,8 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
+  if(clear_glerror(this)) return;
+
   if(renderTarget) renderTarget->init(this);
   check_glerror(this);
 

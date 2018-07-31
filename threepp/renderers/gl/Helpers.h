@@ -34,6 +34,13 @@ struct Buffer
   unsigned version;
 };
 
+inline bool clear_glerror(QOpenGLFunctions *f)
+{
+  bool hasErr = false;
+  while(f->glGetError() != GL_NO_ERROR) hasErr = true;
+  return hasErr;
+}
+
 inline void _check_glerror(QOpenGLFunctions *f, const char *file, int line)
 {
   GLenum err = f->glGetError();

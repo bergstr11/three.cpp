@@ -415,6 +415,7 @@ void ThreeDItem::itemChange(ItemChange change, const ItemChangeData &data)
       }
     }
   }
+  QQuickItem::itemChange(change, data);
 }
 
 void ThreeDItem::append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj)
