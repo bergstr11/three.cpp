@@ -160,17 +160,22 @@ protected:
       emit distanceChanged();
 
       if(!_moving) {
-        _moving = true;
         switch(state) {
           case OrbitControls::State::PAN:
           case OrbitControls::State::TOUCH_PAN:
+            _moving = true;
             emit moveStarted(Movement::Pan);
+            break;
           case OrbitControls::State::ROTATE:
           case OrbitControls::State::TOUCH_ROTATE:
+            _moving = true;
             emit moveStarted(Movement::Rotate);
+            break;
           case OrbitControls::State::DOLLY:
           case OrbitControls::State::TOUCH_DOLLY:
+            _moving = true;
             emit moveStarted(Movement::Zoom);
+            break;
         }
       }
     });
