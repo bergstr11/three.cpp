@@ -13,12 +13,12 @@
 namespace three {
 namespace extras {
 
-class DLX ShapePath
+struct DLX ShapePath
 {
 	std::vector<Path::Ptr> subPaths;
-	Path::Ptr currentPath;
+  Path::Ptr currentPath;
+  Color color;
 
-public:
   ShapePath &moveTo( float x, float y ) {
 
 		currentPath = Shape::make();

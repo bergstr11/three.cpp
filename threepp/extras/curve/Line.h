@@ -43,6 +43,9 @@ public:
     }
   };
 
+  math::Vector2 start() const override {
+    return _v1;
+  }
 
   // Line curve is linear, so we can overwrite default getPointAt
   math::Vector2 getPointAt( float u ) override

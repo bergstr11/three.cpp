@@ -105,6 +105,10 @@ public:
 
     return math::Vector2( x, y );
   }
+
+  math::Vector2 start() const override {
+    return math::Vector2(config.aX, config.aY);
+  }
 };
 
 }

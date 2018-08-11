@@ -37,6 +37,10 @@ public:
        interpolations::CubicBezier( t, v0.y(), v1.y(), v2.y(), v3.y() )
     );
   }
+
+  math::Vector2 start() const override {
+    return v0;
+  }
 };
 
 }

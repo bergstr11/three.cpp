@@ -41,6 +41,8 @@ public:
 
   const std::vector<Curve::Ptr> &curves() {return _curves;}
 
+  const Curve::Ptr curve(unsigned index) {return _curves.at(index);}
+
   // To get accurate point with reference to
   // entire path distance at time t,
   // following has to be done:
@@ -52,6 +54,9 @@ public:
 
   math::Vector2 getPoint( float t ) override;
 
+  void setAutoClose(bool autoclose) {
+    _autoClose = autoclose;
+  }
 
   // We cannot use the default THREE.Curve getPoint() with getLength() because in
   // THREE.Curve, getLength() depends on getPoint() but in THREE.CurvePath
@@ -103,6 +108,10 @@ public:
     std::vector<math::Vector2> points;
     getPoints(12, points);
     return points;
+  }
+
+  math::Vector2 start() const override {
+    return _curves[0]->start();
   }
 };
 

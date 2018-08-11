@@ -21,6 +21,8 @@ class Path : public CurvePath
 protected:
 	math::Vector2 currentPoint;
 
+	Path() {}
+
 	Path(const std::vector<math::Vector2> &points)
   {
     if(!points.empty()) setFromPoints( points );
@@ -37,6 +39,10 @@ public:
 
   static Ptr make(const std::vector<Curve::Ptr> &curves) {
     return Ptr(new Path(curves));
+  }
+
+  static Ptr make() {
+    return Ptr(new Path());
   }
 
 	Path &setFromPoints( const std::vector<math::Vector2> &points )
@@ -116,7 +122,7 @@ public:
     return *this;
 	}
 
-	Path &absarc( float aX, float aY, float aRadius, float aStartAngle, float aEndAngle, bool aClockwise )
+	Path &absarc( float aX, float aY, float aRadius, float aStartAngle, float aEndAngle, bool aClockwise=true )
   {
 		absellipse( aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise, 0 );
 
@@ -135,7 +141,7 @@ public:
 	}
 
 	Path &absellipse( float aX, float aY, float xRadius, float yRadius, float aStartAngle, float aEndAngle,
-                    bool aClockwise, float aRotation )
+                    bool aClockwise=false, float aRotation=0 )
   {
 		Curve::Ptr curve = curve::Ellipse::make( curve::EllipseConfig(aX, aY, xRadius, yRadius,
                                                                   aStartAngle, aEndAngle,

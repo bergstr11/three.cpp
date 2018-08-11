@@ -66,6 +66,7 @@ public:
 
   virtual ~Curve() = default;
 
+  virtual math::Vector2 start() const = 0;
   virtual math::Vector2 getPoint(float position) = 0;
 
   // Get point at relative position in curve according to arc length

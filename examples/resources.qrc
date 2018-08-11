@@ -38,5 +38,6 @@
         <file alias="helvetiker_bold.typeface.json">fonts/helvetiker_bold.typeface.json</file>
         <file alias="optimer_regular.typeface.json">fonts/optimer_regular.typeface.json</file>
         <file alias="optimer_bold.typeface.json">fonts/optimer_bold.typeface.json</file>
+        <file alias="LO3D.svg">qml/resources/LO3D.svg</file>
     </qresource>
 </RCC>

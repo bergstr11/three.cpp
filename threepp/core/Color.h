@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <string>
 
 namespace three {
 
@@ -382,6 +383,8 @@ struct Color
 
   }
 #endif
+  void setHsl(float h, float s, float l);
+  void setStyle( const std::string &style );
 };
 
 inline Color operator *(const Color &color1, const Color &color2)

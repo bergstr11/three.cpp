@@ -36,6 +36,10 @@ public:
        interpolations::QuadraticBezier( t, v0.y(), v1.y(), v2.y() )
     );
   }
+
+  math::Vector2 start() const override {
+    return v0;
+  }
 };
 
 }
