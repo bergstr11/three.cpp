@@ -11,25 +11,22 @@
 #include <threepp/extras/core/ShapePath.h>
 
 namespace three {
-
 namespace extras {
 
-struct SVGOptions
-{
-};
-
 /**
- * SVG 2D geometry Loader
+ * SVG 2D Loader
  */
-class SVG : private SVGOptions
+class SVG
 {
 protected:
-  std::vector<extras::ShapePath> paths;
+  std::vector<extras::ShapePath> _paths;
+
 public:
+  static SVG fromFile(const std::string &file);
+  static SVG fromXML(const std::string &xml);
+  static SVG fromXML(const char *xml, size_t size);
 
-  SVG(const SVGOptions &options = SVGOptions()) : SVGOptions(options) {}
-
-  void load(std::string name);
+  const std::vector<extras::ShapePath> &paths() const {return _paths;}
 };
 
 }

@@ -50,6 +50,8 @@ protected:
 public:
   const material::Typer typer;
 
+  virtual void setColor(const QColor &color) {}
+
   virtual void setAndConfigureObject(three::Material::Ptr material)
   {
     if(_wireframe.isSet()) material->wireframe = _wireframe;

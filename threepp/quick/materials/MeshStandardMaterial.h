@@ -63,6 +63,10 @@ public:
   void setColor(const QColor &color) {
     if(_color != color) {
       _color = color;
+      if(_material) {
+        _material->color.set(color.redF(), color.greenF(), color.blueF());
+        _material->needsUpdate = true;
+      }
       emit colorChanged();
     }
   }

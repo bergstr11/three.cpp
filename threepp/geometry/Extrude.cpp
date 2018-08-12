@@ -31,6 +31,8 @@ namespace buffer {
 
 struct Builder : private ExtrudeOptions
 {
+  friend class Extrude;
+
   bool extrudeByPath = false;
 
   vector<Vector2> contour;
@@ -41,6 +43,9 @@ struct Builder : private ExtrudeOptions
 
   BufferGeometry &geometry;
 
+  unsigned shapeIndex = 0;
+  ShapeGroup *currentShapeGroup = nullptr;
+
   attribute::growing_t<float, Vertex> positions;
   attribute::growing_t<float, UV> uvs;
 
@@ -50,6 +55,7 @@ struct Builder : private ExtrudeOptions
   void buildLidFaces();
   void buildSideFaces();
   void sidewalls( const vector<Vector2> &contour, unsigned layeroffset );
+  void setShapeGroup();
 
   void addShape( Shape::Ptr shape);
 
@@ -243,7 +249,12 @@ void Builder::buildLidFaces()
     }
   }
 
-  geometry.addGroup( start, positions->itemCount() - start, 0 );
+  if(currentShapeGroup) {
+    if(currentShapeGroup->posStart < 0) currentShapeGroup->posStart = start;
+    currentShapeGroup->posCount += positions->itemCount() - start;
+  }
+  else
+    geometry.addGroup( start, positions->itemCount() - start, 0 );
 }
 
 // Create faces for the z-sides of the shape
@@ -265,7 +276,12 @@ void Builder::buildSideFaces()
     layeroffset += hole.size();
   }
 
-  geometry.addGroup( start, positions->itemCount() - start, 1 );
+  if(currentShapeGroup) {
+    if(currentShapeGroup->posStart < 0) currentShapeGroup->posStart = start;
+    currentShapeGroup->posCount += positions->itemCount() - start;
+  }
+  else
+    geometry.addGroup( start, positions->itemCount() - start, 1 );
 }
 
 void Builder::f3( unsigned a, unsigned b, unsigned c )
@@ -292,8 +308,29 @@ void Builder::f4( unsigned a, unsigned b, unsigned c, unsigned d ) {
   uvGenerator->generateSideWallUV( positions, uvs, nextIndex - 6, nextIndex - 3, nextIndex - 2, nextIndex - 1 );
 }
 
+void Builder::setShapeGroup()
+{
+  if(!shapeGroups.empty()) {
+    if(!currentShapeGroup ||
+       shapeIndex < currentShapeGroup->shapeStart ||
+       shapeIndex >= currentShapeGroup->shapeStart + currentShapeGroup->shapeCount) {
+      //not current sg, find a new one
+      currentShapeGroup = nullptr;
+      for(auto &sg : shapeGroups) {
+        if(shapeIndex >= sg.shapeStart && shapeIndex < sg.shapeStart + sg.shapeCount) {
+          currentShapeGroup = &sg;
+          break;
+        }
+      }
+    }
+  }
+  shapeIndex++;
+}
+
 void Builder::addShape( Shape::Ptr shape )
 {
+  setShapeGroup();
+
   contour.clear();
   vertices.clear();
   placeholder.clear();
@@ -326,7 +363,6 @@ void Builder::addShape( Shape::Ptr shape )
     bevelSegments = 0;
     bevelThickness = 0;
     bevelSize = 0;
-
   }
 
   // Variables initialization
@@ -541,7 +577,9 @@ Extrude::Extrude(const std::vector<Shape::Ptr> &shapes, const ExtrudeOptions &op
   for(Shape::Ptr shape : shapes) {
     builder.addShape(shape);
   }
-
+  for(const auto &sg : builder.shapeGroups) {
+    addGroup(sg.posStart, sg.posCount, sg.group);
+  }
   setPosition(builder.positions);
   setUV(builder.uvs);
 

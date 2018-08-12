@@ -35,6 +35,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "objects/ConvexHull.h"
 #include "objects/Mesh.h"
 #include "threepp/quick/objects/Text3D.h"
+#include "threepp/quick/objects/SVG.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
 #include "materials/MeshStandardMaterial.h"
 #include "materials/ShaderMaterial.h"
@@ -89,6 +90,7 @@ void init()
   qmlRegisterType<three::quick::GridLines>("three.quick", 1, 0, "GridLines");
   qmlRegisterType<three::quick::Box>("three.quick", 1, 0, "Box");
   qmlRegisterType<three::quick::Text3D>("three.quick", 1, 0, "Text3D");
+  qmlRegisterType<three::quick::SVG>("three.quick", 1, 0, "SVG");
   qmlRegisterType<three::quick::Line>("three.quick", 1, 0, "Line");
   qmlRegisterType<three::quick::Points>("three.quick", 1, 0, "Points");
   qmlRegisterType<three::quick::Ring>("three.quick", 1, 0, "Ring");

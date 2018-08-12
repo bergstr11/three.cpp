@@ -15,6 +15,12 @@ namespace extras {
 using namespace std;
 using namespace tinyxml2;
 
+struct StyleData
+{
+  unordered_map<string, string> styles {{"fill", "#000"}};
+  unordered_map<string, unordered_map<string, string>> classes;
+};
+
 float _stof(const string &s) {
   stringstream ss(s);
   float ret;
@@ -27,20 +33,35 @@ float reflection( float a, float b )
   return a - ( b - a );
 }
 
-bool isVisible(const unordered_map<string, string> &style)
+bool isVisible(const StyleData &data)
 {
-  return style.find("fill") != style.cend() && style.at("fill") != "transparent";
+  return data.styles.find("fill") != data.styles.cend() && data.styles.at("fill") != "transparent";
 }
 
-void parseStyle( XMLElement *element, unordered_map<string, string> &style )
+void parseStyle(const XMLElement *element, StyleData &style )
 {
-  if ( element->Attribute( "fill" ) ) style["fill"] = element->Attribute( "fill" );
+  if ( element->Attribute( "fill" ) ) style.styles["fill"] = element->Attribute( "fill" );
+}
+
+void applyColorStyle(const XMLElement *element, Color &color, StyleData &style)
+{
+  string fill = style.styles["fill"];
+
+  const char *clazz = element->Attribute("class");
+  if(clazz) {
+    string cls(clazz);
+    if(style.classes.find(cls) != style.classes.end()) {
+      const auto &classStyle = style.classes[cls];
+      if(classStyle.find("fill") != classStyle.end())
+        fill = style.classes[cls].at("fill");
+    }
+  }
+  color.setStyle( fill );
 }
 
 vector<float> parseFloats( string data )
 {
-  static const regex rex(R"([\s,]+|(?=\s?[+\-]))");
-  static const regex rex2(R"((\d*)?\.(\d+))");
+  static const regex rex(R"([+-]?\d*\.\d+|[+-]?\d+)");
 
   vector<float> floats;
 
@@ -50,16 +71,10 @@ vector<float> parseFloats( string data )
   while(rex_it != rex_end) {
     smatch match = *rex_it;
 
-    string number = match.str();
-
-    // Handle values like 48.6037.7.8
-    sregex_iterator rex2_it(number.begin(), number.end(), rex2);
-    while(rex2_it != rex_end) {
-      smatch match2 = *rex2_it;
-
-      floats.push_back( _stof(number) );
-    }
+    floats.push_back( _stof(match.str()) );
+    rex_it++;
   }
+
   return floats;
 }
 
@@ -124,8 +139,8 @@ void parseArcCommand( extras::ShapePath &path, float rx, float ry, float x_axis_
   float cyp = - q * ry * x1p / rx;
 
   // Step 3: Compute (cx, cy) from (cx′, cy′)
-  float cx = cos( x_axis_rotation ) * cxp - sin( x_axis_rotation ) * cyp + ( start.x() + end.x() ) / 2;
-  float cy = sin( x_axis_rotation ) * cxp + cos( x_axis_rotation ) * cyp + ( start.y() + end.y() ) / 2;
+  float cx = cos( x_axis_rotation ) * cxp - sin( x_axis_rotation ) * cyp + ( start.x() + end.x() ) / 2.0f;
+  float cy = sin( x_axis_rotation ) * cxp + cos( x_axis_rotation ) * cyp + ( start.y() + end.y() ) / 2.0f;
 
   // Step 4: Compute θ1 and Δθ
   float theta = svgAngle( 1, 0, ( x1p - cxp ) / rx, ( y1p - cyp ) / ry );
@@ -135,12 +150,12 @@ void parseArcCommand( extras::ShapePath &path, float rx, float ry, float x_axis_
 
 }
 
-void parsePathNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
-  static const regex rex(R"(([a-df-z])([^a-df-z]*))", regex::icase || regex::ECMAScript);
+  static const regex rex("([a-df-z])([^a-df-z]*)", regex::icase);
 
   extras::ShapePath path;
-  path.color.setStyle( style["fill"] );
+  applyColorStyle(element, path.color, style);
 
   math::Vector2 point;
   math::Vector2 control;
@@ -154,6 +169,7 @@ void parsePathNode(XMLElement *element, unordered_map<string, string> &style, ve
 
   while(rex_it != rex_end) {
     smatch match = *rex_it;
+    rex_it++;
 
     char command = match[1].str().at(0);
     string data = match[2];
@@ -416,7 +432,7 @@ void parsePathNode(XMLElement *element, unordered_map<string, string> &style, ve
 * According to https://www.w3.org/TR/SVG/shapes.html#RectElementRXAttribute
 * rounded corner should be rendered to elliptical arc, but bezier curve does the job well enough
 */
-void parseRectNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parseRectNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   float x = atof(element->Attribute("x", "0"));
   float y = atof(element->Attribute("y", "0"));
@@ -426,7 +442,7 @@ void parseRectNode(XMLElement *element, unordered_map<string, string> &style, ve
   float h = atof(element->Attribute("height"));
 
   extras::ShapePath path;
-  path.color.setStyle( style["fill"] );
+  applyColorStyle(element, path.color, style);
   path.moveTo( x + 2 * rx, y );
   path.lineTo( x + w - 2 * rx, y );
   if ( rx != 0 || ry != 0 ) path.bezierCurveTo( x + w, y, x + w, y, x + w, y + 2 * ry );
@@ -443,12 +459,12 @@ void parseRectNode(XMLElement *element, unordered_map<string, string> &style, ve
   paths.push_back(path);
 }
 
-void parsePolyNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths, bool closed)
+void parsePolyNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths, bool closed)
 {
   static const regex rex(R"((-?[\d\.?]+)[,|\s](-?[\d\.?]+))");
 
   extras::ShapePath path;
-  path.color.setStyle( style["fill"] );
+  applyColorStyle(element, path.color, style);
 
   unsigned index = 0;
 
@@ -466,23 +482,24 @@ void parsePolyNode(XMLElement *element, unordered_map<string, string> &style, ve
     else path.lineTo(x, y);
 
     index++;
+    rex_it++;
   }
 
   path.currentPath->setAutoClose(closed);
   paths.push_back(path);
 }
 
-void parsePolygonNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parsePolygonNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   parsePolyNode(element, style, paths, true);
 }
 
-void parsePolylineNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parsePolylineNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   parsePolyNode(element, style, paths, false);
 }
 
-void parseCircleNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parseCircleNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   float x = atof( element->Attribute( "cx" ) );
   float y = atof( element->Attribute( "cy" ) );
@@ -492,13 +509,13 @@ void parseCircleNode(XMLElement *element, unordered_map<string, string> &style, 
   subpath->absarc( x, y, r, 0, M_PI * 2 );
 
   extras::ShapePath path;
-  path.color.setStyle( style["fill"] );
+  applyColorStyle(element, path.color, style);
   path.subPaths.push_back( subpath );
 
   paths.push_back(path);
 }
 
-void parseEllipseNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parseEllipseNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   float x = atof( element->Attribute( "cx" ) );
   float y = atof( element->Attribute( "cy" ) );
@@ -509,13 +526,13 @@ void parseEllipseNode(XMLElement *element, unordered_map<string, string> &style,
   subpath->absellipse( x, y, rx, ry, 0, M_PI * 2 );
 
   extras::ShapePath path;
-  path.color.setStyle( style["fill"] );
+  applyColorStyle(element, path.color, style);
   path.subPaths.push_back( subpath );
 
   paths.push_back(path);
 }
 
-void parseLineNode(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parseLineNode(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
 {
   float x1 = atof( element->Attribute( "x1" ) );
   float y1 = atof( element->Attribute( "y1" ) );
@@ -530,8 +547,47 @@ void parseLineNode(XMLElement *element, unordered_map<string, string> &style, ve
   paths.push_back(path);
 }
 
-void parse(XMLElement *element, unordered_map<string, string> &style, vector<extras::ShapePath> &paths)
+void parseDefs(const XMLElement *element, StyleData &styles)
 {
+  static const regex rex(R"((\.[^\{]+)\{([^}]+)\})");
+  static const regex rex2(R"((\w+)\:([\w#]+))");
+
+  const XMLElement *style = element->FirstChildElement("style");
+  if(style) {
+    string text(style->GetText());
+
+    sregex_iterator rex_it(text.begin(), text.end(), rex);
+    sregex_iterator rex_end;
+
+    while(rex_it != rex_end) {
+      smatch match = *rex_it;
+
+      string cls = match[1].str().substr(1);
+      sregex_iterator rex2_it(match[2].first, match[2].first+match[2].length(), rex2);
+      while(rex2_it != rex_end) {
+        string match = rex2_it->str();
+        auto pos = match.find(':');
+
+        string key = match.substr(0, pos);
+        string value = match.substr(pos+1, match.length());
+
+        unordered_map<string, string> clsdata;
+        clsdata.emplace(key, value);
+        styles.classes.emplace(cls, clsdata);
+        rex2_it++;
+      }
+
+      rex_it++;
+    }
+
+  }
+}
+
+void parse(const XMLElement *element, StyleData &style, vector<extras::ShapePath> &paths)
+{
+  if(!strcmp(element->Name(), "defs")) {
+    parseDefs(element, style);
+  }
   if(!strcmp(element->Name(), "g")) {
     parseStyle(element, style);
   }
@@ -564,19 +620,47 @@ void parse(XMLElement *element, unordered_map<string, string> &style, vector<ext
     if(isVisible(style)) parseLineNode(element, style, paths);
   }
 
-  for(XMLElement *child = element->FirstChildElement(); child; child = element->NextSiblingElement())
+  for(const XMLElement *child = element->FirstChildElement(); child; child = child->NextSiblingElement())
     parse(child, style, paths);
 }
 
-void SVG::load(std::string name)
+void read(const tinyxml2::XMLDocument &doc, vector<extras::ShapePath> &paths)
 {
+  const XMLElement *elem = doc.FirstChildElement("svg");
+  if(!elem) return;
+
+  StyleData style;
+  parse(elem, style, paths);
+}
+
+SVG SVG::fromFile(const string &file)
+{
+  SVG svg;
   tinyxml2::XMLDocument doc;
-  doc.LoadFile( name.c_str() );
+  doc.LoadFile( file.c_str() );
 
-  XMLElement *svg = doc.FirstChildElement("svg");
+  read(doc, svg._paths);
+  return svg;
+}
 
-  unordered_map<string, string> style {{ "fill", "#000" }};
-  parse( svg, style, paths);
+SVG SVG::fromXML(const string &xml)
+{
+  SVG svg;
+  tinyxml2::XMLDocument doc;
+  doc.Parse( xml.c_str(), xml.length() );
+
+  read(doc, svg._paths);
+  return svg;
+}
+
+SVG SVG::fromXML(const char *xml, size_t size)
+{
+  SVG svg;
+  tinyxml2::XMLDocument doc;
+  doc.Parse( xml, size );
+
+  read(doc, svg._paths);
+  return svg;
 }
 
 }

@@ -52,6 +52,24 @@ struct WorldUVGenerator : public UVGenerator
                           unsigned indexD ) override;
 };
 
+namespace buffer {
+struct Builder;
+class Extrude;
+}
+struct ShapeGroup
+{
+  friend struct buffer::Builder;
+  friend class buffer::Extrude;
+
+  ShapeGroup(unsigned group, unsigned shapeStart, unsigned shapeCount)
+     : group(group), shapeStart(shapeStart), shapeCount(shapeCount) {}
+
+private:
+  int group;
+  unsigned shapeStart, shapeCount;
+  int posStart=-1, posCount=0;
+};
+
 struct ExtrudeOptions
 {
   unsigned curveSegments = 12;
@@ -61,6 +79,7 @@ struct ExtrudeOptions
   float bevelThickness = 6;
   float bevelSize = bevelThickness - 2;
   unsigned bevelSegments = 3;
+  std::vector<ShapeGroup> shapeGroups;
 
   extras::CurvePath::Ptr extrudePath = nullptr;
   UVGenerator::Ptr uvGenerator = nullptr;

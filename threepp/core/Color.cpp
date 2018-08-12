@@ -11,16 +11,23 @@ namespace three {
 
 using namespace std;
 
-void parseHex(const string &hexString, Color &color, unsigned w)
+void parseColorHex(const string &hexString, Color &color)
 {
-  std::stringstream ss(hexString);
-  ss >> setw(w) >> std::hex >> color.r;
-  ss >> setw(w) >> std::hex >> color.g;
-  ss >> setw(w) >> std::hex >> color.b;
+  long rgb;
+  if(hexString.length() == 3) {
+    stringstream ss;
+    ss << hexString.at(0) << hexString.at(0) << hexString.at(1) << hexString.at(1) << hexString.at(2) << hexString.at(2);
+    rgb = strtol(ss.str().c_str(), 0, 16);
+  }
+  else
+    rgb = strtol(hexString.c_str(), 0, 16);
+  color.r = rgb / 0x10000;
+  color.g = (rgb / 0x100) % 0x100;
+  color.b = rgb % 0x100;
 }
 
 int _stoi(const string &s) {
-  return atoi(s.c_str());
+  return strtol(s.c_str(), 0, 10);
 }
 
 // h,s,l ranges are in 0.0 - 1.0
@@ -98,10 +105,7 @@ void Color::setStyle( const std::string &style )
 
     // hex color
     string hex = m[ 1 ];
-    if ( hex.length() == 3 )
-      parseHex(hex, *this, 1);
-    if ( hex.length() == 6 )
-      parseHex(hex, *this, 2);
+    parseColorHex(hex, *this);
   }
 }
 
