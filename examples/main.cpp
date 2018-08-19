@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
   //maincomponent.loadUrl(QUrl("qrc:///hemisphere.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///cameras.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///3D_text.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///SVG_extrude.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///SVG_extrude.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();

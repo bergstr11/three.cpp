@@ -257,6 +257,12 @@ public:
   Q_INVOKABLE float azimuth() {
     return _controls ? _controls->getAzimuthalAngle() : 0.0f;
   }
+  Q_INVOKABLE void zoomIn(float factor) {
+    if(_controls) _controls->zoomIn(factor);
+  }
+  Q_INVOKABLE void zoomOut(float factor) {
+    if(_controls) _controls->zoomOut(factor);
+  }
 
 signals:
   void minDistanceChanged();

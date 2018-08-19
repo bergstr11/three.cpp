@@ -127,6 +127,22 @@ public:
    */
   void pan(float deltaX, float deltaY);
 
+  /**
+   * increase the zoom by a factor
+   * @param factor
+   */
+  void zoomIn(float factor) {
+    _dollyIn(factor);
+  }
+
+  /**
+   * decrease the zoom by a factor
+   * @param factor
+   */
+  void zoomOut(float factor) {
+    _dollyOut(factor);
+  }
+
   // "target" sets the location of focus, where the object orbits around
   math::Vector3 target;
 

@@ -234,7 +234,7 @@ public:
     return distanceToPoint(sphere.center()) <= sphere.radius();
   }
 
-  bool distanceToPlane(const Plane &plane, float &distance)
+  bool distanceToPlane(const Plane &plane, float &distance) const
   {
     float denominator = dot(plane.normal(), _direction);
 
@@ -252,7 +252,7 @@ public:
     float t = -(dot(_origin, plane.normal()) + plane.constant()) / denominator;
 
     // Return if the ray never intersects the plane
-    if (t >= 0) {
+    if (t >= 0.0f) {
       distance = t;
       return true;
     }
@@ -260,14 +260,13 @@ public:
       return false;
   }
 
-  bool intersectPlane(const Plane &plane, Vector3 &intersect)
+  bool intersectPlane(const Plane &plane, Vector3 &intersect) const
   {
     float distance;
 
     if (!distanceToPlane(plane, distance)) {
       return false;
     }
-
     intersect = at(distance);
     return true;
   }

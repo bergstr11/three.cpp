@@ -11,7 +11,6 @@ namespace three {
 namespace quick {
 
 class ThreeDItem;
-
 class Camera;
 
 class CameraController : public ThreeQObjectRoot

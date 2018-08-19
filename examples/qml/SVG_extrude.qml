@@ -36,7 +36,7 @@ Window {
             name: "Bevel"
             value: true
             onValueChanged: {
-                text3d.bevelEnabled = value
+                lo3d.bevelEnabled = value
                 threeD.update()
             }
         }

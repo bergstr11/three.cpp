@@ -11,6 +11,7 @@
         <file alias="orbit_controls.qml">qml/orbit_controls.qml</file>
         <file alias="material_envmap.qml">qml/material_envmap.qml</file>
         <file alias="cubemap_model.qml">qml/cubemap_model.qml</file>
+        <file alias="drag_cubes.qml">qml/drag_cubes.qml</file>
         <file alias="voxelpainter.qml">qml/voxelpainter.qml</file>
         <file alias="3ds_model.qml">qml/3ds_model.qml</file>
         <file alias="load_model.qml">qml/load_model.qml</file>
