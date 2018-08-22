@@ -52,10 +52,9 @@ bool DragController::handleMouseMoved(QMouseEvent *event)
       qreal x = (event->x() / _item->width()) * 2 - 1;
       qreal y = -(event->y() / _item->height()) * 2 + 1;
 
-      _drag.mouseDown(x, y);
-      _dragging = true;
+      _dragging = _drag.mouseDown(x, y);
 
-      event->setAccepted(true);
+      event->setAccepted(_dragging);
     }
   }
   else {
@@ -84,19 +83,35 @@ bool DragController::handleMouseReleased(QMouseEvent *event)
   return false;
 }
 
+std::vector<three::Object3D::Ptr> extractObjects(const QVariantList &variants)
+{
+  std::vector<Object3D::Ptr> objs;
+  for (const QVariant &var : variants) {
+    auto *o = var.value<ThreeQObject *>();
+    if (o) objs.push_back(o->object());
+  }
+  return objs;
+}
+
 void DragController::setObjects(const QVariantList &objects)
 {
   if (_objects != objects) {
     _objects = objects;
 
-    std::vector<Object3D::Ptr> objs;
-    for (const QVariant &var : objects) {
-      ThreeQObject *o = var.value<ThreeQObject *>();
-      if (o) objs.push_back(o->object());
-    }
-    _drag.setObjects(objs);
+    _drag.setObjects(extractObjects(_objects));
 
     emit objectsChanged();
+  }
+}
+
+void DragController::setSurface(const QVariantList &surface)
+{
+  if(_surface != surface) {
+    _surface = surface;
+
+    _drag.setSurface(extractObjects(_surface));
+
+    emit surfaceChanged();
   }
 }
 

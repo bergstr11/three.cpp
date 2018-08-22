@@ -7,20 +7,9 @@
 namespace three {
 namespace control {
 
-Drag::Drag(three::Camera::Ptr camera, const std::vector<three::Object3D::Ptr> &objects)
-   : _camera(camera), _objects(objects)
+Drag::Drag(three::Camera::Ptr camera)
+   : _camera(camera)
 {}
-
-void Drag::makePlane(const Object3D *object)
-{
-  _plane = math::Plane::fromNormalAndCoplanarPoint(_camera->getWorldDirection(), _selected->position());
-
-  //translate the plane to the position of the selected object. Why it's not created there
-  //in the first place by fromNormalAndCoplanarPoint - don't know
-  math::Vector3 intersect;
-  _raycaster.centerRay().intersectPlane(_plane, intersect);
-  _plane.translate((intersect - object->position()) * -1);
-}
 
 bool Drag::mouseDown(float x, float y)
 {
@@ -28,11 +17,17 @@ bool Drag::mouseDown(float x, float y)
   _raycaster.set(_camera->ray(x, y));
 
   IntersectList intersects;
-  _raycaster.intersectObjects(_objects, intersects);
+  _raycaster.intersectObjects(_objects, intersects, false);
 
   if(!intersects.empty()) {
-    _selected  =  (*intersects.begin()).object;
-    makePlane(_selected);
+
+    const auto &intersect = (*intersects.begin());
+    _selected = intersect.object;
+
+    if(_surface.empty())
+      makePlane(_selected);
+    else
+      startSurface(intersect);
 
     onDragStarted.emitSignal(_selected);
     return true;
@@ -46,13 +41,11 @@ void Drag::mouseMove(float x, float y)
 
   if ( _selected && _enabled ) {
 
-    math::Vector3 intersection;
-    if ( _raycaster.centerRay().intersectPlane( _plane, intersection ) ) {
+    if(_surface.empty())
+      dragOnPlane();
+    else
+      dragOnObjects();
 
-      _selected->position() = intersection;
-
-      auto d = _camera->position().distanceTo(_selected->position());
-    }
     return;
   }
   else {
@@ -63,7 +56,6 @@ void Drag::mouseMove(float x, float y)
     if ( !intersects.empty() ) {
 
       auto object = (*intersects.begin()).object;
-      makePlane(object);
 
       if ( _hovered != object ) {
 
@@ -86,6 +78,57 @@ void Drag::mouseRelease(float x, float y)
     onDropped.emitSignal(_selected);
   }
 }
+
+void Drag::startSurface(const Intersection &intersect)
+{
+  IntersectList intersects;
+  _raycaster.intersectObjects(_surface, intersects, false);
+  if(!intersects.empty())
+    _normal = (*intersects.begin()).face.normal;
+  else
+    _normal = intersect.face.normal;
+}
+
+void Drag::makePlane(const Object3D *object)
+{
+  _plane = math::Plane::fromNormalAndCoplanarPoint(_camera->getWorldDirection(), _selected->position());
+
+  //translate the plane to the position of the selected object. Why it's not created there
+  //in the first place by fromNormalAndCoplanarPoint - don't know
+  math::Vector3 intersect;
+  _raycaster.centerRay().intersectPlane(_plane, intersect);
+  _plane.translate((intersect - object->position()) * -1);
+}
+
+void Drag::dragOnPlane()
+{
+  math::Vector3 intersection;
+  if (_raycaster.centerRay().intersectPlane(_plane, intersection)) {
+
+    _selected->position() = intersection;
+  }
+}
+
+void Drag::dragOnObjects()
+{
+  IntersectList intersects;
+  _raycaster.intersectObjects(_surface, intersects, false);
+
+  if(!intersects.empty()) {
+
+    const auto &intersect = *intersects.begin();
+    _selected->position() = intersect.object->worldToLocal(intersect.point);
+
+    auto faceNormal = _selected->worldToLocal(intersect.face.normal);
+    math::Vector3 axis = math::cross(_selected->worldToLocal(_normal), faceNormal).normalized();
+    float angle = intersect.face.normal.angleTo(_normal);
+
+    _selected->rotateOnAxis(axis.negated(), angle);
+
+    _normal = intersect.face.normal;
+  }
+}
+
 
 }
 }

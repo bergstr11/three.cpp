@@ -66,7 +66,8 @@ class DLX IntersectList
 
   private:
     size_t _index;
-    std::vector<Intersection>::iterator _begin, _end;
+    std::vector<Intersection>::iterator _begin;
+    bool _end;
     IntersectList &_list;
   };
 

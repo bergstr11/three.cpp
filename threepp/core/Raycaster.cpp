@@ -254,8 +254,8 @@ std::vector<math::Ray> Raycaster::createCircularBundle(
 IntersectList::iterator::iterator(IntersectList &list, bool end)
    : _list(list),
      _index(end ? list._intersections.size() : 0),
-     _begin(end ? std::vector<Intersection>::iterator() : list._intersections.front().begin()),
-     _end(std::vector<Intersection>::iterator())
+     _begin(end ? std::vector<Intersection>::iterator() : list._intersections[_index].begin()),
+     _end(end)
 {
 }
 
@@ -266,12 +266,15 @@ Intersection &IntersectList::iterator::operator*() const
 
 IntersectList::iterator & IntersectList::iterator::operator++()
 {
-  if(_begin == _end) {
+  if(_begin == _list._intersections[_index].end()) {
     _index++;
-    _begin = _list._intersections[_index].begin();
-    _end = _list._intersections[_index].end();
+    _end = _index >= _list._intersections.size();
+    if(!_end) _begin = _list._intersections[_index].begin();
   }
-  else _begin++;
+  else {
+    _begin++;
+    _end = _begin == _list._intersections[_index].end() && _index + 1 == _list._intersections.size();
+  }
   return *this;
 }
 
@@ -282,7 +285,7 @@ IntersectList::iterator &IntersectList::iterator::operator++(int i)
 
 bool IntersectList::iterator::operator ==(const iterator & rhs) const
 {
-	return _index == rhs._index && _begin == rhs._begin;
+	return _begin == rhs._begin || (_end && rhs._end);
 }
 
 bool IntersectList::iterator::operator !=(const iterator & rhs) const

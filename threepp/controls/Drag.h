@@ -20,25 +20,32 @@ namespace control {
  */
 class DLX Drag
 {
+protected:
   bool _enabled = true;
-  three::math::Plane _plane;
   three::Raycaster _raycaster;
 
   three::Camera::Ptr _camera;
   std::vector<three::Object3D::Ptr> _objects;
 
   three::Object3D *_selected = nullptr, *_hovered = nullptr;
-  void makePlane(const Object3D *object);
 
-  bool _inDrag = false;
+  three::math::Plane _plane;
+  std::vector<three::Object3D::Ptr> _surface;
+  math::Vector3 _normal;
+
+  void makePlane(const Object3D *object);
+  void startSurface(const Intersection &intersect);
+
+  void dragOnPlane();
+  void dragOnObjects();
 
 public:
   Signal<void(three::Object3D *)> onDragStarted;
   Signal<void(three::Object3D *)> onDropped;
 
-  Drag(three::Camera::Ptr camera, const std::vector<three::Object3D::Ptr> &objects);
+  Drag(three::Camera::Ptr camera);
   Drag() = default;
-
+  
   bool mouseDown(float x, float y);
   void mouseMove(float x, float y);
   void mouseRelease(float x, float y);
@@ -51,6 +58,11 @@ public:
   void setObjects(const std::vector<three::Object3D::Ptr> &objects)
   {
     _objects = objects;
+  }
+
+  void setSurface(const std::vector<three::Object3D::Ptr> &surface)
+  {
+    _surface = surface;
   }
 };
 

@@ -207,6 +207,32 @@ void ThreeQObject::setObject(const three::Object3D::Ptr object)
   }
 }
 
+void ThreeQObject::add(ThreeQObject *object)
+{
+  if(_object) {
+    auto obj = object->object();
+    if(!obj) obj = object->create(_scene, _object);
+    if(obj) {
+      _object->add(obj);
+      obj->updateMatrix();
+    }
+  }
+}
+
+void ThreeQObject::remove(ThreeQObject *object)
+{
+  if(_object && object->object()) {
+    _object->remove(object->object());
+  }
+}
+
+void ThreeQObject::clear()
+{
+  if(_object) {
+    _object->removeAll();
+  }
+}
+
 void ThreeQObject::unset()
 {
   _position.unset();

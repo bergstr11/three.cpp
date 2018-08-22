@@ -178,6 +178,10 @@ public:
    */
   virtual void unset();
 
+  Q_INVOKABLE void add(three::quick::ThreeQObject *object);
+  Q_INVOKABLE void remove(three::quick::ThreeQObject *object);
+  Q_INVOKABLE void clear();
+
   Q_INVOKABLE void rotateX(float angle);
   Q_INVOKABLE void rotateY(float angle);
   Q_INVOKABLE void rotateZ(float angle);

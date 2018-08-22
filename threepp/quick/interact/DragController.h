@@ -22,9 +22,11 @@ class DragController : public ThreeQObjectRoot, public Interactor
   Q_PROPERTY(QVariantList objects READ objects WRITE setObjects NOTIFY objectsChanged)
   Q_PROPERTY(Qt::CursorShape dragCursor READ dragCursor WRITE setDragCursor NOTIFY dragCursorChanged)
   Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+  Q_PROPERTY(QVariantList surface READ surface WRITE setSurface NOTIFY surfaceChanged)
 
   Camera *_camera = nullptr;
   QVariantList _objects;
+  QVariantList _surface;
 
   QCursor _dragCursor {Qt::DragMoveCursor};
 
@@ -84,11 +86,15 @@ public:
     }
   }
 
+  const QVariantList &surface() const {return _surface;}
+  void setSurface(const QVariantList &surface);
+
 signals:
   void cameraChanged();
   void dragCursorChanged();
   void enabledChanged();
   void objectsChanged();
+  void surfaceChanged();
   void dragStarted(ThreeQObject *);
   void dropped(ThreeQObject *);
 };
