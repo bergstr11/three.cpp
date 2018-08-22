@@ -54,6 +54,8 @@ public:
 
   math::Vector2 getPoint( float t ) override;
 
+  bool autoClose() const {return _autoClose;}
+
   void setAutoClose(bool autoclose) {
     _autoClose = autoclose;
   }

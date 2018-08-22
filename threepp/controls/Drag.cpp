@@ -120,10 +120,10 @@ void Drag::dragOnObjects()
     _selected->position() = intersect.object->worldToLocal(intersect.point);
 
     auto faceNormal = _selected->worldToLocal(intersect.face.normal);
-    math::Vector3 axis = math::cross(_selected->worldToLocal(_normal), faceNormal).normalized();
+    auto axis = math::cross(_selected->worldToLocal(_normal), faceNormal).normalized();
     float angle = intersect.face.normal.angleTo(_normal);
 
-    _selected->rotateOnAxis(axis.negated(), angle);
+    _selected->rotateOnAxis(axis, -angle);
 
     _normal = intersect.face.normal;
   }

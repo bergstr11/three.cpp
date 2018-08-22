@@ -19,6 +19,10 @@ struct StyleData
 {
   unordered_map<string, string> styles {{"fill", "#000"}};
   unordered_map<string, unordered_map<string, string>> classes;
+
+  void resetLocal() {
+    styles = {{"fill", "#000"}};
+  }
 };
 
 float _stof(const string &s) {
@@ -38,9 +42,24 @@ bool isVisible(const StyleData &data)
   return data.styles.find("fill") != data.styles.cend() && data.styles.at("fill") != "transparent";
 }
 
-void parseStyle(const XMLElement *element, StyleData &style )
+void parseStyle(const XMLElement *element, StyleData &styleData )
 {
-  if ( element->Attribute( "fill" ) ) style.styles["fill"] = element->Attribute( "fill" );
+  styleData.resetLocal();
+
+  const char *style = element->Attribute( "style" );
+  if(style) {
+    static const regex rex(R"(;?(([^:]+)\:([^;]+)))");
+
+    cregex_iterator rex_it(style, style + strlen(style), rex);
+    cregex_iterator rex_end;
+
+    while(rex_it != rex_end) {
+      cmatch match = *rex_it;
+
+      styleData.styles[match[2]] = match[3];
+      rex_it++;
+    }
+  }
 }
 
 void applyColorStyle(const XMLElement *element, Color &color, StyleData &style)
@@ -191,7 +210,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
         for ( unsigned j = 0, jl = numbers.size(); j < jl; j ++ ) {
           point.x() = numbers[ j ];
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -200,7 +219,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
         for ( unsigned j=0, jl=numbers.size(); j < jl; j ++ ) {
           point.y() = numbers[ j ];
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -209,7 +228,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
         for ( unsigned j=0, jl=numbers.size(); j < jl; j += 2 ) {
           point.set(numbers[ j + 0 ], numbers[ j + 1 ]);
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -304,7 +323,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
         for ( unsigned j=0, jl=numbers.size(); j < jl; j ++ ) {
           point.x() += numbers[ j ];
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -313,7 +332,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
         for ( unsigned j=0, jl=numbers.size(); j < jl; j ++ ) {
           point.y() += numbers[ j ];
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -323,7 +342,7 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
           point.x() += numbers[ j + 0 ];
           point.y() += numbers[ j + 1 ];
           control = point;
-          path.lineTo( point.x(), point.y() );
+          path.lineTo( point.x(), point.y(), true );
         }
         break;
 
@@ -413,15 +432,8 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
 
       case 'Z':
       case 'z':
-        path.currentPath->setAutoClose(true);
-        if ( path.currentPath->curves().size() > 0 ) {
-          // Reset point to beginning of Path
-          auto &curve = path.currentPath->curve(0);
-          point = curve->start();
-          path.currentPath->moveTo(point.x(), point.y());
-        }
+        path.close(true);
         break;
-
     }
   }
 
