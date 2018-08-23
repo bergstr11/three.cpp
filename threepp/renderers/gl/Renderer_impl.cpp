@@ -709,7 +709,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
       char buf[500];
       int len;
       glGetProgramInfoLog(program->handle(), 500, &len, buf);
-      qWarning() << buf;
+      qCritical() << buf;
     }
 
     renderer->render( drawStart, drawCount );

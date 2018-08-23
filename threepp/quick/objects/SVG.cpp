@@ -76,6 +76,8 @@ three::Object3D::Ptr SVG::_create()
     }
   }
   geometry::Extrude::Ptr geometry = geometry::Extrude::make(allShapes, options);
+  geometry->setCenter();
+
   _mesh = DynamicMesh::make(geometry);
 
   for(unsigned i=0; i < _materials.size(); i++) {
