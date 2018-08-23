@@ -179,15 +179,15 @@ void parsePathNode(const XMLElement *element, StyleData &style, vector<extras::S
   math::Vector2 point;
   math::Vector2 control;
 
-  string d = element->Attribute( "d" );
+  const char *d = element->Attribute( "d" );
 
-  sregex_iterator rex_it(d.begin(), d.end(), rex);
-  sregex_iterator rex_end;
+  cregex_iterator rex_it(d, d + strlen(d), rex);
+  cregex_iterator rex_end;
 
   vector<float> numbers;
 
   while(rex_it != rex_end) {
-    smatch match = *rex_it;
+    cmatch match = *rex_it;
     rex_it++;
 
     char command = match[1].str().at(0);
@@ -480,12 +480,12 @@ void parsePolyNode(const XMLElement *element, StyleData &style, vector<extras::S
 
   unsigned index = 0;
 
-  string points = element->Attribute( "points" );
-  sregex_iterator rex_it(points.begin(), points.end(), rex);
-  sregex_iterator rex_end;
+  const char *points = element->Attribute( "points" );
+  cregex_iterator rex_it(points, points + strlen(points), rex);
+  cregex_iterator rex_end;
 
   while(rex_it != rex_end) {
-    std::smatch match = *rex_it;
+    std::cmatch match = *rex_it;
 
     float x = _stof(match[1]);
     float y = _stof(match[2]);
@@ -566,16 +566,16 @@ void parseDefs(const XMLElement *element, StyleData &styles)
 
   const XMLElement *style = element->FirstChildElement("style");
   if(style) {
-    string text(style->GetText());
+    const char *text = style->GetText();
 
-    sregex_iterator rex_it(text.begin(), text.end(), rex);
-    sregex_iterator rex_end;
+    cregex_iterator rex_it(text, text + strlen(text), rex);
+    cregex_iterator rex_end;
 
     while(rex_it != rex_end) {
-      smatch match = *rex_it;
+      cmatch match = *rex_it;
 
       string cls = match[1].str().substr(1);
-      sregex_iterator rex2_it(match[2].first, match[2].first+match[2].length(), rex2);
+      cregex_iterator rex2_it(match[2].first, match[2].first+match[2].length(), rex2);
       while(rex2_it != rex_end) {
         string match = rex2_it->str();
         auto pos = match.find(':');
