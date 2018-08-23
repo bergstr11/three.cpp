@@ -65,7 +65,7 @@ Window {
         focus: true
         shadowType: Three.PCFSoft
 
-        DragController {
+        ObjectDragger {
             id: dragger
             camera: scene.camera
         }

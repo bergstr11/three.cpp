@@ -42,7 +42,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
 #include "interact/OrbitController.h"
-#include "interact/DragController.h"
+#include "threepp/quick/interact/ObjectDragger.h"
 #include "interact/ObjectPicker.h"
 
 namespace three {
@@ -119,7 +119,7 @@ void init()
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");
   qmlRegisterType<three::quick::ImageCubeTexture>("three.quick", 1, 0, "ImageCubeTexture");
   qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");
-  qmlRegisterType<three::quick::DragController>("three.quick", 1, 0, "DragController");
+  qmlRegisterType<three::quick::ObjectDragger>("three.quick", 1, 0, "ObjectDragger");
   qmlRegisterType<three::quick::ObjectPicker>("three.quick", 1, 0, "ObjectPicker");
 }
 

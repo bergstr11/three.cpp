@@ -15,7 +15,7 @@
 namespace three {
 namespace quick {
 
-class DragController : public ThreeQObjectRoot, public Interactor
+class ObjectDragger : public ThreeQObjectRoot, public Interactor
 {
   Q_OBJECT
   Q_PROPERTY(three::quick::Camera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
@@ -45,10 +45,10 @@ protected:
   void setObjects(const QVariantList &objects);
 
 public:
-  explicit DragController(QObject *parent = nullptr) : ThreeQObjectRoot(parent)
+  explicit ObjectDragger(QObject *parent = nullptr) : ThreeQObjectRoot(parent)
   {
-    _drag.onDragStarted.connect(*this, &DragController::objectDragStarted);
-    _drag.onDropped.connect(*this, &DragController::objectDropped);
+    _drag.onDragStarted.connect(*this, &ObjectDragger::objectDragStarted);
+    _drag.onDropped.connect(*this, &ObjectDragger::objectDropped);
   }
 
   bool enabled() {return Interactor::_enabled;}

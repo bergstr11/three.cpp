@@ -2,13 +2,13 @@
 // Created by byter on 8/19/18.
 //
 
-#include "DragController.h"
+#include "ObjectDragger.h"
 #include <threepp/quick/cameras/Camera.h>
 
 namespace three {
 namespace quick {
 
-void DragController::objectDragStarted(Object3D *object)
+void ObjectDragger::objectDragStarted(Object3D *object)
 {
   for (const QVariant &var : _objects) {
     ThreeQObject *o = var.value<ThreeQObject *>();
@@ -19,7 +19,7 @@ void DragController::objectDragStarted(Object3D *object)
   }
 }
 
-void DragController::objectDropped(Object3D *object)
+void ObjectDragger::objectDropped(Object3D *object)
 {
   for (const QVariant &var : _objects) {
     ThreeQObject *o = var.value<ThreeQObject *>();
@@ -30,19 +30,19 @@ void DragController::objectDropped(Object3D *object)
   }
 }
 
-void DragController::setItem(ThreeDItem *item)
+void ObjectDragger::setItem(ThreeDItem *item)
 {
   Interactor::setItem(item);
   if (_camera) _drag.setCamera(_camera->camera());
 }
 
-bool DragController::handleMousePressed(QMouseEvent *event)
+bool ObjectDragger::handleMousePressed(QMouseEvent *event)
 {
   _startingPos = event->pos();
   return false;
 }
 
-bool DragController::handleMouseMoved(QMouseEvent *event)
+bool ObjectDragger::handleMouseMoved(QMouseEvent *event)
 {
   if (!_dragging) {
     QPoint point = event->pos() - _startingPos;
@@ -67,7 +67,7 @@ bool DragController::handleMouseMoved(QMouseEvent *event)
   return true;
 }
 
-bool DragController::handleMouseReleased(QMouseEvent *event)
+bool ObjectDragger::handleMouseReleased(QMouseEvent *event)
 {
   if (_dragging) {
     _dragging = false;
@@ -93,7 +93,7 @@ std::vector<three::Object3D::Ptr> extractObjects(const QVariantList &variants)
   return objs;
 }
 
-void DragController::setObjects(const QVariantList &objects)
+void ObjectDragger::setObjects(const QVariantList &objects)
 {
   if (_objects != objects) {
     _objects = objects;
@@ -104,7 +104,7 @@ void DragController::setObjects(const QVariantList &objects)
   }
 }
 
-void DragController::setSurface(const QVariantList &surface)
+void ObjectDragger::setSurface(const QVariantList &surface)
 {
   if(_surface != surface) {
     _surface = surface;
