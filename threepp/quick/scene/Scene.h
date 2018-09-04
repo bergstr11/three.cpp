@@ -85,6 +85,8 @@ public:
 
   three::Camera::Ptr camera() {return _quickCamera ? _quickCamera->camera() : nullptr;}
 
+  Q_INVOKABLE void clone(three::quick::ThreeQObject *object);
+
   Q_INVOKABLE void add(three::quick::ThreeQObject *object);
 
   Q_INVOKABLE void remove(three::quick::ThreeQObject *object);

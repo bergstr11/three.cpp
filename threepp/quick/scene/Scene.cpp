@@ -101,6 +101,18 @@ QQmlListProperty<ThreeQObject> Scene::objects()
                                         &Scene::clear_objects);
 }
 
+void Scene::clone(ThreeQObject *object)
+{
+  if(_scene) {
+    auto obj = object->object();
+    if(obj) {
+      auto obj2 = Object3D::Ptr(obj->cloned());
+      _scene->add(obj2);
+      obj2->updateMatrix();
+    }
+  }
+}
+
 void Scene::add(ThreeQObject *object)
 {
   if(_scene) {
