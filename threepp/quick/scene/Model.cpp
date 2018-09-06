@@ -96,9 +96,14 @@ void Model::loadFile(const QString &file)
             make_shared<loader::Assimp>() : make_shared<loader::Assimp>(&_materialHandler);
   _options.setAssimp(_assimp);
 
-  QFileInfo info(file);
+  //first check if this is a file: url and convert
+  QUrl fileUrl(file);
+  //if not valid, it may be either a resource url or a file system path
+  QFileInfo info(fileUrl.isValid() ? fileUrl.toLocalFile() : file);
+
   if(info.isNativePath()) {
-    FileSystemLoader *loader = new FileSystemLoader(*_assimp, file, replacements);
+    info.makeAbsolute();
+    FileSystemLoader *loader = new FileSystemLoader(*_assimp, info, replacements);
     QObject::connect(loader, &FileSystemLoader::loaded, this, &Model::modelLoaded);
     loader->start();
   }

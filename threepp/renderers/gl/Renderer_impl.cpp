@@ -23,9 +23,7 @@ using namespace std;
 
 OpenGLRenderer::Ptr OpenGLRenderer::make(size_t width, size_t height, float pixelRatio, const OpenGLRendererOptions &options)
 {
-  gl::Renderer_impl::Ptr p(new gl::Renderer_impl(width, height, pixelRatio));
-
-  return p;
+  return gl::Renderer_impl::Ptr(new gl::Renderer_impl(width, height, pixelRatio));
 }
 
 Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,

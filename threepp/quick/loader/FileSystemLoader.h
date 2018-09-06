@@ -6,7 +6,6 @@
 #define THREE_PP_FILESYSTEMLOADER_H
 
 #include <QThread>
-#include <QUrl>
 #include <QFileInfo>
 #include <QDir>
 #include <string>
@@ -23,9 +22,9 @@ class FileSystemLoader : public QThread, public three::ResourceLoader
 {
   Q_OBJECT
 
-  three::Loader &loader;
-  QFileInfo file;
-  QDir dir;
+  three::Loader &_loader;
+  const QFileInfo _file;
+  const QDir _dir;
   bool _loaded = false;
 
   std::unordered_map<std::string, std::string> _replacements;
@@ -34,7 +33,7 @@ protected:
   void run() override;
 
 public:
-  FileSystemLoader(three::Loader &assimp, const QUrl &url,
+  FileSystemLoader(three::Loader &assimp, const QFileInfo &info,
                    const std::unordered_map<std::string, std::string> &replacements=std::unordered_map<std::string, std::string>());
 
   bool exists(const char *path) override;

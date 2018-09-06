@@ -46,29 +46,29 @@ public:
   }
 };
 
-FileSystemLoader::FileSystemLoader(three::Loader &loader, const QUrl &url, const unordered_map<std::string, std::string> &replacements)
-: loader(loader), file(url.toLocalFile()), dir(file.absoluteDir()), _replacements(replacements)
+FileSystemLoader::FileSystemLoader(three::Loader &loader, const QFileInfo &info, const unordered_map<std::string, std::string> &replacements)
+: _loader(loader), _file(info), _dir(info.absoluteDir()), _replacements(replacements)
 {
   QObject::connect(this, &QThread::finished, this, &FileSystemLoader::sendResult, Qt::QueuedConnection);
 }
 
 void FileSystemLoader::run()
 {
-  loader.load(file.fileName().toStdString(), *this);
+  _loader.load(_file.canonicalFilePath().toStdString(), *this);
   _loaded = true;
 }
 
 bool FileSystemLoader::exists(const char *path)
 {
-  if(file.fileName() == path) {
-    return file.exists();
+  if(_file.fileName() == path) {
+    return _file.exists();
   }
   else {
     string lookFor = path;
     auto repl = _replacements.find(lookFor);
     if(repl != _replacements.end()) lookFor = (*repl).second;
 
-    return dir.exists(QString::fromStdString(lookFor));
+    return _dir.exists(QString::fromStdString(lookFor));
   }
 }
 
@@ -80,15 +80,15 @@ void FileSystemLoader::sendResult()
 
 three::Resource::Ptr FileSystemLoader::get(const char *path, ios_base::openmode openmode)
 {
-  if(file.fileName() == path) {
-    return FileSystemResource::make(file.absoluteFilePath(), openmode);
+  if(_file.fileName() == path) {
+    return FileSystemResource::make(_file.absoluteFilePath(), openmode);
   }
   else {
     string lookFor = path;
     auto repl = _replacements.find(lookFor);
     if(repl != _replacements.end()) lookFor = (*repl).second;
 
-    return FileSystemResource::make(dir.absoluteFilePath(QString::fromStdString(lookFor)), openmode);
+    return FileSystemResource::make(_dir.absoluteFilePath(QString::fromStdString(lookFor)), openmode);
   }
 }
 
@@ -97,7 +97,7 @@ void FileSystemLoader::load(QImage &image, const string &file)
   //fix spurious backslashes
   auto f = three::replace_all(file, "\\", "/");
 
-  QString path = dir.absoluteFilePath(QString::fromStdString(f));
+  QString path = _dir.absoluteFilePath(QString::fromStdString(f));
   QImage img(path);
 
   if(!img.isNull()) image = img.mirrored();
