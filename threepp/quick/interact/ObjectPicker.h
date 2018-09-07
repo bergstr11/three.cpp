@@ -24,12 +24,11 @@ class ObjectPicker;
 class Pickable : public QObject
 {
   Q_OBJECT
-  Object3D::Ptr _object;
 
 public:
-  explicit Pickable(Object3D::Ptr object, QObject *parent=nullptr) : QObject(parent), _object(object) {}
+  explicit Pickable(QObject *parent=nullptr) : QObject(parent) {}
 
-  Object3D::Ptr object() const {return _object;}
+  virtual Object3D::Ptr object() const = 0;
 };
 
 /**
