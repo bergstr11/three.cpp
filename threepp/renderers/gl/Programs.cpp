@@ -51,19 +51,19 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->supportsVertexTextures = _capabilities.vertexTextures;
 
-  const Renderer::Target::Ptr currentRenderTarget = _renderer.getRenderTarget();
+  const Renderer::Target::Ptr currentRenderTarget = renderer.getRenderTarget();
 
   parameters->outputEncoding = getTextureEncoding(
-     currentRenderTarget ? currentRenderTarget->texture() : nullptr, _renderer.gammaOutput);
-  parameters->map = material->map;
-  parameters->mapEncoding = getTextureEncoding(material->map, _renderer.gammaInput);
+     currentRenderTarget ? currentRenderTarget->texture() : nullptr, renderer.gammaOutput);
+  parameters->map = (bool)material->map;
+  parameters->mapEncoding = getTextureEncoding(material->map, renderer.gammaInput);
   parameters->vertexColors = material->vertexColors;
 
   if(MeshBasicMaterial *mat = material->typer) {
 
-    parameters->aoMap = mat->aoMap;
-    parameters->envMap = mat->envMap;
-    parameters->specularMap = mat->specularMap;
+    parameters->aoMap = (bool)mat->aoMap;
+    parameters->envMap = (bool)mat->envMap;
+    parameters->specularMap = (bool)mat->specularMap;
     parameters->combine = mat->combine;
   }
   else if(MeshDistanceMaterial *mat = material->typer) {
@@ -71,7 +71,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   }
   else if(MeshDepthMaterial *mat = material->typer) {
 
-    parameters->alphaMap = mat->alphaMap;
+    parameters->alphaMap = (bool)mat->alphaMap;
     parameters->depthPacking = mat->depthPacking;
   }
   else if(ShaderMaterial *mat = material->typer) {
@@ -104,43 +104,43 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   }
   else if(MeshPhongMaterial *mat = material->typer) {
 
-    parameters->aoMap = mat->aoMap;
-    parameters->bumpMap = mat->bumpMap;
-    parameters->normalMap = mat->normalMap;
-    parameters->alphaMap = mat->alphaMap;
-    parameters->envMap = mat->envMap;
-    parameters->envMapEncoding = getTextureEncoding(mat->envMap, _renderer.gammaInput);
+    parameters->aoMap = (bool)mat->aoMap;
+    parameters->bumpMap = (bool)mat->bumpMap;
+    parameters->normalMap = (bool)mat->normalMap;
+    parameters->alphaMap = (bool)mat->alphaMap;
+    parameters->envMap = (bool)mat->envMap;
+    parameters->envMapEncoding = getTextureEncoding(mat->envMap, renderer.gammaInput);
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat->envMap &&
                                (mat->envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = mat->lightMap;
-    parameters->emissiveMap = mat->emissiveMap;
-    parameters->emissiveMapEncoding = getTextureEncoding(mat->emissiveMap, _renderer.gammaInput);
-    parameters->displacementMap = mat->displacementMap;
+    parameters->lightMap = (bool)mat->lightMap;
+    parameters->emissiveMap = (bool)mat->emissiveMap;
+    parameters->emissiveMapEncoding = getTextureEncoding(mat->emissiveMap, renderer.gammaInput);
+    parameters->displacementMap = (bool)mat->displacementMap;
 
     if(MeshToonMaterial *mat = material->typer) {
 
-      parameters->gradientMap = mat->gradientMap;
+      parameters->gradientMap = (bool)mat->gradientMap;
       parameters->defines = mat->defines;
     }
   }
   else if(MeshStandardMaterial *mat = material->typer) {
 
-    parameters->aoMap = mat->aoMap;
-    parameters->bumpMap = mat->bumpMap;
-    parameters->normalMap = mat->normalMap;
-    parameters->roughnessMap = mat->roughnessMap;
-    parameters->metalnessMap = mat->metalnessMap;
-    parameters->alphaMap = mat->alphaMap;
+    parameters->aoMap = (bool)mat->aoMap;
+    parameters->bumpMap = (bool)mat->bumpMap;
+    parameters->normalMap = (bool)mat->normalMap;
+    parameters->roughnessMap = (bool)mat->roughnessMap;
+    parameters->metalnessMap = (bool)mat->metalnessMap;
+    parameters->alphaMap = (bool)mat->alphaMap;
     parameters->defines = mat->defines;
-    parameters->envMap = mat->envMap;
+    parameters->envMap = (bool)mat->envMap;
     parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat->envMap &&
                                (mat->envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->lightMap = mat->lightMap;
+    parameters->lightMap = (bool)mat->lightMap;
 
     if(MeshPhysicalMaterial *mat = material->typer) {
 
@@ -149,23 +149,23 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   }
   else if(MeshNormalMaterial *mat = material->typer) {
 
-    parameters->bumpMap = mat->bumpMap;
-    parameters->normalMap = mat->normalMap;
+    parameters->bumpMap = (bool)mat->bumpMap;
+    parameters->normalMap = (bool)mat->normalMap;
   }
   else if(MeshLambertMaterial *mat = material->typer) {
 
-    parameters->aoMap = mat->aoMap;
-    parameters->alphaMap = mat->alphaMap;
-    parameters->envMap = mat->envMap;
+    parameters->aoMap = (bool)mat->aoMap;
+    parameters->alphaMap = (bool)mat->alphaMap;
+    parameters->envMap = (bool)mat->envMap;
     parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
     parameters->envMapCubeUV = mat->envMap &&
                                (mat->envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
-    parameters->specularMap = mat->specularMap;
+    parameters->specularMap = (bool)mat->specularMap;
     parameters->emissiveMapEncoding = mat->emissiveMap ? mat->emissiveMap->encoding() : Encoding::Linear;
     parameters->combine = mat->combine;
-    parameters->lightMap = mat->lightMap;
+    parameters->lightMap = (bool)mat->lightMap;
   }
 
   parameters->fog = (bool)fog;

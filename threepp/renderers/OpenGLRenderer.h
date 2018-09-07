@@ -54,6 +54,8 @@ public:
   virtual void setFaceCulling( CullFace cullFace ) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
   virtual void clear() = 0;
+
+  virtual void usePrograms(OpenGLRenderer::Ptr other) = 0;
 };
 
 }

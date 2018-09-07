@@ -195,24 +195,24 @@ public:
   ProgramParameterT<Precision>       precision {all};
   ProgramParameterT<bool>            supportsVertexTextures {all};
   ProgramParameterT<Encoding>        outputEncoding {all};
-  ProgramParameterT<Texture::Ptr>    map {all};
+  ProgramParameterT<bool>            map {all};
   ProgramParameterT<Encoding>        mapEncoding {all};
-  ProgramParameterT<Texture::Ptr>    envMap {all};
+  ProgramParameterT<bool>            envMap {all};
   ProgramParameterT<Encoding>        envMapEncoding {all};
   ProgramParameterT<TextureMapping>  envMapMode {all};
   ProgramParameterT<bool>            envMapCubeUV {all};
-  ProgramParameterT<Texture::Ptr>    lightMap {all};
-  ProgramParameterT<Texture::Ptr>    aoMap {all};
-  ProgramParameterT<Texture::Ptr>    emissiveMap {all};
+  ProgramParameterT<bool>            lightMap {all};
+  ProgramParameterT<bool>            aoMap {all};
+  ProgramParameterT<bool>            emissiveMap {all};
   ProgramParameterT<Encoding>        emissiveMapEncoding {all};
-  ProgramParameterT<Texture::Ptr>    bumpMap {all};
-  ProgramParameterT<Texture::Ptr>    normalMap {all};
-  ProgramParameterT<Texture::Ptr>    displacementMap {all};
-  ProgramParameterT<Texture::Ptr>    roughnessMap {all};
-  ProgramParameterT<Texture::Ptr>    metalnessMap {all};
-  ProgramParameterT<Texture::Ptr>    specularMap {all};
-  ProgramParameterT<Texture::Ptr>    alphaMap {all};
-  ProgramParameterT<Texture::Ptr>    gradientMap {all};
+  ProgramParameterT<bool>            bumpMap {all};
+  ProgramParameterT<bool>            normalMap {all};
+  ProgramParameterT<bool>            displacementMap {all};
+  ProgramParameterT<bool>            roughnessMap {all};
+  ProgramParameterT<bool>            metalnessMap {all};
+  ProgramParameterT<bool>            specularMap {all};
+  ProgramParameterT<bool>            alphaMap {all};
+  ProgramParameterT<bool>            gradientMap {all};
   ProgramParameterT<CombineOperation> combine {all};
   ProgramParameterT<Colors>          vertexColors {all};
   ProgramParameterT<bool>            fog {all};
@@ -264,7 +264,7 @@ public:
     for(; it1 != all.end() && it2 != parameters.all.end(); it1++, it2++) {
       ProgramParameter *p1 = *it1;
       ProgramParameter *p2 = *it2;
-      if(*p1 != *p2) return false;
+      if(*p1 != *p2)  return false;
     }
     return it1 == all.end() && it2 == parameters.all.end();
   }
@@ -314,8 +314,6 @@ public:
   using Ptr = std::shared_ptr<Program>;
 
 private:
-  static unsigned programIdCount;
-
   GLuint _program;
 
   Renderer_impl &_renderer;

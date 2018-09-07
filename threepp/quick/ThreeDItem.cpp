@@ -252,6 +252,18 @@ void ThreeDItem::setFps(unsigned fps)
   }
 }
 
+void ThreeDItem::setUsePrograms(ThreeDItem *item)
+{
+  if(_usePrograms != item) {
+    if(_usePrograms) throw std::logic_error("usePrograms con only be set once");
+
+    _usePrograms = item;
+    if(_renderer) _renderer->usePrograms(item->_renderer);
+
+    emit useProgramsChanged();
+  }
+}
+
 void ThreeDItem::addInteractor(Interactor *interactor)
 {
   _interactors.push_back(interactor);
@@ -369,6 +381,7 @@ void ThreeDItem::componentComplete()
   QQuickItem::componentComplete();
 
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
+  if(_usePrograms) _renderer->usePrograms(_usePrograms->_renderer);
 
   for(const auto &object : _objects) {
     Scene *scene = dynamic_cast<Scene *>(object);

@@ -20,13 +20,18 @@ class Programs
 {
   std::unordered_map<ProgramParameters::Ptr, Program::Ptr, parameters_hash, parameters_equal> _programs;
 
-  Renderer_impl &_renderer;
   Extensions &_extensions;
   Capabilities &_capabilities;
 
+  Programs(Extensions &extensions, Capabilities &capabilities)
+     : _extensions(extensions), _capabilities(capabilities) {}
+
 public:
-  Programs(Renderer_impl &renderer, Extensions &extensions, Capabilities &capabilities)
-     : _renderer(renderer), _extensions(extensions), _capabilities(capabilities) {}
+  using Ptr = std::shared_ptr<Programs>;
+  static Ptr make(Extensions &extensions, Capabilities &capabilities)
+  {
+    return Ptr(new Programs(extensions, capabilities));
+  }
 
   unsigned allocateBones(SkinnedMesh *skinnedMesh)
   {
@@ -68,13 +73,14 @@ public:
                                        size_t nClipIntersection,
                                        Object3D::Ptr object);
 
-  Program::Ptr acquireProgram (Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters)
+  Program::Ptr acquireProgram (Renderer_impl &renderer,
+                               Material::Ptr material, Shader &shader, ProgramParameters::Ptr parameters)
   {
     // Check if code has been already compiled
     auto it = _programs.find(parameters);
     if(it != _programs.end()) return it->second;
 
-    Program::Ptr program = Program::make( _renderer, _extensions, material, shader, parameters );
+    Program::Ptr program = Program::make( renderer, _extensions, material, shader, parameters );
     _programs[parameters] = program;
 
     return program;

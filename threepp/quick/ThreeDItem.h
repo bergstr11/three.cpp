@@ -72,6 +72,7 @@ private:
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
   Q_PROPERTY(unsigned fps READ fps WRITE setFps NOTIFY fpsChanged)
+  Q_PROPERTY(ThreeDItem *usePrograms READ usePrograms WRITE setUsePrograms NOTIFY useProgramsChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -104,6 +105,8 @@ private:
   unsigned _fps = 60;
 
   three::OpenGLRenderer::Ptr _renderer;
+
+  ThreeDItem *_usePrograms = nullptr;
 
   static void append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj);
   static int count_objects(QQmlListProperty<ThreeQObjectRoot> *);
@@ -163,6 +166,10 @@ public:
 
   unsigned fps() const {return _fps;}
 
+  ThreeDItem *usePrograms() const {return _usePrograms;}
+
+  void setUsePrograms(ThreeDItem *item);
+
   void setFps(unsigned fps);
 
   Q_INVOKABLE void clear();
@@ -210,6 +217,7 @@ signals:
   void animateChanged();
   void viewportChanged();
   void fpsChanged();
+  void useProgramsChanged();
 };
 
 }

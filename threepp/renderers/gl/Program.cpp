@@ -14,8 +14,6 @@
 namespace three {
 namespace gl {
 
-unsigned Program::programIdCount = 0;
-
 const std::unordered_map<std::string, std::string> Code<std::unordered_map<std::string, std::string>>::init;
 const Texture::Ptr Code<Texture::Ptr>::init = nullptr;
 
@@ -372,7 +370,7 @@ Program::Program(Renderer_impl &renderer,
       default: break;
     }
 
-    switch( (*parameters->envMap)->mapping() ) {
+    switch( *parameters->envMapMode ) {
 
       case TextureMapping::CubeRefraction:
       case TextureMapping::EquirectangularRefraction:
@@ -398,7 +396,7 @@ Program::Program(Renderer_impl &renderer,
     }
   }
 
-  float gammaFactorDefine = _renderer.gammaFactor > 0 ? renderer.gammaFactor : 1.0f;
+  float gammaFactorDefine = renderer.gammaFactor > 0 ? renderer.gammaFactor : 1.0f;
 
   string customExtensions = generateExtensions(extensions, *parameters);
 

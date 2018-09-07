@@ -87,7 +87,7 @@ Renderer_impl::Renderer_impl(size_t width, size_t height, float pixelRatio, bool
      _capabilities(this, _extensions, _parameters ),
      _morphTargets(this),
      _shadowMap(*this, _objects, _capabilities),
-     _programs(*this, _extensions, _capabilities),
+     _programs(Programs::make(_extensions, _capabilities)),
      _premultipliedAlpha(premultipliedAlpha),
      _background(*this, _state, _geometries, premultipliedAlpha),
      _textures(this, _extensions, _state, _properties, _capabilities, _infoMemory),
@@ -157,6 +157,14 @@ Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size
 {
   _viewport.set( x, _height - y - height, width, height );
   return *this;
+}
+
+void Renderer_impl::usePrograms(OpenGLRenderer::Ptr other)
+{
+  Renderer_impl::Ptr renderer = dynamic_pointer_cast<Renderer_impl>(other);
+  if(renderer) {
+    _programs = renderer->_programs;
+  }
 }
 
 void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
@@ -835,7 +843,7 @@ void Renderer_impl::releaseMaterialProgramReference(Material &material)
   auto programInfo = _properties.get( material ).program;
 
   if (programInfo) {
-    _programs.releaseProgram( programInfo );
+    _programs->releaseProgram( programInfo );
   }
 }
 
@@ -843,7 +851,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 {
   MaterialProperties &materialProperties = _properties.get( *material );
 
-  ProgramParameters::Ptr parameters = _programs.getParameters(*this,
+  ProgramParameters::Ptr parameters = _programs->getParameters(*this,
      material, _lights.state, _shadowsArray, fog, _clipping.numPlanes(), _clipping.numIntersection(), object );
 
   auto program = materialProperties.program;
@@ -886,7 +894,7 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     //material.onBeforeCompile( materialProperties.shader );
 
-    program = _programs.acquireProgram( material, materialProperties.shader, parameters);
+    program = _programs->acquireProgram(*this,  material, materialProperties.shader, parameters);
 
     materialProperties.program = program;
   }

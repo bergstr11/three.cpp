@@ -101,7 +101,7 @@ protected:
   Capabilities _capabilities;
   Properties _properties;
 
-  Programs _programs;
+  Programs::Ptr _programs;
 
   Textures _textures;
 
@@ -203,7 +203,7 @@ public:
 
   Renderer_impl &setRenderTarget(const Renderer::Target::Ptr renderTarget);
 
-  const Renderer::Target::Ptr getRenderTarget() {return _currentRenderTarget;}
+  const Renderer::Target::Ptr getRenderTarget() const {return _currentRenderTarget;}
 
   bool localClippingEnabled() const {return _localClippingEnabled;}
 
@@ -258,6 +258,8 @@ public:
   Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
 
   Renderer_impl &setViewport(size_t x, size_t y, size_t width, size_t height) override;
+
+  void usePrograms(OpenGLRenderer::Ptr other) override;
 };
 
 }
