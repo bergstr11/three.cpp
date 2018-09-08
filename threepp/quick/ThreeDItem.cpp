@@ -164,6 +164,12 @@ ThreeDItem::~ThreeDItem()
 {
 }
 
+void ThreeDItem::lockWhile(std::function<void()> func)
+{
+  std::lock_guard<std::mutex> lock(_renderer->mutex);
+  func();
+}
+
 void ThreeDItem::render(Scene *scene, Camera *camera, QJSValue prepare)
 {
   _renderGroups.emplace_back(scene->scene(), camera->camera(), prepare);

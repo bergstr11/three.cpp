@@ -223,11 +223,6 @@ Object3D::Object3D(const Object3D &clone) : Object3D()
 {
   _name = clone._name;
 
-  for(auto child : clone._children) {
-    auto cloned = child->cloned();
-    if(cloned) add(Ptr(cloned));
-  }
-
   _up = clone._up;
   _position = clone._position;
   _rotation = clone._rotation;
@@ -254,6 +249,11 @@ Object3D::Object3D(const Object3D &clone) : Object3D()
 
   customDepthMaterial = clone.customDepthMaterial;
   customDistanceMaterial = clone.customDistanceMaterial;
+
+  for(auto child : clone._children) {
+    auto cloned = child->cloned();
+    if(cloned) add(Ptr(cloned));
+  }
 
   if(clone._geometry) _geometry = Geometry::Ptr(clone._geometry->cloned());
   for(const auto &material : clone._materials) {

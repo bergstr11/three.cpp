@@ -172,6 +172,8 @@ public:
 
   void setFps(unsigned fps);
 
+  void lockWhile(std::function<void()>);
+
   Q_INVOKABLE void clear();
 
   Q_INVOKABLE void render(three::quick::Scene *scene, three::quick::Camera *camera, QJSValue prepare);

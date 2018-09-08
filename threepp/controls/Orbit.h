@@ -73,16 +73,11 @@ protected:
   math::Vector3 lastPosition;
   math::Quaternion lastQuaternion;
 
-  virtual void init()
-  {
-    _quat = math::Quaternion::fromUnitVectors(_camera->up(), math::Vector3(0, 1, 0));
-    _quatInverse = _quat.inverse();
-  }
-
   Orbit(Camera::Ptr camera, const math::Vector3 &target)
      : _camera(camera), target(target), _target0(target), _position0(camera->position()), _zoom0(camera->zoom())
   {
-    init();
+    _quat = math::Quaternion::fromUnitVectors(_camera->up(), math::Vector3(0, 1, 0));
+    _quatInverse = _quat.inverse();
   }
 
   virtual unsigned clientWidth() = 0;
