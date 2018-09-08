@@ -267,7 +267,7 @@ unsigned Renderer_impl::allocTextureUnit()
     throw logic_error("max texture units exceeded");
   }
 
-  _usedTextureUnits += 1;
+  _usedTextureUnits ++;
 
   return textureUnit;
 }
@@ -1065,6 +1065,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
   bool refreshLights = false;
 
   Program::Ptr program = materialProperties.program;
+  program->renderer()._usedTextureUnits = 0;
   Uniforms::Ptr prg_uniforms = program->getUniforms();
   UniformValues &mat_uniforms = materialProperties.shader.uniforms();
 

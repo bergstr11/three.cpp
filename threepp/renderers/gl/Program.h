@@ -344,8 +344,9 @@ public:
 
   ~Program();
 
-  GLuint handle() const
-  { return _program; }
+  GLuint handle() const { return _program; }
+
+  Renderer_impl &renderer() {return _renderer;}
 
   const ProgramParameters::Ptr parameters;
 
