@@ -228,9 +228,7 @@ Object3D::Object3D(const Object3D &clone) : Object3D()
   _rotation = clone._rotation;
   _quaternion = clone._quaternion;
   _scale = clone._scale;
-
   _matrix = clone._matrix;
-  _matrixWorld = clone._matrixWorld;
 
   _matrixWorldNeedsUpdate = true;
 
@@ -238,9 +236,6 @@ Object3D::Object3D(const Object3D &clone) : Object3D()
   _visible = clone._visible;
 
   _renderOrder = clone._renderOrder;
-
-  modelViewMatrix = clone.modelViewMatrix;
-  normalMatrix = clone.normalMatrix;
 
   castShadow = clone.castShadow;
   receiveShadow = clone.receiveShadow;

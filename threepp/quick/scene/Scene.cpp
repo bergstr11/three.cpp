@@ -101,14 +101,6 @@ QQmlListProperty<ThreeQObject> Scene::objects()
                                         &Scene::clear_objects);
 }
 
-void updateMatrixAll(Object3D::Ptr object)
-{
-  object->updateMatrix();
-  for(const auto &child : object->children()) {
-    updateMatrixAll(child);
-  }
-}
-
 void Scene::clone(ThreeQObject *object)
 {
   if(_scene) {
@@ -117,7 +109,7 @@ void Scene::clone(ThreeQObject *object)
       if(obj) {
         auto obj2 = Object3D::Ptr(obj->cloned());
         _scene->add(obj2);
-        updateMatrixAll(_scene);
+        _scene->updateMatrixWorld(true);
       }
     };
     if(_item) _item->lockWhile(doClone);

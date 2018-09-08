@@ -286,7 +286,7 @@ struct MaterialT<Map, Maps...> : public Material, Map, Maps...
 protected:
   MaterialT(const material::Info &info, const material::Typer &typer) : Material(info, typer) {}
   MaterialT(const MaterialT &material, const material::Info &info, const material::Typer &typer)
-     : Map(material), Material(material, info, typer) {}
+     : Map(material), Maps(material)..., Material(material, info, typer) {}
 };
 
 }
