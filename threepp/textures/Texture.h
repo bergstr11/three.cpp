@@ -150,6 +150,28 @@ public:
   }
 };
 
+class RenderTexture : public Texture
+{
+  const GLsizei _width;
+  const GLsizei _height;
+
+protected:
+  RenderTexture(const TextureOptions &options, GLsizei width, GLsizei height)
+     : Texture(options, texture::Typer(), false, 1), _width(width), _height(height)
+  {}
+
+public:
+  using Ptr = std::shared_ptr<RenderTexture>;
+  static Ptr make(const TextureOptions &options, GLsizei width, GLsizei height) {
+    return Ptr(new RenderTexture(options, width, height));
+  }
+
+  bool isPowerOfTwo() const override
+  {
+    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
+  }
+};
+
 class CubeTexture : public Texture
 {
 protected:

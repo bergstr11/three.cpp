@@ -52,26 +52,26 @@ public:
   virtual LightShadow *cloned() const = 0;
 };
 
-template <typename tCamera>
+template <typename Camera_t>
 class LightShadowT : public LightShadow
 {
-  static_assert(std::is_base_of<three::Camera, tCamera>::value, "tCamera must be a three::Camera subtype");
+  static_assert(std::is_base_of<three::Camera, Camera_t>::value, "Camera_t must be a three::Camera subtype");
   friend class LightShadow;
   
 protected:
-  typename tCamera::Ptr _camera;
+  typename Camera_t::Ptr _camera;
 
-  explicit LightShadowT(typename tCamera::Ptr camera) : _camera(camera) {}
+  explicit LightShadowT(typename Camera_t::Ptr camera) : _camera(camera) {}
 
 public:
   using Ptr = std::shared_ptr<LightShadowT>;
-  static Ptr make(std::shared_ptr<tCamera> camera) {
+  static Ptr make(std::shared_ptr<Camera_t> camera) {
     return Ptr(new LightShadowT(camera));
   }
 
   const Camera::Ptr camera() const override {return _camera;}
 
-  const typename tCamera::Ptr camera_t() const {return _camera;}
+  const typename Camera_t::Ptr camera_t() const {return _camera;}
 
   LightShadowT *cloned() const override {
     return new LightShadowT(*this);

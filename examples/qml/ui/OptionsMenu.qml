@@ -6,7 +6,7 @@ Rectangle {
     id: main
     color: "darkgray"
 
-    property string title;
+    property string title
     property color textColor: "white"
     property Item threeD
     default property list<QtObject> properties
@@ -25,6 +25,7 @@ Rectangle {
             anchors.centerIn: parent
             text: title
             font.bold: true
+            color: main.textColor
         }
     }
 
@@ -56,7 +57,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignRight
                     width: parent.width - bool_check.implicitWidth - 5
                     text: prop.name
-                    color: textColor
+                    color: prop.textColor ? prop.textColor : main.textColor
                     font.bold: true
                 }
                 Switch {
@@ -104,7 +105,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 text: prop.name
-                color: prop.textColor
+                color: prop.textColor ? prop.textColor : main.textColor
 
                 MouseArea {
                     anchors.fill: parent
@@ -120,6 +121,7 @@ Rectangle {
     Component {
         id: float_control
         Item {
+            property alias labelWidth: float_control_label.width
             property Item prev
             anchors.top: prev.top
             anchors.left: parent.left
@@ -144,10 +146,9 @@ Rectangle {
                     id: float_control_label
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
-                    width: implicitWidth
-                    text: prop.label !== undefined ? prop.label : prop.name
+                    text: prop.label ? prop.label : prop.name
                     font.bold: true
-                    color: textColor
+                    color: prop.textColor ? prop.textColor : main.textColor
                 }
                 Slider {
                     id: float_slider
@@ -189,23 +190,36 @@ Rectangle {
         }
     }
 
+    FontMetrics {
+        id: fontMetric
+    }
+
     Component.onCompleted: {
         var height = 10 + titleRow.height
         var prev = titleRow
 
+        var maxWidth = 0
+        for(var index=0; index < properties.length; index++) {
+            var prop = properties[index]
+            maxWidth = Math.max(maxWidth, fontMetric.averageCharacterWidth * (prop.label ? prop.label.length : prop.name.length))
+        }
+        maxWidth += fontMetric.averageCharacterWidth * 3
+
         for(var index=0; index < properties.length; index++) {
             var prop = properties[index]
             if(prop.type === "float") {
-                prev = float_control.createObject(main, {"anchors.top": prev.bottom,
+                prev = float_control.createObject(main, {"labelWidth": maxWidth, "anchors.top": prev.bottom,
                                                       prop: prop, from: prop.from, to: prop.to, target: prop})
                 controls.push(prev)
             }
             else if(prop.type === "bool") {
-                prev = bool_control.createObject(main, {"anchors.top": prev.bottom, prop: prop, target: prop})
+                prev = bool_control.createObject(main, {"labelWidth": maxWidth,
+                                                        "anchors.top": prev.bottom, prop: prop, target: prop})
                 controls.push(prev)
             }
             else if(prop.type === "menuchoice") {
-                prev = menu_choice.createObject(main, {"anchors.top": prev.bottom, prop: prop, target: prop})
+                prev = menu_choice.createObject(main, {"labelWidth": maxWidth,
+                                                        "anchors.top": prev.bottom, prop: prop, target: prop})
                 menuChoices.push(prop)
             }
             height += prev.implicitHeight

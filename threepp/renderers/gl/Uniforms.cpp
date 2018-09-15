@@ -290,15 +290,15 @@ void Uniform::setValue(const std::vector<float> &vector)
 
 void Uniform::setValue(const std::vector<Texture::Ptr> &textures)
 {
-  vector<GLint> units = _renderer.allocTextureUnits(textures.size());
+  vector<GLuint> units = _renderer.allocTextureUnits(textures.size());
 
-  _renderer.glUniform1iv(_addr, textures.size(), units.data());
+  _renderer.glUniform1iv(_addr, textures.size(), (GLint *)units.data());
+  check_glerror(&_renderer);
 
   for (size_t i = 0; i < textures.size(); ++ i ) {
 
-    _renderer.setTexture2D( textures[i], units[ i ] );
+    _renderer.setTexture2D( textures[i], (GLuint)units[ i ] );
   }
-  check_glerror(&_renderer);
 }
 
 void Uniform::setValue(const Texture::Ptr &texture)

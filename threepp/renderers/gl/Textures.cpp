@@ -283,7 +283,7 @@ void Textures::uploadTexture(GlProperties &textureProperties, Texture::Ptr textu
 
       internalFormat = TextureFormat::DepthComponent32;
 
-    } else /*WebGL2*/{
+    } else if(_capabilities.isGL2) {
 
       // WebGL 2.0 requires signed internalformat for glTexImage2D
       internalFormat = TextureFormat::DepthComponent16;
@@ -444,7 +444,7 @@ void Textures::setupRenderBufferStorage(GLuint renderbuffer, const RenderTarget 
     _fn->glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA4, renderTarget.width(), renderTarget.height() );
   }
 
-  _fn->glBindRenderbuffer( GL_RENDERBUFFER, oldRB );
+  _fn->glBindRenderbuffer( GL_RENDERBUFFER, (GLuint)oldRB );
 }
 
 // Setup resources for a Depth Texture for a FBO (needs an extension)

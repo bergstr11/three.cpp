@@ -122,7 +122,7 @@ void Renderer_impl::initContext()
                    Extension::OES_element_index_uint,
                    Extension::ANGLE_instanced_arrays});
 
-  _capabilities.init();
+  _capabilities.init(QOpenGLContext::currentContext());
 }
 
 void Renderer_impl::clear(bool color, bool depth, bool stencil)
@@ -272,9 +272,9 @@ unsigned Renderer_impl::allocTextureUnit()
   return textureUnit;
 }
 
-std::vector<GLint> Renderer_impl::allocTextureUnits(size_t count)
+std::vector<GLuint> Renderer_impl::allocTextureUnits(size_t count)
 {
-  std::vector<GLint> units(count);
+  std::vector<GLuint> units(count);
   units.clear();
 
   for (size_t i = 0; i < count; ++i)
@@ -960,8 +960,10 @@ void Renderer_impl::initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D:
 
     uniforms.set(UniformName::directionalShadowMap, _lights.state.directionalShadowMap);
     uniforms.set(UniformName::directionalShadowMatrix, _lights.state.directionalShadowMatrix);
+
     uniforms.set(UniformName::spotShadowMap, _lights.state.spotShadowMap);
     uniforms.set(UniformName::spotShadowMatrix, _lights.state.spotShadowMatrix);
+
     uniforms.set(UniformName::pointShadowMap, _lights.state.pointShadowMap);
     uniforms.set(UniformName::pointShadowMatrix, _lights.state.pointShadowMatrix);
     // TODO (abelnation): add area lights shadow info to uniforms

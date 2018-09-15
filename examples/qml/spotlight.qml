@@ -16,7 +16,7 @@ Window {
         title: "spotlight"
         anchors.top: parent.top
         anchors.right: parent.right
-        width: 350
+        width: 400
         color: "transparent"
         z: 2
         threeD: threeD

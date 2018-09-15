@@ -44,6 +44,8 @@ public:
   bool floatFragmentTextures;
   bool floatVertexTextures;
 
+  bool isGL2 = false;
+
   GLint maxAnisotropy = -1;
   Precision maxPrecision;
   Precision precision;
@@ -52,7 +54,7 @@ public:
   : _fn(fn), _extensions(extensions), _parameters(parameters)
   { }
 
-  void init()
+  void init(QOpenGLContext *context)
   {
     logarithmicDepthBuffer = _parameters.logarithmicDepthBuffer && _extensions[Extension::EXT_frag_depth];
     _fn->glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextures);

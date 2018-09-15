@@ -43,24 +43,9 @@ class RenderTargetExternal : public RenderTarget
   friend Textures;
   friend Renderer_impl;
 
-  class ExternalTexture : public Texture
-  {
-  public:
-    using Ptr = std::shared_ptr<ExternalTexture>;
-    const GLuint handle;
-    const GLsizei width, height;
-
-    ExternalTexture(GLuint handle, GLsizei width, GLsizei height)
-       : Texture(Texture::options(), texture::Typer(), false, false), handle(handle), width(width), height(height)
-    {}
-
-    bool isPowerOfTwo() const override {
-      return math::isPowerOfTwo(width) && math::isPowerOfTwo(height);
-    }
-  };
-
+  const GLuint textureHandle;
   const GLuint frameBuffer;
-  const ExternalTexture::Ptr _texture;
+  const RenderTexture::Ptr _texture;
   const CullFace _faceCulling;
   const FrontFaceDirection _faceDirection;
 
@@ -69,7 +54,8 @@ protected:
                        CullFace faceCulling, FrontFaceDirection faceDirection,
                        bool depthBuffer, bool stencilBuffer)
      : RenderTarget(TextureTarget::twoD, width, height, depthBuffer, stencilBuffer),
-       frameBuffer(frameBuffer), _texture(std::make_shared<ExternalTexture>(texture, width, height)),
+       frameBuffer(frameBuffer), textureHandle(texture),
+       _texture(RenderTexture::make(RenderTexture::options(), width, height)),
        _faceCulling(faceCulling), _faceDirection(faceDirection)
   {
   }
@@ -91,34 +77,9 @@ public:
   Texture::Ptr texture() const override {
     return _texture;
   }
-  GLuint textureHandle() const {return _texture->handle;}
 
   void dispose() override
   {
-  }
-};
-
-class RenderTargetTexture : public Texture
-{
-  friend class RenderTargetInternal;
-
-  const GLsizei _width;
-  const GLsizei _height;
-
-protected:
-  RenderTargetTexture(const TextureOptions &options, GLsizei width, GLsizei height)
-     : Texture(options, texture::Typer(), false, 1), _width(width), _height(height)
-  {}
-
-public:
-  using Ptr = std::shared_ptr<RenderTargetTexture>;
-  static Ptr make(const TextureOptions &options, GLsizei width, GLsizei height) {
-    return Ptr(new RenderTargetTexture(options, width, height));
-  }
-
-  bool isPowerOfTwo() const override
-  {
-    return math::isPowerOfTwo(_width) && math::isPowerOfTwo(_height);
   }
 };
 
@@ -142,13 +103,13 @@ public:
 private:
   GLuint renderBuffer=0, frameBuffer=0;
 
-  RenderTargetTexture::Ptr _texture;
+  RenderTexture::Ptr _texture;
   DepthTexture::Ptr _depthTexture;
 
 protected:
   RenderTargetInternal(const Options &options, GLsizei width, GLsizei height)
      : RenderTarget(TextureTarget::twoD, width, height, options.depthBuffer, options.stencilBuffer),
-       _texture(RenderTargetTexture::make(options, width, height)), _depthTexture(options.depthTexture)
+       _texture(RenderTexture::make(options, width, height)), _depthTexture(options.depthTexture)
   {}
 
 public:

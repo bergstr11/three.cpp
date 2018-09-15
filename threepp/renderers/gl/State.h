@@ -680,7 +680,7 @@ public:
 
     if(boundTexture->target != target || boundTexture->texture != webglTexture ) {
 
-      _f->glBindTexture((GLenum)target, webglTexture >= 0 ? webglTexture : emptyTextures[target]);
+      _f->glBindTexture((GLenum)target, webglTexture >= 0 ? (GLuint)webglTexture : emptyTextures[target]);
       check_glerror(_f);
 
       boundTexture->target = target;

@@ -109,7 +109,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
       _lookTarget = math::Vector3::fromMatrixPosition(targetLight->target()->matrixWorld());
       shadowCamera->lookAt(_lookTarget);
-      shadowCamera->updateMatrixWorld(true);
+      shadowCamera->updateMatrixWorld(false);
 
       // compute shadow matrix
 
@@ -216,7 +216,6 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   if ( _renderSingleSided && side == Side::Double ) {
 
     side = Side::Front;
-
   }
 
   if ( _renderReverseSided ) {
