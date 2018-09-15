@@ -104,27 +104,6 @@ template<> struct UniformValueT<Cls> : public UniformValue \
   } \
 };
 
-#define UNIFORM_VALUE_TP(Cls) \
-template<> struct UniformValueT<Cls> : public UniformValue \
-{ \
-  const Cls * value = nullptr; \
-  explicit UniformValueT(UniformName nm, const Cls &value) : UniformValue(nm), value(&value) {} \
-  explicit UniformValueT(UniformName nm, const Cls &value, UniformProperties properties) : UniformValue(nm, properties), value(&value) {} \
-  static Ptr make(UniformName nm, const Cls &value) { \
-    return Ptr(new UniformValueT(nm, value)); \
-  } \
-  UniformValueT &operator = (const Cls &value) { \
-    this->value = &value; return *this; \
-  } \
-  Ptr clone() const override { \
-    return Ptr(new UniformValueT(id, *value)); \
-  } \
-  void applyValue(std::shared_ptr<Uniform> uniform) override { \
-    uniform->setValue(*value); \
-  } \
-};
-
-UNIFORM_VALUE_T(math::Matrix3)
 UNIFORM_VALUE_T(float)
 UNIFORM_VALUE_T(bool)
 UNIFORM_VALUE_T(Color)
@@ -132,12 +111,13 @@ UNIFORM_VALUE_T(int)
 UNIFORM_VALUE_T(unsigned)
 UNIFORM_VALUE_T(math::Vector2)
 UNIFORM_VALUE_T(math::Vector3)
-UNIFORM_VALUE_T(std::vector<float>)
+UNIFORM_VALUE_T(math::Matrix3)
 UNIFORM_VALUE_T(math::Matrix4)
 UNIFORM_VALUE_T(Texture::Ptr)
 UNIFORM_VALUE_T(CubeTexture::Ptr)
-UNIFORM_VALUE_TP(std::vector<Texture::Ptr>)
-UNIFORM_VALUE_TP(std::vector<math::Matrix4>)
+UNIFORM_VALUE_T(std::vector<float>)
+UNIFORM_VALUE_T(std::vector<Texture::Ptr>)
+UNIFORM_VALUE_T(std::vector<math::Matrix4>)
 
 #define UNIFORM_STRUCT_BODY(Cls) \
   Cls value; \
