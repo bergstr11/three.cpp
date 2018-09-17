@@ -61,7 +61,7 @@ protected:
       _geometry->color()->needsUpdate();
     }
 
-    math::Vector3 target = math::Vector3::fromMatrixPosition(_light->matrixWorld()).negate();
+    math::Vector3 target = _light->matrixWorld().getPosition().negate();
     _children.front()->lookAt(target);
   }
 

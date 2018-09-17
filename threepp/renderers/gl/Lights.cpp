@@ -30,8 +30,8 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
 
       uniforms->color = light->color() * light->intensity();
 
-      uniforms->direction = math::Vector3::fromMatrixPosition(light->matrixWorld());
-      uniforms->direction -= math::Vector3::fromMatrixPosition(dlight->target()->matrixWorld());
+      uniforms->direction = light->matrixWorld().getPosition();
+      uniforms->direction -= dlight->target()->matrixWorld().getPosition();
       uniforms->direction.transformDirection( viewMatrix );
 
       uniforms->shadow = light->castShadow;
@@ -52,14 +52,14 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
     else if(SpotLight *slight = light->typer) {
       lights::Entry<SpotLight>::Ptr uniforms = cache.get( slight );
 
-      uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
+      uniforms->position = light->matrixWorld().getPosition();
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = color * intensity;
       uniforms->distance = slight->distance();
 
-      uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
-      uniforms->direction -= math::Vector3::fromMatrixPosition( slight->target()->matrixWorld());
+      uniforms->direction = light->matrixWorld().getPosition();
+      uniforms->direction -= slight->target()->matrixWorld().getPosition();
       uniforms->direction.transformDirection( viewMatrix );
 
       uniforms->coneCos = cos( slight->angle() );
@@ -90,7 +90,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       // (b) intensity controls the radiance per light area
       // uniforms.color.copy( color ).multiplyScalar( intensity );
 
-      uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
+      uniforms->position = light->matrixWorld().getPosition();
       uniforms->position.apply( viewMatrix );
 
       // extract local rotation of light to derive width/height half vectors
@@ -112,7 +112,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
     else if(PointLight *plight = light->typer) {
       lights::Entry<PointLight>::Ptr uniforms = cache.get( plight );
 
-      uniforms->position = math::Vector3::fromMatrixPosition(light->matrixWorld());
+      uniforms->position = light->matrixWorld().getPosition();
       uniforms->position.apply( viewMatrix );
 
       uniforms->color = light->color() * light->intensity();
@@ -139,7 +139,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
     else if(HemisphereLight *hlight = light->typer) {
       lights::Entry<HemisphereLight>::Ptr uniforms = cache.get( hlight );
 
-      uniforms->direction = math::Vector3::fromMatrixPosition( light->matrixWorld() );
+      uniforms->direction = light->matrixWorld().getPosition();
       uniforms->direction.transformDirection( viewMatrix );
       uniforms->direction.normalize();
 

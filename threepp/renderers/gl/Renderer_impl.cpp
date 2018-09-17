@@ -27,17 +27,9 @@ OpenGLRenderer::Ptr OpenGLRenderer::make(size_t width, size_t height, float pixe
 }
 
 Renderer::Target::Ptr OpenGLRenderer::makeExternalTarget(GLuint frameBuffer, GLuint texture, size_t width, size_t height,
-                                                         CullFace faceCulling, FrontFaceDirection faceDirection,
-                                                         bool depthBuffer, bool stencilBuffer)
+                                                         CullFace faceCulling, FrontFaceDirection faceDirection)
 {
-  return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, faceCulling, faceDirection,
-                                        depthBuffer, stencilBuffer);
-}
-
-Renderer::Target::Ptr OpenGLRenderer::makeInternalTarget(
-   size_t width, size_t height, bool depthBuffer, bool stencilBuffer)
-{
-  return gl::RenderTargetInternal::make(gl::RenderTargetInternal::Options(), width, height);
+  return gl::RenderTargetExternal::make(frameBuffer, texture, width, height, faceCulling, faceDirection);
 }
 
 namespace gl {

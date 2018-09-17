@@ -24,8 +24,8 @@ class Vector3;
 
 static const float EPS = 0.000001f;
 
-static const double DEG2RAD = M_PI / 180;
-static const double RAD2DEG = 180 / M_PI;
+static constexpr double DEG2RAD = M_PI / 180.0;
+static constexpr double RAD2DEG = 180.0 / M_PI;
 
 template <typename T> T clamp(T value, T min, T max)
 {

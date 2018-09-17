@@ -80,7 +80,7 @@ void PerspectiveCamera::updateProjectionMatrix()
 
 math::Ray PerspectiveCamera::ray(float x, float y) const
 {
-  Vector3 origin = math::Vector3::fromMatrixPosition(_matrixWorld);
+  Vector3 origin = _matrixWorld.getPosition();
   Vector3 direction(x, y, 0.5);
   direction.unproject(*this);
   direction -= origin;

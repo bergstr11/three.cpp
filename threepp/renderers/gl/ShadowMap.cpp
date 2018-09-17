@@ -82,14 +82,14 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       options.minFilter = TextureFilter::Nearest;
       options.magFilter = TextureFilter::Nearest;
       options.format = TextureFormat::RGBA;
-      shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
+      shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.width(), shadowMapSize.height()));
 
       shadowCamera->updateProjectionMatrix();
     }
 
     shadow->update();
 
-    _lightPositionWorld = math::Vector3::fromMatrixPosition(light->matrixWorld());
+    _lightPositionWorld = light->matrixWorld().getPosition();
     shadowCamera->position() = _lightPositionWorld;
 
     if (pointLight) {
@@ -107,19 +107,17 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
       faceCount = 1;
 
-      _lookTarget = math::Vector3::fromMatrixPosition(targetLight->target()->matrixWorld());
+      _lookTarget = targetLight->target()->matrixWorld().getPosition();
       shadowCamera->lookAt(_lookTarget);
       shadowCamera->updateMatrixWorld(false);
 
       // compute shadow matrix
-
       shadow->matrix() = math::Matrix4(
          0.5, 0.0, 0.0, 0.5,
          0.0, 0.5, 0.0, 0.5,
          0.0, 0.0, 0.5, 0.5,
          0.0, 0.0, 0.0, 1.0
       );
-
       shadow->matrix() *= shadowCamera->projectionMatrix();
       shadow->matrix() *= shadowCamera->matrixWorldInverse();
     }

@@ -65,11 +65,10 @@ public:
 
   using Ptr = std::shared_ptr<RenderTargetExternal>;
   static Ptr make(GLuint frameBuffer, GLuint texture, GLsizei width, GLsizei height,
-                  CullFace faceCulling, FrontFaceDirection faceDirection,
-                  bool depthBuffer=true, bool stencilBuffer=true)
+                  CullFace faceCulling, FrontFaceDirection faceDirection)
   {
     return Ptr(new RenderTargetExternal(frameBuffer, texture, width, height, faceCulling, faceDirection,
-                                        depthBuffer, stencilBuffer));
+                                        false, false));
   }
 
   void init(Renderer *renderer) override;
@@ -94,6 +93,7 @@ public:
     bool depthBuffer = true;
     bool stencilBuffer = true;
     DepthTexture::Ptr depthTexture;
+    bool generateMipmaps = true;
 
     Options() {
       minFilter = TextureFilter::Linear;
@@ -110,7 +110,9 @@ protected:
   RenderTargetInternal(const Options &options, GLsizei width, GLsizei height)
      : RenderTarget(TextureTarget::twoD, width, height, options.depthBuffer, options.stencilBuffer),
        _texture(RenderTexture::make(options, width, height)), _depthTexture(options.depthTexture)
-  {}
+  {
+    _texture->setGenerateMipmaps(options.generateMipmaps);
+  }
 
 public:
   Signal<void(RenderTargetInternal &)> onDispose;

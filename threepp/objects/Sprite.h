@@ -47,7 +47,7 @@ public:
   {
     math::Vector3 intersectPoint;
 
-    math::Vector3 worldPosition = math::Vector3::fromMatrixPosition(_matrixWorld);
+    math::Vector3 worldPosition = _matrixWorld.getPosition();
 
     for(const auto &ray : raycaster.rays()) {
 

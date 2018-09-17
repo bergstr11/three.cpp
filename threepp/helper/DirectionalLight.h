@@ -56,8 +56,8 @@ protected:
 
   void update() {
 
-    math::Vector3 v1 = math::Vector3::fromMatrixPosition( _light->matrixWorld() );
-    math::Vector3 v2 = math::Vector3::fromMatrixPosition( _light->target()->matrixWorld() );
+    math::Vector3 v1 = _light->matrixWorld().getPosition();
+    math::Vector3 v2 = _light->target()->matrixWorld().getPosition();
     math::Vector3 v3 = v2- v1;
 
     _lightPlane->lookAt( v3 );

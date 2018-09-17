@@ -334,7 +334,7 @@ public:
   math::Vector3 getWorldPosition()
   {
     updateMatrixWorld( true );
-    return math::Vector3::fromMatrixPosition(_matrixWorld);
+    return _matrixWorld.getPosition();
   }
 
   void updateMaterials();

@@ -61,8 +61,6 @@ public:
 
   static Vector3 fromCylindrical(const Cylindrical &c);
 
-  static Vector3 fromMatrixPosition(const Matrix4 &m);
-
   static Vector3 fromBufferAttribute(const BufferAttributeT<float> &att, unsigned index);
 
   template <typename T>

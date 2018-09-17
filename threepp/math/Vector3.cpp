@@ -102,12 +102,6 @@ Vector3 Vector3::fromCylindrical(const Cylindrical &c)
   return Vector3(x, y, z);
 }
 
-Vector3 Vector3::fromMatrixPosition(const Matrix4 &m)
-{
-  const float *e = m.elements();
-  return Vector3(e[ 12 ], e[ 13 ], e[ 14 ]);
-}
-
 Vector3 Vector3::fromMatrixColumn(const Matrix4 &m, unsigned index)
 {
   return fromArray( m.elements(), index * 4 );

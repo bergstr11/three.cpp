@@ -72,8 +72,8 @@ public:
 
     _cone->scale().set( coneWidth, coneWidth, coneLength );
 
-    math::Vector3 vector = math::Vector3::fromMatrixPosition(_light->matrixWorld());
-    math::Vector3 vector2 = math::Vector3::fromMatrixPosition(_light->target()->matrixWorld());
+    math::Vector3 vector = _light->matrixWorld().getPosition();
+    math::Vector3 vector2 = _light->target()->matrixWorld().getPosition();
 
     _cone->lookAt(vector2 - vector );
 

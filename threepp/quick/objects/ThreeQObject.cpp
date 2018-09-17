@@ -336,7 +336,7 @@ void ThreeQObject::setCastShadow(bool castShadow, bool propagate) {
   if(_castShadow != castShadow) {
     _castShadow = castShadow;
     if(propagate && _object) {
-      _object->visit([&](Object3D *o) {o->castShadow = _castShadow; return true;});
+      _object->castShadow = _castShadow;//visit([&](Object3D *o) {o->castShadow = _castShadow; return true;});
     }
     emit castShadowChanged();
   }
@@ -346,7 +346,7 @@ void ThreeQObject::setReceiveShadow(bool receiveShadow, bool propagate) {
   if(_receiveShadow != receiveShadow) {
     _receiveShadow = receiveShadow;
     if(propagate && _object) {
-      _object->visit([&](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
+      _object->receiveShadow = _receiveShadow;//visit([&](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
     }
     emit receiveShadowChanged();
   }
