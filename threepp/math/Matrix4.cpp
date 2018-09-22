@@ -317,9 +317,9 @@ Matrix4 Matrix4::axisRotation(const Vector3 &axis, float angle)
   );
 }
 
-void Matrix4::decompose(Vector3 &position, Quaternion &rotation, Vector3&scale)
+void Matrix4::decompose(Vector3 &position, Quaternion &rotation, Vector3&scale) const
 {
-  float *te = _elements;
+  const float *te = _elements;
 
   float sx = Vector3(te[0], te[1], te[2]).length();
   float sy = Vector3(te[4], te[5], te[6]).length();

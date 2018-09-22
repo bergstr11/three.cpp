@@ -34,8 +34,6 @@ class ShadowMap
 
   enum Flag : uint16_t {Morphing = 1, Skinning= 2};
 
-  uint16_t _NumberOfMaterialVariants = (Flag::Morphing | Flag::Skinning) + 1;
-
   std::vector<Material::Ptr> _depthMaterials;
   std::vector<Material::Ptr> _distanceMaterials;
 
@@ -58,10 +56,9 @@ class ShadowMap
   bool _autoUpdate = true;
   bool _needsUpdate = false;
 
-  ShadowMapType _type = ShadowMapType::PCFSoft;
+  unsigned _faceCount;
 
-  bool _renderReverseSided = true;
-  bool _renderSingleSided = true;
+  ShadowMapType _type = ShadowMapType::PCFSoft;
 
   Renderer_impl &_renderer;
   Objects &_objects;
@@ -69,19 +66,9 @@ class ShadowMap
   const Capabilities &_capabilities;
 
 public:
-  ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities)
-     : _renderer(renderer), _objects(objects), _capabilities(capabilities)
-  {
-    for (size_t i = 0; i < _NumberOfMaterialVariants; ++ i ) {
+  ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities);
 
-      bool useMorphing = ( i & Flag::Morphing ) != 0;
-      bool useSkinning = ( i & Flag::Skinning ) != 0;
-
-      _depthMaterials.push_back(MeshDepthMaterial::make(DepthPacking::RGBA, useMorphing, useSkinning));
-      _distanceMaterials.push_back(MeshDistanceMaterial::make(useMorphing, useSkinning));
-    }
-  }
-
+  void prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
   void render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
 
   Material::Ptr getDepthMaterial(Object3D::Ptr object,

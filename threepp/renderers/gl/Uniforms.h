@@ -216,7 +216,7 @@ public:
 
   void setValue(const std::vector<float> &vector);
 
-  void setValue(const GLint * array, size_t size);
+  void setValue(const GLint *array, size_t size);
 
   void setValue(const Texture::Ptr &texture);
 

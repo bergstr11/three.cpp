@@ -35,7 +35,8 @@ class DLX Camera : private Maker, public LineSegments
     _camera = camera;
     _camera->updateProjectionMatrix();
     matrixAutoUpdate = false;
-    Maker::update(camera);
+    _camera->onMatrixWorldChanged.connect(this, &Camera::update);
+    Maker::update(_camera);
   }
 
 public:
@@ -48,6 +49,7 @@ public:
 
   void update() {
     _matrix = _camera->matrixWorld();
+    updateMatrixWorld(true);
     Maker::update(_camera);
   }
 };

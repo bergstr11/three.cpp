@@ -8,25 +8,29 @@
 namespace three {
 namespace gl {
 
-void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
+ShadowMap::ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities)
+: _renderer(renderer), _objects(objects), _capabilities(capabilities)
+{
+  static constexpr uint16_t _NumberOfMaterialVariants = (Flag::Morphing | Flag::Skinning) + 1;
+
+  for (size_t i = 0; i < _NumberOfMaterialVariants; ++ i ) {
+
+    bool useMorphing = ( i & Flag::Morphing ) != 0;
+    bool useSkinning = ( i & Flag::Skinning ) != 0;
+
+    _depthMaterials.push_back(MeshDepthMaterial::make(DepthPacking::RGBA, useMorphing, useSkinning));
+    _distanceMaterials.push_back(MeshDistanceMaterial::make(useMorphing, useSkinning));
+  }
+}
+
+void ShadowMap::prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
 {
   if (!_enabled) return;
   if (!_autoUpdate && !_needsUpdate) return;
 
   if (lights.empty()) return;
 
-  // Set GL state for depth map.
-  gl::State &state = _renderer.state();
-  state.disable(GL_BLEND);
-  state.colorBuffer.setClear(1, 1, 1, 1);
-  state.depthBuffer.setTest(true);
-  state.setScissorTest(false);
-
-  check_glerror(&_renderer);
-
   // render depth map
-  unsigned faceCount;
-
   for (Light::Ptr light : lights) {
 
     auto shadow = light->shadow();
@@ -94,7 +98,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     if (pointLight) {
 
-      faceCount = 6;
+      _faceCount = 6;
 
       // for point lights we set the shadow matrix to be a translation-only matrix
       // equal to inverse of the light's position
@@ -105,7 +109,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       TargetLight *targetLight = light->typer;
       assert(targetLight);
 
-      faceCount = 1;
+      _faceCount = 1;
 
       _lookTarget = targetLight->target()->matrixWorld().getPosition();
       shadowCamera->lookAt(_lookTarget);
@@ -122,12 +126,9 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       shadow->matrix() *= shadowCamera->matrixWorldInverse();
     }
 
-    _renderer.setRenderTarget(shadow->map());
-    _renderer.clear(true, true, true);
-
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
-    for (unsigned face = 0; face < faceCount; face++) {
+    for (unsigned face = 0; face < _faceCount; face++) {
 
       if (pointLight) {
 
@@ -136,21 +137,52 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
         shadowCamera->up() = _cubeUps[face];
         shadowCamera->lookAt(_lookTarget);
         shadowCamera->updateMatrixWorld(false);
+      }
+    }
+  }
+
+  _needsUpdate = false;
+}
+
+void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
+{
+  // Set GL state for depth map.
+  gl::State &state = _renderer.state();
+  state.disable(GL_BLEND);
+  state.colorBuffer.setClear(1, 1, 1, 1);
+  state.depthBuffer.setTest(true);
+  state.setScissorTest(false);
+
+  check_glerror(&_renderer);
+
+  // render depth map
+  for (Light::Ptr light : lights) {
+
+    auto shadow = light->shadow();
+
+    _renderer.setRenderTarget(shadow->map());
+    _renderer.clear(true, true, true);
+
+    bool pointLight = light->is<PointLight>();
+
+    // render shadow map for each cube face (if omni-directional) or
+    // run a single pass if not
+    for (unsigned face = 0; face < _faceCount; face++) {
+
+      if (pointLight) {
 
         math::Vector4 &vpDimensions = _cube2DViewPorts[face];
         _renderer.state().viewport(vpDimensions);
       }
 
       // update camera matrices and frustum
-      _frustum.set(shadowCamera->projectionMatrix() * shadowCamera->matrixWorldInverse());
+      _frustum.set(shadow->camera()->projectionMatrix() * shadow->camera()->matrixWorldInverse());
 
       // set object matrices & frustum culling
-      renderObject(scene, camera, shadowCamera, (bool)pointLight);
+      renderObject(scene, camera, shadow->camera(), (bool)pointLight);
       check_glerror(&_renderer);
     }
   }
-
-  _needsUpdate = false;
 }
 
 Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
@@ -209,20 +241,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   result->visible = material->visible;
   result->wireframe = material->wireframe;
 
-  Side side = material->side;
-
-  if ( _renderSingleSided && side == Side::Double ) {
-
-    side = Side::Front;
-  }
-
-  if ( _renderReverseSided ) {
-
-    if ( side == Side::Front ) side = Side::Back;
-    else if ( side == Side::Back ) side = Side::Front;
-  }
-
-  result->side = side;
+  result->side = material->side;
 
   result->clipShadows = material->clipShadows;
   result->clippingPlanes = material->clippingPlanes;

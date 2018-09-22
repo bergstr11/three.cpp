@@ -5,12 +5,15 @@
 #include <QDebug>
 #include <threepp/quick/Three.h>
 
+#include "ShadowMapViewer.h"
+
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
   QQmlEngine qmlEngine;
   QQmlContext *mainQmlContext = new QQmlContext(&qmlEngine);
 
   three::quick::init();
+  qmlRegisterType<three::quick::ShadowMapViewer>("three.quick", 1, 0, "ShadowMapViewer");
 
   QQmlComponent maincomponent(&qmlEngine);
   //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
@@ -27,8 +30,8 @@ int main(int argc, char *argv[]) {
   //maincomponent.loadUrl(QUrl("qrc:///cameras.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///3D_text.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///SVG_extrude.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///webgl_shadowmap.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///webgl_shadowmap.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();

@@ -62,6 +62,11 @@ protected:
 
       _parentObject->add(_helper);
     }
+
+    if(_shadow.camera()->helper()->configured()) {
+      auto helper = _shadow.camera()->helper()->create(_light->shadow()->camera());
+      _scene->scene()->add(helper);
+    }
   }
 
 public:

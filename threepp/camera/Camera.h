@@ -12,6 +12,7 @@
 #include <threepp/math/Ray.h>
 #include <threepp/core/Object3D.h>
 #include <threepp/util/Resolver.h>
+#include <threepp/util/simplesignal.h>
 
 namespace three {
 
@@ -73,6 +74,8 @@ protected:
 public:
   using Ptr = std::shared_ptr<Camera>;
 
+  Signal<void()> onMatrixWorldChanged;
+
   /**
    * Sets an offset in a larger frustum. This is useful for multi-window or
    * multi-monitor/multi-machine setups.
@@ -123,11 +126,13 @@ public:
     return math::Vector3(0, 0, - 1).apply(quaternion);
   }
 
-  void updateMatrixWorld(bool force) override {
-
+  void updateMatrixWorld(bool force) override
+  {
+    math::Matrix4 mw = _matrixWorld;
     Object3D::updateMatrixWorld(force);
-
     _matrixWorldInverse = _matrixWorld.inverted();
+
+    if(mw != _matrixWorld) onMatrixWorldChanged.emitSignal();
   }
 
   void lookAt(const math::Vector3 &vector) override

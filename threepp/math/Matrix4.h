@@ -387,7 +387,7 @@ public:
     return Matrix4::rotation(quaternion).scale(scale).setPosition(position);
   }
 
-  void decompose(Vector3 &position, Quaternion &rotation, Vector3&scale);
+  void decompose(Vector3 &position, Quaternion &rotation, Vector3&scale) const;
 
   static Matrix4 perspective(float left, float right, float top, float bottom, float near, float far)
   {
@@ -435,6 +435,11 @@ public:
     const float *me = matrix._elements;
 
     return std::memcmp(_elements, matrix._elements, sizeof(_elements)) == 0;
+  }
+
+  bool operator !=(const Matrix4 &matrix) const
+  {
+    return ! operator == (matrix);
   }
 
   Matrix4(float *array, unsigned offset)

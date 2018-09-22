@@ -8,6 +8,7 @@
 #include <QQuickFramebufferObject>
 #include <QJSValue>
 #include <threepp/renderers/OpenGLRenderer.h>
+#include <threepp/util/simplesignal.h>
 #include "Three.h"
 
 namespace three {
@@ -116,6 +117,8 @@ private:
   QQmlListProperty<ThreeQObjectRoot> objects();
 
 public:
+  Signal<void(OpenGLRenderer::Ptr, three::Renderer::Target::Ptr)> onRendered;
+
   explicit ThreeDItem(QQuickItem *parent = nullptr);
 
   ~ThreeDItem() override;

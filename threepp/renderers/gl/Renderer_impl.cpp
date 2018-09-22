@@ -145,6 +145,11 @@ void Renderer_impl::clear()
   _deferredCalls->clear(true, true, true);
 }
 
+void Renderer_impl::clearDepth()
+{
+  _deferredCalls->clear(false, true, false);
+}
+
 Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
 {
   _viewport.set( x, _height - y - height, width, height );
@@ -195,6 +200,9 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
 
   _currentRenderList = _renderLists.get(scene, camera);
   _currentRenderList->init();
+
+  prepareLights(scene, camera);
+  _shadowMap.prepare(_shadowsArray, scene, camera);
 
   projectObject(scene, camera, _sortObjects);
 
@@ -402,6 +410,28 @@ void Renderer_impl::renderObject(Object3D::Ptr object, Scene::Ptr scene, Camera:
   object->onAfterRender.emitSignal(*this, scene, camera, *object, group );
 }
 
+void Renderer_impl::prepareLights(Object3D::Ptr object, Camera::Ptr camera)
+{
+  if (!object->visible()) return;
+
+  bool visible = object->layers().test(camera->layers());
+  if (visible ) {
+
+    if (Light *light = object->typer) {
+
+      _lightsArray.push_back(CAST2(object, Light));
+
+      if (light->castShadow) {
+        _shadowsArray.push_back(CAST2(object, Light));
+      }
+    }
+    for (Object3D::Ptr child : object->children()) {
+
+      prepareLights( child, camera );
+    }
+  }
+}
+
 void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects )
 {
   if (!object->visible()) return;
@@ -409,25 +439,17 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
   bool visible = object->layers().test(camera->layers());
   if (visible ) {
 
-    if(Light *light = object->typer) {
-
-      _lightsArray.push_back(CAST2(object, Light));
-
-      if ( light->castShadow ) {
-        _shadowsArray.push_back( CAST2(object, Light) );
-      }
-    }
-    else if(Sprite *sprite = object->typer) {
+    if(Sprite *sprite = object->typer) {
 
       if ( ! sprite->frustumCulled || _frustum.intersectsSprite(*sprite) ) {
         _spritesArray.push_back( CAST2(object, Sprite));
       }
     }
-    else if(LensFlare *lflare = object->typer) {
+    else if(object->is<LensFlare>()) {
 
       _flaresArray.push_back(CAST2(object, LensFlare));
     }
-    else if(ImmediateRenderObject *iro = object->typer) {
+    else if(object->is<ImmediateRenderObject>()) {
 
       if ( sortObjects ) {
 

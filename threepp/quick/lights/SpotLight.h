@@ -58,6 +58,11 @@ protected:
                        [&]() {_helper->visible() = _qhelper.visible();});
       _parentObject->add(_helper);
     }
+
+    if(_shadow.camera()->helper()->configured()) {
+      auto helper = _shadow.camera()->helper()->create(_light->shadow()->camera());
+      _scene->scene()->add(helper);
+    }
   }
 
   float _distance=0, _angle=(float)M_PI / 3, _penumbra=0, _decay=1;

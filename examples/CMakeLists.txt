@@ -12,7 +12,7 @@ find_package(Qt5Core REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp resources.qrc qml/resources/pontiac_gto/pontiac.qrc)
+set(SOURCE_FILES main.cpp ShadowMapViewer.h resources.qrc qml/resources/pontiac_gto/pontiac.qrc)
 
 add_executable(three_test ${SOURCE_FILES})
 target_include_directories(three_test PUBLIC

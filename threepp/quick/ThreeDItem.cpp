@@ -41,6 +41,8 @@ Q_OBJECT
 
   QJSValue _jsInstance;
 
+  Signal<void(OpenGLRenderer::Ptr, three::Renderer::Target::Ptr)> *_onRendered = nullptr;
+
 public:
 
   FramebufferObjectRenderer(const ThreeDItem *item,
@@ -51,6 +53,9 @@ public:
        _renderer(renderer)
   {
     switch(item->shadowType()) {
+      case Three::Basic:
+        _renderer->setShadowMapType(three::ShadowMapType::Basic);
+        break;
       case Three::PCF:
         _renderer->setShadowMapType(three::ShadowMapType::PCF);
         break;
@@ -77,6 +82,7 @@ public:
   {
     ThreeDItem *threeD = reinterpret_cast<ThreeDItem *>(item);
     _renderGroups = threeD->_renderGroups;
+    _onRendered = &threeD->onRendered;
     if(!threeD->_viewport.isNull())
       _target->setViewport(threeD->_viewport.x(), threeD->_viewport.y(),
                            threeD->_viewport.width(), threeD->_viewport.height());
@@ -92,6 +98,7 @@ public:
 
       for(auto it = _scenes.begin(); it != _scenes.end(); it++) {
         _renderer->render((*it)->scene(), (*it)->camera(), _target, it == _scenes.begin());
+        _onRendered->emitSignal(_renderer, _target);
       }
     }
     else {

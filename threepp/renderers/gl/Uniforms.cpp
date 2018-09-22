@@ -271,7 +271,7 @@ void Uniform::setValue(const math::Matrix4 &v) {
   check_glerror(&_renderer);
 }
 
-void Uniform::setValue(const GLint * array, size_t size) {
+void Uniform::setValue(const GLint *array, size_t size) {
   _renderer.glUniform2iv(_addr, size, array);
   check_glerror(&_renderer);
 }

@@ -168,6 +168,8 @@ protected:
 
   void initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object);
 
+  void prepareLights(Object3D::Ptr object, Camera::Ptr camera);
+
   void projectObject(Object3D::Ptr object, Camera::Ptr camera, bool sortObjects );
 
   void doRender(const Scene::Ptr &scene,
@@ -254,6 +256,8 @@ public:
   }
 
   void clear() override;
+
+  void clearDepth() override;
 
   Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
 

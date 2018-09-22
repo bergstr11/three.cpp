@@ -25,13 +25,13 @@ protected:
 
   LightHelper _qhelper;
 
-  virtual three::Light::Ptr light() = 0;
-
   Light(QObject *parent) : ThreeQObject(parent) {}
 
   Light(three::Light::Ptr light, QObject *parent) : ThreeQObject(light, parent) {}
 
 public:
+  virtual three::Light::Ptr light() = 0;
+
   QColor color() const {return _color;}
   void setColor(const QColor &color) {
     if(_color != color) {

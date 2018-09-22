@@ -7,15 +7,59 @@ import three.quick 1.0
 
 Window {
     id: mainWindow
-    minimumWidth: 1280
-    minimumHeight: 1024
+    minimumWidth: 1536
+    minimumHeight: 1044
     visible: true
 
+    OptionsMenu {
+        title: "Lights"
+        anchors.top: parent.top
+        anchors.right: parent.right
+        width: 200
+        color: "transparent"
+        z: 2
+        threeD: threeD
+
+        BoolChoice {
+            name: "Spotlight"
+            value: true
+            onValueChanged: {
+                spotLight.visible = value
+                spotLight.shadow.camera.helper.visible = value
+                spotShadowViewer.enabled = value
+                threeD.update()
+            }
+        }
+        BoolChoice {
+            name: "Directional Light"
+            value: false
+            onValueChanged: {
+                dirLight.visible = value
+                dirLight.shadow.camera.helper.visible = value
+                dirShadowViewer.enabled = value
+                threeD.update()
+            }
+        }
+    }
     ThreeD {
         id: threeD
         anchors.fill: parent
-        focus: true
         shadowType: Three.Basic
+
+        ShadowMapViewer {
+            id: spotShadowViewer
+            scale: 0.2
+            position: "10,10"
+            light: spotLight
+            enabled: true
+        }
+        ShadowMapViewer {
+            id: dirShadowViewer
+            scale: 0.2
+            position: "350,10"
+            light: dirLight
+            enabled: false
+        }
 
         MeshPhongMaterial {
             id: material
@@ -53,6 +97,7 @@ Window {
                 color: "#ffffff"
                 intensity: 1
                 castShadow: true
+                visible: false
                 shadow.camera.near: 1;
 				shadow.camera.far: 10
 				shadow.camera.right: 15
@@ -62,7 +107,7 @@ Window {
 				shadow.mapSize: "1024x1024"
 
                 position: "0,10,0"
-				shadow.camera.helper.visible: true
+				shadow.camera.helper.visible: false
             }
 
             Torus {
