@@ -31,22 +31,26 @@ void Object3D::updateMaterials()
   }
 }
 
-void Object3D::visit(bool (*f)(Object3D *))
+bool Object3D::visit(std::function<bool(Object3D *)> f)
 {
   if(f(this)) {
     for(auto &child : _children) {
-      child->visit(f);
+      if(!child->visit(f)) return false;
     }
+    return true;
   }
+  return false;
 }
 
-void Object3D::visit(std::function<bool(Object3D *)> f)
+bool Object3D::visit(bool (*f)(Object3D *))
 {
   if(f(this)) {
     for(auto &child : _children) {
-      child->visit(f);
+      if(!child->visit(f)) return false;
     }
+    return true;
   }
+  return false;
 }
 
 void Object3D::onRotationChange(const math::Euler &rotation)

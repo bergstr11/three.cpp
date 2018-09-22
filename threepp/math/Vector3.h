@@ -456,6 +456,11 @@ public:
   {
     return ( ( v._x == _x ) && ( v._y == _y ) && ( v._z == _z ) );
   }
+
+  bool operator !=(const Vector3 &v) const
+  {
+    return ! operator == (v);
+  }
 };
 
 inline Vector3 operator + (const Vector3 &left, const Vector3 &right)

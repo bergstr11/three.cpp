@@ -96,8 +96,8 @@ public:
 
   uint16_t childId() const {return _childId;}
 
-  void visit(bool (*f)(Object3D *));
-  void visit(std::function<bool(Object3D *)> f);
+  bool visit(bool (*f)(Object3D *));
+  bool visit(std::function<bool(Object3D *)> f);
 
   virtual Object3D *cloned() const = 0;
 

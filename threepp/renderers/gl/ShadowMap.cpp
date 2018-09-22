@@ -128,15 +128,15 @@ void ShadowMap::prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera
 
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
-    for (unsigned face = 0; face < _faceCount; face++) {
+    if (pointLight) {
 
-      if (pointLight) {
+      for (unsigned face = 0; face < _faceCount; face++) {
 
-        _lookTarget = shadowCamera->position();
-        _lookTarget += _cubeDirections[face];
-        shadowCamera->up() = _cubeUps[face];
-        shadowCamera->lookAt(_lookTarget);
-        shadowCamera->updateMatrixWorld(false);
+          _lookTarget = shadowCamera->position();
+          _lookTarget += _cubeDirections[face];
+          shadowCamera->up() = _cubeUps[face];
+          shadowCamera->lookAt(_lookTarget);
+          shadowCamera->updateMatrixWorld(false);
       }
     }
   }

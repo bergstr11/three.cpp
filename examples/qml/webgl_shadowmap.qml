@@ -112,6 +112,7 @@ Window {
 
             Torus {
                 id: torus
+                name: "torus"
                 type: Three.BufferGeometry
                 radius: 3
                 tube: 0.7
@@ -127,6 +128,7 @@ Window {
 
             Box {
                 id: box
+                name: "box"
                 type: Three.BufferGeometry
                 width: 3
                 height: 3
@@ -141,6 +143,7 @@ Window {
 
             Box {
                 id: ground
+                name: "plane"
                 type: Three.BufferGeometry
                 width: 10
                 height: 0.15
@@ -157,6 +160,7 @@ Window {
 		    }
 
             camera: PerspectiveCamera {
+                name: "pcamera"
                 fov: 45
                 aspect: threeD.width / threeD.height
                 near: 1
