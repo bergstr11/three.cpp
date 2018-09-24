@@ -44,7 +44,7 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        shadowType: Three.PCFSoft
+        shadows.type: Three.PCFSoft
 
         Model {
             id: eagleModel
@@ -156,7 +156,6 @@ Window {
                     minDistance: 50
                     maxDistance:3500
                     enablePan: false
-                    enableRotate: false
                 }
             }
         }

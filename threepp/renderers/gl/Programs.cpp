@@ -195,7 +195,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->dithering = material->dithering;
 
-  parameters->shadowMapEnabled = renderer._shadowMap.enabled() && object->receiveShadow && !shadows.empty();
+  parameters->shadowMapEnabled = renderer._shadowMap.enabled && object->receiveShadow && !shadows.empty();
   parameters->shadowMapType = renderer._shadowMap.type();
 
   parameters->toneMapping = renderer._toneMapping;

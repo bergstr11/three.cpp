@@ -101,18 +101,20 @@ public:
 
   void setGeometry(float itemWidth, float itemHeight)
   {
+    const auto &sz = _light->shadow()->mapSize();
+
     if(_itemWidth != itemWidth || _itemHeight != itemHeight) {
       _itemWidth = itemWidth;
       _itemHeight = itemHeight;
 
-      geometry::buffer::Plane::Ptr geometry = geometry::buffer::Plane::make(_itemWidth, _itemHeight);
+      geometry::buffer::Plane::Ptr geometry = geometry::buffer::Plane::make(sz.width(), sz.height());
       _mesh->setGeometry(geometry);
     }
 
     _mesh->scale().set(_scale, _scale, 1);
 
-    float width = _itemWidth * _scale;
-    float height = _itemHeight * _scale;
+    float width = sz.width() * _scale;
+    float height = sz.height() * _scale;
 
     _mesh->position().set(-_itemWidth / 2 + width / 2 + _position.x(), _itemHeight / 2 - height / 2 - _position.y(), 0);
 

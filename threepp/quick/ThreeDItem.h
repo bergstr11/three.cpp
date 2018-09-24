@@ -56,6 +56,34 @@ public:
   }
 };
 
+class Shadows : public QObject
+{
+  Q_OBJECT
+  Q_PROPERTY(three::quick::Three::ShadowType type READ type WRITE setType NOTIFY typeChanged)
+  Q_PROPERTY(bool autoUpdate READ autoUpdate WRITE setAutoUpdate NOTIFY autoUpdateChanged)
+
+  Three::ShadowType _shadowType = Three::None;
+  bool _autoUpdate = false;
+  three::OpenGLRenderer::Ptr _renderer;
+
+public:
+  Shadows(QObject *parent=nullptr) : QObject(parent) {}
+
+  Three::ShadowType type() const {return _shadowType;}
+
+  void setType(Three::ShadowType type);
+
+  bool autoUpdate() const {return _autoUpdate;}
+
+  void setAutoUpdate(bool autoUpdate);
+
+  Q_INVOKABLE void update();
+
+signals:
+  void typeChanged();
+  void autoUpdateChanged();
+};
+
 class ThreeDItem : public QQuickFramebufferObject
 {
 Q_OBJECT
@@ -63,7 +91,6 @@ Q_OBJECT
   friend class Scene;
 
 private:
-  Q_PROPERTY(three::quick::Three::ShadowType shadowType READ shadowType WRITE setShadowType NOTIFY shadowTypeChanged)
   Q_PROPERTY(three::quick::Three::CullFace faceCulling READ faceCulling WRITE setFaceCulling NOTIFY faceCullingChanged)
   Q_PROPERTY(three::quick::Three::FrontFaceDirection faceDirection READ faceDirection WRITE setFaceDirection NOTIFY faceDirectionChanged)
   Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged FINAL)
@@ -72,6 +99,7 @@ private:
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged FINAL)
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
+  Q_PROPERTY(three::quick::Shadows *shadows READ shadows CONSTANT)
   Q_PROPERTY(unsigned fps READ fps WRITE setFps NOTIFY fpsChanged)
   Q_PROPERTY(ThreeDItem *usePrograms READ usePrograms WRITE setUsePrograms NOTIFY useProgramsChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
@@ -93,7 +121,6 @@ private:
   };
   std::vector<RenderGroup> _renderGroups;
 
-  Three::ShadowType _shadowType = Three::None;
   Three::CullFace _faceCulling = Three::BackFaceCulling;
   Three::FrontFaceDirection _faceDirection = Three::FaceDirectionCCW;
   bool _autoClear = true, _autoRender = true, _antialias=false;
@@ -108,6 +135,8 @@ private:
   three::OpenGLRenderer::Ptr _renderer;
 
   ThreeDItem *_usePrograms = nullptr;
+
+  Shadows _shadows;
 
   static void append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj);
   static int count_objects(QQmlListProperty<ThreeQObjectRoot> *);
@@ -130,10 +159,6 @@ public:
   void addInteractor(Interactor *interactor);
 
   void removeInteractor(Interactor *controller);
-
-  Three::ShadowType shadowType() const {return _shadowType;}
-
-  void setShadowType(Three::ShadowType type);
 
   Three::CullFace faceCulling() const {return _faceCulling;}
 
@@ -175,6 +200,9 @@ public:
 
   void setFps(unsigned fps);
 
+  const Shadows *shadows() const {return &_shadows;}
+  Shadows *shadows() {return &_shadows;}
+
   void lockWhile(std::function<void()>);
 
   Q_INVOKABLE void clear();
@@ -211,7 +239,6 @@ protected:
   void itemChange(ItemChange change, const ItemChangeData &data) override;
 
 signals:
-  void shadowTypeChanged();
   void faceCullingChanged();
   void faceDirectionChanged();
   void autoClearChanged();

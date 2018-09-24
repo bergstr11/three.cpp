@@ -23,22 +23,19 @@ ShadowMap::ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &ca
   }
 }
 
-void ShadowMap::prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
+void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
 {
-  if (!_enabled) return;
-  if (!_autoUpdate && !_needsUpdate) return;
-
-  if (lights.empty()) return;
+  if (!enabled || lights.empty() || (!autoUpdate && !needsUpdate)) {
+    _needsRender = false;
+    return;
+  }
+  _needsRender = true;
 
   // render depth map
   for (Light::Ptr light : lights) {
 
     auto shadow = light->shadow();
-
-    if (!shadow) {
-      //console.warn( 'THREE.WebGLShadowMap:', light, 'has no shadow.' );
-      continue;
-    }
+    if (!shadow) continue;
 
     math::Vector2 maxShadowMapSize {(float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize};
     math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
@@ -111,8 +108,8 @@ void ShadowMap::prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera
 
       _faceCount = 1;
 
-      _lookTarget = targetLight->target()->matrixWorld().getPosition();
-      shadowCamera->lookAt(_lookTarget);
+      math::Vector3 lookTarget = targetLight->target()->matrixWorld().getPosition();
+      shadowCamera->lookAt(lookTarget);
       shadowCamera->updateMatrixWorld(false);
 
       // compute shadow matrix
@@ -132,20 +129,22 @@ void ShadowMap::prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera
 
       for (unsigned face = 0; face < _faceCount; face++) {
 
-          _lookTarget = shadowCamera->position();
-          _lookTarget += _cubeDirections[face];
+          math::Vector3 lookTarget = shadowCamera->position();
+          lookTarget += _cubeDirections[face];
           shadowCamera->up() = _cubeUps[face];
-          shadowCamera->lookAt(_lookTarget);
+          shadowCamera->lookAt(lookTarget);
           shadowCamera->updateMatrixWorld(false);
       }
     }
   }
 
-  _needsUpdate = false;
+  needsUpdate = false;
 }
 
 void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
 {
+  if(!_needsRender) return;
+
   // Set GL state for depth map.
   gl::State &state = _renderer.state();
   state.disable(GL_BLEND);
@@ -159,6 +158,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
   for (Light::Ptr light : lights) {
 
     auto shadow = light->shadow();
+    if (!shadow || !shadow->map()) continue;
 
     _renderer.setRenderTarget(shadow->map());
     _renderer.clear(true, true, true);

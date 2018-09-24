@@ -60,6 +60,7 @@ void init()
 {
   qRegisterMetaType<three::math::Euler>();
   qmlRegisterSingletonType<three::quick::Three>("three.quick", 1, 0, "Three", three_provider);
+  qmlRegisterType<three::quick::Shadows>("three.quick", 1, 0, "Shadows");
   qmlRegisterType<three::quick::ThreeDItem>("three.quick", 1, 0, "ThreeD");
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
   qmlRegisterType<three::quick::Model>("three.quick", 1, 0, "Model");

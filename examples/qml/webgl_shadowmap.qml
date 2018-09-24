@@ -12,6 +12,7 @@ Window {
     visible: true
 
     OptionsMenu {
+        id: optionsMenu
         title: "Lights"
         anchors.top: parent.top
         anchors.right: parent.right
@@ -20,23 +21,29 @@ Window {
         z: 2
         threeD: threeD
 
+        property bool showHelpers: false
+
         BoolChoice {
             name: "Spotlight"
             value: true
             onValueChanged: {
                 spotLight.visible = value
-                spotLight.shadow.camera.helper.visible = value
-                spotShadowViewer.enabled = value
                 threeD.update()
             }
         }
         BoolChoice {
             name: "Directional Light"
-            value: false
+            value: true
             onValueChanged: {
                 dirLight.visible = value
-                dirLight.shadow.camera.helper.visible = value
-                dirShadowViewer.enabled = value
+                threeD.update()
+            }
+        }
+        BoolChoice {
+            name: "Show Shadow Cameras"
+            value: false
+            onValueChanged: {
+                optionsMenu.showHelpers = value
                 threeD.update()
             }
         }
@@ -44,21 +51,22 @@ Window {
     ThreeD {
         id: threeD
         anchors.fill: parent
-        shadowType: Three.Basic
+        shadows.type: Three.Basic
+        samples: 12
 
         ShadowMapViewer {
             id: spotShadowViewer
             scale: 0.2
             position: "10,10"
             light: spotLight
-            enabled: true
+            enabled: spotLight.visible
         }
         ShadowMapViewer {
             id: dirShadowViewer
             scale: 0.2
-            position: "350,10"
+            position: "240,10"
             light: dirLight
-            enabled: false
+            enabled: dirLight.visible
         }
 
         MeshPhongMaterial {
@@ -87,7 +95,7 @@ Window {
 				shadow.camera.far: 30
 				shadow.mapSize:"1024x1024"
 
-				shadow.camera.helper.visible: true
+				shadow.camera.helper.visible: visible && optionsMenu.showHelpers
 
 				position: "10,10,5"
             }
@@ -97,7 +105,6 @@ Window {
                 color: "#ffffff"
                 intensity: 1
                 castShadow: true
-                visible: false
                 shadow.camera.near: 1;
 				shadow.camera.far: 10
 				shadow.camera.right: 15
@@ -107,7 +114,7 @@ Window {
 				shadow.mapSize: "1024x1024"
 
                 position: "0,10,0"
-				shadow.camera.helper.visible: false
+				shadow.camera.helper.visible: visible && optionsMenu.showHelpers
             }
 
             Torus {

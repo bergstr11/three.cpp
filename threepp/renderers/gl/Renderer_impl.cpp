@@ -150,6 +150,11 @@ void Renderer_impl::clearDepth()
   _deferredCalls->clear(false, true, false);
 }
 
+void Renderer_impl::updateShadows()
+{
+  _shadowMap.needsUpdate = true;
+}
+
 Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
 {
   _viewport.set( x, _height - y - height, width, height );
@@ -202,7 +207,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
   _currentRenderList->init();
 
   prepareLights(scene, camera);
-  _shadowMap.prepare(_shadowsArray, scene, camera);
+  _shadowMap.setup(_shadowsArray, scene, camera);
 
   projectObject(scene, camera, _sortObjects);
 
@@ -414,8 +419,7 @@ void Renderer_impl::prepareLights(Object3D::Ptr object, Camera::Ptr camera)
 {
   if (!object->visible()) return;
 
-  bool visible = object->layers().test(camera->layers());
-  if (visible ) {
+  if (object->layers().test(camera->layers())) {
 
     if (Light *light = object->typer) {
 
@@ -436,8 +440,7 @@ void Renderer_impl::projectObject(Object3D::Ptr object, Camera::Ptr camera, bool
 {
   if (!object->visible()) return;
 
-  bool visible = object->layers().test(camera->layers());
-  if (visible ) {
+  if (object->layers().test(camera->layers())) {
 
     if(Sprite *sprite = object->typer) {
 

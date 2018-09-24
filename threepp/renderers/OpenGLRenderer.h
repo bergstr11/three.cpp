@@ -48,10 +48,12 @@ public:
 
   virtual void initContext() = 0;
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
+  virtual void setShadowMapAuto(bool shadowAuto) = 0;
   virtual void setFaceCulling( CullFace cullFace ) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
   virtual void clear() = 0;
   virtual void clearDepth() = 0;
+  virtual void updateShadows() = 0;
 
   virtual void usePrograms(OpenGLRenderer::Ptr other) = 0;
 };

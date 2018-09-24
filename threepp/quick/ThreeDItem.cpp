@@ -52,7 +52,7 @@ public:
        _scenes(scenes),
        _renderer(renderer)
   {
-    switch(item->shadowType()) {
+    switch(item->shadows()->type()) {
       case Three::Basic:
         _renderer->setShadowMapType(three::ShadowMapType::Basic);
         break;
@@ -65,6 +65,8 @@ public:
       default:
         _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
     }
+    _renderer->setShadowMapAuto(_item->shadows()->autoUpdate());
+
     _renderer->autoClear = _item->_autoClear;
     _renderer->antialias = _item->_antialias;
     _renderer->initContext();
@@ -187,10 +189,19 @@ void ThreeDItem::clear()
   if(_renderer) _renderer->clear();
 }
 
-void ThreeDItem::setShadowType(Three::ShadowType type) {
+void Shadows::setType(Three::ShadowType type) {
   if(_shadowType != type) {
     _shadowType = type;
-    emit shadowTypeChanged();
+    emit typeChanged();
+  }
+}
+
+void Shadows::setAutoUpdate(bool autoUpdate)
+{
+  if(_autoUpdate != autoUpdate) {
+    _autoUpdate = autoUpdate;
+    if(_renderer) _renderer->setShadowMapAuto(autoUpdate);
+    emit autoUpdateChanged();
   }
 }
 
@@ -263,6 +274,11 @@ void ThreeDItem::setFps(unsigned fps)
     _fps = fps;
     emit fpsChanged();
   }
+}
+
+void Shadows::update()
+{
+  _renderer->updateShadows();
 }
 
 void ThreeDItem::setUsePrograms(ThreeDItem *item)

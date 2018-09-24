@@ -28,8 +28,6 @@ class Renderer_impl;
 class ShadowMap
 {
   math::Frustum _frustum;
-
-  math::Vector3 _lookTarget;
   math::Vector3 _lightPositionWorld;
 
   enum Flag : uint16_t {Morphing = 1, Skinning= 2};
@@ -51,10 +49,7 @@ class ShadowMap
 
   math::Vector4 _cube2DViewPorts[6];
 
-  bool _enabled = false;
-
-  bool _autoUpdate = true;
-  bool _needsUpdate = false;
+  bool _needsRender = false;
 
   unsigned _faceCount;
 
@@ -66,9 +61,13 @@ class ShadowMap
   const Capabilities &_capabilities;
 
 public:
+  bool enabled = false;
+  bool needsUpdate = true;
+  bool autoUpdate = false;
+
   ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities);
 
-  void prepare(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
+  void setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera);
   void render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
 
   Material::Ptr getDepthMaterial(Object3D::Ptr object,
@@ -79,10 +78,6 @@ public:
                             float shadowCameraFar );
 
   void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
-
-  bool enabled() const {return _enabled;}
-
-  void setEnabled(bool enabled) {_enabled = enabled;}
 
   ShadowMapType type() const {return _type;}
 

@@ -23,7 +23,7 @@ Q_OBJECT
   Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 
   three::ShadowMapViewer::Ptr _viewer;
-  float _scale;
+  float _scale = 1;
   QPointF _position;
   Light *_light = nullptr;
   bool _enabled = true;

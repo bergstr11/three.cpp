@@ -232,9 +232,13 @@ public:
   }
 
   void setShadowMapType(three::ShadowMapType type) override {
-    _shadowMap.setEnabled(type != three::ShadowMapType::NoShadow);
+    _shadowMap.enabled = type != three::ShadowMapType::NoShadow;
     _shadowMap.setType(type);
   }
+
+  void setShadowMapAuto(bool shadowAuto) override {
+    _shadowMap.autoUpdate = shadowAuto;
+  };
 
   void setFaceCulling(CullFace cullFace ) override
   {
@@ -258,6 +262,8 @@ public:
   void clear() override;
 
   void clearDepth() override;
+
+  void updateShadows() override;
 
   Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
 
