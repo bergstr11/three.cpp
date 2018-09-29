@@ -56,18 +56,23 @@ public:
   }
 };
 
-class Shadows : public QObject
+class ShadowMap : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(three::quick::Three::ShadowType type READ type WRITE setType NOTIFY typeChanged)
   Q_PROPERTY(bool autoUpdate READ autoUpdate WRITE setAutoUpdate NOTIFY autoUpdateChanged)
+  Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
   Three::ShadowType _shadowType = Three::None;
-  bool _autoUpdate = false;
+  bool _autoUpdate = true, _needsUpdate = false;
   three::OpenGLRenderer::Ptr _renderer;
 
 public:
-  Shadows(QObject *parent=nullptr) : QObject(parent) {}
+  ShadowMap(QObject *parent=nullptr) : QObject(parent) {}
+
+  void setRenderer(three::OpenGLRenderer::Ptr renderer) {
+    _renderer = renderer;
+  }
 
   Three::ShadowType type() const {return _shadowType;}
 
@@ -77,11 +82,14 @@ public:
 
   void setAutoUpdate(bool autoUpdate);
 
-  Q_INVOKABLE void update();
+  bool needsUpdate() const {return _needsUpdate;}
+
+  void setNeedsUpdate(bool needsUpdate);
 
 signals:
   void typeChanged();
   void autoUpdateChanged();
+  void needsUpdateChanged();
 };
 
 class ThreeDItem : public QQuickFramebufferObject
@@ -99,7 +107,8 @@ private:
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged FINAL)
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
-  Q_PROPERTY(three::quick::Shadows *shadows READ shadows CONSTANT)
+  Q_PROPERTY(bool autoAnimate READ autoAnimate WRITE setAutoAnimate NOTIFY autoAnimateChanged)
+  Q_PROPERTY(three::quick::ShadowMap *shadowMap READ shadowMap CONSTANT)
   Q_PROPERTY(unsigned fps READ fps WRITE setFps NOTIFY fpsChanged)
   Q_PROPERTY(ThreeDItem *usePrograms READ usePrograms WRITE setUsePrograms NOTIFY useProgramsChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObjectRoot> objects READ objects)
@@ -127,7 +136,8 @@ private:
   unsigned _samples = 4;
   QRect _viewport;
 
-  QTimer *_timer = nullptr;
+  bool _autoAnimate = true;
+  QTimer *_animateTimer = nullptr;
   QJSValue _animateFunc;
   QJSValue _jsInstance;
   unsigned _fps = 60;
@@ -136,7 +146,7 @@ private:
 
   ThreeDItem *_usePrograms = nullptr;
 
-  Shadows _shadows;
+  ShadowMap _shadowMap;
 
   static void append_object(QQmlListProperty<ThreeQObjectRoot> *list, ThreeQObjectRoot *obj);
   static int count_objects(QQmlListProperty<ThreeQObjectRoot> *);
@@ -176,6 +186,10 @@ public:
 
   void setAntialias(bool antialias);
 
+  bool autoAnimate() const {return _autoAnimate;}
+
+  void setAutoAnimate(bool autoAnimate);
+
   unsigned samples() const {return _samples;}
 
   void setSamples(unsigned samples);
@@ -200,14 +214,17 @@ public:
 
   void setFps(unsigned fps);
 
-  const Shadows *shadows() const {return &_shadows;}
-  Shadows *shadows() {return &_shadows;}
+  const ShadowMap *shadowMap() const {return &_shadowMap;}
+
+  ShadowMap *shadowMap() {return &_shadowMap;}
 
   void lockWhile(std::function<void()>);
 
   Q_INVOKABLE void clear();
 
   Q_INVOKABLE void render(three::quick::Scene *scene, three::quick::Camera *camera, QJSValue prepare);
+
+  Q_INVOKABLE void runAnimation(bool animate);
 
 protected:
   bool execAnimate();
@@ -250,6 +267,7 @@ signals:
   void viewportChanged();
   void fpsChanged();
   void useProgramsChanged();
+  void autoAnimateChanged();
 };
 
 }

@@ -101,7 +101,7 @@ void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
 
-  _state.init();
+  _state.initContext();
 
   _extensions.setContext(QOpenGLContext::currentContext());
 
@@ -173,6 +173,7 @@ void Renderer_impl::doRender(const Scene::Ptr &scene, const Camera::Ptr &camera,
                              const Renderer::Target::Ptr &renderTarget, bool forceClear)
 {
   if(clear_glerror(this)) return;
+  _state.init();
 
   if(renderTarget) renderTarget->init(this);
   check_glerror(this);

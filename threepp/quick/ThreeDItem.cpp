@@ -52,7 +52,7 @@ public:
        _scenes(scenes),
        _renderer(renderer)
   {
-    switch(item->shadows()->type()) {
+    switch(item->shadowMap()->type()) {
       case Three::Basic:
         _renderer->setShadowMapType(three::ShadowMapType::Basic);
         break;
@@ -65,7 +65,7 @@ public:
       default:
         _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
     }
-    _renderer->setShadowMapAuto(_item->shadows()->autoUpdate());
+    _renderer->setShadowMapAuto(_item->shadowMap()->autoUpdate());
 
     _renderer->autoClear = _item->_autoClear;
     _renderer->antialias = _item->_antialias;
@@ -184,19 +184,30 @@ void ThreeDItem::render(Scene *scene, Camera *camera, QJSValue prepare)
   _renderGroups.emplace_back(scene->scene(), camera->camera(), prepare);
 }
 
+void ThreeDItem::runAnimation(bool animate)
+{
+  if(_animateTimer) {
+    if(animate && !_animateTimer->isActive())
+      _animateTimer->start();
+    else if(!animate && _animateTimer->isActive())
+      _animateTimer->stop();
+  }
+}
+
 void ThreeDItem::clear()
 {
   if(_renderer) _renderer->clear();
 }
 
-void Shadows::setType(Three::ShadowType type) {
+void ShadowMap::setType(Three::ShadowType type) {
   if(_shadowType != type) {
     _shadowType = type;
+    if(_renderer) _renderer->setShadowMapType((three::ShadowMapType)type);
     emit typeChanged();
   }
 }
 
-void Shadows::setAutoUpdate(bool autoUpdate)
+void ShadowMap::setAutoUpdate(bool autoUpdate)
 {
   if(_autoUpdate != autoUpdate) {
     _autoUpdate = autoUpdate;
@@ -205,10 +216,20 @@ void Shadows::setAutoUpdate(bool autoUpdate)
   }
 }
 
+void ShadowMap::setNeedsUpdate(bool needsUpdate)
+{
+  if(_needsUpdate != needsUpdate) {
+    _needsUpdate = needsUpdate;
+    if(_renderer) _renderer->updateShadows();
+    emit autoUpdateChanged();
+  }
+}
+
 void ThreeDItem::setFaceCulling(Three::CullFace faceCulling)
 {
   if(_faceCulling != faceCulling) {
     _faceCulling = faceCulling;
+    if(_renderer) _renderer->setFaceCulling((three::CullFace)_faceCulling);
     emit faceCullingChanged();
   }
 }
@@ -245,6 +266,14 @@ void ThreeDItem::setAntialias(bool antialias)
   }
 }
 
+void ThreeDItem::setAutoAnimate(bool autoAnimate)
+{
+  if(_autoAnimate != autoAnimate) {
+    _autoAnimate = autoAnimate;
+    emit autoAnimateChanged();
+  }
+}
+
 void ThreeDItem::setSamples(unsigned samples)
 {
   if(_samples != samples) {
@@ -274,11 +303,6 @@ void ThreeDItem::setFps(unsigned fps)
     _fps = fps;
     emit fpsChanged();
   }
-}
-
-void Shadows::update()
-{
-  _renderer->updateShadows();
 }
 
 void ThreeDItem::setUsePrograms(ThreeDItem *item)
@@ -411,6 +435,7 @@ void ThreeDItem::componentComplete()
 
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
   if(_usePrograms) _renderer->usePrograms(_usePrograms->_renderer);
+  _shadowMap.setRenderer(_renderer);
 
   for(const auto &object : _objects) {
     Scene *scene = dynamic_cast<Scene *>(object);
@@ -422,23 +447,24 @@ void ThreeDItem::componentComplete()
   }
 
   if(_animateFunc.isCallable()) {
-    if(execAnimate()) {
-      //no need to start timer if script fails on first call
-      _timer = new QTimer(this);
-      connect(_timer, &QTimer::timeout, this, &ThreeDItem::execAnimate, Qt::QueuedConnection);
-      _timer->start(1000.0f / _fps);
-    }
+    _animateTimer = new QTimer(this);
+    _animateTimer->setInterval(1000.0f / _fps);
+    connect(_animateTimer, &QTimer::timeout, this, &ThreeDItem::execAnimate, Qt::QueuedConnection);
+
+    if(_autoAnimate) _animateTimer->start(1000.0f / _fps);
   }
   else if(_animateFunc.toBool()) {
-    _timer = new QTimer(this);
-    connect(_timer, &QTimer::timeout, this, &QQuickItem::update);
-    _timer->start(1000.0f / _fps);
+    _animateTimer = new QTimer(this);
+    _animateTimer->setInterval(1000.0f / _fps);
+    connect(_animateTimer, &QTimer::timeout, this, &QQuickItem::update);
+
+    if(_autoAnimate) _animateTimer->start();
   }
 }
 
 void ThreeDItem::itemChange(ItemChange change, const ItemChangeData &data)
 {
-  if(_timer) {
+  if(_animateTimer) {
     enum {on, off, skip} state = skip;
     switch(change) {
       case QQuickItem::ItemVisibleHasChanged:
@@ -449,11 +475,11 @@ void ThreeDItem::itemChange(ItemChange change, const ItemChangeData &data)
         break;
     }
     if(state != skip) {
-      if(state == on && !_timer->isActive()) {
-        _timer->start(1000.0f / _fps);
+      if(state == on && !_animateTimer->isActive()) {
+        _animateTimer->start(1000.0f / _fps);
       }
-      else if(_timer->isActive()) {
-        _timer->stop();
+      else if(_animateTimer->isActive()) {
+        _animateTimer->stop();
       }
     }
   }

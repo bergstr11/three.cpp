@@ -47,12 +47,20 @@ Window {
                 threeD.update()
             }
         }
+        BoolChoice {
+            name: "Animate"
+            value: false
+            onValueChanged: {
+                threeD.runAnimation(value)
+            }
+        }
     }
     ThreeD {
         id: threeD
         anchors.fill: parent
-        shadows.type: Three.Basic
+        shadowMap.type: Three.Basic
         samples: 12
+        autoAnimate: false
 
         ShadowMapViewer {
             id: spotShadowViewer
@@ -91,6 +99,7 @@ Window {
 				angle: Math.PI / 5
 				penumbra: 0.3
 				castShadow: true
+				shadow.bias: -0.01
 				shadow.camera.near: 8
 				shadow.camera.far: 30
 				shadow.mapSize:"1024x1024"
@@ -105,6 +114,7 @@ Window {
                 color: "#ffffff"
                 intensity: 1
                 castShadow: true
+				shadow.bias: -0.02
                 shadow.camera.near: 1;
 				shadow.camera.far: 10
 				shadow.camera.right: 15
@@ -179,6 +189,17 @@ Window {
 
                 controller: OrbitController {}
             }
+        }
+        property real delta: fps / 1000 / 2
+
+        animate: function() {
+            torus.rotation.x += 0.25 * delta
+            torus.rotation.y += 2 * delta
+            torus.rotation.z += delta
+
+            box.rotation.x += 0.25 * delta
+            box.rotation.y += 2 * delta
+            box.rotation.z += delta
         }
     }
 }

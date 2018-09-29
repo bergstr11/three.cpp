@@ -141,8 +141,7 @@ public:
 
   Matrix4 &operator *=(const Matrix4 &m)
   {
-    multiply(*this, m);
-    return *this;
+    return multiply(*this, m);
   }
 
   Matrix4 &premultiply(const Matrix4 &m)

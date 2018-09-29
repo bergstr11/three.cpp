@@ -80,6 +80,9 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
     if (!shadow->map()) {
 
       RenderTargetInternal::Options options;
+      options.depthBuffer = false;
+      options.stencilBuffer = false;
+      options.flipY = true;
       options.minFilter = TextureFilter::Nearest;
       options.magFilter = TextureFilter::Nearest;
       options.format = TextureFormat::RGBA;

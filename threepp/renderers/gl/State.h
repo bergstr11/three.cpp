@@ -23,7 +23,6 @@ public:
   struct ColorBuffer
   {
     bool locked = false;
-    math::Vector4 color = {0, 0, 0, 0};
     GLboolean currentColorMask = 0;
     math::Vector4 currentColorClear = {0, 0, 0, 0};
 
@@ -55,7 +54,7 @@ public:
         g *= a;
         b *= a;
       }
-      color.set(r, g, b, a);
+      math::Vector4 color(r, g, b, a);
 
       if (currentColorClear != color) {
         _f->glClearColor(r, g, b, a);
@@ -77,7 +76,7 @@ public:
 
   struct DepthBuffer
   {
-    State *const glState;
+    State &state;
 
     bool locked = false;
 
@@ -90,15 +89,15 @@ public:
     DepthBuffer &setTest(bool depthTest)
     {
       if (depthTest) {
-        glState->enable(GL_DEPTH_TEST);
+        state.enable(GL_DEPTH_TEST);
       }
       else {
-        glState->disable(GL_DEPTH_TEST);
+        state.disable(GL_DEPTH_TEST);
       }
       return *this;
     }
 
-    DepthBuffer(State *state, QOpenGLExtraFunctions * f) : glState(state), _f(f)
+    DepthBuffer(State &state, QOpenGLExtraFunctions * f) : state(state), _f(f)
     {}
 
     DepthBuffer &setMask(bool depthMask)
@@ -148,7 +147,7 @@ public:
 
   struct StencilBuffer
   {
-    State *const glState;
+    State &state;
 
     bool locked = false;
 
@@ -163,16 +162,16 @@ public:
 
     QOpenGLExtraFunctions * const _f;
 
-    StencilBuffer(QOpenGLExtraFunctions *fn, State *state) : glState(state), _f(fn)
+    StencilBuffer(State &state, QOpenGLExtraFunctions *fn) : state(state), _f(fn)
     {}
 
     StencilBuffer &setTest(bool stencilTest)
     {
       if (stencilTest) {
-        glState->enable(GL_STENCIL_TEST);
+        state.enable(GL_STENCIL_TEST);
       }
       else {
-        glState->disable(GL_STENCIL_TEST);
+        state.disable(GL_STENCIL_TEST);
       }
       return *this;
     }
@@ -316,7 +315,7 @@ public:
 
 public:
   State(QOpenGLExtraFunctions *fn, int initialTextureSlot=-1) :
-     colorBuffer(fn), stencilBuffer(fn, this), depthBuffer(this, fn), _f(fn),
+     colorBuffer(fn), stencilBuffer(*this, fn), depthBuffer(*this, fn), _f(fn),
      initialTextureSlot(initialTextureSlot), currentTextureSlot(initialTextureSlot)
   {}
 
@@ -324,23 +323,25 @@ public:
     initialTextureSlot = currentTextureSlot = slot;
   }
 
-  void init()
+  void initContext()
   {
-    if(!emptyTextures.count(TextureTarget::twoD))
-      emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
-    if(!emptyTextures.count(TextureTarget::cubeMap))
-      emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
-
-    colorBuffer.setClear(0, 0, 0, 1);
-    depthBuffer.setClear(1);
-    stencilBuffer.setClear(0);
-
     _f->glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)&maxTextures);
-
     _f->glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
+    check_glerror(_f);
+
     newAttributes.resize(maxVertexAttributes);
     enabledAttributes.resize(maxVertexAttributes);
     attributeDivisors.resize(maxVertexAttributes);
+
+    emptyTextures[TextureTarget::twoD] = createTexture(TextureTarget::twoD);
+    emptyTextures[TextureTarget::cubeMap] = createTexture(TextureTarget::cubeMap);
+  }
+
+  void init()
+  {
+    colorBuffer.setClear(0, 0, 0, 1);
+    depthBuffer.setClear(1);
+    stencilBuffer.setClear(0);
 
     enable(GL_DEPTH_TEST);
     depthBuffer.setFunc(Func::LessEqual);
@@ -348,7 +349,6 @@ public:
     setFaceDirection(FrontFaceDirection::CW);
     setCullFace(CullFace::Back);
 
-    enable(GL_BLEND);
     setBlending(Blending::Normal);
     check_glerror(_f);
   }

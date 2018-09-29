@@ -63,7 +63,7 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        shadows.type: Three.PCFSoft
+        shadowMap.type: Three.PCFSoft
 
         ObjectDragger {
             id: dragger
@@ -97,6 +97,7 @@ Window {
                 position: "0,500,2000"
 				angle: Math.PI / 9
 				castShadow: true
+				shadow.bias: -0.12
 				shadow.camera.near: 1000
 				shadow.camera.far: 4000
 				shadow.mapSize:"1024x1024"

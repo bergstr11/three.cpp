@@ -78,7 +78,7 @@ public:
 
   double power() {return _intensity * M_PI; }
 
-  void set_power(float power) {
+  void setPower(float power) {
     // intensity = power per solid angle.
     // ref: equation (17) from http://www.frostbite.com/wp-content/uploads/2014/11/course_notes_moving_frostbite_to_pbr.pdf
     _intensity = power / (float)M_PI;

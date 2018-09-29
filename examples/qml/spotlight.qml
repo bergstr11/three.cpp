@@ -74,7 +74,7 @@ Window {
         anchors.fill: parent
         focus: true
         z: 1
-        shadows.type: Three.PCFSoft
+        shadowMap.type: Three.PCFSoft
 
         Scene {
             id: scene

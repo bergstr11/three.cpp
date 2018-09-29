@@ -63,7 +63,7 @@ class ShadowMap
 public:
   bool enabled = false;
   bool needsUpdate = true;
-  bool autoUpdate = false;
+  bool autoUpdate = true;
 
   ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities);
 

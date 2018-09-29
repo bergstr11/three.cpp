@@ -5,7 +5,7 @@
 #ifndef THREEPP_TEXTURES_H
 #define THREEPP_TEXTURES_H
 
-#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <QImage>
 #include <threepp/math/Math.h>
 #include "RenderTarget.h"
@@ -20,7 +20,7 @@ namespace gl {
 
 class Textures
 {
-  QOpenGLFunctions * const _fn;
+  QOpenGLExtraFunctions * const _fn;
   Extensions &_extensions;
   State & _state;
   Properties &_properties;
@@ -39,7 +39,7 @@ class Textures
   void setupDepthRenderbuffer(RenderTargetCube &renderTarget);
 
 public:
-  Textures(QOpenGLFunctions * fn, Extensions &extensions, State &state, Properties &properties,
+  Textures(QOpenGLExtraFunctions * fn, Extensions &extensions, State &state, Properties &properties,
      Capabilities &capabilities, MemoryInfo &infoMemory)
   : _fn(fn), _extensions(extensions), _state(state), _properties(properties), _capabilities(capabilities),
     _infoMemory(infoMemory)
