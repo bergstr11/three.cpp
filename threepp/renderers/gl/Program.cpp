@@ -149,7 +149,6 @@ void Program::fetchAttributeLocations(enum_map<AttributeName, GLint> &attributes
     _renderer.glGetActiveAttrib(_program, i, 100, &info.length, &info.size, &info.type, info.name);
     check_glerror(&_renderer);
 
-    AttributeName attName;
     GLint mnIndex = -1;
     GLint mtIndex = findIndexed(info.name, "morphTarget");
     if(mtIndex < 0) mnIndex = findIndexed(info.name, "morphNormal");

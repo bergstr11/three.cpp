@@ -6,6 +6,7 @@
 #include <threepp/math/Math.h>
 #include <regex>
 #include <iomanip>
+#include <sstream>
 
 namespace three {
 
