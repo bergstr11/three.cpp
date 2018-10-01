@@ -16,7 +16,7 @@ namespace extras {
 /**
  * SVG 2D Loader
  */
-class SVG
+class DLX SVG
 {
 protected:
   std::vector<extras::ShapePath> _paths;

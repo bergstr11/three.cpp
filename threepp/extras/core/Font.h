@@ -16,7 +16,7 @@ namespace extras {
 /**
  * a glyph, consiting of shape commands
  */
-class Glyph
+class DLX Glyph
 {
   std::vector<int16_t> data;
 

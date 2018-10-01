@@ -28,7 +28,7 @@ struct TextOptions
   explicit TextOptions(const extras::Font &font) : font(font) {}
 };
 
-class Text : public LinearGeometry
+class DLX Text : public LinearGeometry
 {
 protected:
   std::wstring _text;
@@ -51,7 +51,7 @@ public:
 
 namespace buffer {
 
-class Text : public Extrude
+class DLX Text : public Extrude
 {
   friend class three::geometry::Text;
 

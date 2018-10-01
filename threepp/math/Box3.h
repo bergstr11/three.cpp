@@ -14,7 +14,7 @@ namespace math {
 class Sphere;
 class Plane;
 
-class Box3
+class DLX Box3
 {
   using flt = std::numeric_limits<float>;
   

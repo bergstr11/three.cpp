@@ -53,7 +53,7 @@ class DLX IntersectList
 {
   std::vector<std::vector<Intersection>> _intersections;
 
-  class iterator : public std::iterator<std::output_iterator_tag, int>
+  class DLX iterator : public std::iterator<std::output_iterator_tag, int>
   {
   public:
     iterator(IntersectList &list, bool end);
