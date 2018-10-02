@@ -198,10 +198,8 @@ void intersectObject(Object3D &object,
 void IntersectList::prepare()
 {
   //throw out empty ray bins
-  for(auto iter = _intersections.end() - 1; iter >= _intersections.begin();) {
-    auto erase = iter;
-    iter--;
-    if(erase->empty()) _intersections.erase(erase);
+  for(auto iter = _intersections.begin(); iter != _intersections.end(); iter++) {
+    if(iter->empty()) _intersections.erase(iter);
   }
 
   //sort each ray's bin so the closest intersection comes first
