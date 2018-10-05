@@ -18,7 +18,7 @@
 namespace three {
 namespace quick {
 
-class Scene : public ThreeQObjectRoot
+class DLQX Scene : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)

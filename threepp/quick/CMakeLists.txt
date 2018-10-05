@@ -26,7 +26,7 @@ file(GLOB_RECURSE HEADER_FILES *.h)
 add_library(threeppq_static STATIC ${SOURCE_FILES} ${HEADER_FILES})
 add_library(threeppq SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
-target_compile_definitions(threeppq PRIVATE -DUSE_THREEPP_DLL)
+target_compile_definitions(threeppq PRIVATE -DCOMPILE_THREEPPQ_DLL -DUSE_THREEPP_DLL)
 
 foreach(TARGET threeppq_static threeppq)
     target_include_directories(${TARGET} PUBLIC
@@ -42,6 +42,7 @@ set_target_properties(threeppq PROPERTIES SOVERSION ${THREE_VERSION})
 install(TARGETS threeppq threeppq_static
         EXPORT threeppq
         INCLUDES DESTINATION include
+        RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 

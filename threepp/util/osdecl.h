@@ -15,8 +15,18 @@
 #     define DLX
 #   endif
 # endif
+# ifdef COMPILE_THREEPPQ_DLL
+#   define DLQX __declspec(dllexport)
+# else
+#   ifdef USE_THREEPPQ_DLL
+#     define DLQX __declspec(dllimport)
+#   else
+#     define DLQX
+#   endif
+# endif
 #else
 # define DLX
+#define DLQX
 #endif //_WIN32
 
 #endif //THREE_PP_OSDECL_H

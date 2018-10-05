@@ -109,6 +109,7 @@ install(TARGETS threepp threepp_static
         EXPORT threepp
         INCLUDES DESTINATION include
         LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
         ARCHIVE DESTINATION lib)
 
 install(EXPORT threepp

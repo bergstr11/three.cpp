@@ -6,13 +6,14 @@
 #define THREEPPQ_THREEQOBJECTROOT_H
 
 #include <QObject>
+#include <threepp/util/osdecl.h>
 
 namespace three {
 namespace quick {
 
 class ThreeDItem;
 
-class ThreeQObjectRoot : public QObject
+class DLQX ThreeQObjectRoot : public QObject
 {
 Q_OBJECT
 
