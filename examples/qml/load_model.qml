@@ -28,6 +28,12 @@ Window {
         Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(modelref.rotation.x).arg(modelref.rotation.y).arg(modelref.rotation.z)}
 
     }
+    ComboBox {
+        id: pickedParents
+        z: 2
+        anchors.top: lrow.bottom; anchors.topMargin: 10; anchors.horizontalCenter: lrow.horizontalCenter
+    }
+
     MouseArea {
         anchors.fill: lrow
         z: 3
@@ -164,6 +170,14 @@ Window {
                 threeDModel.options.preferPhong = value
             }
         }
+        BoolChoice {
+            name: "Pick"
+            value: false
+            onValueChanged: {
+                objectPicker.enabled = value
+                scene.camera.controller.enabled = !value
+            }
+        }
     }
 
     FileDialog {
@@ -210,11 +224,29 @@ Window {
             onModelLoaded: holdon.visible = false
         }
 
+        ObjectPicker
+        {
+            id: objectPicker
+            camera: scene.camera
+            enabled: false
+            objects: [scene]
+
+            onObjectsClicked: {
+                var intersected = intersect(0).object
+                pickedParents.model = objectPicker.pickedParents(0)
+
+                if(intersected.parentObject) intersected.parentObject.visible = false
+
+                threeD.update()
+            }
+        }
+
         Scene {
             id: scene
 
             HemisphereLight {
                 id: hemisphereLight
+                name: "hemisphereLight"
                 skyColor: Qt.hsla(0.6, 1, 0.6, 1)
                 groundColor: Qt.hsla(0.095, 1, 0.75, 1)
                 intensity: 0.6
@@ -230,10 +262,12 @@ Window {
                 ModelRef {
                     id: modelref
                     model: threeDModel
+                    name: "car"
                     type: ModelRef.Node
                     replace: true
 
                     onObjectChanged: {
+                        pickedParents.model = []
                         orbitController.reset()
                         objectControls.reset()
                         lightControls.reset()
@@ -243,6 +277,7 @@ Window {
 
             camera: PerspectiveCamera {
                 id: sceneCamera
+                name: "sceneCamera"
                 aspect: threeD.width / threeD.height
                 near: 1
                 far: 100000

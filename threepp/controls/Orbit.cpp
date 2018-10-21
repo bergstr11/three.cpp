@@ -280,7 +280,7 @@ void Orbit::pan(float deltaX, float deltaY)
   update();
 }
 
-float Orbit::getDistance()
+float Orbit::getDistance() const
 {
   return _camera ? _camera->position().distanceTo(target) : 0.0f;
 }

@@ -80,12 +80,12 @@ public:
 
   virtual Geometry &computeBoundingSphere() = 0;
 
-  virtual void raycast(Line &line,
+  virtual void raycast(const Line &line,
                        const Raycaster &raycaster,
                        const std::vector<math::Ray> &ray,
                        IntersectList &intersects) {}
 
-  virtual void raycast(Mesh &mesh,
+  virtual void raycast(const Mesh &mesh,
                        const Raycaster &raycaster,
                        const std::vector<math::Ray> &ray,
                        IntersectList &intersects) {}

@@ -132,11 +132,11 @@ public:
 };
 
 struct Group {
-  uint32_t start;
-  uint32_t count;
-  uint32_t materialIndex;
+  size_t start;
+  size_t count;
+  size_t materialIndex;
 
-  Group(uint32_t start, uint32_t count, uint32_t materialIndex)
+  Group(size_t start, size_t count, size_t materialIndex)
      : start(start), count(count), materialIndex(materialIndex) {}
 
   Group() : start(0), count(0), materialIndex(0) {}
@@ -168,10 +168,11 @@ using UV_Array = std::array<UV, 3>;
 
 struct UpdateRange
 {
-  size_t offset;
-  int count;
+  size_t start;
+  size_t count;
 
-  UpdateRange(size_t offset=0, int count=-1) : offset(offset), count(count) {}
+  UpdateRange(size_t offset=0, size_t count=std::numeric_limits<size_t>::max())
+    : start(offset), count(count) {}
 };
 
 template <class T>

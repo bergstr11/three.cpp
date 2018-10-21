@@ -56,9 +56,9 @@ public:
 
     } else {
       _fn->glBufferSubData((GLenum)bufferType,
-                      updateRange.offset * buffer.bytesPerElement,
+                      updateRange.start * buffer.bytesPerElement,
                       updateRange.count * buffer.bytesPerElement,
-                      attribute.data(updateRange.offset));
+                      attribute.data(updateRange.start));
 
       updateRange.count = -1; // reset range
     }

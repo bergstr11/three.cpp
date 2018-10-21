@@ -33,7 +33,7 @@ math::Vector3 LinearGeometry::centroid(const Face3 &face) const
   return (vA + vB + vC) / 3.0f;
 }
 
-void LinearGeometry::raycast(Mesh &mesh,
+void LinearGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
                              IntersectList &intersects)
@@ -78,7 +78,7 @@ void LinearGeometry::raycast(Mesh &mesh,
     Intersection intersection;
     unsigned rayIndex = 0;
     for(const auto &ray : rays) {
-      if (checkIntersection(mesh, faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
+      if (checkIntersection(mesh, *faceMaterial, raycaster, ray, fvA, fvB, fvC, intersection)) {
 
         if (faceVertexUvs.size() > f) {
 
@@ -92,6 +92,7 @@ void LinearGeometry::raycast(Mesh &mesh,
 
         intersection.face = face;
         intersection.faceIndex = (unsigned)f;
+        intersection.object = &const_cast<Mesh &>(mesh);
         intersects.add(rayIndex, intersection);
       }
       rayIndex++;
@@ -99,7 +100,7 @@ void LinearGeometry::raycast(Mesh &mesh,
   }
 }
 
-void LinearGeometry::raycast(Line &line,
+void LinearGeometry::raycast(const Line &line,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
                              IntersectList &intersects)
@@ -133,8 +134,8 @@ void LinearGeometry::raycast(Line &line,
       // point: raycaster.ray.at( distance ),
       intersect.point = interSegment.apply(line.matrixWorld());
       intersect.direction = ray.direction();
-      intersect.index = i;
-      intersect.object = &line;
+      intersect.faceIndex = i;
+      intersect.object = &const_cast<Line &>(line);
     }
   }
 }

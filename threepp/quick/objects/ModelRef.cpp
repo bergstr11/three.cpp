@@ -167,7 +167,8 @@ void ModelRef::update()
     _threeQObject->deleteLater();
     _threeQObject = nullptr;
   }
-  auto node = three::Node::make(_model->name().toStdString());
+  string name = _name.isEmpty() ? _model->name().toStdString() : _name.toStdString();
+  auto node = three::Node::make(name);
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
@@ -196,6 +197,7 @@ void ModelRef::update()
   });
 
   if(_parentObject) _parentObject->add(_object);
+
   onObjectChanged.emitSignal(_object, ObjectState::Added);
 
   emit objectChanged();

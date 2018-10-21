@@ -9,6 +9,8 @@
 #include <QQuickWindow>
 #include <QScreen>
 #include <QTimer>
+#include <QGuiApplication>
+#include <QStyleHints>
 #include <threepp/quick/scene/Scene.h>
 #include <threepp/quick/cameras/Camera.h>
 
@@ -327,6 +329,37 @@ void Interactor::setItem(ThreeDItem *item)
   if(_item) _item->removeInteractor(this);
   _item = item;
   _item->addInteractor(this);
+
+  _clickedTimer.setSingleShot(true);
+  QObject::connect(&_clickedTimer, &QTimer::timeout, [this]() {
+    handleMouseClicked(&_clicked);
+  });
+}
+
+bool Interactor::mouseReleased(QMouseEvent *event) {
+  return _enabled && !_unifyClicked ? handleMouseReleased(event) : false;
+}
+
+bool Interactor::mousePressed(QMouseEvent *event)
+{
+  if(_enabled) {
+    if(!_unifyClicked) return handleMousePressed(event);
+
+    if(!_clickedTimer.isActive()) {
+      _clicked = *event;
+      _clickedTimer.start(QGuiApplication::styleHints()->mouseDoubleClickInterval() + 20);
+    }
+  }
+  return false;
+}
+
+bool Interactor::mouseDoubleClicked(QMouseEvent *event)
+{
+  if(_enabled) {
+    _clickedTimer.stop();
+    return handleMouseDoubleClicked(event);
+  }
+  return false;
 }
 
 void ThreeDItem::removeInteractor(Interactor *controller)

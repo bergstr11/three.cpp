@@ -7,6 +7,7 @@
 
 #include <QQuickFramebufferObject>
 #include <QJSValue>
+#include <QTimer>
 #include <threepp/renderers/OpenGLRenderer.h>
 #include <threepp/util/simplesignal.h>
 #include "Three.h"
@@ -25,31 +26,32 @@ class Interactor
 protected:
   ThreeDItem *_item = nullptr;
   bool _enabled = true;
+  bool _unifyClicked = false;
+  QTimer _clickedTimer;
+  QMouseEvent _clicked {QEvent::None, {0, 0}, Qt::NoButton, Qt::NoButton, Qt::NoModifier};
 
   virtual bool handleMousePressed(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseReleased(QMouseEvent *event) {return false;}
+
+  virtual bool handleMouseClicked(QMouseEvent *event) {return false;}
 
   virtual bool handleMouseDoubleClicked(QMouseEvent *event) {return false;}
 
   virtual bool handleMouseMoved(QMouseEvent *event) {return false;}
-
-  virtual bool handleMouseReleased(QMouseEvent *event) {return false;}
 
   virtual bool handleMouseWheel(QWheelEvent *event) {return false;}
 
 public:
   void setItem(ThreeDItem *item);
 
-  bool mousePressed(QMouseEvent *event) {
-    return _enabled ? handleMousePressed(event) : false;
-  }
-  bool mouseDoubleClicked(QMouseEvent *event) {
-    return _enabled ? handleMouseDoubleClicked(event) : false;
-  }
+  bool mousePressed(QMouseEvent *event);
+  bool mouseReleased(QMouseEvent *event);
+
+  bool mouseDoubleClicked(QMouseEvent *event);
+
   bool mouseMoved(QMouseEvent *event) {
     return _enabled ? handleMouseMoved(event) : false;
-  }
-  bool mouseReleased(QMouseEvent *event) {
-    return _enabled ? handleMouseReleased(event) : false;
   }
   bool mouseWheel(QWheelEvent *event) {
     return _enabled ? handleMouseWheel(event) : false;

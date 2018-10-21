@@ -118,6 +118,20 @@ protected:
     return sub;
   }
 
+  void raycastIndex(const Mesh &mesh,
+                    const three::Material &material,
+                    size_t start, size_t end,
+                    const Raycaster &raycaster,
+                    const std::vector<math::Ray> &rays,
+                    IntersectList &intersects);
+
+  void raycastPosition(const Mesh &mesh,
+                       const three::Material &material,
+                       size_t start, size_t end,
+                       const Raycaster &raycaster,
+                       const std::vector<math::Ray> &rays,
+                       IntersectList &intersects);
+
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
   static Ptr make() {
@@ -197,7 +211,7 @@ public:
 
   void setDrawRange(size_t start, size_t count ) {
 
-    _drawRange.offset = start;
+    _drawRange.start = start;
     _drawRange.count = count;
   }
 
@@ -303,12 +317,12 @@ public:
 
   math::Vector3 centroid(const Face3 &face) const override;
 
-  void raycast(Line &line,
+  void raycast(const Line &line,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
                IntersectList &intersects) override;
 
-  void raycast(Mesh &mesh,
+  void raycast(const Mesh &mesh,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
                IntersectList &intersects) override;

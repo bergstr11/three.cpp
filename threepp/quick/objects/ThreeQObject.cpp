@@ -158,9 +158,34 @@ void ThreeQObject::recreate()
   }
 }
 
-void ThreeQObject::setObject(const three::Object3D::Ptr object)
+void ThreeQObject::init()
+{
+  if(_object) {
+
+    const math::Vector3 pos = _object->position();
+    setPosition(QVector3D(pos.x(), pos.y(), pos.z()), false);
+    _position.unset();
+
+    const math::Euler rot = _object->rotation();
+    setRotation(QVector3D(rot.x(), rot.y(), rot.z()), false);
+    _rotation.unset();
+
+    setName(QString::fromStdString(_object->name()), false);
+
+    setCastShadow(_object->castShadow, false);
+
+    setReceiveShadow(_object->castShadow, false);
+
+    const math::Vector3 &s = _object->scale();
+    setScale(QVector3D(s.x(), s.y(), s.z()), false);
+    _scale.unset();
+  }
+}
+
+void ThreeQObject::setObject(const three::Object3D::Ptr &object)
 {
   _object = object;
+  _parent = nullptr;
   if(_object) {
 
     if(_position.isSet()) {
@@ -284,6 +309,12 @@ void ThreeQObject::lookAt(const QVector3D &position)
     const math::Euler rot = _object->rotation();
     setRotation(QVector3D(rot.x(), rot.y(), rot.z()), false);
   }
+}
+
+ThreeQObject *ThreeQObject::parentObject()
+{
+  if(!_parent && _object && _parentResolver) _parent = _parentResolver(_object);
+  return _parent;
 }
 
 void ThreeQObject::setPosition(const QVector3D &position, bool propagate) {

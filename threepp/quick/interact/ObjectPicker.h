@@ -126,14 +126,13 @@ Q_OBJECT
   Q_PROPERTY(Rays *rays READ rays WRITE setRays NOTIFY raysChanged)
   Q_PROPERTY(ThreeQObject *prototype READ prototype WRITE setPrototype NOTIFY prototypeChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ObjectPicker> pickers READ pickers)
+  Q_PROPERTY(bool unifyClicked READ unifyClicked WRITE setUnifyClicked NOTIFY unifyClickedChanged)
   Q_CLASSINFO("DefaultProperty", "pickers")
 
   ThreeDItem *_item = nullptr;
   Camera *_camera = nullptr;
 
   QList<ObjectPicker *> _pickers;
-
-  int _lastX=-1, _lastY=-1;
 
   Scene *_scene = nullptr;
 
@@ -145,6 +144,7 @@ Q_OBJECT
   Rays *_rays = nullptr;
 
   ThreeQObject *_prototype = nullptr;
+  ThreeQObject *_parent = nullptr;
 
   float _scaleSize = 0;
 
@@ -168,17 +168,26 @@ public:
 
   void setCamera(three::quick::Camera *camera);
 
-  bool handleMousePressed(QMouseEvent *event) override;
+  bool handleMouseReleased(QMouseEvent *event) override;
+  bool handleMouseClicked(QMouseEvent *event) override;
   bool handleMouseDoubleClicked(QMouseEvent *event) override;
 
   Q_INVOKABLE void scaleTo(ThreeQObject *object);
 
   Q_INVOKABLE QVariant intersect(unsigned index);
 
+  Q_INVOKABLE QStringList pickedParents(unsigned index);
+
   float scaleSize() const {return _scaleSize;}
+
+  bool unifyClicked() const {return _unifyClicked;}
+
+  void setUnifyClicked(bool unify);
 
 protected:
   QVariantList objects() {return _objects;}
+
+  void findIntersects(float x, float y);
 
   void setObjects(const QVariantList &list);
 
@@ -220,6 +229,7 @@ signals:
   void cameraChanged();
   void enabledChanged();
   void raysChanged();
+  void unifyClickedChanged();
 
   void objectsClicked();
   void objectsDoubleClicked();

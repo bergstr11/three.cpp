@@ -52,10 +52,8 @@ install(EXPORT threeppq
 
 foreach(DIR in ${THREEQ_HDRDIRS})
     file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${DIR}/*.h)
-    install(FILES ${HEADERS}
-            DESTINATION include/threepp/quick/${DIR})
+    install(FILES ${HEADERS} DESTINATION include/threepp/quick/${DIR})
 endforeach(DIR in ${THREE_HDRDIRS})
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-install(FILES ${HEADERS}
-        DESTINATION include/threepp/quick)
+install(FILES ${HEADERS} DESTINATION include/threepp/quick)

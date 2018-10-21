@@ -47,6 +47,12 @@ class DLX Object3D
   template <typename G, typename... M> friend class Object3D_GM;
 
 public:
+  class Physics
+  {
+  public:
+    using Ptr = std::shared_ptr<Physics>;
+  };
+
   using Ptr = std::shared_ptr<Object3D>;
 
 protected:
@@ -60,6 +66,8 @@ protected:
 
   Object3D *_parent = nullptr;
   std::vector<Ptr> _children;
+
+  Physics::Ptr _physics;
 
   math::Vector3 _up {0, 1, 0};
   math::Vector3 _position;
@@ -143,7 +151,9 @@ public:
   const std::vector<Ptr> &children() const {return _children;}
 
   math::Vector3 &up() {return _up;}
-  math::Vector3 &position() {return _position;}
+  math::Vector3 &position() {
+    return _position;
+  }
   math::Euler &rotation() {return _rotation;}
   math::Matrix4 &matrixWorld() {return _matrixWorld;}
   math::Quaternion &quaternion() {return _quaternion;}

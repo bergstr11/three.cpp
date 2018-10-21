@@ -225,12 +225,12 @@ public:
 
   LinearGeometry &set(const BufferGeometry &geometry);
 
-  void raycast(Line &line,
+  void raycast(const Line &line,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &ray,
                IntersectList &intersects) override;
 
-  void raycast(Mesh &mesh,
+  void raycast(const Mesh &mesh,
                const Raycaster &raycaster,
                const std::vector<math::Ray> &rays,
                IntersectList &intersects) override;

@@ -60,8 +60,12 @@ Q_OBJECT
   Q_PROPERTY(three::quick::Three::GeometryType type READ geometryType WRITE setGeometryType NOTIFY geometryTypeChanged)
   Q_PROPERTY(BoundingBox *boundingBox READ boundingBox CONSTANT)
   Q_PROPERTY(VertexNormalsHelper *vertexNormals READ vertexNormals CONSTANT)
+  Q_PROPERTY(ThreeQObject *parentObject READ parentObject CONSTANT)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> children READ children)
   Q_CLASSINFO("DefaultProperty", "children")
+
+public:
+  using ParentResolver = std::function<ThreeQObject * (three::Object3D::Ptr)>;
 
 protected:
   QString _name;
@@ -90,6 +94,9 @@ protected:
   three::Object3D::Ptr _object;
   three::Object3D::Ptr _parentObject;
   Scene *_scene = nullptr;
+  ThreeQObject *_parent = nullptr;
+
+  ParentResolver _parentResolver = nullptr;
 
   virtual three::Object3D::Ptr _create() {return nullptr;}
 
@@ -97,11 +104,13 @@ protected:
 
   virtual void _post_create() {}
 
+  void init();
+
   ThreeQObject(QObject *parent = nullptr) : QObject(parent) {}
   ThreeQObject(three::Object3D::Ptr object, QObject *parent = nullptr)
-     : QObject(parent), _object(object) {}
+     : QObject(parent), _object(object) {init();}
   ThreeQObject(three::Object3D::Ptr object, Material *material, QObject *parent = nullptr)
-     : QObject(parent), _object(object), _material(material) {}
+     : QObject(parent), _object(object), _material(material) {init();}
 
   virtual void updateMaterial() {}
 
@@ -112,7 +121,7 @@ protected:
 
   QQmlListProperty<ThreeQObject> children();
 
-  void setObject(const three::Object3D::Ptr object);
+  void setObject(const three::Object3D::Ptr &object);
 
   void recreate();
 
@@ -134,6 +143,12 @@ public:
   BoundingBox *boundingBox();
 
   Q_INVOKABLE void copy(ThreeQObject *copyable);
+
+  ThreeQObject *parentObject();
+
+  void setParentResolver(ParentResolver parentResolver) {
+    _parentResolver = parentResolver;
+  }
 
   void setPosition(const QVector3D &position, bool propagate=true);
 

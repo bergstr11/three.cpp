@@ -20,10 +20,10 @@ target_include_directories(three_test PUBLIC
         $<INSTALL_INTERFACE:include)
 
 if(ANDROID)
-    target_link_libraries(three_test PUBLIC threepp threeppq GLESv3 Qt5::Core Qt5::Gui Qt5::Quick)
+    target_link_libraries(three_test PUBLIC threepp threeppq threereact GLESv3 Qt5::Core Qt5::Gui Qt5::Quick)
 elseif(WIN32)
     target_link_libraries(three_test PUBLIC
-            threepp_static threeppq_static opengl32 Qt5::Core Qt5::Gui Qt5::Quick)
+            threepp_static threeppq_static threereact opengl32 Qt5::Core Qt5::Gui Qt5::Quick)
 else(WIN32)
-    target_link_libraries(three_test PUBLIC threepp threeppq GL Qt5::Core Qt5::Gui Qt5::Quick)
+    target_link_libraries(three_test PUBLIC threepp threeppq GL threereact Qt5::Core Qt5::Gui Qt5::Quick)
 endif(ANDROID)

@@ -231,7 +231,7 @@ public:
     _panOffset += v;
   }
 
-  float getDistance();
+  float getDistance() const;
 
   void set(float polar, float azimuth);
 

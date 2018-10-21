@@ -78,53 +78,111 @@ BufferGeometry &BufferGeometry::computeBoundingSphere()
   return *this;
 }
 
-void BufferGeometry::raycast(Mesh &mesh,
+void BufferGeometry::raycastIndex(const Mesh &mesh,
+                             const Material &material,
+                             size_t start,
+                             size_t end,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
                              IntersectList &intersects)
 {
-  if (_index != nullptr) {
+  for (size_t i = start; i < end; i += 3) {
 
-    // indexed buffer geometry
-    for (size_t i = 0, l = _index->size(); i < l; i += 3) {
+    uint32_t a = _index->get_x(i);
+    uint32_t b = _index->get_x(i + 1);
+    uint32_t c = _index->get_x(i + 2);
 
-      uint32_t a = _index->get_x(i);
-      uint32_t b = _index->get_x(i + 1);
-      uint32_t c = _index->get_x(i + 2);
-
-      Intersection intersection;
-      unsigned rayIndex = 0;
-      for(const auto &ray : rays) {
-        if(checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-          intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in indices buffer semantics
-          intersects.add(rayIndex, intersection);
-        }
-        rayIndex++;
+    Intersection intersection;
+    unsigned rayIndex = 0;
+    for(const auto &ray : rays) {
+      if(checkBufferGeometryIntersection(mesh, material, raycaster, ray, _position, _uv, a, b, c, intersection)) {
+        intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in indices buffer semantics
+        intersection.object = &const_cast<Mesh &>(mesh);
+        intersects.add(rayIndex, intersection);
       }
-    }
-  }
-  else {
-    // non-indexed buffer geometry
-    for (unsigned i = 0, l = (unsigned) _position->itemCount(); i < l; i += 3) {
-
-      unsigned a = i;
-      unsigned b = i + 1;
-      unsigned c = i + 2;
-
-      Intersection intersection;
-      unsigned rayIndex = 0;
-      for(const auto &ray : rays) {
-        if (checkBufferGeometryIntersection(mesh, raycaster, ray, _position, _uv, a, b, c, intersection)) {
-          intersection.index = a; // triangle number in positions buffer semantics
-          intersects.add(rayIndex, intersection);
-        }
-        rayIndex++;
-      }
+      rayIndex++;
     }
   }
 }
 
-void BufferGeometry::raycast(Line &line,
+void BufferGeometry::raycastPosition(const Mesh &mesh,
+                     const Material &material,
+                     size_t start, size_t end,
+                     const Raycaster &raycaster,
+                     const std::vector<math::Ray> &rays,
+                     IntersectList &intersects)
+{
+  for (unsigned i = start; i < end; i += 3) {
+
+    unsigned a = i;
+    unsigned b = i + 1;
+    unsigned c = i + 2;
+
+    Intersection intersection;
+    unsigned rayIndex = 0;
+    for(const auto &ray : rays) {
+      if (checkBufferGeometryIntersection(mesh, material, raycaster, ray, _position, _uv, a, b, c, intersection)) {
+        intersection.faceIndex = (unsigned)std::floor(i / 3); // triangle number in positions buffer semantics
+        intersection.object = &const_cast<Mesh &>(mesh);
+        intersects.add(rayIndex, intersection);
+      }
+      rayIndex++;
+    }
+  }
+}
+
+void BufferGeometry::raycast(const Mesh &mesh,
+                             const Raycaster &raycaster,
+                             const std::vector<math::Ray> &rays,
+                             IntersectList &intersects)
+{
+  if (_index) {
+
+    // indexed buffer geometry
+    if(!_groups.empty()) {
+      for(const Group &group : _groups) {
+        Material::Ptr groupMaterial = mesh.material(group.materialIndex);
+
+        auto start = std::max( group.start, _drawRange.start );
+        auto end = std::min( group.start + group.count, _drawRange.start + _drawRange.count );
+
+        raycastIndex(mesh, *groupMaterial, start, end, raycaster, rays, intersects);
+      }
+    }
+    else {
+      Material::Ptr material = mesh.material();
+
+      auto start = _drawRange.start;
+      auto end = std::min( _index->itemCount(), _drawRange.start + _drawRange.count );
+
+      raycastIndex(mesh, *material, start, end, raycaster, rays, intersects);
+    }
+  }
+  else if(_position) {
+
+    // non-indexed buffer geometry
+    if(!_groups.empty()) {
+      for(const Group &group : _groups) {
+        Material::Ptr groupMaterial = mesh.material(group.materialIndex);
+
+        auto start = std::max( group.start, _drawRange.start );
+        auto end = std::min( group.start + group.count, _drawRange.start + _drawRange.count );
+
+        raycastPosition(mesh, *groupMaterial, start, end, raycaster, rays, intersects);
+      }
+    }
+    else {
+      Material::Ptr material = mesh.material();
+
+      auto start = _drawRange.start;
+      auto end = std::min( _position->itemCount(), _drawRange.start + _drawRange.count );
+
+      raycastPosition(mesh, *material, start, end, raycaster, rays, intersects);
+    }
+  }
+}
+
+void BufferGeometry::raycast(const Line &line,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,
                              IntersectList &intersects)
@@ -165,16 +223,15 @@ void BufferGeometry::raycast(Line &line,
         // What do we want? intersection point on the ray or on the segment??
         // point: raycaster.ray.at( distance ),
         intersection.point = interSegment.apply(line.matrixWorld());
-        intersection.index = i;
-        intersection.object = &line;
+        intersection.faceIndex = i;
       }
     }
   } else {
 
-    for (size_t i = 0, l = _position->size() / 3 - 1; i < l; i += step ) {
+    for (unsigned i = 0, l = _position->itemCount() - 1; i < l; i += step ) {
 
-      Vector3 vStart = Vector3::fromArray(_position->data_t(), 3 * i );
-      Vector3 vEnd = Vector3::fromArray(_position->data_t(), 3 * i + 3 );
+      const Vector3 &vStart = _position->item_at<Vector3>(i);
+      const Vector3 &vEnd = _position->item_at<Vector3>(i+1);
 
       unsigned rayIndex = 0;
       for(const auto &ray : rays) {
@@ -195,8 +252,7 @@ void BufferGeometry::raycast(Line &line,
         // What do we want? intersection point on the ray or on the segment??
         // point: raycaster.ray.at( distance ),
         intersection.point = interSegment.apply(line.matrixWorld());
-        intersection.index = i;
-        intersection.object = &line;
+        intersection.faceIndex = i;
       }
     }
   }

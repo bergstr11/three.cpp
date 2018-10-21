@@ -20,19 +20,19 @@
 namespace three {
 namespace impl {
 
-inline bool checkIntersection(Object3D &object,
-                              const Material::Ptr &material,
+inline bool checkIntersection(const Object3D &object,
+                              const Material &material,
                               const Raycaster &raycaster,
                               const math::Ray &ray,
                               const math::Vector3 &pA, const math::Vector3 &pB, const math::Vector3 &pC,
                               Intersection &result)
 {
   bool intersect;
-  if (material->side == Side::Back) {
+  if (material.side == Side::Back) {
     intersect = ray.intersectTriangle(pC, pB, pA, true, result.point);
   }
   else {
-    intersect = ray.intersectTriangle(pA, pB, pC, material->side != Side::Double, result.point);
+    intersect = ray.intersectTriangle(pA, pB, pC, material.side != Side::Double, result.point);
   }
 
   if (!intersect) return false;
@@ -44,7 +44,7 @@ inline bool checkIntersection(Object3D &object,
   if (distance < raycaster.near() || distance > raycaster.far()) return false;
 
   result.distance = distance;
-  result.object = &object;
+  result.object = &const_cast<Object3D &>(object);
 
   return true;
 }
@@ -62,7 +62,8 @@ inline math::Vector2 uvIntersection(const math::Vector3 &point,
   return (uv1 * barycoord.x()) + (uv2 * barycoord.y()) + (uv3 * barycoord.z());
 }
 
-inline bool checkBufferGeometryIntersection(Object3D &object,
+inline bool checkBufferGeometryIntersection(const Object3D &object,
+                                            const Material &material,
                                             const Raycaster &raycaster,
                                             const math::Ray &ray,
                                             const BufferAttributeT<float>::Ptr &position,
@@ -75,7 +76,7 @@ inline bool checkBufferGeometryIntersection(Object3D &object,
   math::Vector3 vB = math::Vector3::fromBufferAttribute(*position, b);
   math::Vector3 vC = math::Vector3::fromBufferAttribute(*position, c);
 
-  if (checkIntersection(object, object.material(), raycaster, ray, vA, vB, vC, intersection)) {
+  if (checkIntersection(object, material, raycaster, ray, vA, vB, vC, intersection)) {
 
     if(uv) {
       math::Vector2 uvA = math::Vector2::fromBufferAttribute(*uv, a);

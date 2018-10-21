@@ -213,8 +213,6 @@ void IntersectList::prepare()
 void Raycaster::intersectObject(Object3D &object, IntersectList &intersects, bool recursive ) const
 {
   three::intersectObject( object, *this, intersects, recursive );
-
-  if(!intersects.empty()) intersects.prepare();
 }
 
 void Raycaster::intersectObjects(const std::vector<Object3D::Ptr> objects,

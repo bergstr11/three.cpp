@@ -32,18 +32,10 @@ struct Intersection
   math::Vector3 direction;
   math::Vector3 point;
   math::Vector2 uv;
-  Object3D *object;
   Face3 face;
+  Object3D *object = nullptr;
 
-  /**
-   * triangle number in indices buffer (BufferGeometry only)
-   */
   unsigned faceIndex;
-
-  /**
-   * triangle number in positions/vertices buffer (LinearGeometry and BufferGeometry)
-   */
-  unsigned index;
 };
 
 /**
@@ -111,6 +103,11 @@ public:
   Intersection &get(unsigned rayIndex, unsigned intersectIndex)
   {
     return _intersections[rayIndex][intersectIndex];
+  }
+
+  size_t count(unsigned rayIndex)
+  {
+    return _intersections[rayIndex].size();
   }
 
   bool hasIntersects(float distance)

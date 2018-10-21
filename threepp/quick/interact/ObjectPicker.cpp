@@ -77,56 +77,86 @@ void ObjectPicker::scaleTo(ThreeQObject *object)
   }
 }
 
-bool ObjectPicker::handleMousePressed(QMouseEvent *event)
+void ObjectPicker::findIntersects(float ex, float ey)
 {
-  if(_lastX == event->x() && _lastY == event->y())  return false;
-  _lastX = event->x();
-  _lastY = event->y();
+  float x = (ex / (float)_item->width()) * 2 - 1;
+  float y = -(ey / (float)_item->height()) * 2 + 1;
 
+  const Ray cameraRay = _camera->camera()->ray(x, y);
+  Raycaster raycaster = _rays->raycaster(cameraRay);
+
+  _intersects.clear();
+  _currentIntersect.object.clear();
+
+  for (const auto &obj : _objects) {
+    Object3D::Ptr o3d;
+
+    auto *to = obj.value<ThreeQObject *>();
+    if(to) o3d = to->object();
+    else {
+      auto * po = obj.value<Pickable *>();
+      if(po) o3d = po->object();
+    }
+    if(!o3d) continue;
+
+    raycaster.intersectObject( *o3d, _intersects, true);
+  }
+  if(_scene && _intersects.empty()) {
+    //if scene was given, and no objects given or intersected, try scene's children
+    for (auto obj : _scene->scene()->children()) {
+      raycaster.intersectObject( *obj, _intersects, true );
+    }
+  }
+  if(!_intersects.empty()) _intersects.prepare();
+  /*for(const auto &intersect : _intersects) {
+    qDebug() << intersect.object->name().c_str() << intersect.distance << intersect.object->parent()->name().c_str();
+  }*/
+}
+
+bool ObjectPicker::handleMouseReleased(QMouseEvent *event)
+{
+  return handleMouseClicked(event);
+}
+
+bool ObjectPicker::handleMouseClicked(QMouseEvent *event)
+{
   if(_camera && _item && event->button() == Qt::LeftButton) {
+    findIntersects(event->x(), event->y());
 
-    float x = ((float)event->x() / (float)_item->width()) * 2 - 1;
-    float y = -((float)event->y() / (float)_item->height()) * 2 + 1;
-
-    const Ray cameraRay = _camera->camera()->ray(x, y);
-    Raycaster raycaster = _rays->raycaster(cameraRay);
-
-    _intersects.clear();
-    _currentIntersect.object.clear();
-
-    for (const auto &obj : _objects) {
-      Object3D::Ptr o3d;
-
-      ThreeQObject *to = obj.value<ThreeQObject *>();
-      if(to) o3d = to->object();
-      else {
-        Pickable * po = obj.value<Pickable *>();
-        if(po) o3d = po->object();
-      }
-      if(!o3d) continue;
-
-      if(_currentIntersect.object.isNull())
-        _currentIntersect.object = obj;
-
-      raycaster.intersectObject( *o3d, _intersects, true);
-    }
-    if(_scene && _intersects.empty()) {
-      //if scene was given, and no objects given or intersected, try scene's children
-      for (auto obj : _scene->scene()->children()) {
-        raycaster.intersectObject( *obj, _intersects, true );
-      }
-    }
     if(!_intersects.empty() && _rays->accept(_intersects)) {
 
-      _currentIntersect.set(_intersects.get(0, 0));
-
       _rays->setIntersects(_intersects);
+
       emit objectsClicked();
       return  true;
     }
     else {
       for(const auto &picker : _pickers) {
-        if(picker->enabled() && picker->handleMousePressed(event)) return true;
+        if(picker->enabled() && picker->handleMouseClicked(event))
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
+{
+  if(!_unifyClicked) return false;
+
+  if(_camera && _item && event->button() == Qt::LeftButton) {
+    findIntersects(event->x(), event->y());
+
+    if(!_intersects.empty() && _rays->accept(_intersects)) {
+
+      _rays->setIntersects(_intersects);
+
+      emit objectsDoubleClicked();
+      return true;
+    }
+    else {
+      for(const auto &picker : _pickers) {
+        if(picker->handleMouseDoubleClicked(event)) return true;
       }
     }
   }
@@ -135,60 +165,66 @@ bool ObjectPicker::handleMousePressed(QMouseEvent *event)
 
 QVariant ObjectPicker::intersect(unsigned index)
 {
-  if(index < _intersects.rayCount()) {
-    if(!_prototype) {
-      _prototype = new ThreeQObject();
-    }
-    shared_ptr<Object3D> obj(const_cast<Object3D *>(_intersects.get(index, 0).object), _no_delete);
-    if(obj != _prototype->object()) {
+  if(_intersects.empty() || _intersects.count(0) <= index)
+    throw std::out_of_range("intersect");
 
-      _prototype->unset();
-      _prototype->setObject(obj);
+  if(!_prototype) {
+    _prototype = new ThreeQObject();
+    _prototype->setParentResolver([this](Object3D::Ptr o) {
+      if(!_parent && o->parent()) {
+        Object3D::Ptr parent(o->parent(), _no_delete);
+        _parent = new ThreeQObject(parent);
+      }
+      return _parent;
+    });
+  }
+  Object3D::Ptr obj(_intersects.get(0, index).object, _no_delete);
+  if(obj != _prototype->object()) {
 
-      if(_prototype->material()) _prototype->material()->deleteLater();
+    if(_parent) _parent->deleteLater();
+    _parent = nullptr;
 
-      if(obj->material()) {
+    _prototype->unset();
+    _prototype->setObject(obj);
 
-        if(CAST(obj->material(), mat, three::MeshPhongMaterial)) {
-          _prototype->setMaterial(new MeshPhongMaterial(mat));
-        }
-        else if(CAST(obj->material(), mat, three::MeshLambertMaterial)) {
-          _prototype->setMaterial(new MeshLambertMaterial(mat));
-        }
-        else if(CAST(obj->material(), mat, three::MeshBasicMaterial)) {
-          _prototype->setMaterial(new MeshBasicMaterial(mat));
-        }
+    if(_prototype->material()) _prototype->material()->deleteLater();
+
+    if(obj->material()) {
+
+      if(CAST(obj->material(), mat, three::MeshPhongMaterial)) {
+        _prototype->setMaterial(new MeshPhongMaterial(mat));
+      }
+      else if(CAST(obj->material(), mat, three::MeshLambertMaterial)) {
+        _prototype->setMaterial(new MeshLambertMaterial(mat));
+      }
+      else if(CAST(obj->material(), mat, three::MeshBasicMaterial)) {
+        _prototype->setMaterial(new MeshBasicMaterial(mat));
       }
     }
-
-    _currentIntersect.object.setValue(_prototype);
-    _currentIntersect.set(_intersects.get(index, 0));
-
-    QVariant var;
-    var.setValue(&_currentIntersect);
-    return var;
   }
-  else if(index == 0 && !_currentIntersect.object.isNull()){
-    //_currentIntersect already set
-    QVariant var;
-    var.setValue(&_currentIntersect);
-    return var;
-  }
-  throw std::out_of_range("intersect");
+
+  _currentIntersect.object.setValue(_prototype);
+  _currentIntersect.set(_intersects.get(0, index));
+
+  QVariant var;
+  var.setValue(&_currentIntersect);
+  return var;
 }
 
-bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
+QStringList ObjectPicker::pickedParents(unsigned index)
 {
-  if(!_currentIntersect.object.isNull() || !_intersects.empty()) {
-    emit objectsDoubleClicked();
-    return true;
-  }
-  else {
-    for(const auto &picker : _pickers) {
-      if(picker->handleMouseDoubleClicked(event)) return true;
+  QStringList names;
+
+  if(!_intersects.empty() && _intersects.count(0) > index) {
+    Object3D *o = _intersects.get(0, index).object;
+
+    while(o) {
+      QString nm = !o->name().empty() ? QString::fromStdString(o->name()) : QString::number(o->id());
+      names << nm;
+      o = o->parent();
     }
   }
-  return false;
+  return names;
 }
 
 ObjectPicker::ObjectPicker(QObject *parent)
@@ -199,6 +235,8 @@ ObjectPicker::ObjectPicker(QObject *parent)
 
 ObjectPicker::~ObjectPicker() {
   if(_prototype) _prototype->deleteLater();
+  if(_parent) _parent->deleteLater();
+  if(_rays) delete _rays;
 }
 
 void ObjectPicker::setItem(ThreeDItem *item)
@@ -221,6 +259,14 @@ void ObjectPicker::setRays(Rays *rays)
     _rays = rays;
     _rays->scaleTo(_scaleSize);
     emit raysChanged();
+  }
+}
+
+void ObjectPicker::setUnifyClicked(bool unify)
+{
+  if(_unifyClicked != unify) {
+    _unifyClicked = unify;
+    emit unifyClickedChanged();
   }
 }
 

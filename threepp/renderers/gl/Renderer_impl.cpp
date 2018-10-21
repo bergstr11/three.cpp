@@ -671,7 +671,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     dataCount = geometry->position()->itemCount();
   }
 
-  size_t rangeStart = geometry->drawRange().offset * rangeFactor;
+  size_t rangeStart = geometry->drawRange().start * rangeFactor;
   size_t rangeCount = geometry->drawRange().count > 0 ?
                       geometry->drawRange().count * rangeFactor : std::numeric_limits<size_t>::max();
 
