@@ -14,10 +14,6 @@
 #include <threepp/extras/PointsWalker.h>
 #include <threepp/extras/QuickHull.h>
 
-#include <threepp/quick/interact/ObjectPicker.h>
-#include <threepp/geometry/Box.h>
-#include <threepp/material/MeshBasicMaterial.h>
-
 namespace three {
 namespace quick {
 
@@ -232,47 +228,6 @@ ThreeQObject *ModelRef::getThreeQObject()
   }
   _threeQObject = new ThreeQObject(obj, material, this);
   return _threeQObject;
-}
-
-/*
- * ThreeD {
-        ObjectPicker
-        {
-            id: picker
-            camera: scene.camera
-            enabled: true
-
-            rays: CircularRays {radius: 5; segments: 24}
-
-            onObjectsClicked: {
-                modelref.testMarker(picker)
-                threeD.update()
-            }
-        }
-
-      ModelRef onObjectChanged: picker.objects = [modelref.object]
- *
- */
-void ModelRef::testMarker(three::quick::ObjectPicker *picker)
-{
-  float radius = picker->scaleSize() ? picker->scaleSize() / 100 * 2 : 5;
-  geometry::Box::Ptr box = geometry::Box::make(radius, radius, radius / 5);
-
-  three::MeshBasicMaterial::Ptr mat =  three::MeshBasicMaterial::make();
-  mat->color = Color(ColorName::green);
-  mat->wireframe = true;
-  auto mesh = DynamicMesh::make(box);
-  mesh->setMaterial(mat);
-
-  const math::Vector3 &snorm = picker->getRays().surfaceNormal();
-
-  math::Vector3 up(0, 0, 1);
-  mesh->quaternion().setFromUnitVectors(up, snorm);
-
-  mesh->position() = picker->pickedObject()->worldToLocal(picker->getRays().surfacePosition());
-  mesh->setName("TestMarker");
-
-  picker->pickedObject()->add(mesh);
 }
 
 }

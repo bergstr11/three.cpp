@@ -11,49 +11,62 @@
 namespace three {
 namespace geometry {
 
-struct DLX PolyhedronParams
-{
-  std::vector<Vertex> vertices;
-  std::vector<unsigned> indices;
-  float radius = 1.0f;
-  unsigned detail = 0;
-};
-
-class DLX Polyhedron : public LinearGeometry, private PolyhedronParams
+class PolyhedronParams
 {
 protected:
-  explicit Polyhedron(const PolyhedronParams &params);
+  std::vector<Vertex> _vertices;
+  std::vector<unsigned> _indices;
+  float _radius = 1.0f;
+  unsigned _detail = 0;
+
+public:
+  PolyhedronParams(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
+  : _vertices(vertices), _indices(indices), _radius(radius), _detail(detail) {}
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
+};
+
+class DLX Polyhedron : public LinearGeometry, public PolyhedronParams
+{
+  Polyhedron(const Polyhedron &polyhedron) : LinearGeometry(polyhedron, mktyper()), PolyhedronParams(polyhedron) {}
+
+protected:
+  Polyhedron(const Polyhedron &polyhedron, const geometry::Typer &typer) : LinearGeometry(typer), PolyhedronParams(polyhedron) {}
+  explicit Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail);
 
 public:
   using Ptr = std::shared_ptr<Polyhedron>;
-  static Ptr make(const PolyhedronParams &params) {
-    return Ptr(new Polyhedron(params));
+  static Ptr make(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius = 1.0f, unsigned detail = 0) {
+    return Ptr(new Polyhedron(vertices, indices, radius, detail));
   }
 
   Polyhedron *cloned() const override {
-    return LinearGeometry::setTyper(new Polyhedron(*this));
+    return new Polyhedron(*this);
   }
 };
 
 namespace buffer {
 
-class DLX Polyhedron : public BufferGeometry
+class DLX Polyhedron : public BufferGeometry, public PolyhedronParams
 {
   friend class three::geometry::Polyhedron;
 
+  Polyhedron(const Polyhedron &polyhedron) : BufferGeometry(polyhedron, mktyper()), PolyhedronParams(polyhedron) {}
+
 protected:
-  explicit Polyhedron(const PolyhedronParams &params);
+  Polyhedron(const Polyhedron &polyhedron, const geometry::Typer &typer) : BufferGeometry(typer), PolyhedronParams(polyhedron) {}
+  explicit Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail);
 
   void subdivideFace(const math::Vector3 &a, const math::Vector3 &b, const math::Vector3 &c, unsigned detail);
 
 public:
   using Ptr = std::shared_ptr<Polyhedron>;
-  static Ptr make(const PolyhedronParams &params) {
-    return Ptr(new Polyhedron(params));
+  static Ptr make(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius = 1.0f, unsigned detail = 0) {
+    return Ptr(new Polyhedron(vertices, indices, radius, detail));
   }
 
   Polyhedron *cloned() const override {
-    return BufferGeometry::setTyper(new Polyhedron(*this));
+    return new Polyhedron(*this);
   }
 };
 

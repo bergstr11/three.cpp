@@ -47,11 +47,7 @@ protected:
       k += step;
     }
 
-    BufferGeometry::Ptr geometry = BufferGeometry::make();
-    geometry->setPosition(vertices);
-    geometry->setColor(colors);
-
-    return geometry;
+    return BufferGeometry::make(vertices, colors);
   }
 
   Grid(const Options &options)

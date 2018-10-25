@@ -11,12 +11,30 @@
 namespace three {
 namespace geometry {
 
-class DLX Box : public LinearGeometry
+class BoxParams
 {
+protected:
   float _width, _height, _depth;
   unsigned _widthSegments, _heightSegments, _depthSegments;
 
+  BoxParams(float width, float height, float depth, unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
+     : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments), _heightSegments(heightSegments),
+       _depthSegments(depthSegments)
+  {}
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
+
+public:
+  void setWidth(float width) {_width = width;}
+  void setHeight(float height) {_height = height;}
+  void setDepth(float depth) {_depth = depth;}
+};
+
+class DLX Box : public LinearGeometry, private BoxParams
+{
 protected:
+  Box(const Box &box);
+
   Box(float width, float height, float depth,
       unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
 
@@ -30,24 +48,19 @@ public:
   }
 
   Box *cloned() const override {
-    return LinearGeometry::setTyper(new Box(*this));
+    return new Box(*this);
   }
-
-  void setWidth(float width) {_width = width;}
-  void setHeight(float height) {_height = height;}
-  void setDepth(float depth) {_depth = depth;}
 };
 
 namespace buffer {
 
-class DLX Box : public BufferGeometry
+class DLX Box : public BufferGeometry, private BoxParams
 {
   friend class three::geometry::Box;
 
-  float const _width, _height, _depth;
-  unsigned _widthSegments, _heightSegments, _depthSegments;
-
 protected:
+  Box(const Box &box);
+
   Box(float width, float height, float depth,
       unsigned widthSegments, unsigned heightSegments, unsigned depthSegments);
 
@@ -59,7 +72,7 @@ public:
   }
 
   Box *cloned() const override {
-    return BufferGeometry::setTyper(new Box(*this));
+    return new Box(*this);
   }
 };
 

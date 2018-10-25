@@ -24,10 +24,14 @@ struct RingParams
     thetaSegments = std::max(3u, thetaSegments);
     phiSegments = std::max(1u, phiSegments);
   }
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
-class DLX Ring : public LinearGeometry, private RingParams
+class DLX Ring : public LinearGeometry, public RingParams
 {
+  Ring(const Ring &ring) : LinearGeometry(mktyper()), RingParams(ring) {}
+
 protected:
   Ring(const RingParams &params);
 
@@ -39,15 +43,17 @@ public:
   }
 
   Ring *cloned() const override {
-    return LinearGeometry::setTyper(new Ring(*this));
+    return new Ring(*this);
   }
 };
 
 namespace buffer {
 
-class Ring : public BufferGeometry, private RingParams
+class Ring : public BufferGeometry, public RingParams
 {
   friend class geometry::Ring;
+
+  Ring(const Ring &ring) : BufferGeometry(ring, mktyper()), RingParams(ring) {}
 
 protected:
   Ring(const RingParams &params);
@@ -60,7 +66,7 @@ public:
   }
 
   Ring *cloned() const override {
-    return BufferGeometry::setTyper(new Ring(*this));
+    return new Ring(*this);
   }
 };
 

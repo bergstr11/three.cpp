@@ -28,6 +28,7 @@ class Renderer;
 class Raycaster;
 class Intersection;
 class Scene;
+
 using ScenePtr = std::shared_ptr<Scene>;
 using CameraPtr = std::shared_ptr<Camera>;
 
@@ -47,12 +48,6 @@ class DLX Object3D
   template <typename G, typename... M> friend class Object3D_GM;
 
 public:
-  class Physics
-  {
-  public:
-    using Ptr = std::shared_ptr<Physics>;
-  };
-
   using Ptr = std::shared_ptr<Object3D>;
 
 protected:
@@ -66,8 +61,6 @@ protected:
 
   Object3D *_parent = nullptr;
   std::vector<Ptr> _children;
-
-  Physics::Ptr _physics;
 
   math::Vector3 _up {0, 1, 0};
   math::Vector3 _position;

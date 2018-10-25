@@ -11,10 +11,28 @@
 namespace three {
 namespace geometry {
 
-class DLX Sphere : public LinearGeometry
+class SphereParams
 {
+protected:
   const unsigned _widthSegments, _heightSegments;
   const float _radius, _phiStart, _phiLength, _thetaStart, _thetaLength;
+
+  SphereParams(float radius, unsigned widthSegments, unsigned heightSegments, float phiStart, float phiLength, float thetaStart,
+               float thetaLength)
+     : _radius(radius),
+       _widthSegments(widthSegments),
+       _heightSegments(heightSegments),
+       _phiStart(phiStart), _phiLength(phiLength),
+       _thetaStart(thetaStart),
+       _thetaLength(thetaLength)
+  {}
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
+};
+
+class DLX Sphere : public LinearGeometry, public SphereParams
+{
+  Sphere(const Sphere &sphere) : LinearGeometry(sphere, mktyper()), SphereParams(sphere) {}
 
 protected:
   Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
@@ -37,18 +55,17 @@ public:
   }
 
   Sphere *cloned() const override {
-    return LinearGeometry::setTyper(new Sphere(*this));
+    return new Sphere(*this);
   }
 };
 
 namespace buffer {
 
-class DLX Sphere : public BufferGeometry
+class DLX Sphere : public BufferGeometry, public SphereParams
 {
 friend class three::geometry::Sphere;
 
-  const unsigned  _widthSegments, _heightSegments;
-  const float _radius, _phiStart, _phiLength, _thetaStart, _thetaLength;
+  Sphere(const Sphere &sphere) : BufferGeometry(sphere, mktyper()), SphereParams(sphere) {}
 
 protected:
   Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
@@ -71,7 +88,7 @@ public:
   }
 
   Sphere *cloned() const override {
-    return BufferGeometry::setTyper(new Sphere(*this));
+    return new Sphere(*this);
   }
 };
 

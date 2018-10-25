@@ -33,11 +33,7 @@ class DLX VertexNormals : public LineSegments
   {
     unsigned nNormals = object->geometry() ? object->geometry()->vertexCount() : 0;
 
-    BufferGeometry::Ptr geometry = BufferGeometry::make();
-    auto vertices = attribute::prealloc<float, Vertex>(nNormals * 2);
-    geometry->setPosition(vertices);
-
-    return geometry;
+    return BufferGeometry::make(attribute::prealloc<float, Vertex>(nNormals * 2));
   }
 
   static LineBasicMaterial::Ptr createMaterial(const VertexNormalConfig &config)

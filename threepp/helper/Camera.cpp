@@ -47,7 +47,7 @@ void addLine(ID a, ID b, const Color &color,
   addPoint( b, color, vertices, colors, pointMap);
 }
 
-Maker::Maker(three::Camera::Ptr camera) : _helperGeometry(BufferGeometry::make())
+Maker::Maker(three::Camera::Ptr camera)
 {
   auto vertices = attribute::prealloc<float, Vertex>(50, true);
   auto colors = attribute::prealloc<float, Color>(50, true);
@@ -106,8 +106,7 @@ Maker::Maker(three::Camera::Ptr camera) : _helperGeometry(BufferGeometry::make()
   addLine( cf1, cf2, colorCross, vertices, colors, pointMap );
   addLine( cf3, cf4, colorCross, vertices, colors, pointMap );
 
-  _helperGeometry->setPosition(vertices);
-  _helperGeometry->setColor(colors);
+  _helperGeometry = BufferGeometry::make(vertices, colors);
 }
 
 void Maker::update(const three::Camera::Ptr &camera)

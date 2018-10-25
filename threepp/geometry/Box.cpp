@@ -7,10 +7,11 @@
 namespace three {
 namespace geometry {
 
+Box::Box(const Box &box) : LinearGeometry(box, mktyper()), BoxParams(box) {}
+
 Box::Box(float width, float height, float depth,
          unsigned widthSegments, unsigned heightSegments, unsigned depthSegments)
-   : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments),
-     _heightSegments(heightSegments), _depthSegments(depthSegments)
+   : LinearGeometry(mktyper()), BoxParams(width, height, depth, widthSegments, heightSegments, depthSegments)
 {
   set(buffer::Box(width, height, depth, widthSegments, heightSegments, depthSegments));
   mergeVertices();
@@ -131,14 +132,15 @@ void buildPlane(BuildData &data,
   data.numberOfVertices += vertexCounter;
 }
 
+Box::Box(const Box &box) : BufferGeometry(box, mktyper()), BoxParams(box) {}
+
 Box::Box(float width,
          float height,
          float depth,
          unsigned widthSegments,
          unsigned heightSegments,
          unsigned depthSegments)
-   : _width(width), _height(height), _depth(depth), _widthSegments(widthSegments), _heightSegments(heightSegments),
-     _depthSegments(depthSegments)
+   : BufferGeometry(mktyper()), BoxParams(width, height, depth, widthSegments, heightSegments, depthSegments)
 {
   if (_widthSegments == 0) _widthSegments = 1;
   if (_heightSegments == 0) _heightSegments = 1;

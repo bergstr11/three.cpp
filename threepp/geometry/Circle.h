@@ -11,19 +11,23 @@
 namespace three {
 namespace geometry {
 
-struct CircleParams
+class CircleParams
 {
-  float radius = 50;
-  unsigned segments = 8;
-  float thetaStart = 0;
-  float thetaLength = (float)M_PI * 2;
+protected:
+  float _radius = 50;
+  unsigned _segments = 8;
+  float _thetaStart = 0;
+  float _thetaLength = (float)M_PI * 2;
+
+  CircleParams(float radius, unsigned segments, float thetaStart, float thetaLength)
+  : _radius(radius), _segments(segments), _thetaStart(thetaStart), _thetaLength(thetaLength) {}
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
-class DLX Circle : public LinearGeometry
+class DLX Circle : public LinearGeometry, private CircleParams
 {
-  float _radius;
-  unsigned _segments;
-  float _thetaStart, _thetaLength;
+  Circle(const Circle &circle) : LinearGeometry(circle, mktyper()), CircleParams(circle) {}
 
 protected:
   Circle(float radius, unsigned segments, float thetaStart, float thetaLength);
@@ -34,20 +38,18 @@ public:
     return Ptr(new Circle(radius, segments, thetaStart, thetaLength));
   }
 
-  static Ptr make(const CircleParams &params=CircleParams()) {
-    return Ptr(new Circle(params.radius, params.segments, params.thetaStart, params.thetaLength));
-  }
-
   Circle *cloned() const override {
-    return LinearGeometry::setTyper(new Circle(*this));
+    return new Circle(*this);
   }
 };
 
 namespace buffer {
 
-class DLX Circle : public BufferGeometry
+class DLX Circle : public BufferGeometry, private CircleParams
 {
   friend class three::geometry::Circle;
+
+  Circle(const Circle &circle);
 
 protected:
   Circle(float radius, unsigned segments, float thetaStart, float thetaLength);
@@ -58,12 +60,8 @@ public:
     return Ptr(new Circle(radius, segments, thetaStart, thetaLength));
   }
 
-  static Ptr make(const CircleParams &params=CircleParams()) {
-    return Ptr(new Circle(params.radius, params.segments, params.thetaStart, params.thetaLength));
-  }
-
   Circle *cloned() const override {
-    return BufferGeometry::setTyper(new Circle(*this));
+    return new Circle(*this);
   }
 };
 

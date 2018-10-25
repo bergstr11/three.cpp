@@ -16,6 +16,8 @@ class DLX Shape : public LinearGeometry
 {
   unsigned _curveSegments;
 
+  Shape(const Shape &shape) : LinearGeometry(shape, geometry::Typer(this)), _curveSegments(shape._curveSegments) {}
+
 protected:
   Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments);
 
@@ -27,7 +29,7 @@ static Ptr make(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSeg
 }
 
 Shape *cloned() const override {
-  return LinearGeometry::setTyper(new Shape(*this));
+  return new Shape(*this);
 }
 };
 
@@ -36,6 +38,8 @@ namespace buffer {
 class DLX Shape : public BufferGeometry
 {
   friend class three::geometry::Shape;
+
+  Shape(const Shape &shape) : BufferGeometry(shape, geometry::Typer(this)) {}
 
 protected:
   Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments);
@@ -48,7 +52,7 @@ public:
   }
 
   Shape *cloned() const override {
-    return BufferGeometry::setTyper(new Shape(*this));
+    return new Shape(*this);
   }
 };
 

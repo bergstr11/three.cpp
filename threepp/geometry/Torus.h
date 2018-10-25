@@ -18,11 +18,15 @@ struct TorusParams
   unsigned radialSegments = 8;
   unsigned tubularSegments = 6;
   float arc = (float)M_PI * 2;
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
-class DLX Torus : public LinearGeometry, private TorusParams
+class DLX Torus : public LinearGeometry, public TorusParams
 {
 protected:
+  Torus(const Torus &torus) : LinearGeometry(torus, mktyper()) {}
+
   Torus(const TorusParams &params);
 
 public:
@@ -33,15 +37,17 @@ public:
   }
 
   Torus *cloned() const override {
-    return LinearGeometry::setTyper(new Torus(*this));
+    return new Torus(*this);
   }
 };
 
 namespace buffer {
 
-class DLX Torus : public BufferGeometry, private TorusParams
+class DLX Torus : public BufferGeometry, public TorusParams
 {
   friend class geometry::Torus;
+
+  Torus(const Torus &torus) : BufferGeometry(torus, mktyper()) {}
 
 protected:
   Torus(const TorusParams &params);
@@ -54,7 +60,7 @@ public:
   }
 
   Torus *cloned() const override {
-    return BufferGeometry::setTyper(new Torus(*this));
+    return new Torus(*this);
   }
 };
 

@@ -11,11 +11,10 @@ using namespace std;
 
 Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
                    unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
-   : _radiusTop(radiusTop), _radiusBottom(radiusBottom), _height(height), _heightSegments(heightSegments),
-     _radialSegments(radialSegments), _openEnded(openEnded),_thetaStart(thetaStart), _thetaLength(thetaLength)
+   : LinearGeometry(mktyper()),
+      CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
 {
-  set(buffer::Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments,
-                       openEnded, thetaStart, thetaLength));
+  set(buffer::Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength));
   mergeVertices();
 }
 
@@ -23,6 +22,8 @@ namespace buffer {
 
 Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
                    unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
+   : BufferGeometry(mktyper()),
+     CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
 {
   // buffers
   auto indices = attribute::growing<uint32_t>(false);
@@ -41,28 +42,28 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
   float slope = (radiusBottom - radiusTop) / height;
 
   // generate vertices, normals and uvs
-  for (unsigned y = 0; y <= heightSegments; y ++ ) {
+  for (unsigned y = 0; y <= heightSegments; y++) {
 
     vector<uint32_t> indexRow;
 
-    float v = (float)y / heightSegments;
+    float v = (float) y / heightSegments;
 
     // calculate the radius of the current row
     float radius = v * (radiusBottom - radiusTop) + radiusTop;
 
-    for (unsigned x = 0; x <= radialSegments; x ++ ) {
+    for (unsigned x = 0; x <= radialSegments; x++) {
 
-      float u = (float)x / radialSegments;
+      float u = (float) x / radialSegments;
 
       float theta = u * thetaLength + thetaStart;
 
-      float sinTheta = sin( theta );
-      float cosTheta = cos( theta );
+      float sinTheta = sin(theta);
+      float cosTheta = cos(theta);
 
       // vertex
 
       float vx = radius * sinTheta;
-      float vy = - v * height + halfHeight;
+      float vy = -v * height + halfHeight;
       float vz = radius * cosTheta;
       vertices->next() = {vx, vy, vz};
 
@@ -74,24 +75,24 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       uvs->next() = {u, 1 - v};
 
       // save index of vertex in respective row
-      indexRow.push_back( index ++ );
+      indexRow.push_back(index++);
     }
 
     // now save vertices of the row in our index array
-    indexArray.push_back( indexRow );
+    indexArray.push_back(indexRow);
   }
 
   // generate indices
 
   for (unsigned x = 0; x < radialSegments; x++) {
 
-    for (unsigned y = 0; y < heightSegments; y ++ ) {
+    for (unsigned y = 0; y < heightSegments; y++) {
 
       // we use the index array to access the correct indices
-      unsigned a = indexArray[ y ][ x ];
-      unsigned b = indexArray[ y + 1 ][ x ];
-      unsigned c = indexArray[ y + 1 ][ x + 1 ];
-      unsigned d = indexArray[ y ][ x + 1 ];
+      unsigned a = indexArray[y][x];
+      unsigned b = indexArray[y + 1][x];
+      unsigned c = indexArray[y + 1][x + 1];
+      unsigned d = indexArray[y][x + 1];
 
       // faces
       indices->next() = a;
@@ -115,7 +116,7 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
 
   if (!openEnded) {
 
-    auto generateCap = [&] (bool top) {
+    auto generateCap = [&](bool top) {
 
       //var x, centerIndexStart, centerIndexEnd;
 
@@ -125,7 +126,7 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       unsigned groupCount = 0;
 
       float radius = top ? radiusTop : radiusBottom;
-      float sign = top ? 1 : - 1;
+      float sign = top ? 1 : -1;
 
       // save the index of the first center vertex
       unsigned centerIndexStart = index;
@@ -134,7 +135,7 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       // because the geometry needs one set of uvs per face,
       // we must generate a center vertex per face/segment
 
-      for (unsigned x = 1; x <= radialSegments; x ++ ) {
+      for (unsigned x = 1; x <= radialSegments; x++) {
 
         // vertex
         vertices->next() = {0.0f, halfHeight * sign, 0.0f};
@@ -146,20 +147,20 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
         uvs->next() = {0.5f, 0.5f};
 
         // increase index
-        index ++;
+        index++;
       }
 
       // save the index of the last center vertex
       unsigned centerIndexEnd = index;
 
       // now we generate the surrounding vertices, normals and uvs
-      for (unsigned x = 0; x <= radialSegments; x ++ ) {
+      for (unsigned x = 0; x <= radialSegments; x++) {
 
-        float u = (float)x / radialSegments;
+        float u = (float) x / radialSegments;
         float theta = u * thetaLength + thetaStart;
 
-        float cosTheta = cos( theta );
-        float sinTheta = sin( theta );
+        float cosTheta = cos(theta);
+        float sinTheta = sin(theta);
 
         // vertex
         float vx = radius * sinTheta;
@@ -171,17 +172,17 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
         normals->next() = {0, sign, 0};
 
         // uv
-        float uvx = ( cosTheta * 0.5f ) + 0.5f;
-        float uvy = ( sinTheta * 0.5f * sign ) + 0.5f;
+        float uvx = (cosTheta * 0.5f) + 0.5f;
+        float uvy = (sinTheta * 0.5f * sign) + 0.5f;
         uvs->next() = {uvx, uvy};
 
         // increase index
-        index ++;
+        index++;
       }
 
       // generate indices
 
-      for (unsigned x = 0; x < radialSegments; x ++ ) {
+      for (unsigned x = 0; x < radialSegments; x++) {
 
         unsigned c = centerIndexStart + x;
         unsigned i = centerIndexEnd + x;
@@ -193,7 +194,8 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
           indices->next() = i + 1;
           indices->next() = c;
 
-        } else {
+        }
+        else {
 
           // face bottom
           indices->next() = i + 1;
@@ -205,14 +207,14 @@ Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned h
       }
 
       // add a group to the geometry. this will ensure multi material support
-      addGroup( groupStart, groupCount, top ? 1 : 2 );
+      addGroup(groupStart, groupCount, top ? 1 : 2);
 
       // calculate new start value for groups
       groupStart += groupCount;
     };
 
-    if ( radiusTop > 0 ) generateCap( true );
-    if ( radiusBottom > 0 ) generateCap( false );
+    if (radiusTop > 0) generateCap(true);
+    if (radiusBottom > 0) generateCap(false);
   }
 
   // build geometry

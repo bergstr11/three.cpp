@@ -80,8 +80,6 @@ public:
 
   void setType(Type type) {_type = type;}
 
-  Q_INVOKABLE void testMarker(three::quick::ObjectPicker *picker);
-
 signals:
   void modelChanged();
   void objectChanged();

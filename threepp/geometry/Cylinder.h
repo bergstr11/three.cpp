@@ -11,33 +11,31 @@
 namespace three {
 namespace geometry {
 
-struct CylinderParams
+class CylinderParams
 {
-  float radiusTop = 20;
-  float radiusBottom = 20;
-  float height = 100;
-  unsigned heightSegments = 1;
-  unsigned radialSegments = 8;
-  bool openEnded = false;
-  float thetaStart = 0;
-  float thetaLength = (float)M_PI * 2;
+protected:
+  float _radiusTop = 20;
+  float _radiusBottom = 20;
+  float _height = 100;
+  unsigned _heightSegments = 1;
+  unsigned _radialSegments = 8;
+  bool _openEnded = false;
+  float _thetaStart = 0;
+  float _thetaLength = (float) M_PI * 2;
+
+  CylinderParams(float radiusTop, float radiusBottom, float height, unsigned heightSegments, unsigned radialSegments,
+                 bool openEnded, float thetaStart, float thetaLength) :
+     _radiusTop(radiusTop), _radiusBottom(radiusBottom), _height(height), _heightSegments(heightSegments),
+     _radialSegments(radialSegments), _openEnded(openEnded), _thetaStart(thetaStart), _thetaLength(thetaLength)
+  {}
+
+  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
-class DLX Cylinder : public LinearGeometry
+class DLX Cylinder : public LinearGeometry, private CylinderParams
 {
-  float _radiusTop;
-  float _radiusBottom;
-  float _height;
-  unsigned _heightSegments;
-  unsigned _radialSegments;
-  bool _openEnded;
-  float _thetaStart;
-  float _thetaLength;
-
-  std::vector<uint32_t> indices;
-  std::vector<Vertex> vertices;
-  std::vector<Vertex> normals;
-  std::vector<UV> uvs;
+  Cylinder(const Cylinder &cylinder) : LinearGeometry(cylinder, mktyper()), CylinderParams(cylinder)
+  {}
 
 protected:
   Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
@@ -46,32 +44,32 @@ protected:
 public:
   using Ptr = std::shared_ptr<Cylinder>;
 
-  static Ptr make(float radiusTop, float radiusBottom, float height,
-                  unsigned heightSegments=1,
-                  unsigned radialSegments=8,
-                  bool openEnded=false,
-                  float thetaStart=0.0f,
-                  float thetaLength=(float)M_PI * 2)
+  static Ptr make(float radiusTop, float radiusBottom,
+                  float height,
+                  unsigned heightSegments = 1,
+                  unsigned radialSegments = 8,
+                  bool openEnded = false,
+                  float thetaStart = 0.0f,
+                  float thetaLength = (float) M_PI * 2)
   {
     return Ptr(new Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments,
                             openEnded, thetaStart, thetaLength));
   }
 
-  static Ptr make(const CylinderParams &params=CylinderParams()) {
-    return Ptr(new Cylinder(params.radiusTop, params.radiusBottom, params.height, params.heightSegments,
-                            params.radialSegments, params.openEnded, params.thetaStart, params.thetaLength));
-  }
-
-  Cylinder *cloned() const override {
-    return LinearGeometry::setTyper(new Cylinder(*this));
+  Cylinder *cloned() const override
+  {
+    return new Cylinder(*this);
   }
 };
 
 namespace buffer {
 
-class DLX Cylinder : public BufferGeometry
+class DLX Cylinder : public BufferGeometry, private CylinderParams
 {
   friend class three::geometry::Cylinder;
+
+  Cylinder(const Cylinder &cylinder) : BufferGeometry(cylinder, mktyper()), CylinderParams(cylinder)
+  {}
 
 protected:
   Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
@@ -81,18 +79,15 @@ public:
   using Ptr = std::shared_ptr<Cylinder>;
 
   static Ptr make(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
-                  unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength) {
+                  unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
+  {
     return Ptr(new Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments,
                             openEnded, thetaStart, thetaLength));
   }
 
-  static Ptr make(const CylinderParams &params=CylinderParams()) {
-    return Ptr(new Cylinder(params.radiusTop, params.radiusBottom, params.height, params.heightSegments,
-                            params.radialSegments, params.openEnded, params.thetaStart, params.thetaLength));
-  }
-
-  Cylinder *cloned() const override {
-    return BufferGeometry::setTyper(new Cylinder(*this));
+  Cylinder *cloned() const override
+  {
+    return new Cylinder(*this);
   }
 };
 

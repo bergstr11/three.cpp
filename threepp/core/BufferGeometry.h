@@ -74,11 +74,9 @@ class DLX BufferGeometry : public Geometry
   void setFromMeshGeometry(LinearGeometry &geometry);
   void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
-protected:
   BufferGeometry(const BufferGeometry &geom);
 
-  BufferGeometry() : Geometry(geometry::Typer(this))
-  {}
+protected:
 
   BufferGeometry &computeBoundingBox() override
   {
@@ -92,6 +90,8 @@ protected:
   }
 
   BufferGeometry &computeBoundingSphere() override;
+
+  BufferGeometry(const BufferAttributeT<float>::Ptr &position, const BufferAttributeT<float>::Ptr &color);
 
   BufferGeometry(std::shared_ptr<Object3D> object, LinearGeometry &geometry);
 
@@ -112,12 +112,6 @@ protected:
     Geometry::typer.allow<BufferGeometry>();
   }
 
-  template <typename Sub>
-  static Sub *setTyper(Sub *sub) {
-    sub->typer = geometry::Typer(static_cast<BufferGeometry *>(sub));
-    return sub;
-  }
-
   void raycastIndex(const Mesh &mesh,
                     const three::Material &material,
                     size_t start, size_t end,
@@ -134,8 +128,9 @@ protected:
 
 public:
   using Ptr = std::shared_ptr<BufferGeometry>;
-  static Ptr make() {
-    return Ptr(new BufferGeometry());
+
+  static Ptr make(const BufferAttributeT<float>::Ptr &position=nullptr, const BufferAttributeT<float>::Ptr &color=nullptr) {
+    return Ptr(new BufferGeometry(position, color));
   }
   static Ptr make(std::shared_ptr<Object3D> object, LinearGeometry &geometry) {
     return Ptr(new BufferGeometry(object, geometry));
@@ -335,6 +330,10 @@ class InstancedBufferGeometry : public BufferGeometry
 protected:
   explicit InstancedBufferGeometry()
      : BufferGeometry(geometry::Typer(this)) {}
+
+  explicit InstancedBufferGeometry(const InstancedBufferGeometry &geometry)
+     : BufferGeometry(geometry, geometry::Typer(this)) {}
+
   explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object,
                                    std::shared_ptr<LinearGeometry> geometry)
      : BufferGeometry(object, geometry, geometry::Typer(this)) {}
@@ -352,7 +351,7 @@ public:
 
   InstancedBufferGeometry *cloned() const override
   {
-    return BufferGeometry::setTyper(new InstancedBufferGeometry(*this));
+    return new InstancedBufferGeometry(*this);
   }
 };
 

@@ -50,7 +50,7 @@ protected:
 
   Geometry(const geometry::Typer &typer=geometry::Typer()) : id(id_count++), typer(typer) {}
 
-  Geometry(const Geometry &geometry) : id(id_count++)
+  Geometry(const Geometry &geometry, const geometry::Typer &typer=geometry::Typer()) : id(id_count++), typer(typer)
   {
     _boundingBox = geometry._boundingBox;
     _boundingSphere = geometry._boundingSphere;

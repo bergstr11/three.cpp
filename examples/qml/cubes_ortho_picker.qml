@@ -45,6 +45,7 @@ Window {
         {
             id: objectPicker
             camera: scene.camera
+            unifyClicked: true
             objects: [scene]
 
             onObjectsClicked: {

@@ -10,10 +10,10 @@ namespace geometry {
 using namespace std;
 using namespace math;
 
-Polyhedron::Polyhedron(const PolyhedronParams &params)
-   : PolyhedronParams(params)
+Polyhedron::Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
+   : LinearGeometry(mktyper()), PolyhedronParams(vertices, indices, radius, detail)
 {
-  set(buffer::Polyhedron(params));
+  set(buffer::Polyhedron(vertices, indices, radius, detail));
   mergeVertices();
 }
 
@@ -26,21 +26,22 @@ void correctUV(UV &uv, const Vector3 &vector, float azimuth )
   if ( ( vector.x() == 0 ) && ( vector.z() == 0 ) ) uv.x() = azimuth / 2.0f / (float)M_PI + 0.5f;
 }
 
-Polyhedron::Polyhedron(const PolyhedronParams &params)
+Polyhedron::Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
+  : BufferGeometry(mktyper()), PolyhedronParams(vertices, indices, radius, detail)
 {
-  auto vertices = attribute::growing<float, Vertex>(true);
-  auto uvs = attribute::growing<float, UV>(true);
+  auto vertbuf = attribute::growing<float, Vertex>(true);
+  auto uvbuf = attribute::growing<float, UV>(true);
 
   // the subdivision creates the vertex buffer data
-  for (unsigned i = 0, l = params.indices.size(); i < l; i += 3 ) {
+  for (unsigned i = 0, l = _indices.size(); i < l; i += 3 ) {
 
     // get the vertices of the face
-    const Vector3 &a = params.vertices[params.indices[i]];
-    const Vector3 &b = params.vertices[params.indices[i+1]];
-    const Vector3 &c  = params.vertices[params.indices[i+2]];
+    const Vector3 &a = _vertices[_indices[i]];
+    const Vector3 &b = _vertices[_indices[i+1]];
+    const Vector3 &c  = _vertices[_indices[i+2]];
 
     // perform subdivision, construct all of the vertices for this subdivision
-    unsigned cols = pow( 2, params.detail );
+    unsigned cols = pow( 2, _detail );
 
     // we use this multidimensional array as a data structure for creating the subdivision
     vector<vector<Vertex>> v(cols + 1);
@@ -75,40 +76,40 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
 
         if ( j % 2 == 0 ) {
 
-          vertices->next() = v[ i ][ k + 1 ].normalize() * params.radius;
-          vertices->next() = v[ i + 1 ][ k ].normalize() * params.radius;;
-          vertices->next() = v[ i ][ k ].normalize() * params.radius;;
+          vertbuf->next() = v[ i ][ k + 1 ].normalize() * _radius;
+          vertbuf->next() = v[ i + 1 ][ k ].normalize() * _radius;;
+          vertbuf->next() = v[ i ][ k ].normalize() * _radius;;
 
         } else {
 
-          vertices->next() = v[ i ][ k + 1 ].normalize() * params.radius;;
-          vertices->next() = v[ i + 1 ][ k + 1 ].normalize() * params.radius;;
-          vertices->next() = v[ i + 1 ][ k ].normalize() * params.radius;;
+          vertbuf->next() = v[ i ][ k + 1 ].normalize() * _radius;;
+          vertbuf->next() = v[ i + 1 ][ k + 1 ].normalize() * _radius;;
+          vertbuf->next() = v[ i + 1 ][ k ].normalize() * _radius;;
         }
       }
     }
   }
 
   // finally, create the uv data
-  for (unsigned i = 0; i < vertices->itemCount(); i ++ ) {
+  for (unsigned i = 0; i < vertbuf->itemCount(); i ++ ) {
 
-    Vector3 &vertex = vertices->item(i);
+    Vector3 &vertex = vertbuf->item(i);
 
     float u = vertex.azimuth() / 2.0f / (float)M_PI + 0.5f;
     float v = vertex.inclination() / (float)M_PI + 0.5f;
-    uvs->next() = {u, 1 - v};
+    uvbuf->next() = {u, 1 - v};
   }
 
   //correctUVs();
-  for (unsigned i = 0; i < vertices->itemCount(); i += 3) {
+  for (unsigned i = 0; i < vertbuf->itemCount(); i += 3) {
 
-    Vector3 &a = vertices->item(i);
-    Vector3 &b = vertices->item(i+1);
-    Vector3 &c = vertices->item(i+2);
+    Vector3 &a = vertbuf->item(i);
+    Vector3 &b = vertbuf->item(i+1);
+    Vector3 &c = vertbuf->item(i+2);
 
-    UV &uvA = uvs->item(i);
-    UV &uvB = uvs->item(i+1);
-    UV &uvC = uvs->item(i+2);
+    UV &uvA = uvbuf->item(i);
+    UV &uvB = uvbuf->item(i+1);
+    UV &uvC = uvbuf->item(i+2);
 
     Vector3 centroid = (a + b + c) / 3;
 
@@ -120,12 +121,12 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
   }
 
   //correctSeam: handle case when face straddles the seam, see #3269
-  for (unsigned i = 0; i < uvs->itemCount(); i += 3 ) {
+  for (unsigned i = 0; i < uvbuf->itemCount(); i += 3 ) {
 
     // uv data of a single face
-    UV &u0 = uvs->item(i);
-    UV &u1 = uvs->item(i+1);
-    UV &u2 = uvs->item(i+2);
+    UV &u0 = uvbuf->item(i);
+    UV &u1 = uvbuf->item(i+1);
+    UV &u2 = uvbuf->item(i+2);
 
     float xMax = std::max(std::max(u0.x(), u1.x()), u2.x());
     float xMin = std::min(std::min(u0.x(), u1.x()), u2.x());
@@ -140,11 +141,11 @@ Polyhedron::Polyhedron(const PolyhedronParams &params)
   }
 
   // build non-indexed geometry
-  setPosition(vertices);
-  setNormal(BufferAttributeT<float>::Ptr(vertices->clone()));
-  setUV(uvs);
+  setPosition(vertbuf);
+  setNormal(BufferAttributeT<float>::Ptr(vertbuf->clone()));
+  setUV(uvbuf);
 
-  if (params.detail == 0)
+  if (_detail == 0)
     computeVertexNormals(); // flat normals
   else
     normalizeNormals(); // smooth normals*/

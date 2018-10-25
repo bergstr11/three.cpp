@@ -108,9 +108,10 @@ void ObjectPicker::findIntersects(float ex, float ey)
     }
   }
   if(!_intersects.empty()) _intersects.prepare();
-  /*for(const auto &intersect : _intersects) {
+  qDebug() << "==intersects==";
+  for(const auto &intersect : _intersects) {
     qDebug() << intersect.object->name().c_str() << intersect.distance << intersect.object->parent()->name().c_str();
-  }*/
+  }
 }
 
 bool ObjectPicker::handleMouseReleased(QMouseEvent *event)

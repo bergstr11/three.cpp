@@ -68,24 +68,21 @@ class DLX LinearGeometry : public Geometry
   static void computeVertexNormals(std::vector<Face3> &faces, const std::vector<Vertex> &vertices,
                                               bool areaWeighted = true);
 
-protected:
   LinearGeometry(const LinearGeometry &geom) = default;
+
+protected:
   std::shared_ptr<DirectGeometry> _directGeometry;
 
-  explicit LinearGeometry() : Geometry(geometry::Typer(this))
-  {}
+  explicit LinearGeometry(const geometry::Typer &typer) : Geometry(typer)
+  {
+    Geometry::typer.allow<LinearGeometry>();
+  }
 
   LinearGeometry(const LinearGeometry &geom, const geometry::Typer &typer)
      : LinearGeometry(geom)
   {
     Geometry::typer = typer;
     Geometry::typer.allow<LinearGeometry>();
-  }
-
-  template <typename Sub>
-  static Sub *setTyper(Sub *sub) {
-    sub->typer = geometry::Typer(static_cast<LinearGeometry *>(sub));
-    return sub;
   }
 
 public:

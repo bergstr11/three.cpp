@@ -48,7 +48,7 @@ public:
   void setWidth(float width) {
     if(_width != width) {
       _width = width;
-      if(_mesh) _mesh->geometry_t<geometry::Box>()->setWidth(width);
+      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setWidth(width);
       emit widthChanged();
     }
   }
@@ -56,7 +56,7 @@ public:
   void setHeight(float height) {
     if(_height != height) {
       _height = height;
-      if(_mesh) _mesh->geometry_t<geometry::Box>()->setHeight(height);
+      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setHeight(height);
       emit heightChanged();
     }
   }
@@ -64,7 +64,7 @@ public:
   void setDepth(float depth) {
     if(_depth != depth) {
       _depth = depth;
-      if(_mesh) _mesh->geometry_t<geometry::Box>()->setDepth(depth);
+      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setDepth(depth);
       emit depthChanged();
     }
   }

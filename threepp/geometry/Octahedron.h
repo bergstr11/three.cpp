@@ -10,8 +10,10 @@
 namespace three {
 namespace geometry {
 
-class DLX Octahedron : public LinearGeometry
+class DLX Octahedron : public Polyhedron
 {
+  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron, mktyper()) {}
+
 protected:
   Octahedron(float radius, unsigned detail);
 
@@ -22,7 +24,7 @@ public:
   }
 
   Octahedron *cloned() const override {
-    return LinearGeometry::setTyper(new Octahedron(*this));
+    return new Octahedron(*this);
   }
 };
 
@@ -32,10 +34,10 @@ class DLX Octahedron : public Polyhedron
 {
   friend class three::geometry::Octahedron;
 
-  static const PolyhedronParams makeParams(float radius, unsigned detail);
+  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron, mktyper()) {}
 
 protected:
-  Octahedron(float radius, unsigned detail) : Polyhedron(makeParams(radius, detail)) {}
+  Octahedron(float radius, unsigned detail);
 
 public:
   using Ptr = std::shared_ptr<Octahedron>;
@@ -44,7 +46,7 @@ public:
   }
 
   Octahedron *cloned() const override {
-    return BufferGeometry::setTyper(new Octahedron(*this));
+    return new Octahedron(*this);
   }
 };
 

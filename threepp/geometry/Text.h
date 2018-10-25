@@ -30,6 +30,8 @@ struct TextOptions
 
 class DLX Text : public LinearGeometry
 {
+  Text(const Text &text) : LinearGeometry(text, geometry::Typer(this)), _text(text._text), _options(text._options) {}
+
 protected:
   std::wstring _text;
 
@@ -45,7 +47,7 @@ public:
   }
 
   Text *cloned() const override {
-    return LinearGeometry::setTyper(new Text(*this));
+    return new Text(*this);
   }
 };
 
@@ -54,6 +56,8 @@ namespace buffer {
 class DLX Text : public Extrude
 {
   friend class three::geometry::Text;
+
+  Text(const Text &text) : Extrude(text, geometry::Typer(this)) {}
 
 protected:
   Text(const std::wstring &text, const TextOptions &options);
@@ -66,7 +70,7 @@ public:
   }
 
   Text *cloned() const override {
-    return BufferGeometry::setTyper(new Text(*this));
+    return new Text(*this);
   }
 };
 

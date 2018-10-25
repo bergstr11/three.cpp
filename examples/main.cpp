@@ -6,6 +6,7 @@
 #include <threepp/quick/Three.h>
 
 #include "ShadowMapViewer.h"
+#include "TestModelRef.h"
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
@@ -14,9 +15,10 @@ int main(int argc, char *argv[]) {
 
   three::quick::init();
   qmlRegisterType<three::quick::ShadowMapViewer>("three.quick", 1, 0, "ShadowMapViewer");
+  qmlRegisterType<three::quick::TestModelRef>("three.quick", 1, 0, "TestModelRef");
 
   QQmlComponent maincomponent(&qmlEngine);
-  //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///spotlight.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///material_envmap.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///orbit_controls.qml"));

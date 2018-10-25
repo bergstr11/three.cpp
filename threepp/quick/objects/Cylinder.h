@@ -26,14 +26,22 @@ class Cylinder : public ThreeQObject
   Q_PROPERTY(unsigned heightSegments READ heightSegments WRITE setHeightSegments NOTIFY heightSegmentsChanged)
   Q_PROPERTY(bool openEnded READ openEnded WRITE setOpenEnded NOTIFY openEndedChanged)
 
-  geometry::CylinderParams _params;
+  float _radiusTop = 20;
+  float _radiusBottom = 20;
+  float _height = 100;
+  unsigned _heightSegments = 1;
+  unsigned _radialSegments = 8;
+  bool _openEnded = false;
+  float _thetaStart = 0;
+  float _thetaLength = (float)M_PI * 2;
 
   DynamicMesh::Ptr _mesh;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _mesh = DynamicMesh::make(geometry::Cylinder::make(_params));
+    _mesh = DynamicMesh::make(geometry::Cylinder::make(_radiusTop, _radiusBottom, _height, _heightSegments,
+                                                       _radialSegments, _openEnded, _thetaStart, _thetaLength));
     _mesh->setMaterial(material()->getMaterial());
 
     return _mesh;
@@ -46,63 +54,63 @@ protected:
 public:
   Cylinder(QObject *parent = nullptr) : ThreeQObject(parent) {}
 
-  qreal radiusTop() {return _params.radiusTop;}
+  qreal radiusTop() {return _radiusTop;}
   void setRadiusTop(qreal radius) {
-    if(_params.radiusTop != radius) {
-      _params.radiusTop = radius;
+    if(_radiusTop != radius) {
+      _radiusTop = radius;
       emit radiusTopChanged();
     }
   }
-  qreal radiusBottom() {return _params.radiusBottom;}
+  qreal radiusBottom() {return _radiusBottom;}
   void setRadiusBottom(qreal radius) {
-    if(_params.radiusBottom != radius) {
-      _params.radiusBottom = radius;
+    if(_radiusBottom != radius) {
+      _radiusBottom = radius;
       emit radiusBottomChanged();
     }
   }
 
-  unsigned radialSegments() const {return _params.radialSegments;}
+  unsigned radialSegments() const {return _radialSegments;}
   void setRadialSegments(unsigned segments) {
-    if(_params.radialSegments != segments) {
-      _params.radialSegments = segments;
+    if(_radialSegments != segments) {
+      _radialSegments = segments;
       emit radialSegmentsChanged();
     }
   }
-  unsigned heightSegments() const {return _params.heightSegments;}
+  unsigned heightSegments() const {return _heightSegments;}
   void setHeightSegments(unsigned heightSegments) {
-    if(_params.heightSegments != heightSegments) {
-      _params.heightSegments = heightSegments;
+    if(_heightSegments != heightSegments) {
+      _heightSegments = heightSegments;
       emit heightSegmentsChanged();
     }
   }
 
-  qreal thetaStart() const {return _params.thetaStart;}
+  qreal thetaStart() const {return _thetaStart;}
   void setThetaStart(qreal thetaStart) {
-    if(_params.thetaStart != thetaStart) {
-      _params.thetaStart = thetaStart;
+    if(_thetaStart != thetaStart) {
+      _thetaStart = thetaStart;
       emit thetaStartChanged();
     }
   }
-  qreal thetaLength() const {return _params.thetaLength;}
+  qreal thetaLength() const {return _thetaLength;}
   void setThetaLength(qreal thetaLength) {
-    if(_params.thetaLength != thetaLength) {
-      _params.thetaLength = thetaLength;
+    if(_thetaLength != thetaLength) {
+      _thetaLength = thetaLength;
       emit thetaLengthChanged();
     }
   }
 
-  unsigned height() const {return _params.height;}
+  unsigned height() const {return _height;}
   void setHeight(unsigned height) {
-    if(_params.height != height) {
-      _params.height = height;
+    if(_height != height) {
+      _height = height;
       emit heightChanged();
     }
   }
 
-  bool openEnded() const {return _params.openEnded;}
+  bool openEnded() const {return _openEnded;}
   void setOpenEnded(qreal openEnded) {
-    if(_params.openEnded != openEnded) {
-      _params.openEnded = openEnded;
+    if(_openEnded != openEnded) {
+      _openEnded = openEnded;
       emit openEndedChanged();
     }
   }

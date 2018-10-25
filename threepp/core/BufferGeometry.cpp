@@ -18,10 +18,15 @@ using namespace impl;
 
 size_t Geometry::id_count = 0;
 
-BufferGeometry::BufferGeometry(const BufferGeometry &geom) : Geometry(geom)
+BufferGeometry::BufferGeometry(const BufferAttributeT<float>::Ptr &position, const BufferAttributeT<float>::Ptr &color)
+: Geometry(geometry::Typer(this))
 {
-  Geometry::typer = geometry::Typer(this);
+  setPosition(position);
+  setColor(color);
+}
 
+BufferGeometry::BufferGeometry(const BufferGeometry &geom) : Geometry(geom, geometry::Typer(this))
+{
   if(geom._index) _index.reset(geom._index->clone());
   if(geom._position) _position.reset(geom._position->clone());
   if(geom._normal) _normal.reset(geom._normal->clone());

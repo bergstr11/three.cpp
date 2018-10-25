@@ -30,10 +30,9 @@ protected:
 
   three::Object3D::Ptr _create() override
   {
-    _points = three::Points::make();
-
-    _points->bufferGeometry()->setPosition(_positions);
-    _points->pointsMaterial()->color = Color(_color.redF(), _color.greenF(), _color.blueF());
+    _points = three::Points::make(
+       BufferGeometry::make(_positions),
+       PointsMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF())));
 
     return _points;
   }

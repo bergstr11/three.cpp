@@ -28,7 +28,7 @@ protected:
 public:
   using Ptr = std::shared_ptr<Points>;
 
-  static Ptr make(const BufferGeometry::Ptr &geometry=BufferGeometry::make(),
+  static Ptr make(const BufferGeometry::Ptr &geometry,
                   const PointsMaterial::Ptr &material=PointsMaterial::make(Color(0xffffff * 1.0f / rand())))
   {
     return Ptr(new Points(geometry, material));
