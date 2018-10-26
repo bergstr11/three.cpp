@@ -23,13 +23,11 @@ struct PlaneParams
      : width(width), height(height), widthSegments(widthSegments),
        heightSegments(heightSegments)
   {}
-
-  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
 class Plane : public LinearGeometry, public PlaneParams
 {
-  Plane(const Plane &plane) : LinearGeometry(plane, mktyper()), PlaneParams(plane) {}
+  Plane(const Plane &plane) : LinearGeometry(plane), PlaneParams(plane) {}
 
 protected:
   Plane(float width, float height, float widthSegments, float heightSegments);
@@ -52,7 +50,7 @@ namespace buffer {
 
 class Plane : public BufferGeometry, public PlaneParams
 {
-  Plane(const Plane &plane) : BufferGeometry(plane, mktyper()), PlaneParams(plane) {}
+  Plane(const Plane &plane) : BufferGeometry(plane), PlaneParams(plane) {}
 
 public:
   Plane(float width, float height, float widthSegments = 1, float heightSegments = 1);

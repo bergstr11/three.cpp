@@ -22,15 +22,13 @@ protected:
        _depthSegments(depthSegments)
   {}
 
-  geometry::Typer mktyper() {return geometry::Typer(this);}
-
 public:
   void setWidth(float width) {_width = width;}
   void setHeight(float height) {_height = height;}
   void setDepth(float depth) {_depth = depth;}
 };
 
-class DLX Box : public LinearGeometry, private BoxParams
+class DLX Box : public LinearGeometry, public BoxParams
 {
 protected:
   Box(const Box &box);
@@ -54,7 +52,7 @@ public:
 
 namespace buffer {
 
-class DLX Box : public BufferGeometry, private BoxParams
+class DLX Box : public BufferGeometry, public BoxParams
 {
   friend class three::geometry::Box;
 

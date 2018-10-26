@@ -11,7 +11,7 @@ using namespace std;
 using namespace math;
 
 Polyhedron::Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
-   : LinearGeometry(mktyper()), PolyhedronParams(vertices, indices, radius, detail)
+   : PolyhedronParams(vertices, indices, radius, detail)
 {
   set(buffer::Polyhedron(vertices, indices, radius, detail));
   mergeVertices();
@@ -27,7 +27,7 @@ void correctUV(UV &uv, const Vector3 &vector, float azimuth )
 }
 
 Polyhedron::Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
-  : BufferGeometry(mktyper()), PolyhedronParams(vertices, indices, radius, detail)
+  : PolyhedronParams(vertices, indices, radius, detail)
 {
   auto vertbuf = attribute::growing<float, Vertex>(true);
   auto uvbuf = attribute::growing<float, UV>(true);

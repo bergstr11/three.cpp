@@ -16,7 +16,7 @@ class DLX Shape : public LinearGeometry
 {
   unsigned _curveSegments;
 
-  Shape(const Shape &shape) : LinearGeometry(shape, geometry::Typer(this)), _curveSegments(shape._curveSegments) {}
+  Shape(const Shape &shape) : LinearGeometry(shape), _curveSegments(shape._curveSegments) {}
 
 protected:
   Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments);
@@ -39,7 +39,7 @@ class DLX Shape : public BufferGeometry
 {
   friend class three::geometry::Shape;
 
-  Shape(const Shape &shape) : BufferGeometry(shape, geometry::Typer(this)) {}
+  Shape(const Shape &shape) : BufferGeometry(shape) {}
 
 protected:
   Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments);

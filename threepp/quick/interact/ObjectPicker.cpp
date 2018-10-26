@@ -24,21 +24,19 @@ namespace quick {
 using namespace std;
 using namespace math;
 
-struct no_delete
-{
-  template <typename T>
-  void operator () (const T *o) const {}
-} _no_delete;
-
 void SingleRay::setIntersects(IntersectList &intersects)
 {
-  if(!intersects.empty()) _picked = intersects.get(0, 0).object;
+  if(!intersects.empty()) {
+    Intersection &is = intersects.get(0, 0);
+    _picked = is.object;
+    _surfacePosition = is.point;
+    _surfaceNormal = is.face.normal;
+  }
 }
 
 Raycaster SingleRay::raycaster(const Ray &cameraRay)
 {
   _origin = cameraRay.origin();
-  _surfaceNormal = cameraRay.direction().negated();
   return Raycaster(cameraRay);
 }
 
@@ -108,7 +106,7 @@ void ObjectPicker::findIntersects(float ex, float ey)
     }
   }
   if(!_intersects.empty()) _intersects.prepare();
-  qDebug() << "==intersects==";
+  qDebug() << "== intersects:";
   for(const auto &intersect : _intersects) {
     qDebug() << intersect.object->name().c_str() << intersect.distance << intersect.object->parent()->name().c_str();
   }
@@ -169,21 +167,10 @@ QVariant ObjectPicker::intersect(unsigned index)
   if(_intersects.empty() || _intersects.count(0) <= index)
     throw std::out_of_range("intersect");
 
-  if(!_prototype) {
-    _prototype = new ThreeQObject();
-    _prototype->setParentResolver([this](Object3D::Ptr o) {
-      if(!_parent && o->parent()) {
-        Object3D::Ptr parent(o->parent(), _no_delete);
-        _parent = new ThreeQObject(parent);
-      }
-      return _parent;
-    });
-  }
+  if(!_prototype) _prototype = new ThreeQObject();
+
   Object3D::Ptr obj(_intersects.get(0, index).object, _no_delete);
   if(obj != _prototype->object()) {
-
-    if(_parent) _parent->deleteLater();
-    _parent = nullptr;
 
     _prototype->unset();
     _prototype->setObject(obj);
@@ -236,7 +223,6 @@ ObjectPicker::ObjectPicker(QObject *parent)
 
 ObjectPicker::~ObjectPicker() {
   if(_prototype) _prototype->deleteLater();
-  if(_parent) _parent->deleteLater();
   if(_rays) delete _rays;
 }
 

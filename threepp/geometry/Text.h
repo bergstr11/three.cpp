@@ -30,7 +30,7 @@ struct TextOptions
 
 class DLX Text : public LinearGeometry
 {
-  Text(const Text &text) : LinearGeometry(text, geometry::Typer(this)), _text(text._text), _options(text._options) {}
+  Text(const Text &text) : LinearGeometry(text), _text(text._text), _options(text._options) {}
 
 protected:
   std::wstring _text;
@@ -57,7 +57,7 @@ class DLX Text : public Extrude
 {
   friend class three::geometry::Text;
 
-  Text(const Text &text) : Extrude(text, geometry::Typer(this)) {}
+  Text(const Text &text) : Extrude(text) {}
 
 protected:
   Text(const std::wstring &text, const TextOptions &options);

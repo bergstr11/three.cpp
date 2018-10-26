@@ -19,18 +19,24 @@ rp3d::RigidBody *PhysicsScene::getBody(Object3D::Ptr object, bool addShapes)
     auto found = _objects.find(object.get());
     if(found != _objects.end()) return found->second.body;
 
-    rp3d::Transform transform = rp3d::Transform::identity();
+    auto wp = object->getWorldPosition();
+    auto wq = object->getWorldQuaternion();
+
+    rp3d::Vector3 rp(wp.x(), wp.y(), wp.z());
+    rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
+
+    rp3d::Transform transform(rp, rq);
     rp3d::RigidBody *body = _dynamicsWorld->createRigidBody(transform);
     _objects.emplace(object.get(), PhysicsObject(body, transform));
 
     if(addShapes) {
-      if(geometry::BoxParams *box = object->geometry()->typer) {
+      if(CAST(object->geometry(), geom, geometry::BoxParams)) {
         //body->addCollisionShape();
       }
-      else if(LinearGeometry *geom = object->geometry()->typer) {
+      else if(CAST(object->geometry(), geom, LinearGeometry)) {
 
       }
-      else if(BufferGeometry *geom = object->geometry()->typer) {
+      else if(CAST(object->geometry(), geom, BufferGeometry)) {
 
       }
     }

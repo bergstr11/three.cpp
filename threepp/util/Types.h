@@ -200,6 +200,13 @@ struct EnumHash
 template <typename EnumT, typename ValueT>
 using enum_map = std::unordered_map<EnumT, ValueT, EnumHash>;
 
+struct no_delete
+{
+  template <typename T>
+  void operator () (const T *o) const {}
+};
+extern no_delete _no_delete;
+
 } // namespace three
 
 #endif //THREEPP_TYPES_H

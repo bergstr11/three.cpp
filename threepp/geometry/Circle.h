@@ -21,13 +21,11 @@ protected:
 
   CircleParams(float radius, unsigned segments, float thetaStart, float thetaLength)
   : _radius(radius), _segments(segments), _thetaStart(thetaStart), _thetaLength(thetaLength) {}
-
-  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
 class DLX Circle : public LinearGeometry, private CircleParams
 {
-  Circle(const Circle &circle) : LinearGeometry(circle, mktyper()), CircleParams(circle) {}
+  Circle(const Circle &circle) : LinearGeometry(circle), CircleParams(circle) {}
 
 protected:
   Circle(float radius, unsigned segments, float thetaStart, float thetaLength);

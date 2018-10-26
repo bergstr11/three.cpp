@@ -28,13 +28,11 @@ protected:
      _radiusTop(radiusTop), _radiusBottom(radiusBottom), _height(height), _heightSegments(heightSegments),
      _radialSegments(radialSegments), _openEnded(openEnded), _thetaStart(thetaStart), _thetaLength(thetaLength)
   {}
-
-  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
-class DLX Cylinder : public LinearGeometry, private CylinderParams
+class DLX Cylinder : public CylinderParams, public LinearGeometry
 {
-  Cylinder(const Cylinder &cylinder) : LinearGeometry(cylinder, mktyper()), CylinderParams(cylinder)
+  Cylinder(const Cylinder &cylinder) : LinearGeometry(cylinder), CylinderParams(cylinder)
   {}
 
 protected:
@@ -64,11 +62,11 @@ public:
 
 namespace buffer {
 
-class DLX Cylinder : public BufferGeometry, private CylinderParams
+class DLX Cylinder : public BufferGeometry, public CylinderParams
 {
   friend class three::geometry::Cylinder;
 
-  Cylinder(const Cylinder &cylinder) : BufferGeometry(cylinder, mktyper()), CylinderParams(cylinder)
+  Cylinder(const Cylinder &cylinder) : BufferGeometry(cylinder), CylinderParams(cylinder)
   {}
 
 protected:

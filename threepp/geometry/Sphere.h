@@ -26,13 +26,11 @@ protected:
        _thetaStart(thetaStart),
        _thetaLength(thetaLength)
   {}
-
-  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
 class DLX Sphere : public LinearGeometry, public SphereParams
 {
-  Sphere(const Sphere &sphere) : LinearGeometry(sphere, mktyper()), SphereParams(sphere) {}
+  Sphere(const Sphere &sphere) : LinearGeometry(sphere), SphereParams(sphere) {}
 
 protected:
   Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
@@ -65,7 +63,7 @@ class DLX Sphere : public BufferGeometry, public SphereParams
 {
 friend class three::geometry::Sphere;
 
-  Sphere(const Sphere &sphere) : BufferGeometry(sphere, mktyper()), SphereParams(sphere) {}
+  Sphere(const Sphere &sphere) : BufferGeometry(sphere), SphereParams(sphere) {}
 
 protected:
   Sphere(float radius, unsigned widthSegments, unsigned heightSegments,

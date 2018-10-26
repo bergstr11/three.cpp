@@ -11,8 +11,7 @@ using namespace std;
 
 Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
                    unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
-   : LinearGeometry(mktyper()),
-      CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
+   : CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
 {
   set(buffer::Cylinder(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength));
   mergeVertices();
@@ -22,8 +21,7 @@ namespace buffer {
 
 Cylinder::Cylinder(float radiusTop, float radiusBottom, float height, unsigned heightSegments,
                    unsigned radialSegments, bool openEnded, float thetaStart, float thetaLength)
-   : BufferGeometry(mktyper()),
-     CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
+   : CylinderParams(radiusTop, radiusBottom, height, heightSegments, radialSegments, openEnded, thetaStart, thetaLength)
 {
   // buffers
   auto indices = attribute::growing<uint32_t>(false);

@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES main.cpp
         ShadowMapViewer.h
-        TestModelRef.h TestModelRef.cpp
+        PhysicsTestModelRef.h PhysicsTestModelRef.cpp
         resources.qrc
         qml/resources/pontiac_gto/pontiac.qrc)
 

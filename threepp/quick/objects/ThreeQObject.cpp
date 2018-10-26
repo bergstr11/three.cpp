@@ -185,7 +185,6 @@ void ThreeQObject::init()
 void ThreeQObject::setObject(const three::Object3D::Ptr &object)
 {
   _object = object;
-  _parent = nullptr;
   if(_object) {
 
     if(_position.isSet()) {
@@ -311,10 +310,20 @@ void ThreeQObject::lookAt(const QVector3D &position)
   }
 }
 
-ThreeQObject *ThreeQObject::parentObject()
+QVariant ThreeQObject::parentObject(QString name)
 {
-  if(!_parent && _object && _parentResolver) _parent = _parentResolver(_object);
-  return _parent;
+  Object3D *parent = nullptr;
+  std::string stdname = name.toStdString();
+
+  if(_object) {
+    parent = _object->parent();
+    while(parent && parent->name() != stdname)
+      parent = parent->parent();
+  }
+  QVariant var;
+  if(parent) var.setValue(new ThreeQObject(Object3D::Ptr (parent, _no_delete)));
+
+  return var;
 }
 
 void ThreeQObject::setPosition(const QVector3D &position, bool propagate) {

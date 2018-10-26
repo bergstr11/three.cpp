@@ -33,6 +33,30 @@ math::Vector3 LinearGeometry::centroid(const Face3 &face) const
   return (vA + vB + vC) / 3.0f;
 }
 
+LinearGeometry::LinearGeometry(const LinearGeometry &geometry)
+   : Geometry(geometry::Typer(this))
+{
+  _vertices = geometry._vertices;
+  _normals = geometry._normals;
+  _colors = geometry._colors;
+  _faces = geometry._faces;
+  _faceVertexUvs = geometry._faceVertexUvs;
+  _morphTargets = geometry._morphTargets;
+  _morphNormals = geometry._morphNormals;
+  _skinWeights = geometry._skinWeights;
+  _skinIndices = geometry._skinIndices;
+  _lineDistances = geometry._lineDistances;
+
+  // update flags
+  _elementsNeedUpdate = geometry._elementsNeedUpdate;
+  _verticesNeedUpdate = geometry._verticesNeedUpdate;
+  _uvsNeedUpdate = geometry._uvsNeedUpdate;
+  _normalsNeedUpdate = geometry._normalsNeedUpdate;
+  _colorsNeedUpdate = geometry._colorsNeedUpdate;
+  _lineDistancesNeedUpdate = geometry._lineDistancesNeedUpdate;
+  _groupsNeedUpdate = geometry._groupsNeedUpdate;
+}
+
 void LinearGeometry::raycast(const Mesh &mesh,
                              const Raycaster &raycaster,
                              const std::vector<math::Ray> &rays,

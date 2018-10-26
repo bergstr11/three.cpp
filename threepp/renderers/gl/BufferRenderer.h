@@ -34,7 +34,7 @@ public:
   void setMode(DrawMode mode) {_mode = mode;}
 
   virtual void render(GLint start, GLsizei count) = 0;
-  virtual void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) = 0;
+  virtual void renderInstances(InstancedBufferGeometry *geometry, GLint start, GLsizei count) = 0;
 };
 
 class DefaultBufferRenderer : public BufferRenderer
@@ -47,7 +47,7 @@ public:
   }
 
   void render(GLint start, GLsizei count) override;
-  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) override;
+  void renderInstances(InstancedBufferGeometry *geometry, GLint start, GLsizei count) override;
 };
 
 class IndexedBufferRenderer : public BufferRenderer
@@ -69,7 +69,7 @@ public:
   }
 
   void render(GLint start, GLsizei count) override;
-  void renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count) override;
+  void renderInstances(InstancedBufferGeometry *geometry, GLint start, GLsizei count) override;
 };
 
 }

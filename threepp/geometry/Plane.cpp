@@ -8,8 +8,7 @@ namespace three {
 namespace geometry {
 
 Plane::Plane(float width, float height, float widthSegments, float heightSegments)
-   : LinearGeometry(mktyper()),
-     PlaneParams(width, height, widthSegments, heightSegments)
+   : PlaneParams(width, height, widthSegments, heightSegments)
 {
   set(buffer::Plane(width, height, widthSegments, heightSegments));
   mergeVertices();
@@ -18,8 +17,7 @@ Plane::Plane(float width, float height, float widthSegments, float heightSegment
 namespace buffer {
 
 Plane::Plane(float width, float height, float widthSegments, float heightSegments)
-   : BufferGeometry(mktyper()),
-     PlaneParams(width, height, widthSegments, heightSegments)
+   : PlaneParams(width, height, widthSegments, heightSegments)
 {
   float width_half = width / 2;
   float height_half = height / 2;

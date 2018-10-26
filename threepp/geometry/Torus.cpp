@@ -9,7 +9,7 @@ namespace geometry {
 
 using namespace std;
 
-Torus::Torus(const TorusParams &params) : TorusParams(params), LinearGeometry(mktyper())
+Torus::Torus(const TorusParams &params) : TorusParams(params)
 {
   set(buffer::Torus(params));
   mergeVertices();
@@ -17,7 +17,7 @@ Torus::Torus(const TorusParams &params) : TorusParams(params), LinearGeometry(mk
 
 namespace buffer {
 
-Torus::Torus(const TorusParams &params) : TorusParams(params), BufferGeometry(mktyper())
+Torus::Torus(const TorusParams &params) : TorusParams(params)
 {
   size_t num = (radialSegments + 1) * (tubularSegments + 1);
 

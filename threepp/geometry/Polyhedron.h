@@ -22,16 +22,12 @@ protected:
 public:
   PolyhedronParams(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail)
   : _vertices(vertices), _indices(indices), _radius(radius), _detail(detail) {}
-
-  geometry::Typer mktyper() {return geometry::Typer(this);}
 };
 
 class DLX Polyhedron : public LinearGeometry, public PolyhedronParams
 {
-  Polyhedron(const Polyhedron &polyhedron) : LinearGeometry(polyhedron, mktyper()), PolyhedronParams(polyhedron) {}
-
 protected:
-  Polyhedron(const Polyhedron &polyhedron, const geometry::Typer &typer) : LinearGeometry(typer), PolyhedronParams(polyhedron) {}
+  Polyhedron(const Polyhedron &polyhedron) : LinearGeometry(polyhedron), PolyhedronParams(polyhedron) {}
   explicit Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail);
 
 public:
@@ -51,10 +47,8 @@ class DLX Polyhedron : public BufferGeometry, public PolyhedronParams
 {
   friend class three::geometry::Polyhedron;
 
-  Polyhedron(const Polyhedron &polyhedron) : BufferGeometry(polyhedron, mktyper()), PolyhedronParams(polyhedron) {}
-
 protected:
-  Polyhedron(const Polyhedron &polyhedron, const geometry::Typer &typer) : BufferGeometry(typer), PolyhedronParams(polyhedron) {}
+  Polyhedron(const Polyhedron &polyhedron) : BufferGeometry(polyhedron), PolyhedronParams(polyhedron) {}
   explicit Polyhedron(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, float radius, unsigned detail);
 
   void subdivideFace(const math::Vector3 &a, const math::Vector3 &b, const math::Vector3 &c, unsigned detail);

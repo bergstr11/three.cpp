@@ -113,7 +113,7 @@ protected:
   std::vector<extras::Shape::Ptr> _shapes;
   const ExtrudeOptions _options;
 
-  Extrude(const Extrude &extrude) : LinearGeometry(extrude, geometry::Typer(this)) {}
+  Extrude(const Extrude &extrude) : LinearGeometry(extrude) {}
 
   Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options);
 
@@ -141,10 +141,8 @@ class DLX Extrude : public BufferGeometry
 {
   friend class three::geometry::Extrude;
 
-  Extrude(const Extrude &extrude) : BufferGeometry(extrude, geometry::Typer(this)) {}
-
 protected:
-  Extrude(const Extrude &extrude, const geometry::Typer &typer) : BufferGeometry(extrude, typer) {}
+  Extrude(const Extrude &extrude) : BufferGeometry(extrude) {}
   Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options);
 
 public:

@@ -11,7 +11,7 @@ using namespace std;
 
 Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
        float phiStart, float phiLength, float thetaStart, float thetaLength)
-   : LinearGeometry(mktyper()), SphereParams(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+   : SphereParams(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
 {
   set(buffer::Sphere(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength));
   mergeVertices();
@@ -21,7 +21,7 @@ namespace buffer {
 
 Sphere::Sphere(float radius, unsigned widthSegments, unsigned heightSegments,
        float phiStart, float phiLength, float thetaStart, float thetaLength)
-   : BufferGeometry(mktyper()), SphereParams(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+   : SphereParams(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
 {
   float thetaEnd = thetaStart + thetaLength;
 

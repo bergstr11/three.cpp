@@ -9,7 +9,7 @@ namespace geometry {
 
 using namespace std;
 
-Ring::Ring(const RingParams &params) : LinearGeometry(mktyper()), RingParams(params)
+Ring::Ring(const RingParams &params) : RingParams(params)
 {
   RingParams::validate();
   set(buffer::Ring(params));
@@ -18,7 +18,7 @@ Ring::Ring(const RingParams &params) : LinearGeometry(mktyper()), RingParams(par
 
 namespace buffer {
 
-Ring::Ring(const RingParams &params) : BufferGeometry(mktyper()), RingParams(params)
+Ring::Ring(const RingParams &params) : RingParams(params)
 {
   RingParams::validate();
   size_t num = (phiSegments + 1) * (thetaSegments + 1);

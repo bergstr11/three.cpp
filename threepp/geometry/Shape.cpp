@@ -12,7 +12,7 @@ namespace geometry {
 using namespace std;
 namespace utils = extras::shapeutils;
 
-Shape::Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments) : LinearGeometry(geometry::Typer(this))
+Shape::Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments)
 {
   set(buffer::Shape(shapes, curveSegments));
   mergeVertices();
@@ -80,7 +80,7 @@ void addShape(const extras::Shape::Ptr shape,
   }
 }
 
-Shape::Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments) : BufferGeometry(geometry::Typer(this))
+Shape::Shape(const std::vector<extras::Shape::Ptr> &shapes, unsigned curveSegments)
 {
   auto indices = attribute::growing<uint32_t>(true);
   auto vertices = attribute::growing<float, Vertex>();

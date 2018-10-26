@@ -144,7 +144,6 @@ Q_OBJECT
   Rays *_rays = nullptr;
 
   ThreeQObject *_prototype = nullptr;
-  ThreeQObject *_parent = nullptr;
 
   float _scaleSize = 0;
 

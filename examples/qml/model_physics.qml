@@ -25,8 +25,97 @@ Window {
         z: 2
 
         Label {id: dlabel; text: "Distance: %1".arg(orbitController.distance)}
-        Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(modelref.rotation.x).arg(modelref.rotation.y).arg(modelref.rotation.z)}
+        Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(physicstest.rotation.x).arg(physicstest.rotation.y).arg(physicstest.rotation.z)}
 
+    }
+    Row {
+        id: dataRow
+        anchors.top: lrow.bottom; anchors.topMargin: 10; anchors.horizontalCenter: lrow.horizontalCenter
+        spacing: 10
+        z: 2
+
+        ComboBox {
+            id: pickedParents
+
+            onModelChanged: parent.checkEnablement()
+        }
+
+        property var picked
+
+        function checkEnablement()
+        {
+            hideButton.enabled = saveButton.enabled = !!picked && pickedParents.currentIndex >= 0
+        }
+
+        onPickedChanged: checkEnablement()
+
+        Button {
+            id: hideButton
+            text: "Hide"
+            enabled: false
+
+            onClicked: {
+                if(!!dataRow.picked) {
+                    var parent = dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
+                    parent.visible = false
+                }
+                threeD.update()
+            }
+        }
+        Button {
+            id: saveButton
+            text: "Save"
+            enabled: false
+
+            onClicked: {
+                if(!!dataRow.picked) {
+                    var parent = pickedParents.currentIndex > 0 ?
+                        dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex]) : dataRow.picked
+
+                    if(physicstest.picked1 === null) {
+                        physicstest.picked1 = parent
+                        textO1.text = parent.name
+                    }
+                    else {
+                        physicstest.picked2 = parent
+                        textO2.text = parent.name
+                    }
+                }
+            }
+        }
+    }
+    Column {
+        id: infoRow
+        anchors.right: parent.right
+        anchors.bottom: actions.top
+        anchors.margins: 10
+        spacing: 10
+
+        Text {id: textO1}
+        Text {id: textO2}
+        Text {id: textP1}
+        Text {id: textP2}
+    }
+    Column {
+        id: actions
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
+        spacing: 10
+        z: 2
+    
+        Button {
+            id: createButton
+            text: "Create"
+            enabled: false
+            onClicked: physicstest.createTheHinge()
+        }
+        Button {
+            id: resetButton
+            text: "Reset"
+            enabled: false
+            onClicked: physicstest.resetPicked()
+        }
     }
 
     MouseArea {
@@ -122,7 +211,7 @@ Window {
 
         FloatManip {
             name: "rotation.x"
-            target: modelref
+            target: physicstest
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -132,7 +221,7 @@ Window {
         }
         FloatManip {
             name: "rotation.y"
-            target: modelref
+            target: physicstest
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -142,7 +231,7 @@ Window {
         }
         FloatManip {
             name: "rotation.z"
-            target: modelref
+            target: physicstest
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -159,10 +248,16 @@ Window {
             }
         }
         BoolChoice {
-            name: "Prefer Phong"
-            value: threeDModel.options.preferPhong
+            name: "Select | Mark"
+            id: selectMarkChoice
+            value: false
+        }
+        BoolChoice {
+            name: "Pick"
+            value: false
             onValueChanged: {
-                threeDModel.options.preferPhong = value
+                objectPicker.enabled = value
+                scene.camera.controller.enabled = !value
             }
         }
     }
@@ -207,8 +302,38 @@ Window {
 
         Model {
             id: threeDModel
+
             onFileChanged: holdon.visible = true
             onModelLoaded: holdon.visible = false
+        }
+
+        ObjectPicker
+        {
+            id: objectPicker
+            camera: scene.camera
+            enabled: false
+            objects: [scene]
+
+            onObjectsClicked: {
+                var is = intersect(0)
+                pickedParents.model = objectPicker.pickedParents(0)
+                dataRow.picked = is.object
+
+                if(selectMarkChoice.value) {
+                    physicstest.setMarker(this, orbitController.polar(), orbitController.azimuth())
+
+                    if(!physicstest.upperSet) {
+                        physicstest.upper = is.point
+                        physicstest.upperSet = true
+                        textP1.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
+                    }
+                    else {
+                        physicstest.lower = is.point
+                        physicstest.lowerSet = true
+                        textP2.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
+                    }
+                }
+            }
         }
 
         Scene {
@@ -229,14 +354,42 @@ Window {
 
                 material: MeshBasicMaterial {color: "green"; wireframe: true}
 
-                ModelRef {
-                    id: modelref
+                PhysicsTestModel {
+                    id: physicstest
                     model: threeDModel
                     name: "car"
                     type: ModelRef.Node
                     replace: true
 
+                    property var picked1: null
+                    property var picked2: null
+                    property vector3d upper: "0,0,0"
+                    property vector3d lower: "0,0,0"
+                    property bool upperSet: false
+                    property bool lowerSet: false
+
+                    function checkEnabled() {
+                        createButton.enabled = resetButton.enabled =
+                            picked1 !== null && picked2 !== null && upperSet && lowerSet
+                    }
+                    function resetPicked() {
+                        picked1 = null; picked2 = null; upperSet = false; lowerSet = false
+                        textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
+                        createButton.enabled = resetButton.enabled = false
+                    }
+                    function createTheHinge() {
+                        createHinge(picked1, picked2, upper, lower)
+                    }
+
+                    onPicked1Changed: checkEnabled()
+                    onPicked2Changed: checkEnabled()
+                    onUpperSetChanged: checkEnabled()
+                    onLowerSetChanged: checkEnabled()
+
                     onObjectChanged: {
+                        pickedParents.model = []
+                        resetPicked()
+
                         orbitController.reset()
                         objectControls.reset()
                         lightControls.reset()

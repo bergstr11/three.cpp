@@ -12,7 +12,7 @@ namespace geometry {
 
 class DLX Octahedron : public Polyhedron
 {
-  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron, mktyper()) {}
+  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron) {}
 
 protected:
   Octahedron(float radius, unsigned detail);
@@ -34,7 +34,7 @@ class DLX Octahedron : public Polyhedron
 {
   friend class three::geometry::Octahedron;
 
-  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron, mktyper()) {}
+  Octahedron(const Octahedron &octahedron) : Polyhedron(octahedron) {}
 
 protected:
   Octahedron(float radius, unsigned detail);

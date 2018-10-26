@@ -11,7 +11,7 @@
 namespace three {
 namespace quick {
 
-class TestModelRef : public quick::ModelRef
+class PhysicsTestModelRef : public quick::ModelRef
 {
 Q_OBJECT
 
@@ -20,9 +20,9 @@ Q_OBJECT
 
 public:
 
-  Q_INVOKABLE void createHinges(quick::ThreeQObject *car, quick::ThreeQObject *door, QVector3D upper, QVector3D lower);
+  Q_INVOKABLE void createHinge(QVariant car, QVariant door, QVector3D upper, QVector3D lower);
 
-  Q_INVOKABLE void testMarker(three::quick::ObjectPicker *picker);
+  Q_INVOKABLE void setMarker(three::quick::ObjectPicker *picker);
 };
 
 }

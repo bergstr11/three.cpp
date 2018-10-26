@@ -71,27 +71,7 @@ class InstancedBufferGeometry;
 class DirectGeometry;
 
 namespace geometry {
-class BoxParams;
-class CircleParams;
-class CylinderParams;
-class PolyhedronParams;
-class RingParams;
-class PlaneParams;
-class SphereParams;
-class TorusParams;
-class Extrude;
-class Shape;
-class Text;
-
-namespace buffer {
-class Extrude;
-class Shape;
-class Text;
-}
-
-using Typer = three::Typer<LinearGeometry, BufferGeometry, InstancedBufferGeometry, DirectGeometry,
-   BoxParams, CircleParams, CylinderParams, PolyhedronParams, RingParams, SphereParams, TorusParams, PlaneParams,
-   Extrude, Shape, Text, buffer::Extrude, buffer::Shape, buffer::Text>;
+using Typer = three::Typer<LinearGeometry, BufferGeometry, InstancedBufferGeometry, DirectGeometry>;
 }
 
 class Material;

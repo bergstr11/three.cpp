@@ -74,8 +74,6 @@ class DLX BufferGeometry : public Geometry
   void setFromMeshGeometry(LinearGeometry &geometry);
   void setFromDirectGeometry(std::shared_ptr<DirectGeometry> geometry);
 
-  BufferGeometry(const BufferGeometry &geom);
-
 protected:
 
   BufferGeometry &computeBoundingBox() override
@@ -91,26 +89,18 @@ protected:
 
   BufferGeometry &computeBoundingSphere() override;
 
+  BufferGeometry(const BufferGeometry &geom);
+
   BufferGeometry(const BufferAttributeT<float>::Ptr &position, const BufferAttributeT<float>::Ptr &color);
 
   BufferGeometry(std::shared_ptr<Object3D> object, LinearGeometry &geometry);
 
-  BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry, const geometry::Typer &typer)
+  BufferGeometry(std::shared_ptr<Object3D> object, std::shared_ptr<LinearGeometry> geometry)
      : BufferGeometry(object, *geometry)
-  {
-    Geometry::typer = typer;
-    Geometry::typer.allow<BufferGeometry>();
-  }
-
-  explicit BufferGeometry(const geometry::Typer &typer) : Geometry(typer)
   {}
 
-  BufferGeometry(const BufferGeometry &geom, const geometry::Typer &typer)
-     : BufferGeometry(geom)
-  {
-    Geometry::typer = typer;
-    Geometry::typer.allow<BufferGeometry>();
-  }
+  explicit BufferGeometry() : Geometry(geometry::Typer(this))
+  {}
 
   void raycastIndex(const Mesh &mesh,
                     const three::Material &material,
@@ -329,14 +319,25 @@ class InstancedBufferGeometry : public BufferGeometry
 
 protected:
   explicit InstancedBufferGeometry()
-     : BufferGeometry(geometry::Typer(this)) {}
+  {
+    typer = geometry::Typer(this);
+    typer.allow<BufferGeometry>();
+  }
 
   explicit InstancedBufferGeometry(const InstancedBufferGeometry &geometry)
-     : BufferGeometry(geometry, geometry::Typer(this)) {}
+     : BufferGeometry(geometry)
+  {
+    typer = geometry::Typer(this);
+    typer.allow<BufferGeometry>();
+  }
 
   explicit InstancedBufferGeometry(std::shared_ptr<Object3D> object,
                                    std::shared_ptr<LinearGeometry> geometry)
-     : BufferGeometry(object, geometry, geometry::Typer(this)) {}
+     : BufferGeometry(object, geometry)
+  {
+    typer = geometry::Typer(this);
+    typer.allow<BufferGeometry>();
+  }
 
 public:
   using Ptr = std::shared_ptr<InstancedBufferGeometry>;

@@ -719,7 +719,7 @@ void Renderer_impl::renderBufferDirect(Camera::Ptr camera,
     renderer->setMode(DrawMode::Points);
   }
 
-  InstancedBufferGeometry::Ptr ibg = dynamic_pointer_cast<InstancedBufferGeometry>(geometry);
+  InstancedBufferGeometry *ibg = geometry->typer;
   if (ibg) {
     if ( ibg->maxInstancedCount() > 0 ) {
       renderer->renderInstances( ibg, drawStart, drawCount );

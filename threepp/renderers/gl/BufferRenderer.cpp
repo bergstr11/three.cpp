@@ -22,7 +22,7 @@ void DefaultBufferRenderer::render(GLint start, GLsizei count)
   else if (_mode == DrawMode::Points) _renderInfo.points += count;
 }
 
-void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count)
+void DefaultBufferRenderer::renderInstances(InstancedBufferGeometry *geometry, GLint start, GLsizei count)
 {
   bool extension = _extensions.get(Extension::ANGLE_instanced_arrays);
 
@@ -61,7 +61,7 @@ void IndexedBufferRenderer::render(GLint start, GLsizei count)
 
 }
 
-void IndexedBufferRenderer::renderInstances(InstancedBufferGeometry::Ptr geometry, GLint start, GLsizei count)
+void IndexedBufferRenderer::renderInstances(InstancedBufferGeometry *geometry, GLint start, GLsizei count)
 {
   bool extension = _extensions.get(Extension::ANGLE_instanced_arrays);
 

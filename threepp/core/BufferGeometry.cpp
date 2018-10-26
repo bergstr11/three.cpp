@@ -19,7 +19,7 @@ using namespace impl;
 size_t Geometry::id_count = 0;
 
 BufferGeometry::BufferGeometry(const BufferAttributeT<float>::Ptr &position, const BufferAttributeT<float>::Ptr &color)
-: Geometry(geometry::Typer(this))
+   : Geometry(geometry::Typer(this))
 {
   setPosition(position);
   setColor(color);

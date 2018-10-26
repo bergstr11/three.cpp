@@ -8,7 +8,7 @@ namespace three {
 namespace geometry {
 
 Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLength)
-   : LinearGeometry(mktyper()), CircleParams(radius, segments, thetaStart, thetaLength)
+   : CircleParams(radius, segments, thetaStart, thetaLength)
 {
   set(buffer::Circle(radius, segments, thetaStart, thetaLength));
   mergeVertices();
@@ -16,10 +16,10 @@ Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLen
 
 namespace buffer {
 
-Circle::Circle(const Circle &circle) : BufferGeometry(circle, mktyper()), CircleParams(circle) {}
+Circle::Circle(const Circle &circle) : BufferGeometry(circle), CircleParams(circle) {}
 
 Circle::Circle(float radius, unsigned segments, float thetaStart, float thetaLength)
-  : BufferGeometry(mktyper()), CircleParams(radius, segments, thetaStart, thetaLength)
+  : CircleParams(radius, segments, thetaStart, thetaLength)
 {
   segments = std::max(3u, segments);
 

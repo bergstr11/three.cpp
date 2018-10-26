@@ -12,14 +12,13 @@ using namespace std;
 using namespace math;
 
 Extrude::Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options)
-   : _shapes(shapes), _options(options), LinearGeometry(geometry::Typer(this))
+   : _shapes(shapes), _options(options)
 {
   set(buffer::Extrude(_shapes, options));
   mergeVertices();
 }
 
-Extrude::Extrude(extras::Shape::Ptr shape, const ExtrudeOptions &options) : _options(options),
-                                                                            LinearGeometry(geometry::Typer(this))
+Extrude::Extrude(extras::Shape::Ptr shape, const ExtrudeOptions &options) : _options(options)
 {
   _shapes.push_back(shape);
 
@@ -579,7 +578,6 @@ void Builder::addShape(extras::Shape::Ptr shape)
 }
 
 Extrude::Extrude(const std::vector<extras::Shape::Ptr> &shapes, const ExtrudeOptions &options)
-   : BufferGeometry(geometry::Typer(this))
 {
   Builder builder(options, *this);
 

@@ -24,11 +24,13 @@ class Box : public ThreeQObject
   float _width=0, _height=0, _depth=0;
 
   DynamicMesh::Ptr _mesh;
+  geometry::Box::Ptr _box;
 
 protected:
   three::Object3D::Ptr _create() override
   {
-    _mesh = DynamicMesh::make(geometry::Box::make(_width, _height, _depth));
+    _box = geometry::Box::make(_width, _height, _depth);
+    _mesh = DynamicMesh::make(_box);
     _mesh->setMaterial(material()->getMaterial());
 
     return _mesh;
@@ -48,7 +50,7 @@ public:
   void setWidth(float width) {
     if(_width != width) {
       _width = width;
-      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setWidth(width);
+      if(_mesh) _box->setWidth(width);
       emit widthChanged();
     }
   }
@@ -56,7 +58,7 @@ public:
   void setHeight(float height) {
     if(_height != height) {
       _height = height;
-      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setHeight(height);
+      if(_mesh) _box->setHeight(height);
       emit heightChanged();
     }
   }
@@ -64,7 +66,7 @@ public:
   void setDepth(float depth) {
     if(_depth != depth) {
       _depth = depth;
-      if(_mesh) _mesh->geometry_t<geometry::BoxParams>()->setDepth(depth);
+      if(_mesh) _box->setDepth(depth);
       emit depthChanged();
     }
   }

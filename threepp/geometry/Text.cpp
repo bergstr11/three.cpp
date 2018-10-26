@@ -8,7 +8,7 @@ namespace three {
 namespace geometry {
 
 Text::Text(const std::wstring &text, const TextOptions &options)
-   : LinearGeometry(geometry::Typer(this)), _text(text), _options(options)
+   : _text(text), _options(options)
 {
   set(buffer::Text(_text, _options));
   mergeVertices();
