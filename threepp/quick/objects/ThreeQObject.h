@@ -123,7 +123,7 @@ public:
   Signal<void(Object3D::Ptr created, ObjectState state)> onObjectChanged;
   using OnObjectChangedId = decltype(onObjectChanged)::ConnectionId;
 
-  ~ThreeQObject() {
+  ~ThreeQObject() override {
     if(_normalsHelper) _normalsHelper->deleteLater();
   }
 

@@ -14,11 +14,15 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES main.cpp
         ShadowMapViewer.h
-        PhysicsTestModelRef.h PhysicsTestModelRef.cpp
         resources.qrc
         qml/resources/pontiac_gto/pontiac.qrc)
 
 add_executable(three_test ${SOURCE_FILES})
+
+if(WITH_PHYSICS)
+    target_sources(three_test PRIVATE PhysicsTestModelRef.h PhysicsTestModelRef.cpp)
+endif(WITH_PHYSICS)
+
 target_include_directories(three_test PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
         $<INSTALL_INTERFACE:include)

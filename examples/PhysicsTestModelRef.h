@@ -19,10 +19,14 @@ Q_OBJECT
   rp3d::HingeJoint * _doorJoint;
 
 public:
+  PhysicsTestModelRef(QObject *parent = nullptr)  : ModelRef(parent) {}
+  ~PhysicsTestModelRef() override;
 
   Q_INVOKABLE void createHinge(QVariant car, QVariant door, QVector3D upper, QVector3D lower);
 
   Q_INVOKABLE void setMarker(three::quick::ObjectPicker *picker);
+
+  Q_INVOKABLE void updatePhysics();
 };
 
 }

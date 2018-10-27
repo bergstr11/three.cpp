@@ -60,7 +60,9 @@ protected:
 public:
   ModelRef(QObject *parent=nullptr) : ThreeQObject(parent) {}
 
-  ~ModelRef() {if(_threeQObject) _threeQObject->deleteLater();}
+  ~ModelRef() {
+    if(_threeQObject) _threeQObject->deleteLater();
+  }
 
   Model *model() const {return _model;}
 

@@ -11,6 +11,17 @@
 namespace three {
 namespace quick {
 
+PhysicsTestModelRef::~PhysicsTestModelRef()
+{
+  _physicsScene = nullptr;
+  _doorJoint = nullptr;
+}
+
+void PhysicsTestModelRef::updatePhysics()
+{
+  if(_physicsScene) _physicsScene->update();
+}
+
 void PhysicsTestModelRef::createHinge(QVariant cvar, QVariant dvar, QVector3D upper, QVector3D lower)
 {
   quick::ThreeQObject *car = cvar.value<quick::ThreeQObject *>();
@@ -41,13 +52,16 @@ void PhysicsTestModelRef::createHinge(QVariant cvar, QVariant dvar, QVector3D up
                                  rp3d::Vector3(hingePoint.x(), hingePoint.y(), hingePoint.z()),
                                  rp3d::Vector3(hingeAxis.x(), hingeAxis.y(), hingeAxis.z()));
 
-  jointInfo.isMotorEnabled = false;
+  jointInfo.isLimitEnabled = true;
+  jointInfo.minAngleLimit = 0.0f;
+  jointInfo.maxAngleLimit = M_PI;
+  jointInfo.isMotorEnabled = true;
   jointInfo.motorSpeed = - rp3d::decimal(0.5) * M_PI;
   jointInfo.maxMotorTorque = rp3d::decimal(60.0);
   jointInfo.isCollisionEnabled = false;
 
   // Create the joint in the dynamics world
-  _doorJoint = dynamic_cast<rp3d::HingeJoint*>(_physicsScene->dynamicsWorld()->createJoint(jointInfo));
+  _doorJoint = _physicsScene->createHingeJoint(jointInfo);
 }
 
 void PhysicsTestModelRef::setMarker(three::quick::ObjectPicker *picker)

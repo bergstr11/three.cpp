@@ -58,6 +58,7 @@ Window {
                 if(!!dataRow.picked) {
                     var parent = dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
                     parent.visible = false
+                    physicstest.hidden.push(parent)
                 }
                 threeD.update()
             }
@@ -108,13 +109,34 @@ Window {
             id: createButton
             text: "Create"
             enabled: false
-            onClicked: physicstest.createTheHinge()
+            onClicked: {
+                physicstest.createTheHinge()
+                physicstest.unhide()
+                threeD.update()
+            }
+        }
+        Button {
+            id: runButton
+            enabled: false
+            text: "Run"
+
+            property bool running: false
+
+            onClicked: {
+                running = !running
+                text = running ? "Stop" : "Run"
+                threeD.runAnimation(running)
+            }
         }
         Button {
             id: resetButton
             text: "Reset"
             enabled: false
-            onClicked: physicstest.resetPicked()
+            onClicked: {
+                physicstest.unhide()
+                physicstest.resetPicked()
+                threeD.update()
+            }
         }
     }
 
@@ -297,8 +319,8 @@ Window {
     ThreeD {
         id: threeD
         anchors.fill: parent
-        autoClear: false
         samples: 24
+        autoAnimate: false
 
         Model {
             id: threeDModel
@@ -361,6 +383,7 @@ Window {
                     type: ModelRef.Node
                     replace: true
 
+                    property var hidden: []
                     property var picked1: null
                     property var picked2: null
                     property vector3d upper: "0,0,0"
@@ -375,10 +398,15 @@ Window {
                     function resetPicked() {
                         picked1 = null; picked2 = null; upperSet = false; lowerSet = false
                         textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
-                        createButton.enabled = resetButton.enabled = false
+                        createButton.enabled = resetButton.enabled = runButton.enabled = false
                     }
                     function createTheHinge() {
                         createHinge(picked1, picked2, upper, lower)
+                        runButton.enabled = true
+                    }
+                    function unhide() {
+                        for(var i=0; i<hidden.length; i++) hidden[i].visible = true
+                        hidden = new Array()
                     }
 
                     onPicked1Changed: checkEnabled()
@@ -423,6 +451,9 @@ Window {
                     intensity: 0.5
                 }
             }
+        }
+        animate: function() {
+            physicstest.updatePhysics()
         }
     }
 }

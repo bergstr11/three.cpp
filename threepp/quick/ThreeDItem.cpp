@@ -168,7 +168,6 @@ ThreeDItem::ThreeDItem(QQuickItem *parent) : QQuickFramebufferObject(parent)
   setFlag(QQuickItem::ItemAcceptsInputMethod);
 
   setMirrorVertically(true);
-  QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
 ThreeDItem::~ThreeDItem()

@@ -1,5 +1,5 @@
 #include <QGuiApplication>
-#include <QQmlEngine>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QDebug>
@@ -8,10 +8,10 @@
 #include "ShadowMapViewer.h"
 #include "PhysicsTestModelRef.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   QGuiApplication app(argc, argv);
-  QQmlEngine qmlEngine;
-  QQmlContext *mainQmlContext = new QQmlContext(&qmlEngine);
+  QQmlApplicationEngine qmlEngine;
 
   three::quick::init();
   qmlRegisterType<three::quick::ShadowMapViewer>("three.quick", 1, 0, "ShadowMapViewer");
@@ -41,8 +41,9 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  maincomponent.create(mainQmlContext);
+  QObject *mc = maincomponent.create(qmlEngine.rootContext());
   int ret = app.exec();
 
+  delete mc;
   return ret;
 }
