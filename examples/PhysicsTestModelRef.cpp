@@ -23,6 +23,9 @@ PhysicsTestModelRef::~PhysicsTestModelRef()
 void PhysicsTestModelRef::start()
 {
   _physicsScene->timer().start();
+  _physicsScene->update();
+
+  _force = -2.0f;
 }
 
 void PhysicsTestModelRef::stop()
@@ -33,7 +36,8 @@ void PhysicsTestModelRef::stop()
 void PhysicsTestModelRef::update()
 {
   if(_physicsScene) {
-    _doorBody->applyForceToCenterOfMass(rp3d::Vector3(1,1,1));
+
+    _doorBody->applyForceToCenterOfMass(rp3d::Vector3(0, _force, 0));
     _physicsScene->update();
   }
 }
@@ -53,29 +57,31 @@ void PhysicsTestModelRef::createHinge(QVariant dvar, QVariant cvar, QVector3D up
     rp3d::Vector3 gravity(0, rp3d::decimal(-9.81), 0);
 
     rp3d::WorldSettings worldSettings;
-    worldSettings.worldName = "ThreeDynamics";
+    worldSettings.worldName = "HingeWorld";
 
     rp3d::DynamicsWorld *dynamicsWorld = new rp3d::DynamicsWorld(gravity, worldSettings);
     _physicsScene = react3d::PhysicsScene::make(_scene->scene(), dynamicsWorld);
   }
 
+  //a simple box along the hinge axis will do for the car
   float distance = upper.distanceToPoint(lower);
   rp3d::BoxShape *carBox = new rp3d::BoxShape(rp3d::Vector3(10, distance, 10));
 
+  //the door is represented by its bounding box
   const three::math::Vector3 &bb = door->object()->computeBoundingBox().getSize();
   rp3d::BoxShape *doorBox = new rp3d::BoxShape(rp3d::Vector3(bb.x(), bb.y(), bb.z()));
 
+  //car is static, we only want the door to move
   tr3::PhysicsObject &carPhysics = _physicsScene->getPhysics(car->object());
   carPhysics.body()->addCollisionShape(carBox, rp3d::Transform::identity(), 1.0f);
   carPhysics.body()->setType(rp3d::BodyType::STATIC);
 
+  //create the door and keep a reference
   tr3::PhysicsObject &doorPhysics = _physicsScene->getPhysics(door->object());
   doorPhysics.body()->addCollisionShape(doorBox, rp3d::Transform::identity(), 1.0f);
-
   _doorBody = doorPhysics.body();
 
-  auto up = car->object()->localToWorld(three::math::Vector3(upper.x(), upper.y(), upper.z()));
-  auto lo = car->object()->localToWorld(three::math::Vector3(lower.x(), lower.y(), lower.z()));
+  //place the hinge in the middle between the hinge points
   auto hingePoint = (upper + lower) * 0.5;
   auto hingeAxis = (lower - upper).normalized();
 

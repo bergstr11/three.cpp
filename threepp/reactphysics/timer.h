@@ -66,6 +66,13 @@ public :
     mIsRunning = false;
   }
 
+  void reset()
+  {
+    // Get the current system time
+    mLastUpdateTime = getCurrentSystemTime();
+    mAccumulator = 0.0;
+  }
+
   /// Return true if the timer is running
   bool isRunning() const
   {
