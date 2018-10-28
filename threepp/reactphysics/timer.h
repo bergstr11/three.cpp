@@ -73,9 +73,9 @@ public :
   }
 
   /// True if it's possible to take a new step
-  bool isPossibleToTakeStep(float timeStep) const
+  bool isPossibleToTakeStep() const
   {
-    return (mAccumulator >= timeStep);
+    return (mAccumulator >= _timeStep);
   }
 
   /// Compute the time since the last update() call and add it to the accumulator
@@ -95,12 +95,12 @@ public :
   }
 
   /// Take a new step => update the timer by adding the timeStep value to the current time
-  void nextStep(float timeStep)
+  void nextStep()
   {
     assert(mIsRunning);
 
     // Update the accumulator value
-    mAccumulator -= timeStep;
+    mAccumulator -= _timeStep;
   }
 
   /// Compute the interpolation factor

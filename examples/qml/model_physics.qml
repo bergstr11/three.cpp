@@ -124,7 +124,15 @@ Window {
 
             onClicked: {
                 running = !running
-                text = running ? "Stop" : "Run"
+                if(running) {
+                    text = "Stop"
+                    physicstest.start()
+                }
+                else {
+                    text = "Run"
+                    physicstest.stop()
+                }
+
                 threeD.runAnimation(running)
             }
         }
@@ -453,7 +461,7 @@ Window {
             }
         }
         animate: function() {
-            physicstest.updatePhysics()
+            physicstest.update()
         }
     }
 }

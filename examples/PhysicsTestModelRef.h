@@ -17,16 +17,19 @@ Q_OBJECT
 
   react3d::PhysicsScene::Ptr _physicsScene;
   rp3d::HingeJoint * _doorJoint;
+  rp3d::RigidBody *_doorBody;
 
 public:
   PhysicsTestModelRef(QObject *parent = nullptr)  : ModelRef(parent) {}
   ~PhysicsTestModelRef() override;
 
-  Q_INVOKABLE void createHinge(QVariant car, QVariant door, QVector3D upper, QVector3D lower);
+  Q_INVOKABLE void createHinge(QVariant door, QVariant car, QVector3D upper, QVector3D lower);
 
   Q_INVOKABLE void setMarker(three::quick::ObjectPicker *picker);
 
-  Q_INVOKABLE void updatePhysics();
+  Q_INVOKABLE void start();
+  Q_INVOKABLE void stop();
+  Q_INVOKABLE void update();
 };
 
 }

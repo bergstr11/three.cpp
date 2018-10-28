@@ -33,6 +33,8 @@ struct PhysicsObject
   PhysicsObject(rp3d::RigidBody * body, const rp3d::Transform &transform)
      : _body(body), _previousTransform(transform)
   {}
+
+  rp3d::RigidBody * const body() {return _body;}
 };
 
 class PhysicsScene
@@ -57,13 +59,15 @@ public:
     return Ptr(new PhysicsScene(scene, dynamicsWorld));
   }
 
+  Timer &timer() {return _timer;}
+
   void update();
 
   rp3d::DynamicsWorld *dynamicsWorld() {return _dynamicsWorld;}
 
   rp3d::HingeJoint* createHingeJoint(const rp3d::HingeJointInfo& jointInfo);
 
-  rp3d::RigidBody *getBody(Object3D::Ptr object, bool addShapes=false);
+  PhysicsObject &getPhysics(Object3D::Ptr object, bool addShapes=false);
 };
 
 }
