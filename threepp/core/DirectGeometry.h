@@ -89,7 +89,7 @@ public:
     return vertices.size();
   }
 
-  math::Vector3 centroid(const Face3 &face) const
+  math::Vector3 centroid(const Face3 &face) const override
   {
     const Vertex &vA = vertices[ face.a ];
     const Vertex &vB = vertices[ face.b ];

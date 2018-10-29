@@ -68,7 +68,7 @@ public:
                 MaterialProperties &cache,
                 bool fromCache)
   {
-    if (!_localClippingEnabled || planes.empty() || _renderingShadows && !clipShadows) {
+    if (!_localClippingEnabled || planes.empty() || (_renderingShadows && !clipShadows)) {
       // there's no local clipping
 
       if (_renderingShadows) {

@@ -34,5 +34,7 @@ if(WIN32)
 endif(WIN32)
 
 add_subdirectory(threepp)
+if(NOT ANDROID)
 add_subdirectory(examples)
+endif(NOT ANDROID)
 add_subdirectory(3rdparty/tinyxml2)

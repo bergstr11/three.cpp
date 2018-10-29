@@ -327,7 +327,7 @@ public:
 
   const void *data(size_t offset) const override {return _data+offset;}
 
-  virtual BufferAttributeT *clone() const = 0;
+  BufferAttributeT *clone() const override = 0;
 };
 
 /**

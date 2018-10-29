@@ -162,7 +162,7 @@ public:
 
   operator T &() const {return t;}
 
-  bool operator == (const ProgramParameter &parameter) {
+  bool operator == (const ProgramParameter &parameter) override {
     const ProgramParameterT &pt = dynamic_cast<const ProgramParameterT &>(parameter);
     return t == pt.t;
   }

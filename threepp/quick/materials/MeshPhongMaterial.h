@@ -47,7 +47,7 @@ public:
 
   QColor color() const {return _color;}
 
-  void setColor(const QColor &color) {
+  void setColor(const QColor &color) override {
     if(_color != color) {
       _color = color;
       if(_material) {
