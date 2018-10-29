@@ -135,10 +135,6 @@ public:
 
   BoundingBox *boundingBox();
 
-  Q_INVOKABLE void copy(ThreeQObject *copyable);
-
-  Q_INVOKABLE QVariant parentObject(QString name);
-
   void setPosition(const QVector3D &position, bool propagate=true);
 
   void setRotation(const QVector3D &rotation, bool propagate=true);
@@ -182,6 +178,8 @@ public:
    */
   virtual void unset();
 
+  Q_INVOKABLE void copy(ThreeQObject *copyable);
+  Q_INVOKABLE QVariant parentObject(QString name);
   Q_INVOKABLE void add(three::quick::ThreeQObject *object);
   Q_INVOKABLE void remove(three::quick::ThreeQObject *object);
   Q_INVOKABLE void clear();

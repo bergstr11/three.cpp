@@ -10,6 +10,8 @@ namespace react3d {
 
 void PhysicsObject::updateTransform(Object3D *object, float interpolationFactor)
 {
+  if(!_body) return;
+
   // Get the transform of the rigid body
   const rp3d::Transform &transform = _body->getTransform();
 
@@ -39,13 +41,22 @@ void PhysicsObject::updateTransform(Object3D *object, float interpolationFactor)
 
 PhysicsScene::~PhysicsScene()
 {
+  reset();
+  delete _dynamicsWorld;
+}
+
+void PhysicsScene::reset()
+{
   for(const auto &joint : _joints) {
     _dynamicsWorld->destroyJoint(joint);
   }
+  _joints.clear();
+
   for(const auto &object : _objects) {
-    _dynamicsWorld->destroyRigidBody(object.second._body);
+    if(object.second._body)
+      _dynamicsWorld->destroyRigidBody(object.second._body);
   }
-  delete _dynamicsWorld;
+  _objects.clear();
 }
 
 void PhysicsScene::update()
@@ -74,40 +85,85 @@ rp3d::HingeJoint* PhysicsScene::createHingeJoint(const rp3d::HingeJointInfo& joi
   return joint;
 }
 
-PhysicsObject &PhysicsScene::getPhysics(Object3D::Ptr object, bool addShapes)
+PhysicsObject *PhysicsScene::getPhysics(Object3D::Ptr object, bool create, bool addShapes)
 {
   auto found = _objects.find(object.get());
-  if(found != _objects.end()) return found->second;
+  if (found != _objects.end()) return &found->second;
 
-  {
-    std::lock_guard<std::mutex> lck(_createBodyMutex);
+  return create ? createPhysics(object, addShapes) : nullptr;
+}
 
-    auto found = _objects.find(object.get());
-    if(found != _objects.end()) return found->second;
+PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShapes)
+{
+  std::lock_guard<std::mutex> lck(_createBodyMutex);
 
-    auto wp = object->getWorldPosition();
-    auto wq = object->getWorldQuaternion();
+  auto found = _objects.find(object.get());
+  if(found != _objects.end()) return &found->second;
 
-    rp3d::Vector3 rp(wp.x(), wp.y(), wp.z());
-    rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
+  auto wp = object->getWorldPosition();
+  auto wq = object->getWorldQuaternion();
 
-    rp3d::Transform transform(rp, rq);
-    rp3d::RigidBody *body = _dynamicsWorld->createRigidBody(transform);
-    _objects.emplace(object.get(), PhysicsObject(body, transform));
+  rp3d::Vector3 rp(wp.x(), wp.y(), wp.z());
+  rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
 
-    if(addShapes) {
-      if(CAST(object->geometry(), geom, geometry::BoxParams)) {
-        //body->addCollisionShape();
-      }
-      else if(LinearGeometry *geom = object->geometry()->typer) {
+  rp3d::Transform transform(rp, rq);
+  rp3d::RigidBody *body = _dynamicsWorld->createRigidBody(transform);
+  _objects.emplace(object.get(), PhysicsObject(body, transform));
 
-      }
-      else if(BufferGeometry *geom = object->geometry()->typer) {
-
-      }
+  if(addShapes) {
+    if(CAST(object->geometry(), geom, geometry::BoxParams)) {
+      //TODO body->addCollisionShape();
     }
+    else if(LinearGeometry *geom = object->geometry()->typer) {
 
-    return _objects.at(object.get());
+    }
+    else if(BufferGeometry *geom = object->geometry()->typer) {
+
+    }
+  }
+
+  return &_objects.at(object.get());
+}
+
+rp3d::RigidBody *PhysicsScene::getPhysics(Object3D::Ptr object,
+                                          const std::string &extraName,
+                                          const rp3d::Vector3 &hingePosition,
+                                          rp3d::CollisionShape *shape,
+                                          const rp3d::Transform &shapeTransform,
+                                          rp3d::decimal shapeMass)
+{
+  PhysicsObject *physics = getPhysics(object);
+  if(!physics) {
+    _objects.emplace(object.get(), PhysicsObject(nullptr, rp3d::Transform::identity()));
+    physics = &_objects.at(object.get());
+  }
+
+  auto wq = object->getWorldQuaternion();
+  rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
+
+  rp3d::Transform trBody(hingePosition, rq);
+  rp3d::RigidBody *extraBody = _dynamicsWorld->createRigidBody(trBody);
+
+  extraBody->addCollisionShape(shape, shapeTransform, shapeMass);
+  physics->_extraBodies[extraName] = extraBody;
+
+  return extraBody;
+}
+
+void PhysicsScene::remove(Object3D::Ptr object)
+{
+  auto found = _objects.find(object.get());
+  if (found != _objects.end()) {
+    _dynamicsWorld->destroyRigidBody(found->second._body);
+    _objects.erase(found);
+  }
+}
+
+void PhysicsScene::remove(rp3d::Joint *joint)
+{
+  if(_joints.count(joint)) {
+    _joints.erase(joint);
+    _dynamicsWorld->destroyJoint(joint);
   }
 }
 

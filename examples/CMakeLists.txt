@@ -20,7 +20,7 @@ set(SOURCE_FILES main.cpp
 add_executable(three_test ${SOURCE_FILES})
 
 if(WITH_PHYSICS)
-    target_sources(three_test PRIVATE PhysicsTestModelRef.h PhysicsTestModelRef.cpp)
+    target_sources(three_test PRIVATE HingeEditorModelRef.h HingeEditorModelRef.cpp)
 endif(WITH_PHYSICS)
 
 target_include_directories(three_test PUBLIC

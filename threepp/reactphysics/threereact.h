@@ -21,20 +21,24 @@ namespace reactphysics3d {
 namespace three {
 namespace react3d {
 
-struct PhysicsObject
+class PhysicsObject
 {
+  friend class PhysicsScene;
+
   rp3d::RigidBody * const _body;
+  std::unordered_map<std::string, rp3d::RigidBody *> _extraBodies;
   rp3d::Transform _previousTransform;
 
   math::Matrix4 _scalingMatrix = math::Matrix4::identity();
 
+public:
   void updateTransform(Object3D *object, float interpolation);
 
   PhysicsObject(rp3d::RigidBody * body, const rp3d::Transform &transform)
      : _body(body), _previousTransform(transform)
   {}
 
-  rp3d::RigidBody * const body() {return _body;}
+  rp3d::RigidBody * body() const {return _body;}
 };
 
 class PhysicsScene
@@ -61,13 +65,27 @@ public:
 
   Timer &timer() {return _timer;}
 
+  void reset();
+
   void update();
 
   rp3d::DynamicsWorld *dynamicsWorld() {return _dynamicsWorld;}
 
   rp3d::HingeJoint* createHingeJoint(const rp3d::HingeJointInfo& jointInfo);
 
-  PhysicsObject &getPhysics(Object3D::Ptr object, bool addShapes=false);
+  PhysicsObject *createPhysics(Object3D::Ptr object, bool addShapes=false);
+
+  PhysicsObject *getPhysics(Object3D::Ptr object, bool create=false, bool addShapes=false);
+
+  rp3d::RigidBody *getPhysics(Object3D::Ptr object,
+                              const std::string &name,
+                              const rp3d::Vector3 &hingePosition,
+                              rp3d::CollisionShape *shape,
+                              const rp3d::Transform &shapeTransform,
+                              rp3d::decimal shapeMass);
+
+  void remove(Object3D::Ptr object);
+  void remove(rp3d::Joint *joint);
 };
 
 }

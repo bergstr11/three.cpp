@@ -6,7 +6,7 @@
 #include <threepp/quick/Three.h>
 
 #include "ShadowMapViewer.h"
-#include "PhysicsTestModelRef.h"
+#include "HingeEditorModelRef.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
   three::quick::init();
   qmlRegisterType<three::quick::ShadowMapViewer>("three.quick", 1, 0, "ShadowMapViewer");
-  qmlRegisterType<three::quick::PhysicsTestModelRef>("three.quick", 1, 0, "PhysicsTestModel");
+  qmlRegisterType<three::quick::HingeEditorModelRef>("three.quick", 1, 0, "HingeEditorModelRef");
 
   QQmlComponent maincomponent(&qmlEngine);
   //maincomponent.loadUrl(QUrl("qrc:///geometries.qml"));

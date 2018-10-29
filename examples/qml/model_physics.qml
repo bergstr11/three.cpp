@@ -8,7 +8,8 @@ import three.quick 1.0
 
 Window {
     id: mainWindow
-    minimumWidth: 1280
+    title: "Door Hinge Editor"
+    minimumWidth: 1580
     minimumHeight: 1024
     visible: true
 
@@ -25,7 +26,7 @@ Window {
         z: 2
 
         Label {id: dlabel; text: "Distance: %1".arg(orbitController.distance)}
-        Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(physicstest.rotation.x).arg(physicstest.rotation.y).arg(physicstest.rotation.z)}
+        Label {id: rlabel; text: "Rotation: %1:%2:%3".arg(hingeeditor.rotation.x).arg(hingeeditor.rotation.y).arg(hingeeditor.rotation.z)}
 
     }
     Row {
@@ -36,49 +37,41 @@ Window {
 
         ComboBox {
             id: pickedParents
-
-            onModelChanged: parent.checkEnablement()
         }
 
         property var picked
-
-        function checkEnablement()
-        {
-            hideButton.enabled = saveButton.enabled = !!picked && pickedParents.currentIndex >= 0
-        }
-
-        onPickedChanged: checkEnablement()
+        property bool buttonsEnabled: !!picked && pickedParents.currentIndex >= 0
 
         Button {
             id: hideButton
             text: "Hide"
-            enabled: false
+            enabled: parent.buttonsEnabled
 
             onClicked: {
                 if(!!dataRow.picked) {
                     var parent = dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
                     parent.visible = false
-                    physicstest.hidden.push(parent)
+                    hingeeditor.hidden.push(parent)
                 }
                 threeD.update()
             }
         }
         Button {
-            id: saveButton
-            text: "Save"
-            enabled: false
+            id: setButton
+            text: "Set"
+            enabled: parent.buttonsEnabled
 
             onClicked: {
                 if(!!dataRow.picked) {
                     var parent = pickedParents.currentIndex > 0 ?
                         dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex]) : dataRow.picked
 
-                    if(physicstest.picked1 === null) {
-                        physicstest.picked1 = parent
+                    if(hingeeditor.picked1 === null) {
+                        hingeeditor.picked1 = parent
                         textO1.text = parent.name
                     }
                     else {
-                        physicstest.picked2 = parent
+                        hingeeditor.picked2 = parent
                         textO2.text = parent.name
                     }
                 }
@@ -106,19 +99,9 @@ Window {
         z: 2
     
         Button {
-            id: createButton
-            text: "Create"
-            enabled: false
-            onClicked: {
-                physicstest.createTheHinge()
-                physicstest.unhide()
-                threeD.update()
-            }
-        }
-        Button {
             id: runButton
-            enabled: false
-            text: "Run"
+            enabled: hingeeditor.hingeNames.length > 0
+            text: "Animate"
 
             property bool running: false
 
@@ -126,24 +109,38 @@ Window {
                 running = !running
                 if(running) {
                     text = "Stop"
-                    physicstest.start()
+                    hingeeditor.startTimer()
                 }
                 else {
-                    text = "Run"
-                    physicstest.stop()
+                    text = "Animate"
+                    hingeeditor.stopTimer()
                 }
 
                 threeD.runAnimation(running)
             }
         }
         Button {
-            id: resetButton
-            text: "Reset"
-            enabled: false
+            id: loadButton
+            text: "Load"
+            enabled: hingeeditor.object !== null
             onClicked: {
-                physicstest.unhide()
-                physicstest.resetPicked()
-                threeD.update()
+                fileDialog.title = "Load hinge definition from file"
+                fileDialog.selectExisting = true
+                fileDialog.acceptedFunc = function() {
+                    hingeeditor.loadHingeFile(fileDialog.fileUrl)
+                }
+                fileDialog.visible = true
+            }
+        }
+        Button {
+            id: saveButton
+            text: "Save"
+            enabled: hingeeditor.hingeNames.length > 0
+            onClicked: {
+                fileDialog.title = "Save hinge definition to file"
+                fileDialog.selectExisting = false
+                fileDialog.acceptedFunc = function() {hingeeditor.saveHingeFile(fileDialog.fileUrl)}
+                fileDialog.visible = true
             }
         }
     }
@@ -241,7 +238,7 @@ Window {
 
         FloatManip {
             name: "rotation.x"
-            target: physicstest
+            target: hingeeditor
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -251,7 +248,7 @@ Window {
         }
         FloatManip {
             name: "rotation.y"
-            target: physicstest
+            target: hingeeditor
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -261,7 +258,7 @@ Window {
         }
         FloatManip {
             name: "rotation.z"
-            target: physicstest
+            target: hingeeditor
             from: -Math.PI
             to: Math.PI
             onValueChanged: {
@@ -291,21 +288,64 @@ Window {
             }
         }
     }
+    Column {
+        anchors.top: objectControls.bottom
+        anchors.right: parent.right
+        anchors.margins: 10
+        spacing: 10
+        z: 2
+
+        ComboBox {
+            id: hingeSelector
+            model: hingeeditor.hingeNames
+        }
+
+        Button {
+            id: deleteButton
+            text: "Delete"
+            enabled: hingeSelector.currentIndex >= 0
+            onClicked: {
+                hingeeditor.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
+                threeD.update()
+            }
+        }
+        Button {
+            id: createButton
+            enabled: hingeeditor.dataComplete
+            text: "Create"
+
+            onClicked: hingeeditor.create()
+        }
+        Button {
+            id: resetButton
+            text: "Reset"
+            enabled: hingeeditor.dataStarted
+            onClicked: {
+                hingeeditor.resetEditor()
+                threeD.update()
+            }
+        }
+    }
+
 
     FileDialog {
         id: fileDialog
-        title: "Please choose a model file"
         folder: shortcuts.home
         selectMultiple: false
-        selectExisting: true
-        onAccepted: {
-            threeDModel.file = fileDialog.fileUrl
-        }
+
+        property var acceptedFunc
+
+        onAccepted: acceptedFunc()
     }
     Button {
         text: "Choose.."
         z: 2
-        onClicked: fileDialog.visible = true
+        onClicked: {
+            fileDialog.title = "Please choose a model file"
+            fileDialog.selectExisting = true
+            fileDialog.acceptedFunc = function() {threeDModel.file = fileDialog.fileUrl}
+            fileDialog.visible = true
+        }
     }
 
     Label {
@@ -350,16 +390,16 @@ Window {
                 dataRow.picked = is.object
 
                 if(selectMarkChoice.value) {
-                    physicstest.setMarker(this, orbitController.polar(), orbitController.azimuth())
+                    hingeeditor.setMarker(this, orbitController.polar(), orbitController.azimuth())
 
-                    if(!physicstest.upperSet) {
-                        physicstest.upper = is.point
-                        physicstest.upperSet = true
+                    if(!hingeeditor.upperSet) {
+                        hingeeditor.upper = is.point
+                        hingeeditor.upperSet = true
                         textP1.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
                     }
                     else {
-                        physicstest.lower = is.point
-                        physicstest.lowerSet = true
+                        hingeeditor.lower = is.point
+                        hingeeditor.lowerSet = true
                         textP2.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
                     }
                 }
@@ -384,8 +424,8 @@ Window {
 
                 material: MeshBasicMaterial {color: "green"; wireframe: true}
 
-                PhysicsTestModel {
-                    id: physicstest
+                HingeEditorModelRef {
+                    id: hingeeditor
                     model: threeDModel
                     name: "car"
                     type: ModelRef.Node
@@ -399,32 +439,33 @@ Window {
                     property bool upperSet: false
                     property bool lowerSet: false
 
-                    function checkEnabled() {
-                        createButton.enabled = resetButton.enabled =
-                            picked1 !== null && picked2 !== null && upperSet && lowerSet
-                    }
-                    function resetPicked() {
-                        picked1 = null; picked2 = null; upperSet = false; lowerSet = false
-                        textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
-                        createButton.enabled = resetButton.enabled = runButton.enabled = false
-                    }
-                    function createTheHinge() {
-                        createHinge(picked1, picked2, upper, lower)
-                        runButton.enabled = true
-                    }
+                    property bool dataStarted: picked1 !== null || picked2 !== null || upperSet || lowerSet
+                    property bool dataComplete: picked1 !== null && picked2 !== null && upperSet && lowerSet
+
                     function unhide() {
                         for(var i=0; i<hidden.length; i++) hidden[i].visible = true
                         hidden = new Array()
+                        removeMarkers()
+                        threeD.update()
                     }
 
-                    onPicked1Changed: checkEnabled()
-                    onPicked2Changed: checkEnabled()
-                    onUpperSetChanged: checkEnabled()
-                    onLowerSetChanged: checkEnabled()
+                    function resetEditor() {
+                        picked1 = null; picked2 = null; upperSet = false; lowerSet = false
+                        textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
+                        pickedParents.model = []
+                        unhide()
+                    }
+
+                    function create() {
+                        createHinge(picked1, picked2, upper, lower)
+                        resetEditor()
+                        unhide()
+                    }
 
                     onObjectChanged: {
                         pickedParents.model = []
-                        resetPicked()
+                        resetEditor()
+                        resetAll()
 
                         orbitController.reset()
                         objectControls.reset()
@@ -461,7 +502,7 @@ Window {
             }
         }
         animate: function() {
-            physicstest.update()
+            hingeeditor.updateAnimation()
         }
     }
 }
