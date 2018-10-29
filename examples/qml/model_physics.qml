@@ -107,6 +107,8 @@ Window {
 
             onClicked: {
                 running = !running
+                threeD.runAnimation(running)
+
                 if(running) {
                     text = "Stop"
                     hingeeditor.startTimer()
@@ -115,8 +117,6 @@ Window {
                     text = "Animate"
                     hingeeditor.stopTimer()
                 }
-
-                threeD.runAnimation(running)
             }
         }
         Button {

@@ -55,8 +55,9 @@ void HingeEditorModelRef::updateAnimation()
 {
   if (_physicsScene) {
 
-    for (auto &hinge : _hinges)
+    /*for (auto &hinge : _hinges) {
       hinge.doorBody->applyForceToCenterOfMass(rp3d::Vector3(0, _force, 0));
+    }*/
 
     _physicsScene->update();
   }
@@ -78,29 +79,31 @@ void HingeEditorModelRef::checkPhysicsScene()
 
 void HingeEditorModelRef::createHingePhysics(HingeData &hinge)
 {
-  //a simple box will do for the car side
-  rp3d::BoxShape *carBox = new rp3d::BoxShape(rp3d::Vector3(10, 20, 10));
-  rp3d::RigidBody *carBody = _physicsScene->getPhysics(hinge.car,
-                                                       hinge.name,
-                                                       hinge.hingePoint,
-                                                       carBox,
-                                                       rp3d::Transform::identity(), 1.0f);
-  carBody->setType(rp3d::BodyType::STATIC);
-
   //the door is represented by its bounding box
-  const three::math::Vector3 &bb = hinge.door->computeBoundingBox().getSize();
+  const auto bb = hinge.door->computeBoundingBox().getSize();
   rp3d::BoxShape *doorBox = new rp3d::BoxShape(rp3d::Vector3(bb.x(), bb.y(), bb.z()));
+
+  //a simple box will do for the car side
+  rp3d::BoxShape *anchorBox = new rp3d::BoxShape(rp3d::Vector3(100, bb.y(), 100));
+  rp3d::RigidBody *anchorBody = _physicsScene->getPhysics(hinge.car,
+                                                          hinge.name,
+                                                          hinge.hingePoint,
+                                                          anchorBox,
+                                                          rp3d::Transform::identity(), 1.0f);
+  anchorBody->setType(rp3d::BodyType::STATIC);
 
   //create the door and keep a reference
   tr3::PhysicsObject *doorPhysics = _physicsScene->getPhysics(hinge.door, true);
   doorPhysics->body()->addCollisionShape(doorBox, rp3d::Transform::identity(), 1.0f);
   hinge.doorBody = doorPhysics->body();
 
-  rp3d::HingeJointInfo jointInfo(carBody, hinge.doorBody,
+  rp3d::HingeJointInfo jointInfo(anchorBody, hinge.doorBody,
                                  rp3d::Vector3(hinge.hingePoint.x, hinge.hingePoint.y, hinge.hingePoint.z),
                                  rp3d::Vector3(hinge.hingeAxis.x, hinge.hingeAxis.y, hinge.hingeAxis.z));
 
   jointInfo.isLimitEnabled = true;
+  jointInfo.isMotorEnabled = true;
+  jointInfo.motorSpeed = M_PI_2 / 6;
   jointInfo.minAngleLimit = hinge.minAngleLimit;
   jointInfo.maxAngleLimit = hinge.maxAngleLimit;
   jointInfo.isCollisionEnabled = false;
