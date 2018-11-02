@@ -26,7 +26,7 @@ void PhysicsObject::updateTransform(Object3D *object, float interpolationFactor)
   auto qinvers = p->getWorldQuaternion().inverse();
 
   const rp3d::Vector3 &pr = interpolatedTransform.getPosition();
-  math::Vector3 localPos = ((math::Vector3(pr.x, pr.y, pr.z) - p->getWorldPosition()) / p->getWorldScale()).apply(qinvers);
+  //math::Vector3 localPos = ((math::Vector3(pr.x, pr.y, pr.z) - p->getWorldPosition()) / p->getWorldScale()).apply(qinvers);
 
   const rp3d::Quaternion &qr = interpolatedTransform.getOrientation();
   three::math::Quaternion localQuat = qinvers * three::math::Quaternion(qr.x, qr.y, qr.z, qr.w);
@@ -34,7 +34,7 @@ void PhysicsObject::updateTransform(Object3D *object, float interpolationFactor)
   // Apply the scaling matrix to have the correct box dimensions
   //auto mx = newMatrix * _scalingMatrix;
 
-  object->position() = localPos;
+  object->position() = p->worldToLocal(math::Vector3(pr.x, pr.y, pr.z));
   object->setRotationFromQuaternion(localQuat);
   object->updateMatrixWorld(true);
 }
@@ -66,7 +66,7 @@ void PhysicsScene::update()
   while(_timer.isPossibleToTakeStep()) {
 
     // Take a physics simulation step
-    _dynamicsWorld->update(_timer.timeStep());
+    _dynamicsWorld->update(_timer.getTimeStep());
 
     // Update the timer
     _timer.nextStep();
@@ -85,15 +85,15 @@ rp3d::HingeJoint* PhysicsScene::createHingeJoint(const rp3d::HingeJointInfo& joi
   return joint;
 }
 
-PhysicsObject *PhysicsScene::getPhysics(Object3D::Ptr object, bool create, bool addShapes)
+PhysicsObject *PhysicsScene::getPhysics(Object3D::Ptr object, bool create, bool addShape)
 {
   auto found = _objects.find(object.get());
   if (found != _objects.end()) return &found->second;
 
-  return create ? createPhysics(object, addShapes) : nullptr;
+  return create ? createPhysics(object, addShape) : nullptr;
 }
 
-PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShapes)
+PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShape)
 {
   std::lock_guard<std::mutex> lck(_createBodyMutex);
 
@@ -110,44 +110,15 @@ PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShapes)
   rp3d::RigidBody *body = _dynamicsWorld->createRigidBody(transform);
   _objects.emplace(object.get(), PhysicsObject(body, transform));
 
-  if(addShapes) {
-    if(CAST(object->geometry(), geom, geometry::BoxParams)) {
-      //TODO body->addCollisionShape();
-    }
-    else if(LinearGeometry *geom = object->geometry()->typer) {
+  PhysicsObject &physics = _objects.at(object.get());
 
-    }
-    else if(BufferGeometry *geom = object->geometry()->typer) {
-
-    }
+  if(addShape) {
+    const auto bb = object->computeBoundingBox().getSize();
+    rp3d::BoxShape *doorBox = new rp3d::BoxShape(rp3d::Vector3(bb.x(), bb.y(), bb.z()));
+    physics.body()->addCollisionShape(doorBox, rp3d::Transform::identity(), 1.0f);
   }
 
-  return &_objects.at(object.get());
-}
-
-rp3d::RigidBody *PhysicsScene::getPhysics(Object3D::Ptr object,
-                                          const std::string &extraName,
-                                          const rp3d::Vector3 &hingePosition,
-                                          rp3d::CollisionShape *shape,
-                                          const rp3d::Transform &shapeTransform,
-                                          rp3d::decimal shapeMass)
-{
-  PhysicsObject *physics = getPhysics(object);
-  if(!physics) {
-    _objects.emplace(object.get(), PhysicsObject(nullptr, rp3d::Transform::identity()));
-    physics = &_objects.at(object.get());
-  }
-
-  auto wq = object->getWorldQuaternion();
-  rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
-
-  rp3d::Transform trBody(hingePosition, rq);
-  rp3d::RigidBody *extraBody = _dynamicsWorld->createRigidBody(trBody);
-
-  extraBody->addCollisionShape(shape, shapeTransform, shapeMass);
-  physics->_extraBodies[extraName] = extraBody;
-
-  return extraBody;
+  return &physics;
 }
 
 void PhysicsScene::remove(Object3D::Ptr object)

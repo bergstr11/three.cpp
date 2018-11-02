@@ -5,6 +5,7 @@
 #ifndef THREE_PP_TESTMODELREF_H
 #define THREE_PP_TESTMODELREF_H
 
+//#define IS_LOGGING_ACTIVE
 #include <threepp/quick/objects/ModelRef.h>
 #include <threepp/reactphysics/threereact.h>
 #include <QStringListModel>
@@ -22,8 +23,11 @@ Q_OBJECT
 
   Q_PROPERTY(QStringList hingeNames READ hingeNames NOTIFY hingeNamesChanged)
 
+  enum HingeType {DOOR, PROPELLER};
+
   struct HingeData
   {
+    HingeType hingeType;
     std::string name;
     three::Object3D::Ptr car;
     three::Object3D::Ptr door;
@@ -33,7 +37,10 @@ Q_OBJECT
     float maxAngleLimit;
 
     rp3d::HingeJoint *joint = nullptr;
-    rp3d::RigidBody *doorBody = nullptr;
+    rp3d::RigidBody *elementBody = nullptr;
+    rp3d::RigidBody *anchorBody = nullptr;
+
+    HingeData(HingeType hingeType) : hingeType(hingeType) {}
   };
 
   std::vector<HingeData> _hinges;

@@ -9,10 +9,10 @@
 #include <threepp/scene/Scene.h>
 #include <threepp/objects/Mesh.h>
 #include <reactphysics3d/reactphysics3d.h>
+#include <reactphysics3d/engine/Timer.h>
 #include <unordered_map>
 #include <set>
 #include <mutex>
-#include "timer.h"
 
 namespace reactphysics3d {
   class RigidBody;
@@ -26,7 +26,6 @@ class PhysicsObject
   friend class PhysicsScene;
 
   rp3d::RigidBody * const _body;
-  std::unordered_map<std::string, rp3d::RigidBody *> _extraBodies;
   rp3d::Transform _previousTransform;
 
   math::Matrix4 _scalingMatrix = math::Matrix4::identity();
@@ -43,7 +42,7 @@ public:
 
 class PhysicsScene
 {
-  Timer _timer;
+  rp3d::Timer _timer;
 
   rp3d::DynamicsWorld *_dynamicsWorld;
 
@@ -55,7 +54,8 @@ class PhysicsScene
   std::set<rp3d::Joint*> _joints;
 
 public:
-  PhysicsScene(Scene::Ptr object, rp3d::DynamicsWorld *dynamicsWorld) : _dynamicsWorld(dynamicsWorld) {}
+  PhysicsScene(Scene::Ptr object, rp3d::DynamicsWorld *dynamicsWorld)
+  : _dynamicsWorld(dynamicsWorld), _timer(1.0f / 60) {}
   ~PhysicsScene();
 
   using Ptr = std::shared_ptr<PhysicsScene>;
@@ -63,7 +63,7 @@ public:
     return Ptr(new PhysicsScene(scene, dynamicsWorld));
   }
 
-  Timer &timer() {return _timer;}
+  rp3d::Timer &timer() {return _timer;}
 
   void reset();
 
@@ -76,13 +76,6 @@ public:
   PhysicsObject *createPhysics(Object3D::Ptr object, bool addShapes=false);
 
   PhysicsObject *getPhysics(Object3D::Ptr object, bool create=false, bool addShapes=false);
-
-  rp3d::RigidBody *getPhysics(Object3D::Ptr object,
-                              const std::string &name,
-                              const rp3d::Vector3 &hingePosition,
-                              rp3d::CollisionShape *shape,
-                              const rp3d::Transform &shapeTransform,
-                              rp3d::decimal shapeMass);
 
   void remove(Object3D::Ptr object);
   void remove(rp3d::Joint *joint);
