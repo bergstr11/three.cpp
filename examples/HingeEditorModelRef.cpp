@@ -99,24 +99,31 @@ bool HingeEditorModelRef::saveHingeFile(const QString &file)
 
     switch(hinge.hingeType) {
       case HingeType::DOOR:
-        hingeObject["name"] = "element";
+        hingeObject["type"] = "door";
         break;
       case HingeType::PROPELLER:
-        hingeObject["name"] = "propeller";
+        hingeObject["type"] = "propeller";
         break;
     }
+
     hingeObject["name"] = QString::fromStdString(hinge.element->name());
     hingeObject["anchor"] = QString::fromStdString(hinge.anchor->name());
     hingeObject["element"] = QString::fromStdString(hinge.element->name());
+
+    math::Vector3 hpw(hinge.hingePoint.x, hinge.hingePoint.y, hinge.hingePoint.z);
+    math::Vector3 hpl = hinge.anchor->worldToLocal(hpw);
     QJsonObject pointObject;
-    pointObject["x"] = hinge.hingePoint.x;
-    pointObject["y"] = hinge.hingePoint.y;
-    pointObject["z"] = hinge.hingePoint.z;
+    pointObject["x"] = hpl.x();
+    pointObject["y"] = hpl.y();
+    pointObject["z"] = hpl.z();
     hingeObject["point"] = pointObject;
+
+    math::Vector3 haw(hinge.hingeAxis.x, hinge.hingeAxis.y, hinge.hingeAxis.z);
+    math::Vector3 hal = hinge.anchor->worldToLocal(haw);
     QJsonObject axisObject;
-    axisObject["x"] = hinge.hingeAxis.x;
-    axisObject["y"] = hinge.hingeAxis.y;
-    axisObject["z"] = hinge.hingeAxis.z;
+    axisObject["x"] = hal.x();
+    axisObject["y"] = hal.y();
+    axisObject["z"] = hal.z();
     hingeObject["axis"] = axisObject;
     hingeObject["minAngleLimit"] = hinge.minAngleLimit;
     hingeObject["maxAngleLimit"] = hinge.maxAngleLimit;
@@ -161,8 +168,8 @@ bool HingeEditorModelRef::loadHingeFile(const QString &file)
     QJsonObject hingeObject = hingeArray[i].toObject();
 
     HingeType hingeType;
-    const auto ht = hingeObject["name"].toString();
-    if(ht == "element")
+    const auto ht = hingeObject["type"].toString();
+    if(ht == "door")
       hingeType = HingeType::DOOR;
     else if(ht == "propeller")
       hingeType = HingeType::PROPELLER;
@@ -170,37 +177,45 @@ bool HingeEditorModelRef::loadHingeFile(const QString &file)
       throw std::invalid_argument("unknown hinge type");
 
     _hinges.emplace_back(HingeData(hingeType));
-    HingeData &hingeData = _hinges.back();
+    HingeData &hinge = _hinges.back();
 
     const QString hingeName = hingeObject["name"].toString();
     _hingeNames.append(hingeName);
 
     const QString anchorName = hingeObject["anchor"].toString();
-    hingeData.anchor = _object->getChildByName(anchorName.toStdString());
+    const auto an = anchorName.toStdString();
+    hinge.anchor = an == _object->name() ? _object : _object->getChildByName(an);
+
     const QString elementName = hingeObject["element"].toString();
-    hingeData.element = _object->getChildByName(elementName.toStdString());
+    const auto en = elementName.toStdString();
+    hinge.element = en == _object->name() ? _object : _object->getChildByName(en);
 
-    if(!hingeData.element || !hingeData.anchor) {
+    if(!hinge.element || !hinge.anchor) {
 
-      qCritical() << "Hinge definition does not match model: element" << (!hingeData.element ? elementName : anchorName)
+      qCritical() << "Hinge definition does not match model: " << (!hinge.element ? elementName : anchorName)
                   << "not found";
       _hinges.pop_back();
       return false;
     }
+
     const QJsonObject pointObject = hingeObject["point"].toObject();
-    hingeData.hingePoint.setAllValues(pointObject["x"].toDouble(),
-                                      pointObject["y"].toDouble(),
-                                      pointObject["z"].toDouble());
+    math::Vector3 hpl(pointObject["x"].toDouble(),
+                      pointObject["y"].toDouble(),
+                      pointObject["z"].toDouble());
+    math::Vector3 hpw = hinge.anchor->localToWorld(hpl);
+    hinge.hingePoint.setAllValues(hpw.x(), hpw.y(), hpw.z());
 
     const QJsonObject axisObject = hingeObject["axis"].toObject();
-    hingeData.hingeAxis.setAllValues(axisObject["x"].toDouble(),
-                                     axisObject["y"].toDouble(),
-                                     axisObject["z"].toDouble());
+    math::Vector3 hal(axisObject["x"].toDouble(),
+                      axisObject["y"].toDouble(),
+                      axisObject["z"].toDouble());
+    math::Vector3 haw = hinge.anchor->localToWorld(hal);
+    hinge.hingeAxis.setAllValues(haw.x(), haw.y(), haw.z());
 
-    hingeData.minAngleLimit = hingeObject["minAngleLimit"].toDouble();
-    hingeData.maxAngleLimit = hingeObject["maxAngleLimit"].toDouble();
+    hinge.minAngleLimit = hingeObject["minAngleLimit"].toDouble();
+    hinge.maxAngleLimit = hingeObject["maxAngleLimit"].toDouble();
 
-    createHingePhysics(hingeData);
+    createHingePhysics(hinge);
   }
   emit hingeNamesChanged();
 
@@ -253,9 +268,6 @@ void HingeEditorModelRef::createHinge(QVariant dvar, QVariant cvar, QVector3D up
   const auto ax = (upper - lower).normalized();
   hinge.hingeAxis.setAllValues(ax.x(), ax.y(), ax.z());
 
-  hinge.minAngleLimit = -(M_PI_2 * 0.8);
-  hinge.maxAngleLimit = 0;
-
   createHingePhysics(hinge);
 
   _hingeNames.append(td->name());
@@ -265,25 +277,44 @@ void HingeEditorModelRef::createHinge(QVariant dvar, QVariant cvar, QVector3D up
 void HingeEditorModelRef::createHingePhysics(HingeData &hinge)
 {
   //the anchor is represented by the default shape (bounding box)
-  tr3::PhysicsObject *anchorPhysics = _physicsScene->getPhysics(hinge.anchor, true, true);
-  anchorPhysics->body()->setType(rp3d::BodyType::STATIC);
+  tr3::PhysicsObject *anchorPhysics = _physicsScene->getPhysics(hinge.anchor);
+  if(!anchorPhysics) {
+    anchorPhysics = _physicsScene->createPhysics(hinge.anchor, rp3d::BodyType::STATIC);
+    anchorPhysics->createBoundingBox(hinge.anchor);
+  }
   hinge.anchorBody = anchorPhysics->body();
 
   //create the moving element and keep a reference
-  tr3::PhysicsObject *elementPhysics = _physicsScene->getPhysics(hinge.element, true, true);
+  tr3::PhysicsObject *elementPhysics = _physicsScene->getPhysics(hinge.element);
+  if(!elementPhysics) {
+    elementPhysics = _physicsScene->createPhysics(hinge.element, rp3d::BodyType::DYNAMIC);
+    elementPhysics->createBoundingBox(hinge.element);
+  }
   hinge.elementBody = elementPhysics->body();
 
   rp3d::HingeJointInfo jointInfo(hinge.elementBody, anchorPhysics->body(),
                                  rp3d::Vector3(hinge.hingePoint.x, hinge.hingePoint.y, hinge.hingePoint.z),
                                  rp3d::Vector3(hinge.hingeAxis.x, hinge.hingeAxis.y, hinge.hingeAxis.z));
 
-  jointInfo.isLimitEnabled = true;//hinge.maxAngleLimit != hinge.minAngleLimit;
+  jointInfo.isLimitEnabled = true;
   jointInfo.isMotorEnabled = true;
   jointInfo.motorSpeed = rp3d::decimal(0.1) * M_PI;
   jointInfo.maxMotorTorque = rp3d::decimal(30.0);
-  jointInfo.minAngleLimit = hinge.minAngleLimit;
-  jointInfo.maxAngleLimit = hinge.maxAngleLimit;
   jointInfo.isCollisionEnabled = false;
+
+  const auto ep = hinge.anchor->worldToLocal(elementPhysics->position());
+  qDebug() << "XXX" << ep.x();
+
+  if(ep.x() > 0.0f) {
+    jointInfo.motorSpeed = -jointInfo.motorSpeed;
+    jointInfo.minAngleLimit = 0;
+    jointInfo.maxAngleLimit = M_PI_2 * 0.8;
+  }
+  else {
+    jointInfo.motorSpeed = jointInfo.motorSpeed;
+    jointInfo.minAngleLimit = -M_PI_2 * 0.8;
+    jointInfo.maxAngleLimit = 0;
+  }
 
   // Create the joint in the dynamics world
   hinge.joint = _physicsScene->createHingeJoint(jointInfo);

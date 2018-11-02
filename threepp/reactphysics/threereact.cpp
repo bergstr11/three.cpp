@@ -8,6 +8,18 @@
 namespace three {
 namespace react3d {
 
+rp3d::BoxShape *PhysicsObject::createBoundingBox(Object3D::Ptr object)
+{
+  const auto bb = object->computeBoundingBox();
+  const auto bs = bb.getSize();
+
+  _position = bb.getCenter();
+  rp3d::BoxShape *box = new rp3d::BoxShape(rp3d::Vector3(bs.x(), bs.y(), bs.z()));
+  _body->addCollisionShape(box, rp3d::Transform::identity(), 1.0f);
+
+  return box;
+}
+
 void PhysicsObject::updateTransform(Object3D *object, float interpolationFactor)
 {
   if(!_body) return;
@@ -85,15 +97,13 @@ rp3d::HingeJoint* PhysicsScene::createHingeJoint(const rp3d::HingeJointInfo& joi
   return joint;
 }
 
-PhysicsObject *PhysicsScene::getPhysics(Object3D::Ptr object, bool create, bool addShape)
+PhysicsObject *PhysicsScene::getPhysics(Object3D::Ptr object)
 {
   auto found = _objects.find(object.get());
-  if (found != _objects.end()) return &found->second;
-
-  return create ? createPhysics(object, addShape) : nullptr;
+  return (found != _objects.end()) ? &found->second : nullptr;
 }
 
-PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShape)
+PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, rp3d::BodyType bodyType)
 {
   std::lock_guard<std::mutex> lck(_createBodyMutex);
 
@@ -108,15 +118,10 @@ PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, bool addShape)
 
   rp3d::Transform transform(rp, rq);
   rp3d::RigidBody *body = _dynamicsWorld->createRigidBody(transform);
+  body->setType(bodyType);
   _objects.emplace(object.get(), PhysicsObject(body, transform));
 
   PhysicsObject &physics = _objects.at(object.get());
-
-  if(addShape) {
-    const auto bb = object->computeBoundingBox().getSize();
-    rp3d::BoxShape *doorBox = new rp3d::BoxShape(rp3d::Vector3(bb.x(), bb.y(), bb.z()));
-    physics.body()->addCollisionShape(doorBox, rp3d::Transform::identity(), 1.0f);
-  }
 
   return &physics;
 }
