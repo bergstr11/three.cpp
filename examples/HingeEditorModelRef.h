@@ -29,8 +29,8 @@ Q_OBJECT
   {
     HingeType hingeType;
     std::string name;
-    three::Object3D::Ptr car;
-    three::Object3D::Ptr door;
+    three::Object3D::Ptr anchor;
+    three::Object3D::Ptr element;
     rp3d::Vector3 hingePoint;
     rp3d::Vector3 hingeAxis;
     float minAngleLimit;

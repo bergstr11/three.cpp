@@ -55,9 +55,13 @@ void HingeEditorModelRef::updateAnimation()
 {
   if (_physicsScene) {
 
-    /*for (auto &hinge : _hinges) {
-      hinge.doorBody->applyForceToCenterOfMass(rp3d::Vector3(0, _force, 0));
-    }*/
+    for (auto &hinge : _hinges) {
+      const rp3d::Quaternion &q1 = hinge.elementBody->getTransform().getOrientation();
+      const rp3d::Quaternion &q2 = hinge.anchorBody->getTransform().getOrientation();
+      float hingeAngle = hinge.joint->computeCurrentHingeAngle(q1, q2);
+
+      qDebug() << "angle:" << hingeAngle;
+    }
 
     _physicsScene->update();
   }
@@ -78,32 +82,6 @@ void HingeEditorModelRef::checkPhysicsScene()
   }
 }
 
-void HingeEditorModelRef::createHingePhysics(HingeData &hinge)
-{
-  //the anchor is represented by the default shape (bounding box)
-  tr3::PhysicsObject *anchorPhysics = _physicsScene->getPhysics(hinge.car, true, true);
-  anchorPhysics->body()->setType(rp3d::BodyType::STATIC);
-  hinge.anchorBody = anchorPhysics->body();
-
-  //create the moving element and keep a reference
-  tr3::PhysicsObject *elementPhysics = _physicsScene->getPhysics(hinge.door, true, true);
-  hinge.elementBody = elementPhysics->body();
-
-  rp3d::HingeJointInfo jointInfo(hinge.elementBody, anchorPhysics->body(),
-                                 rp3d::Vector3(hinge.hingePoint.x, hinge.hingePoint.y, hinge.hingePoint.z),
-                                 rp3d::Vector3(hinge.hingeAxis.x, hinge.hingeAxis.y, hinge.hingeAxis.z));
-
-  jointInfo.isLimitEnabled = false;//hinge.maxAngleLimit != hinge.minAngleLimit;
-  jointInfo.isMotorEnabled = true;
-  jointInfo.motorSpeed = M_PI_2 / 4;
-  jointInfo.minAngleLimit = hinge.minAngleLimit;
-  jointInfo.maxAngleLimit = hinge.maxAngleLimit;
-  jointInfo.isCollisionEnabled = false;
-
-  // Create the joint in the dynamics world
-  hinge.joint = _physicsScene->createHingeJoint(jointInfo);
-}
-
 bool HingeEditorModelRef::saveHingeFile(const QString &file)
 {
   QUrl fileUrl(file);
@@ -121,15 +99,15 @@ bool HingeEditorModelRef::saveHingeFile(const QString &file)
 
     switch(hinge.hingeType) {
       case HingeType::DOOR:
-        hingeObject["name"] = "door";
+        hingeObject["name"] = "element";
         break;
       case HingeType::PROPELLER:
         hingeObject["name"] = "propeller";
         break;
     }
-    hingeObject["name"] = QString::fromStdString(hinge.door->name());
-    hingeObject["car"] = QString::fromStdString(hinge.car->name());
-    hingeObject["door"] = QString::fromStdString(hinge.door->name());
+    hingeObject["name"] = QString::fromStdString(hinge.element->name());
+    hingeObject["anchor"] = QString::fromStdString(hinge.anchor->name());
+    hingeObject["element"] = QString::fromStdString(hinge.element->name());
     QJsonObject pointObject;
     pointObject["x"] = hinge.hingePoint.x;
     pointObject["y"] = hinge.hingePoint.y;
@@ -184,7 +162,7 @@ bool HingeEditorModelRef::loadHingeFile(const QString &file)
 
     HingeType hingeType;
     const auto ht = hingeObject["name"].toString();
-    if(ht == "door")
+    if(ht == "element")
       hingeType = HingeType::DOOR;
     else if(ht == "propeller")
       hingeType = HingeType::PROPELLER;
@@ -197,13 +175,15 @@ bool HingeEditorModelRef::loadHingeFile(const QString &file)
     const QString hingeName = hingeObject["name"].toString();
     _hingeNames.append(hingeName);
 
-    const QString carName = hingeObject["car"].toString();
-    hingeData.car = _object->getChildByName(carName.toStdString());
-    const QString doorName = hingeObject["door"].toString();
-    hingeData.door = _object->getChildByName(doorName.toStdString());
+    const QString anchorName = hingeObject["anchor"].toString();
+    hingeData.anchor = _object->getChildByName(anchorName.toStdString());
+    const QString elementName = hingeObject["element"].toString();
+    hingeData.element = _object->getChildByName(elementName.toStdString());
 
-    if(!hingeData.door || !hingeData.car) {
-      qCritical("Hinge definition does not match model: door not found");
+    if(!hingeData.element || !hingeData.anchor) {
+
+      qCritical() << "Hinge definition does not match model: element" << (!hingeData.element ? elementName : anchorName)
+                  << "not found";
       _hinges.pop_back();
       return false;
     }
@@ -234,7 +214,7 @@ bool HingeEditorModelRef::deleteHinge(const QString &name)
     const auto &hinge = *it;
     if(hinge.name == qname) {
       _physicsScene->remove(hinge.joint);
-      _physicsScene->remove(hinge.door);
+      _physicsScene->remove(hinge.element);
 
       _hingeNames.removeAll(name);
       _hinges.erase(it);
@@ -262,24 +242,51 @@ void HingeEditorModelRef::createHinge(QVariant dvar, QVariant cvar, QVector3D up
   _hinges.emplace_back(HingeData(HingeType::DOOR));
   HingeData &hinge = _hinges.back();
 
-  hinge.car = tc->object();
-  hinge.door = td->object();
+  hinge.anchor = tc->object();
+  hinge.element = td->object();
 
   //place the hinge in the middle between the hinge points
   const auto pt = (upper + lower) * 0.5;
   hinge.hingePoint.setAllValues(pt.x(), pt.y(), pt.z());
 
   //calculate the hinge axis
-  const auto ax = (lower - upper).normalized();
+  const auto ax = (upper - lower).normalized();
   hinge.hingeAxis.setAllValues(ax.x(), ax.y(), ax.z());
 
-  hinge.minAngleLimit = -M_PI*2;
-  hinge.maxAngleLimit = M_PI*2;
+  hinge.minAngleLimit = -(M_PI_2 * 0.8);
+  hinge.maxAngleLimit = 0;
 
   createHingePhysics(hinge);
 
   _hingeNames.append(td->name());
   emit hingeNamesChanged();
+}
+
+void HingeEditorModelRef::createHingePhysics(HingeData &hinge)
+{
+  //the anchor is represented by the default shape (bounding box)
+  tr3::PhysicsObject *anchorPhysics = _physicsScene->getPhysics(hinge.anchor, true, true);
+  anchorPhysics->body()->setType(rp3d::BodyType::STATIC);
+  hinge.anchorBody = anchorPhysics->body();
+
+  //create the moving element and keep a reference
+  tr3::PhysicsObject *elementPhysics = _physicsScene->getPhysics(hinge.element, true, true);
+  hinge.elementBody = elementPhysics->body();
+
+  rp3d::HingeJointInfo jointInfo(hinge.elementBody, anchorPhysics->body(),
+                                 rp3d::Vector3(hinge.hingePoint.x, hinge.hingePoint.y, hinge.hingePoint.z),
+                                 rp3d::Vector3(hinge.hingeAxis.x, hinge.hingeAxis.y, hinge.hingeAxis.z));
+
+  jointInfo.isLimitEnabled = true;//hinge.maxAngleLimit != hinge.minAngleLimit;
+  jointInfo.isMotorEnabled = true;
+  jointInfo.motorSpeed = rp3d::decimal(0.1) * M_PI;
+  jointInfo.maxMotorTorque = rp3d::decimal(30.0);
+  jointInfo.minAngleLimit = hinge.minAngleLimit;
+  jointInfo.maxAngleLimit = hinge.maxAngleLimit;
+  jointInfo.isCollisionEnabled = false;
+
+  // Create the joint in the dynamics world
+  hinge.joint = _physicsScene->createHingeJoint(jointInfo);
 }
 
 void HingeEditorModelRef::setMarker(three::quick::ObjectPicker *picker)

@@ -427,7 +427,7 @@ Window {
                 HingeEditorModelRef {
                     id: hingeeditor
                     model: threeDModel
-                    name: "car"
+                    name: "threeD_model"
                     type: ModelRef.Node
                     replace: true
 
