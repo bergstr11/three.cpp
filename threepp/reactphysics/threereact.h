@@ -25,23 +25,27 @@ class PhysicsObject
 {
   friend class PhysicsScene;
 
-  three::math::Vector3 _position;
-  rp3d::RigidBody * const _body;
+  math::Box3 _bodyBox;
+  math::Vector3 _boxPosition;
+  math::Vector3 _objectPosition;
+  Object3D::Ptr _object;
+
+  rp3d::RigidBody * _body;
   rp3d::Transform _previousTransform;
 
   math::Matrix4 _scalingMatrix = math::Matrix4::identity();
 
 public:
-  void updateTransform(Object3D *object, float interpolation);
+  PhysicsObject(Object3D::Ptr object) : _object(object) {}
 
-  PhysicsObject(rp3d::RigidBody * body, const rp3d::Transform &transform)
-     : _body(body), _previousTransform(transform)
-  {}
+  void updateTransform(float interpolation);
 
-  rp3d::BoxShape *createBoundingBox(Object3D::Ptr object);
+  void updateFromObject();
+
+  rp3d::BoxShape *createBoundingBoxShape();
 
   rp3d::RigidBody * body() const {return _body;}
-  const three::math::Vector3 &position() {return _position;}
+  const three::math::Vector3 &boxPosition();
 };
 
 class PhysicsScene
@@ -49,8 +53,6 @@ class PhysicsScene
   rp3d::Timer _timer;
 
   rp3d::DynamicsWorld *_dynamicsWorld;
-
-  float _interpolationFactor = 0.0f;
 
   std::mutex _createBodyMutex;
 
@@ -81,8 +83,8 @@ public:
 
   PhysicsObject *getPhysics(Object3D::Ptr object);
 
-  void remove(Object3D::Ptr object);
-  void remove(rp3d::Joint *joint);
+  void destroy(Object3D::Ptr object);
+  void destroy(rp3d::Joint *joint);
 };
 
 }

@@ -201,7 +201,7 @@ public:
      return *this;
   }
 
-  Box3 operator *(const Matrix4 &matrix)
+  Box3 operator *(const Matrix4 &matrix) const
   {
     // transform of empty box is an empty box.
     if( isEmpty() ) return *this;
@@ -234,6 +234,11 @@ public:
   bool operator == (const Box3 &box ) const
   {
     return box._min == _min && box._max == _max;
+  }
+
+  bool operator != (const Box3 &box ) const
+  {
+    return ! operator ==(box);
   }
 };
 

@@ -29,32 +29,48 @@ Q_OBJECT
   {
     HingeType hingeType;
     std::string name;
-    three::Object3D::Ptr anchor;
-    three::Object3D::Ptr element;
-    rp3d::Vector3 hingePoint;
-    rp3d::Vector3 hingeAxis;
+    Object3D::Ptr anchor;
+    Object3D::Ptr element;
+    math::Vector3 hingePoint1;
+    math::Vector3 hingePoint2;
+    bool clockwise;
     float minAngleLimit;
     float maxAngleLimit;
 
-    rp3d::HingeJoint *joint = nullptr;
-    rp3d::RigidBody *elementBody = nullptr;
-    rp3d::RigidBody *anchorBody = nullptr;
+    rp3d::HingeJointInfo jointInfo;
 
-    HingeData(HingeType hingeType) : hingeType(hingeType) {}
+    rp3d::HingeJoint *joint = nullptr;
+    react3d::PhysicsObject *elementPhysics = nullptr;
+    react3d::PhysicsObject *anchorPhysics = nullptr;
+
+    bool needsUpdate = false;
+    react3d::PhysicsScene::Ptr _scene;
+
+    HingeData(HingeType hingeType, react3d::PhysicsScene::Ptr scene)
+       : hingeType(hingeType), _scene(scene), jointInfo(nullptr, nullptr, rp3d::Vector3(), rp3d::Vector3())
+    {}
+
+    void doUpdate();
+    void requestUpdate(const math::Quaternion &q);
+    void printAngle();
+
+    using Ptr = std::shared_ptr<HingeData>;
+    static Ptr make(HingeType hingeType, react3d::PhysicsScene::Ptr scene) {
+      return Ptr(new HingeData(hingeType, scene));
+    }
   };
 
-  std::vector<HingeData> _hinges;
+  unsigned hingeIndex = 0;
+
+  std::vector<HingeData::Ptr> _hinges;
 
   std::vector<DynamicMesh::Ptr> _markers;
 
   QStringList _hingeNames;
 
-  size_t _currentHinge = 0;
-
   react3d::PhysicsScene::Ptr _physicsScene;
-  float _force = 1.0f;
 
-  void createHingePhysics(HingeData &hingeData);
+  void createHingePhysics(HingeData &hingeData, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World);
 
   void checkPhysicsScene();
 
