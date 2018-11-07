@@ -138,7 +138,7 @@ bool HingeEditorModelRef::saveHingeFile(const QString &file)
     QJsonObject point1Object;
     point1Object["x"] = hinge->hingePoint1.x();
     point1Object["y"] = hinge->hingePoint1.y();
-    point1Object["z"] = hinge->hingePoint1.x();
+    point1Object["z"] = hinge->hingePoint1.z();
     hingeObject["point1"] = point1Object;
 
     QJsonObject point2Object;
@@ -238,7 +238,6 @@ bool HingeEditorModelRef::loadHingeFile(const QString &file)
 
     createHingePhysics(*hinge, ptw1, ptw2);
   }
-  _physicsScene->dynamicsWorld()->update(std::numeric_limits<float>::epsilon() * 2);
 
   emit hingeNamesChanged();
 
@@ -316,9 +315,10 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
 
   //< 0: anchor is left, > 0: anchor is right, 0: anchor is ahead or behind (not applicable)
   math::Vector3 perp = math::cross(elementPhysics->boxPosition(), anchorPhysics->boxPosition());
-  math::Vector3 up(0, 1, 0);
-  up.apply(hinge.anchor->getWorldQuaternion());
-  hinge.clockwise = math::dot(perp, hinge.element->getWorldDirection()) < 0.0f;
+  math::Vector3 up(0, 0, 1);
+  up.apply(hinge.anchor->quaternion());
+  float dp = math::dot(perp, up);
+  hinge.hingeDir = dp < 0.05f && dp > -0.05f ? HingeDir::UP : (dp < 0.0f ? HingeDir::LEFT : HingeDir::RIGHT);
 
   //calculate the hinge axis
   const auto ax = (hingePoint1World - hingePoint2World).normalized();
@@ -328,32 +328,42 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
   const auto pt = (hingePoint1World + hingePoint2World) * 0.5;
   rp3d::Vector3 hingePointWorld(pt.x(), pt.y(), pt.z());
 
-  hinge.jointInfo = rp3d::HingeJointInfo(elementPhysics->body(), anchorPhysics->body(), hingePointWorld, hingeAxisWorld);
+  //qDebug() << "Point1" << hinge.hingePoint1.x() << hinge.hingePoint1.y() << hinge.hingePoint1.z();
+  //qDebug() << "Point2" << hinge.hingePoint2.x() << hinge.hingePoint2.y() << hinge.hingePoint2.z();
 
-  hinge.jointInfo.isLimitEnabled = true;
-  hinge.jointInfo.isMotorEnabled = true;
-  hinge.jointInfo.maxMotorTorque = rp3d::decimal(20.0);
-  hinge.jointInfo.isCollisionEnabled = false;
+  rp3d::HingeJointInfo jointInfo = rp3d::HingeJointInfo(elementPhysics->body(), anchorPhysics->body(), hingePointWorld,
+                                                        hingeAxisWorld);
+
+  jointInfo.isLimitEnabled = true;
+  jointInfo.isMotorEnabled = true;
+  jointInfo.maxMotorTorque = rp3d::decimal(20.0);
+  jointInfo.isCollisionEnabled = false;
   //hinge.jointInfo.positionCorrectionTechnique = rp3d::JointsPositionCorrectionTechnique::BAUMGARTE_JOINTS;
 
-  if (hinge.clockwise) {
-    qDebug() << "left side, clockwise";
-    //left side, clockwise turning
-    hinge.jointInfo.motorSpeed = - rp3d::decimal(0.05) * M_PI;
-    hinge.jointInfo.minAngleLimit = 0;
-    hinge.jointInfo.maxAngleLimit = M_PI_2 * 0.8;
-  }
-  else {
-    qDebug() << "right side, anti-clockwise";
-    //right side, anti-clockwise
-    hinge.jointInfo.motorSpeed = - rp3d::decimal(0.05) * M_PI;
-    hinge.jointInfo.minAngleLimit = 0;
-    hinge.jointInfo.maxAngleLimit = M_PI_2 * 0.8;
+  switch(hinge.hingeDir) {
+    case HingeDir::UP:
+      qDebug() << "UP" << dp;
+      jointInfo.motorSpeed = rp3d::decimal(0.05) * M_PI;
+      jointInfo.minAngleLimit = -M_PI_2 * 0.7;
+      jointInfo.maxAngleLimit = 0;
+      break;
+    case HingeDir::LEFT:
+      qDebug() << "LEFT" << dp;
+      jointInfo.motorSpeed = - rp3d::decimal(0.05) * M_PI;
+      jointInfo.minAngleLimit = 0;
+      jointInfo.maxAngleLimit = M_PI_2 * 0.8;
+      break;
+    case HingeDir::RIGHT:
+      qDebug() << "RIGHT" << dp;
+      jointInfo.motorSpeed = rp3d::decimal(0.05) * M_PI;
+      jointInfo.minAngleLimit = -M_PI_2 * 0.8;
+      jointInfo.maxAngleLimit = 0;//M_PI_2 * 0.8;
+      break;
   }
   hinge.anchor->quaternion().onChange.connect(&hinge, &HingeData::requestUpdate);
 
   // Create the joint in the dynamics world
-  hinge.joint = _physicsScene->createHingeJoint(hinge.jointInfo);
+  hinge.joint = _physicsScene->createHingeJoint(jointInfo);
 }
 
 void HingeEditorModelRef::setMarker(three::quick::ObjectPicker *picker)

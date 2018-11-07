@@ -23,7 +23,8 @@ Q_OBJECT
 
   Q_PROPERTY(QStringList hingeNames READ hingeNames NOTIFY hingeNamesChanged)
 
-  enum HingeType {DOOR, PROPELLER};
+  enum class HingeType {DOOR, PROPELLER};
+  enum class HingeDir {LEFT, RIGHT, UP};
 
   struct HingeData
   {
@@ -37,8 +38,7 @@ Q_OBJECT
     float minAngleLimit;
     float maxAngleLimit;
 
-    rp3d::HingeJointInfo jointInfo;
-
+    HingeDir hingeDir;
     rp3d::HingeJoint *joint = nullptr;
     react3d::PhysicsObject *elementPhysics = nullptr;
     react3d::PhysicsObject *anchorPhysics = nullptr;
@@ -47,7 +47,7 @@ Q_OBJECT
     react3d::PhysicsScene::Ptr _scene;
 
     HingeData(HingeType hingeType, react3d::PhysicsScene::Ptr scene)
-       : hingeType(hingeType), _scene(scene), jointInfo(nullptr, nullptr, rp3d::Vector3(), rp3d::Vector3())
+       : hingeType(hingeType), _scene(scene)
     {}
 
     void doUpdate();

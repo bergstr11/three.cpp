@@ -27,7 +27,6 @@ class PhysicsObject
 
   math::Box3 _bodyBox;
   math::Vector3 _boxPosition;
-  math::Vector3 _objectPosition;
   Object3D::Ptr _object;
 
   rp3d::RigidBody * _body;

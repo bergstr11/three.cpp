@@ -24,15 +24,18 @@ const math::Vector3 &PhysicsObject::boxPosition()
 
 void PhysicsObject::updateFromObject()
 {
+  //update the transorm
   const auto wp = _object->getWorldPosition();
-  const auto diff = wp - _objectPosition;
-  _boxPosition.apply(math::Matrix4::translation(diff.x(), diff.y(), diff.z()));
-  _objectPosition = wp;
-
   auto wq = _object->getWorldQuaternion();
   rp3d::Vector3 rp(wp.x(), wp.y(), wp.z());
   rp3d::Quaternion rq(wq.x(), wq.y(), wq.z(), wq.w());
   _body->setTransform(rp3d::Transform(rp, rq));
+
+  _body->setIsSleeping(false);
+
+  // Reset the velocity of the rigid body
+  _body->setLinearVelocity(rp3d::Vector3(0, 0, 0));
+  _body->setAngularVelocity(rp3d::Vector3(0, 0, 0));
 
   _previousTransform = _body->getTransform();
 }
@@ -132,8 +135,7 @@ PhysicsObject *PhysicsScene::createPhysics(Object3D::Ptr object, rp3d::BodyType 
   PhysicsObject &physics = _objects.at(object.get());
 
   physics._bodyBox = object->computeBoundingBox();
-  physics._boxPosition = physics._bodyBox.getCenter();
-  physics._objectPosition = object->getWorldPosition();
+  physics._boxPosition = object->worldToLocal(physics._bodyBox.getCenter());
 
   auto wp = object->getWorldPosition();
   auto wq = object->getWorldQuaternion();
