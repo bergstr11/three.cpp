@@ -148,7 +148,6 @@ private:
 
   QString _file;
   QString _name;
-  UP _up = UP_Y;
 
   QVariantMap _replacements;
 
@@ -157,8 +156,6 @@ private:
   Options _options;
 
   ThreeDItem *_item = nullptr;
-
-  loader::AssimpOptions assimpOptions;
 
   ModelMaterialHandler _materialHandler;
 

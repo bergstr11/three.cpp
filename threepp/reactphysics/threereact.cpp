@@ -17,9 +17,12 @@ rp3d::BoxShape *PhysicsObject::createBoundingBoxShape()
   return box;
 }
 
-const math::Vector3 &PhysicsObject::boxPosition()
+const math::Vector3 PhysicsObject::boxPosition(Object3D::Ptr object)
 {
-  return _boxPosition;
+  if(!object || object == _object) return _boxPosition;
+
+  math::Vector3 pw = _object->localToWorld(_boxPosition);
+  return object->worldToLocal(pw);
 }
 
 void PhysicsObject::updateFromObject()

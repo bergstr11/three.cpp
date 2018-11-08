@@ -70,6 +70,8 @@ Q_OBJECT
 
   react3d::PhysicsScene::Ptr _physicsScene;
 
+  void calculateHingeDir(HingeData &hingeData, const math::Vector3 &hingePoint);
+
   void createHingePhysics(HingeData &hingeData, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World);
 
   void checkPhysicsScene();

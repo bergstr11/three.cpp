@@ -44,7 +44,7 @@ public:
   rp3d::BoxShape *createBoundingBoxShape();
 
   rp3d::RigidBody * body() const {return _body;}
-  const three::math::Vector3 &boxPosition();
+  const three::math::Vector3 boxPosition(Object3D::Ptr object=nullptr);
 };
 
 class PhysicsScene

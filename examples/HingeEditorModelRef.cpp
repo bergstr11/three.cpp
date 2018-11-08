@@ -294,6 +294,28 @@ void HingeEditorModelRef::createHinge(QVariant dvar, QVariant cvar, QVector3D up
   emit hingeNamesChanged();
 }
 
+void HingeEditorModelRef::calculateHingeDir(HingeData &hinge, const math::Vector3 &hingePoint)
+{
+  const auto hingePtLocal = hinge.anchor->worldToLocal(hingePoint);
+  math::Line3 line(hinge.anchorPhysics->boxPosition(), hingePtLocal);
+  const auto delta = line.delta().normalized();
+
+  float dx = delta.x() * delta.y();
+
+  hinge.hingeDir = dx < 0.1f && dx > -0.1f ? HingeDir::UP : (dx < 0.0f ? HingeDir::LEFT : HingeDir::RIGHT);
+  switch(hinge.hingeDir) {
+    case HingeDir::UP:
+      qDebug() << "UP" << dx;
+      break;
+    case HingeDir::LEFT:
+      qDebug() << "LEFT" << dx;
+      break;
+    case HingeDir::RIGHT:
+      qDebug() << "RIGHT" << dx;
+      break;
+  }
+}
+
 void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
                                              const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World)
 {
@@ -313,13 +335,6 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
   }
   hinge.elementPhysics = elementPhysics;
 
-  //< 0: anchor is left, > 0: anchor is right, 0: anchor is ahead or behind (not applicable)
-  math::Vector3 perp = math::cross(elementPhysics->boxPosition(), anchorPhysics->boxPosition());
-  math::Vector3 up(0, 0, 1);
-  up.apply(hinge.anchor->quaternion());
-  float dp = math::dot(perp, up);
-  hinge.hingeDir = dp < 0.05f && dp > -0.05f ? HingeDir::UP : (dp < 0.0f ? HingeDir::LEFT : HingeDir::RIGHT);
-
   //calculate the hinge axis
   const auto ax = (hingePoint1World - hingePoint2World).normalized();
   rp3d::Vector3 hingeAxisWorld(ax.x(), ax.y(), ax.z());
@@ -328,8 +343,7 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
   const auto pt = (hingePoint1World + hingePoint2World) * 0.5;
   rp3d::Vector3 hingePointWorld(pt.x(), pt.y(), pt.z());
 
-  //qDebug() << "Point1" << hinge.hingePoint1.x() << hinge.hingePoint1.y() << hinge.hingePoint1.z();
-  //qDebug() << "Point2" << hinge.hingePoint2.x() << hinge.hingePoint2.y() << hinge.hingePoint2.z();
+  calculateHingeDir(hinge, pt);
 
   rp3d::HingeJointInfo jointInfo = rp3d::HingeJointInfo(elementPhysics->body(), anchorPhysics->body(), hingePointWorld,
                                                         hingeAxisWorld);
@@ -338,26 +352,22 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
   jointInfo.isMotorEnabled = true;
   jointInfo.maxMotorTorque = rp3d::decimal(20.0);
   jointInfo.isCollisionEnabled = false;
-  //hinge.jointInfo.positionCorrectionTechnique = rp3d::JointsPositionCorrectionTechnique::BAUMGARTE_JOINTS;
 
   switch(hinge.hingeDir) {
     case HingeDir::UP:
-      qDebug() << "UP" << dp;
       jointInfo.motorSpeed = rp3d::decimal(0.05) * M_PI;
       jointInfo.minAngleLimit = -M_PI_2 * 0.7;
       jointInfo.maxAngleLimit = 0;
       break;
     case HingeDir::LEFT:
-      qDebug() << "LEFT" << dp;
       jointInfo.motorSpeed = - rp3d::decimal(0.05) * M_PI;
       jointInfo.minAngleLimit = 0;
       jointInfo.maxAngleLimit = M_PI_2 * 0.8;
       break;
     case HingeDir::RIGHT:
-      qDebug() << "RIGHT" << dp;
       jointInfo.motorSpeed = rp3d::decimal(0.05) * M_PI;
       jointInfo.minAngleLimit = -M_PI_2 * 0.8;
-      jointInfo.maxAngleLimit = 0;//M_PI_2 * 0.8;
+      jointInfo.maxAngleLimit = 0;
       break;
   }
   hinge.anchor->quaternion().onChange.connect(&hinge, &HingeData::requestUpdate);
