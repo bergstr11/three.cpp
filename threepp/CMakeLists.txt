@@ -5,8 +5,6 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(assimp REQUIRED)
 
-OPTION(WITH_PHYSICS "build the physics module into the library" ON)
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -67,9 +65,9 @@ message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
 add_subdirectory(quick)
 
-if(WITH_PHYSICS)
+if(WITH_REACTPHYSICS)
     add_subdirectory(reactphysics)
-endif(WITH_PHYSICS)
+endif(WITH_REACTPHYSICS)
 
 add_library(threepp_static STATIC Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
 add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2> util/osdecl.h)
