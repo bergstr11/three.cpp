@@ -92,7 +92,7 @@ void PhysicsScene::reset()
   _objects.clear();
 }
 
-void PhysicsScene::update()
+void PhysicsScene::timedUpdate()
 {
   if(!_timer.getIsRunning()) return;
 
@@ -101,6 +101,7 @@ void PhysicsScene::update()
   while(_timer.isPossibleToTakeStep()) {
 
     // Take a physics simulation step
+    preUpdate();
     _dynamicsWorld->update(_timer.getTimeStep());
 
     // Update the timer
@@ -110,6 +111,21 @@ void PhysicsScene::update()
 
   for(auto &object : _objects) {
     object.second.updateTransform(interpolationFactor);
+  }
+}
+
+void PhysicsScene::update(float seconds)
+{
+  unsigned times = seconds / _timer.getTimeStep();
+
+  for(unsigned i=0; i<times; i++) {
+
+    // Take a physics simulation step
+    preUpdate();
+    _dynamicsWorld->update(_timer.getTimeStep());
+  }
+  for(auto &object : _objects) {
+    object.second.updateTransform(1.0f);
   }
 }
 
@@ -169,6 +185,20 @@ void PhysicsScene::destroy(rp3d::Joint *joint)
     _dynamicsWorld->destroyJoint(joint);
   }
 }
+
+void HingeData::requestUpdate(const math::Quaternion &q)
+{
+  needsUpdate = true;
+}
+
+void HingeData::doUpdate()
+{
+  anchorPhysics->updateFromObject();
+  elementPhysics->updateFromObject();
+
+  needsUpdate = false;
+}
+
 
 }
 }

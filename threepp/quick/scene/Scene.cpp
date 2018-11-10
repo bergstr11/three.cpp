@@ -24,6 +24,14 @@ void Scene::setName(const QString &name) {
   }
 }
 
+void Scene::setPhysics(QObject *physics)
+{
+  if(_physics != physics) {
+    _physics = physics;
+    emit physicsChanged();
+  }
+}
+
 void Scene::setQuickCamera(Camera *camera)
 {
   if(_quickCamera != camera) {

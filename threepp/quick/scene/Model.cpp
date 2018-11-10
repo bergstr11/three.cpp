@@ -98,8 +98,8 @@ void Model::loadFile(const QString &file)
 
   //first check if this is a file: url and convert
   QUrl fileUrl(file);
-  //if not valid, it may be either a resource url or a file system path
-  QFileInfo info(fileUrl.isValid() ? fileUrl.toLocalFile() : file);
+  //file may be either a file url, a resource url or a file system path
+  QFileInfo info(fileUrl.isLocalFile() ? fileUrl.toLocalFile() : file);
 
   if(info.isNativePath()) {
     info.makeAbsolute();

@@ -34,6 +34,17 @@ foreach(TARGET threeppq_static threeppq)
             $<INSTALL_INTERFACE:include>)
 endforeach(TARGET)
 
+if(WITH_REACTPHYSICS)
+    target_include_directories(threeppq PRIVATE $<TARGET_PROPERTY:threereact,INCLUDE_DIRECTORIES>)
+    target_include_directories(threeppq_static PRIVATE $<TARGET_PROPERTY:threereact,INTERFACE_INCLUDE_DIRECTORIES>)
+
+    target_sources(threeppq PRIVATE scene/R3dPhysics.cxx scene/R3dPhysics.hxx)
+    target_sources(threeppq_static PRIVATE scene/R3dPhysics.cxx scene/R3dPhysics.hxx)
+
+    target_sources(threeppq PRIVATE $<TARGET_OBJECTS:threereact>)
+    target_sources(threeppq_static PRIVATE $<TARGET_OBJECTS:threereact>)
+endif(WITH_REACTPHYSICS)
+
 target_link_libraries(threeppq_static PUBLIC threepp_static Qt5::Core Qt5::Gui Qt5::Quick)
 target_link_libraries(threeppq PUBLIC threepp Qt5::Core Qt5::Gui Qt5::Quick)
 

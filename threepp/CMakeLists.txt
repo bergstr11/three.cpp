@@ -63,11 +63,12 @@ CONFIGURE_FILE("${THREE_ROOT}/etc/threepp.pc.in" "threepp.pc" @ONLY)
 
 message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
-add_subdirectory(quick)
-
 if(WITH_REACTPHYSICS)
+    add_compile_definitions(COMPILE_REACTPHYSICS)
     add_subdirectory(reactphysics)
 endif(WITH_REACTPHYSICS)
+
+add_subdirectory(quick)
 
 add_library(threepp_static STATIC Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
 add_library(threepp SHARED Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2> util/osdecl.h)

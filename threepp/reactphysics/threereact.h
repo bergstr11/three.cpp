@@ -21,6 +21,9 @@ namespace reactphysics3d {
 namespace three {
 namespace react3d {
 
+/**
+ * object physics representation
+ */
 class PhysicsObject
 {
   friend class PhysicsScene;
@@ -47,6 +50,9 @@ public:
   const three::math::Vector3 boxPosition(Object3D::Ptr object=nullptr);
 };
 
+/**
+ * physics scene representation
+ */
 class PhysicsScene
 {
   rp3d::Timer _timer;
@@ -57,6 +63,9 @@ class PhysicsScene
 
   std::unordered_map<Object3D *, PhysicsObject> _objects;
   std::set<rp3d::Joint*> _joints;
+
+protected:
+  virtual void preUpdate() {}
 
 public:
   PhysicsScene(Scene::Ptr object, rp3d::DynamicsWorld *dynamicsWorld)
@@ -72,7 +81,15 @@ public:
 
   void reset();
 
-  void update();
+  /**
+   * update the physics world using the timer
+   */
+  void timedUpdate();
+
+  /**
+   * update the physics world using a fixed interpolation factor
+   */
+  void update(float factor);
 
   rp3d::DynamicsWorld *dynamicsWorld() {return _dynamicsWorld;}
 
@@ -84,6 +101,44 @@ public:
 
   void destroy(Object3D::Ptr object);
   void destroy(rp3d::Joint *joint);
+};
+
+enum class HingeType {DOOR, PROPELLER};
+enum class HingeDir {LEFT, RIGHT, UP};
+
+/**
+ * Hinge definition
+ */
+struct HingeData
+{
+  HingeType hingeType;
+  std::string name;
+  Object3D::Ptr anchor;
+  Object3D::Ptr element;
+  math::Vector3 hingePoint1;
+  math::Vector3 hingePoint2;
+  float minAngleLimit;
+  float maxAngleLimit;
+
+  HingeDir hingeDir;
+  rp3d::HingeJoint *joint = nullptr;
+  react3d::PhysicsObject *elementPhysics = nullptr;
+  react3d::PhysicsObject *anchorPhysics = nullptr;
+
+  bool needsUpdate = false;
+  react3d::PhysicsScene::Ptr _scene;
+
+  HingeData(HingeType hingeType, react3d::PhysicsScene::Ptr scene)
+     : hingeType(hingeType), _scene(scene)
+  {}
+
+  void doUpdate();
+  void requestUpdate(const math::Quaternion &q);
+
+  using Ptr = std::shared_ptr<HingeData>;
+  static Ptr make(HingeType hingeType, react3d::PhysicsScene::Ptr scene) {
+    return Ptr(new HingeData(hingeType, scene));
+  }
 };
 
 }

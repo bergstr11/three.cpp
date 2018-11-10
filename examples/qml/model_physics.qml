@@ -100,7 +100,7 @@ Window {
     
         Button {
             id: runButton
-            enabled: hingeeditor.hingeNames.length > 0
+            enabled: scene.physics.hingeCount > 0
             text: "Animate"
 
             property bool running: false
@@ -111,11 +111,11 @@ Window {
 
                 if(running) {
                     text = "Stop"
-                    hingeeditor.startTimer()
+                    scene.physics.startTimer()
                 }
                 else {
                     text = "Animate"
-                    hingeeditor.stopTimer()
+                    scene.physics.stopTimer()
                 }
             }
         }
@@ -127,7 +127,7 @@ Window {
                 fileDialog.title = "Load hinge definition from file"
                 fileDialog.selectExisting = true
                 fileDialog.acceptedFunc = function() {
-                    hingeeditor.loadHingeFile(fileDialog.fileUrl)
+                    scene.physics.load(fileDialog.fileUrl, hingeeditor.object)
                 }
                 fileDialog.visible = true
             }
@@ -135,7 +135,7 @@ Window {
         Button {
             id: saveButton
             text: "Save"
-            enabled: hingeeditor.hingeNames.length > 0
+            enabled: scene.physics.hingeCount > 0
             onClicked: {
                 fileDialog.title = "Save hinge definition to file"
                 fileDialog.selectExisting = false
@@ -297,7 +297,7 @@ Window {
 
         ComboBox {
             id: hingeSelector
-            model: hingeeditor.hingeNames
+            model: scene.physics.hingeNames
         }
 
         Button {
@@ -305,7 +305,7 @@ Window {
             text: "Delete"
             enabled: hingeSelector.currentIndex >= 0
             onClicked: {
-                hingeeditor.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
+                scene.physics.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
                 threeD.update()
             }
         }
@@ -408,6 +408,7 @@ Window {
 
         Scene {
             id: scene
+            physics: React3d {}
 
             HemisphereLight {
                 id: hemisphereLight
@@ -457,7 +458,7 @@ Window {
                     }
 
                     function create() {
-                        createHinge(picked1, picked2, upper, lower)
+                        scene.physics.createHinge(picked1, picked2, upper, lower)
                         resetEditor()
                         unhide()
                     }
@@ -502,7 +503,7 @@ Window {
             }
         }
         animate: function() {
-            hingeeditor.updateAnimation()
+            scene.physics.updateAnimation()
         }
     }
 }

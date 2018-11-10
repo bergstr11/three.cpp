@@ -45,6 +45,10 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/interact/ObjectDragger.h"
 #include "interact/ObjectPicker.h"
 
+#ifdef COMPILE_REACTPHYSICS
+#include <threepp/quick/scene/R3dPhysics.hxx>
+#endif
+
 namespace three {
 namespace quick {
 
@@ -65,6 +69,9 @@ void init()
   qmlRegisterType<three::quick::Scene>("three.quick", 1, 0, "Scene");
   qmlRegisterType<three::quick::Model>("three.quick", 1, 0, "Model");
   qmlRegisterType<three::quick::MaterialHandler>("three.quick", 1, 0, "MaterialHandler");
+#ifdef COMPILE_REACTPHYSICS
+  qmlRegisterType<three::quick::r3d::Physics>("three.quick", 1, 0, "React3d");
+#endif
   qmlRegisterUncreatableType<three::quick::ThreeQObjectRoot>("three.quick", 1, 0, "ThreeQObjectRoot", "abstract class");
   qmlRegisterUncreatableType<three::quick::ThreeQObject>("three.quick", 1, 0, "ThreeQObject", "abstract class");
   qmlRegisterUncreatableType<three::quick::Material>("three.quick", 1, 0, "Material", "abstract class");
