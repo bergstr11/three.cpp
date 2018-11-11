@@ -49,9 +49,10 @@ Window {
 
             onClicked: {
                 if(!!dataRow.picked) {
-                    var parent = dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
-                    parent.visible = false
-                    hingeeditor.hidden.push(parent)
+                    var obj = pickedParents.currentIndex === 0 ?
+                        dataRow.picked : dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
+                    obj.visible = false
+                    hingeeditor.hidden.push(obj)
                 }
                 threeD.update()
             }
@@ -63,16 +64,16 @@ Window {
 
             onClicked: {
                 if(!!dataRow.picked) {
-                    var parent = pickedParents.currentIndex > 0 ?
-                        dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex]) : dataRow.picked
+                    var obj = pickedParents.currentIndex === 0 ?
+                        dataRow.picked : dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
 
                     if(hingeeditor.picked1 === null) {
-                        hingeeditor.picked1 = parent
-                        textO1.text = parent.name
+                        hingeeditor.picked1 = obj
+                        textO1.text = obj.name
                     }
                     else {
-                        hingeeditor.picked2 = parent
-                        textO2.text = parent.name
+                        hingeeditor.picked2 = obj
+                        textO2.text = obj.name
                     }
                 }
             }
