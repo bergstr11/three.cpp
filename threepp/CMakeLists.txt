@@ -68,6 +68,10 @@ if(WITH_REACTPHYSICS)
     add_subdirectory(reactphysics)
 endif(WITH_REACTPHYSICS)
 
+if(ANDROID)
+    add_compile_definitions(QT_OPENGL_ES_3_2)
+endif(ANDROID)
+
 add_subdirectory(quick)
 
 add_library(threepp_static STATIC Constants.h ${SHADER_RESOURCES} $<TARGET_OBJECTS:tinyxml2>)
@@ -83,8 +87,8 @@ foreach(TARGET threepp_static threepp)
     if(ANDROID)
         target_link_libraries(${TARGET} PUBLIC
                 z
-                ${ASSIMP_LIBRARY_DIRS}/libassimpd.a
-                ${ASSIMP_LIBRARY_DIRS}/libIrrXMLd.a
+                ${ASSIMP_LIBRARY_DIRS}/libassimp.a
+                ${ASSIMP_LIBRARY_DIRS}/libIrrXML.a
                 Qt5::Core Qt5::Gui)
     elseif(WIN32)
         target_link_libraries(${TARGET} PUBLIC

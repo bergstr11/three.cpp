@@ -5,9 +5,13 @@
 #ifndef THREEPP_CONSTANTS
 #define THREEPP_CONSTANTS
 
-#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <iostream>
 #include <assert.h>
+
+#ifdef QT_OPENGL_ES_3_2
+#include <GLES3/gl32.h>
+#endif
 
 namespace three {
 

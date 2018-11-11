@@ -12,6 +12,10 @@ set(TREACT_HDRDIRS )
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h)
 
+if(ANDROID)
+    add_compile_definitions(QT_OPENGL_ES_3_2)
+endif(ANDROID)
+
 add_library(threereact OBJECT ${SOURCE_FILES} ${HEADER_FILES})
 
 target_compile_definitions(threereact PRIVATE -DCOMPILE_THREEREPP_DLL)
