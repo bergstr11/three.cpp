@@ -44,6 +44,8 @@ public:
 
   void updateFromObject();
 
+  const Object3D::Ptr &object() {return _object;}
+
   const math::Box3 &getBoundingBox() {return _bodyBox;}
 
   rp3d::BoxShape *createBoundingBoxShape();

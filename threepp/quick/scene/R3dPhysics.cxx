@@ -199,6 +199,8 @@ void Physics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
     const auto ptw1 = hinge->anchor->localToWorld(hinge->hingePoint1);
     const auto ptw2 = hinge->anchor->localToWorld(hinge->hingePoint2);
 
+    createHingePhysics(*hinge);
+
     switch(hingeType) {
       case HingeType::DOOR:
         setupDoorHinge(*hinge, ptw1, ptw2);
