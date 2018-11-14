@@ -78,6 +78,11 @@ Window {
                 }
             }
         }
+        ComboBox {
+            id: modeCombo
+            model: ["Hinge", "Propeller"]
+            currentIndex: 0
+        }
     }
     Column {
         id: infoRow
@@ -459,7 +464,10 @@ Window {
                     }
 
                     function create() {
-                        scene.physics.createHinge(picked1, picked2, upper, lower)
+                        if(modeCombo.model[modeCombo.currentIndex] == "Hinge")
+                            scene.physics.createDoorHinge(picked1, picked2, upper, lower)
+                        else
+                            scene.physics.createPropellerHinge(picked1, picked2, upper, lower)
                         resetEditor()
                         unhide()
                     }

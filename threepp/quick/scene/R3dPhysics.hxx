@@ -38,7 +38,13 @@ Q_OBJECT
 
   void calculateHingeDir(react3d::HingeData &hingeData, const math::Vector3 &hingePoint);
 
-  void createHingePhysics(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World);
+  void createHingePhysics(react3d::HingeData &hingeData);
+
+  void
+  setupDoorHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World);
+
+  void setupPropellerHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World,
+                           const math::Vector3 &hingePoint2World);
 
   bool checkPhysicsScene();
 
@@ -52,7 +58,7 @@ public:
   const std::vector<react3d::HingeData::Ptr> hinges() const {return _hinges;}
 
   /**
- * create a door hinge in the middle between 2 marker points which also demarcate the
+ * create a door hinge in the middle between 2 marker points which demarcate the
  * hinge axis
  *
  * @param dvar the door
@@ -60,7 +66,17 @@ public:
  * @param upper upper marker point
  * @param lower lower maraker point
  */
-  Q_INVOKABLE void createHinge(QVariant door, QVariant car, QVector3D upper, QVector3D lower);
+  Q_INVOKABLE void createDoorHinge(QVariant door, QVariant car, QVector3D upper, QVector3D lower);
+
+  /**
+ * create a propeller
+ *
+ * @param propeller the propeller 3D object
+ * @param body the plane body
+ * @param back the back end of the propeller axis
+ * @param lower front the front end of the propeller axis
+ */
+  Q_INVOKABLE void createPropellerHinge(QVariant propeller, QVariant body, QVector3D back, QVector3D front);
 
   /**
    * delete a hinge from the current hinge list

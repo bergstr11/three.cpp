@@ -199,7 +199,12 @@ void Physics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
     const auto ptw1 = hinge->anchor->localToWorld(hinge->hingePoint1);
     const auto ptw2 = hinge->anchor->localToWorld(hinge->hingePoint2);
 
-    createHingePhysics(*hinge, ptw1, ptw2);
+    switch(hingeType) {
+      case HingeType::DOOR:
+        setupDoorHinge(*hinge, ptw1, ptw2);
+      case HingeType::PROPELLER:
+        setupPropellerHinge(*hinge, ptw1, ptw2);
+    }
   }
   emit hingesChanged();
 }
@@ -225,7 +230,39 @@ bool Physics::load(const QString &file, ThreeQObject *object)
   return false;
 }
 
-void Physics::createHinge(QVariant dvar, QVariant cvar, QVector3D upper, QVector3D lower)
+void Physics::createPropellerHinge(QVariant propeller, QVariant body, QVector3D back, QVector3D front)
+{
+  auto *prop = propeller.value<quick::ThreeQObject *>();
+  auto *bdy = body.value<quick::ThreeQObject *>();
+
+  if (!prop || !bdy) {
+    qCritical() << "createPropeller: null parameter";
+    return;
+  }
+
+  //make sure the scene exists
+  if(!checkPhysicsScene()) return;
+
+  _hinges.emplace_back(HingeData::make(HingeType::PROPELLER, _physicsScene));
+  HingeData::Ptr &hinge = _hinges.back();
+
+  hinge->anchor = bdy->object();
+  hinge->element = prop->object();
+
+  //save as local points
+  math::Vector3 ptw1(back.x(), back.y(), back.z());
+  hinge->hingePoint1 = hinge->anchor->worldToLocal(ptw1);
+  math::Vector3 ptw2(front.x(), front.y(), front.z());
+  hinge->hingePoint2 = hinge->anchor->worldToLocal(ptw2);
+
+  createHingePhysics(*hinge);
+
+  setupPropellerHinge(*hinge, ptw1, ptw2);
+
+  emit hingesChanged();
+}
+
+void Physics::createDoorHinge(QVariant dvar, QVariant cvar, QVector3D upper, QVector3D lower)
 {
   auto *td = dvar.value<quick::ThreeQObject *>();
   auto *tc = cvar.value<quick::ThreeQObject *>();
@@ -250,7 +287,9 @@ void Physics::createHinge(QVariant dvar, QVariant cvar, QVector3D upper, QVector
   math::Vector3 ptw2(lower.x(), lower.y(), lower.z());
   hinge->hingePoint2 = hinge->anchor->worldToLocal(ptw2);
 
-  createHingePhysics(*hinge, ptw1, ptw2);
+  createHingePhysics(*hinge);
+
+  setupDoorHinge(*hinge, ptw1, ptw2);
 
   emit hingesChanged();
 }
@@ -277,8 +316,7 @@ void Physics::calculateHingeDir(HingeData &hinge, const math::Vector3 &hingePoin
   }
 }
 
-void Physics::createHingePhysics(HingeData &hinge,
-                                             const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World)
+void Physics::createHingePhysics(HingeData &hinge)
 {
   //the anchor is represented by the default shape (bounding box)
   PhysicsObject *anchorPhysics = _physicsScene->getPhysics(hinge.anchor);
@@ -295,7 +333,10 @@ void Physics::createHingePhysics(HingeData &hinge,
     elementPhysics->createBoundingBoxShape();
   }
   hinge.elementPhysics = elementPhysics;
+}
 
+void Physics::setupDoorHinge(HingeData &hinge, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World)
+{
   //calculate the hinge axis
   const auto ax = (hingePoint1World - hingePoint2World).normalized();
   rp3d::Vector3 hingeAxisWorld(ax.x(), ax.y(), ax.z());
@@ -306,7 +347,9 @@ void Physics::createHingePhysics(HingeData &hinge,
 
   calculateHingeDir(hinge, pt);
 
-  rp3d::HingeJointInfo jointInfo = rp3d::HingeJointInfo(elementPhysics->body(), anchorPhysics->body(), hingePointWorld,
+  rp3d::HingeJointInfo jointInfo = rp3d::HingeJointInfo(hinge.elementPhysics->body(),
+                                                        hinge.anchorPhysics->body(),
+                                                        hingePointWorld,
                                                         hingeAxisWorld);
 
   jointInfo.isLimitEnabled = true;
@@ -331,6 +374,33 @@ void Physics::createHingePhysics(HingeData &hinge,
       jointInfo.maxAngleLimit = 0;
       break;
   }
+  hinge.anchor->quaternion().onChange.connect(&hinge, &HingeData::requestUpdate);
+
+  // Create the joint in the dynamics world
+  hinge.joint = _physicsScene->createHingeJoint(jointInfo);
+}
+
+void Physics::setupPropellerHinge(HingeData &hinge, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World)
+{
+  //calculate the hinge axis
+  const auto ax = (hingePoint1World - hingePoint2World).normalized();
+  rp3d::Vector3 hingeAxisWorld(ax.x(), ax.y(), ax.z());
+
+  rp3d::Vector3 hingePointWorld(hingePoint2World.x(), hingePoint2World.y(), hingePoint2World.z());
+
+  //const auto &bbox = hinge.anchorPhysics->getBoundingBox();
+
+  rp3d::HingeJointInfo jointInfo = rp3d::HingeJointInfo(hinge.elementPhysics->body(),
+                                                        hinge.anchorPhysics->body(),
+                                                        hingePointWorld,
+                                                        hingeAxisWorld);
+
+  jointInfo.isLimitEnabled = false;
+  jointInfo.isMotorEnabled = true;
+  jointInfo.maxMotorTorque = rp3d::decimal(60.0);
+  jointInfo.isCollisionEnabled = false;
+  jointInfo.motorSpeed = - 4 * M_PI;
+
   hinge.anchor->quaternion().onChange.connect(&hinge, &HingeData::requestUpdate);
 
   // Create the joint in the dynamics world
