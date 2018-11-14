@@ -348,13 +348,13 @@ public:
    */
   math::Box3 computeBoundingBox();
 
-  math::Quaternion getWorldQuaternion() const;
+  math::Quaternion getWorldQuaternion();
 
-  math::Euler getWorldRotation() const;
+  math::Euler getWorldRotation();
 
-  math::Vector3 getWorldScale() const;
+  math::Vector3 getWorldScale();
 
-  virtual math::Vector3 getWorldDirection() const;
+  virtual math::Vector3 getWorldDirection();
 
   void traverse(std::function<void(Object3D &)> callback);
 

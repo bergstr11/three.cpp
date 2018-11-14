@@ -119,7 +119,7 @@ public:
 
   const math::Matrix4 &matrixWorldInverse() const {return _matrixWorldInverse;}
 
-  math::Vector3 getWorldDirection() const override
+  math::Vector3 getWorldDirection() override
   {
     math::Quaternion quaternion = getWorldQuaternion();
 

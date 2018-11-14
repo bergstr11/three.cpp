@@ -4,6 +4,7 @@
 
 #include "threereact.h"
 #include <threepp/geometry/Box.h>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace react3d {

@@ -41,6 +41,8 @@ public:
 
   void updateFromObject();
 
+  const Object3D::Ptr object() {return _object;}
+
   rp3d::BoxShape *createBoundingBoxShape();
 
   rp3d::RigidBody * body() const {return _body;}

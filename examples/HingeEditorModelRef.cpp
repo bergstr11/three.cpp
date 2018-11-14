@@ -11,6 +11,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace quick {
@@ -29,7 +30,6 @@ void HingeEditorModelRef::startTimer()
     hinge->elementPhysics->body()->setIsActive(false);
 
   _physicsScene->timer().start();
-  _physicsScene->update();
 }
 
 void HingeEditorModelRef::stopTimer()
@@ -60,8 +60,14 @@ void HingeEditorModelRef::HingeData::requestUpdate(const math::Quaternion &q)
 
 void HingeEditorModelRef::HingeData::doUpdate()
 {
+  printVertex("pre pos", elementPhysics->object()->getWorldPosition());
+  printQuaternion("pre anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
+  printQuaternion("pre elementPhysics", elementPhysics->object()->getWorldQuaternion());
   anchorPhysics->updateFromObject();
   elementPhysics->updateFromObject();
+  printQuaternion("post anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
+  printQuaternion("post elementPhysics", elementPhysics->object()->getWorldQuaternion());
+  printVertex("post pos", elementPhysics->object()->getWorldPosition());
 
   needsUpdate = false;
 }
@@ -334,6 +340,9 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
     elementPhysics->createBoundingBoxShape();
   }
   hinge.elementPhysics = elementPhysics;
+
+  printQuaternion("create anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
+  printQuaternion("create elementPhysics", elementPhysics->object()->getWorldQuaternion());
 
   //calculate the hinge axis
   const auto ax = (hingePoint1World - hingePoint2World).normalized();

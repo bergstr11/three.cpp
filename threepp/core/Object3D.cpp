@@ -110,34 +110,36 @@ Box3 Object3D::computeBoundingBox()
   return box;
 }
 
-Quaternion Object3D::getWorldQuaternion() const
+Quaternion Object3D::getWorldQuaternion()
 {
   Vector3 position(0), scale(0);
   Quaternion target(0);
 
+  updateMatrixWorld( true );
   math::decompose(_matrixWorld, position, target, scale);
 
   return target;
 }
 
-math::Euler Object3D::getWorldRotation() const
+math::Euler Object3D::getWorldRotation()
 {
   Quaternion quaternion = getWorldQuaternion();
 
   return Euler(quaternion, _rotation.getRotationOrder());
 }
 
-Vector3 Object3D::getWorldScale() const
+Vector3 Object3D::getWorldScale()
 {
   math::Vector3 position(0), target(0);
   math::Quaternion quaternion(0);
 
+  updateMatrixWorld( true );
   math::decompose(_matrixWorld, position, quaternion, target);
 
   return target;
 }
 
-Vector3 Object3D::getWorldDirection() const
+Vector3 Object3D::getWorldDirection()
 {
   Quaternion quaternion = getWorldQuaternion();
 
