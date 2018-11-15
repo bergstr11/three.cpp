@@ -4,6 +4,7 @@
 
 #include "threereact.h"
 #include <threepp/geometry/Box.h>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace react3d {
@@ -45,7 +46,7 @@ void PhysicsObject::updateFromObject()
 
 void PhysicsObject::updateTransform(float interpolationFactor)
 {
-  if(_body->getType() == rp3d::BodyType::STATIC) return;
+  if(_body->getType() == rp3d::BodyType::STATIC || !_body->isActive()) return;
 
   // Get the transform of the rigid body
   const rp3d::Transform &transform = _body->getTransform();
