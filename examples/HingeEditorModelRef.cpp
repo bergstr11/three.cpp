@@ -60,16 +60,8 @@ void HingeEditorModelRef::HingeData::requestUpdate(const math::Quaternion &q)
 
 void HingeEditorModelRef::HingeData::doUpdate()
 {
-  printVertex("pre pos", elementPhysics->object()->getWorldPosition());
-  printQuaternion("pre anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
-  printQuaternion("pre elementPhysics", elementPhysics->object()->getWorldQuaternion());
   anchorPhysics->updateFromObject();
   elementPhysics->updateFromObject();
-  printQuaternion("post anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
-  printQuaternion("post elementPhysics", elementPhysics->object()->getWorldQuaternion());
-  printVertex("post pos", elementPhysics->object()->getWorldPosition());
-
-  needsUpdate = false;
 }
 
 void HingeEditorModelRef::updateAnimation()
@@ -83,11 +75,11 @@ void HingeEditorModelRef::updateAnimation()
     hinge->elementPhysics->body()->setIsActive(true);
     if(++hingeIndex == _hinges.size()) hingeIndex = 0;
 
-    if (hinge->needsUpdate) {
-      hinge->doUpdate();
-    }
+    if (hinge->needsUpdate) hinge->doUpdate();
 
     _physicsScene->update();
+
+    hinge->needsUpdate = false;
   }
 }
 
@@ -340,9 +332,6 @@ void HingeEditorModelRef::createHingePhysics(HingeData &hinge,
     elementPhysics->createBoundingBoxShape();
   }
   hinge.elementPhysics = elementPhysics;
-
-  printQuaternion("create anchorPhysics", anchorPhysics->object()->getWorldQuaternion());
-  printQuaternion("create elementPhysics", elementPhysics->object()->getWorldQuaternion());
 
   //calculate the hinge axis
   const auto ax = (hingePoint1World - hingePoint2World).normalized();
