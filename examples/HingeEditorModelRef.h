@@ -27,14 +27,13 @@ Q_OBJECT
 
   std::vector<DynamicMesh::Ptr> _markers;
 
-  r3d::Physics *_physics;
+  r3d::Physics *_physics = nullptr;
 
 protected:
   Object3D::Ptr _create() override;
 
 public:
   HingeEditorModelRef(QObject *parent = nullptr)  : ModelRef(parent) {}
-  ~HingeEditorModelRef() override;
 
   /**
    * save the current hinge definition to a file

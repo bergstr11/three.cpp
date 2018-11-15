@@ -61,7 +61,7 @@ class PhysicsScene
 {
   rp3d::Timer _timer;
 
-  rp3d::DynamicsWorld *_dynamicsWorld;
+  rp3d::DynamicsWorld * const _dynamicsWorld;
 
   std::mutex _createBodyMutex;
 
@@ -70,15 +70,16 @@ class PhysicsScene
 
 protected:
   virtual void preUpdate() {}
+  virtual void postUpdate() {}
 
 public:
-  PhysicsScene(Scene::Ptr object, rp3d::DynamicsWorld *dynamicsWorld)
-  : _dynamicsWorld(dynamicsWorld), _timer(1.0f / 60) {}
-  ~PhysicsScene();
+  PhysicsScene(Scene::Ptr object, const rp3d::Vector3 &gravity, const rp3d::WorldSettings &worldSettings);
+
+  virtual ~PhysicsScene();
 
   using Ptr = std::shared_ptr<PhysicsScene>;
-  static Ptr make(Scene::Ptr scene, rp3d::DynamicsWorld *dynamicsWorld) {
-    return Ptr(new PhysicsScene(scene, dynamicsWorld));
+  static Ptr make2(Scene::Ptr scene, const rp3d::Vector3 &gravity, const rp3d::WorldSettings &worldSettings) {
+    return Ptr(new PhysicsScene(scene, gravity, worldSettings));
   }
 
   rp3d::Timer &timer() {return _timer;}
@@ -130,18 +131,16 @@ struct HingeData
   react3d::PhysicsObject *anchorPhysics = nullptr;
 
   bool needsUpdate = false;
-  react3d::PhysicsScene::Ptr _scene;
 
-  HingeData(HingeType hingeType, react3d::PhysicsScene::Ptr scene)
-     : hingeType(hingeType), _scene(scene)
+  HingeData(HingeType hingeType) : hingeType(hingeType)
   {}
 
   void doUpdate();
   void requestUpdate(const math::Quaternion &q);
 
   using Ptr = std::shared_ptr<HingeData>;
-  static Ptr make(HingeType hingeType, react3d::PhysicsScene::Ptr scene) {
-    return Ptr(new HingeData(hingeType, scene));
+  static Ptr make(HingeType hingeType) {
+    return Ptr(new HingeData(hingeType));
   }
 };
 

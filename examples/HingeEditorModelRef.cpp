@@ -18,10 +18,6 @@ namespace quick {
 
 using namespace three::react3d;
 
-HingeEditorModelRef::~HingeEditorModelRef()
-{
-}
-
 Object3D::Ptr HingeEditorModelRef::_create()
 {
   _physics = dynamic_cast<r3d::Physics *>(_scene->physics());

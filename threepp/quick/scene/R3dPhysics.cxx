@@ -21,20 +21,30 @@ using namespace three::react3d;
 class PhysicsSceneImpl : public PhysicsScene
 {
   Physics * const _physics;
+  HingeData::Ptr currentHinge;
 
 protected:
   void preUpdate() override {
-    _physics->nextHinge();
+    currentHinge = _physics->nextHinge();
+    if (currentHinge->needsUpdate)  currentHinge->doUpdate();
   }
 
-  PhysicsSceneImpl(Physics *physics, three::Scene::Ptr scene, rp3d::DynamicsWorld *world)
-     : PhysicsScene(scene, world), _physics(physics)
+  void postUpdate() override {
+    currentHinge->needsUpdate = false;
+  }
+
+  PhysicsSceneImpl(Physics *physics, three::Scene::Ptr scene, const rp3d::Vector3 &gravity,
+     const rp3d::WorldSettings &worldSettings)
+     : PhysicsScene(scene, gravity, worldSettings), _physics(physics)
   {}
 
 public:
-  static Ptr make(Physics *physics, three::Scene::Ptr scene, rp3d::DynamicsWorld *world)
+  using Ptr = std::shared_ptr<PhysicsSceneImpl>;
+
+  static Ptr make(Physics *physics, three::Scene::Ptr scene, const rp3d::Vector3 &gravity,
+                  const rp3d::WorldSettings &worldSettings)
   {
-    return Ptr(new PhysicsSceneImpl(physics, scene, world));
+    return Ptr(new PhysicsSceneImpl(physics, scene, gravity, worldSettings));
   }
 };
 
@@ -58,9 +68,6 @@ HingeData::Ptr &Physics::nextHinge()
   hinge->elementPhysics->body()->setIsActive(true);
   if(++hingeIndex == _hinges.size()) hingeIndex = 0;
 
-  if (hinge->needsUpdate) {
-    hinge->doUpdate();
-  }
   return hinge;
 }
 
@@ -91,7 +98,6 @@ void Physics::startTimer()
     hinge->elementPhysics->body()->setIsActive(false);
 
   _physicsScene->timer().start();
-  _physicsScene->timedUpdate();
 }
 
 void Physics::stopTimer()
@@ -109,11 +115,10 @@ bool Physics::checkPhysicsScene()
     rp3d::Vector3 gravity(0, rp3d::decimal(-9.81), 0);
 
     rp3d::WorldSettings worldSettings;
-    worldSettings.worldName = "HingeWorld";
+    worldSettings.worldName = "R3dPhysics";
     worldSettings.isSleepingEnabled = false;
 
-    rp3d::DynamicsWorld *dynamicsWorld = new rp3d::DynamicsWorld(gravity, worldSettings);
-    _physicsScene = PhysicsSceneImpl::make(this, scene->scene(), dynamicsWorld);
+    _physicsScene = PhysicsSceneImpl::make(this, scene->scene(), gravity, worldSettings);
   }
   return true;
 }
@@ -162,7 +167,7 @@ void Physics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
     else
       throw std::invalid_argument("unknown hinge type");
 
-    _hinges.emplace_back(HingeData::make(hingeType, _physicsScene));
+    _hinges.emplace_back(HingeData::make(hingeType));
     HingeData::Ptr &hinge = _hinges.back();
 
     hinge->name = hingeObject["name"].toString().toStdString();
@@ -204,8 +209,10 @@ void Physics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
     switch(hingeType) {
       case HingeType::DOOR:
         setupDoorHinge(*hinge, ptw1, ptw2);
+        break;
       case HingeType::PROPELLER:
         setupPropellerHinge(*hinge, ptw1, ptw2);
+        break;
     }
   }
   emit hingesChanged();
@@ -245,7 +252,7 @@ void Physics::createPropellerHinge(QVariant propeller, QVariant body, QVector3D 
   //make sure the scene exists
   if(!checkPhysicsScene()) return;
 
-  _hinges.emplace_back(HingeData::make(HingeType::PROPELLER, _physicsScene));
+  _hinges.emplace_back(HingeData::make(HingeType::PROPELLER));
   HingeData::Ptr &hinge = _hinges.back();
 
   hinge->anchor = bdy->object();
@@ -277,7 +284,7 @@ void Physics::createDoorHinge(QVariant dvar, QVariant cvar, QVector3D upper, QVe
   //make sure the scene exists
   if(!checkPhysicsScene()) return;
 
-  _hinges.emplace_back(HingeData::make(HingeType::DOOR, _physicsScene));
+  _hinges.emplace_back(HingeData::make(HingeType::DOOR));
   HingeData::Ptr &hinge = _hinges.back();
 
   hinge->anchor = tc->object();

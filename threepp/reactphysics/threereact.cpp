@@ -73,6 +73,10 @@ void PhysicsObject::updateTransform(float interpolationFactor)
   //auto mx = newMatrix * _scalingMatrix;
 }
 
+PhysicsScene::PhysicsScene(Scene::Ptr object, const rp3d::Vector3 &gravity, const rp3d::WorldSettings &worldSettings)
+: _dynamicsWorld(new rp3d::DynamicsWorld(gravity, worldSettings)), _timer(1.0f / 60)
+{}
+
 PhysicsScene::~PhysicsScene()
 {
   reset();
@@ -99,10 +103,10 @@ void PhysicsScene::timedUpdate()
 
   _timer.update();
 
+  preUpdate();
   while(_timer.isPossibleToTakeStep()) {
 
     // Take a physics simulation step
-    preUpdate();
     _dynamicsWorld->update(_timer.getTimeStep());
 
     // Update the timer
@@ -113,21 +117,23 @@ void PhysicsScene::timedUpdate()
   for(auto &object : _objects) {
     object.second.updateTransform(interpolationFactor);
   }
+  postUpdate();
 }
 
 void PhysicsScene::update(float seconds)
 {
   unsigned times = seconds / _timer.getTimeStep();
 
+  preUpdate();
   for(unsigned i=0; i<times; i++) {
 
     // Take a physics simulation step
-    preUpdate();
     _dynamicsWorld->update(_timer.getTimeStep());
   }
   for(auto &object : _objects) {
     object.second.updateTransform(1.0f);
   }
+  postUpdate();
 }
 
 rp3d::HingeJoint* PhysicsScene::createHingeJoint(const rp3d::HingeJointInfo& jointInfo)
@@ -196,8 +202,6 @@ void HingeData::doUpdate()
 {
   anchorPhysics->updateFromObject();
   elementPhysics->updateFromObject();
-
-  needsUpdate = false;
 }
 
 

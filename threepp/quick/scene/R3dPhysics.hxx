@@ -40,8 +40,8 @@ Q_OBJECT
 
   void createHingePhysics(react3d::HingeData &hingeData);
 
-  void
-  setupDoorHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World, const math::Vector3 &hingePoint2World);
+  void setupDoorHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World,
+                      const math::Vector3 &hingePoint2World);
 
   void setupPropellerHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World,
                            const math::Vector3 &hingePoint2World);

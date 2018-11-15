@@ -60,7 +60,7 @@ protected:
 public:
   ModelRef(QObject *parent=nullptr) : ThreeQObject(parent) {}
 
-  ~ModelRef() {
+  ~ModelRef() override {
     if(_threeQObject) _threeQObject->deleteLater();
   }
 
