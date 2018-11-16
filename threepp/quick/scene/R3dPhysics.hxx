@@ -117,7 +117,7 @@ public:
   Q_INVOKABLE void stopTimer();
 
   /**
-   * animate the hinges
+   * animate the physics world
    */
   Q_INVOKABLE void updateAnimation();
 

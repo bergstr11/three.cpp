@@ -68,9 +68,6 @@ void PhysicsObject::updateTransform(float interpolationFactor)
   const rp3d::Quaternion &qr = interpolatedTransform.getOrientation();
   three::math::Quaternion localQuat = qinvers * three::math::Quaternion(qr.x, qr.y, qr.z, qr.w);
   _object->setRotationFromQuaternion(localQuat);
-
-  // Apply the scaling matrix to have the correct box dimensions
-  //auto mx = newMatrix * _scalingMatrix;
 }
 
 PhysicsScene::PhysicsScene(Scene::Ptr object, const rp3d::Vector3 &gravity, const rp3d::WorldSettings &worldSettings)
