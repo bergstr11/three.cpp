@@ -109,7 +109,7 @@ public:
 };
 
 enum class HingeType {DOOR, PROPELLER};
-enum class HingeDir {LEFT, RIGHT, UP};
+enum class HingeDir {LEFT, RIGHT, UP, DOWN};
 
 /**
  * Hinge definition

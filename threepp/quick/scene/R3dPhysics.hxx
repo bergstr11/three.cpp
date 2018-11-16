@@ -15,7 +15,7 @@ namespace quick {
 namespace r3d {
 
 /**
- * manages physics infrastructure for a scene
+ * manages physics for a scene
  */
 class Physics : public QObject
 {

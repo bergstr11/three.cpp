@@ -18,6 +18,9 @@ namespace r3d {
 
 using namespace three::react3d;
 
+/**
+ * a scene that handles hinges only by sequentializing updates
+ */
 class PhysicsSceneImpl : public PhysicsScene
 {
   Physics * const _physics;
@@ -306,21 +309,23 @@ void Physics::createDoorHinge(QVariant dvar, QVariant cvar, QVector3D upper, QVe
 void Physics::calculateHingeDir(HingeData &hinge, const math::Vector3 &hingePoint)
 {
   const auto hingePtLocal = hinge.anchor->worldToLocal(hingePoint);
-  math::Line3 line(hinge.anchorPhysics->boxPosition(), hingePtLocal);
-  const auto delta = line.delta().normalized();
 
-  float dx = delta.x() * delta.y();
+  const auto anchorToHinge = (hingePtLocal - hinge.anchorPhysics->boxPosition()).normalized();
+  const auto elementToHinge = (hingePtLocal - hinge.elementPhysics->boxPosition(hinge.anchor)).normalized();
 
-  hinge.hingeDir = dx < 0.1f && dx > -0.1f ? HingeDir::UP : (dx < 0.0f ? HingeDir::LEFT : HingeDir::RIGHT);
+  const auto cross = math::cross(anchorToHinge, elementToHinge);
+  float leftRight = math::dot(cross, hinge.hingePoint1 - hinge.hingePoint2);
+
+  hinge.hingeDir = leftRight < 0.0f ? HingeDir::LEFT : HingeDir::RIGHT;
   switch(hinge.hingeDir) {
     case HingeDir::UP:
-      qDebug() << "UP" << dx;
+      qDebug() << "UP" << leftRight;
       break;
     case HingeDir::LEFT:
-      qDebug() << "LEFT" << dx;
+      qDebug() << "LEFT" << leftRight;
       break;
     case HingeDir::RIGHT:
-      qDebug() << "RIGHT" << dx;
+      qDebug() << "RIGHT" << leftRight;
       break;
   }
 }
