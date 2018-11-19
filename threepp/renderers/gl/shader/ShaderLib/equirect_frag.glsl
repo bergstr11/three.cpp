@@ -1,8 +1,10 @@
 uniform sampler2D tEquirect;
 
-varying vec3 vWorldPosition;
+in vec3 vWorldPosition;
 
 #include <common>
+
+out vec4 fragColor;
 
 void main() {
 
@@ -14,6 +16,6 @@ void main() {
 
 	sampleUV.x = atan( direction.z, direction.x ) * RECIPROCAL_PI2 + 0.5;
 
-	gl_FragColor = texture2D( tEquirect, sampleUV );
+	fragColor = texture( tEquirect, sampleUV );
 
 }

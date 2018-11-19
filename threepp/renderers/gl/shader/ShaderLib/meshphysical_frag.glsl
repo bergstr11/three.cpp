@@ -11,11 +11,11 @@ uniform float opacity;
 	uniform float clearCoatRoughness;
 #endif
 
-varying vec3 vViewPosition;
+in vec3 vViewPosition;
 
 #ifndef FLAT_SHADED
 
-	varying vec3 vNormal;
+	in vec3 vNormal;
 
 #endif
 
@@ -44,6 +44,8 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+out vec4 fragColor;
+
 void main() {
 
 	#include <clipping_planes_fragment>
@@ -71,7 +73,7 @@ void main() {
 
 	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
-	gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+	fragColor = vec4( outgoingLight, diffuseColor.a );
 
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>

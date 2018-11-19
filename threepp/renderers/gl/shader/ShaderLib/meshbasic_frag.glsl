@@ -3,7 +3,7 @@ uniform float opacity;
 
 #ifndef FLAT_SHADED
 
-	varying vec3 vNormal;
+	in vec3 vNormal;
 
 #endif
 
@@ -20,6 +20,8 @@ uniform float opacity;
 #include <specularmap_pars_fragment>
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
+
+out vec4 fragColor;
 
 void main() {
 
@@ -39,7 +41,7 @@ void main() {
 	// accumulation (baked indirect lighting only)
 	#ifdef USE_LIGHTMAP
 
-		reflectedLight.indirectDiffuse += texture2D( lightMap, vUv2 ).xyz * lightMapIntensity;
+		reflectedLight.indirectDiffuse += texture( lightMap, vUv2 ).xyz * lightMapIntensity;
 
 	#else
 
@@ -56,7 +58,7 @@ void main() {
 
 	#include <envmap_fragment>
 
-	gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+	fragColor = vec4( outgoingLight, diffuseColor.a );
 
 	#include <premultiplied_alpha_fragment>
 	#include <tonemapping_fragment>

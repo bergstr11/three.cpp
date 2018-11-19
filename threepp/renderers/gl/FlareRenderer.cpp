@@ -99,11 +99,11 @@ void FlareRenderer::init()
 
      "uniform sampler2D occlusionMap;\n"
 
-     "attribute vec2 position;\n"
-     "attribute vec2 uv;\n"
+     "in vec2 position;\n"
+     "in vec2 uv;\n"
 
-     "varying vec2 vUV;\n"
-     "varying float vVisibility;\n"
+     "out vec2 vUV;\n"
+     "out float vVisibility;\n"
 
      "void main() {\n"
 
@@ -113,15 +113,15 @@ void FlareRenderer::init()
 
      "	if ( renderType == 2 ) {\n"
 
-     "		vec4 visibility = texture2D( occlusionMap, vec2( 0.1, 0.1 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.5, 0.1 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.9, 0.1 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.9, 0.5 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.9, 0.9 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.5, 0.9 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.1, 0.9 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.1, 0.5 ) );\n"
-     "		visibility += texture2D( occlusionMap, vec2( 0.5, 0.5 ) );\n"
+     "		vec4 visibility = texture( occlusionMap, vec2( 0.1, 0.1 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.5, 0.1 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.9, 0.1 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.9, 0.5 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.9, 0.9 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.5, 0.9 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.1, 0.9 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.1, 0.5 ) );\n"
+     "		visibility += texture( occlusionMap, vec2( 0.5, 0.5 ) );\n"
 
      "		vVisibility =        visibility.r / 9.0;\n"
      "		vVisibility *= 1.0 - visibility.g / 9.0;\n"
@@ -144,8 +144,9 @@ void FlareRenderer::init()
      "uniform float opacity;\n"
      "uniform vec3 color;\n"
 
-     "varying vec2 vUV;\n"
-     "varying float vVisibility;\n"
+     "in vec2 vUV;\n"
+     "in float vVisibility;\n"
+     "out vec4 fragColor;\n"
 
      "void main() {\n"
 
@@ -153,22 +154,22 @@ void FlareRenderer::init()
 
      "	if ( renderType == 0 ) {\n"
 
-     "		gl_FragColor = vec4( 1.0, 0.0, 1.0, 0.0 );\n"
+     "		fragColor = vec4( 1.0, 0.0, 1.0, 0.0 );\n"
 
      // restore
 
      "	} else if ( renderType == 1 ) {\n"
 
-     "		gl_FragColor = texture2D( map, vUV );\n"
+     "		fragColor = texture( map, vUV );\n"
 
      // flare
 
      "	} else {\n"
 
-     "		vec4 texture = texture2D( map, vUV );\n"
+     "		vec4 texture = texture( map, vUV );\n"
      "		texture.a *= opacity * vVisibility;\n"
-     "		gl_FragColor = texture;\n"
-     "		gl_FragColor.rgb *= color;\n"
+     "		fragColor = texture;\n"
+     "		fragColor.rgb *= color;\n"
 
      "	}\n"
 

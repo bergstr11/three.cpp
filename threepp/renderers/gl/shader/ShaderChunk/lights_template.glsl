@@ -100,7 +100,7 @@ IncidentLight directLight;
 
 	#ifdef USE_LIGHTMAP
 
-		vec3 lightMapIrradiance = texture2D( lightMap, vUv2 ).xyz * lightMapIntensity;
+		vec3 lightMapIrradiance = texture( lightMap, vUv2 ).xyz * lightMapIntensity;
 
 		#ifndef PHYSICALLY_CORRECT_LIGHTS
 

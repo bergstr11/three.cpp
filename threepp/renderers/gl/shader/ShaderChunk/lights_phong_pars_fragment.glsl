@@ -1,8 +1,8 @@
-varying vec3 vViewPosition;
+in vec3 vViewPosition;
 
 #ifndef FLAT_SHADED
 
-	varying vec3 vNormal;
+	in vec3 vNormal;
 
 #endif
 

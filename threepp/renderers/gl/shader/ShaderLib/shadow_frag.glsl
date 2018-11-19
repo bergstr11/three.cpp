@@ -7,8 +7,10 @@ uniform float opacity;
 #include <shadowmap_pars_fragment>
 #include <shadowmask_pars_fragment>
 
+out vec4 fragColor;
+
 void main() {
 
-	gl_FragColor = vec4( 0.0, 0.0, 0.0, opacity * ( 1.0 - getShadowMask() ) );
+	fragColor = vec4( 0.0, 0.0, 0.0, opacity * ( 1.0 - getShadowMask() ) );
 
 }

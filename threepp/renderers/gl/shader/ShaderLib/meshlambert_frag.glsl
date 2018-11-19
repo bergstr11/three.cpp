@@ -2,11 +2,11 @@ uniform vec3 diffuse;
 uniform vec3 emissive;
 uniform float opacity;
 
-varying vec3 vLightFront;
+in vec3 vLightFront;
 
 #ifdef DOUBLE_SIDED
 
-	varying vec3 vLightBack;
+	in vec3 vLightBack;
 
 #endif
 
@@ -30,6 +30,8 @@ varying vec3 vLightFront;
 #include <specularmap_pars_fragment>
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
+
+out vec4 fragColor;
 
 void main() {
 
@@ -73,7 +75,7 @@ void main() {
 
 	#include <envmap_fragment>
 
-	gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+	fragColor = vec4( outgoingLight, diffuseColor.a );
 
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>

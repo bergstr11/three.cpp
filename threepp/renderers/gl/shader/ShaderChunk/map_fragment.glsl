@@ -1,6 +1,6 @@
 #ifdef USE_MAP
 
-	vec4 texelColor = texture2D( map, vUv );
+	vec4 texelColor = texture( map, vUv );
 
 	texelColor = mapTexelToLinear( texelColor );
 	diffuseColor *= texelColor;

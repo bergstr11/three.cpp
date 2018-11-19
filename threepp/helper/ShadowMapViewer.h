@@ -28,21 +28,24 @@ namespace three {
  */
 constexpr const char * const vertexShader =
 
-"varying vec2 vUv;\n"
-"void main() {\n"
-"  vUv = uv;\n"
-"  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n"
+"#version 140"
+"out vec2 vUv;"
+"void main() {"
+"  vUv = uv;"
+"  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );"
 "}";
 
 constexpr const char * const fragmentShader =
 
-"uniform float opacity;\n"
-"uniform sampler2D diffuse;\n"
-"varying vec2 vUv;\n"
-"#include <packing>\n"
-"void main() {\n"
-"  float depth = 1.0 - unpackRGBAToDepth( texture2D( diffuse, vUv ) );\n"
-"  gl_FragColor = vec4( vec3( depth ), opacity );\n"
+"#version 140"
+"uniform float opacity;"
+"uniform sampler2D diffuse;"
+"in vec2 vUv;"
+"out vec4 fragColor;"
+"#include <packing>"
+"void main() {"
+"  float depth = 1.0 - unpackRGBAToDepth( texture( diffuse, vUv ) );"
+"  fragColor = vec4( vec3( depth ), opacity );"
 "}";
 
 /**

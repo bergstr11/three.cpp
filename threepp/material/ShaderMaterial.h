@@ -40,8 +40,8 @@ public:
   bool clipping = false; // set to use user-defined clipping planes
   bool morphNormals = false; // set to use morph normals
   
-  std::string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
-  std::string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
+  std::string vertexShader = "#version 140 void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );}";
+  std::string fragmentShader = "#version 140 void main() out vec4 fragColor; {fragColor = vec4( 1.0, 0.0, 0.0, 1.0 );}";
 
   // When rendered geometry doesn't include these attributes but the material does,
   // use these default values in WebGL. This avoids errors when buffer data is missing.

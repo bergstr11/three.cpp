@@ -11,6 +11,8 @@
 #include "Renderer_impl.h"
 #include "shader/ShaderChunk.h"
 
+#include <QStandardPaths>
+
 namespace three {
 namespace gl {
 
@@ -90,8 +92,7 @@ string getToneMappingFunction(const char *functionName, ToneMapping toneMapping)
   return ss.str();
 }
 
-string
-generateExtensions(Extensions &extensions, const ProgramParameters &parameters)
+string generateExtensions(Extensions &extensions, const ProgramParameters &parameters)
 {
   stringstream ss;
   if (extensions.get(Extension::OES_standard_derivatives) || *parameters.envMapCubeUV || *parameters.bumpMap || *parameters.normalMap || *parameters.flatShading)
@@ -302,13 +303,13 @@ GLuint createShader(QOpenGLFunctions *f, GLenum type, string glsl)
     cerr << glsl << endl;
 
     if(!info.empty())
-      cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info << endl;
+      qCritical() << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info.c_str();
 
     throw logic_error("GLSL compile error");
   }
   else {
     if(!info.empty())
-      cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info << endl;
+      qWarning() << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader compilation result: " << info.c_str();
   }
   // --enable-privileged-webgl-extension
   // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
@@ -418,15 +419,13 @@ Program::Program(Renderer_impl &renderer,
 
     //vertex prefix
     //=============
-#ifdef GL_ES_VERSION_3_0
-    ss << "#version 300" << endl;
-#else
-    ss << "#version 120" << endl;
-#endif
-    ss << "#ifdef GL_ES" << endl;
+#ifdef GL_ES_VERSION_3_1
+    ss << "#version 310 es" << endl;
     ss << "precision " << *parameters->precision << " float;" << endl;
     ss << "precision " << *parameters->precision << " int;" << endl;
-    ss << "#endif" << endl;
+#else
+    ss << "#version 140" << endl;
+#endif
     ss << "#define SHADER_NAME " << shader.name() << endl;
     ss << customDefines;
 
@@ -481,36 +480,36 @@ Program::Program(Renderer_impl &renderer,
     ss << "uniform mat3 normalMatrix;" << endl;
     ss << "uniform vec3 cameraPosition;" << endl;
 
-    ss << "attribute vec3 position;" << endl;
-    ss << "attribute vec3 normal;" << endl;
-    ss << "attribute vec2 uv;" << endl;
+    ss << "in vec3 position;" << endl;
+    ss << "in vec3 normal;" << endl;
+    ss << "in vec2 uv;" << endl;
 
     ss << "#ifdef USE_COLOR" << endl;
 
-    ss << "	attribute vec3 color;" << endl;
+    ss << "	in vec3 color;" << endl;
 
     ss << "#endif" << endl;
 
     ss << "#ifdef USE_MORPHTARGETS" << endl;
 
-    ss << "	attribute vec3 morphTarget0;" << endl;
-    ss << "	attribute vec3 morphTarget1;" << endl;
-    ss << "	attribute vec3 morphTarget2;" << endl;
-    ss << "	attribute vec3 morphTarget3;" << endl;
+    ss << "	in vec3 morphTarget0;" << endl;
+    ss << "	in vec3 morphTarget1;" << endl;
+    ss << "	in vec3 morphTarget2;" << endl;
+    ss << "	in vec3 morphTarget3;" << endl;
 
     ss << "	#ifdef USE_MORPHNORMALS" << endl;
 
-    ss << "		attribute vec3 morphNormal0;" << endl;
-    ss << "		attribute vec3 morphNormal1;" << endl;
-    ss << "		attribute vec3 morphNormal2;" << endl;
-    ss << "		attribute vec3 morphNormal3;" << endl;
+    ss << "		in vec3 morphNormal0;" << endl;
+    ss << "		in vec3 morphNormal1;" << endl;
+    ss << "		in vec3 morphNormal2;" << endl;
+    ss << "		in vec3 morphNormal3;" << endl;
 
     ss << "	#else" << endl;
 
-    ss << "		attribute vec3 morphTarget4;" << endl;
-    ss << "		attribute vec3 morphTarget5;" << endl;
-    ss << "		attribute vec3 morphTarget6;" << endl;
-    ss << "		attribute vec3 morphTarget7;" << endl;
+    ss << "		in vec3 morphTarget4;" << endl;
+    ss << "		in vec3 morphTarget5;" << endl;
+    ss << "		in vec3 morphTarget6;" << endl;
+    ss << "		in vec3 morphTarget7;" << endl;
 
     ss << "	#endif" << endl;
 
@@ -518,8 +517,8 @@ Program::Program(Renderer_impl &renderer,
 
     ss << "#ifdef USE_SKINNING" << endl;
 
-    ss << "	attribute vec4 skinIndex;" << endl;
-    ss << "	attribute vec4 skinWeight;" << endl;
+    ss << "	in vec4 skinIndex;" << endl;
+    ss << "	in vec4 skinWeight;" << endl;
 
     ss << "#endif" << endl;
 
@@ -529,21 +528,20 @@ Program::Program(Renderer_impl &renderer,
 
     //fragment prefix
     //===============
-#ifdef GL_ES_VERSION_3_0
-    ss << "#version 300" << endl;
-#else
-    ss << "#version 120" << endl;
-#endif
+#ifdef GL_ES_VERSION_3_1
+    ss << "#version 310 es" << endl;
     ss << customExtensions;
-
-    ss << "#ifdef GL_ES" << endl;
+    ss << "#extension GL_EXT_gpu_shader5: enable" << endl;
     ss << "precision " << *parameters->precision << " float;" << endl;
     ss << "precision " << *parameters->precision << " int;" << endl;
-    ss << "#endif" << endl;
+#else
+    ss << "#version 140" << endl;
+    ss << customExtensions;
+#endif
 
     ss << "#define SHADER_NAME " << shader.name() << endl;
 
-    ss << customDefines << endl;
+    if(!customDefines.empty()) ss << customDefines << endl;
 
     if(*parameters->alphaTest) ss << "#define ALPHATEST " << *parameters->alphaTest << endl;
 
@@ -644,6 +642,12 @@ Program::Program(Renderer_impl &renderer,
   string vertexGlsl = prefixVertex + vertexShader;
   string fragmentGlsl = prefixFragment + fragmentShader;
 
+#if 0
+  qDebug() << "writing stuff to" << QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+  ofstream vertex(QStandardPaths::TempLocation+"/vertex.glsl", ios_base::app);
+  vertex << vertexGlsl.c_str();
+  vertex.close();
+#endif
   GLuint glVertexShader = createShader(&_renderer, GL_VERTEX_SHADER, vertexGlsl );
   GLuint glFragmentShader = createShader(&_renderer, GL_FRAGMENT_SHADER, fragmentGlsl );
 

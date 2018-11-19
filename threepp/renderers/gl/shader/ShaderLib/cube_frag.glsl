@@ -2,11 +2,12 @@ uniform samplerCube tCube;
 uniform float tFlip;
 uniform float opacity;
 
-varying vec3 vWorldPosition;
+in vec3 vWorldPosition;
+out vec4 fragColor;
 
 void main() {
 
-	gl_FragColor = textureCube( tCube, vec3( tFlip * vWorldPosition.x, vWorldPosition.yz ) );
-	gl_FragColor.a *= opacity;
+	fragColor = texture( tCube, vec3( tFlip * vWorldPosition.x, vWorldPosition.yz ) );
+	fragColor.a *= opacity;
 
 }

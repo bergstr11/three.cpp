@@ -4,13 +4,13 @@ uniform float opacity;
 
 #if defined( FLAT_SHADED ) || defined( USE_BUMPMAP ) || defined( USE_NORMALMAP )
 
-	varying vec3 vViewPosition;
+	in vec3 vViewPosition;
 
 #endif
 
 #ifndef FLAT_SHADED
 
-	varying vec3 vNormal;
+	in vec3 vNormal;
 
 #endif
 
@@ -20,11 +20,13 @@ uniform float opacity;
 #include <normalmap_pars_fragment>
 #include <logdepthbuf_pars_fragment>
 
+out vec4 fragColor;
+
 void main() {
 
 	#include <logdepthbuf_fragment>
 	#include <normal_fragment>
 
-	gl_FragColor = vec4( packNormalToRGB( normal ), opacity );
+	fragColor = vec4( packNormalToRGB( normal ), opacity );
 
 }

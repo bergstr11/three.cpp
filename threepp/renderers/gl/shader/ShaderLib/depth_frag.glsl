@@ -12,6 +12,8 @@
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+out vec4 fragColor;
+
 void main() {
 
 	#include <clipping_planes_fragment>
@@ -32,11 +34,11 @@ void main() {
 
 	#if DEPTH_PACKING == 3200
 
-		gl_FragColor = vec4( vec3( gl_FragCoord.z ), opacity );
+		fragColor = vec4( vec3( gl_FragCoord.z ), opacity );
 
 	#elif DEPTH_PACKING == 3201
 
-		gl_FragColor = packDepthToRGBA( gl_FragCoord.z );
+		fragColor = packDepthToRGBA( gl_FragCoord.z );
 
 	#endif
 

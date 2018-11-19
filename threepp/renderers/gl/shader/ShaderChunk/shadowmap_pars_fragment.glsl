@@ -3,21 +3,21 @@
 	#if NUM_DIR_LIGHTS > 0
 
 		uniform sampler2D directionalShadowMap[ NUM_DIR_LIGHTS ];
-		varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHTS ];
+		in vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHTS ];
 
 	#endif
 
 	#if NUM_SPOT_LIGHTS > 0
 
 		uniform sampler2D spotShadowMap[ NUM_SPOT_LIGHTS ];
-		varying vec4 vSpotShadowCoord[ NUM_SPOT_LIGHTS ];
+		in vec4 vSpotShadowCoord[ NUM_SPOT_LIGHTS ];
 
 	#endif
 
 	#if NUM_POINT_LIGHTS > 0
 
 		uniform sampler2D pointShadowMap[ NUM_POINT_LIGHTS ];
-		varying vec4 vPointShadowCoord[ NUM_POINT_LIGHTS ];
+		in vec4 vPointShadowCoord[ NUM_POINT_LIGHTS ];
 
 	#endif
 
@@ -31,7 +31,7 @@
 
 	float texture2DCompare( sampler2D depths, vec2 uv, float compare ) {
 
-		return step( compare, unpackRGBAToDepth( texture2D( depths, uv ) ) );
+		return step( compare, unpackRGBAToDepth( texture( depths, uv ) ) );
 
 	}
 

@@ -115,10 +115,10 @@ vec4 textureCubeUV(vec3 reflectedDirection, float roughness ) {
 
 	// Tri linear interpolation.
 	vec2 uv_10 = getCubeUV(reflectedDirection, r1, level0);
-	vec4 color10 = envMapTexelToLinear(texture2D(envMap, uv_10));
+	vec4 color10 = envMapTexelToLinear(texture(envMap, uv_10));
 
 	vec2 uv_20 = getCubeUV(reflectedDirection, r2, level0);
-	vec4 color20 = envMapTexelToLinear(texture2D(envMap, uv_20));
+	vec4 color20 = envMapTexelToLinear(texture(envMap, uv_20));
 
 	vec4 result = mix(color10, color20, t);
 

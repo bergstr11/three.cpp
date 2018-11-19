@@ -10,7 +10,7 @@
 
 		#ifdef USE_GRADIENTMAP
 
-			return texture2D( gradientMap, coord ).rgb;
+			return texture( gradientMap, coord ).rgb;
 
 		#else
 

@@ -190,7 +190,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
 			#else
 
 				// force the bias high to get the last LOD level as it is the most blurred.
-				vec4 envMapColor = textureCube( envMap, queryVec, float( maxMIPLevel ) );
+				vec4 envMapColor = texture( envMap, queryVec, float( maxMIPLevel ) );
 
 			#endif
 
@@ -251,7 +251,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
 
 			#else
 
-				vec4 envMapColor = textureCube( envMap, queryReflectVec, specularMIPLevel );
+				vec4 envMapColor = texture( envMap, queryReflectVec, specularMIPLevel );
 
 			#endif
 
@@ -274,7 +274,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
 
 			#else
 
-				vec4 envMapColor = texture2D( envMap, sampleUV, specularMIPLevel );
+				vec4 envMapColor = texture( envMap, sampleUV, specularMIPLevel );
 
 			#endif
 
@@ -290,7 +290,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
 
 			#else
 
-				vec4 envMapColor = texture2D( envMap, reflectView.xy * 0.5 + 0.5, specularMIPLevel );
+				vec4 envMapColor = texture( envMap, reflectView.xy * 0.5 + 0.5, specularMIPLevel );
 
 			#endif
 

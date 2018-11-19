@@ -42,9 +42,9 @@ float clearCoatDHRApprox( const in float roughness, const in float dotNL ) {
 
 		vec2 uv = LTC_Uv( normal, viewDir, roughness );
 
-		float norm = texture2D( ltcMag, uv ).a;
+		float norm = texture( ltcMag, uv ).a;
 
-		vec4 t = texture2D( ltcMat, uv );
+		vec4 t = texture( ltcMat, uv );
 
 		mat3 mInv = mat3(
 			vec3(   1,   0, t.y ),

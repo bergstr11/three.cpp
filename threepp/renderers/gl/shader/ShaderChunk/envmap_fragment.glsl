@@ -25,7 +25,7 @@
 
 	#ifdef ENVMAP_TYPE_CUBE
 
-		vec4 envColor = textureCube( envMap, vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
+		vec4 envColor = texture( envMap, vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
 
 	#elif defined( ENVMAP_TYPE_EQUIREC )
 
@@ -37,7 +37,7 @@
 
 		sampleUV.x = atan( reflectVec.z, reflectVec.x ) * RECIPROCAL_PI2 + 0.5;
 
-		vec4 envColor = texture2D( envMap, sampleUV );
+		vec4 envColor = texture( envMap, sampleUV );
 
 	#elif defined( ENVMAP_TYPE_SPHERE )
 
@@ -45,7 +45,7 @@
 
 		vec3 reflectView = normalize( ( viewMatrix * vec4( reflectVec, 0.0 ) ).xyz + vec3( 0.0, 0.0, 1.0 ) );
 
-		vec4 envColor = texture2D( envMap, reflectView.xy * 0.5 + 0.5 );
+		vec4 envColor = texture( envMap, reflectView.xy * 0.5 + 0.5 );
 
 	#else
 

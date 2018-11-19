@@ -99,11 +99,11 @@ void SpriteRenderer::init()
      "uniform vec2 uvOffset;"
      "uniform vec2 uvScale;"
 
-     "attribute vec2 position;"
-     "attribute vec2 uv;"
+     "in vec2 position;"
+     "in vec2 uv;"
 
-     "varying vec2 vUV;"
-     "varying float fogDepth;"
+     "out vec2 vUV;"
+     "out float fogDepth;"
 
      "void main() {"
 
@@ -145,16 +145,17 @@ void SpriteRenderer::init()
     "uniform float fogFar;"
     "uniform float alphaTest;"
 
-    "varying vec2 vUV;"
-    "varying float fogDepth;"
+    "in vec2 vUV;"
+    "in float fogDepth;"
+    "out vec4 fragColor;"
 
     "void main() {"
 
-    "	vec4 texture = texture2D( map, vUV );"
+    "	vec4 texture = texture( map, vUV );"
 
-    "	gl_FragColor = vec4( color * texture.xyz, texture.a * opacity );"
+    "	fragColor = vec4( color * texture.xyz, texture.a * opacity );"
 
-    "	if ( gl_FragColor.a < alphaTest ) discard;"
+    "	if ( fragColor.a < alphaTest ) discard;"
 
     "	if ( fogType > 0 ) {"
 
@@ -172,7 +173,7 @@ void SpriteRenderer::init()
 
     "		}"
 
-    "		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );"
+    "		fragColor.rgb = mix( fragColor.rgb, fogColor, fogFactor );"
 
     "	}"
 
