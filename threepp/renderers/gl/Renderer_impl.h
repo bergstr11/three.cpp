@@ -48,6 +48,8 @@ class Renderer_impl : public OpenGLRenderer, public QOpenGLExtraFunctions
 
   DeferredCalls *_deferredCalls;
 
+  void contextAboutToBeDestroyed();
+
 protected:
   std::vector<Light::Ptr> _lightsArray;
   std::vector<Light::Ptr> _shadowsArray;

@@ -263,15 +263,9 @@ public:
     translateOnAxis(math::Vector3( 0, 0, 1 ), distance );
   }
 
-  math::Vector3 localToWorld(const math::Vector3 &vector) const
-  {
-    return vector * _matrixWorld;
-  }
+  math::Vector3 localToWorld(const math::Vector3 &vector) const;
 
-  math::Vector3 worldToLocal(const math::Vector3 &vector)
-  {
-    return vector * _matrixWorld.inverted();
-  }
+  math::Vector3 worldToLocal(const math::Vector3 &vector) const;
 
   // This method does not support objects with rotated and/or translated parent(s)
   virtual void lookAt(const math::Vector3 &vector)

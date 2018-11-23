@@ -7,7 +7,7 @@
 
 namespace three {
 
-no_delete _no_delete;
+no_delete DLX _no_delete;
 
 namespace extras {
 namespace points_walker {

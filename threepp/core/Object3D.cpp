@@ -146,6 +146,17 @@ Vector3 Object3D::getWorldDirection()
   return Vector3( 0, 0, 1 ).apply(quaternion);
 }
 
+math::Vector3 Object3D::localToWorld(const math::Vector3 &vector) const
+{
+  return vector * _matrixWorld;
+}
+
+math::Vector3 Object3D::worldToLocal(const math::Vector3 &vector) const
+{
+  return vector * _matrixWorld.inverted();
+}
+
+
 void Object3D::traverse(std::function<void(Object3D &)> callback)
 {
   callback( *this );

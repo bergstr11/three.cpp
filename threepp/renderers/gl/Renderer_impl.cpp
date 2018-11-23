@@ -97,9 +97,18 @@ Renderer_impl::~Renderer_impl()
   delete _deferredCalls;
 }
 
+void Renderer_impl::contextAboutToBeDestroyed()
+{
+  _properties.clear();
+  _programs->clear();
+}
+
 void Renderer_impl::initContext()
 {
   initializeOpenGLFunctions();
+  QObject::connect(QOpenGLContext::currentContext(), &QOpenGLContext::aboutToBeDestroyed, [this]() {
+    contextAboutToBeDestroyed();
+  });
 
   _state.initContext();
 

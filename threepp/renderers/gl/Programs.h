@@ -95,6 +95,11 @@ public:
     }
 
   }
+
+  void clear()
+  {
+    _programs.clear();
+  }
 };
 
 }

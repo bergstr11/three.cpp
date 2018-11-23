@@ -25,7 +25,7 @@ struct PlaneParams
   {}
 };
 
-class Plane : public LinearGeometry, public PlaneParams
+class DLX Plane : public LinearGeometry, public PlaneParams
 {
   Plane(const Plane &plane) : LinearGeometry(plane), PlaneParams(plane) {}
 
@@ -48,7 +48,7 @@ public:
 
 namespace buffer {
 
-class Plane : public BufferGeometry, public PlaneParams
+class DLX Plane : public BufferGeometry, public PlaneParams
 {
   Plane(const Plane &plane) : BufferGeometry(plane), PlaneParams(plane) {}
 

@@ -107,6 +107,7 @@ public:
   void clear()
   {
     glProperties.clear();
+    materialProperties.clear();
   }
 };
 

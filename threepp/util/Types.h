@@ -205,7 +205,7 @@ struct no_delete
   template <typename T>
   void operator () (const T *o) const {}
 };
-extern no_delete _no_delete;
+extern no_delete DLX _no_delete;
 
 } // namespace three
 
