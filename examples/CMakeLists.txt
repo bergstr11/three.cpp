@@ -36,5 +36,6 @@ else(WIN32)
 endif(ANDROID)
 
 if(WITH_REACTPHYSICS)
+    target_compile_definitions(three_test PRIVATE WITH_REACTPHYSICS)
     target_link_libraries(three_test PUBLIC threereact)
 endif(WITH_REACTPHYSICS)

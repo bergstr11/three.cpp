@@ -8,7 +8,6 @@ set(THREE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 OPTION(WITH_REACTPHYSICS "build the physics module into the library" ON)
 
-message("path: ${CMAKE_PREFIX_PATH}")
 if(WIN32)
     add_definitions(-DNOMINMAX)
 	if(${ASSIMP_PATH})
