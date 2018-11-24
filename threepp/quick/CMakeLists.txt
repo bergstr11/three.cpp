@@ -58,6 +58,7 @@ install(TARGETS threeppq threeppq_static
         ARCHIVE DESTINATION lib)
 
 install(EXPORT threeppq
+        CONFIGURATIONS Debug Release
         DESTINATION lib/cmake/threeppq
         FILE threeppq-config.cmake)
 

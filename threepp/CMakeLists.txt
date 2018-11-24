@@ -122,6 +122,7 @@ install(TARGETS threepp threepp_static
         ARCHIVE DESTINATION lib)
 
 install(EXPORT threepp
+        CONFIGURATIONS Debug Release
         DESTINATION lib/cmake/threepp
         FILE threepp-config.cmake)
 
