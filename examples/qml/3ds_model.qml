@@ -59,7 +59,7 @@ Window {
             ModelRef {
                 model: threeDModel
                 type: ModelRef.Mesh
-                selector: "*:PortalGun"
+                selector: "*:portalgun"
 
                 onObjectChanged: {
                     object.material.normalMap = normalTexture

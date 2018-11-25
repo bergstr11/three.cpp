@@ -55,7 +55,7 @@ Window {
             id: skyMaterial
             side: Three.BackSide
             vertexShader:
-                "varying vec3 vWorldPosition;
+                "out vec3 vWorldPosition;
                 void main() {
                     vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
                     vWorldPosition = worldPosition.xyz;
@@ -67,11 +67,12 @@ Window {
                 uniform float offset;
                 uniform float exponent;
 
-                varying vec3 vWorldPosition;
+                in vec3 vWorldPosition;
+                out vec4 fragColor;
 
                 void main() {
                     float h = normalize( vWorldPosition + offset ).y;
-                    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+                    fragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
                 }"
             uniforms: {"topColor": Three.color("#0077ff"), "bottomColor": Three.color("#ffffff"), "offset": 33, "exponent": 0.6 }
         }

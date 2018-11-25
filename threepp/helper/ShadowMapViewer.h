@@ -28,7 +28,6 @@ namespace three {
  */
 constexpr const char * const vertexShader =
 
-"#version 140"
 "out vec2 vUv;"
 "void main() {"
 "  vUv = uv;"
@@ -37,7 +36,6 @@ constexpr const char * const vertexShader =
 
 constexpr const char * const fragmentShader =
 
-"#version 140"
 "uniform float opacity;"
 "uniform sampler2D diffuse;"
 "in vec2 vUv;"
