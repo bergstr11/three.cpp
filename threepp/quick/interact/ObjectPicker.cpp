@@ -126,7 +126,7 @@ bool ObjectPicker::handleMouseClicked(QMouseEvent *event)
 
       _rays->setIntersects(_intersects);
 
-      emit objectsClicked();
+      emit objectPicked();
       return  true;
     }
     else {
@@ -150,7 +150,7 @@ bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 
       _rays->setIntersects(_intersects);
 
-      emit objectsDoubleClicked();
+      emit objectDoublePicked();
       return true;
     }
     else {

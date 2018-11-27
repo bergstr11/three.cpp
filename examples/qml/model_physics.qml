@@ -390,7 +390,7 @@ Window {
             enabled: false
             objects: [scene]
 
-            onObjectsClicked: {
+            onObjectPicked: {
                 var is = intersect(0)
                 pickedParents.model = objectPicker.pickedParents(0)
                 dataRow.picked = is.object

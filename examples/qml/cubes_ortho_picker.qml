@@ -48,11 +48,11 @@ Window {
             unifyClicked: true
             objects: [scene]
 
-            onObjectsClicked: {
+            onObjectPicked: {
                 var intersected = intersect(0).object
                 intersected.material.emissive = "#ff0000"
             }
-            onObjectsDoubleClicked: {
+            onObjectDoublePicked: {
                 var intersected = intersect(0).object
                 intersected.material.emissive = "#0000dd"
                 intersected.scale = "1.5,1.5,1.5"

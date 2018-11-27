@@ -77,7 +77,7 @@ Window {
             camera: scene.camera
             objects: [sphere]
 
-            onObjectsClicked: {
+            onObjectPicked: {
                 var is = intersect(0)
                 sphere.createObject(is.point, is.faceNormal)
 

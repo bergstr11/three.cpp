@@ -230,8 +230,8 @@ signals:
   void raysChanged();
   void unifyClickedChanged();
 
-  void objectsClicked();
-  void objectsDoubleClicked();
+  void objectPicked();
+  void objectDoublePicked();
 };
 
 }
