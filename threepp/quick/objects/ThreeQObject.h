@@ -182,6 +182,7 @@ public:
   Q_INVOKABLE QVariant parentObject(QString name);
   Q_INVOKABLE void add(three::quick::ThreeQObject *object);
   Q_INVOKABLE void remove(three::quick::ThreeQObject *object);
+  Q_INVOKABLE QVector3D worldPosition() const;
   Q_INVOKABLE void clear();
 
   Q_INVOKABLE void rotateX(float angle);

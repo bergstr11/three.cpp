@@ -310,6 +310,12 @@ void ThreeQObject::lookAt(const QVector3D &position)
   }
 }
 
+QVector3D ThreeQObject::worldPosition() const
+{
+  const math::Vector3 pos = _object ? _object->getWorldPosition() : math::Vector3();
+  return QVector3D(pos.x(), pos.y(), pos.z());
+}
+
 QVariant ThreeQObject::parentObject(QString name)
 {
   Object3D *parent = nullptr;
