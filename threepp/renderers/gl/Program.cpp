@@ -95,8 +95,6 @@ string getToneMappingFunction(const char *functionName, ToneMapping toneMapping)
 string generateExtensions(Extensions &extensions, const ProgramParameters &parameters)
 {
   stringstream ss;
-  if (extensions.get(Extension::OES_standard_derivatives) || *parameters.envMapCubeUV || *parameters.bumpMap || *parameters.normalMap || *parameters.flatShading)
-    ss << "#extension GL_OES_standard_derivatives : enable" << endl;
   if ((extensions.get(Extension::EXT_frag_depth) || *parameters.logarithmicDepthBuffer) && parameters.extensions.get(Extension::EXT_frag_depth))
     ss << "#extension GL_EXT_frag_depth : enable" << endl;
   if (extensions.get(Extension::GLEXT_draw_buffers) && parameters.extensions.get(Extension::GLEXT_draw_buffers))
