@@ -21,7 +21,7 @@ public:
   {
   protected:
     Target(GLsizei width, GLsizei height)
-       : uuid(sole::uuid0()), _width(width), _height(height), _viewport(0, 0, width, height), _scissor(0, 0, width,  height)
+       : uuid(sole::uuid4()), _width(width), _height(height), _viewport(0, 0, width, height), _scissor(0, 0, width,  height)
     {}
 
     GLsizei _width;

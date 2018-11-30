@@ -83,11 +83,11 @@ protected:
   UpdateRange _updateRange;
 
   explicit BufferAttribute(unsigned itemSize, bool normalized)
-     : uuid(sole::uuid0()), _itemSize(itemSize), _normalized(normalized)
+     : uuid(sole::uuid4()), _itemSize(itemSize), _normalized(normalized)
   {}
 
   BufferAttribute(const BufferAttribute &att)
-     : uuid(sole::uuid0()),
+     : uuid(sole::uuid4()),
        _version(att._version),
        _itemSize(att._itemSize),
        _normalized(att._normalized),

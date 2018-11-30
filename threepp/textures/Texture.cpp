@@ -12,7 +12,7 @@ Texture::Texture(const TextureOptions &options, const texture::Typer &typer,
      typer(typer),
      _generateMipmaps(generateMipMaps),
      _unpackAlignment(unpackAlignment),
-     uuid(sole::uuid0())
+     uuid(sole::uuid4())
 {
 }
 

@@ -105,7 +105,7 @@ void PointsMaterial::callback(const material::Selector &selector)
 }
 
 Material::Material(const Material &material, const material::Info &info, const material::Typer &typer)
-   : uuid(sole::uuid0()), id(___material_id_count++), info(info), typer(typer)
+   : uuid(sole::uuid4()), id(___material_id_count++), info(info), typer(typer)
 {
   fog = material.fog;
   lights = material.lights;

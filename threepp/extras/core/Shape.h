@@ -26,10 +26,10 @@ class Shape : public Path
 protected:
   std::vector<Path::Ptr> _holes;
 
-  Shape(const std::vector<math::Vector2> &points) : Path(points), uuid(sole::uuid0())
+  Shape(const std::vector<math::Vector2> &points) : Path(points), uuid(sole::uuid4())
   {}
 
-  Shape(const std::vector<Curve::Ptr> &curves) : Path(curves), uuid(sole::uuid0())
+  Shape(const std::vector<Curve::Ptr> &curves) : Path(curves), uuid(sole::uuid4())
   {}
 
 public:
