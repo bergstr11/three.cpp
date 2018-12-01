@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   //maincomponent.loadUrl(QUrl("qrc:///3ds_model.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///orthographic_camera.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///cubes_ortho_picker.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///load_model.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///cubemap_model.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///voxelpainter.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///hemisphere.qml"));
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   //maincomponent.loadUrl(QUrl("qrc:///SVG_extrude.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///webgl_shadowmap.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///model_physics.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///model_physics.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
