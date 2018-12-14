@@ -7,15 +7,13 @@
 
 //#define IS_LOGGING_ACTIVE
 #include <threepp/quick/objects/ModelRef.h>
-#include <threepp/quick/scene/R3dPhysics.hxx>
+#include <threepp/quick/scene/Dynamics.h>
 #include <QStringListModel>
 
 namespace three {
 namespace quick {
 
-namespace r3d {
-class Physics;
-}
+class Dynamics;
 
 /**
  * subclasses ModelRef to provide support functions for hinge editing based on the
@@ -27,7 +25,7 @@ Q_OBJECT
 
   std::vector<DynamicMesh::Ptr> _markers;
 
-  r3d::Physics *_physics = nullptr;
+  Dynamics *_dynamics = nullptr;
 
 protected:
   Object3D::Ptr _create() override;

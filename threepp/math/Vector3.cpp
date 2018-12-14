@@ -55,6 +55,11 @@ Vector3 &Vector3::apply(const Quaternion &q)
   return *this;
 }
 
+Vector3 &Vector3::apply(const Vector3 &axis, float angle)
+{
+  return apply( Quaternion::fromAxisAngle( axis, angle ) );
+}
+
 Vector3 &Vector3::project(const Camera &camera)
 {
   apply(camera.projectionMatrix() * camera.matrixWorld().inverted());

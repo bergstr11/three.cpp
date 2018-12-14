@@ -6,67 +6,78 @@
 #define THREE_PP_R3DPHYSICSHANDLER_H
 
 #include <threepp/quick/objects/ThreeQObject.h>
-#include <threepp/reactphysics/threereact.h>
+#include <QElapsedTimer>
 
 class QJsonValueRef;
 
 namespace three {
 namespace quick {
-namespace r3d {
+
+struct Hinge
+{
+  enum class Type {DOOR, PROPELLER};
+  enum class Direction {CLOCKWISE, COUNTERCLOCKWISE};
+
+  Type type;
+  Direction direction;
+  std::string name;
+  Object3D::Ptr anchor;
+  Object3D::Ptr element;
+
+  math::Vector3 point1;
+  math::Vector3 point2;
+
+  math::Vector3 axisWorld;
+  math::Vector3 pointWorld;
+  math::Vector3 axisLocal;
+
+  float angleLimit = 0;
+  float rotatedAngle = 0;
+
+  long upm = 60;
+
+  void rotate(float angle) const;
+};
 
 /**
- * manages physics for a scene
+ * manages dynamics for a scene
  */
-class Physics : public QObject
+class Dynamics : public QObject
 {
 Q_OBJECT
   Q_PROPERTY(int hingeCount READ hingeCount NOTIFY hingesChanged)
   Q_PROPERTY(QStringList hingeNames READ hingeNames NOTIFY hingesChanged)
 
-  friend class PhysicsSceneImpl;
+  std::vector<Hinge> _hinges;
 
-  unsigned hingeIndex = 0;
-
-  std::vector<react3d::HingeData::Ptr> _hinges;
-
-  react3d::PhysicsScene::Ptr _physicsScene;
+  QElapsedTimer _timer;
 
   int hingeCount () const {return _hinges.size();}
   QStringList hingeNames() const;
 
   void loadHinges(const QJsonValueRef &json, Object3D::Ptr object);
 
-  void calculateHingeDir(react3d::HingeData &hingeData, const math::Vector3 &hingePoint);
+  Hinge &createHinge(Hinge::Type type, QVariant element, QVariant body, QVector3D one, QVector3D two);
 
-  void createHingePhysics(react3d::HingeData &hingeData);
-
-  void setupDoorHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World,
-                      const math::Vector3 &hingePoint2World);
-
-  void setupPropellerHinge(react3d::HingeData &hingeData, const math::Vector3 &hingePoint1World,
-                           const math::Vector3 &hingePoint2World);
-
-  bool checkPhysicsScene();
+  void setupHinge(Hinge &hinge);
 
   Scene *getThreeScene();
 
-  react3d::HingeData::Ptr &nextHinge();
-
 public:
-  Physics(QObject *parent=nullptr) : QObject(parent) {}
+  Dynamics(QObject *parent=nullptr) : QObject(parent) {}
 
-  const std::vector<react3d::HingeData::Ptr> hinges() const {return _hinges;}
+  const std::vector<Hinge> &hinges() {return _hinges;}
 
   /**
  * create a door hinge in the middle between 2 marker points which demarcate the
  * hinge axis
  *
- * @param dvar the door
- * @param cvar the part to put the hinge on
+ * @param doorthe door
+ * @param body the part to put the hinge on
  * @param upper upper marker point
  * @param lower lower maraker point
  */
-  Q_INVOKABLE void createDoorHinge(QVariant door, QVariant car, QVector3D upper, QVector3D lower);
+  Q_INVOKABLE void createDoorHinge(QVariant door, QVariant body, QVector3D upper, QVector3D lower);
 
   /**
  * create a propeller
@@ -95,7 +106,7 @@ public:
   Q_INVOKABLE bool load(const QString &file, ThreeQObject *object);
 
   /**
-   * fastforward the physics animation
+   * fastforward the animation
    *
    * @param seconds the number of seconds
    */
@@ -107,19 +118,9 @@ public:
   Q_INVOKABLE void resetAll();
 
   /**
-   * start the physics timer. Must be called when starting the animation
-   */
-  Q_INVOKABLE void startTimer();
-
-  /**
-   * start the physics timer
-   */
-  Q_INVOKABLE void stopTimer();
-
-  /**
    * animate the physics world
    */
-  Q_INVOKABLE void updateAnimation();
+  Q_INVOKABLE void update();
 
 signals:
   void hingesChanged();
@@ -127,8 +128,5 @@ signals:
 
 }
 }
-}
-
-
 
 #endif //THREE_PP_R3DPHYSICSHANDLER_H

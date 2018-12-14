@@ -178,5 +178,14 @@ Quaternion Quaternion::fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo)
   return Quaternion().setFromUnitVectors(vFrom, vTo);
 }
 
+Quaternion Quaternion::fromAxisAngle(const Vector3 &axis, float angle )
+{
+  // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+  float halfAngle = angle / 2;
+  float s = sin( halfAngle );
+
+  return Quaternion(axis.x() * s, axis.y() * s, axis.z() * s, cos( halfAngle ));
+}
+
 }
 }

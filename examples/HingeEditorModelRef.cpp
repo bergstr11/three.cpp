@@ -8,7 +8,7 @@
 #include <threepp/geometry/Cylinder.h>
 #include <threepp/material/MeshBasicMaterial.h>
 #include <threepp/core/Geometry.h>
-#include <threepp/quick/scene/R3dPhysics.hxx>
+#include <threepp/quick/scene/Dynamics.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -16,13 +16,11 @@
 namespace three {
 namespace quick {
 
-using namespace three::react3d;
-
 Object3D::Ptr HingeEditorModelRef::_create()
 {
-  _physics = dynamic_cast<r3d::Physics *>(_scene->physics());
-  if(!_physics) {
-    qCritical() << "no matching physics configuration found on scene";
+  _dynamics = dynamic_cast<Dynamics *>(_scene->dynamics());
+  if(!_dynamics) {
+    qCritical() << "no matching dynamics configuration found on scene";
   }
   return nullptr;
 }
@@ -30,7 +28,7 @@ Object3D::Ptr HingeEditorModelRef::_create()
 void HingeEditorModelRef::resetAll()
 {
   _markers.clear();
-  _physics->resetAll();
+  _dynamics->resetAll();
 }
 
 void HingeEditorModelRef::removeMarkers()
@@ -53,36 +51,35 @@ bool HingeEditorModelRef::saveHingeFile(const QString &file)
 
   QJsonArray hingeArray;
 
-  for (const auto &hinge : _physics->hinges()) {
+  for (const auto &hinge : _dynamics->hinges()) {
     QJsonObject hingeObject;
 
-    switch (hinge->hingeType) {
-      case HingeType::DOOR:
+    switch (hinge.type) {
+      case Hinge::Type::DOOR:
         hingeObject["type"] = "door";
         break;
-      case HingeType::PROPELLER:
+      case Hinge::Type::PROPELLER:
         hingeObject["type"] = "propeller";
         break;
     }
 
-    hingeObject["name"] = QString::fromStdString(hinge->element->name());
-    hingeObject["anchor"] = QString::fromStdString(hinge->anchor->name());
-    hingeObject["element"] = QString::fromStdString(hinge->element->name());
+    hingeObject["name"] = QString::fromStdString(hinge.element->name());
+    hingeObject["anchor"] = QString::fromStdString(hinge.anchor->name());
+    hingeObject["element"] = QString::fromStdString(hinge.element->name());
 
     QJsonObject point1Object;
-    point1Object["x"] = hinge->hingePoint1.x();
-    point1Object["y"] = hinge->hingePoint1.y();
-    point1Object["z"] = hinge->hingePoint1.z();
+    point1Object["x"] = hinge.point1.x();
+    point1Object["y"] = hinge.point1.y();
+    point1Object["z"] = hinge.point1.z();
     hingeObject["point1"] = point1Object;
 
     QJsonObject point2Object;
-    point2Object["x"] = hinge->hingePoint2.x();
-    point2Object["y"] = hinge->hingePoint2.y();
-    point2Object["z"] = hinge->hingePoint2.z();
+    point2Object["x"] = hinge.point2.x();
+    point2Object["y"] = hinge.point2.y();
+    point2Object["z"] = hinge.point2.z();
     hingeObject["point2"] = point2Object;
 
-    hingeObject["minAngleLimit"] = hinge->minAngleLimit;
-    hingeObject["maxAngleLimit"] = hinge->maxAngleLimit;
+    hingeObject["angleLimit"] = hinge.angleLimit;
 
     hingeArray.push_back(hingeObject);
   }

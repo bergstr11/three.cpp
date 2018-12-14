@@ -69,19 +69,16 @@ Window {
 
                     if(hingeeditor.picked1 === null) {
                         hingeeditor.picked1 = obj
-                        textO1.text = obj.name
+                        var wp = obj.worldPosition()
+                        textO1.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
                     }
                     else {
                         hingeeditor.picked2 = obj
-                        textO2.text = obj.name
+                        var wp = obj.worldPosition()
+                        textO2.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
                     }
                 }
             }
-        }
-        ComboBox {
-            id: modeCombo
-            model: ["Hinge", "Propeller"]
-            currentIndex: 0
         }
     }
     Column {
@@ -106,7 +103,7 @@ Window {
     
         Button {
             id: runButton
-            enabled: scene.physics.hingeCount > 0
+            enabled: scene.dynamics.hingeCount > 0
             text: "Animate"
 
             property bool running: false
@@ -117,11 +114,9 @@ Window {
 
                 if(running) {
                     text = "Stop"
-                    scene.physics.startTimer()
                 }
                 else {
                     text = "Animate"
-                    scene.physics.stopTimer()
                 }
             }
         }
@@ -133,7 +128,7 @@ Window {
                 fileDialog.title = "Load hinge definition from file"
                 fileDialog.selectExisting = true
                 fileDialog.acceptedFunc = function() {
-                    scene.physics.load(fileDialog.fileUrl, hingeeditor.object)
+                    scene.dynamics.load(fileDialog.fileUrl, hingeeditor.object)
                 }
                 fileDialog.visible = true
             }
@@ -141,7 +136,7 @@ Window {
         Button {
             id: saveButton
             text: "Save"
-            enabled: scene.physics.hingeCount > 0
+            enabled: scene.dynamics.hingeCount > 0
             onClicked: {
                 fileDialog.title = "Save hinge definition to file"
                 fileDialog.selectExisting = false
@@ -294,7 +289,7 @@ Window {
             }
         }
     }
-    Column {
+    ColumnLayout {
         anchors.top: objectControls.bottom
         anchors.right: parent.right
         anchors.margins: 10
@@ -303,29 +298,38 @@ Window {
 
         ComboBox {
             id: hingeSelector
-            model: scene.physics.hingeNames
+            model: scene.dynamics.hingeNames
+            Layout.fillWidth: true
         }
 
         Button {
-            id: deleteButton
             text: "Delete"
+            Layout.fillWidth: true
             enabled: hingeSelector.currentIndex >= 0
             onClicked: {
-                scene.physics.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
+                scene.dynamics.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
                 threeD.update()
             }
         }
         Button {
-            id: createButton
             enabled: hingeeditor.dataComplete
-            text: "Create"
+            text: "Create door"
+            Layout.fillWidth: true
 
-            onClicked: hingeeditor.create()
+            onClicked: hingeeditor.create("door")
         }
         Button {
-            id: resetButton
+            enabled: hingeeditor.dataComplete
+            text: "Create propeller"
+            Layout.fillWidth: true
+
+            onClicked: hingeeditor.create("propeller")
+        }
+        Button {
             text: "Reset"
             enabled: hingeeditor.dataStarted
+            Layout.fillWidth: true
+
             onClicked: {
                 hingeeditor.resetEditor()
                 threeD.update()
@@ -414,7 +418,7 @@ Window {
 
         Scene {
             id: scene
-            physics: React3d {}
+            dynamics: Dynamics {}
 
             HemisphereLight {
                 id: hemisphereLight
@@ -463,11 +467,11 @@ Window {
                         unhide()
                     }
 
-                    function create() {
-                        if(modeCombo.model[modeCombo.currentIndex] == "Hinge")
-                            scene.physics.createDoorHinge(picked1, picked2, upper, lower)
-                        else
-                            scene.physics.createPropellerHinge(picked1, picked2, upper, lower)
+                    function create(what) {
+                        if(what == "door")
+                            scene.dynamics.createDoorHinge(picked1, picked2, upper, lower)
+                        else if(what == "propeller")
+                            scene.dynamics.createPropellerHinge(picked1, picked2, upper, lower)
                         resetEditor()
                         unhide()
                     }
@@ -512,7 +516,7 @@ Window {
             }
         }
         animate: function() {
-            scene.physics.updateAnimation()
+            scene.dynamics.update()
         }
     }
 }

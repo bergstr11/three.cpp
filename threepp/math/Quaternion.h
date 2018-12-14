@@ -37,6 +37,9 @@ class DLX Quaternion
 public:
   static Quaternion fromUnitVectors(const Vector3 &vFrom, const Vector3 &vTo);
 
+  // assumes axis is normalized
+  static Quaternion fromAxisAngle(const Vector3 &axis, float angle);
+
   Quaternion(float x, float y, float z, float w) : _x(x), _y(y), _z(z), _w(w) {}
 
   Quaternion() : _x(0.0f), _y(0.0f), _z(0.0f), _w(1.0f) {}

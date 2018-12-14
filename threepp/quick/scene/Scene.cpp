@@ -24,11 +24,11 @@ void Scene::setName(const QString &name) {
   }
 }
 
-void Scene::setPhysics(QObject *physics)
+void Scene::setDynamics(QObject *dynamics)
 {
-  if(_physics != physics) {
-    _physics = physics;
-    emit physicsChanged();
+  if(_dynamics != dynamics) {
+    _dynamics = dynamics;
+    emit dynamicsChanged();
   }
 }
 

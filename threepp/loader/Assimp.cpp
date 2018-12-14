@@ -521,7 +521,7 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
             image = image.convertToFormat(QImage::Format_RGB888);
             options.format = TextureFormat::RGB;
         }
-        qDebug() << "loaded texture" << imageFile.c_str() << "(" << fmt << to_string(type) << ")";
+        qDebug() << "loaded texture" << imageFile.c_str() << to_string(type);
       }
 
       switch(mapping) {

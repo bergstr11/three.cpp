@@ -158,7 +158,6 @@ public:
     _z -= v._z;
 
     return *this;
-
   }
 
   Vector3 &operator -=(float scalar)
@@ -196,6 +195,8 @@ public:
 
   //apply quaternion
   Vector3 &apply(const Quaternion &q);
+
+  Vector3 &apply(const Vector3 &axis, float angle);
 
   Vector3 &project(const Camera &camera);
 

@@ -63,11 +63,6 @@ CONFIGURE_FILE("${THREE_ROOT}/etc/threepp.pc.in" "threepp.pc" @ONLY)
 
 message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
 
-if(WITH_REACTPHYSICS)
-    add_compile_definitions(COMPILE_REACTPHYSICS)
-    add_subdirectory(reactphysics)
-endif(WITH_REACTPHYSICS)
-
 if(ANDROID)
     add_compile_definitions(QT_OPENGL_ES_3_2)
 endif(ANDROID)
