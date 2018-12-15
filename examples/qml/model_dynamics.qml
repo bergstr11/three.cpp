@@ -103,7 +103,7 @@ Window {
     
         Button {
             id: runButton
-            enabled: scene.dynamics.hingeCount > 0
+            enabled: dynamics.hingeCount > 0
             text: "Animate"
 
             property bool running: false
@@ -121,6 +121,27 @@ Window {
             }
         }
         Button {
+            id: ffButton
+            enabled: dynamics.hingeCount > 0 && !runButton.running
+            text: "FForward"
+
+            property bool forward: true
+
+            onClicked: {
+                forward = !forward
+
+                if(forward) {
+                    text = "FForward"
+                    dynamics.fastforward(-1.0)
+                }
+                else {
+                    text = "FBackward"
+                    dynamics.fastforward(1.0)
+                }
+                threeD.update()
+            }
+        }
+        Button {
             id: loadButton
             text: "Load"
             enabled: hingeeditor.object !== null
@@ -128,7 +149,7 @@ Window {
                 fileDialog.title = "Load hinge definition from file"
                 fileDialog.selectExisting = true
                 fileDialog.acceptedFunc = function() {
-                    scene.dynamics.load(fileDialog.fileUrl, hingeeditor.object)
+                    dynamics.load(fileDialog.fileUrl, hingeeditor.object)
                 }
                 fileDialog.visible = true
             }
@@ -136,7 +157,7 @@ Window {
         Button {
             id: saveButton
             text: "Save"
-            enabled: scene.dynamics.hingeCount > 0
+            enabled: dynamics.hingeCount > 0
             onClicked: {
                 fileDialog.title = "Save hinge definition to file"
                 fileDialog.selectExisting = false
@@ -298,7 +319,7 @@ Window {
 
         ComboBox {
             id: hingeSelector
-            model: scene.dynamics.hingeNames
+            model: dynamics.hingeNames
             Layout.fillWidth: true
         }
 
@@ -307,7 +328,7 @@ Window {
             Layout.fillWidth: true
             enabled: hingeSelector.currentIndex >= 0
             onClicked: {
-                scene.dynamics.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
+                dynamics.deleteHinge(hingeSelector.model[hingeSelector.currentIndex])
                 threeD.update()
             }
         }
@@ -416,9 +437,10 @@ Window {
             }
         }
 
+        Dynamics {id: dynamics}
+
         Scene {
             id: scene
-            dynamics: Dynamics {}
 
             HemisphereLight {
                 id: hemisphereLight
@@ -440,6 +462,7 @@ Window {
                     model: threeDModel
                     name: "threeD_model"
                     type: ModelRef.Node
+                    dynamics: dynamics
                     replace: true
 
                     property var hidden: []
@@ -469,9 +492,9 @@ Window {
 
                     function create(what) {
                         if(what == "door")
-                            scene.dynamics.createDoorHinge(picked1, picked2, upper, lower)
+                            dynamics.createDoorHinge(picked1, picked2, upper, lower)
                         else if(what == "propeller")
-                            scene.dynamics.createPropellerHinge(picked1, picked2, upper, lower)
+                            dynamics.createPropellerHinge(picked1, picked2, upper, lower)
                         resetEditor()
                         unhide()
                     }
@@ -516,7 +539,7 @@ Window {
             }
         }
         animate: function() {
-            scene.dynamics.update()
+            dynamics.update()
         }
     }
 }

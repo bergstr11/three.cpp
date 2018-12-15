@@ -42,7 +42,7 @@ struct Hinge
 /**
  * manages dynamics for a scene
  */
-class Dynamics : public QObject
+class Dynamics : public ThreeQObjectRoot
 {
 Q_OBJECT
   Q_PROPERTY(int hingeCount READ hingeCount NOTIFY hingesChanged)
@@ -61,10 +61,8 @@ Q_OBJECT
 
   void setupHinge(Hinge &hinge);
 
-  Scene *getThreeScene();
-
 public:
-  Dynamics(QObject *parent=nullptr) : QObject(parent) {}
+  Dynamics(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
 
   const std::vector<Hinge> &hinges() {return _hinges;}
 

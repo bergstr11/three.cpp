@@ -22,16 +22,18 @@ class Dynamics;
 class HingeEditorModelRef : public quick::ModelRef
 {
 Q_OBJECT
+  Q_PROPERTY(QObject *dynamics READ dynamics WRITE setDynamics NOTIFY dynamicsChanged)
 
   std::vector<DynamicMesh::Ptr> _markers;
 
   Dynamics *_dynamics = nullptr;
 
-protected:
-  Object3D::Ptr _create() override;
-
 public:
   HingeEditorModelRef(QObject *parent = nullptr)  : ModelRef(parent) {}
+
+  QObject *dynamics() const {return _dynamics;}
+
+  void setDynamics(QObject *physics);
 
   /**
    * save the current hinge definition to a file
@@ -57,6 +59,7 @@ public:
 
 signals:
   void hingeNamesChanged();
+  void dynamicsChanged();
 };
 
 }

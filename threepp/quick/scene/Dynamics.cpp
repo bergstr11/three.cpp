@@ -15,16 +15,6 @@
 namespace three {
 namespace quick {
 
-Scene *Dynamics::getThreeScene()
-{
-  Scene *scene = dynamic_cast<Scene *>(parent());
-  if(!scene) {
-    qCritical() << "unable to find parent Scene";
-    return nullptr;
-  }
-  return scene;
-}
-
 void Hinge::rotate(float angle) const
 {
   float theta = direction == Direction::CLOCKWISE ? -angle : angle;
@@ -58,8 +48,11 @@ void Dynamics::fastforward(float seconds)
 {
   for(auto &hinge : _hinges) {
 
-    float angle = float(M_PI * hinge.upm / 60000.0 * seconds);
-    if(hinge.angleLimit > 0 && hinge.rotatedAngle + angle > hinge.angleLimit) continue;
+    float angle = float(M_PI * hinge.upm / 60.0 * seconds);
+    if(hinge.angleLimit > 0) {
+      float theta = std::min(abs(angle), hinge.angleLimit);
+      angle = angle < 0 ? -theta : theta;
+    }
 
     hinge.rotatedAngle += angle;
     hinge.rotate(angle);

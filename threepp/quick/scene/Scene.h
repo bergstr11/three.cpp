@@ -27,7 +27,6 @@ Q_OBJECT
   Q_PROPERTY(Camera * camera READ quickCamera WRITE setQuickCamera NOTIFY cameraChanged)
   Q_PROPERTY(FogBase * fog READ fog WRITE setFog NOTIFY fogChanged)
   Q_PROPERTY(QVector3D position READ position NOTIFY positionChanged)
-  Q_PROPERTY(QObject *dynamics READ dynamics WRITE setDynamics NOTIFY dynamicsChanged)
   Q_PROPERTY(QQmlListProperty<three::quick::ThreeQObject> objects READ objects)
   Q_CLASSINFO("DefaultProperty", "objects")
 
@@ -45,8 +44,6 @@ Q_OBJECT
   QVector3D _position;
 
   three::Scene::Ptr _scene;
-
-  QObject *_dynamics = nullptr;
 
   static void append_object(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
   static int count_objects(QQmlListProperty<ThreeQObject> *);
@@ -87,10 +84,6 @@ public:
   three::Scene::Ptr scene() {return _scene;}
 
   three::Camera::Ptr camera() {return _quickCamera ? _quickCamera->camera() : nullptr;}
-
-  QObject *dynamics() const {return _dynamics;}
-
-  void setDynamics(QObject *physics);
 
   Q_INVOKABLE void clone(three::quick::ThreeQObject *object);
 

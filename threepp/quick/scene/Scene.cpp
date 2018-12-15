@@ -24,14 +24,6 @@ void Scene::setName(const QString &name) {
   }
 }
 
-void Scene::setDynamics(QObject *dynamics)
-{
-  if(_dynamics != dynamics) {
-    _dynamics = dynamics;
-    emit dynamicsChanged();
-  }
-}
-
 void Scene::setQuickCamera(Camera *camera)
 {
   if(_quickCamera != camera) {

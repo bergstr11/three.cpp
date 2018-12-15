@@ -16,15 +16,6 @@
 namespace three {
 namespace quick {
 
-Object3D::Ptr HingeEditorModelRef::_create()
-{
-  _dynamics = dynamic_cast<Dynamics *>(_scene->dynamics());
-  if(!_dynamics) {
-    qCritical() << "no matching dynamics configuration found on scene";
-  }
-  return nullptr;
-}
-
 void HingeEditorModelRef::resetAll()
 {
   _markers.clear();
@@ -37,6 +28,18 @@ void HingeEditorModelRef::removeMarkers()
     marker->parent()->remove(marker);
   }
   _markers.clear();
+}
+
+void HingeEditorModelRef::setDynamics(QObject *dynamics)
+{
+  if(_dynamics != dynamics) {
+    _dynamics = dynamic_cast<Dynamics *>(dynamics);
+    if(!_dynamics) {
+      qCritical() << "cannot assign dynamics. Incompatible type";
+      return;
+    }
+    emit dynamicsChanged();
+  }
 }
 
 bool HingeEditorModelRef::saveHingeFile(const QString &file)

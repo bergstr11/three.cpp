@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   //maincomponent.loadUrl(QUrl("qrc:///SVG_extrude.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///webgl_shadowmap.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///model_physics.qml"));
+  maincomponent.loadUrl(QUrl("qrc:///model_dynamics.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();
