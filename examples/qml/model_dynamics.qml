@@ -67,15 +67,15 @@ Window {
                     var obj = pickedParents.currentIndex === 0 ?
                         dataRow.picked : dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
 
-                    if(hingeeditor.picked1 === null) {
-                        hingeeditor.picked1 = obj
-                        var wp = obj.worldPosition()
-                        textO1.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
+                    var wp = obj.worldPosition()
+
+                    if(!!hingeeditor.picked1) {
+                        hingeeditor.picked2 = obj
+                        textO2.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
                     }
                     else {
-                        hingeeditor.picked2 = obj
-                        var wp = obj.worldPosition()
-                        textO2.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
+                        hingeeditor.picked1 = obj
+                        textO1.text = obj.name + "(" + wp.x.toFixed(2) + ":" + wp.y.toFixed(2) + ":" + wp.z.toFixed(2) + ")"
                     }
                 }
             }
@@ -161,7 +161,7 @@ Window {
             onClicked: {
                 fileDialog.title = "Save hinge definition to file"
                 fileDialog.selectExisting = false
-                fileDialog.acceptedFunc = function() {hingeeditor.saveHingeFile(fileDialog.fileUrl)}
+                fileDialog.acceptedFunc = function() {dynamics.save(fileDialog.fileUrl)}
                 fileDialog.visible = true
             }
         }
@@ -347,6 +347,13 @@ Window {
             onClicked: hingeeditor.create("propeller")
         }
         Button {
+            enabled: hingeeditor.dataComplete
+            text: "Create wheels"
+            Layout.fillWidth: true
+
+            onClicked: hingeeditor.create("wheels")
+        }
+        Button {
             text: "Reset"
             enabled: hingeeditor.dataStarted
             Layout.fillWidth: true
@@ -473,8 +480,8 @@ Window {
                     property bool upperSet: false
                     property bool lowerSet: false
 
-                    property bool dataStarted: picked1 !== null || picked2 !== null || upperSet || lowerSet
-                    property bool dataComplete: picked1 !== null && picked2 !== null && upperSet && lowerSet
+                    property bool dataStarted: !!picked1 || upperSet || lowerSet
+                    property bool dataComplete: !!picked1 && !!picked2 && upperSet && lowerSet
 
                     function unhide() {
                         for(var i=0; i<hidden.length; i++) hidden[i].visible = true
@@ -495,6 +502,8 @@ Window {
                             dynamics.createDoorHinge(picked1, picked2, upper, lower)
                         else if(what == "propeller")
                             dynamics.createPropellerHinge(picked1, picked2, upper, lower)
+                        else if(what == "wheels")
+                            dynamics.createWheelHinge(picked1, picked2, upper, lower)
                         resetEditor()
                         unhide()
                     }

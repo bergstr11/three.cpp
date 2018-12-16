@@ -42,60 +42,6 @@ void HingeEditorModelRef::setDynamics(QObject *dynamics)
   }
 }
 
-bool HingeEditorModelRef::saveHingeFile(const QString &file)
-{
-  QUrl fileUrl(file);
-  QFile saveFile(fileUrl.isValid() ? fileUrl.toLocalFile() : file);
-
-  if (!saveFile.open(QIODevice::WriteOnly)) {
-    qCritical("Couldn't open file.");
-    return false;
-  }
-
-  QJsonArray hingeArray;
-
-  for (const auto &hinge : _dynamics->hinges()) {
-    QJsonObject hingeObject;
-
-    switch (hinge.type) {
-      case Hinge::Type::DOOR:
-        hingeObject["type"] = "door";
-        break;
-      case Hinge::Type::PROPELLER:
-        hingeObject["type"] = "propeller";
-        break;
-    }
-
-    hingeObject["name"] = QString::fromStdString(hinge.element->name());
-    hingeObject["anchor"] = QString::fromStdString(hinge.anchor->name());
-    hingeObject["element"] = QString::fromStdString(hinge.element->name());
-
-    QJsonObject point1Object;
-    point1Object["x"] = hinge.point1.x();
-    point1Object["y"] = hinge.point1.y();
-    point1Object["z"] = hinge.point1.z();
-    hingeObject["point1"] = point1Object;
-
-    QJsonObject point2Object;
-    point2Object["x"] = hinge.point2.x();
-    point2Object["y"] = hinge.point2.y();
-    point2Object["z"] = hinge.point2.z();
-    hingeObject["point2"] = point2Object;
-
-    hingeObject["angleLimit"] = hinge.angleLimit;
-
-    hingeArray.push_back(hingeObject);
-  }
-
-  QJsonObject docObject;
-  docObject["hinges"] = hingeArray;
-
-  QJsonDocument saveDoc(docObject);
-  saveFile.write(saveDoc.toJson());
-
-  return true;
-}
-
 void HingeEditorModelRef::setMarker(three::quick::ObjectPicker *picker)
 {
   float radius = picker->scaleSize() ? picker->scaleSize() / 100 * 2 : 5;

@@ -36,13 +36,6 @@ public:
   void setDynamics(QObject *physics);
 
   /**
-   * save the current hinge definition to a file
-   *
-   * @param file
-   */
-  Q_INVOKABLE bool saveHingeFile(const QString &file);
-
-  /**
    * set a marker on the model at the last picked position
    */
   Q_INVOKABLE void setMarker(three::quick::ObjectPicker *picker);

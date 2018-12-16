@@ -15,28 +15,18 @@ namespace quick {
 
 struct Hinge
 {
-  enum class Type {DOOR, PROPELLER};
   enum class Direction {CLOCKWISE, COUNTERCLOCKWISE};
 
-  Type type;
-  Direction direction;
   std::string name;
-  Object3D::Ptr anchor;
-  Object3D::Ptr element;
-
-  math::Vector3 point1;
-  math::Vector3 point2;
-
-  math::Vector3 axisWorld;
-  math::Vector3 pointWorld;
-  math::Vector3 axisLocal;
 
   float angleLimit = 0;
   float rotatedAngle = 0;
 
   long upm = 60;
 
-  void rotate(float angle) const;
+  virtual void rotate(float angle) const = 0;
+
+  using Ptr = std::shared_ptr<Hinge>;
 };
 
 /**
@@ -48,7 +38,7 @@ Q_OBJECT
   Q_PROPERTY(int hingeCount READ hingeCount NOTIFY hingesChanged)
   Q_PROPERTY(QStringList hingeNames READ hingeNames NOTIFY hingesChanged)
 
-  std::vector<Hinge> _hinges;
+  std::vector<Hinge::Ptr> _hinges;
 
   QElapsedTimer _timer;
 
@@ -57,16 +47,12 @@ Q_OBJECT
 
   void loadHinges(const QJsonValueRef &json, Object3D::Ptr object);
 
-  Hinge &createHinge(Hinge::Type type, QVariant element, QVariant body, QVector3D one, QVector3D two);
-
-  void setupHinge(Hinge &hinge);
-
 public:
   Dynamics(QObject *parent=nullptr) : ThreeQObjectRoot(parent) {}
 
-  const std::vector<Hinge> &hinges() {return _hinges;}
+  const std::vector<Hinge::Ptr> &hinges() {return _hinges;}
 
-  /**
+/**
  * create a door hinge in the middle between 2 marker points which demarcate the
  * hinge axis
  *
@@ -77,7 +63,7 @@ public:
  */
   Q_INVOKABLE void createDoorHinge(QVariant door, QVariant body, QVector3D upper, QVector3D lower);
 
-  /**
+/**
  * create a propeller
  *
  * @param propeller the propeller 3D object
@@ -86,6 +72,16 @@ public:
  * @param lower front the front end of the propeller axis
  */
   Q_INVOKABLE void createPropellerHinge(QVariant propeller, QVariant body, QVector3D back, QVector3D front);
+
+  /**
+   * create hinges for tow wheels mounted to the same axis
+   *
+   * @param left the left wheel
+   * @param right the right wheel
+   * @param leftMid the midpoint of the left wheel
+   * @param rightMid the midpoint of the right wheel
+   */
+  Q_INVOKABLE void createWheelHinge(QVariant left, QVariant right, const QVector3D &leftMid, const QVector3D &rightMid);
 
   /**
    * delete a hinge from the current hinge list
@@ -102,6 +98,14 @@ public:
    * @return whether the operation succeeded
    */
   Q_INVOKABLE bool load(const QString &file, ThreeQObject *object);
+
+  /**
+   * save a physics definition file
+   *
+   * @param file the file
+   * @return whether the operation succeeded
+   */
+  Q_INVOKABLE bool save(const QString &file);
 
   /**
    * fastforward the animation
