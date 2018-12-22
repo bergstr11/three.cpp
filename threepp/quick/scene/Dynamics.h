@@ -81,7 +81,7 @@ public:
    * @param leftMid the midpoint of the left wheel
    * @param rightMid the midpoint of the right wheel
    */
-  Q_INVOKABLE void createWheelHinge(QVariant left, QVariant right, const QVector3D &leftMid, const QVector3D &rightMid);
+  Q_INVOKABLE void createWheelHinge(QVariant leftWheel, QVariant rightWheel, QVector3D front);
 
   /**
    * delete a hinge from the current hinge list

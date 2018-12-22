@@ -333,21 +333,21 @@ Window {
             }
         }
         Button {
-            enabled: hingeeditor.dataComplete
+            enabled: hingeeditor.doorComplete
             text: "Create door"
             Layout.fillWidth: true
 
             onClicked: hingeeditor.create("door")
         }
         Button {
-            enabled: hingeeditor.dataComplete
+            enabled: hingeeditor.propellerComplete
             text: "Create propeller"
             Layout.fillWidth: true
 
             onClicked: hingeeditor.create("propeller")
         }
         Button {
-            enabled: hingeeditor.dataComplete
+            enabled: hingeeditor.wheelsComplete
             text: "Create wheels"
             Layout.fillWidth: true
 
@@ -481,7 +481,9 @@ Window {
                     property bool lowerSet: false
 
                     property bool dataStarted: !!picked1 || upperSet || lowerSet
-                    property bool dataComplete: !!picked1 && !!picked2 && upperSet && lowerSet
+                    property bool doorComplete: !!picked1 && !!picked2 && upperSet && lowerSet
+                    property bool wheelsComplete: !!picked1 && !!picked2 && upperSet
+                    property bool propellerComplete: !!picked1 && upperSet
 
                     function unhide() {
                         for(var i=0; i<hidden.length; i++) hidden[i].visible = true
@@ -501,9 +503,9 @@ Window {
                         if(what == "door")
                             dynamics.createDoorHinge(picked1, picked2, upper, lower)
                         else if(what == "propeller")
-                            dynamics.createPropellerHinge(picked1, picked2, upper, lower)
+                            dynamics.createPropellerHinge(picked1, upper)
                         else if(what == "wheels")
-                            dynamics.createWheelHinge(picked1, picked2, upper, lower)
+                            dynamics.createWheelHinge(picked1, picked2, upper)
                         resetEditor()
                         unhide()
                     }

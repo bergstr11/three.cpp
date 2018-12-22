@@ -171,6 +171,11 @@ public:
     return *this;
   }
 
+  Quaternion conjugated() const
+  {
+    return Quaternion(_x * -1, _y * -1, _z * -1, _w);
+  }
+
   float dot(const Quaternion &v) const
   {
     return _x * v._x + _y * v._y + _z * v._z + _w * v._w;
