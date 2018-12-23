@@ -123,7 +123,7 @@ Window {
         Button {
             id: ffButton
             enabled: dynamics.hingeCount > 0 && !runButton.running
-            text: "FForward"
+            text: "Open Doors"
 
             property bool forward: true
 
@@ -131,12 +131,12 @@ Window {
                 forward = !forward
 
                 if(forward) {
-                    text = "FForward"
-                    dynamics.fastforward(-1.0)
+                    text = "Open Doors"
+                    dynamics.fastforward("door", -1.0)
                 }
                 else {
-                    text = "FBackward"
-                    dynamics.fastforward(1.0)
+                    text = "Close Doors"
+                    dynamics.fastforward("door", 1.0)
                 }
                 threeD.update()
             }
@@ -501,11 +501,11 @@ Window {
 
                     function create(what) {
                         if(what == "door")
-                            dynamics.createDoorHinge(picked1, picked2, upper, lower)
+                            dynamics.createDoorHinge("door", picked1, picked2, upper, lower)
                         else if(what == "propeller")
-                            dynamics.createPropellerHinge(picked1, upper)
+                            dynamics.createPropellerHinge("propeller", picked1, upper)
                         else if(what == "wheels")
-                            dynamics.createWheelHinge(picked1, picked2, upper)
+                            dynamics.createWheelHinge("wheels", picked1, picked2, upper)
                         resetEditor()
                         unhide()
                     }

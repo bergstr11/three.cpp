@@ -19,12 +19,17 @@ struct Hinge
 
   std::string name;
 
+  long upm = 60;
   float angleLimit = 0;
   float rotatedAngle = 0;
 
-  long upm = 60;
+  bool continuous = false;
+
+  Hinge(const std::string &name, float angleLimit=0) : name(name), angleLimit(angleLimit)
+  {}
 
   virtual void rotate(float angle) const = 0;
+  virtual void save(QJsonObject &json) const = 0;
 
   using Ptr = std::shared_ptr<Hinge>;
 };
@@ -61,7 +66,7 @@ public:
  * @param upper upper marker point
  * @param lower lower maraker point
  */
-  Q_INVOKABLE void createDoorHinge(QVariant door, QVariant body, QVector3D upper, QVector3D lower);
+  Q_INVOKABLE void createDoorHinge(QString name, QVariant door, QVariant body, QVector3D upper, QVector3D lower);
 
 /**
  * create a propeller
@@ -71,7 +76,7 @@ public:
  * @param back the back end of the propeller axis
  * @param lower front the front end of the propeller axis
  */
-  Q_INVOKABLE void createPropellerHinge(QVariant propeller, QVariant body, QVector3D back, QVector3D front);
+  Q_INVOKABLE void createPropellerHinge(QString name, QVariant propeller, QVector3D back);
 
   /**
    * create hinges for tow wheels mounted to the same axis
@@ -81,7 +86,7 @@ public:
    * @param leftMid the midpoint of the left wheel
    * @param rightMid the midpoint of the right wheel
    */
-  Q_INVOKABLE void createWheelHinge(QVariant leftWheel, QVariant rightWheel, QVector3D front);
+  Q_INVOKABLE void createWheelHinge(QString name, QVariant leftWheel, QVariant rightWheel, QVector3D front);
 
   /**
    * delete a hinge from the current hinge list
@@ -113,6 +118,13 @@ public:
    * @param seconds the number of seconds
    */
   Q_INVOKABLE void fastforward(float seconds);
+
+  /**
+   * fastforward the animation for one element
+   *
+   * @param seconds the number of seconds
+   */
+  Q_INVOKABLE void fastforward(const QString &name, float seconds);
 
   /**
    * reset everything, removing all physics data

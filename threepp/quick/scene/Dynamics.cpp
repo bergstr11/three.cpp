@@ -17,11 +17,90 @@ namespace quick {
 
 using namespace math;
 
-struct DefaultHinge : public Hinge
+struct PropellerHinge : public Hinge
 {
-  enum class Type {DOOR, PROPELLER};
+  Object3D::Ptr propeller;
+  Vector3 point;
+  Vector3 center;
+  Vector3 centerWorld;
+  Vector3 axis;
+  Vector3 axisWorld;
 
-  Type type;
+  void update(const Quaternion &)
+  {
+    centerWorld = propeller->localToWorld(center);
+    axisWorld = (propeller->localToWorld(point) - propeller->localToWorld(center)).normalized();
+  }
+
+  PropellerHinge(const std::string &name, Object3D::Ptr propeller, const Vector3 &point) : Hinge(name), propeller(propeller),
+                                                                                           point(point)
+  {
+    continuous = true;
+    const auto box = propeller->computeBoundingBox();
+
+    center = propeller->worldToLocal(box.getCenter());
+    axis = (point - center).normalized();
+
+    update(propeller->quaternion());
+
+    propeller->quaternion().onChange.connect(this, &PropellerHinge::update);
+  }
+
+  void rotate(float angle) const override
+  {
+    auto wpos = propeller->parent()->localToWorld(propeller->position());
+    wpos -= centerWorld;
+    wpos.apply(axisWorld, angle);
+    wpos += centerWorld;
+    propeller->position() = propeller->parent()->worldToLocal(wpos);
+
+    propeller->rotateOnAxis(axis, angle);
+    propeller->updateMatrix();
+  }
+
+  void save(QJsonObject &json) const override
+  {
+    json["type"] = "propeller";
+    json["name"] = QString::fromStdString(name);
+    json["object"] = QString::fromStdString(propeller->name());
+
+    QJsonObject pointObject;
+    pointObject["x"] = point.x();
+    pointObject["y"] = point.y();
+    pointObject["z"] = point.z();
+    json["point"] = pointObject;
+
+    QJsonObject centerObject;
+    centerObject["x"] = center.x();
+    centerObject["y"] = center.y();
+    centerObject["z"] = center.z();
+    json["center"] = centerObject;
+  }
+
+  using Ptr = std::shared_ptr<PropellerHinge>;
+  static Ptr load(Object3D::Ptr object, const QJsonObject &json)
+  {
+    std::string name = json["name"].toString().toStdString();
+
+    const QString propellerName = json["propeller"].toString();
+    const auto an = propellerName.toStdString();
+    Object3D::Ptr propeller = an == object->name() ? object : object->getChildByName(an);
+
+    const QJsonObject pointObject = json["back"].toObject();
+    Vector3 point;
+    point.set(pointObject["x"].toDouble(), pointObject["y"].toDouble(), pointObject["z"].toDouble());
+
+    return PropellerHinge::make(name, propeller, point);
+  }
+
+  static Ptr make(const std::string &name, Object3D::Ptr object, const Vector3 &point)
+  {
+    return Ptr(new PropellerHinge(name, object, point));
+  }
+};
+
+struct DoorHinge : public Hinge
+{
   Object3D::Ptr anchor;
   Object3D::Ptr element;
 
@@ -32,6 +111,38 @@ struct DefaultHinge : public Hinge
   Vector3 axisLocal;
   Vector3 point1;
   Vector3 point2;
+
+  DoorHinge(const std::string &name, Object3D::Ptr anchor, Object3D::Ptr element, const Vector3 &point1, const Vector3 &point2,
+            float angleLimit)
+     : Hinge(name, angleLimit), anchor(anchor), element(element), point1(point1), point2(point2)
+  {
+    setup();
+  }
+
+  void setup()
+  {
+    //calculate hinge axis and hinge point
+    const auto hp1 = anchor->localToWorld(point1);
+    const auto hp2 = anchor->localToWorld(point2);
+
+    axisWorld = (hp1 - hp2).normalized();
+    axisLocal = (element->worldToLocal(hp1) - element->worldToLocal(hp2)).normalized();
+    pointWorld = (hp1 + hp2) * 0.5;
+
+    //calculate position of door to determine turning direction
+    const auto hingePoint = (point1 + point2) * 0.5;
+
+    const auto anchorCenter = anchor->computeBoundingBox().getCenter();
+    const auto elementCenter = element->computeBoundingBox().getCenter();
+
+    const auto anchorToHinge = (hingePoint - anchor->worldToLocal(anchorCenter)).normalized();
+    const auto elementToHinge = (hingePoint - anchor->worldToLocal(elementCenter)).normalized();
+
+    const auto crossVal = cross(anchorToHinge, elementToHinge);
+    float leftRight = dot(crossVal, point1 - point2);
+
+    direction = leftRight < 0.0f ? Hinge::Direction::CLOCKWISE : Hinge::Direction::COUNTERCLOCKWISE;
+  }
 
   void rotate(float angle) const override
   {
@@ -47,11 +158,66 @@ struct DefaultHinge : public Hinge
     element->updateMatrix();
   }
 
-  DefaultHinge(Type type) : type(type) {}
+  void save(QJsonObject &json) const override
+  {
+    json["type"] = "door";
+    json["name"] = QString::fromStdString(element->name());
+    json["anchor"] = QString::fromStdString(anchor->name());
+    json["element"] = QString::fromStdString(element->name());
 
-  using Ptr = std::shared_ptr<DefaultHinge>;
-  static Ptr makeDoor() {return Ptr(new DefaultHinge(Type::DOOR));}
-  static Ptr makePropeller() {return Ptr(new DefaultHinge(Type::PROPELLER));}
+    QJsonObject point1Object;
+    point1Object["x"] = point1.x();
+    point1Object["y"] = point1.y();
+    point1Object["z"] = point1.z();
+    json["point1"] = point1Object;
+
+    QJsonObject point2Object;
+    point2Object["x"] = point2.x();
+    point2Object["y"] = point2.y();
+    point2Object["z"] = point2.z();
+    json["point2"] = point2Object;
+  }
+
+  using Ptr = std::shared_ptr<DoorHinge>;
+
+  static Ptr load(Object3D::Ptr object, const QJsonObject &json)
+  {
+    std::string name = json["name"].toString().toStdString();
+
+    const QString anchorName = json["anchor"].toString();
+    const auto an = anchorName.toStdString();
+    Object3D::Ptr anchor = an == object->name() ? object : object->getChildByName(an);
+
+    const QString elementName = json["element"].toString();
+    const auto en = elementName.toStdString();
+    Object3D::Ptr element = en == object->name() ? object : object->getChildByName(en);
+
+    if (!element || !anchor) {
+
+      qCritical() << "Hinge definition does not match model: " << (!element ? elementName : anchorName)
+                  << "not found";
+      return nullptr;
+    }
+
+    const QJsonObject pointObject = json["point1"].toObject();
+    Vector3 point1(pointObject["x"].toDouble(),
+                   pointObject["y"].toDouble(),
+                   pointObject["z"].toDouble());
+
+    const QJsonObject axisObject = json["point2"].toObject();
+    Vector3 point2(axisObject["x"].toDouble(),
+                   axisObject["y"].toDouble(),
+                   axisObject["z"].toDouble());
+    float angleLimit = json["angleLimit"].toDouble();
+
+    return make(name, anchor, element, point1, point2, angleLimit);
+  }
+
+  static Ptr make(const std::string &name, Object3D::Ptr anchor, Object3D::Ptr element,
+                  const Vector3 &point1, const Vector3 &point2, float angleLimit)
+  {
+    return Ptr(new DoorHinge(name, anchor, element, point1, point2, angleLimit));
+  }
 };
 
 struct WheelHinge : public Hinge
@@ -77,6 +243,21 @@ struct WheelHinge : public Hinge
   Vector3 rightCenterWorld;
   Vector3 leftAxisWorld;
   Vector3 rightAxisWorld;
+
+  void save(QJsonObject &json) const override
+  {
+    json["type"] = "wheel";
+    json["name"] = QString::fromStdString(name);
+    json["parent"] = QString::fromStdString(parent->name());
+    json["left"] = QString::fromStdString(leftWheel->name());
+    json["right"] = QString::fromStdString(rightWheel->name());
+
+    QJsonObject frontObject;
+    frontObject["x"] = front.x();
+    frontObject["y"] = front.y();
+    frontObject["z"] = front.z();
+    json["leftCenter"] = frontObject;
+  }
 
   void rotate(float theta, Object3D::Ptr wheel, const Vector3 &axis, const Vector3 &axisWorld, const Vector3 &centerWorld) const
   {
@@ -116,10 +297,11 @@ struct WheelHinge : public Hinge
     rightAxisWorld = (rightCenterWorld - leftCenterWorld).normalized();
   }
 
-  WheelHinge(Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
-  : leftWheel(leftWheel), rightWheel(rightWheel), front(front.x(), front.y(), front.z()), parent(parent)
+  WheelHinge(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
+     : Hinge(name), leftWheel(leftWheel), rightWheel(rightWheel), front(front.x(), front.y(), front.z()), parent(parent)
   {
     upm = 100;
+    continuous = true;
 
     //save wheel midpoints as local coordinates
     Box3 leftBox = leftWheel->computeBoundingBox();
@@ -188,20 +370,48 @@ struct WheelHinge : public Hinge
   }
 
   using Ptr = std::shared_ptr<WheelHinge>;
-  static Ptr make(Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
+  static Ptr load(Object3D::Ptr object, const QJsonObject &hingeObject)
   {
-    return Ptr(new WheelHinge(leftWheel, rightWheel, front, parent));
+    std::string name = hingeObject["name"].toString().toStdString();
+
+    const QString parentName = hingeObject["parent"].toString();
+    const auto pn = parentName.toStdString();
+    Object3D::Ptr parent = pn == object->name() ? object : object->getChildByName(pn);
+
+    const QString leftName = hingeObject["left"].toString();
+    const auto an = leftName.toStdString();
+    Object3D::Ptr leftWheel = an == object->name() ? object : object->getChildByName(an);
+
+    const QString rightName = hingeObject["right"].toString();
+    const auto en = rightName.toStdString();
+    Object3D::Ptr rightWheel = en == object->name() ? object : object->getChildByName(en);
+
+    const QJsonObject frontObject = hingeObject["front"].toObject();
+    Vector3 front(frontObject["x"].toDouble(), frontObject["y"].toDouble(), frontObject["z"].toDouble());
+
+    if (!leftWheel || !rightWheel) {
+
+      qCritical() << "Hinge definition does not match model: " << (!leftWheel ? leftName : rightName)
+                  << "not found";
+      return nullptr;
+    }
+
+    return WheelHinge::make(name, leftWheel, rightWheel, front, parent.get());
+  }
+
+  static Ptr make(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
+  {
+    return Ptr(new WheelHinge(name, leftWheel, rightWheel, front, parent));
   }
 };
-
-void setupHinge(DefaultHinge::Ptr hinge);
-void setupHinge(WheelHinge::Ptr hinge);
 
 void Dynamics::update()
 {
   auto elapsed = _timer.restart();
   if(elapsed > 0) {
     for(auto &hinge : _hinges) {
+      if(!hinge->continuous) continue;
+
       float angle = float(M_PI * hinge->upm / 60000.0 * elapsed);
       if(hinge->angleLimit > 0 && hinge->rotatedAngle + angle > hinge->angleLimit) continue;
 
@@ -214,6 +424,7 @@ void Dynamics::update()
 void Dynamics::fastforward(float seconds)
 {
   for(auto &hinge : _hinges) {
+    if(!hinge->continuous) continue;
 
     float angle = float(M_PI * hinge->upm / 60.0 * seconds);
     if(hinge->angleLimit > 0) {
@@ -223,6 +434,22 @@ void Dynamics::fastforward(float seconds)
 
     hinge->rotatedAngle += angle;
     hinge->rotate(angle);
+  }
+}
+
+void Dynamics::fastforward(const QString &name, float seconds)
+{
+  for(auto &hinge : _hinges) {
+    if(hinge->name == name.toStdString()) {
+      float angle = float(M_PI * hinge->upm / 60.0 * seconds);
+      if(hinge->angleLimit > 0) {
+        float theta = std::min(abs(angle), hinge->angleLimit);
+        angle = angle < 0 ? -theta : theta;
+      }
+
+      hinge->rotatedAngle += angle;
+      hinge->rotate(angle);
+    }
   }
 }
 
@@ -257,80 +484,22 @@ void Dynamics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
   for (int i = 0; i < hingeArray.size(); i++) {
     QJsonObject hingeObject = hingeArray[i].toObject();
 
-    DefaultHinge::Ptr defaultHinge;
-
     const auto ht = hingeObject["type"].toString();
-    if (ht == "door")
-      defaultHinge = DefaultHinge::makeDoor();
-    else if (ht == "propeller")
-      defaultHinge = DefaultHinge::makePropeller();
+    if (ht == "door") {
+      DoorHinge::Ptr doorHinge = DoorHinge::load(object, hingeObject);
+      _hinges.push_back(doorHinge);
+    }
+    else if (ht == "propeller") {
+      PropellerHinge::Ptr propellerHinge = PropellerHinge::load(object, hingeObject);
+      _hinges.push_back(propellerHinge);
+    }
     else if (ht == "wheel") {
-      const QString parentName = hingeObject["parent"].toString();
-      const auto pn = parentName.toStdString();
-      Object3D::Ptr parent = pn == object->name() ? object : object->getChildByName(pn);
-
-      const QString leftName = hingeObject["left"].toString();
-      const auto an = leftName.toStdString();
-      Object3D::Ptr leftWheel = an == object->name() ? object : object->getChildByName(an);
-
-      const QString rightName = hingeObject["right"].toString();
-      const auto en = rightName.toStdString();
-      Object3D::Ptr rightWheel = en == object->name() ? object : object->getChildByName(en);
-
-      const QJsonObject frontObject = hingeObject["front"].toObject();
-      Vector3 front(frontObject["x"].toDouble(), frontObject["y"].toDouble(), frontObject["z"].toDouble());
-
-      if (!leftWheel || !rightWheel) {
-
-        qCritical() << "Hinge definition does not match model: " << (!leftWheel ? leftName : rightName)
-                    << "not found";
-        _hinges.pop_back();
-        return;
-      }
-
-      WheelHinge::Ptr wheelHinge = WheelHinge::make(leftWheel, rightWheel, front, parent.get());
-
-      wheelHinge->name = hingeObject["name"].toString().toStdString();
+      WheelHinge::Ptr wheelHinge = WheelHinge::load(object, hingeObject);
       _hinges.push_back(wheelHinge);
       continue;
     }
     else
       throw std::invalid_argument("unknown hinge type");
-
-    if(defaultHinge) {
-      _hinges.push_back(defaultHinge);
-
-      defaultHinge->name = hingeObject["name"].toString().toStdString();
-
-      const QString anchorName = hingeObject["anchor"].toString();
-      const auto an = anchorName.toStdString();
-      defaultHinge->anchor = an == object->name() ? object : object->getChildByName(an);
-
-      const QString elementName = hingeObject["element"].toString();
-      const auto en = elementName.toStdString();
-      defaultHinge->element = en == object->name() ? object : object->getChildByName(en);
-
-      if (!defaultHinge->element || !defaultHinge->anchor) {
-
-        qCritical() << "Hinge definition does not match model: " << (!defaultHinge->element ? elementName : anchorName)
-                    << "not found";
-        _hinges.pop_back();
-        return;
-      }
-
-      const QJsonObject pointObject = hingeObject["point1"].toObject();
-      defaultHinge->point1.set(pointObject["x"].toDouble(),
-                        pointObject["y"].toDouble(),
-                        pointObject["z"].toDouble());
-
-      const QJsonObject axisObject = hingeObject["point2"].toObject();
-      defaultHinge->point2.set(axisObject["x"].toDouble(),
-                        axisObject["y"].toDouble(),
-                        axisObject["z"].toDouble());
-      defaultHinge->angleLimit = hingeObject["angleLimit"].toDouble();
-
-      setupHinge(defaultHinge);
-    }
   }
   emit hingesChanged();
 }
@@ -370,49 +539,7 @@ bool Dynamics::save(const QString &file)
 
   for (const auto &hinge : hinges()) {
     QJsonObject hingeObject;
-
-    DefaultHinge::Ptr dhinge = std::dynamic_pointer_cast<DefaultHinge>(hinge);
-    if(dhinge) {
-      switch (dhinge->type) {
-        case DefaultHinge::Type::DOOR:
-          hingeObject["type"] = "door";
-          break;
-        case DefaultHinge::Type::PROPELLER:
-          hingeObject["type"] = "propeller";
-          break;
-      }
-
-      hingeObject["name"] = QString::fromStdString(dhinge->element->name());
-      hingeObject["anchor"] = QString::fromStdString(dhinge->anchor->name());
-      hingeObject["element"] = QString::fromStdString(dhinge->element->name());
-
-      QJsonObject point1Object;
-      point1Object["x"] = dhinge->point1.x();
-      point1Object["y"] = dhinge->point1.y();
-      point1Object["z"] = dhinge->point1.z();
-      hingeObject["point1"] = point1Object;
-
-      QJsonObject point2Object;
-      point2Object["x"] = dhinge->point2.x();
-      point2Object["y"] = dhinge->point2.y();
-      point2Object["z"] = dhinge->point2.z();
-      hingeObject["point2"] = point2Object;
-    }
-    else {
-      WheelHinge::Ptr whinge = std::dynamic_pointer_cast<WheelHinge>(hinge);
-      hingeObject["type"] = "wheel";
-
-      hingeObject["name"] = QString::fromStdString(whinge->name);
-      hingeObject["parent"] = QString::fromStdString(whinge->parent->name());
-      hingeObject["left"] = QString::fromStdString(whinge->leftWheel->name());
-      hingeObject["right"] = QString::fromStdString(whinge->rightWheel->name());
-
-      QJsonObject frontObject;
-      frontObject["x"] = whinge->front.x();
-      frontObject["y"] = whinge->front.y();
-      frontObject["z"] = whinge->front.z();
-      hingeObject["leftCenter"] = frontObject;
-    }
+    hinge->save(hingeObject);
     hingeArray.push_back(hingeObject);
   }
 
@@ -425,48 +552,50 @@ bool Dynamics::save(const QString &file)
   return true;
 }
 
-DefaultHinge::Ptr createDefaultHinge(DefaultHinge::Ptr hinge, QVariant element, QVariant body, QVector3D one, QVector3D two)
+void Dynamics::createPropellerHinge(QString name, QVariant propeller, QVector3D back)
 {
-  auto *elem = element.value<quick::ThreeQObject *>();
+  auto *prop = propeller.value<quick::ThreeQObject *>();
+
+  if (!prop) {
+    qCritical() << "createPropellerHinge: null parameter";
+    return;
+  }
+  Vector3 point(back.x(), back.y(), back.z());
+  Object3D::Ptr p = prop->object();
+  PropellerHinge::Ptr hinge = PropellerHinge::make(name.toStdString(), p, p->worldToLocal(point));
+
+  _hinges.push_back(hinge);
+  hinge->upm = 240;
+
+  emit hingesChanged();
+}
+
+void Dynamics::createDoorHinge(QString name, QVariant door, QVariant body, QVector3D upper, QVector3D lower)
+{
+  auto *elem = door.value<quick::ThreeQObject *>();
   auto *bdy = body.value<quick::ThreeQObject *>();
 
   if (!elem || !bdy) {
-    throw std::invalid_argument("createHinge: null parameter");
+    qCritical() << "createDoorHinge: null parameter";
+    return;
   }
 
-  hinge->anchor = bdy->object();
-  hinge->element = elem->object();
+  Object3D::Ptr anchor = bdy->object();
+  Object3D::Ptr element = elem->object();
 
   //save as local points
-  Vector3 ptw1(one.x(), one.y(), one.z());
-  hinge->point1 = hinge->anchor->worldToLocal(ptw1);
-  Vector3 ptw2(two.x(), two.y(), two.z());
-  hinge->point2 = hinge->anchor->worldToLocal(ptw2);
+  Vector3 ptw1(upper.x(), upper.y(), upper.z());
+  Vector3 point1 = anchor->worldToLocal(ptw1);
+  Vector3 ptw2(lower.x(), lower.y(), lower.z());
+  Vector3 point2 = anchor->worldToLocal(ptw2);
 
-  setupHinge(hinge);
-
-  return hinge;
-}
-
-void Dynamics::createPropellerHinge(QVariant propeller, QVariant body, QVector3D back, QVector3D front)
-{
-  const auto hinge = createDefaultHinge(DefaultHinge::makePropeller(), propeller, body, back, front);
+  DoorHinge::Ptr hinge = DoorHinge::make(name.toStdString(), anchor, element, point1, point2, float(M_PI_2 * 0.8));
   _hinges.push_back(hinge);
-  hinge->upm = 120;
 
   emit hingesChanged();
 }
 
-void Dynamics::createDoorHinge(QVariant door, QVariant body, QVector3D upper, QVector3D lower)
-{
-  DefaultHinge::Ptr hinge = createDefaultHinge(DefaultHinge::makeDoor(), door, body, upper, lower);
-  _hinges.push_back(hinge);
-  hinge->angleLimit = float(M_PI_2 * 0.8);
-
-  emit hingesChanged();
-}
-
-void Dynamics::createWheelHinge(QVariant left, QVariant right, QVector3D front)
+void Dynamics::createWheelHinge(QString name, QVariant left, QVariant right, QVector3D front)
 {
   auto *leftWheel = left.value<quick::ThreeQObject *>();
   auto *rightWheel = right.value<quick::ThreeQObject *>();
@@ -496,35 +625,10 @@ void Dynamics::createWheelHinge(QVariant left, QVariant right, QVector3D front)
   }
   Vector3 pfront = parent->worldToLocal(Vector3(front.x(), front.y(), front.z()));
 
-  WheelHinge::Ptr hinge = WheelHinge::make(leftW, rightW, pfront, parent);
+  WheelHinge::Ptr hinge = WheelHinge::make(name.toStdString(), leftW, rightW, pfront, parent);
   _hinges.push_back(hinge);
 
   emit hingesChanged();
-}
-
-void setupHinge(DefaultHinge::Ptr hinge)
-{
-  //calculate hinge axis and hinge point
-  const auto hp1 = hinge->anchor->localToWorld(hinge->point1);
-  const auto hp2 = hinge->anchor->localToWorld(hinge->point2);
-
-  hinge->axisWorld = (hp1 - hp2).normalized();
-  hinge->axisLocal = (hinge->element->worldToLocal(hp1) - hinge->element->worldToLocal(hp2)).normalized();
-  hinge->pointWorld = (hp1 + hp2) * 0.5;
-
-  //calculate position of door to determine turning direction
-  const auto hingePoint = (hinge->point1 + hinge->point2) * 0.5;
-
-  const auto anchorCenter = hinge->anchor->computeBoundingBox().getCenter();
-  const auto elementCenter = hinge->element->computeBoundingBox().getCenter();
-
-  const auto anchorToHinge = (hingePoint - hinge->anchor->worldToLocal(anchorCenter)).normalized();
-  const auto elementToHinge = (hingePoint - hinge->anchor->worldToLocal(elementCenter)).normalized();
-
-  const auto crossVal = cross(anchorToHinge, elementToHinge);
-  float leftRight = dot(crossVal, hinge->point1 - hinge->point2);
-
-  hinge->direction = leftRight < 0.0f ? Hinge::Direction::CLOCKWISE : Hinge::Direction::COUNTERCLOCKWISE;
 }
 
 void Dynamics::resetAll()
