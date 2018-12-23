@@ -330,8 +330,8 @@ struct WheelHinge : public Hinge
   
   void rotate(float angle) const override
   {
-    rotate(angle * dir, leftWheel, leftAxis, leftAxisWorld, leftCenterWorld);
-    rotate(-angle * dir, rightWheel, rightAxis, rightAxisWorld, rightCenterWorld);
+    rotate(angle * -dir, leftWheel, leftAxis, leftAxisWorld, leftCenterWorld);
+    rotate(angle * dir, rightWheel, rightAxis, rightAxisWorld, rightCenterWorld);
   }
 
   void updateWorld() override
@@ -397,12 +397,14 @@ struct WheelHinge : public Hinge
 
     switch(pos) {
       case WheelHinge::Position::BACKLEFT:
+        dir = 1;
       case WheelHinge::Position::BACKRIGHT:
-        dir = -1;
+        dir = 1;
         break;
       case WheelHinge::Position::FRONTRIGHT:
+        dir = -1;
       case WheelHinge::Position::FRONTLEFT:
-        dir = 1;
+        dir = -1;
         break;
     }
     if(leftWheel->position().isNull() && rightWheel->position().isNull()) {
@@ -410,12 +412,10 @@ struct WheelHinge : public Hinge
       rightAxis = (rightCenter - rightWheel->worldToLocal(leftCenterWorld)).normalized();
     }
     else if(pos == Position::FRONTRIGHT || pos == Position::BACKLEFT) {
-      dir = -dir;
       leftAxis = (leftWheel->worldToLocal(rightCenterWorld) - leftCenter).normalized();
       rightAxis = (rightCenter - rightWheel->worldToLocal(leftCenterWorld)).normalized();
     }
     else if(pos == Position::BACKRIGHT || pos == Position::FRONTLEFT) {
-      if(pos == Position::FRONTLEFT) dir = -dir;
       leftAxis = (leftCenter - leftWheel->worldToLocal(rightCenterWorld)).normalized();
       rightAxis = (rightWheel->worldToLocal(leftCenterWorld) - rightCenter).normalized();
     }

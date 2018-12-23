@@ -474,9 +474,9 @@ Texture::Ptr Access::loadTexture(aiTextureType type, unsigned index, const aiMat
   aiString path;
   aiTextureMapping mapping;
   unsigned int uvindex = numeric_limits<unsigned>::max();
-  ai_real blend;
+  ai_real blend = 0;
   aiTextureOp op = (aiTextureOp)numeric_limits<int>::max();
-  aiTextureMapMode mapmode[3] {aiTextureMapMode_Clamp, aiTextureMapMode_Clamp, aiTextureMapMode_Clamp};
+  aiTextureMapMode mapmode[3] {aiTextureMapMode_Wrap, aiTextureMapMode_Wrap, aiTextureMapMode_Wrap};
 
   if(material->GetTexture(type, index, &path, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS) {
 
