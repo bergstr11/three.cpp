@@ -25,9 +25,29 @@ struct Hinge
 
   bool continuous = false;
 
+  bool needsUpdate = true;
+
   Hinge(const std::string &name, float angleLimit=0) : name(name), angleLimit(angleLimit)
   {}
 
+  void update(const math::Quaternion &)
+  {
+    needsUpdate = true;
+  }
+
+  void listen(math::Quaternion &quaternion)
+  {
+    quaternion.onChange.connect(this, &Hinge::update);
+  }
+
+  void checkForUpdate()
+  {
+    if(needsUpdate) {
+      needsUpdate = false;
+      updateWorld();
+    }
+  }
+  virtual void updateWorld() = 0;
   virtual void rotate(float angle) const = 0;
   virtual void save(QJsonObject &json) const = 0;
 

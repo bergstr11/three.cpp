@@ -11,12 +11,34 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QUrl>
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace quick {
 
 using namespace math;
 
+Object3D *findParent(Object3D *one, Object3D *two)
+{
+  //find common parent for wheels
+  Object3D *parent=nullptr, *wl=one, *wr=two;
+  for(int i=0; wl && wl->parent() && wr && wr->parent(); i++) {
+    if(wl->parent() == wr->parent()) {
+      parent = wl->parent();
+      break;
+    }
+    if(i % 2 == 0)
+      wl = wl->parent();
+    else
+      wr = wr->parent();
+  }
+  return parent;
+}
+
+/**
+ * hinge that is defined by one world point (to determine the direction of the rotation axis) and
+ * one rotating object. The object will be rotated around its center
+ */
 struct PropellerHinge : public Hinge
 {
   Object3D::Ptr propeller;
@@ -26,7 +48,7 @@ struct PropellerHinge : public Hinge
   Vector3 axis;
   Vector3 axisWorld;
 
-  void update(const Quaternion &)
+  void updateWorld() override
   {
     centerWorld = propeller->localToWorld(center);
     axisWorld = (propeller->localToWorld(point) - propeller->localToWorld(center)).normalized();
@@ -41,9 +63,7 @@ struct PropellerHinge : public Hinge
     center = propeller->worldToLocal(box.getCenter());
     axis = (point - center).normalized();
 
-    update(propeller->quaternion());
-
-    propeller->quaternion().onChange.connect(this, &PropellerHinge::update);
+    listen(propeller->quaternion());
   }
 
   void rotate(float angle) const override
@@ -99,6 +119,10 @@ struct PropellerHinge : public Hinge
   }
 };
 
+/**
+ * hinge that is defined by two objects, namely the anchor and the door, and two points that demarcate
+ * the revolution axis
+ */
 struct DoorHinge : public Hinge
 {
   Object3D::Ptr anchor;
@@ -112,23 +136,22 @@ struct DoorHinge : public Hinge
   Vector3 point1;
   Vector3 point2;
 
-  DoorHinge(const std::string &name, Object3D::Ptr anchor, Object3D::Ptr element, const Vector3 &point1, const Vector3 &point2,
-            float angleLimit)
-     : Hinge(name, angleLimit), anchor(anchor), element(element), point1(point1), point2(point2)
-  {
-    setup();
-  }
-
-  void setup()
+  void updateWorld() override
   {
     //calculate hinge axis and hinge point
     const auto hp1 = anchor->localToWorld(point1);
     const auto hp2 = anchor->localToWorld(point2);
 
     axisWorld = (hp1 - hp2).normalized();
-    axisLocal = (element->worldToLocal(hp1) - element->worldToLocal(hp2)).normalized();
     pointWorld = (hp1 + hp2) * 0.5;
 
+    axisLocal = (element->worldToLocal(hp1) - element->worldToLocal(hp2)).normalized();
+  }
+
+  DoorHinge(const std::string &name, Object3D::Ptr anchor, Object3D::Ptr element, const Vector3 &point1, const Vector3 &point2,
+            float angleLimit)
+     : Hinge(name, angleLimit), anchor(anchor), element(element), point1(point1), point2(point2)
+  {
     //calculate position of door to determine turning direction
     const auto hingePoint = (point1 + point2) * 0.5;
 
@@ -142,6 +165,8 @@ struct DoorHinge : public Hinge
     float leftRight = dot(crossVal, point1 - point2);
 
     direction = leftRight < 0.0f ? Hinge::Direction::CLOCKWISE : Hinge::Direction::COUNTERCLOCKWISE;
+
+    listen(anchor->quaternion());
   }
 
   void rotate(float angle) const override
@@ -161,7 +186,7 @@ struct DoorHinge : public Hinge
   void save(QJsonObject &json) const override
   {
     json["type"] = "door";
-    json["name"] = QString::fromStdString(element->name());
+    json["name"] = QString::fromStdString(name);
     json["anchor"] = QString::fromStdString(anchor->name());
     json["element"] = QString::fromStdString(element->name());
 
@@ -176,6 +201,8 @@ struct DoorHinge : public Hinge
     point2Object["y"] = point2.y();
     point2Object["z"] = point2.z();
     json["point2"] = point2Object;
+
+    json["angleLimit"] = angleLimit;
   }
 
   using Ptr = std::shared_ptr<DoorHinge>;
@@ -220,23 +247,23 @@ struct DoorHinge : public Hinge
   }
 };
 
+/**
+ * a hinge that is dedfined by two wheel objects and one world point which marks the "forward" direction.
+ * the wheels rotate around their center axes. The rotation is such that movement would be in the (general)
+ * direction of the point
+ */
 struct WheelHinge : public Hinge
 {
-  enum class Position {FRONTLEFT, FRONTRIGHT, BACKLEFT, BACKRIGHT};
+  enum class Position {FRONTLEFT, FRONTRIGHT, BACKLEFT, BACKRIGHT, UNDEFINED};
 
   Object3D::Ptr leftWheel;
   Object3D::Ptr rightWheel;
-  Object3D *parent = nullptr;
 
-  Vector3 parentCenter;
   Vector3 leftCenter;
   Vector3 rightCenter;
-  Vector3 front;
-
   Vector3 leftAxis;
   Vector3 rightAxis;
 
-  Position pos;
   int dir = 1;
 
   Vector3 leftCenterWorld;
@@ -244,19 +271,49 @@ struct WheelHinge : public Hinge
   Vector3 leftAxisWorld;
   Vector3 rightAxisWorld;
 
+  static const char *toString(WheelHinge::Position pos)
+  {
+    switch(pos) {
+      case Position::BACKLEFT: return "BACKLEFT";
+      case Position::BACKRIGHT: return "BACKRIGHT";
+      case Position::FRONTLEFT: return "FRONTLEFT";
+      case Position::FRONTRIGHT: return "FRONTRIGHT";
+      default: return "UNDEFINED";
+    }
+  }
+
   void save(QJsonObject &json) const override
   {
     json["type"] = "wheel";
     json["name"] = QString::fromStdString(name);
-    json["parent"] = QString::fromStdString(parent->name());
-    json["left"] = QString::fromStdString(leftWheel->name());
-    json["right"] = QString::fromStdString(rightWheel->name());
+    json["leftWheel"] = QString::fromStdString(leftWheel->name());
+    json["rightWheel"] = QString::fromStdString(rightWheel->name());
 
-    QJsonObject frontObject;
-    frontObject["x"] = front.x();
-    frontObject["y"] = front.y();
-    frontObject["z"] = front.z();
-    json["leftCenter"] = frontObject;
+    QJsonObject leftCenterObject;
+    leftCenterObject["x"] = leftCenter.x();
+    leftCenterObject["y"] = leftCenter.y();
+    leftCenterObject["z"] = leftCenter.z();
+    json["leftCenter"] = leftCenterObject;
+
+    QJsonObject rightCenterObject;
+    rightCenterObject["x"] = rightCenter.x();
+    rightCenterObject["y"] = rightCenter.y();
+    rightCenterObject["z"] = rightCenter.z();
+    json["rightCenter"] = rightCenterObject;
+
+    QJsonObject leftAxisObject;
+    leftAxisObject["x"] = leftAxis.x();
+    leftAxisObject["y"] = leftAxis.y();
+    leftAxisObject["z"] = leftAxis.z();
+    json["leftAxis"] = leftAxisObject;
+
+    QJsonObject rightAxisObject;
+    rightAxisObject["x"] = rightAxis.x();
+    rightAxisObject["y"] = rightAxis.y();
+    rightAxisObject["z"] = rightAxis.z();
+    json["rightAxis"] = rightAxisObject;
+
+    json["dir"] = dir;
   }
 
   void rotate(float theta, Object3D::Ptr wheel, const Vector3 &axis, const Vector3 &axisWorld, const Vector3 &centerWorld) const
@@ -277,18 +334,7 @@ struct WheelHinge : public Hinge
     rotate(-angle * dir, rightWheel, rightAxis, rightAxisWorld, rightCenterWorld);
   }
 
-  const char *toString(WheelHinge::Position pos)
-  {
-    switch(pos) {
-      case WheelHinge::Position::BACKLEFT: return "BACKLEFT";
-      case WheelHinge::Position::BACKRIGHT: return "BACKRIGHT";
-      case WheelHinge::Position::FRONTLEFT: return "FRONTLEFT";
-      case WheelHinge::Position::FRONTRIGHT: return "FRONTRIGHT";
-      default: return "unknown";
-    }
-  }
-
-  void update(const Quaternion &)
+  void updateWorld() override
   {
     leftCenterWorld = leftWheel->localToWorld(leftCenter);
     rightCenterWorld = rightWheel->localToWorld(rightCenter);
@@ -297,8 +343,15 @@ struct WheelHinge : public Hinge
     rightAxisWorld = (rightCenterWorld - leftCenterWorld).normalized();
   }
 
+  WheelHinge(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel)
+     : Hinge(name), leftWheel(leftWheel), rightWheel(rightWheel)
+  {
+    upm = 100;
+    continuous = true;
+  }
+
   WheelHinge(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
-     : Hinge(name), leftWheel(leftWheel), rightWheel(rightWheel), front(front.x(), front.y(), front.z()), parent(parent)
+     : Hinge(name), leftWheel(leftWheel), rightWheel(rightWheel)
   {
     upm = 100;
     continuous = true;
@@ -311,10 +364,11 @@ struct WheelHinge : public Hinge
 
     //save parent center as local coordinate
     const auto parentBox = parent->computeBoundingBox();
-    parentCenter = parent->worldToLocal(parentBox.getCenter());
+    Vector3 parentCenter = parent->worldToLocal(parentBox.getCenter());
 
-    update(parent->quaternion());
+    updateWorld();
 
+    Position pos;
     {
       const auto leftCenter = parent->worldToLocal(leftCenterWorld);
       const auto rightCenter = parent->worldToLocal(rightCenterWorld);
@@ -366,37 +420,51 @@ struct WheelHinge : public Hinge
       rightAxis = (rightWheel->worldToLocal(leftCenterWorld) - rightCenter).normalized();
     }
 
-    parent->quaternion().onChange.connect(this, &WheelHinge::update);
+    listen(parent->quaternion());
   }
 
   using Ptr = std::shared_ptr<WheelHinge>;
   static Ptr load(Object3D::Ptr object, const QJsonObject &hingeObject)
   {
-    std::string name = hingeObject["name"].toString().toStdString();
-
-    const QString parentName = hingeObject["parent"].toString();
-    const auto pn = parentName.toStdString();
-    Object3D::Ptr parent = pn == object->name() ? object : object->getChildByName(pn);
-
-    const QString leftName = hingeObject["left"].toString();
+    const QString leftName = hingeObject["leftWheel"].toString();
     const auto an = leftName.toStdString();
     Object3D::Ptr leftWheel = an == object->name() ? object : object->getChildByName(an);
 
-    const QString rightName = hingeObject["right"].toString();
+    const QString rightName = hingeObject["rightWheel"].toString();
     const auto en = rightName.toStdString();
     Object3D::Ptr rightWheel = en == object->name() ? object : object->getChildByName(en);
 
-    const QJsonObject frontObject = hingeObject["front"].toObject();
-    Vector3 front(frontObject["x"].toDouble(), frontObject["y"].toDouble(), frontObject["z"].toDouble());
-
-    if (!leftWheel || !rightWheel) {
-
-      qCritical() << "Hinge definition does not match model: " << (!leftWheel ? leftName : rightName)
-                  << "not found";
+    Object3D *parent=findParent(leftWheel.get(), rightWheel.get());
+    if(!leftWheel || !rightWheel || !parent) {
+      qCritical() << "load WheelHinge: unable to match format";
       return nullptr;
     }
 
-    return WheelHinge::make(name, leftWheel, rightWheel, front, parent.get());
+    std::string name = hingeObject["name"].toString().toStdString();
+    WheelHinge::Ptr hinge = WheelHinge::make(name, leftWheel, rightWheel);
+
+    QJsonObject leftCenterJson = hingeObject["leftCenter"].toObject();
+    hinge->leftCenter.set(leftCenterJson["x"].toDouble(), leftCenterJson["y"].toDouble(), leftCenterJson["z"].toDouble());
+
+    QJsonObject rightCenterJson = hingeObject["rightCenter"].toObject();
+    hinge->rightCenter.set(rightCenterJson["x"].toDouble(), rightCenterJson["y"].toDouble(), rightCenterJson["z"].toDouble());
+
+    QJsonObject leftAxisJson = hingeObject["leftAxis"].toObject();
+    hinge->leftAxis.set(leftAxisJson["x"].toDouble(), leftAxisJson["y"].toDouble(), leftAxisJson["z"].toDouble());
+
+    QJsonObject rightAxisJson = hingeObject["rightAxis"].toObject();
+    hinge->rightAxis.set(rightAxisJson["x"].toDouble(), rightAxisJson["y"].toDouble(), rightAxisJson["z"].toDouble());
+
+    hinge->dir = hingeObject["dir"].toInt();
+
+    hinge->listen(parent->quaternion());
+
+    return hinge;
+  }
+
+  static Ptr make(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel)
+  {
+    return Ptr(new WheelHinge(name, leftWheel, rightWheel));
   }
 
   static Ptr make(const std::string &name, Object3D::Ptr leftWheel, Object3D::Ptr rightWheel, const Vector3 &front, Object3D *parent)
@@ -415,6 +483,7 @@ void Dynamics::update()
       float angle = float(M_PI * hinge->upm / 60000.0 * elapsed);
       if(hinge->angleLimit > 0 && hinge->rotatedAngle + angle > hinge->angleLimit) continue;
 
+      hinge->checkForUpdate();
       hinge->rotatedAngle += angle;
       hinge->rotate(angle);
     }
@@ -432,6 +501,7 @@ void Dynamics::fastforward(float seconds)
       angle = angle < 0 ? -theta : theta;
     }
 
+    hinge->checkForUpdate();
     hinge->rotatedAngle += angle;
     hinge->rotate(angle);
   }
@@ -439,14 +509,17 @@ void Dynamics::fastforward(float seconds)
 
 void Dynamics::fastforward(const QString &name, float seconds)
 {
+  auto nm = name.toStdString();
+
   for(auto &hinge : _hinges) {
-    if(hinge->name == name.toStdString()) {
+    if(hinge->name == nm) {
       float angle = float(M_PI * hinge->upm / 60.0 * seconds);
       if(hinge->angleLimit > 0) {
         float theta = std::min(abs(angle), hinge->angleLimit);
         angle = angle < 0 ? -theta : theta;
       }
 
+      hinge->checkForUpdate();
       hinge->rotatedAngle += angle;
       hinge->rotate(angle);
     }
@@ -487,16 +560,15 @@ void Dynamics::loadHinges(const QJsonValueRef &json, Object3D::Ptr object)
     const auto ht = hingeObject["type"].toString();
     if (ht == "door") {
       DoorHinge::Ptr doorHinge = DoorHinge::load(object, hingeObject);
-      _hinges.push_back(doorHinge);
+      if(doorHinge) _hinges.push_back(doorHinge);
     }
     else if (ht == "propeller") {
       PropellerHinge::Ptr propellerHinge = PropellerHinge::load(object, hingeObject);
-      _hinges.push_back(propellerHinge);
+      if(propellerHinge) _hinges.push_back(propellerHinge);
     }
     else if (ht == "wheel") {
       WheelHinge::Ptr wheelHinge = WheelHinge::load(object, hingeObject);
-      _hinges.push_back(wheelHinge);
-      continue;
+      if(wheelHinge) _hinges.push_back(wheelHinge);
     }
     else
       throw std::invalid_argument("unknown hinge type");
@@ -608,17 +680,7 @@ void Dynamics::createWheelHinge(QString name, QVariant left, QVariant right, QVe
   Object3D::Ptr rightW = rightWheel->object();
 
   //find common parent for wheels
-  Object3D *parent=nullptr, *wl=leftW.get(), *wr=rightW.get();
-  for(int i=0; wl->parent() && wr->parent(); i++) {
-    if(wl->parent() == wr->parent()) {
-      parent = wl->parent();
-      break;
-    }
-    if(i % 2 == 0)
-      wl = wl->parent();
-    else
-      wr = wr->parent();
-  }
+  Object3D *parent=findParent(leftW.get(), rightW.get());
   if(!parent) {
     qCritical() << "createWheelHinge: cannot determine common parent";
     return;
