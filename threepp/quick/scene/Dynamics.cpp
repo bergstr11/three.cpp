@@ -386,27 +386,28 @@ struct WheelHinge : public Hinge
       float localFront = (parentCenter - midLocal).inclination();
       bool isFront = parentFront < 0 ? localFront < 0 : localFront > 0;
       bool isRight = parentFront < 0 ? leftRight < 0 : leftRight > 0;
+
       pos = isRight ?
                (isFront ? WheelHinge::Position::FRONTRIGHT : WheelHinge::Position::BACKRIGHT) :
                (isFront ? WheelHinge::Position::FRONTLEFT : WheelHinge::Position::BACKLEFT);
 
-      qDebug() << toString(pos) << leftRight << isFront << localFront << parentFront;
-
-      dir = isFront ? 1 : -1;
+      switch(pos) {
+        case Position::FRONTLEFT:
+          dir = localFront < 0 && parentFront > 0 ? 1 : -1;
+          break;
+        case Position::FRONTRIGHT:
+          dir = localFront < 0 && parentFront > 0 ? -1 : 1;
+          break;
+        case Position::BACKRIGHT:
+          dir = 1;
+          break;
+        case Position::BACKLEFT:
+          dir = -1;
+          break;
+      }
+      qDebug() << toString(pos) << dir << parentFront << localFront;
     }
 
-    switch(pos) {
-      case WheelHinge::Position::BACKLEFT:
-        dir = 1;
-      case WheelHinge::Position::BACKRIGHT:
-        dir = 1;
-        break;
-      case WheelHinge::Position::FRONTRIGHT:
-        dir = -1;
-      case WheelHinge::Position::FRONTLEFT:
-        dir = -1;
-        break;
-    }
     if(leftWheel->position().isNull() && rightWheel->position().isNull()) {
       leftAxis = (leftCenter - leftWheel->worldToLocal(rightCenterWorld)).normalized();
       rightAxis = (rightCenter - rightWheel->worldToLocal(leftCenterWorld)).normalized();
