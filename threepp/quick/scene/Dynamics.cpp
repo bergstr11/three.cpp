@@ -150,7 +150,7 @@ struct DoorHinge : public Hinge
 
   DoorHinge(const std::string &name, Object3D::Ptr anchor, Object3D::Ptr element, const Vector3 &point1, const Vector3 &point2,
             float angleLimit)
-     : Hinge(name, angleLimit), anchor(anchor), element(element), point1(point1), point2(point2)
+     : Hinge(name, 0, angleLimit), anchor(anchor), element(element), point1(point1), point2(point2)
   {
     //calculate position of door to determine turning direction
     const auto hingePoint = (point1 + point2) * 0.5;
@@ -165,8 +165,6 @@ struct DoorHinge : public Hinge
     float leftRight = dot(crossVal, point1 - point2);
 
     direction = leftRight < 0.0f ? Hinge::Direction::CLOCKWISE : Hinge::Direction::COUNTERCLOCKWISE;
-
-    angleMin = 0;
 
     listen(anchor->quaternion());
   }
@@ -476,6 +474,19 @@ struct WheelHinge : public Hinge
   }
 };
 
+void applyAngle(Hinge::Ptr &hinge, float angle)
+{
+  float theta = hinge->angleMax !=  Hinge::FULL_CIRCLE ?
+     std::min(hinge->rotatedAngle + angle, hinge->angleMax) : hinge->rotatedAngle + angle;
+  if(hinge->angleMin != -Hinge::FULL_CIRCLE) theta = std::max(theta, hinge->angleMin);
+
+  angle = theta - hinge->rotatedAngle;
+
+  hinge->checkForUpdate();
+  hinge->rotatedAngle = theta;
+  hinge->rotate(angle);
+}
+
 void Dynamics::update()
 {
   auto elapsed = _timer.restart();
@@ -484,11 +495,7 @@ void Dynamics::update()
       if(!hinge->continuous) continue;
 
       float angle = float(M_PI * hinge->upm / 60000.0 * elapsed);
-      if(hinge->angleMax > 0 && hinge->rotatedAngle + angle > hinge->angleMax) continue;
-
-      hinge->checkForUpdate();
-      hinge->rotatedAngle += angle;
-      hinge->rotate(angle);
+      applyAngle(hinge, angle);
     }
   }
 }
@@ -499,14 +506,7 @@ void Dynamics::fastforward(float seconds)
     if(!hinge->continuous) continue;
 
     float angle = float(M_PI * hinge->upm / 60.0 * seconds);
-
-    float theta = std::min(hinge->rotatedAngle + angle, hinge->angleMax);
-    theta = std::max(theta, hinge->angleMin);
-    angle = theta - hinge->rotatedAngle;
-
-    hinge->checkForUpdate();
-    hinge->rotatedAngle += angle;
-    hinge->rotate(angle);
+    applyAngle(hinge, angle);
   }
 }
 
@@ -516,15 +516,9 @@ void Dynamics::fastforward(const QString &name, float seconds)
 
   for(auto &hinge : _hinges) {
     if(hinge->name == nm) {
+
       float angle = float(M_PI * hinge->upm / 60.0 * seconds);
-
-      float theta = std::min(hinge->rotatedAngle + angle, hinge->angleMax);
-      theta = std::max(theta, hinge->angleMin);
-      angle = theta - hinge->rotatedAngle;
-
-      hinge->checkForUpdate();
-      hinge->rotatedAngle += angle;
-      hinge->rotate(angle);
+      applyAngle(hinge, angle);
     }
   }
 }

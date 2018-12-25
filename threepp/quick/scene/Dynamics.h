@@ -15,6 +15,8 @@ namespace quick {
 
 struct Hinge
 {
+  static constexpr float FULL_CIRCLE = M_PI * 2;
+
   enum class Direction {CLOCKWISE, COUNTERCLOCKWISE};
 
   std::string name;
@@ -27,7 +29,8 @@ struct Hinge
 
   bool needsUpdate = true;
 
-  Hinge(const std::string &name, float angleLimit=0) : name(name), angleMax(angleLimit)
+  Hinge(const std::string &name, float angleMin = -FULL_CIRCLE, float angleMax = FULL_CIRCLE)
+     : name(name), angleMin(angleMin), angleMax(angleMax)
   {}
 
   void update(const math::Quaternion &)
