@@ -166,6 +166,8 @@ struct DoorHinge : public Hinge
 
     direction = leftRight < 0.0f ? Hinge::Direction::CLOCKWISE : Hinge::Direction::COUNTERCLOCKWISE;
 
+    angleMin = 0;
+
     listen(anchor->quaternion());
   }
 
@@ -202,7 +204,7 @@ struct DoorHinge : public Hinge
     point2Object["z"] = point2.z();
     json["point2"] = point2Object;
 
-    json["angleLimit"] = angleLimit;
+    json["angleLimit"] = angleMax;
   }
 
   using Ptr = std::shared_ptr<DoorHinge>;
@@ -482,7 +484,7 @@ void Dynamics::update()
       if(!hinge->continuous) continue;
 
       float angle = float(M_PI * hinge->upm / 60000.0 * elapsed);
-      if(hinge->angleLimit > 0 && hinge->rotatedAngle + angle > hinge->angleLimit) continue;
+      if(hinge->angleMax > 0 && hinge->rotatedAngle + angle > hinge->angleMax) continue;
 
       hinge->checkForUpdate();
       hinge->rotatedAngle += angle;
@@ -497,10 +499,10 @@ void Dynamics::fastforward(float seconds)
     if(!hinge->continuous) continue;
 
     float angle = float(M_PI * hinge->upm / 60.0 * seconds);
-    if(hinge->angleLimit > 0) {
-      float theta = std::min(abs(angle), hinge->angleLimit);
-      angle = angle < 0 ? -theta : theta;
-    }
+
+    float theta = std::min(hinge->rotatedAngle + angle, hinge->angleMax);
+    theta = std::max(theta, hinge->angleMin);
+    angle = theta - hinge->rotatedAngle;
 
     hinge->checkForUpdate();
     hinge->rotatedAngle += angle;
@@ -515,10 +517,10 @@ void Dynamics::fastforward(const QString &name, float seconds)
   for(auto &hinge : _hinges) {
     if(hinge->name == nm) {
       float angle = float(M_PI * hinge->upm / 60.0 * seconds);
-      if(hinge->angleLimit > 0) {
-        float theta = std::min(abs(angle), hinge->angleLimit);
-        angle = angle < 0 ? -theta : theta;
-      }
+
+      float theta = std::min(hinge->rotatedAngle + angle, hinge->angleMax);
+      theta = std::max(theta, hinge->angleMin);
+      angle = theta - hinge->rotatedAngle;
 
       hinge->checkForUpdate();
       hinge->rotatedAngle += angle;

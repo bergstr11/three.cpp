@@ -3,6 +3,7 @@ import QtQuick 2.7
 QtObject {
     id: main
     property string type: "bool"
+    property string label
     property string name
     property QtObject target
     property bool value

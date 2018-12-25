@@ -198,14 +198,33 @@ Window {
 
     OptionsMenu {
         id: lightControls
-        title: "light"
+        title: "Lighting"
         anchors.top: parent.top
         anchors.left: parent.left
-        width: 350
+        width: 300
         color: "transparent"
         z: 2
         threeD: threeD
 
+        BoolChoice {
+            name: "pointLight"
+            value: false
+            onValueChanged: {
+                pointLight1.visible = value
+                pointLight2.visible = value
+                threeD.update()
+            }
+        }
+        BoolValue {
+            label: "hemisphereLight"
+            name: "visible"
+            target: hemisphereLight
+        }
+        BoolValue {
+            label: "directionalLight"
+            name: "visible"
+            target: directionalLight
+        }
         FloatValue {
             label: "hemisphere"
             name: "intensity"
@@ -226,15 +245,6 @@ Window {
             onSelected: {
                 colorDialog.light = hemisphereLight
                 colorDialog.colorName = "skyColor"
-                colorDialog.visible = true
-            }
-        }
-        MenuChoice {
-            name: "hemisphere ground color"
-            isAction: true
-            onSelected: {
-                colorDialog.light = hemisphereLight
-                colorDialog.colorName = "groundColor"
                 colorDialog.visible = true
             }
         }
@@ -452,10 +462,11 @@ Window {
             HemisphereLight {
                 id: hemisphereLight
                 name: "hemisphereLight"
-                skyColor: Qt.hsla(0.6, 1, 0.6, 1)
+                skyColor: "#fcfade"
                 groundColor: Qt.hsla(0.095, 1, 0.75, 1)
                 intensity: 0.6
                 position.y: 250
+                onVisibleChanged: threeD.update()
             }
 
             ConvexHull {
@@ -525,11 +536,11 @@ Window {
             camera: PerspectiveCamera {
                 id: sceneCamera
                 name: "sceneCamera"
+                fov: 30
                 aspect: threeD.width / threeD.height
                 near: 1
                 far: 100000
-
-                position: "0,0,1000"
+                position: "0,0,300"
 
                 target: scene.position
 
@@ -541,11 +552,26 @@ Window {
                     panCursor: Qt.SizeAllCursor
                 }
 
+                PointLight {
+                    id: pointLight1
+                    color: "#ffffff";
+                    intensity: 0.5
+                    position: "-1525,0,600"
+                    visible: false
+                }
+                PointLight {
+                    id: pointLight2
+                    color: "#ffffff"
+                    intensity: 0.75
+                    position: "1345,1385,600"
+                    visible: false
+                }
                 DirectionalLight {
                     id: directionalLight
                     color: Qt.hsla(0.1, 1, 0.95, 1)
                     position: Qt.vector3d(-1.3,1.75,1).times(130)
                     intensity: 0.5
+                    onVisibleChanged: threeD.update()
                 }
             }
         }

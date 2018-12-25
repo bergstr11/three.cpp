@@ -56,7 +56,7 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
                     width: parent.width - bool_check.implicitWidth - 5
-                    text: prop.name
+                    text: !!prop.label ? prop.label : prop.name
                     color: prop.textColor ? prop.textColor : main.textColor
                     font.bold: true
                 }
@@ -138,13 +138,14 @@ Rectangle {
             function reset() {
                 float_slider.value = target.value
             }
-            Row {
-                anchors.fill: parent
+            RowLayout {
                 spacing: 10
+                anchors.left: parent.left
 
                 Label {
                     id: float_control_label
                     height: parent.height
+                    Layout.preferredWidth: 90
                     verticalAlignment: Text.AlignVCenter
                     text: prop.label ? prop.label : prop.name
                     font.bold: true
@@ -152,7 +153,7 @@ Rectangle {
                 }
                 Slider {
                     id: float_slider
-                    width: parent.width - float_control_label.width
+                    Layout.fillWidth: true
                     from: from
                     to: to
                     value: target.value

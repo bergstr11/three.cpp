@@ -20,14 +20,14 @@ struct Hinge
   std::string name;
 
   long upm = 60;
-  float angleLimit = 0;
+  float angleMax = M_PI * 2, angleMin = -M_PI * 2;
   float rotatedAngle = 0;
 
   bool continuous = false;
 
   bool needsUpdate = true;
 
-  Hinge(const std::string &name, float angleLimit=0) : name(name), angleLimit(angleLimit)
+  Hinge(const std::string &name, float angleLimit=0) : name(name), angleMax(angleLimit)
   {}
 
   void update(const math::Quaternion &)
