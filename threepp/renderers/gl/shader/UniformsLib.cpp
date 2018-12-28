@@ -118,6 +118,7 @@ public:
     add(UniformsID::envmap,
         LibUniformValues({
                          value<Texture::Ptr>(UniformName::envMap, nullptr),
+                         value<float>(UniformName::envMapIntensity, 1.0f),
                          value<float>(UniformName::flipEnvMap, -1.0f),
                          value<Texture::Ptr>(UniformName::map, nullptr),
                          value<float>(UniformName::reflectivity, 1.0f),

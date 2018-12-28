@@ -362,10 +362,10 @@ void ThreeQObject::setScale(QVector3D scale, bool propagate) {
   }
 }
 
-void ThreeQObject::setMaterial(Material *material) {
+void ThreeQObject::setMaterial(Material *material, bool update) {
   if(_material != material) {
     _material = material;
-    if(_object) updateMaterial();
+    if(_object && update) updateMaterial();
     emit materialChanged();
   }
 }

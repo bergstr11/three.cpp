@@ -22,6 +22,7 @@
         <file alias="BoolValue.qml">qml/ui/BoolValue.qml</file>
         <file alias="FloatManip.qml">qml/ui/FloatManip.qml</file>
         <file alias="BoolChoice.qml">qml/ui/BoolChoice.qml</file>
+        <file alias="ListChoice.qml">qml/ui/ListChoice.qml</file>
         <file alias="MenuChoice.qml">qml/ui/MenuChoice.qml</file>
         <file alias="cube_bridge2_negx.jpg">qml/resources/cube_bridge2/negx.jpg</file>
         <file alias="cube_bridge2_negy.jpg">qml/resources/cube_bridge2/negy.jpg</file>

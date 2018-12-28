@@ -106,6 +106,8 @@ public:
 
   virtual three::Material::Ptr getMaterial() = 0;
 
+  Q_INVOKABLE QString getInfo();
+
 signals:
   void wireframeChanged();
   void flatShadingChanged();

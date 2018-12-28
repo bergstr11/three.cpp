@@ -88,6 +88,7 @@ struct Refresh<material::EnvMap>
 
     uniforms[UniformName::reflectivity] = material.reflectivity;
     uniforms[UniformName::refractionRatio] = material.refractionRatio;
+    uniforms[UniformName::envMapIntensity] = material.envMapIntensity;
   }
 };
 template <>

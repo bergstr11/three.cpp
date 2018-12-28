@@ -6,7 +6,9 @@
 #include "MeshPhongMaterial.h"
 #include "MeshLambertMaterial.h"
 #include "MeshBasicMaterial.h"
+#include "MeshStandardMaterial.h"
 #include <QVector3D>
+#include <QTextStream>
 
 namespace three {
 namespace quick {
@@ -106,6 +108,189 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
   }
   setBaseProperties(mat);
   return mat;
+}
+
+QString Material::getInfo()
+{
+  QString info;
+  QTextStream stream (&info, QIODevice::WriteOnly);
+  const three::Material &m = *material();
+  three::material::Colored *clr = nullptr;
+  three::material::LightMap *lm = nullptr;
+  three::material::Emissive *em = nullptr;
+  three::material::AoMap *ao = nullptr;
+  three::material::EnvMap *ev = nullptr;
+  three::material::AlphaMap *am = nullptr;
+  three::material::SpecularMap *sm = nullptr;
+  three::material::Specular *s = nullptr;
+  three::material::DisplacementMap *dm = nullptr;
+  three::material::BumpMap *bm = nullptr;
+  three::material::NormalMap *nm = nullptr;
+  three::material::RoughnessMap *rm = nullptr;
+  three::material::MetalnessMap *mm = nullptr;
+
+  if(three::MeshPhongMaterial *mat = m.typer) {
+    stream << "MeshPhongMaterial\n";
+
+    clr = mat;
+    lm = mat;
+    ao = mat;
+    em = mat;
+    bm = mat;
+    nm = mat;
+    dm = mat;
+    s = mat;
+    am = mat;
+    ev = mat;
+  }
+  else if(three::MeshLambertMaterial *mat = m.typer) {
+    stream << "MeshLambertMaterial\n";
+
+    clr = mat;
+    lm = mat;
+    ao = mat;
+    em = mat;
+    am = mat;
+    ev = mat;
+    sm = mat;
+  }
+  else if(three::MeshBasicMaterial *mat = m.typer) {
+    stream << "MeshBasicMaterial\n";
+
+    clr = mat;
+    lm = mat;
+    ao = mat;
+    am = mat;
+    ev = mat;
+    sm = mat;
+  }
+  if(three::MeshStandardMaterial *mat = m.typer) {
+    stream << "MeshStandardMaterial\n";
+
+    clr = mat;
+    lm = mat;
+    ao = mat;
+    em = mat;
+    bm = mat;
+    nm = mat;
+    dm = mat;
+    am = mat;
+    ev = mat;
+    rm = mat;
+    mm = mat;
+  }
+  stream << "id:\t\t" << m.id;
+  stream << "\nname:\t\t" << m.name.c_str();
+  stream << "\nfog:\t\t" << m.fog;
+  stream << "\nlights:\t\t" << m.lights;
+  stream << "\nambientColor:\t" << m.ambientColor.r << ":" << m.ambientColor.g << ":" << m.ambientColor.b;
+  stream << "\nblending:\t\t" << (int)m.blending;
+  stream << "\nside:\t\t" << (int)m.side;
+  stream << "\nflatShading:\t\t" << m.flatShading;
+  stream << "\nvertexColors:\t" << (int)m.vertexColors;
+  stream << "\nblendSrc:\t\t" << (int)m.blendSrc;
+  stream << "\nblendDst:\t\t" << (int)m.blendDst;
+  stream << "\nblendEquation:\t" << (int)m.blendEquation;
+  stream << "\nblendSrcAlpha:\t" << (int)m.blendSrcAlpha;
+  stream << "\nblendDstAlpha:\t" << (int)m.blendDstAlpha;
+  stream << "\nblendEquationAlpha:\t" << (int)m.blendEquationAlpha;
+  stream << "\ndepthFunc:\t\t" << (int)m.depthFunc;
+  stream << "\ndepthTest:\t\t" << m.depthTest;
+  stream << "\ndepthWrite:\t\t" << m.depthWrite;
+  stream << "\nclippingPlanes:\t" << m.clippingPlanes.size();
+  stream << "\ndepthWrite:\t\t" << m.clipIntersection;
+  stream << "\nclipIntersection:\t" << m.clipShadows;
+  stream << "\ncolorWrite:\t\t" << m.colorWrite;
+  stream << "\nwireframe:\t\t" << m.wireframe;
+  stream << "\nwireframeLineWidth:\t" << m.wireframeLineWidth;
+  stream << "\nwireframeLineCap:\t" << (int)m.wireframeLineCap;
+  stream << "\nwireframeLineJoin:\t" << (int)m.wireframeLineJoin;
+  stream << "\nprecision:\t\t" << (int)m.precision;
+  stream << "\npolygonOffset:\t" << m.polygonOffset;
+  stream << "\npolygonOffsetFactor:\t" << m.polygonOffsetFactor;
+  stream << "\npolygonOffsetUnits:\t" << m.polygonOffsetUnits;
+  stream << "\ndithering:\t\t" << m.dithering;
+  stream << "\nalphaTest:\t\t" << m.alphaTest;
+  stream << "\npremultipliedAlpha:\t" << m.premultipliedAlpha;
+  stream << "\nmap:\t\t" << (bool)m.map;
+  stream << "\nskinning:\t\t" << m.skinning;
+  stream << "\nmorphTargets:\t" << m.morphTargets;
+  stream << "\nnumSupportedMorphTargets: " << m.numSupportedMorphTargets;
+  stream << "\nmorphNormals:\t" << m.morphNormals;
+  stream << "\nnumSupportedMorphNormals: " << m.numSupportedMorphNormals;
+  stream << "\noverdraw:\t\t" << m.overdraw;
+
+  if(clr) {
+    stream << "\nColored";
+    stream << "\n  color:\t\t" << clr->color.r << ":" << clr->color.g << ":" << clr->color.b;
+    stream << "\n  opacity:\t\t" << clr->opacity;
+  }
+  if(lm) {
+    stream << "\nLightMap";
+    stream << "\n  lightMap:\t\t" << (bool)lm->lightMap;
+    stream << "\n  lightMapIntensity\t" << lm->lightMapIntensity;
+  }
+  if(em) {
+    stream << "\nEmissive";
+    stream << "\n  emissiveMap:\t" << (bool)em->emissiveMap;
+    stream << "\n  emissive:\t\t" << em->emissive.r << ":" << em->emissive.g << ":" << em->emissive.b;
+    stream << "\n  emissiveIntensity:\t" << em->emissiveIntensity;
+  }
+  if(ao) {
+    stream << "\nAoMap";
+    stream << "\n  aoMap:\t\t" << (bool)ao->aoMap;
+    stream << "\n  aoMapIntensity:\t" << ao->aoMapIntensity;
+  }
+  if(ev) {
+    stream << "\nEnvMap";
+    stream << "\n  envMap:\t\t" << (bool) ev->envMap;
+    stream << "\n  combine:\t\t" << (int) ev->combine;
+    stream << "\n  reflectivity:\t" << ev->reflectivity;
+    stream << "\n  refractionRatio:\t" << ev->refractionRatio;
+    stream << "\n  envMapIntensity:\t" << ev->envMapIntensity;
+  }
+  if(am) {
+    stream << "\nAlphaMap";
+    stream << "\n  alphaMap:\t\t" << (bool) am->alphaMap;
+  }
+  if(sm) {
+    stream << "\nSpecularMap";
+    stream << "\n  specularMap:\t\t" << (bool) sm->specularMap;
+  }
+  if(s) {
+    stream << "\nSpecular";
+    stream << "\n  specularMap:\t" << (bool) s->specularMap;
+    stream << "\n  shininess:\t\t" << s->shininess;
+    stream << "\n  specular:\t\t" << s->specular.r << ":" << s->specular.g << ":" << s->specular.b;
+  }
+  if(sm) {
+    stream << "\nDisplacementMap";
+    stream << "\n  displacementMap:\t\t" << (bool) dm->displacementMap;
+    stream << "\n  displacementScale:\t\t" << dm->displacementScale;
+    stream << "\n  displacementBias:\t\t" << dm->displacementBias;
+  }
+  if(bm) {
+    stream << "\nBumpMap";
+    stream << "\n  bumpMap:\t\t" << (bool) bm->bumpMap;
+    stream << "\n  bumpScale:\t" << bm->bumpScale;
+  }
+  if(nm) {
+    stream << "\nNormalMap";
+    stream << "\n  normalMap:\t" << (bool) nm->normalMap;
+    stream << "\n  normalScale:\t" << nm->normalScale.x() << nm->normalScale.y();
+  }
+  if(rm) {
+    stream << "\nRoughnessMap";
+    stream << "\n  roughness:\t\t" << rm->roughness;
+    stream << "\n  roughnessMap:\t\t" << (bool) rm->roughnessMap;
+  }
+  if(mm) {
+    stream << "\nMetalnessMap";
+    stream << "\n  metalness:\t\t" << mm->metalness;
+    stream << "\n  metalnessMap:\t\t" << (bool) mm->metalnessMap;
+  }
+  stream.flush();
+  return info;
 }
 
 }

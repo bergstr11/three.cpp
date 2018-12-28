@@ -105,7 +105,9 @@ protected:
   ThreeQObject(three::Object3D::Ptr object, Material *material, QObject *parent = nullptr)
      : QObject(parent), _object(object), _material(material) {init();}
 
-  virtual void updateMaterial() {}
+  virtual void updateMaterial() {
+    _object->setMaterial(_material->getMaterial());
+  }
 
   static void append_child(QQmlListProperty<ThreeQObject> *list, ThreeQObject *obj);
   static int count_children(QQmlListProperty<ThreeQObject> *);
@@ -143,7 +145,7 @@ public:
 
   Material *material() const {return _material;}
 
-  void setMaterial(Material *material);
+  void setMaterial(Material *material, bool update=true);
 
   bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
 

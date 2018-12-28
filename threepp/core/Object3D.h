@@ -166,6 +166,12 @@ public:
 
   virtual bool frontFaceCW() const {return false;}
 
+  void setMaterial(Material::Ptr material, size_t index=0)
+  {
+    if(index < _materials.size()) _materials[index] = material;
+    else _materials.push_back(material);
+  }
+
   const Material::Ptr material(size_t index=0) const
   {
     return index < _materials.size() ? _materials[index] : nullptr;

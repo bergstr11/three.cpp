@@ -22,6 +22,7 @@ Q_OBJECT
   Q_PROPERTY(float roughness READ roughness WRITE setRoughness NOTIFY roughnessChanged)
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
   Q_PROPERTY(Texture *lightMap READ lightMap WRITE setLightMap NOTIFY lightMapChanged)
+  Q_PROPERTY(float refractionRatio READ refractionRatio WRITE setRefractionRatio NOTIFY refractionRatioChanged)
 
   TrackingProperty<QColor> _color {QColor()};
   TrackingProperty<float> _opacity {1.0f};
@@ -30,14 +31,24 @@ Q_OBJECT
   TrackingProperty<Texture *> _envMap {nullptr};
   TrackingProperty<Texture *> _lightMap {nullptr};
 
+  TrackingProperty<float> _reflectivity {1};
+  TrackingProperty<bool> _dithering {false};
+  TrackingProperty<float> _refractionRatio {0.98f};
+
   three::MeshStandardMaterial::Ptr _material;
 
 protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), _material(mat) {}
+  MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, QObject *parent = nullptr)
+     : Material(material::Typer(this), parent), _material(mat),
+       _color(QColor(mat->color.r, mat->color.g, mat->color.b)),
+       _opacity(mat->opacity),
+       _reflectivity(mat->reflectivity),
+       _dithering(mat->dithering),
+       _refractionRatio(mat->refractionRatio)
+  {}
 
   MeshStandardMaterial(QObject *parent=nullptr)
      : Material(material::Typer(this), parent) {}
@@ -50,7 +61,7 @@ public:
     if(!_material) {
       qCritical() << "MaterialHandler: received incompatible material. Double handled?";
     }
-    if(_color.isSet()) _material->color = Color(_color().redF(), _color().greenF(), _color().blueF());
+    if(_color.isSet()) _material->color.set(_color().redF(), _color().greenF(), _color().blueF());
     if(_opacity.isSet()) _material->opacity = _opacity;
     if(_roughness.isSet()) _material->roughness = _roughness;
     if(_metalness.isSet()) _material->metalness = _metalness;
@@ -76,6 +87,7 @@ public:
   void setOpacity(float opacity) {
     if(_opacity != opacity) {
       _opacity = opacity;
+      if(_material) _material->opacity = opacity;
       emit opacityChanged();
     }
   }
@@ -85,6 +97,7 @@ public:
   void setMetalness(float metalness) {
     if(_metalness != metalness) {
       _metalness = metalness;
+      if(_material) _material->metalness = metalness;
       emit metalnessChanged();
     }
   }
@@ -94,6 +107,7 @@ public:
   void setRoughness(float roughness) {
     if(_roughness != roughness) {
       _roughness = roughness;
+      if(_material) _material->roughness = roughness;
       emit roughnessChanged();
     }
   }
@@ -124,6 +138,45 @@ public:
     }
   }
 
+  bool dithering() const {return _dithering;}
+
+  void setDithering(bool dithering) {
+    if(_dithering != dithering) {
+      _dithering = dithering;
+      if(_material) {
+        _material->dithering = _dithering;
+        _material->needsUpdate = true;
+      }
+      emit ditheringChanged();
+    }
+  }
+
+  float reflectivity() const {return _reflectivity;}
+
+  void setReflectivity(float reflectivity) {
+    if(_reflectivity != reflectivity) {
+      _reflectivity = reflectivity;
+      if(_material) {
+        _material->reflectivity = _reflectivity;
+        _material->needsUpdate = true;
+      }
+      emit reflectivityChanged();
+    }
+  }
+
+  float refractionRatio() const {return _refractionRatio;}
+
+  void setRefractionRatio(float refractionRatio) {
+    if(_refractionRatio != refractionRatio) {
+      _refractionRatio = refractionRatio;
+      if(_material) {
+        _material->refractionRatio = _refractionRatio;
+        _material->needsUpdate = true;
+      }
+      emit refractionRatioChanged();
+    }
+  }
+
   three::MeshStandardMaterial::Ptr createMaterial()
   {
     _material = three::MeshStandardMaterial::make();
@@ -151,6 +204,9 @@ signals:
   void lightMapChanged();
   void metalnessChanged();
   void roughnessChanged();
+  void ditheringChanged();
+  void reflectivityChanged();
+  void refractionRatioChanged();
 };
 
 }

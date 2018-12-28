@@ -18,17 +18,22 @@ class MeshPhongMaterial : public Material
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-  Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+  Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(three::quick::Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
+  Q_PROPERTY(float reflectivity READ reflectivity WRITE setReflectivity NOTIFY reflectivityChanged)
+  Q_PROPERTY(float refractionRatio READ refractionRatio WRITE setRefractionRatio NOTIFY refractionRatioChanged)
 
-  QColor _color {255, 255, 255}, _specular {0x111111};
-  float _opacity = 1.0f;
-  float _shininess = 30;
-  bool _dithering = false;
+  TrackingProperty<QColor> _color {0x111111};
+  TrackingProperty<float> _opacity {1.0f};
+  TrackingProperty<QColor> _specular {0x111111};
+  TrackingProperty<float> _shininess {30};
+  TrackingProperty<float> _reflectivity {1};
+  TrackingProperty<bool> _dithering {false};
+  TrackingProperty<float> _refractionRatio {0.98f};
 
   Texture *_normalMap = nullptr;
   TrackingProperty<Texture *> _envMap {nullptr};
@@ -39,8 +44,16 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), _material(mat) {}
+  MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent = nullptr)
+     : Material(material::Typer(this), parent), _material(mat),
+       _color(QColor(mat->color.r, mat->color.g, mat->color.b)),
+       _specular(QColor(mat->specular.r, mat->specular.g, mat->specular.b)),
+       _opacity(mat->opacity),
+       _shininess(mat->shininess),
+       _reflectivity(mat->reflectivity),
+       _dithering(mat->dithering),
+       _refractionRatio(mat->refractionRatio)
+  {}
 
   MeshPhongMaterial(QObject *parent=nullptr)
      : Material(material::Typer(this), parent) {}
@@ -51,7 +64,7 @@ public:
     if(_color != color) {
       _color = color;
       if(_material) {
-        _material->color.set(_color.redF(), _color.greenF(), _color.blueF());
+        _material->color.set(_color().redF(), _color().greenF(), _color().blueF());
         _material->needsUpdate = true;
       }
       emit colorChanged();
@@ -63,6 +76,10 @@ public:
   void setSpecular(const QColor &specular) {
     if(_specular != specular) {
       _specular = specular;
+      if(_material) {
+        _material->specular.set(_specular().redF(), _specular().greenF(), _specular().blueF());
+        _material->needsUpdate = true;
+      }
       emit specularChanged();
     }
   }
@@ -106,6 +123,32 @@ public:
     }
   }
 
+  float reflectivity() const {return _reflectivity;}
+
+  void setReflectivity(float reflectivity) {
+    if(_reflectivity != reflectivity) {
+      _reflectivity = reflectivity;
+      if(_material) {
+        _material->reflectivity = _reflectivity;
+        _material->needsUpdate = true;
+      }
+      emit reflectivityChanged();
+    }
+  }
+
+  float refractionRatio() const {return _refractionRatio;}
+
+  void setRefractionRatio(float refractionRatio) {
+    if(_refractionRatio != refractionRatio) {
+      _refractionRatio = refractionRatio;
+      if(_material) {
+        _material->refractionRatio = _refractionRatio;
+        _material->needsUpdate = true;
+      }
+      emit refractionRatioChanged();
+    }
+  }
+
   Texture *normalMap() const {return _normalMap;}
 
   void setNormalMap(Texture *normalMap) {
@@ -134,9 +177,14 @@ public:
 
   three::MeshPhongMaterial::Ptr createMaterial()
   {
-    _material = three::MeshPhongMaterial::make(Color(_color.redF(), _color.greenF(), _color.blueF()), _dithering);
+    _material = three::MeshPhongMaterial::make(Color(_color().redF(), _color().greenF(), _color().blueF()), _dithering);
     _material->opacity = _opacity;
-    _material->specular = Color(_specular.redF(), _specular.greenF(), _specular.blueF());
+    _material->specular.set(_specular().redF(), _specular().greenF(), _specular().blueF());
+    _material->refractionRatio = _refractionRatio;
+    _material->shininess = _shininess;
+    _material->reflectivity = _reflectivity;
+    _material->dithering = _dithering;
+
     if(_normalMap) _material->normalMap = _normalMap->getTexture();
 
     setBaseProperties(_material);
@@ -157,6 +205,8 @@ signals:
   void opacityChanged();
   void envMapChanged();
   void shininessChanged();
+  void reflectivityChanged();
+  void refractionRatioChanged();
 };
 
 }

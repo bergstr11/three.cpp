@@ -51,7 +51,6 @@ Rectangle {
                 spacing: 5
 
                 Label {
-                    id: bool_control_label
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
@@ -67,6 +66,50 @@ Rectangle {
 
                     onCheckedChanged: {
                         target.value = checked
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: listChoiceFactory
+        Item {
+            property Item prev
+            anchors.top: prev.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            implicitHeight: 40
+
+            property QtObject prop
+            property QtObject target
+
+            function reset() {
+                listControl.currentIndex = -1
+            }
+            Row {
+                anchors.fill: parent
+                spacing: 5
+
+                Label {
+                    height: parent.height
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignRight
+                    width: parent.width - listControl.implicitWidth - 5
+                    text: !!prop.label ? prop.label : prop.name
+                    color: prop.textColor ? prop.textColor : main.textColor
+                    font.bold: true
+                }
+                ComboBox {
+                    id: listControl
+                    width: implicitWidth
+                    model: target.values
+                    currentIndex: target.selectedIndex
+
+                    onCurrentIndexChanged: {
+                        target.selectedIndex = currentIndex
                     }
                 }
             }
@@ -218,10 +261,15 @@ Rectangle {
                                                         "anchors.top": prev.bottom, prop: prop, target: prop})
                 controls.push(prev)
             }
+            else if(prop.type === "list") {
+                prev = listChoiceFactory.createObject(main, {"labelWidth": maxWidth,
+                                                        "anchors.top": prev.bottom, prop: prop, target: prop})
+                menuChoices.push(prev)
+            }
             else if(prop.type === "menuchoice") {
                 prev = menu_choice.createObject(main, {"labelWidth": maxWidth,
                                                         "anchors.top": prev.bottom, prop: prop, target: prop})
-                menuChoices.push(prop)
+                menuChoices.push(prev)
             }
             height += prev.implicitHeight
         }

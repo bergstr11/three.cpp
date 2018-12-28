@@ -13,6 +13,7 @@
 #include <threepp/quick/materials/MeshBasicMaterial.h>
 #include <threepp/quick/materials/MeshPhongMaterial.h>
 #include <threepp/quick/materials/MeshLambertMaterial.h>
+#include <threepp/quick/materials/MeshStandardMaterial.h>
 #include <threepp/quick/materials/ShaderMaterial.h>
 #include <threepp/core/Raycaster.h>
 #include <threepp/math/Triangle.h>
@@ -119,6 +120,9 @@ bool ObjectPicker::handleMouseReleased(QMouseEvent *event)
 
 bool ObjectPicker::handleMouseClicked(QMouseEvent *event)
 {
+  _mouseX = event->x();
+  _mouseY = event->y();
+
   if(_camera && _item && event->button() == Qt::LeftButton) {
     findIntersects(event->x(), event->y());
 
@@ -142,6 +146,9 @@ bool ObjectPicker::handleMouseClicked(QMouseEvent *event)
 bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
   if(!_unifyClicked) return false;
+
+  _mouseX = event->x();
+  _mouseY = event->y();
 
   if(_camera && _item && event->button() == Qt::LeftButton) {
     findIntersects(event->x(), event->y());
@@ -167,31 +174,46 @@ QVariant ObjectPicker::intersect(unsigned index)
   if(_intersects.empty() || _intersects.count(0) <= index)
     throw std::out_of_range("intersect");
 
-  if(!_prototype) _prototype = new ThreeQObject();
+  if(!_accessObject) _accessObject = new ThreeQObject();
 
   Object3D::Ptr obj(_intersects.get(0, index).object, _no_delete);
-  if(obj != _prototype->object()) {
+  if(obj != _accessObject->object()) {
 
-    _prototype->unset();
-    _prototype->setObject(obj);
+    _accessObject->unset();
+    _accessObject->setObject(obj);
 
-    if(_prototype->material()) _prototype->material()->deleteLater();
+    if(_accessMaterial) {
+      _accessMaterial->deleteLater();
+      _accessMaterial = nullptr;
+    }
 
     if(obj->material()) {
 
       if(CAST(obj->material(), mat, three::MeshPhongMaterial)) {
-        _prototype->setMaterial(new MeshPhongMaterial(mat));
+        _accessMaterial = new MeshPhongMaterial(mat);
+        _accessObject->setMaterial(_accessMaterial, false);
       }
       else if(CAST(obj->material(), mat, three::MeshLambertMaterial)) {
-        _prototype->setMaterial(new MeshLambertMaterial(mat));
+        _accessMaterial = new MeshLambertMaterial(mat);
+        _accessObject->setMaterial(_accessMaterial, false);
       }
       else if(CAST(obj->material(), mat, three::MeshBasicMaterial)) {
-        _prototype->setMaterial(new MeshBasicMaterial(mat));
+        _accessMaterial = new MeshBasicMaterial(mat);
+        _accessObject->setMaterial(_accessMaterial, false);
+      }
+      else if(CAST(obj->material(), mat, three::MeshStandardMaterial)) {
+        _accessMaterial = new MeshStandardMaterial(mat);
+        _accessObject->setMaterial(_accessMaterial, false);
+      }
+      else {
+        _accessObject->setMaterial(nullptr, false);
       }
     }
+    else
+      _accessObject->setMaterial(nullptr, false);
   }
 
-  _currentIntersect.object.setValue(_prototype);
+  _currentIntersect.object.setValue(_accessObject);
   _currentIntersect.set(_intersects.get(0, index));
 
   QVariant var;
@@ -216,13 +238,13 @@ QStringList ObjectPicker::pickedParents(unsigned index)
 }
 
 ObjectPicker::ObjectPicker(QObject *parent)
-   : ThreeQObjectRoot(parent), _currentIntersect(this), _prototype(nullptr), _rays(new SingleRay())
+   : ThreeQObjectRoot(parent), _currentIntersect(this), _accessObject(nullptr), _rays(new SingleRay())
 {
   QQmlEngine::setObjectOwnership(&_currentIntersect, QQmlEngine::CppOwnership);
 }
 
 ObjectPicker::~ObjectPicker() {
-  if(_prototype) _prototype->deleteLater();
+  if(_accessObject) _accessObject->deleteLater();
   if(_rays) delete _rays;
 }
 

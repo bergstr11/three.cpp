@@ -56,6 +56,7 @@ struct EnvMap
   CombineOperation combine = CombineOperation::Multiply;
   float reflectivity = 1;
   float refractionRatio = 0.98;
+  float envMapIntensity = 1.0f;
 };
 
 struct AlphaMap

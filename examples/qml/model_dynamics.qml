@@ -1,5 +1,5 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.0
@@ -306,18 +306,11 @@ Window {
                 threeD.update()
             }
         }
-        BoolChoice {
-            name: "Select | Mark"
-            id: selectMarkChoice
-            value: false
-        }
-        BoolChoice {
-            name: "Pick"
-            value: false
-            onValueChanged: {
-                objectPicker.enabled = value
-                scene.camera.controller.enabled = !value
-            }
+        ListChoice {
+            id: pickOpChoice
+            label: "PickOp:"
+            values: ["control", "select", "mark", "set material", "material info"]
+            selectedIndex: 0
         }
     }
     ColumnLayout {
@@ -412,6 +405,31 @@ Window {
         }
     }
 
+    Popup {
+        id: infoPopup
+        width: 400
+        height: 600
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape
+
+        property alias text: popupText.text
+
+        ScrollView {
+            anchors.fill: parent
+            clip: true
+            Text {
+                id: popupText
+                wrapMode: Text.Wrap
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: infoPopup.close()
+                }
+            }
+        }
+    }
+
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -429,7 +447,7 @@ Window {
         {
             id: objectPicker
             camera: scene.camera
-            enabled: false
+            enabled: pickOpChoice.selectedIndex > 0
             objects: [scene]
 
             onObjectPicked: {
@@ -437,7 +455,7 @@ Window {
                 pickedParents.model = objectPicker.pickedParents(0)
                 dataRow.picked = is.object
 
-                if(selectMarkChoice.value) {
+                if(pickOpChoice.selectedValue == "mark") {
                     hingeeditor.setMarker(this, orbitController.polar(), orbitController.azimuth())
 
                     if(!hingeeditor.upperSet) {
@@ -451,10 +469,42 @@ Window {
                         textP2.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
                     }
                 }
+                else if(pickOpChoice.selectedValue == "set material") {
+
+                    //extraMaterial.color = is.object.material.color
+                    is.object.material = extraMaterial
+                    threeD.update()
+                }
+                else if(pickOpChoice.selectedValue == "material info") {
+
+                    infoPopup.text = is.object.material.getInfo()
+                    console.log(infoPopup.text)
+
+                    infoPopup.x = objectPicker.mouseX();
+                    infoPopup.y = Math.min(objectPicker.mouseY(), threeD.height - infoPopup.height);
+                    infoPopup.open()
+                }
             }
         }
 
         Dynamics {id: dynamics}
+
+        MeshStandardMaterial {
+            id: extraMaterial
+            metalness: 1.0
+            roughness: 0.05
+            color: Qt.rgba(0.823529,0.6,0,1)
+            refractionRatio: 0.98
+
+            envMap: ImageTexture {
+                id: textureCube
+                format: Texture.RGBA
+                mapping: Texture.SphericalReflection
+                flipY: false
+                type: Texture.UnsignedByte
+                image: ":/metal.jpg"
+            }
+        }
 
         Scene {
             id: scene
@@ -548,6 +598,7 @@ Window {
                     id: orbitController
                     maxPolarAngle: Math.PI;
                     enablePan: true
+                    enabled: pickOpChoice.selectedIndex === 0
                     rotateCursor: Qt.ClosedHandCursor
                     panCursor: Qt.SizeAllCursor
                 }

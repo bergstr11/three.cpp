@@ -143,9 +143,12 @@ Q_OBJECT
   Intersect _currentIntersect;
   Rays *_rays = nullptr;
 
-  ThreeQObject *_prototype = nullptr;
+  ThreeQObject *_accessObject = nullptr;
+  Material *_accessMaterial = nullptr;
 
   float _scaleSize = 0;
+
+  int _mouseX, _mouseY;
 
   static void append_picker(QQmlListProperty<ObjectPicker> *list, ObjectPicker *obj);
   static int count_pickers(QQmlListProperty<ObjectPicker> *);
@@ -177,6 +180,10 @@ public:
 
   Q_INVOKABLE QStringList pickedParents(unsigned index);
 
+  Q_INVOKABLE int mouseX() const {return _mouseX;}
+
+  Q_INVOKABLE int mouseY() const {return _mouseY;}
+
   float scaleSize() const {return _scaleSize;}
 
   bool unifyClicked() const {return _unifyClicked;}
@@ -194,12 +201,12 @@ protected:
 
   void setRays(Rays *rays);
 
-  ThreeQObject *prototype() {return _prototype;}
+  ThreeQObject *prototype() {return _accessObject;}
 
   void setPrototype(ThreeQObject *prototype)
   {
-    if(_prototype != prototype) {
-      _prototype = prototype;
+    if(_accessObject != prototype) {
+      _accessObject = prototype;
       emit prototypeChanged();
     }
   }
