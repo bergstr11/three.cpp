@@ -32,7 +32,11 @@
         <file alias="cube_bridge2_posz.jpg">qml/resources/cube_bridge2/posz.jpg</file>
         <file alias="2294472375_24a3b8ef46_o.jpg">qml/resources/2294472375_24a3b8ef46_o.jpg</file>
         <file alias="square-outline-textured.png">qml/resources/square-outline-textured.png</file>
-        <file alias="metal.jpg">qml/resources/metal.jpg</file>
+        <file alias="metal1.jpg">qml/resources/metal1.jpg</file>
+        <file alias="metal2.png">qml/resources/metal2.png</file>
+        <file alias="metal3.jpg">qml/resources/metal3.jpg</file>
+        <file alias="metal4.jpg">qml/resources/metal4.jpg</file>
+        <file alias="metal5.jpg">qml/resources/metal5.jpg</file>
         <file alias="eagle.3ds">qml/resources/eagle.3ds</file>
         <file alias="portalgun.3ds">qml/resources/portalgun/portalgun.3ds</file>
         <file alias="portalgun_color.jpg">qml/resources/portalgun/color.jpg</file>

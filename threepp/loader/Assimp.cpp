@@ -350,9 +350,9 @@ struct ReadMaterial<material::Specular>
       float scale;
       if(ai->Get(AI_MATKEY_SHININESS_STRENGTH, scale) == AI_SUCCESS) material.specular *= scale;
     }
-    aiString dummy;
-    if(ai->GetTexture(aiTextureType_SHININESS, 0, &dummy, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-      qWarning() << "found SHININESS texture (unused). Preset shininess: " << material.shininess;
+    aiString path;
+    if(ai->GetTexture(aiTextureType_SHININESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+      qWarning() << "found SHININESS texture (" << path.C_Str() << "). Not supported";
     }
   }
 };

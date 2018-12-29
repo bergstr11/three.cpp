@@ -102,7 +102,7 @@ Window {
             id: textureSphere
             format: Texture.RGBA
             mapping: Texture.SphericalReflection
-            image: ":/metal.jpg"
+            image: ":/metal1.jpg"
             imageFormat: ThreeImage.RGBA8888
         }
         ImageTexture {

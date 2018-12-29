@@ -229,6 +229,18 @@ template<> struct UniformValueT<CachedPointLights> : public UniformValue
   }
 };
 
+struct UniformValueDelegate
+{
+  UniformValue::Ptr value;
+
+  template<typename T> UniformValueDelegate(UniformName id, T t)
+  {
+    value = UniformValue::Ptr(new UniformValueT<T>(id, t));
+  }
+
+  operator UniformValue::Ptr () const {return value;}
+};
+
 class LibUniformValues
 {
   enum_map<UniformName, UniformValue::Ptr> values;
@@ -267,10 +279,20 @@ public:
     return *this;
   }
 
-  LibUniformValues merge(const LibUniformValues &values)
+  LibUniformValues merge(const LibUniformValues &values) const
   {
     LibUniformValues merged(values);
     merged.values.insert(values.values.begin(), values.values.end());
+    return merged;
+  }
+
+  LibUniformValues merge(std::initializer_list<UniformValueDelegate> vals) const
+  {
+    LibUniformValues merged(*this);
+    for(auto it = std::begin(vals); it != std::end(vals); it++) {
+      const UniformValue::Ptr val = *it;
+      merged.values[val->id] = val;
+    }
     return merged;
   }
 };
@@ -302,18 +324,6 @@ inline UniformValue::Ptr value(UniformName id, T value, std::vector<UniformValue
   }
   return UniformValue::Ptr(new UniformValueT<T>(id, value, props));
 }
-
-struct UniformValueDelegate
-{
-  UniformValue::Ptr value;
-
-  template<typename T> UniformValueDelegate(UniformName id, T t)
-  {
-    value = UniformValue::Ptr(new UniformValueT<T>(id, t));
-  }
-
-  operator UniformValue::Ptr () const {return value;}
-};
 
 struct UniformValuesDelegate
 {

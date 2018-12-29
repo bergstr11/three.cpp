@@ -37,7 +37,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/objects/Text3D.h"
 #include "threepp/quick/objects/SVG.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
-#include "materials/MeshStandardMaterial.h"
+#include "materials/MeshPhysicalMaterial.h"
 #include "materials/ShaderMaterial.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
@@ -114,6 +114,7 @@ void init()
   qmlRegisterType<three::quick::MeshLambertMaterial>("three.quick", 1, 0, "MeshLambertMaterial");
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::MeshStandardMaterial>("three.quick", 1, 0, "MeshStandardMaterial");
+  qmlRegisterType<three::quick::MeshPhysicalMaterial>("three.quick", 1, 0, "MeshPhysicalMaterial");
   qmlRegisterType<three::quick::ShaderMaterial>("three.quick", 1, 0, "ShaderMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
   qmlRegisterType<three::quick::OrthographicCamera>("three.quick", 1, 0, "OrthographicCamera");

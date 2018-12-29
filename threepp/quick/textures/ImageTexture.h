@@ -99,6 +99,17 @@ public:
     _flipY = options.flipY;
   }
 
+  ImageTexture(three::ImageTexture::Ptr texture, QObject *parent = nullptr) : Texture(parent)
+  {
+    _texture = texture;
+    _format = (Format)texture->format();
+    _mapping = (Mapping)texture->mapping();
+    _minFilter = (Filter)texture->minFilter;
+    _magFilter = (Filter)texture->magFilter;
+    _type = (Type)texture->type();
+    _flipY = texture->flipY;
+  }
+
   three::ImageTexture::Ptr getImageTexture()
   {
     if(!_texture) {

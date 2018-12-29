@@ -77,16 +77,21 @@ struct DLX MeshStandardMaterial : public MaterialT<
   std::unordered_map<std::string, std::string> defines {{ "STANDARD", "" }};
 
 protected:
-  MeshStandardMaterial(const material::Info &info, material::Typer typer)
+  MeshStandardMaterial(const material::Info &info, const material::Typer &typer)
      : MaterialT(info, typer)
   {
-    typer.allow<MeshStandardMaterial>();
+    this->typer.allow<MeshStandardMaterial>();
   }
 
   MeshStandardMaterial() : MaterialT(material::InfoT<MeshStandardMaterial>(), material::Typer(this)) {}
 
   MeshStandardMaterial(const MeshStandardMaterial &material)
      : MaterialT(material, material::InfoT<MeshStandardMaterial>(), material::Typer(this)) {}
+
+  MeshStandardMaterial(const MeshStandardMaterial &material, const material::Info &info, const material::Typer &typer)
+     : MaterialT(material, info, typer) {
+    this->typer.allow<MeshStandardMaterial>();
+  }
 
   void callback(const material::Selector &selector) override;
 

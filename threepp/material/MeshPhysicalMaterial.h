@@ -20,8 +20,6 @@ struct DLX MeshPhysicalMaterial: public MeshStandardMaterial
 {
   std::unordered_map<std::string, std::string> defines {{ "PHYSICAL", "" }};
 
-  float reflectivity = 0.5; // maps to F0 = 0.04
-
   float clearCoat = 0.0;
   float clearCoatRoughness = 0.0;
 
@@ -30,7 +28,14 @@ protected:
      : MeshStandardMaterial(material::InfoT<MeshPhysicalMaterial>(), material::Typer(this))
   {}
 
+  MeshPhysicalMaterial(const MeshPhysicalMaterial &material)
+     : MeshStandardMaterial(material, material::InfoT<MeshPhysicalMaterial>(), material::Typer(this)) {}
+
 public:
+  MeshPhysicalMaterial *cloned() const override {
+    return new MeshPhysicalMaterial(*this);
+  }
+
   using Ptr = std::shared_ptr<MeshPhysicalMaterial>;
   static Ptr make() {
     return Ptr(new MeshPhysicalMaterial());

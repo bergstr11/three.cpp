@@ -13,13 +13,14 @@ class ShaderMaterial;
 class MeshPhongMaterial;
 class MeshToonMaterial;
 class MeshStandardMaterial;
+class MeshPhysicalMaterial;
 class MeshLambertMaterial;
 class MeshBasicMaterial;
 
 namespace material {
 
 using Typer = three::Typer<Material, ShaderMaterial, MeshPhongMaterial, MeshToonMaterial,
-   MeshStandardMaterial, MeshLambertMaterial, MeshBasicMaterial>;
+   MeshStandardMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial>;
 
 }
 

@@ -177,6 +177,16 @@ public:
                   ":shader/meshphysical_vert.glsl",
                   ":shader/meshphysical_frag.glsl"
         ));
+    add(ShaderID::physical,
+        LibShader(ShaderID::physical,
+        _shaders.at(ShaderID::standard).uniforms().merge(
+           {
+             {UniformName::clearCoat, 0.0f},
+             {UniformName::clearCoatRoughness, 0.0f}
+           }),
+           ":shader/meshphysical_vert.glsl",
+           ":shader/meshphysical_frag.glsl"
+        ));
     add(ShaderID::points,
         LibShader(ShaderID::points,
                   uniformslib::merged(

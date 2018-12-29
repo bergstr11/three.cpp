@@ -309,7 +309,7 @@ Window {
         ListChoice {
             id: pickOpChoice
             label: "PickOp:"
-            values: ["control", "select", "mark", "set material", "material info"]
+            values: ["control", "select", "mark", "material info", "enhance paint", "enhance metal"]
             selectedIndex: 0
         }
     }
@@ -469,10 +469,16 @@ Window {
                         textP2.text = ""+is.point.x.toFixed(2)+":"+is.point.y.toFixed(2)+":"+is.point.z.toFixed(2)
                     }
                 }
-                else if(pickOpChoice.selectedValue == "set material") {
+                else if(pickOpChoice.selectedValue == "enhance paint") {
 
-                    //extraMaterial.color = is.object.material.color
-                    is.object.material = extraMaterial
+                    paintMaterial.color = is.object.material.color
+                    paintMaterial.emissive = is.object.material.emissive
+                    is.object.material = paintMaterial.cloned()
+                    threeD.update()
+                }
+                else if(pickOpChoice.selectedValue == "enhance metal") {
+
+                    is.object.material = metalMaterial.cloned()
                     threeD.update()
                 }
                 else if(pickOpChoice.selectedValue == "material info") {
@@ -489,20 +495,41 @@ Window {
 
         Dynamics {id: dynamics}
 
-        MeshStandardMaterial {
-            id: extraMaterial
-            metalness: 1.0
-            roughness: 0.05
-            color: Qt.rgba(0.823529,0.6,0,1)
-            refractionRatio: 0.98
+        //enhanced paint surface
+        MeshPhysicalMaterial {
+            id: paintMaterial
+            emissive: "white"
+            metalness: 0
+			roughness: 0
+			clearCoat: 1.0
+			clearCoatRoughness: 0.0
+			reflectivity: 1.0
 
-            envMap: ImageTexture {
-                id: textureCube
+			envMap: ImageTexture {
                 format: Texture.RGBA
                 mapping: Texture.SphericalReflection
                 flipY: false
                 type: Texture.UnsignedByte
-                image: ":/metal.jpg"
+                image: ":/metal4.jpg"
+            }
+        }
+
+        //enhanced metallic effect (wheels etc.)
+        MeshPhysicalMaterial {
+            id: metalMaterial
+            color: "white"
+            metalness: 1.0
+			roughness: 0
+			clearCoat: 0
+			clearCoatRoughness: 0
+			reflectivity: 1.0
+
+			envMap: ImageTexture {
+                format: Texture.RGBA
+                mapping: Texture.SphericalReflection
+                flipY: false
+                type: Texture.UnsignedByte
+                image: ":/metal5.jpg"
             }
         }
 

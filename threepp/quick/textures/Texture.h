@@ -22,6 +22,7 @@ public:
   Q_ENUM(Format)
 
   enum Mapping {
+    UV = (unsigned)three::TextureMapping::UV,
     EquirectangularRefraction = (unsigned)three::TextureMapping::EquirectangularRefraction,
     EquirectangularReflection = (unsigned)three::TextureMapping::EquirectangularReflection,
     SphericalReflection = (unsigned)three::TextureMapping::SphericalReflection,
@@ -60,13 +61,13 @@ private:
   Q_PROPERTY(bool flipY READ flipY WRITE setFlipY NOTIFY flipYChanged)
 
 protected:
-  Format _format;
-  Mapping _mapping;
-  Filter _minFilter;
-  Filter _magFilter;
+  Format _format = RGBA;
+  Mapping _mapping = UV;
+  Filter _minFilter = LinearMipMapLinear;
+  Filter _magFilter = Linear;
   Wrapping _wrapS = ClampToEdge, _wrapT = ClampToEdge;
-  Type _type;
-  bool _flipY;
+  Type _type = UnsignedByte;
+  bool _flipY = true;
 
   Texture(QObject *parent = nullptr) : ThreeQObjectRoot(parent) {}
 
