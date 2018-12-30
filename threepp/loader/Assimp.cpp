@@ -266,6 +266,7 @@ struct ReadMaterial<material::Colored>
 {
   FORWARD_MIXIN(material::Colored)
   static void mixin(material::Colored &material, const aiMaterial *ai, Access *access) {
+    material.color.set(0,0,0);
     read_color(AI_MATKEY_COLOR_DIFFUSE, ai, material.color);
     aiReturn opret = ai->Get(AI_MATKEY_OPACITY, material.opacity);
 

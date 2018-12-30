@@ -37,6 +37,7 @@
         <file alias="metal3.jpg">qml/resources/metal3.jpg</file>
         <file alias="metal4.jpg">qml/resources/metal4.jpg</file>
         <file alias="metal5.jpg">qml/resources/metal5.jpg</file>
+        <file alias="sky_env.png">qml/resources/sky_env.png</file>
         <file alias="eagle.3ds">qml/resources/eagle.3ds</file>
         <file alias="portalgun.3ds">qml/resources/portalgun/portalgun.3ds</file>
         <file alias="portalgun_color.jpg">qml/resources/portalgun/color.jpg</file>

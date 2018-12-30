@@ -30,9 +30,15 @@ inline bool checkIntersection(const Object3D &object,
   bool intersect;
   if (material.side == Side::Back) {
     intersect = ray.intersectTriangle(pC, pB, pA, true, result.point);
+    if(intersect) result.front = false;
   }
   else {
     intersect = ray.intersectTriangle(pA, pB, pC, material.side != Side::Double, result.point);
+    if(intersect) result.front = true;
+    else {
+      intersect = ray.intersectTriangle(pC, pB, pA, true, result.point);
+      if(intersect) result.front = false;
+    }
   }
 
   if (!intersect) return false;
@@ -53,9 +59,9 @@ inline math::Vector2 uvIntersection(const math::Vector3 &point,
                                     const math::Vector3 &p1,
                                     const math::Vector3 &p2,
                                     const math::Vector3 &p3,
-                                    math::Vector2 &uv1,
-                                    math::Vector2 &uv2,
-                                    math::Vector2 &uv3)
+                                    const math::Vector2 &uv1,
+                                    const math::Vector2 &uv2,
+                                    const math::Vector2 &uv3)
 {
   math::Vector3 barycoord = math::Triangle::barycoordFromPoint(point, p1, p2, p3);
 
@@ -71,17 +77,16 @@ inline bool checkBufferGeometryIntersection(const Object3D &object,
                                             unsigned a, unsigned b, unsigned c,
                                             Intersection &intersection)
 {
-
-  math::Vector3 vA = math::Vector3::fromBufferAttribute(*position, a);
-  math::Vector3 vB = math::Vector3::fromBufferAttribute(*position, b);
-  math::Vector3 vC = math::Vector3::fromBufferAttribute(*position, c);
+  const math::Vector3 &vA = position->item_at<math::Vector3>(a);
+  const math::Vector3 &vB = position->item_at<math::Vector3>(b);
+  const math::Vector3 &vC = position->item_at<math::Vector3>(c);
 
   if (checkIntersection(object, material, raycaster, ray, vA, vB, vC, intersection)) {
 
     if(uv) {
-      math::Vector2 uvA = math::Vector2::fromBufferAttribute(*uv, a);
-      math::Vector2 uvB = math::Vector2::fromBufferAttribute(*uv, b);
-      math::Vector2 uvC = math::Vector2::fromBufferAttribute(*uv, c);
+      const math::Vector2 &uvA = uv->item_at<math::Vector2>(a);
+      const math::Vector2 &uvB = uv->item_at<math::Vector2>(b);
+      const math::Vector2 &uvC = uv->item_at<math::Vector2>(c);
 
       intersection.uv = uvIntersection(intersection.point, vA, vB, vC, uvA, uvB, uvC);
     }

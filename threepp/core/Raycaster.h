@@ -33,6 +33,7 @@ struct Intersection
   math::Vector3 point;
   math::Vector2 uv;
   Face3 face;
+  bool front = true;
   Object3D *object = nullptr;
 
   unsigned faceIndex;

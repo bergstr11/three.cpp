@@ -110,6 +110,23 @@ three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
   return mat;
 }
 
+QString texture(three::Texture::Ptr textr)
+{
+  if(!textr) {
+    return "no";
+  }
+  else if(three::ImageTexture *tex = textr->typer) {
+    return "Image";
+  }
+  else if(three::DepthTexture *tex = textr->typer) {
+    return "Depth";
+  }
+  if(three::DataTexture *tex = textr->typer) {
+    return "Data";
+  }
+  return "yes";
+}
+
 QString Material::getInfo()
 {
   QString info;
@@ -212,7 +229,7 @@ QString Material::getInfo()
   stream << "\ndithering:\t\t" << m.dithering;
   stream << "\nalphaTest:\t\t" << m.alphaTest;
   stream << "\npremultipliedAlpha:\t" << m.premultipliedAlpha;
-  stream << "\nmap:\t\t" << (bool)m.map;
+  stream << "\nmap:\t\t" << texture(m.map);
   stream << "\nskinning:\t\t" << m.skinning;
   stream << "\nmorphTargets:\t" << m.morphTargets;
   stream << "\nnumSupportedMorphTargets: " << m.numSupportedMorphTargets;
@@ -227,23 +244,23 @@ QString Material::getInfo()
   }
   if(lm) {
     stream << "\nLightMap";
-    stream << "\n  lightMap:\t\t" << (bool)lm->lightMap;
+    stream << "\n  lightMap:\t\t" << texture(lm->lightMap);
     stream << "\n  lightMapIntensity\t" << lm->lightMapIntensity;
   }
   if(em) {
     stream << "\nEmissive";
-    stream << "\n  emissiveMap:\t" << (bool)em->emissiveMap;
+    stream << "\n  emissiveMap:\t" << texture(em->emissiveMap);
     stream << "\n  emissive:\t\t" << em->emissive.r << ":" << em->emissive.g << ":" << em->emissive.b;
     stream << "\n  emissiveIntensity:\t" << em->emissiveIntensity;
   }
   if(ao) {
     stream << "\nAoMap";
-    stream << "\n  aoMap:\t\t" << (bool)ao->aoMap;
+    stream << "\n  aoMap:\t\t" << texture(ao->aoMap);
     stream << "\n  aoMapIntensity:\t" << ao->aoMapIntensity;
   }
   if(ev) {
     stream << "\nEnvMap";
-    stream << "\n  envMap:\t\t" << (bool) ev->envMap;
+    stream << "\n  envMap:\t\t" << texture(ev->envMap);
     stream << "\n  combine:\t\t" << (int) ev->combine;
     stream << "\n  reflectivity:\t" << ev->reflectivity;
     stream << "\n  refractionRatio:\t" << ev->refractionRatio;
@@ -251,43 +268,43 @@ QString Material::getInfo()
   }
   if(am) {
     stream << "\nAlphaMap";
-    stream << "\n  alphaMap:\t\t" << (bool) am->alphaMap;
+    stream << "\n  alphaMap:\t\t" << texture(am->alphaMap);
   }
   if(sm) {
     stream << "\nSpecularMap";
-    stream << "\n  specularMap:\t\t" << (bool) sm->specularMap;
+    stream << "\n  specularMap:\t\t" << texture(sm->specularMap);
   }
   if(s) {
     stream << "\nSpecular";
-    stream << "\n  specularMap:\t" << (bool) s->specularMap;
+    stream << "\n  specularMap:\t" << texture(s->specularMap);
     stream << "\n  shininess:\t\t" << s->shininess;
     stream << "\n  specular:\t\t" << s->specular.r << ":" << s->specular.g << ":" << s->specular.b;
   }
   if(sm) {
     stream << "\nDisplacementMap";
-    stream << "\n  displacementMap:\t\t" << (bool) dm->displacementMap;
+    stream << "\n  displacementMap:\t\t" << texture(dm->displacementMap);
     stream << "\n  displacementScale:\t\t" << dm->displacementScale;
     stream << "\n  displacementBias:\t\t" << dm->displacementBias;
   }
   if(bm) {
     stream << "\nBumpMap";
-    stream << "\n  bumpMap:\t\t" << (bool) bm->bumpMap;
+    stream << "\n  bumpMap:\t\t" << texture(bm->bumpMap);
     stream << "\n  bumpScale:\t" << bm->bumpScale;
   }
   if(nm) {
     stream << "\nNormalMap";
-    stream << "\n  normalMap:\t" << (bool) nm->normalMap;
+    stream << "\n  normalMap:\t" << texture(nm->normalMap);
     stream << "\n  normalScale:\t" << nm->normalScale.x() << nm->normalScale.y();
   }
   if(rm) {
     stream << "\nRoughnessMap";
     stream << "\n  roughness:\t\t" << rm->roughness;
-    stream << "\n  roughnessMap:\t\t" << (bool) rm->roughnessMap;
+    stream << "\n  roughnessMap:\t\t" << texture(rm->roughnessMap);
   }
   if(mm) {
     stream << "\nMetalnessMap";
     stream << "\n  metalness:\t\t" << mm->metalness;
-    stream << "\n  metalnessMap:\t\t" << (bool) mm->metalnessMap;
+    stream << "\n  metalnessMap:\t\t" << texture(mm->metalnessMap);
   }
   stream.flush();
   return info;

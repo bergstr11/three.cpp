@@ -56,9 +56,9 @@ BufferGeometry::BufferGeometry(const BufferGeometry &geom) : Geometry(geom, geom
 
 math::Vector3 BufferGeometry::centroid(const Face3 &face) const
 {
-  math::Vector3 vA = math::Vector3::fromBufferAttribute(*_position, face.a);
-  math::Vector3 vB = math::Vector3::fromBufferAttribute(*_position, face.b);
-  math::Vector3 vC = math::Vector3::fromBufferAttribute(*_position, face.c);
+  const math::Vector3 &vA = _position->item_at<math::Vector3>(face.a);
+  const math::Vector3 &vB = _position->item_at<math::Vector3>(face.b);
+  const math::Vector3 &vC = _position->item_at<math::Vector3>(face.c);
 
   return (vA + vB + vC) / 3.0f;
 }
@@ -504,9 +504,9 @@ void BufferGeometry::computeVertexNormals()
           unsigned vB = _index->at(i+1) * 3;
           unsigned vC = _index->at(i+2) * 3;
 
-          Vector3 pA = Vector3::fromBufferAttribute(*_position, vA);
-          Vector3 pB = Vector3::fromBufferAttribute(*_position, vB);
-          Vector3 pC = Vector3::fromBufferAttribute(*_position, vC);
+          const Vector3 &pA = _position->item_at<Vector3>(vA);
+          const Vector3 &pB = _position->item_at<Vector3>(vB);
+          const Vector3 &pC = _position->item_at<Vector3>(vC);
 
           Vector3 cb = pC - pB;
           Vector3 ab = pA - pB;
@@ -530,9 +530,9 @@ void BufferGeometry::computeVertexNormals()
       // non-indexed elements (unconnected triangle soup)
       for (unsigned i = 0, il = _position->itemCount(); i < il; i += 3 ) {
 
-        Vector3 pA = Vector3::fromBufferAttribute(*_position, i);
-        Vector3 pB = Vector3::fromBufferAttribute(*_position, i+1);
-        Vector3 pC = Vector3::fromBufferAttribute(*_position, i+2);
+        const Vector3 &pA = _position->item_at<Vector3>(i);
+        const Vector3 &pB = _position->item_at<Vector3>(i+1);
+        const Vector3 &pC = _position->item_at<Vector3>(i+2);
 
         Vector3 cb = pC - pB;
         Vector3 ab = pA - pB;

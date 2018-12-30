@@ -180,17 +180,17 @@ Window {
         title: "Please choose a color"
         visible: false
 
-        property Light light
+        property QtObject target
         property string colorName: "color"
 
         onVisibleChanged: {
             if(visible) {
-                color = light[colorName]
+                color = target[colorName]
             }
         }
         onAccepted: {
-            if(light) {
-                light[colorName] = colorDialog.color
+            if(target) {
+                target[colorName] = colorDialog.color
                 threeD.update()
             }
         }
@@ -243,7 +243,7 @@ Window {
             name: "hemisphere sky color"
             isAction: true
             onSelected: {
-                colorDialog.light = hemisphereLight
+                colorDialog.target = hemisphereLight
                 colorDialog.colorName = "skyColor"
                 colorDialog.visible = true
             }
@@ -252,7 +252,7 @@ Window {
             name: "directional color"
             isAction: true
             onSelected: {
-                colorDialog.light = directionalLight
+                colorDialog.target = directionalLight
                 colorDialog.colorName = "color"
                 colorDialog.visible = true
             }
@@ -309,7 +309,7 @@ Window {
         ListChoice {
             id: pickOpChoice
             label: "PickOp:"
-            values: ["control", "select", "mark", "material info", "enhance paint", "enhance metal"]
+            values: ["control", "select", "mark", "material info", "enhance paint", "enhance metal", "set color"]
             selectedIndex: 0
         }
     }
@@ -489,6 +489,12 @@ Window {
                     infoPopup.x = objectPicker.mouseX();
                     infoPopup.y = Math.min(objectPicker.mouseY(), threeD.height - infoPopup.height);
                     infoPopup.open()
+                }
+                else if(pickOpChoice.selectedValue == "set color") {
+
+                    colorDialog.target = is.object.material
+                    colorDialog.colorName = "color"
+                    colorDialog.visible = true
                 }
             }
         }
