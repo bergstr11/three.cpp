@@ -76,7 +76,6 @@ private:
        _childWalker(walker),
        _predicate(pred)
   {
-    //qDebug() << "PointsWalker#childWalker" << object->name().c_str();
     object->updateMatrixWorld( true );
   }
 
@@ -125,11 +124,9 @@ public:
       if(index) index++; else data++;
     }
     if(dataCount) {
-      //qDebug() << "PointsWalker" << object->name().c_str() << dataCount;
       return Ptr(new PointsWalker(object, data, index, dataCount, pred));
     }
     else {
-      //qDebug() << "PointsWalker##seekChildren" << object->name().c_str();
       auto beginChildren = object->children().begin();
       auto endChildren = object->children().end();
       while(beginChildren != endChildren) {

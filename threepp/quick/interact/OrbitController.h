@@ -239,6 +239,11 @@ public:
     return _controls->handleMouseWheel(event);
   }
 
+  bool handleTouchEvent(QTouchEvent *event) override
+  {
+    return _controls->handleTouchEvent(event);
+  }
+
   Q_INVOKABLE void rotate(float deltaX, float deltaY) {
     if(_controls) _controls->rotate(deltaX, deltaY);
   }

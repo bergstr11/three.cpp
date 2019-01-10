@@ -42,20 +42,46 @@ protected:
 
   virtual bool handleMouseWheel(QWheelEvent *event) {return false;}
 
+  virtual bool handleTouchEvent(QTouchEvent *event) {return false;}
+
 public:
   void setItem(ThreeDItem *item);
 
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
   bool mousePressed(QMouseEvent *event);
+
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
   bool mouseReleased(QMouseEvent *event);
 
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
   bool mouseDoubleClicked(QMouseEvent *event);
 
-  bool mouseMoved(QMouseEvent *event) {
-    return _enabled ? handleMouseMoved(event) : false;
-  }
-  bool mouseWheel(QWheelEvent *event) {
-    return _enabled ? handleMouseWheel(event) : false;
-  }
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
+  bool mouseMoved(QMouseEvent *event);
+
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
+  bool mouseWheel(QWheelEvent *event);
+
+  /**
+   * @param event
+   * @return true if the item should be updated
+   */
+  bool touchEvent(QTouchEvent *event);
 };
 
 class ShadowMap : public QObject
@@ -242,6 +268,8 @@ protected:
   void mouseDoubleClickEvent(QMouseEvent *event) override;
 
   void wheelEvent(QWheelEvent *event) override;
+
+  void touchEvent(QTouchEvent *touchEvent) override;
 
   void keyPressEvent(QKeyEvent *event) override;
 

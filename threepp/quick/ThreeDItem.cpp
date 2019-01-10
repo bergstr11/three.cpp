@@ -8,6 +8,7 @@
 #include <QQmlEngine>
 #include <QQuickWindow>
 #include <QScreen>
+#include <QLineF>
 #include <QTimer>
 #include <QGuiApplication>
 #include <QStyleHints>
@@ -361,6 +362,18 @@ bool Interactor::mouseDoubleClicked(QMouseEvent *event)
   return false;
 }
 
+bool Interactor::mouseMoved(QMouseEvent *event) {
+  return _enabled ? handleMouseMoved(event) : false;
+}
+
+bool Interactor::mouseWheel(QWheelEvent *event) {
+  return _enabled ? handleMouseWheel(event) : false;
+}
+
+bool Interactor::touchEvent(QTouchEvent *event) {
+  return _enabled ? handleTouchEvent(event) : false;
+}
+
 void ThreeDItem::removeInteractor(Interactor *controller)
 {
   auto found = std::find(_interactors.begin(), _interactors.end(), controller);
@@ -374,6 +387,7 @@ QQuickFramebufferObject::Renderer *ThreeDItem::createRenderer() const
 
 void ThreeDItem::mouseMoveEvent(QMouseEvent *event)
 {
+  event->ignore();
   for (auto contrl : _interactors) {
     if (contrl->mouseMoved(event)) {
       update();
@@ -384,6 +398,7 @@ void ThreeDItem::mouseMoveEvent(QMouseEvent *event)
 
 void ThreeDItem::mousePressEvent(QMouseEvent *event)
 {
+  event->ignore();
   for (auto contrl : _interactors) {
     if (contrl->mousePressed(event)) {
       update();
@@ -394,6 +409,7 @@ void ThreeDItem::mousePressEvent(QMouseEvent *event)
 
 void ThreeDItem::mouseReleaseEvent(QMouseEvent *event)
 {
+  event->ignore();
   for (auto contrl : _interactors) {
     if (contrl->mouseReleased(event)) {
       update();
@@ -404,6 +420,7 @@ void ThreeDItem::mouseReleaseEvent(QMouseEvent *event)
 
 void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
+  event->ignore();
   for (auto contrl : _interactors) {
     if (contrl->mouseDoubleClicked(event)) {
       update();
@@ -414,8 +431,20 @@ void ThreeDItem::mouseDoubleClickEvent(QMouseEvent *event)
 
 void ThreeDItem::wheelEvent(QWheelEvent *event)
 {
+  event->ignore();
   for (auto contrl : _interactors) {
     if (contrl->mouseWheel(event)) {
+      update();
+      return;
+    }
+  }
+}
+
+void ThreeDItem::touchEvent(QTouchEvent *event)
+{
+  event->ignore();
+  for (auto contrl : _interactors) {
+    if (contrl->touchEvent(event)) {
       update();
       return;
     }

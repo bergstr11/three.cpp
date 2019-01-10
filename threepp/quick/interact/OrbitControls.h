@@ -21,6 +21,8 @@ class OrbitControls : public control::Orbit
   QPoint _startingPos;
   Qt::MouseButton _eventButton;
 
+  qreal pinchFactor = -0.6;
+
 protected:
   OrbitControls(QQuickItem *item, three::Camera::Ptr camera, const math::Vector3 &target)
      : control::Orbit(camera, target), _item(item) {}
@@ -57,6 +59,7 @@ public:
 
   bool handleMousePressed(QMouseEvent *event)
   {
+    event->accept();
     _startingPos= event->pos();
     _eventButton= event->button();
     return false;
@@ -66,6 +69,7 @@ public:
   {
     if(_state == State::NONE) {
 
+      event->accept();
       QPoint point = event->pos() - _startingPos;
       if (point.manhattanLength() > 5) {
 
@@ -75,27 +79,24 @@ public:
             if (!OrbitControls::enableRotate) return false;
             _item->setCursor(_rotateCursor);
             startRotate(event->x(), event->y());
-            event->setAccepted(true);
             break;
 
           case Qt::MidButton:
             if (!OrbitControls::enableZoom) return false;
             _item->setCursor(_zoomCursor);
             startZoom(event->x(), event->y());
-            event->setAccepted(true);
             break;
 
           case Qt::RightButton:
             if (!OrbitControls::enablePan) return false;
             _item->setCursor(_panCursor);
             startPan(event->x(), event->y());
-            event->setAccepted(true);
             break;
         }
       }
     }
     else if(handleMove(event->x(), event->y())) {
-      event->setAccepted(true);
+      event->accept();
       return true;
     }
     return false;
@@ -105,7 +106,7 @@ public:
   {
     _item->unsetCursor();
     if(resetState()) {
-      event->setAccepted(true);
+      event->accept();
       return true;
     }
     return false;
@@ -114,8 +115,30 @@ public:
   bool handleMouseWheel(QWheelEvent *event)
   {
     if(handleDelta(event->delta())) {
-      event->setAccepted(true);
+      event->accept();
       return true;
+    }
+    return false;
+  }
+
+  bool handleTouchEvent(QTouchEvent *touchEvent)
+  {
+    switch (touchEvent->type()) {
+      case QTouchEvent::TouchBegin:
+      case QTouchEvent::TouchUpdate:
+      case QTouchEvent::TouchEnd: {
+        QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+        if (touchPoints.count() == 2) {
+          const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+          const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+          qreal delta = QLineF(touchPoint0.pos(), touchPoint1.pos()).length() - QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+
+          touchEvent->accept();
+          if(handleDelta(delta * pinchFactor)) {
+            return true;
+          }
+        }
+      }
     }
     return false;
   }
