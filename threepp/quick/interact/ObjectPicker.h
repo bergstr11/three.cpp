@@ -170,8 +170,12 @@ public:
 
   void setCamera(three::quick::Camera *camera);
 
+  bool handleMousePressed(QMouseEvent *event) override;
+
   bool handleMouseReleased(QMouseEvent *event) override;
+
   bool handleMouseClicked(QMouseEvent *event) override;
+
   bool handleMouseDoubleClicked(QMouseEvent *event) override;
 
   Q_INVOKABLE void scaleTo(ThreeQObject *object);

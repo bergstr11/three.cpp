@@ -109,6 +109,26 @@ void ObjectPicker::findIntersects(float ex, float ey)
   if(!_intersects.empty()) _intersects.prepare();
 }
 
+bool ObjectPicker::handleMousePressed(QMouseEvent *event)
+{
+  if(_camera && _item && event->button() == Qt::LeftButton) {
+    findIntersects(event->x(), event->y());
+    if (!_intersects.empty()) {
+
+      event->accept();
+      _mouseX = event->x();
+      _mouseY = event->y();
+    }
+    else {
+      for(const auto &picker : _pickers) {
+        if(picker->enabled() && picker->handleMousePressed(event))
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
 bool ObjectPicker::handleMouseReleased(QMouseEvent *event)
 {
   return handleMouseClicked(event);
@@ -116,24 +136,19 @@ bool ObjectPicker::handleMouseReleased(QMouseEvent *event)
 
 bool ObjectPicker::handleMouseClicked(QMouseEvent *event)
 {
-  _mouseX = event->x();
-  _mouseY = event->y();
+  event->accept();
 
-  if(_camera && _item && event->button() == Qt::LeftButton) {
-    findIntersects(event->x(), event->y());
+  if(!_intersects.empty() && _rays->accept(_intersects)) {
 
-    if(!_intersects.empty() && _rays->accept(_intersects)) {
+    _rays->setIntersects(_intersects);
 
-      _rays->setIntersects(_intersects);
-
-      emit objectPicked();
-      return  true;
-    }
-    else {
-      for(const auto &picker : _pickers) {
-        if(picker->enabled() && picker->handleMouseClicked(event))
-          return true;
-      }
+    emit objectPicked();
+    return  true;
+  }
+  else {
+    for(const auto &picker : _pickers) {
+      if(picker->enabled() && picker->handleMouseClicked(event))
+        return true;
     }
   }
   return false;
@@ -143,23 +158,20 @@ bool ObjectPicker::handleMouseDoubleClicked(QMouseEvent *event)
 {
   if(!_unifyClicked) return false;
 
-  _mouseX = event->x();
-  _mouseY = event->y();
+  event->accept();
 
-  if(_camera && _item && event->button() == Qt::LeftButton) {
-    findIntersects(event->x(), event->y());
+  findIntersects(event->x(), event->y());
 
-    if(!_intersects.empty() && _rays->accept(_intersects)) {
+  if(!_intersects.empty() && _rays->accept(_intersects)) {
 
-      _rays->setIntersects(_intersects);
+    _rays->setIntersects(_intersects);
 
-      emit objectDoublePicked();
-      return true;
-    }
-    else {
-      for(const auto &picker : _pickers) {
-        if(picker->handleMouseDoubleClicked(event)) return true;
-      }
+    emit objectDoublePicked();
+    return true;
+  }
+  else {
+    for(const auto &picker : _pickers) {
+      if(picker->handleMouseDoubleClicked(event)) return true;
     }
   }
   return false;

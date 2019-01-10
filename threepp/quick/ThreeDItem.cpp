@@ -337,7 +337,14 @@ void Interactor::setItem(ThreeDItem *item)
 }
 
 bool Interactor::mouseReleased(QMouseEvent *event) {
-  return _enabled && !_unifyClicked ? handleMouseReleased(event) : false;
+  if(_enabled) {
+    if(_unifyClicked) {
+      event->accept();
+      return false;
+    }
+    return handleMouseReleased(event);
+  }
+  return false;
 }
 
 bool Interactor::mousePressed(QMouseEvent *event)
@@ -345,7 +352,8 @@ bool Interactor::mousePressed(QMouseEvent *event)
   if(_enabled) {
     if(!_unifyClicked) return handleMousePressed(event);
 
-    if(!_clickedTimer.isActive()) {
+    handleMousePressed(event);
+    if(event->isAccepted() && !_clickedTimer.isActive()) {
       _clicked = *event;
       _clickedTimer.start(QGuiApplication::styleHints()->mouseDoubleClickInterval() + 20);
     }
