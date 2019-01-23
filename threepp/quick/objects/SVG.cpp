@@ -83,7 +83,7 @@ three::Object3D::Ptr SVG::_create()
   for(unsigned i=0; i < _materials.size(); i++) {
     if(_useSvgColors && i < paths.size()) {
       const auto &color = paths[i].color;
-      _materials[i]->setColor(QColor(color.r, color.g, color.b));
+      _materials[i]->applyColor(QColor(color.r, color.g, color.b));
     }
     _mesh->addMaterial(_materials[i]->getMaterial());
   }

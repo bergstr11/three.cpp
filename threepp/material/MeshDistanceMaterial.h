@@ -34,6 +34,7 @@ namespace three {
  * }
  */
 class DLX MeshDistanceMaterial : public MaterialT<
+   material::Diffuse,
    material::DisplacementMap,
    material::AlphaMap>
 {

@@ -32,7 +32,7 @@ namespace three {
  *  wireframeLinewidth: <float>
  * }
  */
-struct DLX MeshDepthMaterial : public MaterialT<material::Colored, material::AlphaMap, material::DisplacementMap>
+struct DLX MeshDepthMaterial : public MaterialT<material::Diffuse, material::AlphaMap, material::DisplacementMap>
 {
   DepthPacking depthPacking = DepthPacking::Basic;
 

@@ -262,10 +262,15 @@ inline void read_color(const char* pKey,unsigned int type, unsigned int idx, con
 }
 
 template <>
-struct ReadMaterial<material::Colored>
+struct ReadMaterial<material::Diffuse>
 {
-  FORWARD_MIXIN(material::Colored)
-  static void mixin(material::Colored &material, const aiMaterial *ai, Access *access) {
+  FORWARD_MIXIN(material::Diffuse)
+  static void mixin(material::Diffuse &material, const aiMaterial *ai, Access *access) {
+
+    material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
+    if(!material.map)
+      material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
+
     material.color.set(0,0,0);
     read_color(AI_MATKEY_COLOR_DIFFUSE, ai, material.color);
     aiReturn opret = ai->Get(AI_MATKEY_OPACITY, material.opacity);
@@ -417,10 +422,6 @@ protected:
       qWarning() << "GLOBAL_BACKGROUND_IMAGE found, currently not used";
 
     read_color(AI_MATKEY_COLOR_AMBIENT, ai, material.ambientColor);
-
-    material.map = access->loadTexture(aiTextureType_DIFFUSE, 0, ai);
-    if(!material.map)
-      material.map = access->loadTexture(aiTextureType_UNKNOWN, 0, ai);
 
     int twosided;
     if(ai->Get(AI_MATKEY_TWOSIDED, twosided) == AI_SUCCESS)

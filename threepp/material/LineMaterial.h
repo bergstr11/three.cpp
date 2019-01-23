@@ -23,7 +23,7 @@ namespace three {
  *  linejoin: "round"
  * }
  */
-class LineBasicMaterial : public MaterialT<material::Colored>
+class LineBasicMaterial : public MaterialT<material::Diffuse>
 {
 protected:
   LineBasicMaterial() : MaterialT(material::InfoT<LineBasicMaterial>(), material::Typer(this)) {}

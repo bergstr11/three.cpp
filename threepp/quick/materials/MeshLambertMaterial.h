@@ -13,80 +13,55 @@
 namespace three {
 namespace quick {
 
-class MeshLambertMaterial : public Material
+class MeshLambertMaterial : public Material,
+   public Diffuse<MeshLambertMaterial>,
+   public Emissive<MeshLambertMaterial>,
+   public EnvMap<MeshLambertMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+  Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
   Q_PROPERTY(QColor emissive READ emissive WRITE setEmissive NOTIFY emissiveChanged)
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
-
-  QColor _color, _emissive;
-  Texture *_envMap = nullptr;
-
-  three::MeshLambertMaterial::Ptr _material;
 
 protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
+  three::MeshLambertMaterial::Ptr _material;
+
   MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), _material(mat) {}
+     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), _material(mat) {}
 
   MeshLambertMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent) {}
+     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this) {}
 
-  QColor color() const {return _color;}
-
-  void setColor(const QColor &color) override {
-    if(_color != color) {
-      _color = color;
-      if(_material) {
-        _material->color.set(color.redF(), color.greenF(), color.blueF());
-        _material->needsUpdate = true;
-      }
-      emit colorChanged();
-    }
+  void applyColor(const QColor &color)
+  {
+    setColor(color);
   }
 
-  QColor emissive() const {return _emissive;}
-
-  void setEmissive(const QColor &emissive) {
-    if(_emissive != emissive) {
-      _emissive = emissive;
-      if(_material) {
-        _material->emissive.set(emissive.redF(), emissive.greenF(), emissive.blueF());
-        _material->needsUpdate = true;
-      }
-      emit emissiveChanged();
+  void setAndConfigureObject(three::Material::Ptr material) override
+  {
+    _material = std::dynamic_pointer_cast<three::MeshLambertMaterial>(material);
+    if (!_material) {
+      qCritical() << "MaterialHandler: received incompatible material";
     }
-  }
-
-  Texture *envMap() const {return _envMap;}
-
-  void setEnvMap(Texture *envMap) {
-    if(_envMap != envMap) {
-      _envMap = envMap;
-      if(_material) {
-        _material->envMap = _envMap->getTexture();
-        _material->needsUpdate = true;
-      }
-      emit envMapChanged();
-    }
+    Material::setAndConfigureObject(material);
+    applyDiffuse(_material);
+    applyEmissive(_material);
+    applyEnvMap(_material);
   }
 
   three::MeshLambertMaterial::Ptr createMaterial()
   {
     _material = three::MeshLambertMaterial::make();
-    if(_color.isValid())
-      _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
 
     setBaseProperties(_material);
-
-    if(_envMap) {
-      _material->envMap = _envMap->getTexture();
-      if(!_material->envMap)
-        qWarning() << "envMap is ignored";
-    }
+    applyDiffuse(_material);
+    applyEmissive(_material);
+    applyEnvMap(_material);
 
     return _material;
   }
@@ -98,6 +73,8 @@ public:
 
 signals:
   void colorChanged();
+  void opacityChanged();
+  void mapChanged();
   void emissiveChanged();
   void envMapChanged();
 };

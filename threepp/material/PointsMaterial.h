@@ -23,7 +23,7 @@ namespace three {
  * }
  */
 
-struct DLX PointsMaterial : public MaterialT<material::Colored>
+struct DLX PointsMaterial : public MaterialT<material::Diffuse>
 {
   float size = 1;
   bool sizeAttenuation = true;

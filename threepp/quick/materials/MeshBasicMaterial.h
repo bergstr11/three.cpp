@@ -13,56 +13,46 @@
 namespace three {
 namespace quick {
 
-class MeshBasicMaterial : public Material
+class MeshBasicMaterial : public Material, public Diffuse<MeshBasicMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
-
-  QColor _color;
-  float _opacity = 1.0f;
-
-  three::MeshBasicMaterial::Ptr _material;
+  Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
 
 protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
+  three::MeshBasicMaterial::Ptr _material;
+
   MeshBasicMaterial(three::MeshBasicMaterial::Ptr mat, QObject *parent=nullptr)
-  : Material(material::Typer(this), parent), _material(mat) {}
+  : Material(material::Typer(this), parent), Diffuse(this), _material(mat) {}
 
   MeshBasicMaterial(QObject *parent=nullptr)
-  : Material(material::Typer(this), parent) {}
+  : Material(material::Typer(this), parent), Diffuse(this) {}
 
-  QColor color() const {return _color;}
-
-  void setColor(const QColor &color) override {
-    if(_color != color) {
-      _color = color;
-      if(_material) {
-        _material->color.set(_color.redF(), _color.greenF(), _color.blueF());
-        _material->needsUpdate = true;
-      }
-      emit colorChanged();
-    }
+  void applyColor(const QColor &color)
+  {
+    setColor(color);
   }
 
-  float opacity() const {return _opacity;}
-
-  void setOpacity(float opacity) {
-    if(_opacity != opacity) {
-      _opacity = opacity;
-      emit opacityChanged();
+  void setAndConfigureObject(three::Material::Ptr material) override
+  {
+    _material = std::dynamic_pointer_cast<three::MeshBasicMaterial>(material);
+    if (!_material) {
+      qCritical() << "MaterialHandler: received incompatible material";
     }
+    Material::setAndConfigureObject(material);
+    applyDiffuse(_material);
   }
 
   three::MeshBasicMaterial::Ptr createMaterial()
   {
     _material = three::MeshBasicMaterial::make();
-    _material->color = Color(_color.redF(), _color.greenF(), _color.blueF());
-    _material->opacity = _opacity;
 
     setBaseProperties(_material);
+    applyDiffuse(_material);
 
     return _material;
   }
@@ -75,6 +65,7 @@ public:
 signals:
   void colorChanged();
   void opacityChanged();
+  void mapChanged();
 };
 
 }

@@ -49,7 +49,7 @@ namespace three {
  */
 
 struct DLX MeshLambertMaterial : public MaterialT<
-   material::Colored,
+   material::Diffuse,
    material::AoMap,
    material::LightMap,
    material::Emissive,

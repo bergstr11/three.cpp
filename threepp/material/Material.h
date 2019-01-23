@@ -21,10 +21,12 @@ class Camera;
 
 namespace material {
 
-struct Colored {
-  using Selector = std::function<void(Colored &)>;
+struct Diffuse
+{
+  using Selector = std::function<void(Diffuse &)>;
   Color color {0xffffff}; //diffuse, really
   float opacity = 1;
+  Texture::Ptr map;
 };
 
 struct LightMap
@@ -116,7 +118,7 @@ struct MetalnessMap
 
 struct Selector
 {
-  Colored::Selector colored;
+  Diffuse::Selector colored;
   LightMap::Selector lightMap;
   Emissive::Selector emissive;
   AoMap::Selector aoMap;
@@ -130,7 +132,7 @@ struct Selector
   RoughnessMap::Selector roughnessMap;
   MetalnessMap::Selector metalnessMap;
 
-  Selector(const Colored::Selector &m) : colored(m) {}
+  Selector(const Diffuse::Selector &m) : colored(m) {}
   Selector(const LightMap::Selector &m) : lightMap(m) {}
   Selector(const Emissive::Selector &m) : emissive(m) {}
   Selector(const AoMap::Selector &m) : aoMap(m) {}
@@ -199,8 +201,6 @@ struct DLX Material
 
   float alphaTest = 0;
   bool premultipliedAlpha = false;
-
-  Texture::Ptr map;
 
   bool skinning = false;
   bool morphTargets = false;

@@ -61,7 +61,7 @@ namespace three {
  */
 
 struct DLX MeshPhongMaterial : public MaterialT<
-   material::Colored,
+   material::Diffuse,
    material::LightMap,
    material::AoMap,
    material::Emissive,

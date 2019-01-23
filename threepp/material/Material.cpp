@@ -53,7 +53,7 @@ struct MixinResolve<Mixin> {\
   } \
 };
 
-MIXIN_RESOLVE(Colored, colored)
+MIXIN_RESOLVE(Diffuse, colored)
 MIXIN_RESOLVE(LightMap, lightMap)
 MIXIN_RESOLVE(Emissive, emissive)
 MIXIN_RESOLVE(AoMap, aoMap)
@@ -150,8 +150,6 @@ Material::Material(const Material &material, const material::Info &info, const m
 
   alphaTest = material.alphaTest;
   premultipliedAlpha = material.premultipliedAlpha;
-
-  map = material.map;
 
   skinning = material.skinning;
   morphTargets = material.morphTargets;

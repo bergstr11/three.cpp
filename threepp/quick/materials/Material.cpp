@@ -13,25 +13,12 @@
 namespace three {
 namespace quick {
 
-void Material::setMap(Texture *map)
-{
-  if(_map != map) {
-    _map = map;
-    if(material()) {
-      material()->map = _map ? _map().getTexture() : nullptr;
-      material()->needsUpdate = true;
-    }
-    emit mapChanged();
-  }
-}
-
 void Material::setBaseProperties(three::Material::Ptr material)
 {
   material->wireframe = _wireframe;
   material->flatShading = _flatShading;
   material->visible = _visible;
   material->name = _name().toStdString();
-  if(_map) material->map = _map().getTexture();
 }
 
 void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformValues &uniforms)
@@ -132,7 +119,7 @@ QString Material::getInfo()
   QString info;
   QTextStream stream (&info, QIODevice::WriteOnly);
   const three::Material &m = *material();
-  three::material::Colored *clr = nullptr;
+  three::material::Diffuse *df = nullptr;
   three::material::LightMap *lm = nullptr;
   three::material::Emissive *em = nullptr;
   three::material::AoMap *ao = nullptr;
@@ -149,7 +136,7 @@ QString Material::getInfo()
   if(three::MeshPhongMaterial *mat = m.typer) {
     stream << "MeshPhongMaterial\n";
 
-    clr = mat;
+    df = mat;
     lm = mat;
     ao = mat;
     em = mat;
@@ -163,7 +150,7 @@ QString Material::getInfo()
   else if(three::MeshLambertMaterial *mat = m.typer) {
     stream << "MeshLambertMaterial\n";
 
-    clr = mat;
+    df = mat;
     lm = mat;
     ao = mat;
     em = mat;
@@ -174,7 +161,7 @@ QString Material::getInfo()
   else if(three::MeshBasicMaterial *mat = m.typer) {
     stream << "MeshBasicMaterial\n";
 
-    clr = mat;
+    df = mat;
     lm = mat;
     ao = mat;
     am = mat;
@@ -184,7 +171,7 @@ QString Material::getInfo()
   if(three::MeshStandardMaterial *mat = m.typer) {
     stream << "MeshStandardMaterial\n";
 
-    clr = mat;
+    df = mat;
     lm = mat;
     ao = mat;
     em = mat;
@@ -229,7 +216,6 @@ QString Material::getInfo()
   stream << "\ndithering:\t\t" << m.dithering;
   stream << "\nalphaTest:\t\t" << m.alphaTest;
   stream << "\npremultipliedAlpha:\t" << m.premultipliedAlpha;
-  stream << "\nmap:\t\t" << texture(m.map);
   stream << "\nskinning:\t\t" << m.skinning;
   stream << "\nmorphTargets:\t" << m.morphTargets;
   stream << "\nnumSupportedMorphTargets: " << m.numSupportedMorphTargets;
@@ -237,10 +223,11 @@ QString Material::getInfo()
   stream << "\nnumSupportedMorphNormals: " << m.numSupportedMorphNormals;
   stream << "\noverdraw:\t\t" << m.overdraw;
 
-  if(clr) {
-    stream << "\nColored";
-    stream << "\n  color:\t\t" << clr->color.r << ":" << clr->color.g << ":" << clr->color.b;
-    stream << "\n  opacity:\t\t" << clr->opacity;
+  if(df) {
+    stream << "\nDiffuse";
+    stream << "\n  color:\t\t" << df->color.r << ":" << df->color.g << ":" << df->color.b;
+    stream << "\n  opacity:\t\t" << df->opacity;
+    stream << "\n  map:\t\t" << texture(df->map);
   }
   if(lm) {
     stream << "\nLightMap";

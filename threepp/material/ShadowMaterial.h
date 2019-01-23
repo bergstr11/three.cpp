@@ -18,7 +18,7 @@ namespace three {
  *  opacity: <float>
  * }
  */
-class ShadowMaterial : public MaterialT<material::Colored>
+class ShadowMaterial : public MaterialT<material::Diffuse>
 {
 private:
   ShadowMaterial()

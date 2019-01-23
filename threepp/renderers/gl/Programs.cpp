@@ -55,11 +55,11 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->outputEncoding = getTextureEncoding(
      currentRenderTarget ? currentRenderTarget->texture() : nullptr, renderer.gammaOutput);
-  parameters->map = (bool)material->map;
-  parameters->mapEncoding = getTextureEncoding(material->map, renderer.gammaInput);
   parameters->vertexColors = material->vertexColors;
 
   if(MeshBasicMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->aoMap = (bool)mat->aoMap;
     parameters->envMap = (bool)mat->envMap;
@@ -67,9 +67,12 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->combine = mat->combine;
   }
   else if(MeshDistanceMaterial *mat = material->typer) {
-
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
   }
   else if(MeshDepthMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->alphaMap = (bool)mat->alphaMap;
     parameters->depthPacking = mat->depthPacking;
@@ -100,9 +103,14 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     }
   }
   else if(PointsMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
+
     parameters->sizeAttenuation = (bool)mat->sizeAttenuation;
   }
   else if(MeshPhongMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->aoMap = (bool)mat->aoMap;
     parameters->bumpMap = (bool)mat->bumpMap;
@@ -126,6 +134,8 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     }
   }
   else if(MeshStandardMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->aoMap = (bool)mat->aoMap;
     parameters->bumpMap = (bool)mat->bumpMap;
@@ -153,6 +163,8 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->normalMap = (bool)mat->normalMap;
   }
   else if(MeshLambertMaterial *mat = material->typer) {
+    parameters->map = (bool)mat->map;
+    parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->aoMap = (bool)mat->aoMap;
     parameters->alphaMap = (bool)mat->alphaMap;

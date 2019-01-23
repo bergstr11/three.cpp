@@ -7,18 +7,21 @@
 
 #include <QColor>
 #include <threepp/material/MeshPhongMaterial.h>
-#include <threepp/quick/textures/ImageTexture.h>
 
 #include "Material.h"
 
 namespace three {
 namespace quick {
 
-class MeshPhongMaterial : public Material
+class MeshPhongMaterial : public Material,
+   public Diffuse<MeshPhongMaterial>,
+   public Emissive<MeshPhongMaterial>,
+   public EnvMap<MeshPhongMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+  Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
   Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
@@ -30,49 +33,45 @@ Q_OBJECT
   Q_PROPERTY(float emissiveIntensity READ emissiveIntensity WRITE setEmissiveIntensity NOTIFY emissiveIntensityChanged)
   Q_PROPERTY(Texture *emissiveMap READ emissiveMap WRITE setEmissiveMap NOTIFY emissiveMapChanged)
 
-  TrackingProperty<QColor> _color {0x111111};
-  TrackingProperty<float> _opacity {1.0f};
   TrackingProperty<QColor> _specular {0x111111};
   TrackingProperty<float> _shininess {30};
-  TrackingProperty<float> _reflectivity {1};
   TrackingProperty<bool> _dithering {false};
   TrackingProperty<float> _refractionRatio {0.98f};
-  TrackingProperty<QColor> _emissive {QColor(0,0,0)};
-  TrackingProperty<float> _emissiveIntensity {1.0f};
 
   TrackingProperty<Texture *>_normalMap {nullptr};
-  TrackingProperty<Texture *> _envMap {nullptr};
-  TrackingProperty<Texture *> _emissiveMap {nullptr};
-
-  three::MeshPhongMaterial::Ptr _material;
 
 protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
+  three::MeshPhongMaterial::Ptr _material;
+
   MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent = nullptr)
-     : Material(material::Typer(this), parent), _material(mat)
+     : Material(material::Typer(this), parent), _material(mat), Diffuse(this), Emissive(this), EnvMap(this)
   {}
 
   MeshPhongMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent) {}
+     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this) {}
 
-  QColor color() const {
-    return _material ? QColor::fromRgbF(_material->color.r, _material->color.g, _material->color.b) : _color;
+  void applyColor(const QColor &color)
+  {
+    setColor(color);
   }
 
-  void setColor(const QColor &color) override {
-    if(_color != color) {
-      _color = color;
-      if(_material) {
-        _material->color.set(_color().redF(), _color().greenF(), _color().blueF());
-        _material->needsUpdate = true;
-      }
-      emit colorChanged();
+  void setAndConfigureObject(three::Material::Ptr material) override
+  {
+    _material = std::dynamic_pointer_cast<three::MeshPhongMaterial>(material);
+    if (!_material) {
+      qCritical() << "MaterialHandler: received incompatible material";
     }
+    Material::setAndConfigureObject(material);
+    applyDiffuse(_material);
+    applyEnvMap(_material);
+    applyEmissive(_material);
   }
 
-  QColor specular() const {
+  QColor specular() const
+  {
     return _material ? QColor::fromRgbF(_material->specular.r, _material->specular.g, _material->specular.b) : _specular;
   }
 
@@ -84,54 +83,6 @@ public:
         _material->needsUpdate = true;
       }
       emit specularChanged();
-    }
-  }
-
-  QColor emissive() const
-  {
-    return _material ?
-           QColor::fromRgbF(_material->emissive.r, _material->emissive.g, _material->emissive.b) : _emissive;
-  }
-
-  void setEmissive(const QColor &emissive) {
-    if(_emissive != emissive) {
-      _emissive = emissive;
-      if(_material) {
-        _material->emissive.set(emissive.redF(), emissive.greenF(), emissive.blueF());
-        _material->needsUpdate = true;
-      }
-      emit emissiveChanged();
-    }
-  }
-
-  float emissiveIntensity() const {return _material ? _material->emissiveIntensity : _emissiveIntensity;}
-
-  void setEmissiveIntensity(float emissiveIntensity) {
-    if(_emissiveIntensity != emissiveIntensity) {
-      _emissiveIntensity = emissiveIntensity;
-      if(_material) _material->emissiveIntensity = emissiveIntensity;
-      emit emissiveIntensityChanged();
-    }
-  }
-
-  Texture *emissiveMap() {
-    if(!_emissiveMap && _material && _material->envMap) {
-      const auto lm = _material->emissiveMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _emissiveMap = new ImageTexture(it);
-      }
-    }
-    return _emissiveMap;
-  }
-
-  void setEmissiveMap(Texture *emissiveMap) {
-    if(_emissiveMap != emissiveMap) {
-      _emissiveMap = emissiveMap;
-      if(_material) {
-        _material->emissiveMap = _emissiveMap ? _emissiveMap().getTexture() : nullptr;
-        _material->needsUpdate = true;
-      }
-      emit emissiveMapChanged();
     }
   }
 
@@ -148,19 +99,6 @@ public:
     }
   }
 
-  float opacity() const {return _material ? _material->opacity : _opacity;}
-
-  void setOpacity(float opacity) {
-    if(_opacity != opacity) {
-      _opacity = opacity;
-      if(_material) {
-        _material->opacity = _opacity;
-        _material->needsUpdate = true;
-      }
-      emit opacityChanged();
-    }
-  }
-
   float shininess() const {return _material ? _material->shininess : _shininess;}
 
   void setShininess(float shininess) {
@@ -171,19 +109,6 @@ public:
         _material->needsUpdate = true;
       }
       emit shininessChanged();
-    }
-  }
-
-  float reflectivity() const {return _material ? _material->reflectivity : _reflectivity;}
-
-  void setReflectivity(float reflectivity) {
-    if(_reflectivity != reflectivity) {
-      _reflectivity = reflectivity;
-      if(_material) {
-        _material->reflectivity = _reflectivity;
-        _material->needsUpdate = true;
-      }
-      emit reflectivityChanged();
     }
   }
 
@@ -221,36 +146,20 @@ public:
     }
   }
 
-  Texture *envMap() const {return _envMap;}
-
-  void setEnvMap(Texture *envMap) {
-    if(_envMap != envMap) {
-      _envMap = envMap;
-      if(_material) {
-        _material->envMap = _envMap ? _envMap().getTexture() : nullptr;
-        _material->needsUpdate = true;
-      }
-      emit envMapChanged();
-    }
-  }
-
   three::MeshPhongMaterial::Ptr createMaterial()
   {
     auto material = three::MeshPhongMaterial::make(Color(_color().redF(), _color().greenF(), _color().blueF()), _dithering);
-    material->opacity = _opacity;
     material->specular.set(_specular().redF(), _specular().greenF(), _specular().blueF());
     material->refractionRatio = _refractionRatio;
     material->shininess = _shininess;
-    material->reflectivity = _reflectivity;
     material->dithering = _dithering;
-    material->emissive.set(_emissive().redF(), _emissive().greenF(), _emissive().blueF());
-    material->emissiveIntensity = _emissiveIntensity;
 
     if(_normalMap) material->normalMap = _normalMap().getTexture();
-    if(_envMap) material->envMap = _envMap().getTexture();
-    if(_emissiveMap) material->emissiveMap = _emissiveMap().getTexture();
 
     setBaseProperties(material);
+    applyDiffuse(material);
+    applyEmissive(material);
+    applyEnvMap(material);
 
     return material;
   }
@@ -268,13 +177,14 @@ public:
 
 signals:
   void colorChanged();
+  void opacityChanged();
+  void mapChanged();
   void specularChanged();
   void emissiveChanged();
   void emissiveIntensityChanged();
   void emissiveMapChanged();
   void ditheringChanged();
   void normalMapChanged();
-  void opacityChanged();
   void envMapChanged();
   void shininessChanged();
   void reflectivityChanged();
