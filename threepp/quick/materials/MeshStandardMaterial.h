@@ -16,7 +16,9 @@ namespace quick {
 class MeshStandardMaterial : public Material,
    public Diffuse<MeshStandardMaterial>,
    public Emissive<MeshStandardMaterial>,
-   public EnvMap<MeshStandardMaterial>
+   public EnvMap<MeshStandardMaterial>,
+   public LightMap<MeshStandardMaterial>,
+   public NormalMap<MeshStandardMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
@@ -29,6 +31,7 @@ Q_OBJECT
   Q_PROPERTY(Texture *emissiveMap READ emissiveMap WRITE setEmissiveMap NOTIFY emissiveMapChanged)
   Q_PROPERTY(Texture *envMap READ envMap WRITE setEnvMap NOTIFY envMapChanged)
   Q_PROPERTY(Texture *lightMap READ lightMap WRITE setLightMap NOTIFY lightMapChanged)
+  Q_PROPERTY(float lightMapIntensity READ lightMapIntensity WRITE setLightMapIntensity NOTIFY lightMapIntensityChanged)
   Q_PROPERTY(Texture *metalnessMap READ metalnessMap WRITE setMetalnessMap NOTIFY metalnessMapChanged)
   Q_PROPERTY(Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
   Q_PROPERTY(Texture *roughnessMap READ roughnessMap WRITE setRoughnessMap NOTIFY roughnessMapChanged)
@@ -36,13 +39,8 @@ Q_OBJECT
 
   TrackingProperty<float> _roughness {0.5f};
   TrackingProperty<float> _metalness {0.5f};
-  TrackingProperty<Texture *> _lightMap {nullptr};
   TrackingProperty<Texture *> _metalnessMap {nullptr};
-  TrackingProperty<Texture *> _normalMap {nullptr};
   TrackingProperty<Texture *> _roughnessMap {nullptr};
-
-  TrackingProperty<bool> _dithering {false};
-  TrackingProperty<float> _refractionRatio {0.98f};
 
 protected:
   three::Material::Ptr material() const override {return _material;}
@@ -53,33 +51,31 @@ protected:
     applyDiffuse(material);
     applyEmissive(material);
     applyEnvMap(material);
+    applyLightMap(_material);
+    applyNormalMap(_material);
 
     material->roughness = _roughness;
     material->metalness = _metalness;
-    material->dithering = _dithering;
-    material->refractionRatio = _refractionRatio;
-    material->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
-    material->normalMap = _normalMap ? _normalMap().getTexture() : nullptr;
     material->metalnessMap = _metalnessMap ? _metalnessMap().getTexture() : nullptr;
     material->roughnessMap = _roughnessMap ? _roughnessMap().getTexture() : nullptr;
   }
 
   MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, const material::Typer &typer, QObject *parent = nullptr)
-     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this), _material(mat)
+     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this), _material(mat)
   {}
 
   MeshStandardMaterial(const material::Typer &typer, QObject *parent=nullptr)
-     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this) {}
+     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this) {}
 
 public:
   three::MeshStandardMaterial::Ptr _material;
 
   MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, QObject *parent = nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), _material(mat)
+     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this), _material(mat)
   {}
 
   MeshStandardMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this) {}
+     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this) {}
 
   void applyColor(const QColor &color)
   {
@@ -96,11 +92,11 @@ public:
     applyDiffuse(_material);
     applyEnvMap(_material);
     applyEmissive(_material);
+    applyLightMap(_material);
+    applyNormalMap(_material);
 
     if(_roughness.isSet()) _material->roughness = _roughness;
     if(_metalness.isSet()) _material->metalness = _metalness;
-    if(_lightMap.isSet()) _material->lightMap = _lightMap().getTexture();
-    if(_normalMap.isSet()) _material->normalMap = _normalMap().getTexture();
     if(_metalnessMap.isSet()) _material->metalnessMap = _metalnessMap().getTexture();
     if(_roughnessMap.isSet()) _material->roughnessMap = _roughnessMap().getTexture();
   }
@@ -122,48 +118,6 @@ public:
       _roughness = roughness;
       if(_material) _material->roughness = roughness;
       emit roughnessChanged();
-    }
-  }
-
-  Texture *lightMap() {
-    if(!_lightMap && _material && _material->lightMap) {
-      const auto lm = _material->lightMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _lightMap = new ImageTexture(it);
-      }
-    }
-    return _lightMap;
-  }
-
-  void setLightMap(Texture *lightMap) {
-    if(_lightMap != lightMap) {
-      _lightMap = lightMap;
-      if(_material) {
-        _material->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
-        _material->needsUpdate = true;
-      }
-      emit lightMapChanged();
-    }
-  }
-
-  Texture *normalMap() {
-    if(!_normalMap && _material && _material->normalMap) {
-      const auto lm = _material->normalMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _normalMap = new ImageTexture(it);
-      }
-    }
-    return _normalMap;
-  }
-
-  void setNormalMap(Texture *normalMap) {
-    if(_normalMap != normalMap) {
-      _normalMap = normalMap;
-      if(_material) {
-        _material->normalMap = _normalMap ? _normalMap().getTexture() : nullptr;
-        _material->needsUpdate = true;
-      }
-      emit normalMapChanged();
     }
   }
 
@@ -209,32 +163,6 @@ public:
     }
   }
 
-  bool dithering() const {return _material ? _material->dithering : _dithering;}
-
-  void setDithering(bool dithering) {
-    if(_dithering != dithering) {
-      _dithering = dithering;
-      if(_material) {
-        _material->dithering = _dithering;
-        _material->needsUpdate = true;
-      }
-      emit ditheringChanged();
-    }
-  }
-
-  float refractionRatio() const {return _refractionRatio;}
-
-  void setRefractionRatio(float refractionRatio) {
-    if(_refractionRatio != refractionRatio) {
-      _refractionRatio = refractionRatio;
-      if(_material) {
-        _material->refractionRatio = _refractionRatio;
-        _material->needsUpdate = true;
-      }
-      emit refractionRatioChanged();
-    }
-  }
-
   three::MeshStandardMaterial::Ptr createMeshStandardMaterial()
   {
     auto material = three::MeshStandardMaterial::make();
@@ -262,9 +190,9 @@ signals:
   void mapChanged();
   void envMapChanged();
   void lightMapChanged();
+  void lightMapIntensityChanged();
   void metalnessChanged();
   void roughnessChanged();
-  void ditheringChanged();
   void reflectivityChanged();
   void refractionRatioChanged();
   void metalnessMapChanged();

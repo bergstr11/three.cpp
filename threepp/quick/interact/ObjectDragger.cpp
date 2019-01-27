@@ -38,6 +38,7 @@ void ObjectDragger::setItem(ThreeDItem *item)
 
 bool ObjectDragger::handleMousePressed(QMouseEvent *event)
 {
+  event->accept();
   _startingPos = event->pos();
   return false;
 }
@@ -62,7 +63,7 @@ bool ObjectDragger::handleMouseMoved(QMouseEvent *event)
     qreal y = -(event->y() / _item->height()) * 2 + 1;
 
     _drag.mouseMove(x, y);
-    event->setAccepted(true);
+    event->accept();
   }
   return true;
 }
@@ -72,7 +73,7 @@ bool ObjectDragger::handleMouseReleased(QMouseEvent *event)
   if (_dragging) {
     _dragging = false;
     _item->unsetCursor();
-    event->setAccepted(true);
+    event->accept();
 
     qreal x = (event->x() / _item->width()) * 2 - 1;
     qreal y = -(event->y() / _item->height()) * 2 + 1;

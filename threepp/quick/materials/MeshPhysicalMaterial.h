@@ -47,7 +47,7 @@ public:
 
     _material = std::dynamic_pointer_cast<three::MeshPhysicalMaterial>(material);
     if(!_material) {
-      qCritical() << "MaterialHandler: received incompatible material. Double handled?";
+      qCritical() << "MaterialHandler: received incompatible material";
     }
     if(_reflectivity.isSet()) _material->reflectivity = _reflectivity;
     if(_clearCoat.isSet()) _material->clearCoat = _clearCoat;

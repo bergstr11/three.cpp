@@ -117,7 +117,7 @@ Rectangle {
     }
 
     Component {
-        id: menu_choice
+        id: menuChoiceFactory
         Rectangle {
             property Item prev
             anchors.top: prev.top
@@ -153,8 +153,9 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        for(var i=0; i<menuChoices.length; i++)
-                            menuChoices[i].value = (menuChoices[i] === target)
+                        for(var i=0; i<menuChoices.length; i++) {
+                            menuChoices[i].target.value = (menuChoices[i].target === target)
+                        }
                     }
                 }
             }
@@ -267,7 +268,7 @@ Rectangle {
                 menuChoices.push(prev)
             }
             else if(prop.type === "menuchoice") {
-                prev = menu_choice.createObject(main, {"labelWidth": maxWidth,
+                prev = menuChoiceFactory.createObject(main, {"labelWidth": maxWidth,
                                                         "anchors.top": prev.bottom, prop: prop, target: prop})
                 menuChoices.push(prev)
             }

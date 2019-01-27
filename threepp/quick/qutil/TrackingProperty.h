@@ -23,6 +23,7 @@ public:
   bool operator != (const Value &value) {return _value != value;}
 
   bool isSet() const {return _isSet;}
+  void set() {_isSet = true;}
   void unset() {_isSet = false;}
 };
 

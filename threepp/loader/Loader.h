@@ -54,7 +54,7 @@ protected:
   MaterialHandler() : index(0) {}
 
 public:
-  virtual void handle(const std::string &name, M &m, Material::Ptr mp) const {}
+  virtual void handle(const std::string &name, M &m, Material::Ptr mp) const = 0;
 
   void _handle(const std::string &name, M &m, Material::Ptr mp) const
   {

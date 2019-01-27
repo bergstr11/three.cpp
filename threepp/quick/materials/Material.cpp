@@ -15,10 +15,11 @@ namespace quick {
 
 void Material::setBaseProperties(three::Material::Ptr material)
 {
+  material->name = _name().toStdString();
   material->wireframe = _wireframe;
   material->flatShading = _flatShading;
   material->visible = _visible;
-  material->name = _name().toStdString();
+  material->dithering = _dithering;
 }
 
 void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformValues &uniforms)

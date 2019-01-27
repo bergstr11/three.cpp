@@ -13,7 +13,7 @@
 #include <threepp/core/BufferGeometry.h>
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/material/MeshToonMaterial.h>
-#include <threepp/material/MeshStandardMaterial.h>
+#include <threepp/material/MeshPhysicalMaterial.h>
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/textures/DataTexture.h>
 
@@ -801,6 +801,11 @@ void Access::readMaterial(unsigned materialIndex)
     }
     else if(materialHandler->create<MeshBasicMaterial>(name)) {
       auto mm = MeshMakerT<MeshBasicMaterial>::make(this, name, ai);
+      materialHandler->handle(name, mm->material(), mm->materialPtr());
+      maker = mm;
+    }
+    else if(materialHandler->create<MeshPhysicalMaterial>(name)) {
+      auto mm = MeshMakerT<MeshPhysicalMaterial>::make(this, name, ai);
       materialHandler->handle(name, mm->material(), mm->materialPtr());
       maker = mm;
     }

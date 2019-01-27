@@ -12,7 +12,6 @@
 #include <threepp/quick/qutil/TrackingProperty.h>
 
 namespace three {
-
 namespace quick {
 
 template <typename QM>
@@ -40,6 +39,7 @@ struct Diffuse
       }
       emit _q->colorChanged();
     }
+    else _color.set();
   }
 
   float opacity() const {return _q->_material ? _q->_material->opacity : _opacity;}
@@ -54,6 +54,7 @@ struct Diffuse
       }
       emit _q->opacityChanged();
     }
+    else _opacity.set();
   }
 
   Texture *map() const {return _map;}
@@ -68,6 +69,7 @@ struct Diffuse
       }
       emit _q->mapChanged();
     }
+    else _map.set();
   }
 
   template <typename M>
@@ -79,10 +81,60 @@ struct Diffuse
   }
 };
 
+template <typename QM>
 struct LightMap
 {
+  QM * const _q;
+
+  LightMap(QM *q) : _q(q) {}
+
   TrackingProperty<Texture *> _lightMap {nullptr};
   TrackingProperty<float> _lightMapIntensity {1.0};
+
+  float lightMapIntensity() const {
+    return _q->_material ? _q->_material->lightMapIntensity : _lightMapIntensity;
+  }
+
+  void setLightMapIntensity(float lightMapIntensity)
+  {
+    if(_lightMapIntensity != lightMapIntensity) {
+      _lightMapIntensity = lightMapIntensity;
+      if(_q->_material) _q->_material->lightMapIntensity = lightMapIntensity;
+      emit _q->lightMapIntensityChanged();
+    }
+    else _lightMapIntensity.set();
+  }
+
+  Texture *lightMap()
+  {
+    if(!_lightMap && _q->_material && _q->_material->envMap) {
+      const auto lm = _q->_material->lightMap;
+      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
+        _lightMap = new ImageTexture(it);
+      }
+    }
+    return _lightMap;
+  }
+
+  void setLightMap(Texture *lightMap)
+  {
+    if(_lightMap != lightMap) {
+      _lightMap = lightMap;
+      if(_q->_material) {
+        _q->_material->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
+        _q->_material->needsUpdate = true;
+      }
+      emit _q->lightMapChanged();
+    }
+    else _lightMap.set();
+  }
+
+  template <typename M>
+  void applyLightMap(const std::shared_ptr<M> &m)
+  {
+    if(_lightMapIntensity.isSet()) m->lightMapIntensity = _lightMapIntensity;
+    if(_lightMap.isSet()) m->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
+  }
 };
 
 template <typename QM>
@@ -111,6 +163,7 @@ struct Emissive
       }
       emit _q->emissiveChanged();
     }
+    else _emissive.set();
   }
 
   float emissiveIntensity() const {
@@ -124,6 +177,7 @@ struct Emissive
       if(_q->_material) _q->_material->emissiveIntensity = emissiveIntensity;
       emit _q->emissiveIntensityChanged();
     }
+    else _emissiveIntensity.set();
   }
 
   Texture *emissiveMap()
@@ -147,6 +201,7 @@ struct Emissive
       }
       emit _q->emissiveMapChanged();
     }
+    else _emissiveMap.set();
   }
 
 
@@ -197,6 +252,7 @@ struct EnvMap
       }
       emit _q->envMapChanged();
     }
+    else _envMap.set();
   }
 
   float reflectivity() const
@@ -214,13 +270,32 @@ struct EnvMap
       }
       emit _q->reflectivityChanged();
     }
+    else _reflectivity.set();
   }
+
+  float refractionRatio() const {return _q->_material ? _q->_material->refractionRatio : _refractionRatio;}
+
+  void setRefractionRatio(float refractionRatio)
+  {
+    if(_refractionRatio != refractionRatio) {
+      _refractionRatio = refractionRatio;
+      if(_q->_material) {
+        _q->_material->refractionRatio = _refractionRatio;
+        _q->_material->needsUpdate = true;
+      }
+      emit _q->refractionRatioChanged();
+    }
+    else _refractionRatio.set();
+  }
+
 
   template <typename M>
   void applyEnvMap(const std::shared_ptr<M> &m)
   {
     if(_envMap.isSet()) m->envMap = _envMap().getTexture();
     if(_reflectivity.isSet()) m->reflectivity = _reflectivity;
+    if(_refractionRatio.isSet()) m->refractionRatio = _refractionRatio;
+    if(_envMapIntensity.isSet()) m->envMapIntensity = _envMapIntensity;
   }
 };
 
@@ -249,9 +324,42 @@ struct BumpMap
   TrackingProperty<float> _bumpScale {1};
 };
 
+template <typename QM>
 struct NormalMap
 {
+  QM * const _q;
+
+  NormalMap(QM *q) : _q(q) {}
+
   TrackingProperty<Texture *> _normalMap {nullptr};
+
+  Texture *normalMap() {
+    if(!_normalMap && _q->_material && _q->_material->normalMap) {
+      const auto lm = _q->_material->normalMap;
+      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
+        _normalMap = new ImageTexture(it);
+      }
+    }
+    return _normalMap;
+  }
+
+  void setNormalMap(Texture *normalMap) {
+    if(_normalMap != normalMap) {
+      _normalMap = normalMap;
+      if(_q->_material) {
+        _q->_material->normalMap = _normalMap ? _normalMap().getTexture() : nullptr;
+        _q->_material->needsUpdate = true;
+      }
+      emit _q->normalMapChanged();
+    }
+    else _normalMap.set();
+  }
+
+  template <typename M>
+  void applyNormalMap(const std::shared_ptr<M> &m)
+  {
+    if(_normalMap.isSet()) m->normalMap = _normalMap().getTexture();
+  }
 };
 
 struct RoughnessMap
@@ -272,6 +380,7 @@ Q_OBJECT
   Q_PROPERTY(bool wireframe READ wireframe WRITE setWireframe NOTIFY wireframeChanged)
   Q_PROPERTY(bool flatShading READ flatShading WRITE setFlatShading NOTIFY flatShadingChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
+  Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
   Q_PROPERTY(QByteArray name READ name WRITE setName NOTIFY nameChanged)
 
@@ -280,6 +389,7 @@ protected:
   TrackingProperty<bool> _flatShading {false};
   TrackingProperty<QByteArray> _name {QByteArray()};
   TrackingProperty<bool> _visible {true};
+  TrackingProperty<bool> _dithering {false};
 
   Material(const material::Typer &typer, QObject *parent = nullptr) : ThreeQObjectRoot(parent), typer(typer) {}
 
@@ -308,6 +418,7 @@ public:
     if(_flatShading.isSet()) material->flatShading = _flatShading;
     if(_name.isSet()) material->name = _name().toStdString();
     if(_visible.isSet()) material->visible = _visible;
+    if(_dithering.isSet()) material->dithering = _dithering;
   }
 
   bool visible() const {return _visible;}
@@ -340,6 +451,20 @@ public:
     }
   }
 
+  bool dithering() const {return material() ? material()->dithering : _dithering;}
+
+  void setDithering(bool dithering) {
+    if(_dithering != dithering) {
+      _dithering = dithering;
+      if(material()) {
+        material()->dithering = _dithering;
+        material()->needsUpdate = true;
+      }
+      emit ditheringChanged();
+    }
+  }
+
+
   const QByteArray &name() const {return _name();}
 
   void setName(const QByteArray &name) {
@@ -358,6 +483,7 @@ signals:
   void flatShadingChanged();
   void needsUpdateChanged();
   void mapChanged();
+  void ditheringChanged();
   void visibleChanged();
   void nameChanged();
 };

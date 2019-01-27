@@ -39,7 +39,7 @@ struct AssimpOptions
 };
 
 using AssimpMaterialHandler = loader::MaterialHandler<
-   MeshPhongMaterial, MeshToonMaterial, MeshLambertMaterial, MeshStandardMaterial, MeshBasicMaterial>;
+   MeshPhongMaterial, MeshToonMaterial, MeshLambertMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshBasicMaterial>;
 
 /**
  * Assimp-based scene Loader

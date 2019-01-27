@@ -66,10 +66,13 @@ Window {
             MaterialHandler {
                 //chrome parts
                 materialNames: "chrome,Chrome1,chrome2,light_chrome"
-                createAs: MeshStandardMaterial {
+                createAs: MeshPhysicalMaterial {
                     color: "white"
                     metalness: 1.0
-                    roughness: 1
+                    roughness: 0
+                    clearCoat: 0
+                    clearCoatRoughness: 0
+                    reflectivity: 1.0
                     envMap: textureCube
                 }
             }

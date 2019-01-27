@@ -109,11 +109,12 @@ class ModelMaterialHandler : public loader::AssimpMaterialHandler
   QList<quick::MaterialHandler *> _handlers;
 
 protected:
+  void handle(const std::string &name, three::MeshBasicMaterial &material, three::Material::Ptr mp) const override;
   void handle(const std::string &name, three::MeshPhongMaterial &material, three::Material::Ptr mp) const override;
   void handle(const std::string &name, three::MeshToonMaterial &material, three::Material::Ptr mp) const override;
   void handle(const std::string &name, three::MeshLambertMaterial &material, three::Material::Ptr mp) const override;
   void handle(const std::string &name, three::MeshStandardMaterial &material, three::Material::Ptr mp) const override;
-  void handle(const std::string &name, three::MeshBasicMaterial &material, three::Material::Ptr mp) const override;
+  void handle(const std::string &name, three::MeshPhysicalMaterial &material, three::Material::Ptr mp) const override;
 
 public:
   ModelMaterialHandler() {}

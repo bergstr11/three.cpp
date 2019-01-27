@@ -33,13 +33,16 @@ void MaterialHandler::setAssimpHandlerCreateAs()
     if(MeshPhongMaterial *mat = _createAs->typer) {
       _assimpHandler->createAs<three::MeshPhongMaterial>(name.trimmed().toStdString());
     }
-    if(MeshLambertMaterial *mat = _createAs->typer) {
+    else if(MeshLambertMaterial *mat = _createAs->typer) {
       _assimpHandler->createAs<three::MeshLambertMaterial>(name.trimmed().toStdString());
     }
-    if(MeshBasicMaterial *mat = _createAs->typer) {
+    else if(MeshBasicMaterial *mat = _createAs->typer) {
       _assimpHandler->createAs<three::MeshBasicMaterial>(name.trimmed().toStdString());
     }
-    if(MeshStandardMaterial *mat = _createAs->typer) {
+    else if(MeshPhysicalMaterial *mat = _createAs->typer) {
+      _assimpHandler->createAs<three::MeshPhysicalMaterial>(name.trimmed().toStdString());
+    }
+    else if(MeshStandardMaterial *mat = _createAs->typer) {
       _assimpHandler->createAs<three::MeshStandardMaterial>(name.trimmed().toStdString());
     }
   }
@@ -172,6 +175,10 @@ void ModelMaterialHandler::handle(const string &name, three::MeshLambertMaterial
   setLoadedMaterial(_handlers, name, mp);
 }
 void ModelMaterialHandler::handle(const string &name, three::MeshStandardMaterial &material, three::Material::Ptr mp) const
+{
+  setLoadedMaterial(_handlers, name, mp);
+}
+void ModelMaterialHandler::handle(const string &name, three::MeshPhysicalMaterial &material, three::Material::Ptr mp) const
 {
   setLoadedMaterial(_handlers, name, mp);
 }
