@@ -14,70 +14,80 @@
 namespace three {
 namespace quick {
 
+#define COLOR_PROPERTY(M_name, M_Name, M_init) \
+TrackingProperty<QColor> _##M_name {M_init}; \
+QColor M_name() const {return _q->_material ? QColor::fromRgbF(_q->_material->M_name.r, _q->_material->M_name.g, _q->_material->M_name.b) : _##M_name;} \
+void set##M_Name(const QColor &M_name) { \
+  if(_##M_name != M_name) { \
+    _##M_name = M_name; \
+    if(_q->_material) { \
+      _q->_material->M_name.set(_##M_name().redF(), _##M_name().greenF(), _##M_name().blueF()); \
+      _q->_material->needsUpdate = true; \
+    } \
+    emit _q->M_name##Changed(); \
+  } \
+  else _##M_name.set(); \
+}
+#define APPLY_COLOR(M_name) if(_##M_name.isSet()) m->M_name.set(_##M_name().redF(), _##M_name().greenF(), _##M_name().blueF());
+
+#define FLOAT_PROPERTY(M_name, M_Name, M_init) \
+TrackingProperty<float> _##M_name {M_init}; \
+float M_name() const {return _q->_material ? _q->_material->M_name : _##M_name;} \
+void set##M_Name(float M_name) { \
+  if(_##M_name != M_name) { \
+    _##M_name = M_name; \
+    if(_q->_material) { \
+      _q->_material->M_name = _##M_name; \
+      _q->_material->needsUpdate = true; \
+    } \
+    emit _q->M_name##Changed(); \
+  } \
+  else _##M_name.set(); \
+}
+#define APPLY_FLOAT(M_name) if(_##M_name.isSet()) m->M_name = _##M_name;
+
+#define MAP_PROPERTY(M_name, M_Name) \
+TrackingProperty<Texture *> _##M_name {nullptr}; \
+Texture *M_name() \
+  { \
+    if(_q->_material && _q->_material->M_name && (!_##M_name || _##M_name().getTexture() != _q->_material->M_name)) { \
+      const auto m = _q->_material->M_name; \
+      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(m)) { \
+        _##M_name = new ImageTexture(it); \
+      } \
+    } \
+    return _##M_name; \
+  } \
+void set##M_Name(Texture *M_name) { \
+  if(_##M_name != M_name) { \
+    _##M_name = M_name; \
+    if(_q->_material) { \
+      _q->_material->M_name = _##M_name ? _##M_name().getTexture() : nullptr; \
+      _q->_material->needsUpdate = true; \
+    } \
+    emit _q->M_name##Changed(); \
+  } \
+  else _##M_name.set(); \
+}
+#define APPLY_MAP(M_name) if(_##M_name.isSet()) m->M_name = _##M_name ? _##M_name().getTexture() : nullptr;
+
 template <typename QM>
 struct Diffuse
 {
   QM * const _q;
 
-  TrackingProperty<QColor> _color {0xffffff};
-  TrackingProperty<float> _opacity {1.0f};
-  TrackingProperty<Texture *> _map {nullptr};
-
   explicit Diffuse(QM *qm) : _q(qm) {}
 
-  QColor color() const {
-    return _q->_material ? QColor::fromRgbF(_q->_material->color.r, _q->_material->color.g, _q->_material->color.b) : _color;
-  }
-
-  void setColor(const QColor &color)
-  {
-    if(_color != color) {
-      _color = color;
-      if(_q->_material) {
-        _q->_material->color.set(_color().redF(), _color().greenF(), _color().blueF());
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->colorChanged();
-    }
-    else _color.set();
-  }
-
-  float opacity() const {return _q->_material ? _q->_material->opacity : _opacity;}
-
-  void setOpacity(float opacity)
-  {
-    if(_opacity != opacity) {
-      _opacity = opacity;
-      if(_q->_material) {
-        _q->_material->opacity = _opacity;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->opacityChanged();
-    }
-    else _opacity.set();
-  }
-
-  Texture *map() const {return _map;}
-
-  void setMap(Texture *map)
-  {
-    if(_map != map) {
-      _map = map;
-      if(_q->_material) {
-        _q->_material->map = _map ? _map().getTexture() : nullptr;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->mapChanged();
-    }
-    else _map.set();
-  }
+  COLOR_PROPERTY(color, Color, 0xffffff)
+  FLOAT_PROPERTY(opacity, Opacity, 1.0f)
+  MAP_PROPERTY(map, Map)
 
   template <typename M>
   void applyDiffuse(const std::shared_ptr<M> &m)
   {
-    if(_color.isSet()) m->color.set(_color().redF(), _color().greenF(), _color().blueF());
-    if(_opacity.isSet()) m->opacity = _opacity;
-    if(_map.isSet()) m->map = _map().getTexture();
+    APPLY_COLOR(color)
+    APPLY_FLOAT(opacity)
+    APPLY_MAP(map)
   }
 };
 
@@ -88,52 +98,14 @@ struct LightMap
 
   LightMap(QM *q) : _q(q) {}
 
-  TrackingProperty<Texture *> _lightMap {nullptr};
-  TrackingProperty<float> _lightMapIntensity {1.0};
-
-  float lightMapIntensity() const {
-    return _q->_material ? _q->_material->lightMapIntensity : _lightMapIntensity;
-  }
-
-  void setLightMapIntensity(float lightMapIntensity)
-  {
-    if(_lightMapIntensity != lightMapIntensity) {
-      _lightMapIntensity = lightMapIntensity;
-      if(_q->_material) _q->_material->lightMapIntensity = lightMapIntensity;
-      emit _q->lightMapIntensityChanged();
-    }
-    else _lightMapIntensity.set();
-  }
-
-  Texture *lightMap()
-  {
-    if(!_lightMap && _q->_material && _q->_material->envMap) {
-      const auto lm = _q->_material->lightMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _lightMap = new ImageTexture(it);
-      }
-    }
-    return _lightMap;
-  }
-
-  void setLightMap(Texture *lightMap)
-  {
-    if(_lightMap != lightMap) {
-      _lightMap = lightMap;
-      if(_q->_material) {
-        _q->_material->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->lightMapChanged();
-    }
-    else _lightMap.set();
-  }
+  FLOAT_PROPERTY(lightMapIntensity, LightMapIntensity, 1.0f)
+  MAP_PROPERTY(lightMap, LightMap)
 
   template <typename M>
   void applyLightMap(const std::shared_ptr<M> &m)
   {
-    if(_lightMapIntensity.isSet()) m->lightMapIntensity = _lightMapIntensity;
-    if(_lightMap.isSet()) m->lightMap = _lightMap ? _lightMap().getTexture() : nullptr;
+    APPLY_FLOAT(lightMapIntensity)
+    APPLY_MAP(lightMap)
   }
 };
 
@@ -144,80 +116,18 @@ struct Emissive
 
   Emissive(QM *q) : _q(q) {}
 
-  TrackingProperty<Texture *> _emissiveMap {nullptr};
-  TrackingProperty<QColor> _emissive {QColor(0,0,0)};
-  TrackingProperty<float> _emissiveIntensity {1.0};
-
-  QColor emissive() const {
-    return _q->_material ?
-           QColor::fromRgbF(_q->_material->emissive.r, _q->_material->emissive.g, _q->_material->emissive.b) : _emissive;
-  }
-
-  void setEmissive(const QColor &emissive)
-  {
-    if(_emissive != emissive) {
-      _emissive = emissive;
-      if(_q->_material) {
-        _q->_material->emissive.set(emissive.redF(), emissive.greenF(), emissive.blueF());
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->emissiveChanged();
-    }
-    else _emissive.set();
-  }
-
-  float emissiveIntensity() const {
-    return _q->_material ? _q->_material->emissiveIntensity : _emissiveIntensity;
-  }
-
-  void setEmissiveIntensity(float emissiveIntensity)
-  {
-    if(_emissiveIntensity != emissiveIntensity) {
-      _emissiveIntensity = emissiveIntensity;
-      if(_q->_material) _q->_material->emissiveIntensity = emissiveIntensity;
-      emit _q->emissiveIntensityChanged();
-    }
-    else _emissiveIntensity.set();
-  }
-
-  Texture *emissiveMap()
-  {
-    if(!_emissiveMap && _q->_material && _q->_material->envMap) {
-      const auto lm = _q->_material->emissiveMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _emissiveMap = new ImageTexture(it);
-      }
-    }
-    return _emissiveMap;
-  }
-
-  void setEmissiveMap(Texture *emissiveMap)
-  {
-    if(_emissiveMap != emissiveMap) {
-      _emissiveMap = emissiveMap;
-      if(_q->_material) {
-        _q->_material->emissiveMap = _emissiveMap ? _emissiveMap().getTexture() : nullptr;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->emissiveMapChanged();
-    }
-    else _emissiveMap.set();
-  }
+  COLOR_PROPERTY(emissive, Emissive, 0x0d)
+  FLOAT_PROPERTY(emissiveIntensity, EmissiveIntensity, 1.0f)
+  MAP_PROPERTY(emissiveMap, EmissiveMap)
 
 
   template <typename M>
   void applyEmissive(const std::shared_ptr<M> &m)
   {
-    if(_emissive.isSet()) m->emissive.set(_emissive().redF(), _emissive().greenF(), _emissive().blueF());
-    if(_emissiveIntensity.isSet()) m->emissiveIntensity = _emissiveIntensity;
-    if(_emissiveMap.isSet()) m->emissiveMap = _emissiveMap ? _emissiveMap().getTexture() : nullptr;
+    APPLY_COLOR(emissive)
+    APPLY_FLOAT(emissiveIntensity)
+    APPLY_MAP(emissiveMap)
   }
-};
-
-struct AoMap
-{
-  TrackingProperty<Texture *> _aoMap {nullptr};
-  TrackingProperty<float> _aoMapIntensity {1.0};
 };
 
 template <typename QM>
@@ -227,88 +137,100 @@ struct EnvMap
 
   EnvMap(QM *q) : _q(q) {}
 
-  TrackingProperty<Texture *> _envMap {nullptr};
-  TrackingProperty<float> _reflectivity {1};
-  TrackingProperty<float> _refractionRatio {0.98};
-  TrackingProperty<float> _envMapIntensity {1.0f};
-
-  Texture *envMap()
-  {
-    if(!_envMap && _q->_material && _q->_material->envMap) {
-      const auto em = _q->_material->envMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(em)) {
-        _envMap = new ImageTexture(it);
-      }
-    }
-    return _envMap;
-  }
-
-  void setEnvMap(Texture *envMap) {
-    if(_envMap != envMap) {
-      _envMap = envMap;
-      if(_q->_material) {
-        _q->_material->envMap = _envMap ? _envMap().getTexture() : nullptr;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->envMapChanged();
-    }
-    else _envMap.set();
-  }
-
-  float reflectivity() const
-  {
-    return _q->_material ? _q->_material->reflectivity : _reflectivity;
-  }
-
-  void setReflectivity(float reflectivity)
-  {
-    if(_reflectivity != reflectivity) {
-      _reflectivity = reflectivity;
-      if(_q->_material) {
-        _q->_material->reflectivity = _reflectivity;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->reflectivityChanged();
-    }
-    else _reflectivity.set();
-  }
-
-  float refractionRatio() const {return _q->_material ? _q->_material->refractionRatio : _refractionRatio;}
-
-  void setRefractionRatio(float refractionRatio)
-  {
-    if(_refractionRatio != refractionRatio) {
-      _refractionRatio = refractionRatio;
-      if(_q->_material) {
-        _q->_material->refractionRatio = _refractionRatio;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->refractionRatioChanged();
-    }
-    else _refractionRatio.set();
-  }
-
+  MAP_PROPERTY(envMap, EnvMap)
+  FLOAT_PROPERTY(reflectivity, Reflectivity, 1)
+  FLOAT_PROPERTY(refractionRatio, RefractionRatio, 0.98f)
+  FLOAT_PROPERTY(envMapIntensity, EnvMapIntensity, 1.0f)
 
   template <typename M>
   void applyEnvMap(const std::shared_ptr<M> &m)
   {
-    if(_envMap.isSet()) m->envMap = _envMap().getTexture();
-    if(_reflectivity.isSet()) m->reflectivity = _reflectivity;
-    if(_refractionRatio.isSet()) m->refractionRatio = _refractionRatio;
-    if(_envMapIntensity.isSet()) m->envMapIntensity = _envMapIntensity;
+    APPLY_MAP(envMap)
+    APPLY_FLOAT(reflectivity)
+    APPLY_FLOAT(refractionRatio)
+    APPLY_FLOAT(envMapIntensity)
   }
 };
 
-struct AlphaMap
+template <typename QM>
+struct NormalMap
 {
-  TrackingProperty<Texture *> _alphaMap {nullptr};
+  QM * const _q;
+  NormalMap(QM *q) : _q(q) {}
+
+  MAP_PROPERTY(normalMap, NormalMap)
+
+  template <typename M>
+  void applyNormalMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(normalMap)
+  }
 };
 
+template <typename QM>
+struct AoMap
+{
+  QM * const _q;
+  AoMap(QM *q) : _q(q) {}
+
+  MAP_PROPERTY(aoMap, AoMap)
+  FLOAT_PROPERTY(aoMapIntensity, AoMapIntensity, 1.0f)
+
+  template <typename M>
+  void applyAoMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(aoMap)
+    APPLY_FLOAT(aoMapIntensity)
+  }
+};
+
+template <typename QM>
+struct AlphaMap
+{
+  QM * const _q;
+  AlphaMap(QM *q) : _q(q) {}
+
+  MAP_PROPERTY(alphaMap, AlphaMap)
+
+  template <typename M>
+  void applyAlphaMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(alphaMap)
+  }
+};
+
+template <typename QM>
 struct SpecularMap
 {
-  TrackingProperty<float> shininess {30};
-  TrackingProperty<QColor> _specular {0x111111};
-  TrackingProperty<Texture *> _specularMap {nullptr};
+  QM * const _q;
+  SpecularMap(QM *q) : _q(q) {}
+
+  MAP_PROPERTY(specularMap, SpecularMap)
+
+  template <typename M>
+  void applySpecularMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(specularMap)
+  }
+};
+
+template <typename QM>
+struct Specular
+{
+  QM * const _q;
+  Specular(QM *q) : _q(q) {}
+
+  MAP_PROPERTY(specularMap, SpecularMap)
+  FLOAT_PROPERTY(shininess, Shininess, 30.0f)
+  COLOR_PROPERTY(specular, Specular, 0x111111)
+
+  template <typename M>
+  void applySpecular(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(specularMap)
+    APPLY_FLOAT(shininess)
+    APPLY_COLOR(specular)
+  }
 };
 
 struct DisplacementMap
@@ -322,44 +244,6 @@ struct BumpMap
 {
   TrackingProperty<Texture *> _bumpMap {nullptr};
   TrackingProperty<float> _bumpScale {1};
-};
-
-template <typename QM>
-struct NormalMap
-{
-  QM * const _q;
-
-  NormalMap(QM *q) : _q(q) {}
-
-  TrackingProperty<Texture *> _normalMap {nullptr};
-
-  Texture *normalMap() {
-    if(!_normalMap && _q->_material && _q->_material->normalMap) {
-      const auto lm = _q->_material->normalMap;
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(lm)) {
-        _normalMap = new ImageTexture(it);
-      }
-    }
-    return _normalMap;
-  }
-
-  void setNormalMap(Texture *normalMap) {
-    if(_normalMap != normalMap) {
-      _normalMap = normalMap;
-      if(_q->_material) {
-        _q->_material->normalMap = _normalMap ? _normalMap().getTexture() : nullptr;
-        _q->_material->needsUpdate = true;
-      }
-      emit _q->normalMapChanged();
-    }
-    else _normalMap.set();
-  }
-
-  template <typename M>
-  void applyNormalMap(const std::shared_ptr<M> &m)
-  {
-    if(_normalMap.isSet()) m->normalMap = _normalMap().getTexture();
-  }
 };
 
 struct RoughnessMap
