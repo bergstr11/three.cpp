@@ -18,7 +18,8 @@ class MeshPhongMaterial : public Material,
    public Emissive<MeshPhongMaterial>,
    public EnvMap<MeshPhongMaterial>,
    public LightMap<MeshPhongMaterial>,
-   public NormalMap<MeshPhongMaterial>
+   public NormalMap<MeshPhongMaterial>,
+   public Specular<MeshPhongMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
@@ -37,9 +38,6 @@ Q_OBJECT
   Q_PROPERTY(float emissiveIntensity READ emissiveIntensity WRITE setEmissiveIntensity NOTIFY emissiveIntensityChanged)
   Q_PROPERTY(Texture *emissiveMap READ emissiveMap WRITE setEmissiveMap NOTIFY emissiveMapChanged)
 
-  TrackingProperty<QColor> _specular {0x111111};
-  TrackingProperty<float> _shininess {30};
-
 protected:
   three::Material::Ptr material() const override {return _material;}
 
@@ -47,24 +45,24 @@ public:
   three::MeshPhongMaterial::Ptr _material;
 
   MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent = nullptr)
-     : Material(material::Typer(this), parent), _material(mat), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this)
+     : Material(material::Typer(this), parent), _material(mat)
   {}
 
   MeshPhongMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this) {}
+     : Material(material::Typer(this), parent) {}
 
   void applyColor(const QColor &color)
   {
     setColor(color);
   }
 
-  void setAndConfigureObject(three::Material::Ptr material) override
+  void setAndConfigure(three::Material::Ptr material) override
   {
     _material = std::dynamic_pointer_cast<three::MeshPhongMaterial>(material);
     if (!_material) {
       qCritical() << "MaterialHandler: received incompatible material";
     }
-    Material::setAndConfigureObject(material);
+    Material::setAndConfigure(material);
     applyDiffuse(_material);
     applyEnvMap(_material);
     applyEmissive(_material);
@@ -72,48 +70,17 @@ public:
     applyNormalMap(_material);
   }
 
-  QColor specular() const
-  {
-    return _material ? QColor::fromRgbF(_material->specular.r, _material->specular.g, _material->specular.b) : _specular;
-  }
-
-  void setSpecular(const QColor &specular) {
-    if(_specular != specular) {
-      _specular = specular;
-      if(_material) {
-        _material->specular.set(_specular().redF(), _specular().greenF(), _specular().blueF());
-        _material->needsUpdate = true;
-      }
-      emit specularChanged();
-    }
-  }
-
-  float shininess() const {return _material ? _material->shininess : _shininess;}
-
-  void setShininess(float shininess) {
-    if(_shininess != shininess) {
-      _shininess = shininess;
-      if(_material) {
-        _material->shininess = _shininess;
-        _material->needsUpdate = true;
-      }
-      emit shininessChanged();
-    }
-  }
-
   three::MeshPhongMaterial::Ptr createMaterial()
   {
     auto material = three::MeshPhongMaterial::make(Color(_color().redF(), _color().greenF(), _color().blueF()), _dithering);
-    material->specular.set(_specular().redF(), _specular().greenF(), _specular().blueF());
-    material->refractionRatio = _refractionRatio;
-    material->shininess = _shininess;
 
     setBaseProperties(material);
+    applySpecular(material);
     applyDiffuse(material);
     applyEmissive(material);
     applyEnvMap(material);
-    applyLightMap(_material);
-    applyNormalMap(_material);
+    applyLightMap(material);
+    applyNormalMap(material);
 
     return material;
   }

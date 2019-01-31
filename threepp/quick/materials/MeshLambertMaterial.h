@@ -32,23 +32,23 @@ public:
   three::MeshLambertMaterial::Ptr _material;
 
   MeshLambertMaterial(three::MeshLambertMaterial::Ptr mat, QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), _material(mat) {}
+     : Material(material::Typer(this), parent), _material(mat) {}
 
   MeshLambertMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this) {}
+     : Material(material::Typer(this), parent) {}
 
   void applyColor(const QColor &color)
   {
     setColor(color);
   }
 
-  void setAndConfigureObject(three::Material::Ptr material) override
+  void setAndConfigure(three::Material::Ptr material) override
   {
     _material = std::dynamic_pointer_cast<three::MeshLambertMaterial>(material);
     if (!_material) {
       qCritical() << "MaterialHandler: received incompatible material";
     }
-    Material::setAndConfigureObject(material);
+    Material::setAndConfigure(material);
     applyDiffuse(_material);
     applyEmissive(_material);
     applyEnvMap(_material);
@@ -56,19 +56,25 @@ public:
 
   three::MeshLambertMaterial::Ptr createMaterial()
   {
-    _material = three::MeshLambertMaterial::make();
+    auto material = three::MeshLambertMaterial::make();
 
-    setBaseProperties(_material);
-    applyDiffuse(_material);
-    applyEmissive(_material);
-    applyEnvMap(_material);
+    setBaseProperties(material);
+    applyDiffuse(material);
+    applyEmissive(material);
+    applyEnvMap(material);
 
-    return _material;
+    return material;
   }
 
   three::Material::Ptr getMaterial() override
   {
-    return _material ? _material : createMaterial();
+    if(!_material) _material = createMaterial();
+    return _material;
+  }
+
+  Q_INVOKABLE QObject *cloned() {
+    auto material = _material ? three::MeshLambertMaterial::Ptr(_material->cloned()) : createMaterial();
+    return new MeshLambertMaterial(material);
   }
 
 signals:

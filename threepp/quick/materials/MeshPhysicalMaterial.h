@@ -14,11 +14,9 @@ namespace quick {
 class MeshPhysicalMaterial : public MeshStandardMaterial
 {
 Q_OBJECT
-  Q_PROPERTY(float reflectivity READ reflectivity WRITE setReflectivity NOTIFY reflectivityChanged)
   Q_PROPERTY(float clearCoat READ clearCoat WRITE setClearCoat NOTIFY clearCoatChanged)
   Q_PROPERTY(float clearCoatRoughness READ clearCoatRoughness WRITE setClearCoatRoughness NOTIFY clearCoatRoughnessChanged)
 
-  TrackingProperty<float> _reflectivity {0.5}; // maps to F0 = 0.04
   TrackingProperty<float> _clearCoat {0.0};
   TrackingProperty<float> _clearCoatRoughness {0.0};
 
@@ -41,9 +39,9 @@ public:
   MeshPhysicalMaterial(QObject *parent=nullptr)
   : MeshStandardMaterial(material::Typer(this), parent) {}
 
-  void setAndConfigureObject(three::Material::Ptr material) override
+  void setAndConfigure(three::Material::Ptr material) override
   {
-    MeshStandardMaterial::setAndConfigureObject(material);
+    MeshStandardMaterial::setAndConfigure(material);
 
     _material = std::dynamic_pointer_cast<three::MeshPhysicalMaterial>(material);
     if(!_material) {
@@ -52,16 +50,6 @@ public:
     if(_reflectivity.isSet()) _material->reflectivity = _reflectivity;
     if(_clearCoat.isSet()) _material->clearCoat = _clearCoat;
     if(_clearCoatRoughness.isSet()) _material->clearCoatRoughness = _clearCoatRoughness;
-  }
-
-  float reflectivity() const {return _material ? _material->reflectivity : _reflectivity;}
-
-  void setReflectivity(float reflectivity) {
-    if(_reflectivity != reflectivity) {
-      _reflectivity = reflectivity;
-      if(_material) _material->reflectivity = reflectivity;
-      emit reflectivityChanged();
-    }
   }
 
   float clearCoat() const {return _material ? _material->clearCoat : _clearCoat;}
@@ -103,7 +91,6 @@ public:
   }
 
 signals:
-  void reflectivityChanged();
   void clearCoatChanged();
   void clearCoatRoughnessChanged();
 };

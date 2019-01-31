@@ -16,15 +16,19 @@ namespace quick {
 
 #define COLOR_PROPERTY(M_name, M_Name, M_init) \
 TrackingProperty<QColor> _##M_name {M_init}; \
-QColor M_name() const {return _q->_material ? QColor::fromRgbF(_q->_material->M_name.r, _q->_material->M_name.g, _q->_material->M_name.b) : _##M_name;} \
+QColor M_name() const {\
+  const QM *q = static_cast<const QM *>(this); \
+  return q->_material ? QColor::fromRgbF(q->_material->M_name.r, q->_material->M_name.g, q->_material->M_name.b) : _##M_name;\
+} \
 void set##M_Name(const QColor &M_name) { \
   if(_##M_name != M_name) { \
     _##M_name = M_name; \
-    if(_q->_material) { \
-      _q->_material->M_name.set(_##M_name().redF(), _##M_name().greenF(), _##M_name().blueF()); \
-      _q->_material->needsUpdate = true; \
+    QM *q = static_cast<QM *>(this); \
+    if(q->_material) { \
+      q->_material->M_name.set(_##M_name().redF(), _##M_name().greenF(), _##M_name().blueF()); \
+      q->_material->needsUpdate = true; \
     } \
-    emit _q->M_name##Changed(); \
+    emit q->M_name##Changed(); \
   } \
   else _##M_name.set(); \
 }
@@ -32,15 +36,19 @@ void set##M_Name(const QColor &M_name) { \
 
 #define FLOAT_PROPERTY(M_name, M_Name, M_init) \
 TrackingProperty<float> _##M_name {M_init}; \
-float M_name() const {return _q->_material ? _q->_material->M_name : _##M_name;} \
+float M_name() const {\
+  const QM *q = static_cast<const QM *>(this); \
+  return q->_material ? q->_material->M_name : _##M_name;\
+} \
 void set##M_Name(float M_name) { \
   if(_##M_name != M_name) { \
     _##M_name = M_name; \
-    if(_q->_material) { \
-      _q->_material->M_name = _##M_name; \
-      _q->_material->needsUpdate = true; \
+    QM *q = static_cast<QM *>(this); \
+    if(q->_material) { \
+      q->_material->M_name = _##M_name; \
+      q->_material->needsUpdate = true; \
     } \
-    emit _q->M_name##Changed(); \
+    emit q->M_name##Changed(); \
   } \
   else _##M_name.set(); \
 }
@@ -48,24 +56,25 @@ void set##M_Name(float M_name) { \
 
 #define MAP_PROPERTY(M_name, M_Name) \
 TrackingProperty<Texture *> _##M_name {nullptr}; \
-Texture *M_name() \
-  { \
-    if(_q->_material && _q->_material->M_name && (!_##M_name || _##M_name().getTexture() != _q->_material->M_name)) { \
-      const auto m = _q->_material->M_name; \
-      if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(m)) { \
-        _##M_name = new ImageTexture(it); \
-      } \
+Texture *M_name() { \
+  QM *q = static_cast<QM *>(this); \
+  if(q->_material && q->_material->M_name && (!_##M_name || _##M_name().getTexture() != q->_material->M_name)) { \
+    const auto m = q->_material->M_name; \
+    if(three::ImageTexture::Ptr it = std::dynamic_pointer_cast<three::ImageTexture>(m)) { \
+      _##M_name = new ImageTexture(it); \
     } \
-    return _##M_name; \
   } \
+  return _##M_name; \
+} \
 void set##M_Name(Texture *M_name) { \
   if(_##M_name != M_name) { \
     _##M_name = M_name; \
-    if(_q->_material) { \
-      _q->_material->M_name = _##M_name ? _##M_name().getTexture() : nullptr; \
-      _q->_material->needsUpdate = true; \
+    QM *q = static_cast<QM *>(this); \
+    if(q->_material) { \
+      q->_material->M_name = _##M_name ? _##M_name().getTexture() : nullptr; \
+      q->_material->needsUpdate = true; \
     } \
-    emit _q->M_name##Changed(); \
+    emit q->M_name##Changed(); \
   } \
   else _##M_name.set(); \
 }
@@ -74,10 +83,6 @@ void set##M_Name(Texture *M_name) { \
 template <typename QM>
 struct Diffuse
 {
-  QM * const _q;
-
-  explicit Diffuse(QM *qm) : _q(qm) {}
-
   COLOR_PROPERTY(color, Color, 0xffffff)
   FLOAT_PROPERTY(opacity, Opacity, 1.0f)
   MAP_PROPERTY(map, Map)
@@ -94,10 +99,6 @@ struct Diffuse
 template <typename QM>
 struct LightMap
 {
-  QM * const _q;
-
-  LightMap(QM *q) : _q(q) {}
-
   FLOAT_PROPERTY(lightMapIntensity, LightMapIntensity, 1.0f)
   MAP_PROPERTY(lightMap, LightMap)
 
@@ -112,10 +113,6 @@ struct LightMap
 template <typename QM>
 struct Emissive
 {
-  QM * const _q;
-
-  Emissive(QM *q) : _q(q) {}
-
   COLOR_PROPERTY(emissive, Emissive, 0x0d)
   FLOAT_PROPERTY(emissiveIntensity, EmissiveIntensity, 1.0f)
   MAP_PROPERTY(emissiveMap, EmissiveMap)
@@ -133,10 +130,6 @@ struct Emissive
 template <typename QM>
 struct EnvMap
 {
-  QM * const _q;
-
-  EnvMap(QM *q) : _q(q) {}
-
   MAP_PROPERTY(envMap, EnvMap)
   FLOAT_PROPERTY(reflectivity, Reflectivity, 1)
   FLOAT_PROPERTY(refractionRatio, RefractionRatio, 0.98f)
@@ -155,9 +148,6 @@ struct EnvMap
 template <typename QM>
 struct NormalMap
 {
-  QM * const _q;
-  NormalMap(QM *q) : _q(q) {}
-
   MAP_PROPERTY(normalMap, NormalMap)
 
   template <typename M>
@@ -170,9 +160,6 @@ struct NormalMap
 template <typename QM>
 struct AoMap
 {
-  QM * const _q;
-  AoMap(QM *q) : _q(q) {}
-
   MAP_PROPERTY(aoMap, AoMap)
   FLOAT_PROPERTY(aoMapIntensity, AoMapIntensity, 1.0f)
 
@@ -187,9 +174,6 @@ struct AoMap
 template <typename QM>
 struct AlphaMap
 {
-  QM * const _q;
-  AlphaMap(QM *q) : _q(q) {}
-
   MAP_PROPERTY(alphaMap, AlphaMap)
 
   template <typename M>
@@ -202,9 +186,6 @@ struct AlphaMap
 template <typename QM>
 struct SpecularMap
 {
-  QM * const _q;
-  SpecularMap(QM *q) : _q(q) {}
-
   MAP_PROPERTY(specularMap, SpecularMap)
 
   template <typename M>
@@ -217,9 +198,6 @@ struct SpecularMap
 template <typename QM>
 struct Specular
 {
-  QM * const _q;
-  Specular(QM *q) : _q(q) {}
-
   MAP_PROPERTY(specularMap, SpecularMap)
   FLOAT_PROPERTY(shininess, Shininess, 30.0f)
   COLOR_PROPERTY(specular, Specular, 0x111111)
@@ -296,7 +274,7 @@ public:
 
   virtual void applyColor(const QColor &color) {}
 
-  virtual void setAndConfigureObject(three::Material::Ptr material)
+  virtual void setAndConfigure(three::Material::Ptr material)
   {
     if(_wireframe.isSet()) material->wireframe = _wireframe;
     if(_flatShading.isSet()) material->flatShading = _flatShading;

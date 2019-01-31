@@ -50,7 +50,7 @@ void MaterialHandler::setAssimpHandlerCreateAs()
 
 void MaterialHandler::setLoadedMaterial(three::Material::Ptr material)
 {
-  _createAs->setAndConfigureObject(material);
+  _createAs->setAndConfigure(material);
   QVariant var;
   var.setValue(_createAs);
   emit loaded(var);

@@ -40,44 +40,55 @@ public:
   three::MeshBasicMaterial::Ptr _material;
 
   MeshBasicMaterial(three::MeshBasicMaterial::Ptr mat, QObject *parent=nullptr)
-  : Material(material::Typer(this), parent), Diffuse(this), AoMap(this), EnvMap(this), AlphaMap(this), SpecularMap(this), LightMap(this), _material(mat) {}
+  : Material(material::Typer(this), parent), _material(mat) {}
 
   MeshBasicMaterial(QObject *parent=nullptr)
-  : Material(material::Typer(this), parent), Diffuse(this), AoMap(this), EnvMap(this), AlphaMap(this), SpecularMap(this), LightMap(this) {}
+  : Material(material::Typer(this), parent) {}
 
   void applyColor(const QColor &color)
   {
     setColor(color);
   }
 
-  void setAndConfigureObject(three::Material::Ptr material) override
+  void setAndConfigure(three::Material::Ptr material) override
   {
     _material = std::dynamic_pointer_cast<three::MeshBasicMaterial>(material);
     if (!_material) {
       qCritical() << "MaterialHandler: received incompatible material";
     }
-    Material::setAndConfigureObject(material);
-    applyDiffuse(_material);
-  }
-
-  three::MeshBasicMaterial::Ptr createMaterial()
-  {
-    _material = three::MeshBasicMaterial::make();
-
-    setBaseProperties(_material);
+    Material::setAndConfigure(material);
     applyDiffuse(_material);
     applyAoMap(_material);
     applyEnvMap(_material);
     applyAlphaMap(_material);
     applySpecularMap(_material);
     applyLightMap(_material);
+  }
 
-    return _material;
+  three::MeshBasicMaterial::Ptr createMaterial()
+  {
+    auto material = three::MeshBasicMaterial::make();
+
+    setBaseProperties(material);
+    applyDiffuse(material);
+    applyAoMap(material);
+    applyEnvMap(material);
+    applyAlphaMap(material);
+    applySpecularMap(material);
+    applyLightMap(material);
+
+    return material;
   }
 
   three::Material::Ptr getMaterial() override
   {
-    return _material ? _material : createMaterial();
+    if(!_material) _material = createMaterial();
+    return _material;
+  }
+
+  Q_INVOKABLE QObject *cloned() {
+    auto material = _material ? three::MeshBasicMaterial::Ptr(_material->cloned()) : createMaterial();
+    return new MeshBasicMaterial(material);
   }
 
 signals:

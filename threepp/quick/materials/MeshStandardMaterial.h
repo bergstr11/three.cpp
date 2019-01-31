@@ -26,6 +26,7 @@ Q_OBJECT
   Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
   Q_PROPERTY(float metalness READ metalness WRITE setMetalness NOTIFY metalnessChanged)
   Q_PROPERTY(float roughness READ roughness WRITE setRoughness NOTIFY roughnessChanged)
+  Q_PROPERTY(float reflectivity READ reflectivity WRITE setReflectivity NOTIFY reflectivityChanged)
   Q_PROPERTY(QColor emissive READ emissive WRITE setEmissive NOTIFY emissiveChanged)
   Q_PROPERTY(float emissiveIntensity READ emissiveIntensity WRITE setEmissiveIntensity NOTIFY emissiveIntensityChanged)
   Q_PROPERTY(Texture *emissiveMap READ emissiveMap WRITE setEmissiveMap NOTIFY emissiveMapChanged)
@@ -61,34 +62,34 @@ protected:
   }
 
   MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, const material::Typer &typer, QObject *parent = nullptr)
-     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this), _material(mat)
+     : Material(typer, parent), _material(mat)
   {}
 
   MeshStandardMaterial(const material::Typer &typer, QObject *parent=nullptr)
-     : Material(typer, parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this) {}
+     : Material(typer, parent) {}
 
 public:
   three::MeshStandardMaterial::Ptr _material;
 
   MeshStandardMaterial(three::MeshStandardMaterial::Ptr mat, QObject *parent = nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this), _material(mat)
+     : Material(material::Typer(this), parent), _material(mat)
   {}
 
   MeshStandardMaterial(QObject *parent=nullptr)
-     : Material(material::Typer(this), parent), Diffuse(this), Emissive(this), EnvMap(this), LightMap(this), NormalMap(this) {}
+     : Material(material::Typer(this), parent) {}
 
   void applyColor(const QColor &color)
   {
     setColor(color);
   }
 
-  void setAndConfigureObject(three::Material::Ptr material) override
+  void setAndConfigure(three::Material::Ptr material) override
   {
     _material = std::dynamic_pointer_cast<three::MeshStandardMaterial>(material);
     if(!_material) {
       qCritical() << "MaterialHandler: received incompatible material";
     }
-    Material::setAndConfigureObject(material);
+    Material::setAndConfigure(material);
     applyDiffuse(_material);
     applyEnvMap(_material);
     applyEmissive(_material);
