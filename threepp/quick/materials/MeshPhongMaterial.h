@@ -19,7 +19,9 @@ class MeshPhongMaterial : public Material,
    public EnvMap<MeshPhongMaterial>,
    public LightMap<MeshPhongMaterial>,
    public NormalMap<MeshPhongMaterial>,
-   public Specular<MeshPhongMaterial>
+   public Specular<MeshPhongMaterial>,
+   public DisplacementMap<MeshPhongMaterial>,
+   public BumpMap<MeshPhongMaterial>
 {
 Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
@@ -37,6 +39,11 @@ Q_OBJECT
   Q_PROPERTY(QColor emissive READ emissive WRITE setEmissive NOTIFY emissiveChanged)
   Q_PROPERTY(float emissiveIntensity READ emissiveIntensity WRITE setEmissiveIntensity NOTIFY emissiveIntensityChanged)
   Q_PROPERTY(Texture *emissiveMap READ emissiveMap WRITE setEmissiveMap NOTIFY emissiveMapChanged)
+  Q_PROPERTY(Texture *displacementMap READ displacementMap WRITE setDisplacementMap NOTIFY displacementMapChanged)
+  Q_PROPERTY(float displacementScale READ displacementScale WRITE setDisplacementScale NOTIFY displacementScaleChanged)
+  Q_PROPERTY(float displacementBias READ displacementBias WRITE setDisplacementBias NOTIFY displacementBiasChanged)
+  Q_PROPERTY(Texture *bumpMap READ bumpMap WRITE setBumpMap NOTIFY bumpMapChanged)
+  Q_PROPERTY(float bumpScale READ bumpScale WRITE setBumpScale NOTIFY bumpScaleChanged)
 
 protected:
   three::Material::Ptr material() const override {return _material;}
@@ -68,6 +75,8 @@ public:
     applyEmissive(_material);
     applyLightMap(_material);
     applyNormalMap(_material);
+    applyDisplacementMap(_material);
+    applyBumpMap(_material);
   }
 
   three::MeshPhongMaterial::Ptr createMaterial()
@@ -81,6 +90,8 @@ public:
     applyEnvMap(material);
     applyLightMap(material);
     applyNormalMap(material);
+    applyDisplacementMap(material);
+    applyBumpMap(_material);
 
     return material;
   }
@@ -112,6 +123,11 @@ signals:
   void shininessChanged();
   void reflectivityChanged();
   void refractionRatioChanged();
+  void displacementMapChanged();
+  void displacementScaleChanged();
+  void displacementBiasChanged();
+  void bumpMapChanged();
+  void bumpScaleChanged();
 };
 
 }

@@ -211,29 +211,62 @@ struct Specular
   }
 };
 
+template <typename QM>
 struct DisplacementMap
 {
-  TrackingProperty<Texture *> _displacementMap {nullptr};
-  TrackingProperty<float> _displacementScale {1};
-  TrackingProperty<float> _displacementBias {0};
+  MAP_PROPERTY(displacementMap, DisplacementMap)
+  FLOAT_PROPERTY(displacementScale, DisplacementScale, 1)
+  FLOAT_PROPERTY(displacementBias, DisplacementBias, 0)
+
+  template <typename M>
+  void applyDisplacementMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(displacementMap)
+    APPLY_FLOAT(displacementScale)
+    APPLY_FLOAT(displacementBias)
+  }
 };
 
+template <typename QM>
 struct BumpMap
 {
-  TrackingProperty<Texture *> _bumpMap {nullptr};
-  TrackingProperty<float> _bumpScale {1};
+  MAP_PROPERTY(bumpMap, BumpMap)
+  FLOAT_PROPERTY(bumpScale, BumpScale, 1)
+
+  template <typename M>
+  void applyBumpMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(bumpMap)
+    APPLY_FLOAT(bumpScale)
+  }
 };
 
+template <typename QM>
 struct RoughnessMap
 {
-  TrackingProperty<float> _roughness {0.5f};
-  TrackingProperty<Texture *> _roughnessMap {nullptr};
+  FLOAT_PROPERTY(roughness, Roughness, 0.5f)
+  MAP_PROPERTY(roughnessMap, RoughnessMap)
+
+  template <typename M>
+  void applyRoughnessMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(roughnessMap)
+    APPLY_FLOAT(roughness)
+  }
 };
 
+template <typename QM>
 struct MetalnessMap
 {
-  TrackingProperty<float> _metalness {0.5f};
-  TrackingProperty<Texture *> _metalnessMap {nullptr};
+  FLOAT_PROPERTY(metalness, Metalness, 0.5f)
+  MAP_PROPERTY(metalnessMap, MetalnessMap)
+
+  template <typename M>
+  void applyMetalnessMap(const std::shared_ptr<M> &m)
+  {
+    APPLY_MAP(metalnessMap)
+    APPLY_FLOAT(metalness)
+  }
 };
 
 class Material : public ThreeQObjectRoot
