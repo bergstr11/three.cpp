@@ -5,7 +5,7 @@ Three::pp can be used directly as a C++ API that parallels Three.js's Javascript
 
 For the plain C++ API, a slight dependency on Qt remains (mostly convenience classes like QImage and OpenGLFunctions) which could be removed with limited effort.
 
-Currently in beta state. A number of examples demonstrate the functionality. Buildable under Linux/gcc 7.3 and sometimes under Android. Windows available soon.
+Currently in beta state. A number of examples demonstrate the functionality. Buildable under Linux/gcc 8.2, Android (API 24, currently only arm64-v8a) and sometimes even under Windows.
 
 Contributors welcome
 
