@@ -199,7 +199,7 @@ Window {
     OptionsMenu {
         id: lightControls
         title: "Lighting"
-        anchors.top: parent.top
+        anchors.top: replBtn.bottom
         anchors.left: parent.left
         width: 300
         color: "transparent"
@@ -379,11 +379,34 @@ Window {
         onAccepted: acceptedFunc()
     }
     Button {
-        text: "Choose.."
+        id: replBtn
+        text: "Set"
         z: 2
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: 55
+        height: 35
         onClicked: {
             fileDialog.title = "Please choose a model file"
             fileDialog.selectExisting = true
+            hingeeditor.operation = ModelRef.Replace
+            fileDialog.acceptedFunc = function() {threeDModel.file = fileDialog.fileUrl}
+            fileDialog.visible = true
+        }
+    }
+    Button {
+        text: "Add"
+        z: 2
+        width: 55
+        height: 35
+        anchors.top: parent.top
+        anchors.left: replBtn.right
+        anchors.leftMargin: 3
+        onClicked: {
+            fileDialog.title = "Please choose a model file"
+            fileDialog.selectExisting = true
+            //fileDialog.selectMultiple = true
+            hingeeditor.operation = ModelRef.Append
             fileDialog.acceptedFunc = function() {threeDModel.file = fileDialog.fileUrl}
             fileDialog.visible = true
         }
@@ -564,7 +587,6 @@ Window {
                     name: "threeD_model"
                     type: ModelRef.Node
                     dynamics: dynamics
-                    replace: true
 
                     property var hidden: []
                     property var picked1: null

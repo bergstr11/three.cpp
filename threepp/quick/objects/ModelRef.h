@@ -22,23 +22,26 @@ Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)
   Q_PROPERTY(QString selector READ selector WRITE setSelector)
   Q_PROPERTY(Type type READ type WRITE setType)
+  Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
   Q_PROPERTY(three::quick::ThreeQObject *object READ threeQObject NOTIFY objectChanged)
-  Q_PROPERTY(bool replace READ replace WRITE setReplace NOTIFY replaceChanged)
 
 public:
   enum Type {Node, Mesh, Light, Camera};
   Q_ENUM(Type)
 
+  enum Operation {Replace, Append};
+  Q_ENUM(Operation)
+
 private:
   Model *_model = nullptr;
   QString _selector;
   Type _type = Mesh;
+  Operation _operation = Replace;
 
   QMetaObject::Connection _loadedConnection;
   QMetaObject::Connection _fileConnection;
 
   ThreeQObject *_threeQObject = nullptr;
-  bool _replace = true;
 
 protected:
   Object3D::Ptr _create() override
@@ -74,9 +77,9 @@ public:
 
   void setSelector(const QString &selector) {_selector = selector;}
 
-  bool replace() const {return _replace;}
+  Operation operation() const {return _operation;}
 
-  void setReplace(bool replace);
+  void setOperation(Operation operation);
 
   Type type() const {return _type;}
 
@@ -85,7 +88,7 @@ public:
 signals:
   void modelChanged();
   void objectChanged();
-  void replaceChanged();
+  void operationChanged();
 
 private slots:
   void cleanup();

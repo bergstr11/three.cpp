@@ -122,7 +122,7 @@ protected:
 
 QtResourceLoader::QtResourceLoader(three::Loader &loader, const QString &url,
                                    const unordered_map<string, string> &replacements) : loader(loader), file(url), _replacements(replacements) {
-  if(!file.exists())
+  if (!file.exists())
     qWarning() << "file " << file.fileName() << "does not exist";
   else
     QObject::connect(this, &QThread::finished, this, &QtResourceLoader::sendResult, Qt::QueuedConnection);

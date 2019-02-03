@@ -31,11 +31,11 @@ void ModelRef::setModel(Model *model)
   }
 }
 
-void ModelRef::setReplace(bool replace)
+void ModelRef::setOperation(Operation operation)
 {
-  if(_replace != replace) {
-    _replace = replace;
-    emit replaceChanged();
+  if(_operation != operation) {
+    _operation = operation;
+    emit operationChanged();
   }
 }
 
@@ -150,7 +150,7 @@ bool ModelRef::evaluateSelector(QStringList::iterator &iter,
 
 void ModelRef::cleanup()
 {
-  if(_replace && _object) {
+  if(_operation == Replace && _object) {
     if(_parentObject) _parentObject->remove(_object);
     onObjectChanged.emitSignal(_object, ObjectState::Removed);
     _object->dispose();
@@ -159,12 +159,19 @@ void ModelRef::cleanup()
 
 void ModelRef::update()
 {
-  if(_threeQObject) {
+  if(_operation == Replace && _threeQObject) {
     _threeQObject->deleteLater();
     _threeQObject = nullptr;
   }
-  string name = _name.isEmpty() ? _model->name().toStdString() : _name.toStdString();
-  auto node = three::Node::make(name);
+
+  Object3D::Ptr node = _object;
+  if(_operation == Replace || !node) {
+    string name = _name.isEmpty() ? _model->name().toStdString() : _name.toStdString();
+    node = three::Node::make(name);
+  }
+
+  //must copy the list, as the children are in effect moved (reparented)
+  const std::vector<Object3D::Ptr> children = _model->importedScene()->children();
 
   if(!_selector.isEmpty()) {
     QStringList selectors = _selector.split(':', QString::SkipEmptyParts);
@@ -172,18 +179,14 @@ void ModelRef::update()
     auto begin = selectors.begin();
     auto end = selectors.end();
 
-    evaluateSelector(begin, end, node, _model->importedScene()->children());
+    evaluateSelector(begin, end, node, children);
   }
   else {
-    //must copy the list, as the children are in effect moved (reparented)
-    const std::vector<Object3D::Ptr> children = _model->importedScene()->children();
 
     for(Object3D::Ptr child : children)  {
       node->add(child);
     }
   }
-
-  setObject(node);
 
   //propagate shadow stuff down the tree
   node->visit([&](Object3D *o) {
@@ -192,11 +195,14 @@ void ModelRef::update()
     return true;
   });
 
-  if(_parentObject) _parentObject->add(_object);
+  if(_operation == Replace) {
+    setObject(node);
+    if(_parentObject) _parentObject->add(_object);
 
-  onObjectChanged.emitSignal(_object, ObjectState::Added);
+    onObjectChanged.emitSignal(_object, ObjectState::Added);
+    emit objectChanged();
+  }
 
-  emit objectChanged();
   _scene->item()->update();
 }
 

@@ -234,7 +234,6 @@ Window {
                     model: threeDModel
                     name: "car"
                     type: ModelRef.Node
-                    replace: true
 
                     onObjectChanged: {
                         orbitController.reset()
