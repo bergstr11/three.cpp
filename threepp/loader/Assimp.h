@@ -67,7 +67,6 @@ public:
 
 protected:
   std::vector<Material::Ptr> _materials;
-  std::vector<Mesh::Ptr> _meshes;
 
   std::shared_ptr<::Assimp::Importer> _importer;
 

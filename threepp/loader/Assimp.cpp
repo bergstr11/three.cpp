@@ -251,7 +251,7 @@ static void read(MaterialT<x> &material, const aiMaterial *ai, Access *access) {
   mixin(material, ai, access); \
 }
 
-inline void read_color(const char* pKey,unsigned int type, unsigned int idx, const aiMaterial *ai, Color &color)
+inline void read_color(const char* pKey, unsigned int type, unsigned int idx, const aiMaterial *ai, Color &color)
 {
   aiColor4D c3D;
   if(ai->Get(pKey, type, idx, c3D) == AI_SUCCESS) {
@@ -273,16 +273,13 @@ struct ReadMaterial<material::Diffuse>
 
     material.color.set(0,0,0);
     read_color(AI_MATKEY_COLOR_DIFFUSE, ai, material.color);
-    aiReturn opret = ai->Get(AI_MATKEY_OPACITY, material.opacity);
+    ai->Get(AI_MATKEY_OPACITY, material.opacity);
 
-    aiColor3D clr;
-    if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, clr) == AI_SUCCESS) {
-      if(opret == AI_SUCCESS) {
-        if (clr.r != 1 || clr.g != 1 || clr.b != 1)
-          qWarning() << "COLOR_TRANSPARENT unused:" << clr.r << clr.g << clr.b;
+    if(material.opacity == 1) {
+      aiColor4D c4D;
+      if(ai->Get(AI_MATKEY_COLOR_TRANSPARENT, c4D) == AI_SUCCESS) {
+          material.opacity = (c4D.r + c4D.g + c4D.b) / 3;
       }
-      else
-        material.opacity = qGray(clr.r, clr.g, clr.b) / 255;
     }
   }
 };
