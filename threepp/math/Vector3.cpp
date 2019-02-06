@@ -66,10 +66,24 @@ Vector3 &Vector3::project(const Camera &camera)
   return *this;
 }
 
+Vector3 Vector3::project(const Camera &camera) const
+{
+  Vector3 ret(*this);
+  ret.apply(camera.projectionMatrix() * camera.matrixWorld().inverted());
+  return ret;
+}
+
 Vector3 &Vector3::unproject(const Camera &camera)
 {
   apply(camera.matrixWorld() * camera.projectionMatrix().inverted());
   return *this;
+}
+
+Vector3 Vector3::unproject(const Camera &camera) const
+{
+  Vector3 ret(*this);
+  ret.apply(camera.matrixWorld() * camera.projectionMatrix().inverted());
+  return ret;
 }
 
 Vector3 &Vector3::unproject(const math::Matrix4 &world, const math::Matrix4 &projection)

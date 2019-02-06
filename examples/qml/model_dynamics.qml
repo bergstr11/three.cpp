@@ -298,14 +298,6 @@ Window {
                 base = value
             }
         }
-        BoolChoice {
-            name: "Convex Hull"
-            value: convexHull.visible
-            onValueChanged: {
-                convexHull.visible = value
-                threeD.update()
-            }
-        }
         ListChoice {
             id: pickOpChoice
             label: "PickOp:"
@@ -575,66 +567,61 @@ Window {
                 onVisibleChanged: threeD.update()
             }
 
-            ConvexHull {
-                id: convexHull
-                visible: false
+            HingeEditorModelRef {
+                id: hingeeditor
+                model: threeDModel
+                name: "threeD_model"
+                type: ModelRef.Node
+                dynamics: dynamics
 
-                material: MeshBasicMaterial {color: "green"; wireframe: true}
+                property var hidden: []
+                property var picked1: null
+                property var picked2: null
+                property vector3d upper: "0,0,0"
+                property vector3d lower: "0,0,0"
+                property bool upperSet: false
+                property bool lowerSet: false
 
-                HingeEditorModelRef {
-                    id: hingeeditor
-                    model: threeDModel
-                    name: "threeD_model"
-                    type: ModelRef.Node
-                    dynamics: dynamics
+                property bool dataStarted: !!picked1 || upperSet || lowerSet
+                property bool doorComplete: !!picked1 && !!picked2 && upperSet && lowerSet
+                property bool wheelsComplete: !!picked1 && !!picked2 && upperSet
+                property bool propellerComplete: !!picked1 && upperSet
 
-                    property var hidden: []
-                    property var picked1: null
-                    property var picked2: null
-                    property vector3d upper: "0,0,0"
-                    property vector3d lower: "0,0,0"
-                    property bool upperSet: false
-                    property bool lowerSet: false
+                function unhide() {
+                    for(var i=0; i<hidden.length; i++) hidden[i].visible = true
+                    hidden = new Array()
+                    removeMarkers()
+                    threeD.update()
+                }
 
-                    property bool dataStarted: !!picked1 || upperSet || lowerSet
-                    property bool doorComplete: !!picked1 && !!picked2 && upperSet && lowerSet
-                    property bool wheelsComplete: !!picked1 && !!picked2 && upperSet
-                    property bool propellerComplete: !!picked1 && upperSet
+                function resetEditor() {
+                    picked1 = null; picked2 = null; upperSet = false; lowerSet = false
+                    textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
+                    pickedParents.model = []
+                    unhide()
+                }
 
-                    function unhide() {
-                        for(var i=0; i<hidden.length; i++) hidden[i].visible = true
-                        hidden = new Array()
-                        removeMarkers()
-                        threeD.update()
-                    }
+                function create(what) {
+                    if(what == "door")
+                        dynamics.createDoorHinge("door", picked1, picked2, upper, lower)
+                    else if(what == "propeller")
+                        dynamics.createPropellerHinge("propeller", picked1, upper)
+                    else if(what == "wheels")
+                        dynamics.createWheelHinge("wheels", picked1, picked2, upper)
+                    resetEditor()
+                    unhide()
+                }
 
-                    function resetEditor() {
-                        picked1 = null; picked2 = null; upperSet = false; lowerSet = false
-                        textO1.text = ""; textO2.text = ""; textP1.text = ""; textP2.text = ""
-                        pickedParents.model = []
-                        unhide()
-                    }
+                onObjectChanged: {
+                    pickedParents.model = []
+                    resetEditor()
+                    resetAll()
 
-                    function create(what) {
-                        if(what == "door")
-                            dynamics.createDoorHinge("door", picked1, picked2, upper, lower)
-                        else if(what == "propeller")
-                            dynamics.createPropellerHinge("propeller", picked1, upper)
-                        else if(what == "wheels")
-                            dynamics.createWheelHinge("wheels", picked1, picked2, upper)
-                        resetEditor()
-                        unhide()
-                    }
+                    objectControls.reset()
+                    lightControls.reset()
 
-                    onObjectChanged: {
-                        pickedParents.model = []
-                        resetEditor()
-                        resetAll()
-
-                        orbitController.reset()
-                        objectControls.reset()
-                        lightControls.reset()
-                    }
+                    orbitController.reset();
+                    if(object) orbitController.showAll(object)
                 }
             }
 

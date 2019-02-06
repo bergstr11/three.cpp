@@ -268,6 +268,10 @@ public:
   Q_INVOKABLE void zoomOut(float factor) {
     if(_controls) _controls->zoomOut(factor);
   }
+  Q_INVOKABLE void showAll(QObject *object) {
+    ThreeQObject *tqo = dynamic_cast<ThreeQObject *>(object);
+    if(tqo && _controls) _controls->showAll(tqo->object());
+  }
 
 signals:
   void minDistanceChanged();

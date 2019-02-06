@@ -1205,7 +1205,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
 
         } else {
           if(!skinned->skeleton()->boneMatrices().empty())
-            prg_uniforms->set(UniformName::boneMatrices, skinned->skeleton()->boneMatrices().data());
+            prg_uniforms->set(UniformName::boneMatrices, skinned->skeleton()->boneMatrices());
         }
       }
     }

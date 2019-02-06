@@ -41,7 +41,7 @@ public:
 
   Vector2(const Vector2 &vector) : _x(vector._x), _y(vector._y) {}
 
-  Vector2(float scalar) : _x(scalar), _y(scalar) {}
+  explicit Vector2(float scalar) : _x(scalar), _y(scalar) {}
 
   static Vector2 fromBufferAttribute(const BufferAttributeT<float> &attribute, unsigned index);
 
@@ -79,6 +79,13 @@ public:
   {
     assert(index < 2);
     return _elements[index];
+  }
+
+  Vector2 &operator = (float scalar)
+  {
+    _x = scalar;
+    _y = scalar;
+    return *this;
   }
 
   Vector2 &operator+=(const Vector2 &vector)
@@ -263,7 +270,7 @@ public:
     return ! operator ==(vector);
   }
 
-  Vector2(const float *array, unsigned offset=0)
+  explicit Vector2(const float *array, unsigned offset=0)
   {
     _x = array[offset];
     _y = array[offset + 1];
@@ -316,6 +323,20 @@ inline Vector2 operator *(const Vector2 &left, float right)
 {
   Vector2 result {left};
   result *= right;
+  return result;
+}
+
+inline Vector2 operator /(const Vector2 &left, float right)
+{
+  Vector2 result {left};
+  result /= right;
+  return result;
+}
+
+inline Vector2 operator /(const Vector2 &left, const Vector2 &right)
+{
+  Vector2 result {left};
+  result /= right;
   return result;
 }
 

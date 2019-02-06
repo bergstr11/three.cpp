@@ -4,8 +4,11 @@
 
 #include "Orbit.h"
 #include <threepp/math/Math.h>
+#include <threepp/math/Box2.h>
 #include <threepp/camera/PerspectiveCamera.h>
 #include <threepp/camera/OrthographicCamera.h>
+
+#include <threepp/util/impl/utils.h>
 
 namespace three {
 namespace control {
@@ -189,6 +192,30 @@ bool Orbit::resetState()
   return false;
 }
 
+void Orbit::showAll(Object3D::Ptr object)
+{
+  if(!object) {
+    return;
+  }
+
+  const auto bbox = object->computeBoundingBox();
+  Vector2 halfScreen (clientWidth() / 2, clientHeight() / 2);
+
+  _camera->updateMatrixWorld(true);
+
+  const auto pmin = bbox.min().project(*_camera) * halfScreen;
+  const auto pmax = bbox.max().project(*_camera) * halfScreen;
+
+  Box3 pbox(pmin, pmax);
+  Box3 cbox(Vector3(0), Vector3(clientWidth(), clientHeight(), 0));
+
+  auto z = cbox.getBoundingSphere().radius() / pbox.getBoundingSphere().radius();
+  if(z < 1)
+    _dollyOut(1.0f / z);
+  else
+    _dollyIn(z / 2);
+}
+
 bool Orbit::handleMove(unsigned x, unsigned y)
 {
   switch (_state) {
@@ -305,6 +332,20 @@ void Orbit::set(float polar, float azimuth)
 
   _camera->position() = target + _offset;
   _camera->lookAt(target);
+}
+
+void Orbit::reset()
+{
+  target = _target0;
+  _camera->position() = _position0;
+  _camera->setZoom(_zoom0);
+  _camera->updateProjectionMatrix();
+
+  onChanged.emitSignal(_state);
+
+  update();
+
+  _state = State::NONE;
 }
 
 }

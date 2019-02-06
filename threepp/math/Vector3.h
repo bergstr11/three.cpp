@@ -50,9 +50,9 @@ public:
   enum class Element {x=0, y=1, z=2};
 
   Vector3();
+  explicit Vector3(float scalar);
   Vector3(const Vector2 &vector2);
   Vector3(float x, float y, float z);
-  Vector3(float scalar);
   Vector3(const Vector3 &v);
 
   const float *elements() const {return _elements;}
@@ -199,8 +199,11 @@ public:
   Vector3 &apply(const Vector3 &axis, float angle);
 
   Vector3 &project(const Camera &camera);
+  Vector3 project(const Camera &camera) const;
 
   Vector3 &unproject(const Camera &camera);
+  Vector3 unproject(const Camera &camera) const;
+
   Vector3 &unproject(const math::Matrix4 &world, const math::Matrix4 &projection);
 
   // input: THREE.Matrix4 affine matrix

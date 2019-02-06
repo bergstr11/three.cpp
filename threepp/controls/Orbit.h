@@ -138,6 +138,12 @@ public:
     _dollyOut(factor);
   }
 
+  /**
+   * update the camera to make the given object completely visible
+   * @param object
+   */
+  void showAll(Object3D::Ptr object);
+
   // "target" sets the location of focus, where the object orbits around
   math::Vector3 target;
 
@@ -181,9 +187,6 @@ public:
   // If auto-rotate is enabled, you must call controls.update() in your animation loop
   bool autoRotate = false;
   float autoRotateSpeed = 2.0f; // 30 seconds per round when fps is 60
-
-  // Set to false to disable use of the keys
-  bool enableKeys = true;
 
   float getPolarAngle() const
   {
@@ -242,19 +245,7 @@ public:
     _zoom0 = _camera->zoom();
   }
 
-  virtual void reset()
-  {
-    target = _target0;
-    _camera->position() = _position0;
-    _camera->setZoom(_zoom0);
-    _camera->updateProjectionMatrix();
-
-    onChanged.emitSignal(_state);
-
-    update();
-
-    _state = State::NONE;
-  }
+  virtual void reset();
 
   bool handleMove(unsigned x, unsigned y);
   bool handleDelta(int delta);
