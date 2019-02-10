@@ -35,6 +35,10 @@ public:
   };
 
 protected:
+  class Impl;
+  class PerspectiveImpl;
+  class OrthographicImpl;
+  Impl *_impl;
   Camera::Ptr _camera;
 
   // for reset
@@ -73,12 +77,9 @@ protected:
   math::Vector3 lastPosition;
   math::Quaternion lastQuaternion;
 
-  Orbit(Camera::Ptr camera, const math::Vector3 &target)
-     : _camera(camera), target(target), _target0(target), _position0(camera->position()), _zoom0(camera->zoom())
-  {
-    _quat = math::Quaternion::fromUnitVectors(_camera->up(), math::Vector3(0, 1, 0));
-    _quatInverse = _quat.inverse();
-  }
+  static Impl *makeImpl(Orbit &orbit, Camera::Ptr camera);
+
+  Orbit(Camera::Ptr camera, const math::Vector3 &target);
 
   virtual unsigned clientWidth() = 0;
 
@@ -106,6 +107,7 @@ protected:
   void doPan(unsigned x, unsigned y);
 
 public:
+  ~Orbit();
   using Ptr = std::shared_ptr<Orbit>;
 
   Signal<void(State)> onChanged;
@@ -238,12 +240,7 @@ public:
 
   void set(float polar, float azimuth);
 
-  void saveState()
-  {
-    _target0 = target;
-    _position0 = _camera->position();
-    _zoom0 = _camera->zoom();
-  }
+  void saveState();
 
   virtual void reset();
 

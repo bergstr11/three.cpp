@@ -4,7 +4,7 @@
 
 #include "Orbit.h"
 #include <threepp/math/Math.h>
-#include <threepp/math/Box2.h>
+#include <threepp/math/Line3.h>
 #include <threepp/camera/PerspectiveCamera.h>
 #include <threepp/camera/OrthographicCamera.h>
 
@@ -15,6 +15,158 @@ namespace control {
 
 using namespace std;
 using namespace math;
+
+struct Orbit::Impl {
+  Orbit &o;
+
+  Impl(Orbit &o) : o(o) {}
+  virtual void pan(float deltaX, float deltaY) = 0;
+  virtual void dollyIn(float dollyScale) = 0;
+  virtual void dollyOut(float dollyScale) = 0;
+  virtual void showAll(Object3D::Ptr object) = 0;
+};
+
+struct Orbit::PerspectiveImpl : public Orbit::Impl {
+  PerspectiveCamera *_camera;
+
+  PerspectiveImpl(Orbit &o, PerspectiveCamera *camera) : Impl(o), _camera(camera) {}
+
+  void showAll(Object3D::Ptr object) override
+  {
+    _camera->updateMatrixWorld( true );
+
+    Vector3 basisX = Vector3::fromMatrixColumn(_camera->matrixWorld(), 0);
+    Vector3 basisY = Vector3::fromMatrixColumn(_camera->matrixWorld(), 1);
+    Vector3 basisZ = Vector3::fromMatrixColumn(_camera->matrixWorld(), 2);
+
+    float vFov = float(degToRad( _camera->fov() ));
+    float verticalTanFov = 2 * tan( vFov / 2 );
+
+    float hFov = 2 * atan( verticalTanFov / 2 * _camera->aspect() );
+    float horizontalTanFov = 2 * tan( hFov / 2 );
+
+    Vector3 v;
+
+    v = basisZ * -cos( vFov / 2 );
+    Vector3 projectionTop = v;
+    Vector3 projectionBottom = v;
+
+    v = basisY  * sin( vFov / 2 );
+    projectionTop += v;
+    projectionBottom += v.negate();
+
+    v = basisZ * -cos( hFov / 2 );
+    Vector3 projectionLeft = v;
+    Vector3 projectionRight = v;
+
+    v = basisX * sin( hFov / 2 );
+    projectionRight += v;
+    projectionLeft += v.negate();
+
+    const auto bbox = object->computeBoundingBox();
+    const auto center = bbox.getCenter();
+    const auto size = bbox.getSize();
+
+    float distance = std::max(size.y() / verticalTanFov, size.x() / horizontalTanFov);
+    v = basisZ  * (distance * 1.0f /*fitRatio*/);
+
+    _camera->position() = center + v;
+    auto diff = o.target - center;
+    object->translateX(diff.x());
+    object->translateY(diff.y());
+
+    o.update();
+  }
+
+  void pan(float deltaX, float deltaY) override 
+  {
+    // perspective
+    math::Vector3 offset = _camera->position() - o.target;
+    float targetDistance = offset.length();
+
+    // half of the fov is center to top of screen
+    targetDistance *= tan((_camera->fov() / 2.0f) * M_PI / 180.0f);
+
+    // we actually don't use screenWidth, since perspective camera is fixed to screen height
+    if (deltaX != 0)
+      o.panLeft(2.0f * deltaX * targetDistance / o.clientHeight(), _camera->matrix());
+    if (deltaY != 0)
+      o.panUp(2.0f * deltaY * targetDistance / o.clientHeight(), _camera->matrix());
+  }
+
+  void dollyIn(float dollyScale) override
+  {
+    o.scale /= dollyScale;
+    o.update();
+  }
+
+  void dollyOut(float dollyScale) override
+  {
+    o.scale *= dollyScale;
+    o.update();
+  }
+};
+
+struct Orbit::OrthographicImpl : public Orbit::Impl {
+  OrthographicCamera *_camera;
+
+  OrthographicImpl(Orbit &o, OrthographicCamera *camera) : Impl(o), _camera(camera) {}
+
+  void showAll(Object3D::Ptr object) override
+  {
+    qWarning() << "showAll not implemented for OrthographicCamera";
+  }
+
+  void pan(float deltaX, float deltaY) override {
+    // orthographic
+    if (deltaX != 0)
+      o.panLeft(deltaX * (_camera->right() - _camera->left()) / _camera->zoom() / o.clientWidth(), _camera->matrix());
+    if (deltaY != 0)
+      o.panUp(deltaY * (_camera->top() - _camera->bottom()) / _camera->zoom() / o.clientHeight(), _camera->matrix());
+  }
+
+  void dollyIn(float dollyScale) override
+  {
+    _camera->setZoom(std::max(o.minZoom, std::min(o.maxZoom, _camera->zoom() * dollyScale)));
+    _camera->updateProjectionMatrix();
+    o._zoomChanged = true;
+  }
+
+  void dollyOut(float dollyScale) override
+  {
+    _camera->setZoom(std::max(o.minZoom, std::min(o.maxZoom, _camera->zoom() / dollyScale)));
+    _camera->updateProjectionMatrix();
+    o._zoomChanged = true;
+  }
+};
+
+Orbit::Impl *Orbit::makeImpl(Orbit &orbit, Camera::Ptr camera)
+{
+  if (PerspectiveCamera *pcamera = camera->typer) {
+    return new PerspectiveImpl(orbit, pcamera);
+  }
+  if(OrthographicCamera *ocamera = camera->typer) {
+    return new OrthographicImpl(orbit, ocamera);
+  }
+  return nullptr;
+}
+
+Orbit::~Orbit()
+{
+  if(_impl) delete _impl;
+}
+
+Orbit::Orbit(Camera::Ptr camera, const math::Vector3 &target)
+: _camera(camera), target(target), _target0(target), _position0(camera->position()), _zoom0(camera->zoom())
+{
+  _impl = makeImpl(*this, camera);
+  if(!_impl) {
+    enablePan = false;
+    enableZoom = false;
+  }
+  _quat = math::Quaternion::fromUnitVectors(camera->up(), math::Vector3(0, 1, 0));
+  _quatInverse = _quat.inverse();
+}
 
 bool Orbit::update()
 {
@@ -95,71 +247,17 @@ bool Orbit::update()
 
 void Orbit::_pan(float deltaX, float deltaY)
 {
-  if(PerspectiveCamera *pcamera = _camera->typer) {
-
-    // perspective
-    math::Vector3 offset = _camera->position() - target;
-    float targetDistance = offset.length();
-
-    // half of the fov is center to top of screen
-    targetDistance *= tan((pcamera->fov() / 2.0f) * M_PI / 180.0f);
-
-    // we actually don't use screenWidth, since perspective camera is fixed to screen height
-    if (deltaX != 0)
-      panLeft(2.0f * deltaX * targetDistance / clientHeight(), pcamera->matrix());
-    if (deltaY != 0)
-      panUp(2.0f * deltaY * targetDistance / clientHeight(), pcamera->matrix());
-  }
-  else if(OrthographicCamera *ocamera = _camera->typer) {
-
-    // orthographic
-    if (deltaX != 0)
-      panLeft(deltaX * (ocamera->right() - ocamera->left()) / ocamera->zoom() / clientWidth(), ocamera->matrix());
-    if (deltaY != 0)
-      panUp(deltaY * (ocamera->top() - ocamera->bottom()) / ocamera->zoom() / clientHeight(), ocamera->matrix());
-  }
-  else {
-    // camera neither orthographic nor perspective
-    enablePan = false;
-  }
+  if(_impl) _impl->pan(deltaX, deltaY);
 }
 
 void Orbit::_dollyIn(float dollyScale)
 {
-  if(PerspectiveCamera *pcamera = _camera->typer) {
-
-    scale /= dollyScale;
-    update();
-  }
-  else if(OrthographicCamera *ocamera = _camera->typer) {
-
-    ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() * dollyScale)));
-    ocamera->updateProjectionMatrix();
-    _zoomChanged = true;
-  }
-  else {
-    // camera neither orthographic nor perspective
-    enableZoom = false;
-  }
+  if(_impl) _impl->dollyIn(dollyScale);
 }
 
 void Orbit::_dollyOut(float dollyScale)
 {
-  if(PerspectiveCamera *pcamera = _camera->typer) {
-
-    scale *= dollyScale;
-    update();
-  }
-  else if(OrthographicCamera *ocamera = _camera->typer) {
-
-    ocamera->setZoom(std::max(minZoom, std::min(maxZoom, ocamera->zoom() / dollyScale)));
-    ocamera->updateProjectionMatrix();
-    _zoomChanged = true;
-  }
-  else {
-    // camera neither orthographic nor perspective
-    enableZoom = false;
-  }
+  if(_impl) _impl->dollyOut(dollyScale);
 }
 
 void Orbit::startRotate(unsigned x, unsigned y)
@@ -192,28 +290,14 @@ bool Orbit::resetState()
   return false;
 }
 
+Vector2 toNDC(const Vector3 &projected, float w, float h)
+{
+  return Vector2(std::round((projected.x() + 1) * w / 2), std::round(-(projected.y() + 1) * h / 2));
+}
+
 void Orbit::showAll(Object3D::Ptr object)
 {
-  if(!object) {
-    return;
-  }
-
-  const auto bbox = object->computeBoundingBox();
-  Vector2 halfScreen (clientWidth() / 2, clientHeight() / 2);
-
-  _camera->updateMatrixWorld(true);
-
-  const auto pmin = bbox.min().project(*_camera) * halfScreen;
-  const auto pmax = bbox.max().project(*_camera) * halfScreen;
-
-  Box3 pbox(pmin, pmax);
-  Box3 cbox(Vector3(0), Vector3(clientWidth(), clientHeight(), 0));
-
-  auto z = cbox.getBoundingSphere().radius() / pbox.getBoundingSphere().radius();
-  if(z < 1)
-    _dollyOut(1.0f / z);
-  else
-    _dollyIn(z / 2);
+  if(_impl) _impl->showAll(object);
 }
 
 bool Orbit::handleMove(unsigned x, unsigned y)
@@ -346,6 +430,13 @@ void Orbit::reset()
   update();
 
   _state = State::NONE;
+}
+
+void Orbit::saveState()
+{
+  _target0 = target;
+  _position0 = _camera->position();
+  _zoom0 = _camera->zoom();
 }
 
 }
