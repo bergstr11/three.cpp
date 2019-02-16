@@ -11,6 +11,11 @@
 #include <threepp/quick/elements/RayCaster.h>
 #include <threepp/quick/objects/Mesh.h>
 #include <threepp/quick/objects/Node.h>
+#include <threepp/quick/materials/MeshPhongMaterial.h>
+#include <threepp/quick/materials/MeshBasicMaterial.h>
+#include <threepp/quick/materials/MeshLambertMaterial.h>
+#include <threepp/quick/materials/MeshStandardMaterial.h>
+#include <threepp/quick/materials/MeshPhysicalMaterial.h>
 
 namespace three {
 namespace quick {

@@ -14,17 +14,13 @@
 #include <threepp/scene/Scene.h>
 #include <threepp/loader/Assimp.h>
 #include <threepp/quick/ThreeQObjectRoot.h>
-#include <threepp/quick/materials/MeshPhongMaterial.h>
-#include <threepp/quick/materials/MeshBasicMaterial.h>
-#include <threepp/quick/materials/MeshLambertMaterial.h>
-#include <threepp/quick/materials/MeshStandardMaterial.h>
 
 namespace three {
-
 namespace quick {
 
 class ThreeQObject;
 class Intersect;
+class Material;
 
 class Options : public QObject
 {
@@ -104,7 +100,7 @@ signals:
   void loaded(QVariant material);
 };
 
-class ModelMaterialHandler : public loader::AssimpMaterialHandler
+class DLX ModelMaterialHandler : public loader::AssimpMaterialHandler
 {
   QList<quick::MaterialHandler *> _handlers;
 
