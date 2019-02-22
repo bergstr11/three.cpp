@@ -4,6 +4,7 @@
 
 #include "ThreeQObject.h"
 #include <threepp/quick/scene/Scene.h>
+#include <QQmlEngine>
 
 namespace three {
 namespace quick {
@@ -213,8 +214,8 @@ void ThreeQObject::setObject(const three::Object3D::Ptr &object)
     if(_receiveShadow.isSet()) _object->receiveShadow = _receiveShadow;
     else setReceiveShadow(_object->castShadow, false);
 
-    _object->visible() = _visible;
-    _object->matrixAutoUpdate = _matrixAutoUpdate;
+    if(_visible.isSet()) _object->visible() = _visible;
+    if(_matrixAutoUpdate.isSet()) _object->matrixAutoUpdate = _matrixAutoUpdate;
 
     if(_scale.isSet()) {
       _object->scale().set(_scale().x(), _scale().y(), _scale().z());
@@ -264,6 +265,8 @@ void ThreeQObject::unset()
   _castShadow.unset();
   _receiveShadow.unset();
   _scale.unset();
+  _visible.unset();
+  _matrixAutoUpdate.unset();
 }
 
 void ThreeQObject::rotateX(float angle)
@@ -371,7 +374,7 @@ void ThreeQObject::setMaterial(Material *material, bool update) {
 }
 
 void ThreeQObject::setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate) {
-  if(_matrixAutoUpdate != matrixAutoUpdate) {
+  if(this->matrixAutoUpdate() != matrixAutoUpdate) {
     _matrixAutoUpdate = matrixAutoUpdate;
     if(propagate && _object) _object->matrixAutoUpdate = _matrixAutoUpdate;
     emit matrixAutoUpdateChanged();
@@ -379,7 +382,7 @@ void ThreeQObject::setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate) {
 }
 
 void ThreeQObject::setCastShadow(bool castShadow, bool propagate) {
-  if(_castShadow != castShadow) {
+  if(this->castShadow() != castShadow) {
     _castShadow = castShadow;
     if(propagate && _object) {
       _object->visit([this](Object3D *o) {o->castShadow = _castShadow; return true;});
@@ -389,7 +392,7 @@ void ThreeQObject::setCastShadow(bool castShadow, bool propagate) {
 }
 
 void ThreeQObject::setReceiveShadow(bool receiveShadow, bool propagate) {
-  if(_receiveShadow != receiveShadow) {
+  if(this->receiveShadow() != receiveShadow) {
     _receiveShadow = receiveShadow;
     if(propagate && _object) {
       _object->visit([this](Object3D *o) {o->receiveShadow = _receiveShadow; return true;});
@@ -399,12 +402,20 @@ void ThreeQObject::setReceiveShadow(bool receiveShadow, bool propagate) {
 }
 
 void ThreeQObject::setVisible(bool visible, bool propagate) {
-  if(_visible != visible) {
+  if(this->visible() != visible) {
     _visible = visible;
 
     if(propagate && _object) _object->visible() = _visible;
+
     emit visibleChanged();
   }
+}
+
+QObject *ThreeQObject::alone()
+{
+  ThreeQObject *alone = new ThreeQObject(_object);
+  QQmlEngine::setObjectOwnership(alone, QQmlEngine::JavaScriptOwnership);
+  return alone;
 }
 
 void ThreeQObject::setName(const QString &name, bool propagate)

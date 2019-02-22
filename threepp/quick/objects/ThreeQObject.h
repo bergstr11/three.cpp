@@ -147,19 +147,19 @@ public:
 
   void setMaterial(Material *material, bool update=true);
 
-  bool matrixAutoUpdate() const {return _matrixAutoUpdate;}
+  bool matrixAutoUpdate() const {return _object ? _object->matrixAutoUpdate : _matrixAutoUpdate;}
 
   void setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate=true);
 
-  bool castShadow() const {return _castShadow;}
+  bool castShadow() const {return _object ? _object->castShadow : _castShadow;}
 
   void setCastShadow(bool castShadow, bool propagate=true);
 
-  bool receiveShadow() const {return _receiveShadow;}
+  bool receiveShadow() const {return _object ? _object->receiveShadow : _receiveShadow;}
 
   void setReceiveShadow(bool receiveShadow, bool propagate=true);
 
-  bool visible() const {return _visible;}
+  bool visible() const {return _object ? _object->visible() : _visible;}
 
   void setVisible(bool visible, bool propagate=true);
 
@@ -186,6 +186,7 @@ public:
   Q_INVOKABLE void remove(three::quick::ThreeQObject *object);
   Q_INVOKABLE QVector3D worldPosition() const;
   Q_INVOKABLE void clear();
+  Q_INVOKABLE QObject *alone();
 
   Q_INVOKABLE void rotateX(float angle);
   Q_INVOKABLE void rotateY(float angle);

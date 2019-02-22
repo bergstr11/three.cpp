@@ -52,9 +52,10 @@ Window {
                     var obj = pickedParents.currentIndex === 0 ?
                         dataRow.picked : dataRow.picked.parentObject(pickedParents.model[pickedParents.currentIndex])
                     obj.visible = false
-                    hingeeditor.hidden.push(obj)
+                    hingeeditor.hidden.push(obj.alone())
+
+                    threeD.update()
                 }
-                threeD.update()
             }
         }
         Button {
@@ -184,12 +185,12 @@ Window {
         property string colorName: "color"
 
         onVisibleChanged: {
-            if(visible) {
+            if(visible && !!target) {
                 color = target[colorName]
             }
         }
         onAccepted: {
-            if(target) {
+            if(!!target) {
                 target[colorName] = colorDialog.color
                 threeD.update()
             }
@@ -589,6 +590,7 @@ Window {
 
                 function unhide() {
                     for(var i=0; i<hidden.length; i++) hidden[i].visible = true
+
                     hidden = new Array()
                     removeMarkers()
                     threeD.update()
@@ -609,7 +611,6 @@ Window {
                     else if(what == "wheels")
                         dynamics.createWheelHinge("wheels", picked1, picked2, upper)
                     resetEditor()
-                    unhide()
                 }
 
                 onObjectChanged: {
