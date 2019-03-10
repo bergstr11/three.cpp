@@ -41,7 +41,7 @@ public:
   size_t Read(void *pvBuffer, size_t pSize, size_t pCount) override
   {
     _resource->in().read((char *) pvBuffer, pSize * pCount);
-    return (size_t) _resource->in().gcount();
+    return (size_t) _resource->in().gcount() / pSize;
   }
 
   size_t Write(const void *pvBuffer, size_t pSize, size_t pCount) override

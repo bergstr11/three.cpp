@@ -631,7 +631,7 @@ Window {
                 name: "sceneCamera"
                 fov: 30
                 aspect: threeD.width / threeD.height
-                near: 1
+                near: 0.1
                 far: 100000
                 position: "0,0,300"
 
