@@ -49,7 +49,7 @@ class MaterialHandler : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QString materialNames READ materialNames WRITE setMaterialNames NOTIFY materialNamesChanged)
-  Q_PROPERTY(Material *createAs READ createAs WRITE setCreateAs NOTIFY createAsChanged)
+  Q_PROPERTY(three::quick::Material *createAs READ createAs WRITE setCreateAs NOTIFY createAsChanged)
 
   QString _materialNames;
   Material *_createAs = nullptr;

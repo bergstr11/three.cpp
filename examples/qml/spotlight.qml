@@ -19,34 +19,38 @@ Window {
         width: 400
         color: "transparent"
         z: 2
-        threeD: threeD
 
         FloatValue {
             name: "intensity"
+            threeD: threeD
             target: spotLight
             from: 0
             to: 2
         }
         FloatValue {
             name: "distance"
+            threeD: threeD
             target: spotLight
             from: 50
             to: 200
         }
         FloatValue {
             name: "angle"
+            threeD: threeD
             target: spotLight
             from: 0
             to: Math.PI / 3
         }
         FloatValue {
             name: "penumbra"
+            threeD: threeD
             target: spotLight
             from: 0
             to: 1
         }
         FloatValue {
             name: "decay"
+            threeD: threeD
             target: spotLight
             from: 1
             to: 2
@@ -59,10 +63,10 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        threeD: threeD
 
         FloatValue {
             name: "intensity"
+            threeD: threeD
             target: ambientLight
             from: 0
             to: 2

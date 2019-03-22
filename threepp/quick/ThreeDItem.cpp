@@ -276,6 +276,36 @@ void ThreeDItem::setAutoAnimate(bool autoAnimate)
   }
 }
 
+void ThreeDItem::setPhysicallyCorrectLights(bool pysicallyCorrectLights)
+{
+  if(_pysicallyCorrectLights != pysicallyCorrectLights) {
+    _pysicallyCorrectLights = pysicallyCorrectLights;
+
+    if(_renderer) _renderer->setPhysicallyCorrectLights(pysicallyCorrectLights);
+    emit physicallyCorrectLightsChanged();
+  }
+}
+
+void ThreeDItem::setToneMapping(three::quick::Three::ToneMapping toneMapping)
+{
+  if(_toneMapping != toneMapping) {
+    _toneMapping = toneMapping;
+
+    if(_renderer) _renderer->setToneMapping((three::ToneMapping)toneMapping);
+    emit toneMappingChanged();
+  }
+}
+
+void ThreeDItem::setToneMappingExposure(float toneMappingExposure)
+{
+  if(_toneMappingExposure != toneMappingExposure) {
+    _toneMappingExposure = toneMappingExposure;
+
+    if(_renderer) _renderer->setToneMappingExposure(toneMappingExposure);
+    emit toneMappingExposureChanged();
+  }
+}
+
 void ThreeDItem::setSamples(unsigned samples)
 {
   if(_samples != samples) {
@@ -503,6 +533,10 @@ void ThreeDItem::componentComplete()
   QQuickItem::componentComplete();
 
   _renderer = OpenGLRenderer::make(width(), height(), window()->screen()->devicePixelRatio());
+  _renderer->setPhysicallyCorrectLights(_pysicallyCorrectLights);
+  _renderer->setToneMapping((three::ToneMapping)_toneMapping);
+  _renderer->setToneMappingExposure(_toneMappingExposure);
+
   if(_usePrograms) _renderer->usePrograms(_usePrograms->_renderer);
   _shadowMap.setRenderer(_renderer);
 

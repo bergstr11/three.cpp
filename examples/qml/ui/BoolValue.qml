@@ -5,6 +5,7 @@ QtObject {
     property string type: "bool"
     property string label
     property string name
+    property Item threeD
     property QtObject target
     property bool value
 
@@ -14,6 +15,7 @@ QtObject {
 
     function setTargetValue() {
         target[name] = value
+        if(!!threeD) threeD.update()
     }
     
     onTargetChanged: {

@@ -7,6 +7,7 @@
 
 #include <QUrl>
 #include <QVector2D>
+#include <QDebug>
 #include "Texture.h"
 #include <threepp/textures/ImageTexture.h>
 #include <threepp/quick/Three.h>
@@ -65,6 +66,7 @@ public:
   {
     if(_image.isNull()) {
       _image = QImage(_url).convertToFormat((QImage::Format)_format);
+      if(_image.isNull()) qWarning() << "error loading image" << _url;
     }
     return _image;
   }

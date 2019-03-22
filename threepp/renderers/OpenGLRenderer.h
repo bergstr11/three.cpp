@@ -50,7 +50,10 @@ public:
   virtual void setShadowMapType(three::ShadowMapType type) = 0;
   virtual void setShadowMapAuto(bool shadowAuto) = 0;
   virtual void setFaceCulling( CullFace cullFace ) = 0;
+  virtual void setPhysicallyCorrectLights(bool physicallyCorrectLights) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
+  virtual void setToneMapping(ToneMapping toneMapping) = 0;
+  virtual void setToneMappingExposure(float toneMappingExposure) = 0;
   virtual void clear() = 0;
   virtual void clearDepth() = 0;
   virtual void updateShadows() = 0;

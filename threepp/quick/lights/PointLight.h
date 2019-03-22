@@ -17,6 +17,7 @@ class PointLight : public Light
   Q_OBJECT
   Q_PROPERTY(float distance READ distance WRITE setDistance NOTIFY distanceChanged)
   Q_PROPERTY(float decay READ decay WRITE setDecay NOTIFY decayChanged)
+  Q_PROPERTY(float power READ power WRITE setPower NOTIFY powerChanged)
   Q_PROPERTY(LightShadowPC * shadow READ shadow CONSTANT)
 
   float _decay = 1.0f;
@@ -67,9 +68,19 @@ public:
     }
   }
 
+  float power() const {return _intensity * 4 * (float)M_PI;}
+
+  void setPower(float power) {
+    if(power != this->power()) {
+      setIntensity(power / ( 4 * (float)M_PI ));
+      emit powerChanged();
+    }
+  }
+
 signals:
   void decayChanged();
   void distanceChanged();
+  void powerChanged();
 };
 
 }

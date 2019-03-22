@@ -58,6 +58,7 @@ private:
   Q_PROPERTY(Wrapping wrapS READ wrapS WRITE setWrapS NOTIFY wrapSChanged)
   Q_PROPERTY(Wrapping wrapT READ wrapT WRITE setWrapT NOTIFY wrapTChanged)
   Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
+  Q_PROPERTY(float anisotropy READ anisotropy WRITE setAnisotropy NOTIFY anisotropyChanged)
   Q_PROPERTY(bool flipY READ flipY WRITE setFlipY NOTIFY flipYChanged)
 
 protected:
@@ -66,6 +67,7 @@ protected:
   Filter _minFilter = LinearMipMapLinear;
   Filter _magFilter = Linear;
   Wrapping _wrapS = ClampToEdge, _wrapT = ClampToEdge;
+  float _anisotropy = 1;
   Type _type = UnsignedByte;
   bool _flipY = true;
 
@@ -138,6 +140,13 @@ public:
       emit wrapTChanged();
     }
   }
+  float anisotropy() const {return _anisotropy;}
+  void setAnisotropy(float anisotropy) {
+    if(_anisotropy != anisotropy) {
+      _anisotropy = anisotropy;
+      emit anisotropyChanged();
+    }
+  }
 
   TextureOptions createTextureOptions() const
   {
@@ -165,6 +174,7 @@ signals:
   void flipYChanged();
   void wrapSChanged();
   void wrapTChanged();
+  void anisotropyChanged();
 };
 
 }

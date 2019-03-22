@@ -256,6 +256,21 @@ public:
       _state.setCullFace(CullFace::None);
   }
 
+  void setPhysicallyCorrectLights(bool physicallyCorrectLights) override
+  {
+    _physicallyCorrectLights = physicallyCorrectLights;
+  }
+
+  void setToneMapping(ToneMapping toneMapping) override
+  {
+    _toneMapping = toneMapping;
+  }
+
+  void setToneMappingExposure(float toneMappingExposure) override
+  {
+    _toneMappingExposure = toneMappingExposure;
+  }
+
   Renderer_impl &setClearColor(const Color &color, float alpha) override {
     _background.setClearColor(color, alpha);
     return *this;

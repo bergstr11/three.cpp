@@ -16,10 +16,9 @@ Window {
         title: "Lights"
         anchors.top: parent.top
         anchors.right: parent.right
-        width: 200
+        width: 250
         color: "transparent"
         z: 2
-        threeD: threeD
 
         property bool showHelpers: false
 

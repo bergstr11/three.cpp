@@ -3,6 +3,7 @@ import QtQuick 2.7
 QtObject {
     id: main
     property string type: "float"
+    property string label
     property string name
     property real base
     property real from: 0

@@ -19,6 +19,15 @@ class Three : public QObject
 {
 Q_OBJECT
 public:
+  enum ToneMapping {
+    NoToneMapping = (unsigned)three::ToneMapping::None,
+    LinearToneMapping = (unsigned)three::ToneMapping::Linear,
+    ReinhardToneMapping = (unsigned)three::ToneMapping::Reinhard,
+    Uncharted2ToneMapping = (unsigned)three::ToneMapping::Uncharted2,
+    CineonToneMapping = (unsigned)three::ToneMapping::Cineon
+  };
+  Q_ENUM(ToneMapping);
+
   enum GeometryType {
     LinearGeometry,
     BufferGeometry

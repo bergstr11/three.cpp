@@ -66,11 +66,11 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        threeD: threeD
 
         FloatValue {
             label: "hemisphere"
             name: "intensity"
+            threeD: threeD
             target: hemisphereLight
             from: 0
             to: 2
@@ -78,6 +78,7 @@ Window {
         FloatValue {
             label: "directional"
             name: "intensity"
+            threeD: threeD
             target: directionalLight
             from: 0
             to: 2
@@ -118,9 +119,8 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        threeD: threeD
 
-        FloatManip {
+        FloatChoice {
             name: "rotation.x"
             target: modelref
             from: -Math.PI
@@ -128,9 +128,10 @@ Window {
             onValueChanged: {
                 target.rotateX(value - base)
                 base = value
+                threeD.update()
             }
         }
-        FloatManip {
+        FloatChoice {
             name: "rotation.y"
             target: modelref
             from: -Math.PI
@@ -138,9 +139,10 @@ Window {
             onValueChanged: {
                 target.rotateY(value - base)
                 base = value
+                threeD.update()
             }
         }
-        FloatManip {
+        FloatChoice {
             name: "rotation.z"
             target: modelref
             from: -Math.PI
@@ -148,6 +150,7 @@ Window {
             onValueChanged: {
                 target.rotateZ(value - base)
                 base = value
+                threeD.update()
             }
         }
         BoolChoice {

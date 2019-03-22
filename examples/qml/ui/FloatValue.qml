@@ -7,6 +7,7 @@ QtObject {
     property string label
     property real from: 0
     property real to: 100
+    property Item threeD
     property QtObject target
     property real value
 
@@ -16,6 +17,7 @@ QtObject {
 
     function setTargetValue() {
         target[name] = value
+        if(!!threeD) threeD.update()
     }
 
     onTargetChanged: {

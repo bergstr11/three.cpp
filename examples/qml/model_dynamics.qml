@@ -205,7 +205,6 @@ Window {
         width: 300
         color: "transparent"
         z: 2
-        threeD: threeD
 
         BoolChoice {
             name: "pointLight"
@@ -219,16 +218,19 @@ Window {
         BoolValue {
             label: "hemisphereLight"
             name: "visible"
+            threeD: threeD
             target: hemisphereLight
         }
         BoolValue {
             label: "directionalLight"
             name: "visible"
+            threeD: threeD
             target: directionalLight
         }
         FloatValue {
             label: "hemisphere"
             name: "intensity"
+            threeD: threeD
             target: hemisphereLight
             from: 0
             to: 2
@@ -236,6 +238,7 @@ Window {
         FloatValue {
             label: "directional"
             name: "intensity"
+            threeD: threeD
             target: directionalLight
             from: 0
             to: 2
@@ -267,9 +270,8 @@ Window {
         width: 350
         color: "transparent"
         z: 2
-        threeD: threeD
 
-        FloatManip {
+        FloatChoice {
             name: "rotation.x"
             target: hingeeditor
             from: -Math.PI
@@ -277,9 +279,10 @@ Window {
             onValueChanged: {
                 target.rotateX(value - base)
                 base = value
+                threeD.update()
             }
         }
-        FloatManip {
+        FloatChoice {
             name: "rotation.y"
             target: hingeeditor
             from: -Math.PI
@@ -287,9 +290,10 @@ Window {
             onValueChanged: {
                 target.rotateY(value - base)
                 base = value
+                threeD.update()
             }
         }
-        FloatManip {
+        FloatChoice {
             name: "rotation.z"
             target: hingeeditor
             from: -Math.PI
@@ -297,6 +301,7 @@ Window {
             onValueChanged: {
                 target.rotateZ(value - base)
                 base = value
+                threeD.update()
             }
         }
         ListChoice {
@@ -398,7 +403,6 @@ Window {
         onClicked: {
             fileDialog.title = "Please choose a model file"
             fileDialog.selectExisting = true
-            //fileDialog.selectMultiple = true
             hingeeditor.operation = ModelRef.Append
             fileDialog.acceptedFunc = function() {threeDModel.file = fileDialog.fileUrl}
             fileDialog.visible = true

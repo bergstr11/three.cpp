@@ -8,7 +8,6 @@ Rectangle {
 
     property string title
     property color textColor: "white"
-    property Item threeD
     default property list<QtObject> properties
 
     property list<Item> controls
@@ -33,6 +32,7 @@ Rectangle {
         id: bool_control
         Item {
             property Item prev
+            property alias labelWidth: boolControlLabel.width
             anchors.top: prev.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -51,6 +51,7 @@ Rectangle {
                 spacing: 5
 
                 Label {
+                    id: boolControlLabel
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
@@ -76,6 +77,7 @@ Rectangle {
         id: listChoiceFactory
         Item {
             property Item prev
+            property alias labelWidth: listChoiceLabel.width
             anchors.top: prev.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -92,20 +94,21 @@ Rectangle {
             Row {
                 anchors.fill: parent
                 spacing: 5
+                padding: 2
 
                 Label {
+                    id: listChoiceLabel
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    width: parent.width - listControl.implicitWidth - 5
                     text: !!prop.label ? prop.label : prop.name
                     color: prop.textColor ? prop.textColor : main.textColor
                     font.bold: true
                 }
                 ComboBox {
                     id: listControl
-                    width: implicitWidth
-                    model: target.values
+                    width: Math.max(implicitWidth, parent.width - listChoiceLabel.width - 5)
+                    model: !!target.names ? target.names : target.values
                     currentIndex: target.selectedIndex
 
                     onCurrentIndexChanged: {
@@ -120,6 +123,7 @@ Rectangle {
         id: menuChoiceFactory
         Rectangle {
             property Item prev
+            property alias labelWidth: menuLabel.width
             anchors.top: prev.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -143,7 +147,7 @@ Rectangle {
                 height: 0.5
             }
             Label {
-                id: menu_label
+                id: menuLabel
                 anchors.fill: parent
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
@@ -163,9 +167,9 @@ Rectangle {
     }
 
     Component {
-        id: float_control
+        id: floatControlFactory
         Item {
-            property alias labelWidth: float_control_label.width
+            property alias labelWidth: floatControlLabel.width
             property Item prev
             anchors.top: prev.top
             anchors.left: parent.left
@@ -175,28 +179,28 @@ Rectangle {
             implicitHeight: 40
 
             property QtObject prop
-            property alias from: float_slider.from
-            property alias to: float_slider.to
+            property alias from: floatSlider.from
+            property alias to: floatSlider.to
             property QtObject target
 
             function reset() {
-                float_slider.value = target.value
+                floatSlider.value = target.value
             }
-            RowLayout {
-                spacing: 10
-                anchors.left: parent.left
+            Row {
+                anchors.fill: parent
+                spacing: 5
 
                 Label {
-                    id: float_control_label
+                    id: floatControlLabel
                     height: parent.height
-                    Layout.preferredWidth: 90
                     verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignRight
                     text: prop.label ? prop.label : prop.name
                     font.bold: true
                     color: prop.textColor ? prop.textColor : main.textColor
                 }
                 Slider {
-                    id: float_slider
+                    id: floatSlider
                     Layout.fillWidth: true
                     from: from
                     to: to
@@ -204,20 +208,19 @@ Rectangle {
 
                     onValueChanged: {
                         target.value = value
-                        threeD.update()
                     }
                     handle: Rectangle {
-                        x: float_slider.leftPadding + float_slider.visualPosition * (float_slider.availableWidth - width)
-                        y: float_slider.topPadding + float_slider.availableHeight / 2 - height / 2
+                        x: floatSlider.leftPadding + floatSlider.visualPosition * (floatSlider.availableWidth - width)
+                        y: floatSlider.topPadding + floatSlider.availableHeight / 2 - height / 2
                         implicitWidth: 60
                         implicitHeight: 30
                         radius: 20
-                        color: float_slider.pressed ? "#f0f0f0" : "#f6f6f6"
+                        color: floatSlider.pressed ? "#f0f0f0" : "#f6f6f6"
                         border.color: "#bdbebf"
 
                         Label {
                             anchors.centerIn: parent
-                            text: float_slider.value.toFixed(2)
+                            text: floatSlider.value.toFixed(2)
                         }
                     }
                 }
@@ -253,7 +256,7 @@ Rectangle {
         for(var index=0; index < properties.length; index++) {
             var prop = properties[index]
             if(prop.type === "float") {
-                prev = float_control.createObject(main, {"labelWidth": maxWidth, "anchors.top": prev.bottom,
+                prev = floatControlFactory.createObject(main, {"labelWidth": maxWidth, "anchors.top": prev.bottom,
                                                       prop: prop, from: prop.from, to: prop.to, target: prop})
                 controls.push(prev)
             }

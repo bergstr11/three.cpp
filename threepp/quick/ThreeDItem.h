@@ -136,6 +136,9 @@ private:
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
   Q_PROPERTY(bool autoAnimate READ autoAnimate WRITE setAutoAnimate NOTIFY autoAnimateChanged)
+  Q_PROPERTY(three::quick::Three::ToneMapping toneMapping READ toneMapping WRITE setToneMapping NOTIFY toneMappingChanged)
+  Q_PROPERTY(float toneMappingExposure READ toneMappingExposure WRITE setToneMappingExposure NOTIFY toneMappingExposureChanged)
+  Q_PROPERTY(bool physicallyCorrectLights READ physicallyCorrectLights WRITE setPhysicallyCorrectLights NOTIFY physicallyCorrectLightsChanged)
   Q_PROPERTY(three::quick::ShadowMap *shadowMap READ shadowMap CONSTANT)
   Q_PROPERTY(unsigned fps READ fps WRITE setFps NOTIFY fpsChanged)
   Q_PROPERTY(ThreeDItem *usePrograms READ usePrograms WRITE setUsePrograms NOTIFY useProgramsChanged)
@@ -165,6 +168,9 @@ private:
   QRect _viewport;
 
   bool _autoAnimate = true;
+  bool _pysicallyCorrectLights = false;
+  three::quick::Three::ToneMapping _toneMapping = three::quick::Three::LinearToneMapping;
+  float _toneMappingExposure = 1.0f;
   QTimer *_animateTimer = nullptr;
   QJSValue _animateFunc;
   QJSValue _jsInstance;
@@ -217,6 +223,18 @@ public:
   bool autoAnimate() const {return _autoAnimate;}
 
   void setAutoAnimate(bool autoAnimate);
+
+  bool physicallyCorrectLights() const {return _pysicallyCorrectLights;}
+
+  void setPhysicallyCorrectLights(bool pysicallyCorrectLights);
+
+  three::quick::Three::ToneMapping toneMapping() {return _toneMapping;}
+
+  void setToneMapping(three::quick::Three::ToneMapping toneMapping);
+
+  float toneMappingExposure() {return _toneMappingExposure;}
+
+  void setToneMappingExposure(float toneMappingExposure);
 
   unsigned samples() const {return _samples;}
 
@@ -298,6 +316,9 @@ signals:
   void fpsChanged();
   void useProgramsChanged();
   void autoAnimateChanged();
+  void physicallyCorrectLightsChanged();
+  void toneMappingChanged();
+  void toneMappingExposureChanged();
 };
 
 }
