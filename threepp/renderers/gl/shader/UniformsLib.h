@@ -224,7 +224,14 @@ template<> struct UniformValueT<CachedPointLights> : public UniformValue
       UniformContainer *container2 = container->get(index++)->asContainer();
       container2->set(UniformName::color, entry->color);
       container2->set(UniformName::position, entry->position);
-      //TODO
+      container2->set(UniformName::decay, entry->decay);
+      container2->set(UniformName::distance, entry->distance);
+      container2->set(UniformName::shadow, entry->shadow);
+      container2->set(UniformName::shadowBias, entry->shadowBias);
+      container2->set(UniformName::shadowRadius, entry->shadowRadius);
+      container2->set(UniformName::shadowMapSize, entry->shadowMapSize);
+      container2->set(UniformName::shadowCameraNear, entry->shadowCameraNear);
+      container2->set(UniformName::shadowCameraFar, entry->shadowCameraFar);
     }
   }
 };

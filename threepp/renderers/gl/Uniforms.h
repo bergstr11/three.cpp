@@ -122,6 +122,8 @@ enum class UniformName : unsigned
   shadowBias,
   shadowRadius,
   shadowMapSize,
+  shadowCameraNear,
+  shadowCameraFar,
   size,
   scale,
   dashSize,

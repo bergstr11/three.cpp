@@ -282,8 +282,8 @@ public:
                      {UniformName::color,   Color(ColorName::black)},
                      {UniformName::opacity, 1.0f}
                   }),
-                  ":shader/distanceRGBA_vert.glsl",
-                  ":shader/distanceRGBA_frag.glsl"
+                  ":shader/shadow_vert.glsl",
+                  ":shader/shadow_frag.glsl"
         ));
   }
 

@@ -57,7 +57,7 @@ Window {
     ThreeD {
         id: threeD
         anchors.fill: parent
-        shadowMap.type: Three.Basic
+        shadowMap.type: Three.BasicShadow
         samples: 12
         autoAnimate: false
 

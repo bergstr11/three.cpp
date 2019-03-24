@@ -31,46 +31,18 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
   }
   _needsRender = true;
 
+  _maxShadowMapSize.set((float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize);
+
   // render depth map
   for (Light::Ptr light : lights) {
 
     auto shadow = light->shadow();
     if (!shadow) continue;
 
-    math::Vector2 maxShadowMapSize {(float)_capabilities.maxTextureSize, (float)_capabilities.maxTextureSize};
-    math::Vector2 shadowMapSize = math::min(shadow->mapSize(), maxShadowMapSize);
+    math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
 
     PointLight *pointLight = light->typer;
     if (pointLight) {
-
-      float vpWidth = shadowMapSize.x();
-      float vpHeight = shadowMapSize.y();
-
-      // These viewports map a cube-map onto a 2D texture with the
-      // following orientation:
-      //
-      //  xzXZ
-      //   y Y
-      //
-      // X - Positive x direction
-      // x - Negative x direction
-      // Y - Positive y direction
-      // y - Negative y direction
-      // Z - Positive z direction
-      // z - Negative z direction
-
-      // positive X
-      _cube2DViewPorts[0].set(vpWidth * 2, vpHeight, vpWidth, vpHeight);
-      // negative X
-      _cube2DViewPorts[1].set(0, vpHeight, vpWidth, vpHeight);
-      // positive Z
-      _cube2DViewPorts[2].set(vpWidth * 3, vpHeight, vpWidth, vpHeight);
-      // negative Z
-      _cube2DViewPorts[3].set(vpWidth, vpHeight, vpWidth, vpHeight);
-      // positive Y
-      _cube2DViewPorts[4].set(vpWidth * 3, 0, vpWidth, vpHeight);
-      // negative Y
-      _cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
 
       shadowMapSize.x() *= 4.0;
       shadowMapSize.y() *= 2.0;
@@ -86,30 +58,26 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
       options.minFilter = TextureFilter::Nearest;
       options.magFilter = TextureFilter::Nearest;
       options.format = TextureFormat::RGBA;
-      shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.width(), shadowMapSize.height()));
+      shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
 
       shadowCamera->updateProjectionMatrix();
     }
 
     shadow->update();
 
-    _lightPositionWorld = light->matrixWorld().getPosition();
-    shadowCamera->position() = _lightPositionWorld;
+    math::Vector3 lightPositionWorld = light->matrixWorld().getPosition();
+    shadowCamera->position() = lightPositionWorld;
 
     if (pointLight) {
-
-      _faceCount = 6;
 
       // for point lights we set the shadow matrix to be a translation-only matrix
       // equal to inverse of the light's position
 
-      shadow->matrix() = math::Matrix4::translation(-_lightPositionWorld.x(), -_lightPositionWorld.y(), -_lightPositionWorld.z());
+      shadow->matrix() = math::Matrix4::translation(-lightPositionWorld.x(), -lightPositionWorld.y(), -lightPositionWorld.z());
     }
     else {
       TargetLight *targetLight = light->typer;
       assert(targetLight);
-
-      _faceCount = 1;
 
       math::Vector3 lookTarget = targetLight->target()->matrixWorld().getPosition();
       shadowCamera->lookAt(lookTarget);
@@ -124,20 +92,6 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
       );
       shadow->matrix() *= shadowCamera->projectionMatrix();
       shadow->matrix() *= shadowCamera->matrixWorldInverse();
-    }
-
-    // render shadow map for each cube face (if omni-directional) or
-    // run a single pass if not
-    if (pointLight) {
-
-      for (unsigned face = 0; face < _faceCount; face++) {
-
-          math::Vector3 lookTarget = shadowCamera->position();
-          lookTarget += _cubeDirections[face];
-          shadowCamera->up() = _cubeUps[face];
-          shadowCamera->lookAt(lookTarget);
-          shadowCamera->updateMatrixWorld(false);
-      }
     }
   }
 
@@ -167,14 +121,55 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
     _renderer.clear(true, true, true);
 
     bool pointLight = light->is<PointLight>();
+    unsigned faceCount = 1;
+    if(pointLight) {
+
+      math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
+
+      faceCount = 6;
+
+      float vpWidth = shadowMapSize.x();
+      float vpHeight = shadowMapSize.y();
+
+      // These viewports map a cube-map onto a 2D texture with the
+      // following orientation:
+      //
+      //  xzXZ
+      //   y Y
+      //
+      // X - Positive x direction
+      // x - Negative x direction
+      // Y - Positive y direction
+      // y - Negative y direction
+      // Z - Positive z direction
+      // z - Negative z direction
+
+      // positive X
+      _cube2DViewPorts[0].set(vpWidth * 2, vpHeight, vpWidth, vpHeight);
+      // negative X
+      _cube2DViewPorts[1].set(0, vpHeight, vpWidth, vpHeight);
+      // positive Z
+      _cube2DViewPorts[2].set(vpWidth * 3, vpHeight, vpWidth, vpHeight);
+      // negative Z
+      _cube2DViewPorts[3].set(vpWidth, vpHeight, vpWidth, vpHeight);
+      // positive Y
+      _cube2DViewPorts[4].set(vpWidth * 3, 0, vpWidth, vpHeight);
+      // negative Y
+      _cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
+    }
 
     // render shadow map for each cube face (if omni-directional) or
     // run a single pass if not
-    for (unsigned face = 0; face < _faceCount; face++) {
+    for (unsigned face = 0; face < faceCount; face++) {
 
       if (pointLight) {
+        math::Vector3 lookTarget = shadow->camera()->position();
+        lookTarget += _cubeDirections[face];
+        shadow->camera()->up() = _cubeUps[face];
+        shadow->camera()->lookAt(lookTarget);
+        shadow->camera()->updateMatrixWorld(false);
 
-        math::Vector4 &vpDimensions = _cube2DViewPorts[face];
+        const auto &vpDimensions = _cube2DViewPorts[face];
         _renderer.state().viewport(vpDimensions);
       }
 
@@ -182,7 +177,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       _frustum.set(shadow->camera()->projectionMatrix() * shadow->camera()->matrixWorldInverse());
 
       // set object matrices & frustum culling
-      renderObject(scene, camera, shadow->camera(), (bool)pointLight);
+      renderObject(scene, camera, shadow->camera(), pointLight);
       check_glerror(&_renderer);
     }
   }
@@ -253,8 +248,11 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   result->wireframeLineWidth = material->wireframeLineWidth;
 
   if (isPointLight) {
-
-    result->setupPointLight(lightPositionWorld, shadowCameraNear, shadowCameraFar);
+    if(MeshDistanceMaterial *mat = result->typer) {
+      mat->referencePosition = lightPositionWorld;
+      mat->nearDistance = shadowCameraNear;
+      mat->farDistance = shadowCameraFar;
+    }
   }
 
   return result;
@@ -283,7 +281,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
 
           if ( groupMaterial && groupMaterial->visible ) {
 
-            Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld,
+            Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, shadowCamera->position(),
                                                  shadowCamera->near(), shadowCamera->far() );
             _renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, &group );
           }
@@ -292,7 +290,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
       else {
         Material::Ptr material = object->material();
         if (material->visible) {
-          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld,
+          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, shadowCamera->position(),
                                                          shadowCamera->near(), shadowCamera->far());
 
           _renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);

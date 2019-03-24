@@ -69,12 +69,16 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
   else if(MeshDistanceMaterial *mat = material->typer) {
     parameters->map = (bool)mat->map;
     parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
+
+    parameters->alphaMap = (bool)mat->alphaMap;
+    parameters->displacementMap = (bool)mat->displacementMap;
   }
   else if(MeshDepthMaterial *mat = material->typer) {
     parameters->map = (bool)mat->map;
     parameters->mapEncoding = getTextureEncoding(mat->map, renderer.gammaInput);
 
     parameters->alphaMap = (bool)mat->alphaMap;
+    parameters->displacementMap = (bool)mat->displacementMap;
     parameters->depthPacking = mat->depthPacking;
   }
   else if(ShaderMaterial *mat = material->typer) {
@@ -151,6 +155,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
                                (mat->envMap->mapping() == TextureMapping::CubeUVReflection
                                 || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = (bool)mat->lightMap;
+    parameters->displacementMap = (bool)mat->displacementMap;
 
     if(MeshPhysicalMaterial *mat = material->typer) {
 
@@ -161,6 +166,7 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
     parameters->bumpMap = (bool)mat->bumpMap;
     parameters->normalMap = (bool)mat->normalMap;
+    parameters->displacementMap = (bool)mat->displacementMap;
   }
   else if(MeshLambertMaterial *mat = material->typer) {
     parameters->map = (bool)mat->map;
@@ -207,8 +213,9 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
 
   parameters->dithering = material->dithering;
 
-  parameters->shadowMapEnabled = renderer._shadowMap.enabled && object->receiveShadow && !shadows.empty();
-  parameters->shadowMapType = renderer._shadowMap.type();
+  bool shadowEnabled = renderer._shadowMap.enabled && object->receiveShadow && !shadows.empty();
+  parameters->shadowMapEnabled = shadowEnabled;
+  parameters->shadowMapType = shadowEnabled ? renderer._shadowMap.type() : ShadowMapType::None;
 
   parameters->toneMapping = renderer._toneMapping;
   parameters->physicallyCorrectLights = renderer._physicallyCorrectLights;

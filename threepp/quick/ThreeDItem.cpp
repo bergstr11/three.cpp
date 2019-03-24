@@ -56,17 +56,17 @@ public:
        _renderer(renderer)
   {
     switch(item->shadowMap()->type()) {
-      case Three::Basic:
+      case Three::BasicShadow:
         _renderer->setShadowMapType(three::ShadowMapType::Basic);
         break;
-      case Three::PCF:
+      case Three::PCFShadow:
         _renderer->setShadowMapType(three::ShadowMapType::PCF);
         break;
-      case Three::PCFSoft:
+      case Three::PCFSoftShadow:
         _renderer->setShadowMapType(three::ShadowMapType::PCFSoft);
         break;
       default:
-        _renderer->setShadowMapType(three::ShadowMapType::NoShadow);
+        _renderer->setShadowMapType(three::ShadowMapType::None);
     }
     _renderer->setShadowMapAuto(_item->shadowMap()->autoUpdate());
 

@@ -28,7 +28,6 @@ class Renderer_impl;
 class ShadowMap
 {
   math::Frustum _frustum;
-  math::Vector3 _lightPositionWorld;
 
   enum Flag : uint16_t {Morphing = 1, Skinning= 2};
 
@@ -49,11 +48,11 @@ class ShadowMap
 
   math::Vector4 _cube2DViewPorts[6];
 
+  math::Vector2 _maxShadowMapSize;
+
   bool _needsRender = false;
 
-  unsigned _faceCount;
-
-  ShadowMapType _type = ShadowMapType::PCFSoft;
+  ShadowMapType _type = ShadowMapType::None;
 
   Renderer_impl &_renderer;
   Objects &_objects;
@@ -79,7 +78,7 @@ public:
 
   void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
 
-  ShadowMapType type() const {return _type;}
+  ShadowMapType type() const {return enabled ? ShadowMapType::None : _type;}
 
   void setType(ShadowMapType type) {_type = type;}
 };

@@ -156,16 +156,19 @@ struct Lights
   UniformsCache cache;
 
   struct State {
+    CachedDirectionalLights directional;
     std::vector<Texture::Ptr> directionalShadowMap;
     std::vector<math::Matrix4> directionalShadowMatrix;
-    CachedDirectionalLights directional;
+
+    CachedSpotLights spot;
     std::vector<Texture::Ptr> spotShadowMap;
     std::vector<math::Matrix4> spotShadowMatrix;
-    CachedSpotLights spot;
     CachedRectareaLights rectArea;
+
+    CachedPointLights point;
     std::vector<Texture::Ptr> pointShadowMap;
     std::vector<math::Matrix4> pointShadowMatrix;
-    CachedPointLights point;
+
     CachedHemisphereLights hemi;
     Color ambient = Color::null();
     LightsHash hash;

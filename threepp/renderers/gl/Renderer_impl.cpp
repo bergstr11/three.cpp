@@ -1245,6 +1245,7 @@ Program::Ptr Renderer_impl::setProgram(Camera::Ptr camera, Fog::Ptr fog, Materia
     else if(MeshDistanceMaterial *mat = material->typer) {
 
       refresh( mat_uniforms, *mat);
+
       mat_uniforms[UniformName::referencePosition] = mat->referencePosition;
       mat_uniforms[UniformName::nearDistance] = mat->nearDistance;
       mat_uniforms[UniformName::farDistance] = mat->farDistance;

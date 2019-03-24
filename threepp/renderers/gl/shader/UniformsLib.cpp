@@ -202,6 +202,25 @@ public:
                             value<math::Vector2>(UniformName::shadowMapSize, math::Vector2()),
                          }),
 
+                         value<std::vector<Texture::Ptr>>(UniformName::spotShadowMap, std::vector<Texture::Ptr>()),
+                         value<std::vector<math::Matrix4>>(UniformName::spotShadowMatrix, std::vector<math::Matrix4>()),
+
+                         value<CachedPointLights>(UniformName::pointLights, CachedPointLights(), {
+                            value<Color>(UniformName::color, Color::null()),
+                            value<math::Vector3>(UniformName::position, math::Vector3()),
+                            value<float>(UniformName::distance, 0.0f),
+                            value<float>(UniformName::decay, 0.0f),
+                            value<bool>(UniformName::shadow, false),
+                            value<float>(UniformName::shadowBias, 0.0f),
+                            value<float>(UniformName::shadowRadius, 0.0f),
+                            value<math::Vector2>(UniformName::shadowMapSize, math::Vector2()),
+                            value<float>(UniformName::shadowCameraNear, 1.0f),
+                            value<float>(UniformName::shadowCameraFar, 3500),
+                         }),
+
+                         value<std::vector<Texture::Ptr>>(UniformName::pointShadowMap, std::vector<Texture::Ptr>()),
+                         value<std::vector<math::Matrix4>>(UniformName::pointShadowMatrix, std::vector<math::Matrix4>()),
+
                          value<CachedHemisphereLights>(UniformName::hemisphereLights, CachedHemisphereLights(), {
                             value<math::Vector3>(UniformName::direction, math::Vector3()),
                             value<Color>(UniformName::skyColor, Color::null()),

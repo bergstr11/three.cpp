@@ -35,10 +35,10 @@ public:
   Q_ENUM(GeometryType)
 
   enum ShadowType {
-    None = (unsigned)three::ShadowMapType::NoShadow,
-    Basic = (unsigned)three::ShadowMapType::Basic,
-    PCF  = (unsigned)three::ShadowMapType::PCF,
-    PCFSoft  = (unsigned)three::ShadowMapType::PCFSoft
+    NoShadow= (unsigned)three::ShadowMapType::None,
+    BasicShadow = (unsigned)three::ShadowMapType::Basic,
+    PCFShadow  = (unsigned)three::ShadowMapType::PCF,
+    PCFSoftShadow  = (unsigned)three::ShadowMapType::PCFSoft
   };
   Q_ENUM(ShadowType)
 

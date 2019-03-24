@@ -249,8 +249,6 @@ public:
   virtual bool transparent() const {return false;}
 
   virtual Material *cloned() const = 0;
-
-  virtual void setupPointLight(const math::Vector3 &position, float near, float far) {}
 };
 
 template <typename ... Maps>

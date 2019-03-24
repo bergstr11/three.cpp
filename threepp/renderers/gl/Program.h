@@ -264,7 +264,7 @@ public:
     for(; it1 != all.end() && it2 != parameters.all.end(); it1++, it2++) {
       ProgramParameter *p1 = *it1;
       ProgramParameter *p2 = *it2;
-      if(*p1 != *p2)  return false;
+      if(*p1 != *p2) return false;
     }
     return it1 == all.end() && it2 == parameters.all.end();
   }

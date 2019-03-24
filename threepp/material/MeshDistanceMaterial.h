@@ -35,8 +35,8 @@ namespace three {
  */
 class DLX MeshDistanceMaterial : public MaterialT<
    material::Diffuse,
-   material::DisplacementMap,
-   material::AlphaMap>
+   material::AlphaMap,
+   material::DisplacementMap>
 {
   MeshDistanceMaterial()
      : MaterialT(material::InfoT<MeshDistanceMaterial>(), material::Typer(this))
@@ -62,8 +62,6 @@ public:
     p->skinning = skinning;
     return p;
   }
-
-  void setupPointLight(const math::Vector3 &position, float near, float far) override;
 
   MeshDistanceMaterial *cloned() const override {
     return new MeshDistanceMaterial(*this);

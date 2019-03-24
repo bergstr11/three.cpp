@@ -17,13 +17,6 @@ namespace three {
 
 uint16_t Material::___material_id_count = 0;
 
-void MeshDistanceMaterial::setupPointLight(const math::Vector3 &position, float near, float far)
-{
-  referencePosition = position;
-  nearDistance = near;
-  farDistance = far;
-}
-
 template <>
 struct MixinResolve<>;
 

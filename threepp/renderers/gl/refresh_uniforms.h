@@ -131,9 +131,11 @@ struct Refresh<material::DisplacementMap>
     mixin(uniforms, material);
   }
   static void mixin(UniformValues &uniforms, material::DisplacementMap &material) {
-    uniforms[UniformName::displacementMap] = material.displacementMap;
-    uniforms[UniformName::displacementBias] = material.displacementBias;
-    uniforms[UniformName::displacementScale] = material.displacementScale;
+    if(material.displacementMap) {
+      uniforms[UniformName::displacementMap] = material.displacementMap;
+      uniforms[UniformName::displacementBias] = material.displacementBias;
+      uniforms[UniformName::displacementScale] = material.displacementScale;
+    }
   }
 };
 template <>

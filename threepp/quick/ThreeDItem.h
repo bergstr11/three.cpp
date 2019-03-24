@@ -91,7 +91,7 @@ class ShadowMap : public QObject
   Q_PROPERTY(bool autoUpdate READ autoUpdate WRITE setAutoUpdate NOTIFY autoUpdateChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
 
-  Three::ShadowType _shadowType = Three::None;
+  Three::ShadowType _shadowType = Three::NoShadow;
   bool _autoUpdate = true, _needsUpdate = false;
   three::OpenGLRenderer::Ptr _renderer;
 

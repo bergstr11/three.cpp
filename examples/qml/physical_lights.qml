@@ -34,7 +34,10 @@ Window {
             label: "shadows:"
             value: true
             onValueChanged: {
-                threeD.shadowMap.enabled = value
+                threeD.shadowMap.type = value ? Three.PCFSoftShadow : Three.NoShadow
+                ball.material.needsUpdate = true
+                floor.material.needsUpdate = true
+                cubeMat.needsUpdate = true
                 threeD.update()
             }
         }
@@ -78,6 +81,13 @@ Window {
 				threeD.update()
             }
         }
+        BoolChoice {
+            name: "Animate"
+            value: false
+            onValueChanged: {
+                threeD.runAnimation(value)
+            }
+        }
     }
 
     ThreeD {
@@ -87,7 +97,8 @@ Window {
         physicallyCorrectLights: true
         toneMapping: Three.ReinhardToneMapping
         toneMappingExposure: Math.pow( 0.68, 5.0 );
-        shadowMap.type: Three.PCFSoft
+        shadowMap.type: Three.BasicShadow
+        autoAnimate: false
 
         MeshStandardMaterial {
             id: cubeMat
@@ -112,17 +123,24 @@ Window {
             }
         }
 
+        ShadowMapViewer {
+            id: spotShadowViewer
+            scale: 0.4
+            position: "700,10"
+            light: bulbLight
+            enabled: bulbLight.visible
+        }
+
         Scene {
             id: scene
 
             PointLight {
                 id: bulbLight
                 color: "#ffee88"
-                distance: 100
                 decay: 2
                 position: "0,2,0"
-                castShadow: true
                 power: bulbLuminousPowers.values[4]
+                castShadow: true
 
                 Sphere {
                     id: bulb
@@ -152,7 +170,7 @@ Window {
                 width: 20
                 height: 20
                 receiveShadow: true
-                rotation.x: - Math.PI / 2
+                rotation.x: - Math.PI / 2.0
 
                 material: MeshStandardMaterial {
                     id: floorMat
@@ -256,6 +274,10 @@ Window {
 
                 controller: OrbitController {}
             }
+        }
+        animate: function() {
+            var time = Date.now() * 0.0005;
+			bulbLight.position.y = Math.cos( time ) * 0.75 + 1.25;
         }
     }
 }
