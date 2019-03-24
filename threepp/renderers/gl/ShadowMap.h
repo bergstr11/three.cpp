@@ -78,7 +78,7 @@ public:
 
   void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
 
-  ShadowMapType type() const {return enabled ? ShadowMapType::None : _type;}
+  ShadowMapType type() const {return _type;}
 
   void setType(ShadowMapType type) {_type = type;}
 };

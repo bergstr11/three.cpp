@@ -235,7 +235,7 @@ public:
 
   void setShadowMapType(three::ShadowMapType type) override {
     _shadowMap.enabled = type != three::ShadowMapType::None;
-    _shadowMap.setType(type);
+    if(_shadowMap.enabled) _shadowMap.setType(type);
   }
 
   void setShadowMapAuto(bool shadowAuto) override {

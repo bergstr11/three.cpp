@@ -34,7 +34,7 @@ Window {
             label: "shadows:"
             value: true
             onValueChanged: {
-                threeD.shadowMap.type = value ? Three.PCFSoftShadow : Three.NoShadow
+                threeD.shadowMap.type = value ? Three.BasicShadow : Three.NoShadow
                 ball.material.needsUpdate = true
                 floor.material.needsUpdate = true
                 cubeMat.needsUpdate = true
