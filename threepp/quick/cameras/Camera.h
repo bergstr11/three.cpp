@@ -60,8 +60,11 @@ public:
   float _near=0.1f, _far=2000;
 
   Camera(QObject *parent=nullptr) : ThreeQObject(parent) {}
+
+  Camera(float near, float far, QObject *parent=nullptr) : ThreeQObject(parent), _near(near), _far(far) {}
+
   Camera(three::Camera::Ptr camera, QObject *parent=nullptr)
-     : ThreeQObject(camera, parent), _camera(camera) {}
+     : ThreeQObject(camera, parent), _camera(camera), _near(camera->near()), _far(camera->far()) {}
 
   float near() const {return _near;}
   float far() const {return _far;}

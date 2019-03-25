@@ -31,8 +31,12 @@ protected:
 public:
   PerspectiveCamera(QObject *parent = nullptr) : Camera(parent) {}
 
+  PerspectiveCamera(float fov, float aspect, float near, float far, QObject *parent = nullptr)
+     : Camera(near, far, parent), _fov(fov), _aspect(aspect)
+  {}
+
   PerspectiveCamera(three::PerspectiveCamera::Ptr camera, QObject *parent = nullptr)
-     : Camera(camera, parent), _perspectiveCamera(camera) {}
+     : Camera(camera, parent), _perspectiveCamera(camera), _fov(camera->fov()), _aspect(camera->aspect()) {}
 
   float fov() const {return _fov;}
   float aspect() const {return _aspect;}

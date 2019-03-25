@@ -117,7 +117,7 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
 
       uniforms->color = light->color() * light->intensity();
       uniforms->distance = plight->distance();
-      uniforms->decay = (plight->distance() == 0) ? 0.0f : plight->decay();
+      uniforms->decay = plight->decay();
 
       uniforms->shadow = light->castShadow;
 

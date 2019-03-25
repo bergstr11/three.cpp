@@ -43,8 +43,9 @@ protected:
   three::Light::Ptr light() override {return _light;}
 
 public:
-  PointLight(QObject *parent=nullptr) : Light(parent) {}
-  PointLight(three::Light::Ptr light, QObject *parent) : Light(light, parent) {}
+  PointLight(QObject *parent=nullptr) : Light(parent), _shadow(90, 1, 0.5, 500) {}
+  PointLight(three::PointLight::Ptr light, QObject *parent)
+    : Light(light, parent), _shadow(*light->shadow_t()), _decay(light->decay()), _distance(light->distance()) {}
 
   LightShadowPC *shadow() {return &_shadow;}
 

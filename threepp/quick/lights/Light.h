@@ -27,7 +27,11 @@ protected:
 
   Light(QObject *parent) : ThreeQObject(parent) {}
 
-  Light(three::Light::Ptr light, QObject *parent) : ThreeQObject(light, parent) {}
+  Light(three::Light::Ptr light, QObject *parent) : ThreeQObject(light, parent)
+  {
+    _color.setRgbF(light->color().r, light->color().g, light->color().b);
+    _intensity = light->intensity();
+  }
 
 public:
   virtual three::Light::Ptr light() = 0;

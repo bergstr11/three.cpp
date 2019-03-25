@@ -53,7 +53,7 @@ protected:
 
   Viewport _view;
 
-  Camera(const object::Typer &typer, float near=0.1, float far=2000, float zoom=1)
+  Camera(const object::Typer &typer, float near, float far, float zoom=1)
     : Object3D(), _near(near), _far(far), _zoom(zoom),
       _projectionMatrix(math::Matrix4::identity()),
       _matrixWorldInverse(_matrixWorld.inverted())

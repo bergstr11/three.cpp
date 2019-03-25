@@ -27,6 +27,13 @@ Q_OBJECT
 public:
   LightShadow(QObject *parent=nullptr) : QObject(parent) {}
 
+  LightShadow(const three::LightShadow &shadow, QObject *parent = nullptr)
+     : QObject(parent), _radius(shadow.radius()), _bias(shadow.bias())
+  {
+    _mapSize.setWidth(shadow.mapSize().x());
+    _mapSize.setHeight(shadow.mapSize().y());
+  }
+
   QSize mapSize() {return _mapSize;}
 
   void setMapSize(QSize size) {
@@ -68,6 +75,15 @@ Q_OBJECT
   PerspectiveCamera _camera;
 
 public:
+  LightShadowPC(QObject *parent=nullptr) : LightShadow(parent) {}
+
+  LightShadowPC(float fov, float aspect, float near, float far, QObject *parent = nullptr)
+     : LightShadow(parent), _camera(fov, aspect, near, far)
+  {}
+
+  LightShadowPC(const three::PointLightShadow &shadow, QObject *parent = nullptr)
+     : LightShadow(shadow, parent), _camera(shadow.camera_t()) {}
+
   PerspectiveCamera *camera() {
     return &_camera;
   }

@@ -53,7 +53,7 @@ Window {
             		"20 lm (4W)",
             		"Off"]
             values: [110000, 3500, 1700, 800, 400, 180, 20, 0]
-            selectedIndex: 4
+            selectedIndex: 2
             onSelectedIndexChanged: {
                 bulbLight.power = values[ selectedIndex ];
 				threeD.update()
@@ -62,10 +62,10 @@ Window {
         ListChoice {
             id: hemiLuminousIrradiances
             label: "hemiIrradiance:"
-            names: ["0.0001 lx (Moonless Night)",
-                    "0.002 lx (Night Airglow)",
-                    "0.5 lx (Full Moon)",
-                    "3.4 lx (City Twilight)",
+            names: ["1 lx (Moonless Night)",
+                    "2 lx (Night Airglow)",
+                    "5 lx (Full Moon)",
+                    "34 lx (City Twilight)",
                     "50 lx (Living Room)",
                     "100 lx (Very Overcast)",
                     "350 lx (Office Room)",
@@ -73,7 +73,7 @@ Window {
                     "1000 lx (Overcast)",
                     "18000 lx (Daylight)",
                     "50000 lx (Direct Sun)"]
-            values: [0.0001, 0.002, 0.5, 3.4, 50, 100, 350, 400, 1000, 18000, 50000]
+            values: [1, 7, 15, 30, 50, 100, 350, 400, 1000, 18000, 50000]
             selectedIndex: 0
 
             onSelectedIndexChanged: {
@@ -137,9 +137,10 @@ Window {
             PointLight {
                 id: bulbLight
                 color: "#ffee88"
+                distance: 100
                 decay: 2
                 position: "0,2,0"
-                power: bulbLuminousPowers.values[4]
+                power: bulbLuminousPowers.values[2]
                 castShadow: true
 
                 Sphere {
