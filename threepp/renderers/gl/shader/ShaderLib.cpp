@@ -266,7 +266,7 @@ public:
                   ).merge(UniformsID::displacementmap, {
                      {UniformName::referencePosition, math::Vector3()},
                      {UniformName::nearDistance,      1.0f},
-                     {UniformName::farDistance,       1.0f},
+                     {UniformName::farDistance,       1000.0f},
                   }),
                   ":shader/distanceRGBA_vert.glsl",
                   ":shader/distanceRGBA_frag.glsl"

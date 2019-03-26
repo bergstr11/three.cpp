@@ -97,7 +97,7 @@ Window {
         physicallyCorrectLights: true
         toneMapping: Three.ReinhardToneMapping
         toneMappingExposure: Math.pow( 0.68, 5.0 );
-        shadowMap.type: Three.BasicShadow
+        shadowMap.type: Three.PCFShadow
         autoAnimate: false
 
         MeshStandardMaterial {
