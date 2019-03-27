@@ -53,19 +53,21 @@ Window {
             		"20 lm (4W)",
             		"Off"]
             values: [110000, 3500, 1700, 800, 400, 180, 20, 0]
-            selectedIndex: 2
+            selectedIndex: 4
+
             onSelectedIndexChanged: {
                 bulbLight.power = values[ selectedIndex ];
 				threeD.update()
             }
+            function selectedValue() {return values[selectedIndex]}
         }
         ListChoice {
             id: hemiLuminousIrradiances
             label: "hemiIrradiance:"
-            names: ["1 lx (Moonless Night)",
-                    "2 lx (Night Airglow)",
-                    "5 lx (Full Moon)",
-                    "34 lx (City Twilight)",
+            names: ["0.0001 lx (Moonless Night)",
+                    "0.002 lx (Night Airglow)",
+                    "0.5 lx (Full Moon)",
+                    "3.4 lx (City Twilight)",
                     "50 lx (Living Room)",
                     "100 lx (Very Overcast)",
                     "350 lx (Office Room)",
@@ -73,13 +75,14 @@ Window {
                     "1000 lx (Overcast)",
                     "18000 lx (Daylight)",
                     "50000 lx (Direct Sun)"]
-            values: [1, 7, 15, 30, 50, 100, 350, 400, 1000, 18000, 50000]
+            values: [0.0001, 0.002, 0.5, 3.4, 50, 100, 350, 400, 1000, 18000, 50000]
             selectedIndex: 0
 
             onSelectedIndexChanged: {
                 hemiLight.intensity = values[ selectedIndex ];
 				threeD.update()
             }
+            function selectedValue() {return values[selectedIndex]}
         }
         BoolChoice {
             name: "Animate"
@@ -95,6 +98,8 @@ Window {
         anchors.fill: parent
         focus: true
         physicallyCorrectLights: true
+        gammaInput: true
+        gammaOutput: true
         toneMapping: Three.ReinhardToneMapping
         toneMappingExposure: Math.pow( 0.68, 5.0 );
         shadowMap.type: Three.PCFShadow
@@ -140,7 +145,7 @@ Window {
                 distance: 100
                 decay: 2
                 position: "0,2,0"
-                power: bulbLuminousPowers.values[2]
+                power: bulbLuminousPowers.selectedValue()
                 castShadow: true
 
                 Sphere {
@@ -162,7 +167,7 @@ Window {
                 id: hemiLight
                 skyColor: "#ddeeff"
                 groundColor: "#0f0e0d"
-                intensity: hemiLuminousIrradiances.values[0]
+                intensity: hemiLuminousIrradiances.selectedValue()
             }
 
             Plane {

@@ -40,11 +40,17 @@ class DLX MeshDistanceMaterial : public MaterialT<
 {
   MeshDistanceMaterial()
      : MaterialT(material::InfoT<MeshDistanceMaterial>(), material::Typer(this))
-  {}
+  {
+    fog = false;
+    lights = false;
+  }
 
   MeshDistanceMaterial(const MeshDistanceMaterial &material)
      : MaterialT(material, material::InfoT<MeshDistanceMaterial>(), material::Typer(this))
-  {}
+  {
+    fog = false;
+    lights = false;
+  }
 
 protected:
   void callback(const material::Selector &selector) override;
@@ -66,6 +72,8 @@ public:
   MeshDistanceMaterial *cloned() const override {
     return new MeshDistanceMaterial(*this);
   }
+
+  bool transparent() const override {return opacity < 1.0f;}
 };
 
 }

@@ -233,6 +233,12 @@ public:
     return _currentRenderTarget;
   }
 
+  void setGamma(bool input, bool output) override
+  {
+    gammaInput = input;
+    gammaOutput = output;
+  }
+
   void setShadowMapType(three::ShadowMapType type) override {
     _shadowMap.enabled = type != three::ShadowMapType::None;
     if(_shadowMap.enabled) _shadowMap.setType(type);

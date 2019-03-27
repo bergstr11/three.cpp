@@ -70,6 +70,7 @@ public:
     }
     _renderer->setShadowMapAuto(_item->shadowMap()->autoUpdate());
 
+    _renderer->setGamma(_item->_gammaInput, item->_gammaOutput);
     _renderer->autoClear = _item->_autoClear;
     _renderer->antialias = _item->_antialias;
     _renderer->initContext();
@@ -265,6 +266,22 @@ void ThreeDItem::setAntialias(bool antialias)
   if(_antialias != antialias) {
     _antialias = antialias;
     emit antialiasChanged();
+  }
+}
+
+void ThreeDItem::setGammaInput(bool gammaInput)
+{
+  if(_gammaInput != gammaInput) {
+    _gammaInput = gammaInput;
+    emit gammaInputChanged();
+  }
+}
+
+void ThreeDItem::setGammaOutput(bool gammaOutput)
+{
+  if(_gammaOutput != gammaOutput) {
+    _gammaOutput = gammaOutput;
+    emit gammaOutputChanged();
   }
 }
 

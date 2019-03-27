@@ -132,6 +132,8 @@ private:
   Q_PROPERTY(bool autoClear READ autoClear WRITE setAutoClear NOTIFY autoClearChanged FINAL)
   Q_PROPERTY(bool autoRender READ autoRender WRITE setAutoRender NOTIFY autoRenderChanged FINAL)
   Q_PROPERTY(bool antialias READ antialias WRITE setAntialias NOTIFY antialiasChanged FINAL)
+  Q_PROPERTY(bool gammaInput READ gammaInput WRITE setGammaInput NOTIFY gammaInputChanged FINAL)
+  Q_PROPERTY(bool gammaOutput READ gammaOutput WRITE setGammaOutput NOTIFY gammaOutputChanged FINAL)
   Q_PROPERTY(unsigned samples READ samples WRITE setSamples NOTIFY samplesChanged FINAL)
   Q_PROPERTY(QRect viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
   Q_PROPERTY(QJSValue animate READ animate WRITE setAnimate NOTIFY animateChanged FINAL)
@@ -169,6 +171,7 @@ private:
 
   bool _autoAnimate = true;
   bool _pysicallyCorrectLights = false;
+  bool _gammaInput, _gammaOutput;
   three::quick::Three::ToneMapping _toneMapping = three::quick::Three::LinearToneMapping;
   float _toneMappingExposure = 1.0f;
   QTimer *_animateTimer = nullptr;
@@ -219,6 +222,14 @@ public:
   bool antialias() const {return _antialias;}
 
   void setAntialias(bool antialias);
+
+  bool gammaInput() const {return _gammaInput;}
+
+  void setGammaInput(bool gammaInput);
+
+  bool gammaOutput() const {return _gammaOutput;}
+
+  void setGammaOutput(bool gammaOutput);
 
   bool autoAnimate() const {return _autoAnimate;}
 
@@ -319,6 +330,8 @@ signals:
   void physicallyCorrectLightsChanged();
   void toneMappingChanged();
   void toneMappingExposureChanged();
+  void gammaInputChanged();
+  void gammaOutputChanged();
 };
 
 }

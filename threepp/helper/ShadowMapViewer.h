@@ -131,7 +131,7 @@ public:
 
   void render(OpenGLRenderer::Ptr renderer, three::Renderer::Target::Ptr target)
   {
-    if (enabled ) {
+    if (enabled && _light->shadow()->map()) {
 
       setGeometry(target->width(), target->height());
 

@@ -54,6 +54,7 @@ public:
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
   virtual void setToneMapping(ToneMapping toneMapping) = 0;
   virtual void setToneMappingExposure(float toneMappingExposure) = 0;
+  virtual void setGamma(bool input, bool output) = 0;
   virtual void clear() = 0;
   virtual void clearDepth() = 0;
   virtual void updateShadows() = 0;

@@ -93,7 +93,7 @@ public:
     bool depthBuffer = true;
     bool stencilBuffer = true;
     DepthTexture::Ptr depthTexture;
-    bool generateMipmaps = true;
+    bool generateMipmaps = false;
 
     Options() {
       minFilter = TextureFilter::Linear;
