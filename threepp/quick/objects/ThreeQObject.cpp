@@ -100,6 +100,11 @@ three::Object3D::Ptr ThreeQObject::create(Scene *scene, Object3D::Ptr parent)
     _object->matrixAutoUpdate = _matrixAutoUpdate;
     _object->visible() = _visible;
 
+    if(_customDepthMaterial)
+      _object->customDepthMaterial = _customDepthMaterial->getMaterial();
+    if(_customDistanceMaterial)
+      _object->customDistanceMaterial = _customDistanceMaterial->getMaterial();
+
     for(auto o : _children) {
       three::Object3D::Ptr obj = o->create(_scene, _object);
     }
@@ -370,6 +375,22 @@ void ThreeQObject::setMaterial(Material *material, bool update) {
     _material = material;
     if(_object && update) updateMaterial();
     emit materialChanged();
+  }
+}
+
+void ThreeQObject::setCustomDistanceMaterial(Material *material, bool update) {
+  if(_customDistanceMaterial != material) {
+    _customDistanceMaterial = material;
+    if(_object && update) _object->customDistanceMaterial = material->getMaterial();
+    emit customDistanceMaterialChanged();
+  }
+}
+
+void ThreeQObject::setCustomDepthMaterial(Material *material, bool update) {
+  if(_customDepthMaterial != material) {
+    _customDepthMaterial = material;
+    if(_object && update) _object->customDepthMaterial = material->getMaterial();
+    emit customDepthMaterialChanged();
   }
 }
 

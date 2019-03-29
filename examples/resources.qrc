@@ -14,6 +14,7 @@
         <file alias="webgl_shadowmap.qml">qml/webgl_shadowmap.qml</file>
         <file alias="drag_cubes.qml">qml/drag_cubes.qml</file>
         <file alias="voxelpainter.qml">qml/voxelpainter.qml</file>
+        <file alias="shadowmap_pointlight.qml">qml/shadowmap_pointlight.qml</file>
         <file alias="3ds_model.qml">qml/3ds_model.qml</file>
         <file alias="load_model.qml">qml/load_model.qml</file>
         <file alias="model_dynamics.qml">qml/model_dynamics.qml</file>

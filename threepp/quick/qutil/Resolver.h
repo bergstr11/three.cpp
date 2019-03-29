@@ -16,11 +16,12 @@ class MeshStandardMaterial;
 class MeshPhysicalMaterial;
 class MeshLambertMaterial;
 class MeshBasicMaterial;
+class MeshDistanceMaterial;
 
 namespace material {
 
 using Typer = three::Typer<Material, ShaderMaterial, MeshPhongMaterial, MeshToonMaterial,
-   MeshStandardMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial>;
+   MeshStandardMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial, MeshDistanceMaterial>;
 
 }
 

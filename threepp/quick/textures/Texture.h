@@ -5,6 +5,8 @@
 #ifndef THREEPPQ_TEXTURE_H
 #define THREEPPQ_TEXTURE_H
 
+#include <QVector2D>
+#include <threepp/quick/Three.h>
 #include <threepp/quick/ThreeQObjectRoot.h>
 #include <threepp/renderers/gl/shader/ShaderLib.h>
 
@@ -31,19 +33,6 @@ public:
   };
   Q_ENUM(Mapping)
 
-  enum Wrapping {
-    Repeat = (unsigned)three::TextureWrapping::Repeat,
-    MirroredRepeat = (unsigned)three::TextureWrapping::MirroredRepeat,
-    ClampToEdge = (unsigned)three::TextureWrapping::ClampToEdge,
-  };
-  Q_ENUM(Wrapping)
-
-  enum Filter {
-    Linear = (unsigned)three::TextureFilter::Linear,
-    LinearMipMapLinear = (unsigned)three::TextureFilter::LinearMipMapLinear
-  };
-  Q_ENUM(Filter)
-
   enum Type {
     UnsignedByte = (unsigned)three::TextureType::UnsignedByte,
     UnsignedShort = (unsigned)three::TextureType::UnsignedShort
@@ -53,10 +42,11 @@ public:
 private:
   Q_PROPERTY(Format format READ format WRITE setFormat NOTIFY formatChanged)
   Q_PROPERTY(Mapping mapping READ mapping WRITE setMapping NOTIFY mappingChanged)
-  Q_PROPERTY(Filter minFilter READ minFilter WRITE setMinFilter NOTIFY minFilterChanged)
-  Q_PROPERTY(Filter magFilter READ magFilter WRITE setMagFilter NOTIFY magFilterChanged)
-  Q_PROPERTY(Wrapping wrapS READ wrapS WRITE setWrapS NOTIFY wrapSChanged)
-  Q_PROPERTY(Wrapping wrapT READ wrapT WRITE setWrapT NOTIFY wrapTChanged)
+  Q_PROPERTY(three::quick::Three::Filter minFilter READ minFilter WRITE setMinFilter NOTIFY minFilterChanged)
+  Q_PROPERTY(three::quick::Three::Filter magFilter READ magFilter WRITE setMagFilter NOTIFY magFilterChanged)
+  Q_PROPERTY(three::quick::Three::Wrapping wrapS READ wrapS WRITE setWrapS NOTIFY wrapSChanged)
+  Q_PROPERTY(three::quick::Three::Wrapping wrapT READ wrapT WRITE setWrapT NOTIFY wrapTChanged)
+  Q_PROPERTY(QVector2D repeat READ repeat WRITE setRepeat NOTIFY repeatChanged)
   Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
   Q_PROPERTY(float anisotropy READ anisotropy WRITE setAnisotropy NOTIFY anisotropyChanged)
   Q_PROPERTY(bool flipY READ flipY WRITE setFlipY NOTIFY flipYChanged)
@@ -64,9 +54,10 @@ private:
 protected:
   Format _format = RGBA;
   Mapping _mapping = UV;
-  Filter _minFilter = LinearMipMapLinear;
-  Filter _magFilter = Linear;
-  Wrapping _wrapS = ClampToEdge, _wrapT = ClampToEdge;
+  Three::Filter _minFilter = Three::LinearMipMapLinear;
+  Three::Filter _magFilter = Three::LinearFilter;
+  Three::Wrapping _wrapS = Three::ClampToEdge, _wrapT = Three::ClampToEdge;
+  QVector2D _repeat {1.0f, 1.0f};
   float _anisotropy = 1;
   Type _type = UnsignedByte;
   bool _flipY = true;
@@ -98,15 +89,15 @@ public:
       emit mappingChanged();
     }
   }
-  Filter minFilter() const {return _minFilter;}
-  void setMinFilter(Filter filter) {
+  Three::Filter minFilter() const {return _minFilter;}
+  void setMinFilter(Three::Filter filter) {
     if(_minFilter != filter) {
       _minFilter = filter;
       emit minFilterChanged();
     }
   }
-  Filter magFilter() const {return _magFilter;}
-  void setMagFilter(Filter filter) {
+  Three::Filter magFilter() const {return _magFilter;}
+  void setMagFilter(Three::Filter filter) {
     if(_magFilter != filter) {
       _magFilter = filter;
       emit magFilterChanged();
@@ -126,15 +117,15 @@ public:
       emit flipYChanged();
     }
   }
-  Wrapping wrapS() const {return _wrapS;}
-  void setWrapS(Wrapping wrap) {
+  Three::Wrapping wrapS() const {return _wrapS;}
+  void setWrapS(Three::Wrapping wrap) {
     if(_wrapS != wrap) {
       _wrapS = wrap;
       emit wrapSChanged();
     }
   }
-  Wrapping wrapT() const {return _wrapT;}
-  void setWrapT(Wrapping wrap) {
+  Three::Wrapping wrapT() const {return _wrapT;}
+  void setWrapT(Three::Wrapping wrap) {
     if(_wrapT != wrap) {
       _wrapT = wrap;
       emit wrapTChanged();
@@ -145,6 +136,13 @@ public:
     if(_anisotropy != anisotropy) {
       _anisotropy = anisotropy;
       emit anisotropyChanged();
+    }
+  }
+  const QVector2D & repeat() const {return _repeat;}
+  void setRepeat(const QVector2D &repeat) {
+    if(_repeat != repeat) {
+      _repeat = repeat;
+      emit repeatChanged();
     }
   }
 
@@ -175,6 +173,7 @@ signals:
   void wrapSChanged();
   void wrapTChanged();
   void anisotropyChanged();
+  void repeatChanged();
 };
 
 }

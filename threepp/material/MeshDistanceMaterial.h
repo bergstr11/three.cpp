@@ -68,6 +68,9 @@ public:
     p->skinning = skinning;
     return p;
   }
+  static Ptr make() {
+    return Ptr(new MeshDistanceMaterial());
+  }
 
   MeshDistanceMaterial *cloned() const override {
     return new MeshDistanceMaterial(*this);

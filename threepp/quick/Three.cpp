@@ -20,6 +20,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/lights/HemisphereLight.h"
 #include "threepp/quick/lights/DirectionalLight.h"
 #include "threepp/quick/lights/LightHelper.h"
+#include "threepp/quick/textures/ColorTexture.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
 #include "objects/Ring.h"
@@ -38,6 +39,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/objects/SVG.h"
 #include "threepp/quick/objects/VertexNormalsHelper.h"
 #include "materials/MeshPhysicalMaterial.h"
+#include "materials/MeshDistanceMaterial.h"
 #include "materials/ShaderMaterial.h"
 #include "textures/ImageTexture.h"
 #include "textures/ImageCubeTexture.h"
@@ -115,11 +117,13 @@ void init()
   qmlRegisterType<three::quick::MeshPhongMaterial>("three.quick", 1, 0, "MeshPhongMaterial");
   qmlRegisterType<three::quick::MeshStandardMaterial>("three.quick", 1, 0, "MeshStandardMaterial");
   qmlRegisterType<three::quick::MeshPhysicalMaterial>("three.quick", 1, 0, "MeshPhysicalMaterial");
+  qmlRegisterType<three::quick::MeshDistanceMaterial>("three.quick", 1, 0, "MeshDistanceMaterial");
   qmlRegisterType<three::quick::ShaderMaterial>("three.quick", 1, 0, "ShaderMaterial");
   qmlRegisterType<three::quick::PerspectiveCamera>("three.quick", 1, 0, "PerspectiveCamera");
   qmlRegisterType<three::quick::OrthographicCamera>("three.quick", 1, 0, "OrthographicCamera");
   qmlRegisterUncreatableType<three::quick::Texture>("three.quick", 1, 0, "Texture", "abstract class");
   qmlRegisterType<three::quick::Image>("three.quick", 1, 0, "ThreeImage");
+  qmlRegisterType<three::quick::ColorTexture>("three.quick", 1, 0, "ColorTexture");
   qmlRegisterType<three::quick::ImageTexture>("three.quick", 1, 0, "ImageTexture");
   qmlRegisterType<three::quick::ImageCubeTexture>("three.quick", 1, 0, "ImageCubeTexture");
   qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");

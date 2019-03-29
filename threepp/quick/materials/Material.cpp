@@ -20,6 +20,8 @@ void Material::setBaseProperties(three::Material::Ptr material)
   material->flatShading = _flatShading;
   material->visible = _visible;
   material->dithering = _dithering;
+  material->alphaTest = _alphaTest;
+  material->side = (three::Side)_side();
 }
 
 void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformValues &uniforms)

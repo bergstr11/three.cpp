@@ -19,6 +19,23 @@ class Three : public QObject
 {
 Q_OBJECT
 public:
+  enum Wrapping {
+    RepeatWrapping = (unsigned)three::TextureWrapping::Repeat,
+    MirroredRepeat = (unsigned)three::TextureWrapping::MirroredRepeat,
+    ClampToEdge = (unsigned)three::TextureWrapping::ClampToEdge,
+  };
+  Q_ENUM(Wrapping)
+
+  enum Filter {
+    NearestFilter = (unsigned)three::TextureFilter::Nearest,
+    LinearFilter = (unsigned)three::TextureFilter::Linear,
+    LinearMipMapLinear = (unsigned)three::TextureFilter::LinearMipMapLinear,
+    LinearMipMapNearest = (unsigned)three::TextureFilter::LinearMipMapNearest,
+    NearestMipMapNearest = (unsigned)three::TextureFilter::NearestMipMapNearest,
+    NearestMipMapLinear =  (unsigned)three::TextureFilter::NearestMipMapLinear
+  };
+  Q_ENUM(Filter)
+
   enum ToneMapping {
     NoToneMapping = (unsigned)three::ToneMapping::None,
     LinearToneMapping = (unsigned)three::ToneMapping::Linear,
@@ -45,7 +62,7 @@ public:
   enum Side {
     FrontSide = (unsigned)three::Side::Front,
     BackSide = (unsigned)three::Side::Back,
-    FrontAndBackSide = (unsigned)three::Side::Double
+    DoubleSide = (unsigned)three::Side::Double
   };
   Q_ENUM(Side)
 

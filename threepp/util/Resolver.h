@@ -21,6 +21,7 @@ class ImageTexture;
 class DataTexture;
 class DataCubeTexture;
 class DepthTexture;
+class ColorTexture;
 class Texture;
 
 namespace texture {

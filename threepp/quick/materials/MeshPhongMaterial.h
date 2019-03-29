@@ -15,6 +15,7 @@ namespace quick {
 
 class MeshPhongMaterial : public Material,
    public Diffuse<MeshPhongMaterial>,
+   public AlphaMap<MeshPhongMaterial>,
    public Emissive<MeshPhongMaterial>,
    public EnvMap<MeshPhongMaterial>,
    public LightMap<MeshPhongMaterial>,
@@ -27,6 +28,7 @@ Q_OBJECT
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
   Q_PROPERTY(float opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
   Q_PROPERTY(three::quick::Texture *map READ map WRITE setMap NOTIFY mapChanged)
+  Q_PROPERTY(three::quick::Texture *alphaMap READ alphaMap WRITE setAlphaMap NOTIFY alphaMapChanged)
   Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
   Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
   Q_PROPERTY(three::quick::Texture *normalMap READ normalMap WRITE setNormalMap NOTIFY normalMapChanged)
@@ -71,6 +73,7 @@ public:
     }
     Material::setAndConfigure(material);
     applyDiffuse(_material);
+    applyAlphaMap(_material);
     applyEnvMap(_material);
     applyEmissive(_material);
     applyLightMap(_material);
@@ -84,6 +87,7 @@ public:
     auto material = three::MeshPhongMaterial::make(Color(_color().redF(), _color().greenF(), _color().blueF()), _dithering);
 
     setBaseProperties(material);
+    applyAlphaMap(_material);
     applySpecular(material);
     applyDiffuse(material);
     applyEmissive(material);
@@ -111,6 +115,7 @@ signals:
   void colorChanged();
   void opacityChanged();
   void mapChanged();
+  void alphaMapChanged();
   void lightMapChanged();
   void lightMapIntensityChanged();
   void specularChanged();

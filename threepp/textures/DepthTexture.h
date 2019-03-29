@@ -11,7 +11,6 @@ namespace three
 
 class DepthTexture :public Texture
 {
-  friend class Textures;
 private:
   size_t _width, _height;
 

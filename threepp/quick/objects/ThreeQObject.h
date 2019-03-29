@@ -53,6 +53,8 @@ Q_OBJECT
   Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
   Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
   Q_PROPERTY(three::quick::Material * material READ material WRITE setMaterial NOTIFY materialChanged)
+  Q_PROPERTY(three::quick::Material * customDistanceMaterial READ customDistanceMaterial WRITE setCustomDistanceMaterial NOTIFY customDistanceMaterialChanged)
+  Q_PROPERTY(three::quick::Material * customDepthMaterial READ customDepthMaterial WRITE setCustomDepthMaterial NOTIFY customDepthMaterialChanged)
   Q_PROPERTY(bool castShadow READ castShadow WRITE setCastShadow NOTIFY castShadowChanged)
   Q_PROPERTY(bool receiveShadow READ receiveShadow WRITE setReceiveShadow NOTIFY receiveShadowChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
@@ -85,7 +87,7 @@ protected:
 
   Three::GeometryType _geometryType = Three::LinearGeometry;
 
-  Material *_material = nullptr;
+  Material *_material = nullptr, *_customDistanceMaterial = nullptr, *_customDepthMaterial = nullptr;
 
   three::Object3D::Ptr _object;
   three::Object3D::Ptr _parentObject;
@@ -147,6 +149,14 @@ public:
 
   void setMaterial(Material *material, bool update=true);
 
+  Material *customDistanceMaterial() const {return _customDistanceMaterial;}
+
+  void setCustomDistanceMaterial(Material *material, bool update=true);
+
+  Material *customDepthMaterial() const {return _customDepthMaterial;}
+
+  void setCustomDepthMaterial(Material *material, bool update=true);
+
   bool matrixAutoUpdate() const {return _object ? _object->matrixAutoUpdate : _matrixAutoUpdate;}
 
   void setMatrixAutoUpdate(bool matrixAutoUpdate, bool propagate=true);
@@ -199,6 +209,8 @@ signals:
   void rotationChanged();
   void scaleChanged();
   void materialChanged();
+  void customDistanceMaterialChanged();
+  void customDepthMaterialChanged();
   void castShadowChanged();
   void receiveShadowChanged();
   void visibleChanged();

@@ -39,8 +39,8 @@ public:
     TextureOptions options = three::ImageCubeTexture::options();
     _format = (Format)options.format;
     _mapping = (Mapping)options.mapping;
-    _minFilter = (Filter)options.minFilter;
-    _magFilter = (Filter)options.magFilter;
+    _minFilter = (Three::Filter)options.minFilter;
+    _magFilter = (Three::Filter)options.magFilter;
     _type = (Type)options.type;
     _flipY = options.flipY;
   }

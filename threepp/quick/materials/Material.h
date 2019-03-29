@@ -277,6 +277,8 @@ Q_OBJECT
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
   Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
   Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
+  Q_PROPERTY(float alphaTest READ alphaTest WRITE setAlphaTest NOTIFY alphaTestChanged)
+  Q_PROPERTY(three::quick::Three::Side side READ side WRITE setSide NOTIFY sideChanged)
   Q_PROPERTY(QByteArray name READ name WRITE setName NOTIFY nameChanged)
 
 protected:
@@ -285,6 +287,8 @@ protected:
   TrackingProperty<QByteArray> _name {QByteArray()};
   TrackingProperty<bool> _visible {true};
   TrackingProperty<bool> _dithering {false};
+  TrackingProperty<float> _alphaTest {0.0f};
+  TrackingProperty<Three::Side> _side {Three::FrontSide};
 
   Material(const material::Typer &typer, QObject *parent = nullptr) : ThreeQObjectRoot(parent), typer(typer) {}
 
@@ -314,6 +318,8 @@ public:
     if(_name.isSet()) material->name = _name().toStdString();
     if(_visible.isSet()) material->visible = _visible;
     if(_dithering.isSet()) material->dithering = _dithering;
+    if(_alphaTest.isSet()) material->alphaTest = _alphaTest;
+    if(_side.isSet()) material->side = (three::Side)_side();
   }
 
   bool visible() const {return _visible;}
@@ -369,6 +375,24 @@ public:
     }
   }
 
+  const float &alphaTest() const {return _alphaTest();}
+
+  void setAlphaTest(float alphaTest) {
+    if(_alphaTest != alphaTest) {
+      _alphaTest = alphaTest;
+      emit alphaTestChanged();
+    }
+  }
+
+  const Three::Side &side() const {return _side();}
+
+  void setSide(Three::Side side) {
+    if(_side != side) {
+      _side = side;
+      emit sideChanged();
+    }
+  }
+
   virtual three::Material::Ptr getMaterial() = 0;
 
   Q_INVOKABLE QString getInfo();
@@ -381,6 +405,8 @@ signals:
   void ditheringChanged();
   void visibleChanged();
   void nameChanged();
+  void alphaTestChanged();
+  void sideChanged();
 };
 
 }

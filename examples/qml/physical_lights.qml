@@ -113,15 +113,15 @@ Window {
             bumpScale: 0.002
 
             map: ImageTexture {
-                wrapS: Texture.Repeat
-                wrapT: Texture.Repeat
+                wrapS: Three.RepeatWrapping
+                wrapT: Three.RepeatWrapping
                 anisotropy: 4
                 repeat: "1,1"
                 image: ":/brick_diffuse.jpg"
             }
             bumpMap: ImageTexture {
-                wrapS: Texture.Repeat
-                wrapT: Texture.Repeat
+                wrapS: Three.RepeatWrapping
+                wrapT: Three.RepeatWrapping
                 anisotropy: 4
                 repeat: "1,1"
                 image: ":/brick_bump.jpg"
@@ -186,22 +186,22 @@ Window {
                     bumpScale: 0.0005
 
                     map: ImageTexture {
-                        wrapS: Texture.Repeat
-                        wrapT: Texture.Repeat
+                        wrapS: Three.RepeatWrapping
+                        wrapT: Three.RepeatWrapping
                         anisotropy: 4
                         repeat: "10,24"
                         image: ":/hardwood2_diffuse.jpg"
                     }
                     bumpMap: ImageTexture {
-                        wrapS: Texture.Repeat
-                        wrapT: Texture.Repeat
+                        wrapS: Three.RepeatWrapping
+                        wrapT: Three.RepeatWrapping
                         anisotropy: 4
                         repeat: "10,24"
                         image: ":/hardwood2_bump.jpg"
                     }
                     roughnessMap: ImageTexture {
-                        wrapS: Texture.Repeat
-                        wrapT: Texture.Repeat
+                        wrapS: Three.RepeatWrapping
+                        wrapT: Three.RepeatWrapping
                         anisotropy: 4
                         repeat: "10,24"
                         image: ":/hardwood2_roughness.jpg"
