@@ -137,6 +137,8 @@ public:
 
   void transformUv(UV &uv);
 
+  void updateMatrix();
+
   void needsUpdate() {_version ++;}
 
   virtual bool isPowerOfTwo() const = 0;

@@ -61,7 +61,7 @@ void set_uniform(gl::UniformName name, const QVariant &var, three::gl::UniformVa
 
 three::ShaderMaterial::Ptr ShaderMaterial::createMaterial()
 {
-  three::Side side = (three::Side)_side;
+  three::Side side = (three::Side)_side();
 
   three::ShaderMaterial::Ptr mat;
   if(!_shaderID.isEmpty()) {

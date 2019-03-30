@@ -163,7 +163,7 @@ Window {
                 PointLight {
                     color: Qt.hsla(1, 1, 0.5, 1)
                     intensity: 1.5
-                    position: "30,100,800";
+                    position: "30,100,800"
                 }
             }
         }

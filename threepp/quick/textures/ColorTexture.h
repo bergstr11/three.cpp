@@ -7,6 +7,8 @@
 
 #include <QColor>
 #include <QImage>
+#include <QPainter>
+#include <QRect>
 #include <threepp/textures/ImageTexture.h>
 
 namespace three {
@@ -21,9 +23,12 @@ Q_OBJECT
   Q_PROPERTY(unsigned width READ width WRITE setWidth NOTIFY widthChanged)
   Q_PROPERTY(unsigned height READ height WRITE setHeight NOTIFY heightChanged)
   Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+  Q_PROPERTY(QColor fillColor READ fillColor WRITE setFillColor NOTIFY fillColorChanged)
+  Q_PROPERTY(QRect fillRect READ fillRect WRITE setFillRect NOTIFY fillRectChanged)
 
   unsigned _width = 1, _height = 1;
-  QColor _color {Qt::white};
+  QColor _color {Qt::white}, _fillColor {Qt::black};
+  QRect _fillRect {0, 0, -1, -1};
 
   three::ImageTexture::Ptr _texture;
 
@@ -32,7 +37,18 @@ Q_OBJECT
     if(!_texture) {
       TextureOptions options = createTextureOptions();
       QImage image(_width, _height, QImage::Format_RGBA8888);
-      image.fill(_color);
+
+      if(_fillRect.isValid()) {
+        image.fill(_color);
+
+        QPainter painter(&image);
+        painter.fillRect(_fillRect, _fillColor);
+        painter.end();
+      }
+      else {
+        image.fill(_color);
+      }
+
       _texture = three::ImageTexture::make(options, image);
       _texture->repeat().set(_repeat.x(), _repeat.y());
     }
@@ -63,6 +79,20 @@ public:
       emit colorChanged();
     }
   }
+  const QColor &fillColor() const {return _fillColor;}
+  void setFillColor(const QColor &color) {
+    if(_fillColor != color) {
+      _fillColor = color;
+      emit fillColorChanged();
+    }
+  }
+  const QRect &fillRect() const {return _fillRect;}
+  void setFillRect(const QRect &fillRect) {
+    if(_fillRect != fillRect) {
+      _fillRect = fillRect;
+      emit fillRectChanged();
+    }
+  }
 
   three::Texture::Ptr getTexture() override
   {
@@ -79,6 +109,8 @@ signals:
   void widthChanged();
   void heightChanged();
   void colorChanged();
+  void fillColorChanged();
+  void fillRectChanged();
 };
 
 }

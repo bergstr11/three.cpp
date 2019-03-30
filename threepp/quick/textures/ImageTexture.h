@@ -77,10 +77,8 @@ class ImageTexture : public Texture
 Q_OBJECT
   Q_PROPERTY(QString image READ image WRITE setImage NOTIFY imageChanged)
   Q_PROPERTY(three::quick::Image::Format imageFormat READ imageFormat WRITE setImageFormat NOTIFY imageFormatChanged)
-  Q_PROPERTY(QVector2D repeat READ repeat WRITE setRepeat NOTIFY repeatChanged)
 
   Image _image;
-  QVector2D _repeat {1, 1};
 
   three::ImageTexture::Ptr _texture;
 
@@ -143,14 +141,6 @@ public:
     }
   }
 
-  const QVector2D &repeat() const {return _repeat;}
-  void setRepeat(const QVector2D &repeat) {
-    if(_repeat != repeat) {
-      _repeat = repeat;
-      emit repeatChanged();
-    }
-  }
-
   void setUniform(gl::UniformValues &uniforms, gl::UniformName name) override
   {
     three::Texture::Ptr tex = getTexture();
@@ -160,7 +150,6 @@ public:
 signals:
   void imageChanged();
   void imageFormatChanged();
-  void repeatChanged();
 };
 
 }

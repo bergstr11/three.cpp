@@ -26,6 +26,11 @@ DepthTexture::DepthTexture(const TextureOptions &options, size_t width, size_t h
     TextureOptions::type = TextureType::UnsignedInt248;
 }
 
+void Texture::updateMatrix()
+{
+  _matrix.setUvTransform( _offset.x(), _offset.y(), _repeat.x(), _repeat.y(), _rotation, _center.x(), _center.y() );
+}
+
 void Texture::transformUv(UV &uv)
 {
   if (mapping() != TextureMapping::UV) return;

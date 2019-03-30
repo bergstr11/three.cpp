@@ -31,7 +31,8 @@ void Lights::setup(const vector<Light::Ptr> &lights, unsigned numShadows, Camera
       uniforms->color = light->color() * light->intensity();
 
       uniforms->direction = light->matrixWorld().getPosition();
-      uniforms->direction -= dlight->target()->matrixWorld().getPosition();
+      if(dlight->target())
+        uniforms->direction -= dlight->target()->matrixWorld().getPosition();
       uniforms->direction.transformDirection( viewMatrix );
 
       uniforms->shadow = light->castShadow;

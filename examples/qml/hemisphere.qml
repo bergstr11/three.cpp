@@ -101,7 +101,7 @@ Window {
             }
 
             Plane {
-                type: Three.Buffer
+                type: Three.BufferGeometry
                 width: 10000
                 height: 10000
 

@@ -242,12 +242,7 @@ void refresh(UniformValues &uniforms, MaterialT<Maps...> &material)
 
     if ( uvScaleMap->matrixAutoUpdate() ) {
 
-      const math::Vector2 &offset = uvScaleMap->offset();
-      const math::Vector2 &repeat = uvScaleMap->repeat();
-      float rotation = uvScaleMap->rotation();
-      const math::Vector2 &center = uvScaleMap->center();
-
-      uvScaleMap->matrix().setUvTransform( offset.x(), offset.y(), repeat.x(), repeat.y(), rotation, center.x(), center.y());
+      uvScaleMap->updateMatrix();
     }
     uniforms[UniformName::uvTransform] = uvScaleMap->matrix();
   }

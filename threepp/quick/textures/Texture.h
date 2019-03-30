@@ -149,6 +149,7 @@ public:
   TextureOptions createTextureOptions() const
   {
     TextureOptions options = textureOptions();
+    options.anisotropy = _anisotropy;
     options.format = (TextureFormat)_format;
     options.mapping = (TextureMapping)_mapping;
     options.minFilter = (TextureFilter)_minFilter;

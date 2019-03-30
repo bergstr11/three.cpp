@@ -87,8 +87,8 @@ Window {
             id: textureCube
             format: Texture.RGBA
             mapping: Texture.CubeReflection
-            flipY: false
             type: Texture.UnsignedByte
+            flipY: false
             images: [
                 ThreeImage {url: ":/cube_bridge2_posx.jpg"; format: ThreeImage.RGBA8888},
                 ThreeImage {url: ":/cube_bridge2_negx.jpg"; format: ThreeImage.RGBA8888},
@@ -109,8 +109,8 @@ Window {
             id: textureEquirec
             format: Texture.RGBA
             mapping: Texture.EquirectangularReflection
-            magFilter: Texture.Linear
-            minFilter: Texture.LinearMipMapLinear
+            magFilter: Three.LinearFilter
+            minFilter: Three.LinearMipMapLinear
             image: ":/2294472375_24a3b8ef46_o.jpg"
             imageFormat: ThreeImage.RGBA8888
         }

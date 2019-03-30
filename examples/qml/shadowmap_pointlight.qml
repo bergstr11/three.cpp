@@ -17,8 +17,9 @@ Window {
 
         PointLight {
             id: pointLight
-            distance: 20
             intensity: 1.5
+            decay: 1
+            distance: 20
             castShadow: true
             shadow.camera.near: 1
             shadow.camera.far: 60
@@ -47,10 +48,12 @@ Window {
                     side: Three.DoubleSide
                     alphaTest: 0.5
 
-                    alphaMap: ColorTexture {
-                        color: "white"
+                    map: ColorTexture {
+                        color: "transparent"
+                        fillColor: "white"
                         width: 2
                         height: 2
+                        fillRect: Qt.rect(0,1,2,1)
                         magFilter: Three.NearestFilter
                         wrapT: Three.RepeatWrapping
                         wrapS: Three.RepeatWrapping
@@ -68,8 +71,9 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        shadowMap.type: Three.BasicShadow
-        autoAnimate: false
+        //shadowMap.type: Three.BasicShadow
+        antialias: true
+        autoAnimate: true
 
         property var pointLight
         property var pointLight2
@@ -85,7 +89,7 @@ Window {
                 id: box1
                 type: Three.BufferGeometry
                 width: 30
-                height: 30
+                height: 37
                 depth: 30
                 receiveShadow: true
                 position.y: 10
@@ -108,10 +112,12 @@ Window {
                 target: scene.position
             }
 
-            Component.onCompleted: {
-                threeD.pointLight = lightFactory.createObject(scene, {color: "#0088ff"})
-                threeD.pointLight2 = lightFactory.createObject(scene, {color: "#ff8888"})
-            }
+        }
+        Component.onCompleted: {
+            pointLight = lightFactory.createObject(scene, {color: "#0088ff"})
+            scene.add(pointLight)
+            pointLight2 = lightFactory.createObject(scene, {color: "#ff8888"})
+            scene.add(pointLight2)
         }
         animate: function() {
             var time = Date.now() * 0.001;

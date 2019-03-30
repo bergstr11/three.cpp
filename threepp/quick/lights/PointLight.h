@@ -20,7 +20,7 @@ class PointLight : public Light
   Q_PROPERTY(float power READ power WRITE setPower NOTIFY powerChanged)
   Q_PROPERTY(LightShadowPC * shadow READ shadow CONSTANT)
 
-  float _decay = 1.0f;
+  float _decay = 0.0f;
   float _distance = 0.0f;
   LightShadowPC _shadow;
 

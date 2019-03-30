@@ -171,7 +171,7 @@ private:
 
   bool _autoAnimate = true;
   bool _pysicallyCorrectLights = false;
-  bool _gammaInput, _gammaOutput;
+  bool _gammaInput = false, _gammaOutput = false;
   three::quick::Three::ToneMapping _toneMapping = three::quick::Three::LinearToneMapping;
   float _toneMappingExposure = 1.0f;
   QTimer *_animateTimer = nullptr;

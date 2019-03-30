@@ -53,14 +53,14 @@ protected:
 public:
   three::MeshPhongMaterial::Ptr _material;
 
-  MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent = nullptr)
+  explicit MeshPhongMaterial(three::MeshPhongMaterial::Ptr mat, QObject *parent = nullptr)
      : Material(material::Typer(this), parent), _material(mat)
   {}
 
-  MeshPhongMaterial(QObject *parent=nullptr)
+  explicit MeshPhongMaterial(QObject *parent=nullptr)
      : Material(material::Typer(this), parent) {}
 
-  void applyColor(const QColor &color)
+  void applyColor(const QColor &color) override
   {
     setColor(color);
   }
@@ -87,7 +87,7 @@ public:
     auto material = three::MeshPhongMaterial::make(Color(_color().redF(), _color().greenF(), _color().blueF()), _dithering);
 
     setBaseProperties(material);
-    applyAlphaMap(_material);
+    applyAlphaMap(material);
     applySpecular(material);
     applyDiffuse(material);
     applyEmissive(material);
@@ -95,7 +95,7 @@ public:
     applyLightMap(material);
     applyNormalMap(material);
     applyDisplacementMap(material);
-    applyBumpMap(_material);
+    applyBumpMap(material);
 
     return material;
   }

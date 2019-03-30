@@ -20,14 +20,12 @@ Q_OBJECT
   Q_PROPERTY(QString shaderID READ shaderID WRITE setShaderID NOTIFY shaderIDChanged)
   Q_PROPERTY(QByteArray vertexShader READ vertexShader WRITE setVertexShader NOTIFY vertexShaderChanged)
   Q_PROPERTY(QByteArray fragmentShader READ fragmentShader WRITE setFragmentShader NOTIFY fragmentShaderChanged)
-  Q_PROPERTY(three::quick::Three::Side side READ side WRITE setSide NOTIFY sideChanged)
   Q_PROPERTY(bool depthTest READ depthTest WRITE setDepthTest NOTIFY depthTestChanged)
   Q_PROPERTY(bool depthWrite READ depthWrite WRITE setDepthWrite NOTIFY depthWriteChanged)
   Q_PROPERTY(QVariantMap uniforms READ uniforms WRITE setUniforms NOTIFY uniformsChanged)
 
   QString _shaderID;
   QByteArray _vertexShader, _fragmentShader;
-  Three::Side _side = Three::FrontSide;
   bool _depthTest = true;
   bool _depthWrite = true;
   QVariantMap _uniforms;
@@ -40,41 +38,34 @@ protected:
   three::Material::Ptr material() const override {return _material;}
 
 public:
-  ShaderMaterial(QObject *parent = nullptr)
+  explicit ShaderMaterial(QObject *parent = nullptr)
      : Material(material::Typer(this), parent) {}
-  ShaderMaterial(three::ShaderMaterial::Ptr material, QObject *parent = nullptr)
+  explicit ShaderMaterial(three::ShaderMaterial::Ptr material, QObject *parent = nullptr)
      : Material(material::Typer(this), parent), _material(material) {}
 
   QString shaderID() const {return _shaderID;}
   QByteArray vertexShader() const {return _vertexShader;}
   QByteArray fragmentShader() const {return _fragmentShader;}
-  Three::Side side() const {return _side;}
   bool depthTest() const {return _depthTest;}
   bool depthWrite() const {return _depthWrite;}
   QVariantMap &uniforms() {return _uniforms;}
 
-  void setShaderID(QString shaderID) {
+  void setShaderID(const QString &shaderID) {
     if(_shaderID != shaderID) {
       _shaderID = shaderID;
       emit shaderIDChanged();
     }
   }
-  void setVertexShader(QByteArray shader) {
+  void setVertexShader(const QByteArray &shader) {
     if(_vertexShader != shader) {
       _vertexShader = shader;
       emit vertexShaderChanged();
     }
   }
-  void setFragmentShader(QByteArray shader) {
+  void setFragmentShader(const QByteArray &shader) {
     if(_fragmentShader != shader) {
       _fragmentShader = shader;
       emit fragmentShaderChanged();
-    }
-  }
-  void setSide(Three::Side side) {
-    if(_side != side) {
-      _side = side;
-      emit sideChanged();
     }
   }
   void setDepthTest(bool depthTest) {
@@ -89,7 +80,7 @@ public:
       emit depthWriteChanged();
     }
   }
-  void setUniforms(QVariantMap uniforms) {
+  void setUniforms(const QVariantMap &uniforms) {
     if(_uniforms != uniforms) {
       _uniforms = uniforms;
       emit uniformsChanged();
@@ -106,7 +97,6 @@ signals:
   void shaderIDChanged();
   void vertexShaderChanged();
   void fragmentShaderChanged();
-  void sideChanged();
   void depthTestChanged();
   void depthWriteChanged();
   void uniformsChanged();
