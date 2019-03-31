@@ -122,40 +122,18 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 
     bool pointLight = light->is<PointLight>();
     unsigned faceCount = 1;
+
+    math::Vector2 shadowMapSize;
+    float vpWidth;
+    float vpHeight;
+
     if(pointLight) {
 
-      math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
-
+      shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
       faceCount = 6;
 
-      float vpWidth = shadowMapSize.x();
-      float vpHeight = shadowMapSize.y();
-
-      // These viewports map a cube-map onto a 2D texture with the
-      // following orientation:
-      //
-      //  xzXZ
-      //   y Y
-      //
-      // X - Positive x direction
-      // x - Negative x direction
-      // Y - Positive y direction
-      // y - Negative y direction
-      // Z - Positive z direction
-      // z - Negative z direction
-
-      // positive X
-      _cube2DViewPorts[0].set(vpWidth * 2, vpHeight, vpWidth, vpHeight);
-      // negative X
-      _cube2DViewPorts[1].set(0, vpHeight, vpWidth, vpHeight);
-      // positive Z
-      _cube2DViewPorts[2].set(vpWidth * 3, vpHeight, vpWidth, vpHeight);
-      // negative Z
-      _cube2DViewPorts[3].set(vpWidth, vpHeight, vpWidth, vpHeight);
-      // positive Y
-      _cube2DViewPorts[4].set(vpWidth * 3, 0, vpWidth, vpHeight);
-      // negative Y
-      _cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
+      vpWidth = shadowMapSize.x();
+      vpHeight = shadowMapSize.y();
     }
 
     // render shadow map for each cube face (if omni-directional) or
@@ -163,14 +141,48 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
     for (unsigned face = 0; face < faceCount; face++) {
 
       if (pointLight) {
-        math::Vector3 lookTarget = shadow->camera()->position();
-        lookTarget += _cubeDirections[face];
         shadow->camera()->up() = _cubeUps[face];
-        shadow->camera()->lookAt(lookTarget);
+        shadow->camera()->lookAt(shadow->camera()->position() + _cubeDirections[face]);
         shadow->camera()->updateMatrixWorld(false);
 
-        const auto &vpDimensions = _cube2DViewPorts[face];
-        _renderer.state().viewport(vpDimensions);
+        // These viewports map a cube-map onto a 2D texture with the
+        // following orientation:
+        //
+        //  xzXZ
+        //   y Y
+        //
+        // X - Positive x direction
+        // x - Negative x direction
+        // Y - Positive y direction
+        // y - Negative y direction
+        // Z - Positive z direction
+        // z - Negative z direction
+        switch(face) {
+          case 0:
+            // positive X
+            _renderer.setViewport(vpWidth * 2, vpHeight, vpWidth, vpHeight);
+            break;
+          case 1:
+            // negative X
+            _renderer.state().viewport(0, vpHeight, vpWidth, vpHeight);
+            break;
+          case 2:
+            // positive Z
+            _renderer.state().viewport(vpWidth * 3, vpHeight, vpWidth, vpHeight);
+            break;
+          case 3:
+            // negative Z
+            _renderer.state().viewport(vpWidth, vpHeight, vpWidth, vpHeight);
+            break;
+          case 4:
+            // positive Y
+            _renderer.state().viewport(vpWidth * 3, 0, vpWidth, vpHeight);
+            break;
+          case 5:
+            // negative Y
+            _renderer.state().viewport(vpWidth, 0, vpWidth, vpHeight);
+            break;
+        }
       }
 
       // update camera matrices and frustum
@@ -239,7 +251,15 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   result->visible = material->visible;
   result->wireframe = material->wireframe;
 
-  result->side = material->side;
+  switch(material->side) {
+    case three::Side::Back:
+      result->side = three::Side::Front;
+      break;
+    case three::Side::Front:
+    case three::Side::Double:
+      result->side = three::Side::Back;
+      break;
+  }
 
   result->clipShadows = material->clipShadows;
   result->clippingPlanes = material->clippingPlanes;

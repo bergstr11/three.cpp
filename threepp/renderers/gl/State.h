@@ -766,6 +766,15 @@ public:
     }
   }
 
+  void viewport(float x, float y, float z, float w)
+  {
+    if(currentViewport.x() != x || currentViewport.y() != y || currentViewport.z() != z || currentViewport.w() != w) {
+      _f->glViewport( x, y, z, w);
+      check_glerror(_f);
+      currentViewport.set(x, y, z, w);
+    }
+  }
+
   void viewport(const math::Vector4 &viewport)
   {
     if(currentViewport != viewport) {

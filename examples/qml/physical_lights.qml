@@ -128,13 +128,6 @@ Window {
             }
         }
 
-        ShadowMapViewer {
-            scale: 0.4
-            position: "700,10"
-            light: bulbLight
-            enabled: bulbLight.visible
-        }
-
         Scene {
             id: scene
 
@@ -273,7 +266,7 @@ Window {
                 aspect: threeD.width / threeD.height
                 near: 0.1
                 far: 100
-                position: "-4,4,2"
+                position: "-4,2,3"
 
                 target: scene.position
 

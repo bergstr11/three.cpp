@@ -107,13 +107,6 @@ Window {
         property var pointLight
         property var pointLight2
 
-        /*ShadowMapViewer {
-            scale: 0.4
-            position: "700,10"
-            light: threeD.pointLight
-            enabled: !!threeD.pointLight && threeD.pointLight.visible
-        }*/
-
         Scene {
             id: scene
 

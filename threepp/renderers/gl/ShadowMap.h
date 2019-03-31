@@ -46,8 +46,6 @@ class ShadowMap
      math::Vector3(0, 1, 0), math::Vector3(0, 0, 1), math::Vector3(0, 0, -1)
   };
 
-  math::Vector4 _cube2DViewPorts[6];
-
   math::Vector2 _maxShadowMapSize;
 
   bool _needsRender = false;

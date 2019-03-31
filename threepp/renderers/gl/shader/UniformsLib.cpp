@@ -215,7 +215,7 @@ public:
                             value<float>(UniformName::shadowRadius, 0.0f),
                             value<math::Vector2>(UniformName::shadowMapSize, math::Vector2()),
                             value<float>(UniformName::shadowCameraNear, 1.0f),
-                            value<float>(UniformName::shadowCameraFar, 3500),
+                            value<float>(UniformName::shadowCameraFar, 1000),
                          }),
 
                          value<std::vector<Texture::Ptr>>(UniformName::pointShadowMap, std::vector<Texture::Ptr>()),
