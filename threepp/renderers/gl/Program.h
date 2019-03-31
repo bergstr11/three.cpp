@@ -200,7 +200,6 @@ public:
   ProgramParameterT<bool>            envMap {all};
   ProgramParameterT<Encoding>        envMapEncoding {all};
   ProgramParameterT<TextureMapping>  envMapMode {all};
-  ProgramParameterT<bool>            envMapCubeUV {all};
   ProgramParameterT<bool>            lightMap {all};
   ProgramParameterT<bool>            aoMap {all};
   ProgramParameterT<bool>            emissiveMap {all};

@@ -45,6 +45,7 @@ Q_OBJECT
   {
     if(_scale != scale) {
       _scale = scale;
+      if(_viewer) _viewer->setScale(_scale);
       emit scaleChanged();
     }
   }
@@ -52,6 +53,7 @@ Q_OBJECT
   {
     if(_position != position) {
       _position = position;
+      if(_viewer) _viewer->setPosition(_position);
       emit positionChanged();
     }
   }
@@ -59,6 +61,7 @@ Q_OBJECT
   {
     if(_light != light) {
       _light = light;
+      if(_viewer) _viewer->setLight(_light);
       emit lightChanged();
     }
   }
@@ -70,7 +73,7 @@ Q_OBJECT
 
   void setItem(ThreeDItem * item) override
   {
-    _viewer = three::ShadowMapViewer::make(_light->light(), _position, _scale, item->width(), item->height());
+    _viewer = three::ShadowMapViewer::make(_light, _position, _scale, item->width(), item->height());
     _viewer->enabled = _enabled;
     item->onRendered.connect(this, &ShadowMapViewer::render);
   }

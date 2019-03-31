@@ -184,13 +184,13 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 }
 
 Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
-                               Material::Ptr material,
-                               bool isPointLight,
-                               const math::Vector3 &lightPositionWorld,
-                               float shadowCameraNear,
-                               float shadowCameraFar )
+                                          Material::Ptr material,
+                                          bool isPointLight,
+                                          const math::Vector3 &lightPositionWorld,
+                                          float shadowCameraNear,
+                                          float shadowCameraFar)
 {
-  auto geometry = object->geometry();
+  const auto &geometry = object->geometry();
   Material::Ptr result;
 
   std::vector<Material::Ptr> &materialVariants = isPointLight ? _distanceMaterials : _depthMaterials;

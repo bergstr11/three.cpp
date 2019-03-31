@@ -85,7 +85,7 @@ Window {
             function selectedValue() {return values[selectedIndex]}
         }
         BoolChoice {
-            name: "Animate"
+            name: "animate:"
             value: false
             onValueChanged: {
                 threeD.runAnimation(value)
@@ -129,7 +129,6 @@ Window {
         }
 
         ShadowMapViewer {
-            id: spotShadowViewer
             scale: 0.4
             position: "700,10"
             light: bulbLight

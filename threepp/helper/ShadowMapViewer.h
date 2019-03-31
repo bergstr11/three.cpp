@@ -56,7 +56,7 @@ constexpr const char * const fragmentShader =
 class ShadowMapViewer
 {
 protected:
-  Light::Ptr _light;
+  quick::Light *_light;
 
   QPointF _position {0, 0};
   float _scale = 1;
@@ -69,7 +69,7 @@ protected:
 
   ShaderMaterial::Ptr _material;
 
-  ShadowMapViewer(Light::Ptr light, const QPointF &position, float scale, float itemWidth, float itemHeight)
+  ShadowMapViewer(quick::Light *light, const QPointF &position, float scale, float itemWidth, float itemHeight)
      : _light(light),
        _position(position),
        _scale(scale),
@@ -90,19 +90,9 @@ protected:
     _scene->add(_mesh);
   }
 
-public:
-  using Ptr = std::shared_ptr<ShadowMapViewer>;
-
-  static Ptr make(Light::Ptr light, const QPointF &position, float scale, float itemWidth, float itemHeight) {
-    return Ptr(new ShadowMapViewer(light, position, scale, itemWidth, itemHeight));
-  }
-
-  // Set to false to disable displaying this shadow map
-  bool enabled = true;
-
   void setGeometry(float itemWidth, float itemHeight)
   {
-    const auto &sz = _light->shadow()->mapSize();
+    const auto &sz = _light->light()->shadow()->mapSize();
 
     if(_itemWidth != itemWidth || _itemHeight != itemHeight) {
       _itemWidth = itemWidth;
@@ -126,12 +116,35 @@ public:
     _camera->updateProjectionMatrix();
   }
 
+public:
+  using Ptr = std::shared_ptr<ShadowMapViewer>;
+
+  static Ptr make(quick::Light *light, const QPointF &position, float scale, float itemWidth, float itemHeight) {
+    return Ptr(new ShadowMapViewer(light, position, scale, itemWidth, itemHeight));
+  }
+
+  // Set to false to disable displaying this shadow map
+  bool enabled = true;
+
+  void setPosition(const QPointF &pos) {
+    _position = pos;
+  }
+
+  void setLight(quick::Light *light) {
+    _light = light;
+  }
+
+  void setScale(float scale) {
+    _scale = scale;
+  }
+
   QPointF &position() {return _position;}
   float &scale() {return _scale;}
 
   void render(OpenGLRenderer::Ptr renderer, three::Renderer::Target::Ptr target)
   {
-    if (enabled && _light->shadow()->map()) {
+    auto shadow = _light && _light->light() ? _light->light()->shadow() : nullptr;
+    if (enabled && shadow && shadow->map()) {
 
       setGeometry(target->width(), target->height());
 
@@ -140,7 +153,7 @@ public:
       //always end up with the scene's first added shadow casting light's shadowMap
       //in the shader
       //See: https://github.com/mrdoob/three.js/issues/5932
-      _material->uniforms.set(gl::UniformName::diffuse, _light->shadow()->map()->texture());
+      _material->uniforms.set(gl::UniformName::diffuse, shadow->map()->texture());
 
       bool tmpAutoClear = renderer->autoClear;
       renderer->autoClear = false; // To allow render overlay

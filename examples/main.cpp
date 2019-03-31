@@ -41,9 +41,8 @@ int main(int argc, char *argv[])
   //maincomponent.loadUrl(QUrl("qrc:///drag_cubes.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///webgl_shadowmap.qml"));
   //maincomponent.loadUrl(QUrl("qrc:///model_dynamics.qml"));
-  //maincomponent.loadUrl(QUrl("qrc:///physical_lights.qml"));
-  maincomponent.loadUrl(QUrl("qrc:///shadowmap_pointlight.qml"));
-
+  maincomponent.loadUrl(QUrl("qrc:///physical_lights.qml"));
+  //maincomponent.loadUrl(QUrl("qrc:///shadowmap_pointlight.qml"));
 
   if (maincomponent.isError()) {
     qCritical() << "error loading main screen: " << maincomponent.errorString();

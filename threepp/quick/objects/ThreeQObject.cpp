@@ -263,6 +263,13 @@ void ThreeQObject::clear()
   }
 }
 
+void ThreeQObject::updateMaterials()
+{
+  if(_object) {
+    _object->updateMaterials();
+  }
+}
+
 void ThreeQObject::unset()
 {
   _position.unset();

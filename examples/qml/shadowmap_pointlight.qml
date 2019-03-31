@@ -12,6 +12,34 @@ Window {
     color: "black"
     visible: true
 
+    OptionsMenu {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        color: "transparent"
+        width: 350
+        height: 100
+        z: 2
+
+        BoolChoice {
+            label: "shadows:"
+            value: false
+            onValueChanged: {
+                threeD.shadowMap.type = value ? Three.BasicShadow : Three.NoShadow
+                threeD.pointLight.updateMaterials()
+                threeD.pointLight2.updateMaterials()
+                box1.updateMaterials()
+                threeD.update()
+            }
+        }
+        BoolChoice {
+            name: "animate:"
+            value: false
+            onValueChanged: {
+                threeD.runAnimation(value)
+            }
+        }
+    }
+
     Component {
         id: lightFactory
 
@@ -26,6 +54,7 @@ Window {
             shadow.bias: -0.005
 
             Sphere {
+                id: sphere1
                 type: Three.BufferGeometry
                 radius: 0.3
                 widthSegments: 12
@@ -61,7 +90,7 @@ Window {
                     }
                 }
                 customDistanceMaterial: MeshDistanceMaterial {
-                    alphaMap: sphere2.material.alphaMap
+                    alphaMap: sphere2.material.map
                     alphaTest: sphere2.material.alphaTest
                 }
             }
@@ -71,12 +100,19 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        //shadowMap.type: Three.BasicShadow
+        shadowMap.type: Three.NoShadow
         antialias: true
-        autoAnimate: true
+        autoAnimate: false
 
         property var pointLight
         property var pointLight2
+
+        /*ShadowMapViewer {
+            scale: 0.4
+            position: "700,10"
+            light: threeD.pointLight
+            enabled: !!threeD.pointLight && threeD.pointLight.visible
+        }*/
 
         Scene {
             id: scene
@@ -110,6 +146,7 @@ Window {
                 position: "0,10,40"
 
                 target: scene.position
+                controller: OrbitController {}
             }
 
         }

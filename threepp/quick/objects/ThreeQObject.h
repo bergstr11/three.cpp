@@ -197,6 +197,7 @@ public:
   Q_INVOKABLE QVector3D worldPosition() const;
   Q_INVOKABLE void clear();
   Q_INVOKABLE QObject *alone();
+  Q_INVOKABLE void updateMaterials();
 
   Q_INVOKABLE void rotateX(float angle);
   Q_INVOKABLE void rotateY(float angle);

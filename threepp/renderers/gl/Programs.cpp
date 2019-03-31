@@ -123,9 +123,6 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->envMap = (bool)mat->envMap;
     parameters->envMapEncoding = getTextureEncoding(mat->envMap, renderer.gammaInput);
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat->envMap &&
-                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = (bool)mat->lightMap;
     parameters->emissiveMap = (bool)mat->emissiveMap;
     parameters->emissiveMapEncoding = getTextureEncoding(mat->emissiveMap, renderer.gammaInput);
@@ -151,9 +148,6 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->envMap = (bool)mat->envMap;
     parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat->envMap &&
-                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->lightMap = (bool)mat->lightMap;
     parameters->displacementMap = (bool)mat->displacementMap;
 
@@ -177,9 +171,6 @@ ProgramParameters::Ptr Programs::getParameters(const Renderer_impl &renderer,
     parameters->envMap = (bool)mat->envMap;
     parameters->envMapEncoding = mat->envMap ? mat->envMap->encoding() : Encoding::Linear;
     parameters->envMapMode = mat->envMap ? mat->envMap->mapping() : TextureMapping::Unknown;
-    parameters->envMapCubeUV = mat->envMap &&
-                               (mat->envMap->mapping() == TextureMapping::CubeUVReflection
-                                || mat->envMap->mapping() == TextureMapping::CubeUVRefraction);
     parameters->specularMap = (bool)mat->specularMap;
     parameters->emissiveMapEncoding = mat->emissiveMap ? mat->emissiveMap->encoding() : Encoding::Linear;
     parameters->combine = mat->combine;
