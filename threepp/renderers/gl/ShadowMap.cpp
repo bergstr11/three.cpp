@@ -36,7 +36,7 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
   // render depth map
   for (Light::Ptr light : lights) {
 
-    auto shadow = light->shadow();
+    auto &shadow = light->shadow();
     if (!shadow) continue;
 
     math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
@@ -160,7 +160,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
         switch(face) {
           case 0:
             // positive X
-            _renderer.setViewport(vpWidth * 2, vpHeight, vpWidth, vpHeight);
+            _renderer.state().viewport(vpWidth * 2, vpHeight, vpWidth, vpHeight);
             break;
           case 1:
             // negative X

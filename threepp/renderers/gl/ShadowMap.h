@@ -57,6 +57,15 @@ class ShadowMap
 
   const Capabilities &_capabilities;
 
+  Material::Ptr getDepthMaterial(Object3D::Ptr object,
+                                 Material::Ptr material,
+                                 bool isPointLight,
+                                 const math::Vector3 &lightPositionWorld,
+                                 float shadowCameraNear,
+                                 float shadowCameraFar );
+
+  void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
+
 public:
   bool enabled = false;
   bool needsUpdate = true;
@@ -66,15 +75,6 @@ public:
 
   void setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera);
   void render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera );
-
-  Material::Ptr getDepthMaterial(Object3D::Ptr object,
-                            Material::Ptr material,
-                            bool isPointLight,
-                            const math::Vector3 &lightPositionWorld,
-                            float shadowCameraNear,
-                            float shadowCameraFar );
-
-  void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
 
   ShadowMapType type() const {return _type;}
 
