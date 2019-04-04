@@ -60,9 +60,7 @@ class ShadowMap
   Material::Ptr getDepthMaterial(Object3D::Ptr object,
                                  Material::Ptr material,
                                  bool isPointLight,
-                                 const math::Vector3 &lightPositionWorld,
-                                 float shadowCameraNear,
-                                 float shadowCameraFar );
+                                 const Camera::Ptr &shadowCamera );
 
   void renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::Ptr shadowCamera, bool isPointLight);
 

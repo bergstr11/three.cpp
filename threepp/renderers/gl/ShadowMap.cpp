@@ -65,7 +65,7 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
 
     shadow->update();
 
-    math::Vector3 lightPositionWorld = light->matrixWorld().getPosition();
+    const math::Vector3 lightPositionWorld = light->matrixWorld().getPosition();
     shadowCamera->position() = lightPositionWorld;
 
     if (pointLight) {
@@ -73,7 +73,7 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
       // for point lights we set the shadow matrix to be a translation-only matrix
       // equal to inverse of the light's position
 
-      shadow->matrix() = math::Matrix4::translation(-lightPositionWorld.x(), -lightPositionWorld.y(), -lightPositionWorld.z());
+      shadow->matrix() = math::Matrix4::translation(- lightPositionWorld.x(), - lightPositionWorld.y(), - lightPositionWorld.z());
     }
     else {
       TargetLight *targetLight = light->typer;
@@ -198,9 +198,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
 Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
                                           Material::Ptr material,
                                           bool isPointLight,
-                                          const math::Vector3 &lightPositionWorld,
-                                          float shadowCameraNear,
-                                          float shadowCameraFar)
+                                          const Camera::Ptr &shadowCamera)
 {
   const auto &geometry = object->geometry();
   Material::Ptr result;
@@ -269,9 +267,9 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
 
   if (isPointLight) {
     if(MeshDistanceMaterial *mat = result->typer) {
-      mat->referencePosition = lightPositionWorld;
-      mat->nearDistance = shadowCameraNear;
-      mat->farDistance = shadowCameraFar;
+      mat->referencePosition = shadowCamera->position();
+      mat->nearDistance = shadowCamera->near();
+      mat->farDistance = shadowCamera->far();
     }
   }
 
@@ -301,8 +299,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
 
           if ( groupMaterial && groupMaterial->visible ) {
 
-            Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, shadowCamera->position(),
-                                                 shadowCamera->near(), shadowCamera->far() );
+            Material::Ptr depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, shadowCamera);
             _renderer.renderBufferDirect( shadowCamera, nullptr, geometry, depthMaterial, object, &group );
           }
         }
@@ -310,8 +307,7 @@ void ShadowMap::renderObject(Object3D::Ptr object, Camera::Ptr camera, Camera::P
       else {
         Material::Ptr material = object->material();
         if (material->visible) {
-          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, shadowCamera->position(),
-                                                         shadowCamera->near(), shadowCamera->far());
+          Material::Ptr depthMaterial = getDepthMaterial(object, material, isPointLight, shadowCamera);
 
           _renderer.renderBufferDirect(shadowCamera, nullptr, geometry, depthMaterial, object, nullptr);
         }

@@ -144,9 +144,7 @@ public:
   const std::vector<Ptr> &children() const {return _children;}
 
   math::Vector3 &up() {return _up;}
-  math::Vector3 &position() {
-    return _position;
-  }
+  math::Vector3 &position() {return _position;}
   math::Euler &rotation() {return _rotation;}
   math::Matrix4 &matrixWorld() {return _matrixWorld;}
   math::Quaternion &quaternion() {return _quaternion;}

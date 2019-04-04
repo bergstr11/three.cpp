@@ -128,6 +128,13 @@ Window {
             }
         }
 
+        ShadowMapViewer {
+            scale: 0.4
+            position: "700,10"
+            light: bulbLight
+            enabled: bulbLight.visible
+        }
+
         Scene {
             id: scene
 

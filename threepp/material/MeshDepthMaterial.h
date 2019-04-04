@@ -42,12 +42,17 @@ struct DLX MeshDepthMaterial : public MaterialT<
   MeshDepthMaterial(DepthPacking packing)
      : MaterialT(material::InfoT<MeshDepthMaterial>(), material::Typer(this)), depthPacking(packing)
   {
+    fog = false;
+    lights = false;
   }
 
   MeshDepthMaterial(const MeshDepthMaterial &material)
      : MaterialT(material, material::InfoT<MeshDepthMaterial>(), material::Typer(this)),
        depthPacking(material.depthPacking)
-  {}
+  {
+    fog = false;
+    lights = false;
+  }
 
 protected:
   void callback(const material::Selector &selector) override;
