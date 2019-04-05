@@ -45,7 +45,7 @@ signals:
  * handles a named material by determining what material type should be instantiated and
  * configuring it after loading
  */
-class MaterialHandler : public QObject
+class DLQX MaterialHandler : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QString materialNames READ materialNames WRITE setMaterialNames NOTIFY materialNamesChanged)
@@ -100,7 +100,7 @@ signals:
   void loaded(QVariant material);
 };
 
-class DLX ModelMaterialHandler : public loader::AssimpMaterialHandler
+class ModelMaterialHandler : public loader::AssimpMaterialHandler
 {
   QList<quick::MaterialHandler *> _handlers;
 
@@ -113,7 +113,7 @@ protected:
   void handle(const std::string &name, three::MeshPhysicalMaterial &material, three::Material::Ptr mp) const override;
 
 public:
-  ModelMaterialHandler() {}
+  ~ModelMaterialHandler() = default;
 
   QList<quick::MaterialHandler *> &handlers() {return _handlers;}
 };
@@ -127,7 +127,7 @@ public:
  * @property replacements resource name replacements, e.g. if a resource referenced inside the model file
  * is actually stored under a different name
  */
-class Model : public ThreeQObjectRoot
+class DLQX Model : public ThreeQObjectRoot
 {
 Q_OBJECT
 public:

@@ -16,7 +16,7 @@ namespace quick {
 
 class ObjectPicker;
 
-class ModelRef : public ThreeQObject
+class DLQX ModelRef : public ThreeQObject
 {
 Q_OBJECT
   Q_PROPERTY(Model *model READ model WRITE setModel NOTIFY modelChanged)

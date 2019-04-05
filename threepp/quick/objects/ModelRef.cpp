@@ -9,6 +9,8 @@
 #include <threepp/quick/lights/DirectionalLight.h>
 #include <threepp/quick/lights/SpotLight.h>
 #include <threepp/quick/ThreeDItem.h>
+#include <threepp/quick/materials/MeshStandardMaterial.h>
+#include <threepp/quick/materials/MeshPhysicalMaterial.h>
 
 #include <threepp/quick/elements/RayCaster.h>
 #include <threepp/extras/PointsWalker.h>
