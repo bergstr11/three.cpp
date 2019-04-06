@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
 project(three_base)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
 find_package(assimp REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Core REQUIRED)
+
+set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -61,8 +61,6 @@ set(THREE_HDRDIRS
 
 CONFIGURE_FILE("${THREE_ROOT}/etc/threepp.pc.in" "threepp.pc" @ONLY)
 
-message("using Assimp: ${ASSIMP_LIBRARIES} ${ASSIMP_LIBRARY_DIRS}")
-
 if(ANDROID)
     add_compile_definitions(QT_OPENGL_ES_3_2)
 endif(ANDROID)
@@ -86,11 +84,9 @@ foreach(TARGET threepp_static threepp)
                 ${ASSIMP_LIBRARY_DIRS}/libIrrXML.a
                 Qt5::Core Qt5::Gui)
     elseif(WIN32)
-        target_link_libraries(${TARGET} PUBLIC
-                ${ASSIMP_LIBRARY_DIRS}/${ASSIMP_LIBRARIES} opengl32.lib
-                Qt5::Core Qt5::Gui)
+        target_link_libraries(${TARGET} PUBLIC opengl32.lib assimp::assimp Qt5::Core Qt5::Gui)
     else(WIN32)
-        target_link_libraries(${TARGET} PUBLIC assimp Qt5::Core Qt5::Gui)
+        target_link_libraries(${TARGET} PUBLIC assimp::assimp Qt5::Core Qt5::Gui)
     endif(ANDROID)
 
     target_include_directories(${TARGET} PRIVATE ${ASSIMP_INCLUDE_DIRS})
@@ -117,7 +113,6 @@ install(TARGETS threepp threepp_static
         ARCHIVE DESTINATION lib)
 
 install(EXPORT threepp
-        CONFIGURATIONS Debug Release
         DESTINATION lib/cmake/threepp
         FILE threepp-config.cmake)
 

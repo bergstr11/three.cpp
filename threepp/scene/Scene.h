@@ -15,7 +15,7 @@ namespace three {
 /**
  * a scene holds a graph of 3D objects which are rendered together
  */
-class Scene : public Object3D
+class DLX Scene : public Object3D
 {
   Fog::Ptr _fog;
   bool _autoUpdate;

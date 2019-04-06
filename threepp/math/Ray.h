@@ -10,7 +10,6 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box3.h"
-#include <QDebug>
 
 namespace three {
 namespace math {

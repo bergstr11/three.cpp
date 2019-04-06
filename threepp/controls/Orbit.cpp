@@ -7,7 +7,7 @@
 #include <threepp/math/Line3.h>
 #include <threepp/camera/PerspectiveCamera.h>
 #include <threepp/camera/OrthographicCamera.h>
-
+#include <QDebug>
 #include <threepp/util/impl/utils.h>
 
 namespace three {

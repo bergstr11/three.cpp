@@ -9,6 +9,7 @@
 #include <QFile>
 #include <cerrno>
 #include <cstdlib>
+#include <QDebug>
 
 namespace three {
 namespace loader {
