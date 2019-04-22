@@ -93,8 +93,6 @@ protected:
     this->typer.allow<MeshStandardMaterial>();
   }
 
-  void callback(const material::Selector &selector) override;
-
 public:
   using Ptr = std::shared_ptr<MeshStandardMaterial>;
   static Ptr make() {

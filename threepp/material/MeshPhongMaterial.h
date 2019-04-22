@@ -106,9 +106,6 @@ protected:
     typer.allow<MeshPhongMaterial>();
   }
 
-protected:
-  void callback(const material::Selector &selector) override;
-
 public:
   using Ptr = std::shared_ptr<MeshPhongMaterial>;
 

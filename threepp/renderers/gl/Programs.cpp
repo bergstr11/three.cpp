@@ -7,6 +7,8 @@
 #include <threepp/material/MeshLambertMaterial.h>
 #include <threepp/material/MeshNormalMaterial.h>
 #include <threepp/material/MeshPhysicalMaterial.h>
+#include <threepp/material/MeshDepthMaterial.h>
+#include <threepp/material/MeshDistanceMaterial.h>
 #include <threepp/material/PointsMaterial.h>
 
 namespace three {

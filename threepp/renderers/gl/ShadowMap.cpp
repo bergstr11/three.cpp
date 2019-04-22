@@ -4,6 +4,8 @@
 
 #include "ShadowMap.h"
 #include "Renderer_impl.h"
+#include <threepp/material/MeshDepthMaterial.h>
+#include <threepp/material/MeshDistanceMaterial.h>
 
 namespace three {
 namespace gl {
@@ -39,14 +41,7 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
     auto &shadow = light->shadow();
     if (!shadow) continue;
 
-    math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
-
     PointLight *pointLight = light->typer;
-    if (pointLight) {
-
-      shadowMapSize.x() *= 4.0;
-      shadowMapSize.y() *= 2.0;
-    }
 
     const Camera::Ptr shadowCamera = shadow->camera();
     if (!shadow->map()) {
@@ -58,6 +53,13 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
       options.minFilter = TextureFilter::Nearest;
       options.magFilter = TextureFilter::Nearest;
       options.format = TextureFormat::RGBA;
+
+      math::Vector2 shadowMapSize = math::min(shadow->mapSize(), _maxShadowMapSize);
+      if (pointLight) {
+
+        shadowMapSize.x() *= 4.0;
+        shadowMapSize.y() *= 2.0;
+      }
       shadow->setMap(RenderTargetInternal::make(options, shadowMapSize.x(), shadowMapSize.y()));
 
       shadowCamera->updateProjectionMatrix();
@@ -94,8 +96,6 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
       shadow->matrix() *= shadowCamera->matrixWorldInverse();
     }
   }
-
-  needsUpdate = false;
 }
 
 void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::Ptr camera)
@@ -124,8 +124,8 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
     unsigned faceCount = 1;
 
     math::Vector2 shadowMapSize;
-    float vpWidth;
-    float vpHeight;
+    float vpWidth = 0;
+    float vpHeight = 0;
 
     if(pointLight) {
 
@@ -193,6 +193,7 @@ void ShadowMap::render(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera:
       check_glerror(&_renderer);
     }
   }
+  needsUpdate = false;
 }
 
 Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
@@ -203,7 +204,6 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
   const auto &geometry = object->geometry();
   Material::Ptr result;
 
-  std::vector<Material::Ptr> &materialVariants = isPointLight ? _distanceMaterials : _depthMaterials;
   Material::Ptr customMaterial = isPointLight ? object->customDistanceMaterial : object->customDepthMaterial;
 
   if (!customMaterial) {
@@ -217,6 +217,7 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     if ( useMorphing ) variantIndex |= Flag::Morphing;
     if ( useSkinning ) variantIndex |= Flag::Skinning;
 
+    std::vector<Material::Ptr> &materialVariants = isPointLight ? _distanceMaterials : _depthMaterials;
     result = materialVariants[ variantIndex ];
   }
   else {

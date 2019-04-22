@@ -54,9 +54,6 @@ struct DLX MeshDepthMaterial : public MaterialT<
     lights = false;
   }
 
-protected:
-  void callback(const material::Selector &selector) override;
-
 public:
   using Ptr = std::shared_ptr<MeshDepthMaterial>;
   static Ptr make(DepthPacking packing, bool morphing, bool skinning) {

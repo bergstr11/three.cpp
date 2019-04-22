@@ -61,9 +61,6 @@ private:
      : MaterialT(*this, material::InfoT<MeshBasicMaterial>(), material::Typer(this))
   {}
 
-protected:
-  void callback(const material::Selector &selector) override;
-
 public:
   using Ptr = std::shared_ptr<MeshBasicMaterial>;
 

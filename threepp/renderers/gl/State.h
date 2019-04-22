@@ -319,10 +319,6 @@ public:
      initialTextureSlot(initialTextureSlot), currentTextureSlot(initialTextureSlot)
   {}
 
-  void setInitialTextureSlot(GLenum slot) {
-    initialTextureSlot = currentTextureSlot = slot;
-  }
-
   void initContext()
   {
     _f->glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)&maxTextures);

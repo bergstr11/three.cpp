@@ -52,9 +52,6 @@ class DLX MeshDistanceMaterial : public MaterialT<
     lights = false;
   }
 
-protected:
-  void callback(const material::Selector &selector) override;
-
 public:
   math::Vector3 referencePosition;
   float nearDistance = 1;

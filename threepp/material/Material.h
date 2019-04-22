@@ -116,37 +116,6 @@ struct MetalnessMap
   Texture::Ptr metalnessMap;
 };
 
-struct Selector
-{
-  Diffuse::Selector colored;
-  LightMap::Selector lightMap;
-  Emissive::Selector emissive;
-  AoMap::Selector aoMap;
-  AlphaMap::Selector alphaMap;
-  EnvMap::Selector envMap;
-  SpecularMap::Selector specularMap;
-  Specular::Selector specular;
-  DisplacementMap::Selector displacementMap;
-  BumpMap::Selector bumpMap;
-  NormalMap::Selector normalMap;
-  RoughnessMap::Selector roughnessMap;
-  MetalnessMap::Selector metalnessMap;
-
-  Selector(const Diffuse::Selector &m) : colored(m) {}
-  Selector(const LightMap::Selector &m) : lightMap(m) {}
-  Selector(const Emissive::Selector &m) : emissive(m) {}
-  Selector(const AoMap::Selector &m) : aoMap(m) {}
-  Selector(const AlphaMap::Selector &m) : alphaMap(m) {}
-  Selector(const EnvMap::Selector &m) : envMap(m) {}
-  Selector(const SpecularMap::Selector &m) : specularMap(m) {}
-  Selector(const Specular::Selector &m) : specular(m) {}
-  Selector(const DisplacementMap::Selector &m) : displacementMap(m) {}
-  Selector(const BumpMap::Selector &m) : bumpMap(m) {}
-  Selector(const NormalMap::Selector &m) : normalMap(m) {}
-  Selector(const RoughnessMap::Selector &m) : roughnessMap(m) {}
-  Selector(const MetalnessMap::Selector &m) : metalnessMap(m) {}
-};
-
 }
 
 struct DLX Material
@@ -225,17 +194,10 @@ protected:
 
   Material(const Material &material, const material::Info &info, const material::Typer &typer);
 
-  virtual void callback(const material::Selector &selector) {}
-
 public:
   virtual ~Material() {}
 
   using Ptr = std::shared_ptr<Material>;
-
-  template <typename Mixin>
-  void mixinDo(std::function<void(Mixin &m)> func) {
-    callback(material::Selector(func));
-  }
 
   virtual void dispose() {
     onDispose.emitSignal(this);

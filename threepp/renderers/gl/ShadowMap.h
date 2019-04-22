@@ -10,8 +10,6 @@
 #include <threepp/math/Vector2.h>
 #include <threepp/math/Vector4.h>
 #include <threepp/material/Material.h>
-#include <threepp/material/MeshDepthMaterial.h>
-#include <threepp/material/MeshDistanceMaterial.h>
 #include <threepp/light/Light.h>
 #include <threepp/scene/Scene.h>
 #include <threepp/camera/PerspectiveCamera.h>
