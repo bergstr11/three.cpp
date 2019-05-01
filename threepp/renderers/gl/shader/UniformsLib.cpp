@@ -97,7 +97,7 @@ class UniformsLib
   }
 
 public:
-  const enum_map<UniformsID, LibUniformValues> &uniforms() const {return _uniforms;}
+  const LibUniformValues &uniforms(UniformsID id) const {return _uniforms.at(id);}
 
   UniformsLib()
   {
@@ -243,16 +243,14 @@ const LibUniformValues &get(UniformsID id)
 {
   static UniformsLib uniformsLib;
 
-  return uniformsLib.uniforms().at(id);
+  return uniformsLib.uniforms(id);
 }
 
-UniformValuesDelegate &UniformValuesDelegate::merge(UniformsID id, std::initializer_list<UniformValueDelegate> add)
+UniformValuesDelegate &UniformValuesDelegate::add(std::initializer_list<UniformValueDelegate> add)
 {
-  LibUniformValues extended = get(id);
   for(auto it = std::begin(add); it != std::end(add); it++) {
-    extended += (UniformValue::Ptr)*it;
+    values += (UniformValue::Ptr)*it;
   }
-  values += extended;
   return *this;
 }
 

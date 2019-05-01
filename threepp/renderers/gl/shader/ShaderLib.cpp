@@ -27,7 +27,6 @@ namespace gl {
 
 class LibShader
 {
-  ShaderID _id;
   uniformslib::LibUniformValues _uniforms;
 
   QFile _vertex;
@@ -37,12 +36,12 @@ class LibShader
   QByteArray _fragmentShader;
 
 public:
-  LibShader(ShaderID id, const uniformslib::LibUniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
-     : _uniforms(uniforms), _id(id), _vertex(vertexShader), _fragment(fragmentShader)
+  LibShader(const uniformslib::LibUniformValues &uniforms, const char *vertexShader, const char *fragmentShader)
+     : _uniforms(uniforms), _vertex(vertexShader), _fragment(fragmentShader)
   {}
 
   LibShader(const LibShader &shader)
-     : _id(shader._id), _uniforms(shader._uniforms), _vertex(shader._vertex.fileName()), _fragment(shader._fragment.fileName()),
+     : _uniforms(shader._uniforms), _vertex(shader._vertex.fileName()), _fragment(shader._fragment.fileName()),
        _vertexShader(shader._vertexShader), _fragmentShader(shader._fragmentShader)
   {}
 
@@ -94,196 +93,194 @@ public:
     qInitResource();
 
     add(ShaderID::basic,
-        LibShader(ShaderID::basic,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::specularmap,
-                        UniformsID::envmap,
-                        UniformsID::aomap,
-                        UniformsID::lightmap,
-                        UniformsID::fog
-                     }
+        LibShader(uniformslib::merged(
+           {
+              UniformsID::common,
+              UniformsID::specularmap,
+              UniformsID::envmap,
+              UniformsID::aomap,
+              UniformsID::lightmap,
+              UniformsID::fog
+           }
                   ),
                   ":shader/meshbasic_vert.glsl",
                   ":shader/meshbasic_frag.glsl"
         ));
     add(ShaderID::lambert,
-        LibShader(ShaderID::lambert,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::specularmap,
-                        UniformsID::envmap,
-                        UniformsID::aomap,
-                        UniformsID::lightmap,
-                        UniformsID::emissivemap,
-                        UniformsID::fog,
-                        UniformsID::lights
-                     }
-                  ).merge(UniformsID::lights, {
-                     {UniformName::emissive, Color(ColorName::black)}
-                  }),
+        LibShader(uniformslib::merged(
+           {
+              UniformsID::common,
+              UniformsID::specularmap,
+              UniformsID::envmap,
+              UniformsID::aomap,
+              UniformsID::lightmap,
+              UniformsID::emissivemap,
+              UniformsID::fog,
+              UniformsID::lights
+           }
+                  ).add({
+                           {UniformName::emissive, Color(ColorName::black)}
+                        }),
                   ":shader/meshlambert_vert.glsl",
                   ":shader/meshlambert_frag.glsl"
         ));
     add(ShaderID::phong,
-        LibShader(ShaderID::phong,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::specularmap,
-                        UniformsID::envmap,
-                        UniformsID::aomap,
-                        UniformsID::lightmap,
-                        UniformsID::emissivemap,
-                        UniformsID::bumpmap,
-                        UniformsID::normalmap,
-                        UniformsID::displacementmap,
-                        UniformsID::gradientmap,
-                        UniformsID::fog,
-                        UniformsID::lights
-                     }
-                  ).merge(UniformsID::lights, {
-                     {UniformName::emissive, Color(ColorName::black)},
-                     {UniformName::specular, Color(ColorName::white)},
-                     {UniformName::shininess, 30.0f}
-                  }),
-                  ":shader/meshphong_vert.glsl",
-                  ":shader/meshphong_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common,
+                 UniformsID::specularmap,
+                 UniformsID::envmap,
+                 UniformsID::aomap,
+                 UniformsID::lightmap,
+                 UniformsID::emissivemap,
+                 UniformsID::bumpmap,
+                 UniformsID::normalmap,
+                 UniformsID::displacementmap,
+                 UniformsID::gradientmap,
+                 UniformsID::fog,
+                 UniformsID::lights
+              }
+           ).add({
+                    {UniformName::emissive,  Color(ColorName::black)},
+                    {UniformName::specular,  Color(ColorName::white)},
+                    {UniformName::shininess, 30.0f}
+                 }),
+           ":shader/meshphong_vert.glsl",
+           ":shader/meshphong_frag.glsl"
         ));
     add(ShaderID::standard,
-        LibShader(ShaderID::standard,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::envmap,
-                        UniformsID::aomap,
-                        UniformsID::lightmap,
-                        UniformsID::emissivemap,
-                        UniformsID::bumpmap,
-                        UniformsID::normalmap,
-                        UniformsID::displacementmap,
-                        UniformsID::roughnessmap,
-                        UniformsID::metalnessmap,
-                        UniformsID::fog
-                     }
-                  ).merge(UniformsID::lights, {
-                     {UniformName::emissive,        Color(ColorName::black)},
-                     {UniformName::roughness,       0.5f},
-                     {UniformName::metalness,       0.5f},
-                     {UniformName::envMapIntensity, 1}
-                  }),
-                  ":shader/meshphysical_vert.glsl",
-                  ":shader/meshphysical_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common,
+                 UniformsID::envmap,
+                 UniformsID::aomap,
+                 UniformsID::lightmap,
+                 UniformsID::emissivemap,
+                 UniformsID::bumpmap,
+                 UniformsID::normalmap,
+                 UniformsID::displacementmap,
+                 UniformsID::roughnessmap,
+                 UniformsID::metalnessmap,
+                 UniformsID::fog
+              }
+           ).add({
+                    {UniformName::emissive,        Color(ColorName::black)},
+                    {UniformName::roughness,       0.5f},
+                    {UniformName::metalness,       0.5f},
+                    {UniformName::envMapIntensity, 1}
+                 }),
+           ":shader/meshphysical_vert.glsl",
+           ":shader/meshphysical_frag.glsl"
         ));
     add(ShaderID::physical,
-        LibShader(ShaderID::physical,
-        _shaders.at(ShaderID::standard).uniforms().merge(
-           {
-             {UniformName::clearCoat, 0.0f},
-             {UniformName::clearCoatRoughness, 0.0f}
-           }),
+        LibShader(
+           _shaders.at(ShaderID::standard).uniforms().merge(
+              {
+                 {UniformName::clearCoat,          0.0f},
+                 {UniformName::clearCoatRoughness, 0.0f}
+              }),
            ":shader/meshphysical_vert.glsl",
            ":shader/meshphysical_frag.glsl"
         ));
     add(ShaderID::points,
-        LibShader(ShaderID::points,
-                  uniformslib::merged(
-                     {
-                        UniformsID::points,
-                        UniformsID::fog
-                     }
-                  ),
-                  ":shader/points_vert.glsl",
-                  ":shader/points_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::points,
+                 UniformsID::fog
+              }
+           ),
+           ":shader/points_vert.glsl",
+           ":shader/points_frag.glsl"
         ));
     add(ShaderID::dashed,
-        LibShader(ShaderID::dashed,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common
-                     }
-                  ).merge(UniformsID::fog, {
-                     {UniformName::scale,     1},
-                     {UniformName::dashSize,  1},
-                     {UniformName::totalSize, 2}
-                  }),
-                  ":shader/linedashed_vert.glsl",
-                  ":shader/linedashed_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common
+              }
+           ).add({
+                    {UniformName::scale,     1},
+                    {UniformName::dashSize,  1},
+                    {UniformName::totalSize, 2}
+                 }),
+           ":shader/linedashed_vert.glsl",
+           ":shader/linedashed_frag.glsl"
         ));
     add(ShaderID::depth,
-        LibShader(ShaderID::depth,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::displacementmap
-                     }
-                  ),
-                  ":shader/depth_vert.glsl",
-                  ":shader/depth_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common,
+                 UniformsID::displacementmap
+              }
+           ),
+           ":shader/depth_vert.glsl",
+           ":shader/depth_frag.glsl"
         ));
     add(ShaderID::normal,
-        LibShader(ShaderID::normal,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::bumpmap,
-                        UniformsID::normalmap,
-                        UniformsID::displacementmap
-                     }
-                  ).merge(UniformsID::displacementmap, {
-                     {UniformName::opacity, 1.0f},
-                  }),
-                  ":shader/normal_vert.glsl",
-                  ":shader/normal_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common,
+                 UniformsID::bumpmap,
+                 UniformsID::normalmap,
+                 UniformsID::displacementmap
+              }
+           ).add({
+                    {UniformName::opacity, 1.0f},
+                 }),
+           ":shader/normal_vert.glsl",
+           ":shader/normal_frag.glsl"
         ));
     add(ShaderID::cube,
-        LibShader(ShaderID::cube,
-                  {
-                     uniformslib::value<CubeTexture::Ptr>(UniformName::tCube, nullptr),
-                     uniformslib::value<float>(UniformName::tFlip, -1.0f),
-                     uniformslib::value<float>(UniformName::opacity, 1.0f)
-                  },
-                  ":shader/cube_vert.glsl",
-                  ":shader/cube_frag.glsl"
+        LibShader(
+           {
+              uniformslib::value<CubeTexture::Ptr>(UniformName::tCube, nullptr),
+              uniformslib::value<float>(UniformName::tFlip, -1.0f),
+              uniformslib::value<float>(UniformName::opacity, 1.0f)
+           },
+           ":shader/cube_vert.glsl",
+           ":shader/cube_frag.glsl"
         ));
     add(ShaderID::equirect,
-        LibShader(ShaderID::equirect,
-                  {
-                     uniformslib::value<Texture::Ptr>(UniformName::tEquirect, nullptr)
-                  },
-                  ":shader/equirect_vert.glsl",
-                  ":shader/equirect_frag.glsl"
+        LibShader(
+           {
+              uniformslib::value<Texture::Ptr>(UniformName::tEquirect, nullptr)
+           },
+           ":shader/equirect_vert.glsl",
+           ":shader/equirect_frag.glsl"
         ));
     add(ShaderID::distanceRGBA,
-        LibShader(ShaderID::distanceRGBA,
-                  uniformslib::merged(
-                     {
-                        UniformsID::common,
-                        UniformsID::displacementmap
-                     }
-                  ).merge(UniformsID::displacementmap, {
-                     {UniformName::referencePosition, math::Vector3()},
-                     {UniformName::nearDistance,      1.0f},
-                     {UniformName::farDistance,       1000.0f},
-                  }),
-                  ":shader/distanceRGBA_vert.glsl",
-                  ":shader/distanceRGBA_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::common,
+                 UniformsID::displacementmap
+              }
+           ).add({
+                    {UniformName::referencePosition, math::Vector3()},
+                    {UniformName::nearDistance,      1.0f},
+                    {UniformName::farDistance,       1000.0f},
+                 }),
+           ":shader/distanceRGBA_vert.glsl",
+           ":shader/distanceRGBA_frag.glsl"
         ));
     add(ShaderID::shadow,
-        LibShader(ShaderID::shadow,
-                  uniformslib::merged(
-                     {
-                        UniformsID::lights,
-                        UniformsID::fog
-                     }
-                  ).merge(UniformsID::fog, {
-                     {UniformName::color,   Color(ColorName::black)},
-                     {UniformName::opacity, 1.0f}
-                  }),
-                  ":shader/shadow_vert.glsl",
-                  ":shader/shadow_frag.glsl"
+        LibShader(
+           uniformslib::merged(
+              {
+                 UniformsID::lights,
+                 UniformsID::fog
+              }
+           ).add({
+                    {UniformName::color,   Color(ColorName::black)},
+                    {UniformName::opacity, 1.0f}
+                 }),
+           ":shader/shadow_vert.glsl",
+           ":shader/shadow_frag.glsl"
         ));
   }
 

@@ -338,7 +338,7 @@ struct UniformValuesDelegate
 
   operator const LibUniformValues &() const {return values;}
 
-  UniformValuesDelegate &merge(UniformsID id, std::initializer_list<UniformValueDelegate> add);
+  UniformValuesDelegate &add(std::initializer_list<UniformValueDelegate> add);
 };
 
 const DLX LibUniformValues &get(UniformsID id);
