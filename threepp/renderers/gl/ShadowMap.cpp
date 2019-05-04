@@ -247,18 +247,19 @@ Material::Ptr ShadowMap::getDepthMaterial(Object3D::Ptr object,
     result = materialsForVariant[ keyB ];
   }
 
+  Side side = material->side;
+  if (renderSingleSided && material->side == Side::Double) {
+
+    side = Side::Front;
+  }
+  if (renderReverseSided) {
+
+    if (side == Side::Front) side = Side::Back;
+    else if (side == Side::Back) side = Side::Front;
+  }
+
   result->visible = material->visible;
   result->wireframe = material->wireframe;
-
-  switch(material->side) {
-    case three::Side::Back:
-      result->side = three::Side::Front;
-      break;
-    case three::Side::Front:
-    case three::Side::Double:
-      result->side = three::Side::Back;
-      break;
-  }
 
   result->clipShadows = material->clipShadows;
   result->clippingPlanes = material->clippingPlanes;

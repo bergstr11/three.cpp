@@ -31,10 +31,14 @@ Window {
             }
         }
         BoolChoice {
+            id: shadowChoice
             label: "shadows:"
+
             value: true
+            property int shadow: Three.BasicShadow
+
             onValueChanged: {
-                threeD.shadowMap.type = value ? Three.BasicShadow : Three.NoShadow
+                shadow = value ? Three.BasicShadow : Three.NoShadow
                 ball.material.needsUpdate = true
                 floor.material.needsUpdate = true
                 cubeMat.needsUpdate = true
@@ -102,7 +106,7 @@ Window {
         gammaOutput: true
         toneMapping: Three.ReinhardToneMapping
         toneMappingExposure: Math.pow( 0.68, 5.0 );
-        shadowMap.type: Three.BasicShadow
+        shadowMap.type: shadowChoice.shadow
         autoAnimate: false
 
         MeshStandardMaterial {

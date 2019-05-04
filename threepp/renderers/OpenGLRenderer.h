@@ -31,6 +31,17 @@ protected:
     : OpenGLRendererOptions(options) { }
 
 public:
+  class DLX Shadow {
+  public:
+    virtual void setMapType(three::ShadowMapType type) = 0;
+    virtual void setMapAuto(bool shadowAuto) = 0;
+    virtual void setRenderSingleSided(bool renderSingleSided) = 0;
+    virtual void setRenderReverseSided(bool renderReverseSided) = 0;
+    virtual void update() = 0;
+  };
+
+  virtual Shadow &shadow() = 0;
+
   // clearing
   bool autoClear = true;
   bool autoClearColor = true;
@@ -47,8 +58,6 @@ public:
                                         CullFace faceCulling, FrontFaceDirection faceDirection);
 
   virtual void initContext() = 0;
-  virtual void setShadowMapType(three::ShadowMapType type) = 0;
-  virtual void setShadowMapAuto(bool shadowAuto) = 0;
   virtual void setFaceCulling( CullFace cullFace ) = 0;
   virtual void setPhysicallyCorrectLights(bool physicallyCorrectLights) = 0;
   virtual void setFaceDirection(FrontFaceDirection frontFaceDirection ) = 0;
@@ -57,7 +66,6 @@ public:
   virtual void setGamma(bool input, bool output) = 0;
   virtual void clear() = 0;
   virtual void clearDepth() = 0;
-  virtual void updateShadows() = 0;
 
   virtual void usePrograms(OpenGLRenderer::Ptr other) = 0;
 };

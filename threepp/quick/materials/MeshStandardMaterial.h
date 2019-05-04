@@ -79,7 +79,7 @@ public:
   MeshStandardMaterial(QObject *parent=nullptr)
      : Material(material::Typer(this), parent) {}
 
-  void applyColor(const QColor &color)
+  void applyColor(const QColor &color) override
   {
     setColor(color);
   }

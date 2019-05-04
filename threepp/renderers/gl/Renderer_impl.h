@@ -166,6 +166,44 @@ protected:
 
   gl::State _state;
 
+  class ShadowImpl : public Shadow
+  {
+    ShadowMap &_shadowMap;
+
+  public:
+    ShadowImpl(ShadowMap &shadowMap) : _shadowMap(shadowMap) {}
+
+    void setMapType(three::ShadowMapType type) override
+    {
+      _shadowMap.enabled = type != three::ShadowMapType::None;
+      if(_shadowMap.enabled) {
+        _shadowMap.setType(type);
+        _shadowMap.needsUpdate = true;
+      }
+    }
+
+    void setMapAuto(bool shadowAuto) override
+    {
+      _shadowMap.autoUpdate = shadowAuto;
+    }
+
+    void setRenderSingleSided(bool renderSingleSided) override
+    {
+      _shadowMap.renderSingleSided = renderSingleSided;
+    }
+
+    void setRenderReverseSided(bool renderReverseSided) override
+    {
+      _shadowMap.renderReverseSided = renderReverseSided;
+    }
+
+    void update() override
+    {
+      _shadowMap.needsUpdate = true;
+    }
+  };
+  ShadowImpl _shadow {_shadowMap};
+
   void initContext() override;
 
   void initMaterial(Material::Ptr material, Fog::Ptr fog, Object3D::Ptr object);
@@ -239,14 +277,10 @@ public:
     gammaOutput = output;
   }
 
-  void setShadowMapType(three::ShadowMapType type) override {
-    _shadowMap.enabled = type != three::ShadowMapType::None;
-    if(_shadowMap.enabled) _shadowMap.setType(type);
+  Shadow &shadow() override
+  {
+    return _shadow;
   }
-
-  void setShadowMapAuto(bool shadowAuto) override {
-    _shadowMap.autoUpdate = shadowAuto;
-  };
 
   void setFaceCulling(CullFace cullFace ) override
   {
@@ -285,8 +319,6 @@ public:
   void clear() override;
 
   void clearDepth() override;
-
-  void updateShadows() override;
 
   Renderer_impl &setSize(size_t width, size_t height, bool setViewport) override;
 

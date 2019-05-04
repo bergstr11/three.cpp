@@ -20,6 +20,8 @@ struct Orbit::Impl {
   Orbit &o;
 
   Impl(Orbit &o) : o(o) {}
+  virtual ~Impl() = default;
+
   virtual void pan(float deltaX, float deltaY) = 0;
   virtual void dollyIn(float dollyScale) = 0;
   virtual void dollyOut(float dollyScale) = 0;

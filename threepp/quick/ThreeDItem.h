@@ -90,10 +90,14 @@ class ShadowMap : public QObject
   Q_PROPERTY(three::quick::Three::ShadowType type READ type WRITE setType NOTIFY typeChanged)
   Q_PROPERTY(bool autoUpdate READ autoUpdate WRITE setAutoUpdate NOTIFY autoUpdateChanged)
   Q_PROPERTY(bool needsUpdate READ needsUpdate WRITE setNeedsUpdate NOTIFY needsUpdateChanged)
+  Q_PROPERTY(bool renderSingleSided READ renderSingleSided WRITE setRenderSingleSided NOTIFY renderSingleSidedChanged)
+  Q_PROPERTY(bool renderReverseSided READ renderReverseSided WRITE setRenderReverseSided NOTIFY renderReverseSidedChanged)
 
   Three::ShadowType _shadowType = Three::NoShadow;
   bool _autoUpdate = true, _needsUpdate = false;
   three::OpenGLRenderer::Ptr _renderer;
+
+  bool _renderSingleSided = true, _renderReverseSided = true;
 
 public:
   ShadowMap(QObject *parent=nullptr) : QObject(parent) {}
@@ -114,10 +118,20 @@ public:
 
   void setNeedsUpdate(bool needsUpdate);
 
+  bool renderSingleSided() const {return _renderSingleSided;}
+
+  void setRenderSingleSided(bool renderSingleSided);
+
+  bool renderReverseSided() const {return _renderReverseSided;}
+
+  void setRenderReverseSided(bool renderReverseSided);
+
 signals:
   void typeChanged();
   void autoUpdateChanged();
   void needsUpdateChanged();
+  void renderSingleSidedChanged();
+  void renderReverseSidedChanged();
 };
 
 class ThreeDItem : public QQuickFramebufferObject

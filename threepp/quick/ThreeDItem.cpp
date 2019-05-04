@@ -57,18 +57,20 @@ public:
   {
     switch(item->shadowMap()->type()) {
       case Three::BasicShadow:
-        _renderer->setShadowMapType(three::ShadowMapType::Basic);
+        _renderer->shadow().setMapType(three::ShadowMapType::Basic);
         break;
       case Three::PCFShadow:
-        _renderer->setShadowMapType(three::ShadowMapType::PCF);
+        _renderer->shadow().setMapType(three::ShadowMapType::PCF);
         break;
       case Three::PCFSoftShadow:
-        _renderer->setShadowMapType(three::ShadowMapType::PCFSoft);
+        _renderer->shadow().setMapType(three::ShadowMapType::PCFSoft);
         break;
       default:
-        _renderer->setShadowMapType(three::ShadowMapType::None);
+        _renderer->shadow().setMapType(three::ShadowMapType::None);
     }
-    _renderer->setShadowMapAuto(_item->shadowMap()->autoUpdate());
+    _renderer->shadow().setMapAuto(_item->shadowMap()->autoUpdate());
+    _renderer->shadow().setRenderSingleSided(_item->shadowMap()->renderSingleSided());
+    _renderer->shadow().setRenderReverseSided(_item->shadowMap()->renderReverseSided());
 
     _renderer->setGamma(_item->_gammaInput, item->_gammaOutput);
     _renderer->autoClear = _item->_autoClear;
@@ -205,7 +207,7 @@ void ThreeDItem::clear()
 void ShadowMap::setType(Three::ShadowType type) {
   if(_shadowType != type) {
     _shadowType = type;
-    if(_renderer) _renderer->setShadowMapType((three::ShadowMapType)type);
+    if(_renderer) _renderer->shadow().setMapType((three::ShadowMapType)type);
     emit typeChanged();
   }
 }
@@ -214,7 +216,7 @@ void ShadowMap::setAutoUpdate(bool autoUpdate)
 {
   if(_autoUpdate != autoUpdate) {
     _autoUpdate = autoUpdate;
-    if(_renderer) _renderer->setShadowMapAuto(autoUpdate);
+    if(_renderer) _renderer->shadow().setMapAuto(autoUpdate);
     emit autoUpdateChanged();
   }
 }
@@ -223,8 +225,26 @@ void ShadowMap::setNeedsUpdate(bool needsUpdate)
 {
   if(_needsUpdate != needsUpdate) {
     _needsUpdate = needsUpdate;
-    if(_renderer) _renderer->updateShadows();
+    if(_renderer) _renderer->shadow().update();
     emit autoUpdateChanged();
+  }
+}
+
+void ShadowMap::setRenderSingleSided(bool renderSingleSided)
+{
+  if(_renderSingleSided != renderSingleSided) {
+    _renderSingleSided = renderSingleSided;
+    if(_renderer) _renderer->shadow().setRenderSingleSided(renderSingleSided);
+    emit renderSingleSidedChanged();
+  }
+}
+
+void ShadowMap::setRenderReverseSided(bool renderReverseSided)
+{
+  if(_renderReverseSided != renderReverseSided) {
+    _renderReverseSided = renderReverseSided;
+    if(_renderer) _renderer->shadow().setRenderReverseSided(renderReverseSided);
+    emit renderReverseSidedChanged();
   }
 }
 

@@ -161,11 +161,6 @@ void Renderer_impl::clearDepth()
   _deferredCalls->clear(false, true, false);
 }
 
-void Renderer_impl::updateShadows()
-{
-  _shadowMap.needsUpdate = true;
-}
-
 Renderer_impl &Renderer_impl::setViewport(size_t x, size_t y, size_t width, size_t height)
 {
   _viewport.set( x, _height - y - height, width, height );

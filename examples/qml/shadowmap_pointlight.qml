@@ -21,10 +21,14 @@ Window {
         z: 2
 
         BoolChoice {
+            id: shadowChoice
             label: "shadows:"
-            value: false
+
+            value: true
+            property int shadow: Three.BasicShadow
+
             onValueChanged: {
-                threeD.shadowMap.type = value ? Three.BasicShadow : Three.NoShadow
+                shadow = value ? Three.BasicShadow : Three.NoShadow
                 threeD.pointLight.updateMaterials()
                 threeD.pointLight2.updateMaterials()
                 box1.updateMaterials()
@@ -46,7 +50,6 @@ Window {
         PointLight {
             id: pointLight
             intensity: 1.5
-            decay: 1
             distance: 20
             castShadow: true
             shadow.camera.near: 1
@@ -76,8 +79,7 @@ Window {
                 material: MeshPhongMaterial {
                     side: Three.DoubleSide
                     alphaTest: 0.5
-
-                    map: ColorTexture {
+                    alphaMap: ColorTexture {
                         color: "transparent"
                         fillColor: "white"
                         width: 2
@@ -100,7 +102,8 @@ Window {
         id: threeD
         anchors.fill: parent
         focus: true
-        shadowMap.type: Three.NoShadow
+        shadowMap.type: shadowChoice.shadow
+        shadowMap.renderSingleSided: false
         antialias: true
         autoAnimate: false
 

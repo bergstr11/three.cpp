@@ -66,6 +66,8 @@ public:
   bool enabled = false;
   bool needsUpdate = true;
   bool autoUpdate = true;
+  bool renderReverseSided = true;
+  bool renderSingleSided = true;
 
   ShadowMap(Renderer_impl &renderer, Objects &objects, Capabilities &capabilities);
 

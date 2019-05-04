@@ -15,7 +15,7 @@ using PointLightShadow = LightShadowT<PerspectiveCamera>;
 class PointLight : public Light
 {
   float _distance = 0;
-  float _decay = 0;	// for physically correct lights, should be 2.
+  float _decay = 1;	// for physically correct lights, should be 2.
 
   PointLightShadow::Ptr _shadow;
 
