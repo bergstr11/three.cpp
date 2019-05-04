@@ -27,11 +27,6 @@ public:
     return values.find(name) != values.end();
   }
 
-  bool contains(const std::string &name) const {
-    auto found = _nameRegistry.find(name);
-    return found != _nameRegistry.end() ? values.find(found->second) != values.end() : false;
-  }
-
   UniformName uniformName(const std::string &name) const {
     auto found = _nameRegistry.find(name);
     if(found != _nameRegistry.end()) {

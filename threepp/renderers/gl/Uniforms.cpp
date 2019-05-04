@@ -120,10 +120,14 @@ UniformName get(string name, bool isIndex)
      MATCH_NAME(ambientLightColor),
      MATCH_NAME(direction),
      MATCH_NAME(color),
+     MATCH_NAME(skyColor),
+     MATCH_NAME(groundColor),
      MATCH_NAME(shadow),
      MATCH_NAME(shadowBias),
      MATCH_NAME(shadowRadius),
      MATCH_NAME(shadowMapSize),
+     MATCH_NAME(shadowCameraNear),
+     MATCH_NAME(shadowCameraFar),
      MATCH_NAME(size),
      MATCH_NAME(scale),
      MATCH_NAME(dashSize),
@@ -147,8 +151,6 @@ UniformName get(string name, bool isIndex)
      MATCH_NAME(position),
      MATCH_NAME(halfHeight),
      MATCH_NAME(halfWidth),
-     MATCH_NAME(skyColor),
-     MATCH_NAME(groundColor),
      MATCH_NAME(coneCos),
      MATCH_NAME(penumbraCos),
      MATCH_NAME(decay)
@@ -181,6 +183,7 @@ void Uniforms::parseUniform(GLuint program, unsigned index, UniformContainer *co
   GLint addr = _renderer.glGetUniformLocation(program, uname);
 
   string name(uname);
+
   sregex_iterator rex_it(name.cbegin(), name.cend(), rex);
   sregex_iterator rex_end;
 

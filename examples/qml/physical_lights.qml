@@ -102,7 +102,7 @@ Window {
         gammaOutput: true
         toneMapping: Three.ReinhardToneMapping
         toneMappingExposure: Math.pow( 0.68, 5.0 );
-        shadowMap.type: Three.PCFShadow
+        shadowMap.type: Three.BasicShadow
         autoAnimate: false
 
         MeshStandardMaterial {
@@ -126,13 +126,6 @@ Window {
                 repeat: "1,1"
                 image: ":/brick_bump.jpg"
             }
-        }
-
-        ShadowMapViewer {
-            scale: 0.4
-            position: "700,10"
-            light: bulbLight
-            enabled: bulbLight.visible
         }
 
         Scene {
