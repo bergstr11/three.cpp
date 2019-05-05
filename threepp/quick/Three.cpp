@@ -48,6 +48,8 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "interact/ObjectPicker.h"
 #include <threepp/quick/scene/Dynamics.h>
 
+#include <chrono>
+
 namespace three {
 namespace quick {
 
@@ -165,6 +167,12 @@ QVariant Three::randomColor(int hex)
 float Three::randFloatSpread(float range)
 {
   return range * ( 0.5f - urealdist(random_gen) );
+}
+
+double Three::now()
+{
+  std::chrono::duration<double, std::milli> _now = std::chrono::high_resolution_clock::now().time_since_epoch();
+  return _now.count();
 }
 
 }

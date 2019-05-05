@@ -37,7 +37,7 @@ Window {
         }
         BoolChoice {
             name: "animate:"
-            value: false
+            value: threeD.autoAnimate
             onValueChanged: {
                 threeD.runAnimation(value)
             }
@@ -92,7 +92,7 @@ Window {
                     }
                 }
                 customDistanceMaterial: MeshDistanceMaterial {
-                    alphaMap: sphere2.material.map
+                    alphaMap: sphere2.material.alphaMap
                     alphaTest: sphere2.material.alphaTest
                 }
             }
@@ -105,7 +105,7 @@ Window {
         shadowMap.type: shadowChoice.shadow
         shadowMap.renderSingleSided: false
         antialias: true
-        autoAnimate: false
+        autoAnimate: true
 
         property var pointLight
         property var pointLight2
@@ -152,24 +152,33 @@ Window {
             pointLight2 = lightFactory.createObject(scene, {color: "#ff8888"})
             scene.add(pointLight2)
         }
+
+        property real prev: 0;
+
         animate: function() {
-            var time = Date.now() * 0.001;
+            var time = Three.now() * 0.001;
 
-            pointLight.position.x = Math.sin( time * 0.6 ) * 9;
-            pointLight.position.y = Math.sin( time * 0.7 ) * 9 + 5;
-            pointLight.position.z = Math.sin( time * 0.8 ) * 9;
+            pointLight.position = Qt.vector3d(
+                Math.sin( time * 0.6 ) * 9,
+                Math.sin( time * 0.7 ) * 9 + 5,
+                Math.sin( time * 0.8 ) * 9);
 
-            pointLight.rotation.x = time;
-            pointLight.rotation.z = time;
+            if(prev > 0) {
+                var diff = time - prev
+                pointLight.rotateX(diff)
+                pointLight.rotateZ(diff);
+
+                pointLight2.rotateX(-diff)
+                pointLight2.rotateZ(-diff);
+            }
+            prev = time
 
             time += 10000;
 
-            pointLight2.position.x = Math.sin( time * 0.6 ) * 9;
-            pointLight2.position.y = Math.sin( time * 0.7 ) * 9 + 5;
-            pointLight2.position.z = Math.sin( time * 0.8 ) * 9;
-
-            pointLight2.rotation.x = time;
-            pointLight2.rotation.z = time;
+            pointLight2.position = Qt.vector3d(
+                Math.sin( time * 0.6 ) * 9,
+                Math.sin( time * 0.7 ) * 9 + 5,
+                Math.sin( time * 0.8 ) * 9);
         }
     }
 }
