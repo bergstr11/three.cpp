@@ -119,13 +119,11 @@ void Scene::clone(ThreeQObject *object)
 
 void Scene::add(ThreeQObject *object)
 {
+  _objects.append(object);
   if(_scene) {
     auto obj = object->object();
     if(!obj) obj = object->create(this, _scene);
-    if(obj) {
-      _scene->add(obj);
-      obj->updateMatrix();
-    }
+    if(obj) _scene->add(obj);
   }
 }
 

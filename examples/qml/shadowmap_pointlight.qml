@@ -29,8 +29,8 @@ Window {
 
             onValueChanged: {
                 shadow = value ? Three.BasicShadow : Three.NoShadow
-                threeD.pointLight.updateMaterials()
-                threeD.pointLight2.updateMaterials()
+                pointLight1.updateMaterials()
+                pointLight2.updateMaterials()
                 box1.updateMaterials()
                 threeD.update()
             }
@@ -44,7 +44,7 @@ Window {
         }
     }
 
-    Component {
+    /*Component {
         id: lightFactory
 
         PointLight {
@@ -97,7 +97,7 @@ Window {
                 }
             }
         }
-    }
+    }*/
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -107,14 +107,29 @@ Window {
         antialias: true
         autoAnimate: true
 
-        property var pointLight
-        property var pointLight2
+        //property var pointLight1
+        //property var pointLight2
 
+        /*ShadowMapViewer {
+            scale: 0.4
+            position: "700,10"
+            light: pointLight2
+            enabled: pointLight2.visible
+        }*/
         Scene {
             id: scene
 
             AmbientLight {
                 color: "#111122"
+            }
+
+            PointlightSphere {
+                id: pointLight1
+                color: "#ff8888"
+            }
+            PointlightSphere {
+                id: pointLight2
+                color: "#0088ff"
             }
 
             Box {
@@ -147,10 +162,10 @@ Window {
 
         }
         Component.onCompleted: {
-            pointLight = lightFactory.createObject(scene, {color: "#0088ff"})
-            scene.add(pointLight)
-            pointLight2 = lightFactory.createObject(scene, {color: "#ff8888"})
-            scene.add(pointLight2)
+            //pointLight1 = lightFactory.createObject(scene, {color: "#ff8888"})
+            //scene.add(pointLight1)
+            //pointLight2 = lightFactory.createObject(scene, {color: "#0088ff"})
+            //scene.add(pointLight2)
         }
 
         property real prev: 0;
@@ -158,15 +173,15 @@ Window {
         animate: function() {
             var time = Three.now() * 0.001;
 
-            pointLight.position = Qt.vector3d(
+            pointLight1.position = Qt.vector3d(
                 Math.sin( time * 0.6 ) * 9,
                 Math.sin( time * 0.7 ) * 9 + 5,
                 Math.sin( time * 0.8 ) * 9);
 
             if(prev > 0) {
                 var diff = time - prev
-                pointLight.rotateX(diff)
-                pointLight.rotateZ(diff);
+                pointLight1.rotateX(diff)
+                pointLight1.rotateZ(diff);
 
                 pointLight2.rotateX(-diff)
                 pointLight2.rotateZ(-diff);

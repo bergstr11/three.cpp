@@ -67,7 +67,7 @@ void ShadowMap::setup(std::vector<Light::Ptr> lights, Scene::Ptr scene, Camera::
 
     shadow->update();
 
-    const math::Vector3 lightPositionWorld = light->matrixWorld().getPosition();
+    const auto lightPositionWorld = light->matrixWorld().getPosition();
     shadowCamera->position() = lightPositionWorld;
 
     if (pointLight) {

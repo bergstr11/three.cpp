@@ -160,6 +160,8 @@ public:
 
   int renderOrder() const {return _renderOrder;}
 
+  void setRenderOrder(int renderOrder) {_renderOrder = renderOrder;}
+
   virtual bool isShadowRenderable() const {return false;}
 
   virtual bool frontFaceCW() const {return false;}
