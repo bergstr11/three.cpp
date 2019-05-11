@@ -654,6 +654,7 @@ Window {
                     id: pointLight1
                     color: "#ffffff";
                     intensity: 0.5
+                    decay: 0
                     position: "-1525,0,600"
                     visible: false
                 }
@@ -661,6 +662,7 @@ Window {
                     id: pointLight2
                     color: "#ffffff"
                     intensity: 0.75
+                    decay: 0
                     position: "1345,1385,600"
                     visible: false
                 }
