@@ -93,7 +93,7 @@ protected:
   Object3D(const Object3D &object);
 
 public:
-  virtual ~Object3D() {}
+  virtual ~Object3D() = default;
 
   uint16_t childId() const {return _childId;}
 

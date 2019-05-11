@@ -44,13 +44,13 @@ Window {
         }
     }
 
-    /*Component {
+    Component {
         id: lightFactory
 
         PointLight {
             id: pointLight
             intensity: 1.5
-            distance: 20
+            distance: 30
             castShadow: true
             shadow.camera.near: 1
             shadow.camera.far: 60
@@ -97,7 +97,7 @@ Window {
                 }
             }
         }
-    }*/
+    }
     ThreeD {
         id: threeD
         anchors.fill: parent
@@ -107,15 +107,6 @@ Window {
         antialias: true
         autoAnimate: true
 
-        //property var pointLight1
-        //property var pointLight2
-
-        /*ShadowMapViewer {
-            scale: 0.4
-            position: "700,10"
-            light: pointLight2
-            enabled: pointLight2.visible
-        }*/
         Scene {
             id: scene
 
@@ -123,13 +114,15 @@ Window {
                 color: "#111122"
             }
 
-            PointlightSphere {
+            ThreeLoader {
                 id: pointLight1
-                color: "#ff8888"
+                component: lightFactory
+                properties: {"color": "#ff8888"}
             }
-            PointlightSphere {
+            ThreeLoader {
                 id: pointLight2
-                color: "#0088ff"
+                component: lightFactory
+                properties: {"color": "#0088ff"}
             }
 
             Box {
@@ -159,13 +152,6 @@ Window {
                 target: scene.position
                 controller: OrbitController {}
             }
-
-        }
-        Component.onCompleted: {
-            //pointLight1 = lightFactory.createObject(scene, {color: "#ff8888"})
-            //scene.add(pointLight1)
-            //pointLight2 = lightFactory.createObject(scene, {color: "#0088ff"})
-            //scene.add(pointLight2)
         }
 
         property real prev: 0;
@@ -173,24 +159,24 @@ Window {
         animate: function() {
             var time = Three.now() * 0.001;
 
-            pointLight1.position = Qt.vector3d(
+            pointLight1.item.position = Qt.vector3d(
                 Math.sin( time * 0.6 ) * 9,
                 Math.sin( time * 0.7 ) * 9 + 5,
                 Math.sin( time * 0.8 ) * 9);
 
             if(prev > 0) {
                 var diff = time - prev
-                pointLight1.rotateX(diff)
-                pointLight1.rotateZ(diff);
+                pointLight1.item.rotateX(diff)
+                pointLight1.item.rotateZ(diff);
 
-                pointLight2.rotateX(-diff)
-                pointLight2.rotateZ(-diff);
+                pointLight2.item.rotateX(-diff)
+                pointLight2.item.rotateZ(-diff);
             }
             prev = time
 
             time += 10000;
 
-            pointLight2.position = Qt.vector3d(
+            pointLight2.item.position = Qt.vector3d(
                 Math.sin( time * 0.6 ) * 9,
                 Math.sin( time * 0.7 ) * 9 + 5,
                 Math.sin( time * 0.8 ) * 9);

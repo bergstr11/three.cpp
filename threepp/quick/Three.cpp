@@ -21,6 +21,7 @@ Q_DECLARE_METATYPE(three::math::Euler);
 #include "threepp/quick/lights/DirectionalLight.h"
 #include "threepp/quick/lights/LightHelper.h"
 #include "threepp/quick/textures/ColorTexture.h"
+#include "threepp/quick/objects/ThreeLoader.h"
 #include "objects/Axes.h"
 #include "objects/GridLines.h"
 #include "objects/Ring.h"
@@ -131,6 +132,7 @@ void init()
   qmlRegisterType<three::quick::OrbitController>("three.quick", 1, 0, "OrbitController");
   qmlRegisterType<three::quick::ObjectDragger>("three.quick", 1, 0, "ObjectDragger");
   qmlRegisterType<three::quick::ObjectPicker>("three.quick", 1, 0, "ObjectPicker");
+  qmlRegisterType<three::quick::ThreeLoader>("three.quick", 1, 0, "ThreeLoader");
 }
 
 using namespace std;
