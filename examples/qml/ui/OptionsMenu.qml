@@ -206,6 +206,8 @@ Rectangle {
                     to: to
                     value: target.value
 
+                    property int precision: 0
+
                     onValueChanged: {
                         target.value = value
                     }
@@ -220,9 +222,11 @@ Rectangle {
 
                         Label {
                             anchors.centerIn: parent
-                            text: floatSlider.value.toFixed(2)
+                            text: floatSlider.value.toFixed(floatSlider.precision)
                         }
                     }
+                    onFromChanged: precision = from > 1 && to > from * 10 ? 0 : 2
+                    onToChanged: precision = from > 1 && to > from * 10 ? 0 : 2
                 }
             }
         }

@@ -624,7 +624,7 @@ BufferAttributeT<float>::Ptr Access::readUVChannel(unsigned index, const aiMesh 
     auto uvs = attribute::prealloc<float, UV>(ai->mNumVertices);
 
     for(unsigned i=0; i<ai->mNumVertices; i++) {
-      aiVector3t<float> &aiuv = ai->mTextureCoords[index][i];
+      const aiVector3t<float> &aiuv = ai->mTextureCoords[index][i];
       uvs->next().set(aiuv.x, aiuv.y);
     }
     return uvs;

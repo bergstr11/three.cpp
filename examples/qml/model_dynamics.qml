@@ -236,7 +236,7 @@ Window {
             to: 2
         }
         FloatValue {
-            label: "directional"
+            label: "directional/point"
             name: "intensity"
             threeD: threeD
             target: directionalLight
@@ -260,6 +260,30 @@ Window {
                 colorDialog.colorName = "color"
                 colorDialog.visible = true
             }
+        }
+    }
+    OptionsMenu {
+        id: cameraControls
+        title: "Camera"
+        anchors.top: lightControls.bottom
+        anchors.left: parent.left
+        width: 300
+        color: "transparent"
+        z: 2
+
+        FloatValue {
+            name: "near"
+            threeD: threeD
+            target: sceneCamera
+            from: 0
+            to: 1000
+        }
+        FloatValue {
+            name: "far"
+            threeD: threeD
+            target: sceneCamera
+            from: 1000
+            to: 200000
         }
     }
     OptionsMenu {
@@ -635,7 +659,7 @@ Window {
                 name: "sceneCamera"
                 fov: 30
                 aspect: threeD.width / threeD.height
-                near: 0.1
+                near: 10
                 far: 100000
                 position: "0,0,300"
 
@@ -653,7 +677,7 @@ Window {
                 PointLight {
                     id: pointLight1
                     color: "#ffffff";
-                    intensity: 0.5
+                    intensity: directionalLight.intensity
                     decay: 0
                     position: "-1525,0,600"
                     visible: false
@@ -661,7 +685,7 @@ Window {
                 PointLight {
                     id: pointLight2
                     color: "#ffffff"
-                    intensity: 0.75
+                    intensity: directionalLight.intensity
                     decay: 0
                     position: "1345,1385,600"
                     visible: false
