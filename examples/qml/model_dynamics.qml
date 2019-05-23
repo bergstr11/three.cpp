@@ -275,7 +275,7 @@ Window {
             name: "near"
             threeD: threeD
             target: sceneCamera
-            from: 0
+            from: 0.1
             to: 1000
         }
         FloatValue {

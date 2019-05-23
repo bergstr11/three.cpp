@@ -110,12 +110,14 @@ Window {
             PointLight {
                 id: light1
                 color: "#ffffff"
+                decay: 0
                 position: Qt.vector3d(2, 5, 1).times(30)
             }
             PointLight {
                 id: light2
                 color: "#ffffff"
                 intensity: 0.75
+                decay: 0
                 position: Qt.vector3d(-12, 4.6, 2.4).times(30)
             }
             AmbientLight {
